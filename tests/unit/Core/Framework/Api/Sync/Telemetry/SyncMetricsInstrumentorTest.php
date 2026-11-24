@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
@@ -162,7 +163,7 @@ class SyncMetricsInstrumentorTest extends TestCase
     {
         $this->meter = new CollectingMeter();
 
-        return new SyncMetricsInstrumentor(new Telemetry($this->meter, 'test'), new EntityGroupResolver());
+        return new SyncMetricsInstrumentor(new Telemetry($this->meter, 'test'), new EntityGroupResolver(new LabelMappingRegistry([EntityGroupResolver::MAPPING => ['product' => 'product', 'product_*' => 'product', 'order' => 'order']], 'other')));
     }
 
     private function operation(string $entity): SyncOperation

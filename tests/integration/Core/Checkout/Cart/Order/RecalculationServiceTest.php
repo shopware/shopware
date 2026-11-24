@@ -11,12 +11,14 @@ use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
@@ -375,6 +377,7 @@ class RecalculationServiceTest extends TestCase
         $this->resetDataTimestamps($cart->getLineItems());
         foreach ($cart->getDeliveries() as $delivery) {
             $this->resetDataTimestamps($delivery->getPositions()->getLineItems());
+            $delivery->setRuleIds(null);
         }
         $cart->setRuleIds([]);
         // The behaviour will be set during the process, therefore we remove it here
@@ -612,6 +615,23 @@ class RecalculationServiceTest extends TestCase
         static::assertNotNull($transaction);
         static::assertSame(OrderTransactionStates::STATE_PAID, $transaction->getStateMachineState()?->getTechnicalName());
         static::assertSame($order['total'], $transaction->getAmount()->getTotalPrice());
+    }
+
+    public function testRecalculationKeepsThePayloadOfDeliveriesAndTransactions(): void
+    {
+        $cart = $this->generateDemoCart();
+        $cart->getDeliveries()->first()?->setPayload(['group' => 'now']);
+        $cart->getTransactions()->first()?->setPayload(['psp' => 'reference-1']);
+        $order = $this->persistCart($cart);
+
+        $versionId = $this->createVersionedOrder($order['orderId']);
+        $this->addProductToVersionedOrder('Test', 10.0, 19.0, $order['orderId'], $versionId, $order['total']);
+
+        $criteria = (new Criteria([$order['orderId']]))->addAssociations(['deliveries', 'transactions']);
+        $versionedOrder = $this->orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->first();
+        static::assertNotNull($versionedOrder);
+        static::assertSame(['group' => 'now'], $versionedOrder->getDeliveries()?->first()?->getPayload());
+        static::assertSame(['psp' => 'reference-1'], $versionedOrder->getTransactions()?->first()?->getPayload());
     }
 
     #[DataProvider('liveTransactionTransitionProvider')]
@@ -985,6 +1005,56 @@ class RecalculationServiceTest extends TestCase
         // both initial products plus the newly added one keep a shipping position; the discount delivery has none
         static::assertCount(3, $shipping->getPositions() ?? []);
         static::assertCount(0, $discount->getPositions() ?? []);
+    }
+
+    public function testRecalculationKeepsThePositionOfEveryDelivery(): void
+    {
+        $cart = $this->generateDemoCart();
+        $delivery = $cart->getDeliveries()->first();
+        static::assertNotNull($delivery);
+        [$firstPosition, $secondPosition] = array_values($delivery->getPositions()->getElements());
+
+        $split = static function (DeliveryPosition $position, float $shippingCosts, string $id) use ($delivery): Delivery {
+            $positions = new DeliveryPositionCollection();
+            $positions->add($position);
+
+            $split = new Delivery(
+                $positions,
+                $delivery->getDeliveryDate(),
+                $delivery->getShippingMethod(),
+                $delivery->getLocation(),
+                new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection())
+            );
+            $split->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($id));
+
+            return $split;
+        };
+
+        // the expensive delivery gets the lower id, so the recalculation loads it first
+        $ids = [Uuid::randomHex(), Uuid::randomHex()];
+        sort($ids);
+        [$expensiveId, $cheapId] = $ids;
+
+        $cart->setDeliveries(new DeliveryCollection([
+            $split($firstPosition, 1.0, $cheapId),
+            $split($secondPosition, 10.0, $expensiveId),
+        ]));
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        $versionContext = $this->context->createWithVersionId($this->createVersionedOrder($orderId));
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        foreach ([$this->context, $versionContext] as $context) {
+            $order = $this->orderRepository->search((new Criteria([$orderId]))->addAssociation('deliveries'), $context)->getEntities()->first();
+            static::assertNotNull($order);
+            static::assertSame($expensiveId, $order->getPrimaryOrderDeliveryId());
+
+            $deliveries = $order->getDeliveries();
+            static::assertNotNull($deliveries);
+            static::assertSame(1, $deliveries->get($cheapId)?->getPosition());
+            static::assertSame(2, $deliveries->get($expensiveId)?->getPosition());
+            static::assertSame([$cheapId, $expensiveId], $deliveries->getShipments($order->getPrimaryOrderDeliveryId())->getKeys());
+        }
     }
 
     public function testRecalculationOfPinnedDisabledPromotion(): void

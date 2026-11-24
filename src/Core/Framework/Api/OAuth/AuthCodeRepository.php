@@ -53,6 +53,24 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
         $this->cleanUpExpiredAuthCodes();
     }
 
+    /**
+     * Stores the RFC 8707 resource the authorization code was issued for.
+     */
+    public function bindResource(string $codeId, string $resource): void
+    {
+        $this->connection->update('oauth_auth_code', ['resource' => $resource], ['code_id' => $codeId]);
+    }
+
+    public function getResource(string $codeId): ?string
+    {
+        $resource = $this->connection->fetchOne(
+            'SELECT resource FROM oauth_auth_code WHERE code_id = :codeId',
+            ['codeId' => $codeId]
+        );
+
+        return \is_string($resource) ? $resource : null;
+    }
+
     public function revokeAuthCode(string $codeId): void
     {
         $this->connection->delete('oauth_auth_code', ['code_id' => $codeId]);

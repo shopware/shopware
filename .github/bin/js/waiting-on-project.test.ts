@@ -37,7 +37,15 @@ const item = (overrides: Partial<ProjectItem> = {}): ProjectItem => ({
 });
 
 const schema: ProjectSchema = resolveSchema('PROJECT', [
-    { id: 'F_WAITING', name: 'Waiting on', dataType: 'SINGLE_SELECT', options: [{ id: 'O_SHOPWARE', name: 'shopware' }, { id: 'O_AUTHOR', name: 'author' }] },
+    {
+        id: 'F_WAITING',
+        name: 'Waiting on',
+        dataType: 'SINGLE_SELECT',
+        options: [
+            { id: 'O_SHOPWARE', name: 'shopware' },
+            { id: 'O_AUTHOR', name: 'author' },
+        ],
+    },
     { id: 'F_REASON', name: 'Reason', dataType: 'SINGLE_SELECT', options: [{ id: 'O_CHANGES', name: 'changes-requested' }] },
     { id: 'F_SINCE', name: 'Waiting since', dataType: 'DATE' },
 ]);
@@ -61,11 +69,16 @@ test('only the fields that changed are written', () => {
 });
 
 test('an item whose pull request is no longer open is archived', () => {
-    assert.deepEqual(planProjectChanges([row()], [item(), item({ id: 'ITEM_2', pullRequestId: 'PR_2' })]), [{ kind: 'archive', itemId: 'ITEM_2' }]);
+    assert.deepEqual(planProjectChanges([row()], [item(), item({ id: 'ITEM_2', pullRequestId: 'PR_2' })]), [
+        { kind: 'archive', itemId: 'ITEM_2' },
+    ]);
 });
 
 test('a team project leaves items the sweep did not produce alone', () => {
-    assert.deepEqual(planProjectChanges([row()], [item(), item({ id: 'ITEM_2', pullRequestId: 'PR_2' })], { archive: false }), []);
+    assert.deepEqual(
+        planProjectChanges([row()], [item(), item({ id: 'ITEM_2', pullRequestId: 'PR_2' })], { archive: false }),
+        [],
+    );
 });
 
 test('parseTeamProjects maps a team label to a project number', () => {
@@ -83,11 +96,12 @@ test('parseTeamProjects rejects anything but a label to a project number', () =>
 test('resolveSchema names the field it cannot find', () => {
     assert.throws(() => resolveSchema('PROJECT', []), /SINGLE_SELECT field named "Waiting on"/);
     assert.throws(
-        () => resolveSchema('PROJECT', [
-            { id: 'F_WAITING', name: 'Waiting on', dataType: 'SINGLE_SELECT' },
-            { id: 'F_REASON', name: 'Reason', dataType: 'SINGLE_SELECT' },
-            { id: 'F_SINCE', name: 'Waiting since', dataType: 'TEXT' },
-        ]),
+        () =>
+            resolveSchema('PROJECT', [
+                { id: 'F_WAITING', name: 'Waiting on', dataType: 'SINGLE_SELECT' },
+                { id: 'F_REASON', name: 'Reason', dataType: 'SINGLE_SELECT' },
+                { id: 'F_SINCE', name: 'Waiting since', dataType: 'TEXT' },
+            ]),
         /DATE field named "Waiting since"/,
     );
 });
@@ -107,7 +121,11 @@ test('toProjectItems keeps only this repository and reads the field values by na
                     ],
                 },
             },
-            { id: 'ITEM_2', content: { id: 'PR_9', repository: { nameWithOwner: 'shopware/SwagCommercial' } }, fieldValues: { nodes: [] } },
+            {
+                id: 'ITEM_2',
+                content: { id: 'PR_9', repository: { nameWithOwner: 'shopware/SwagCommercial' } },
+                fieldValues: { nodes: [] },
+            },
             { id: 'ITEM_3', content: {}, fieldValues: { nodes: [] } },
         ],
         'shopware/shopware',
@@ -118,7 +136,12 @@ test('toProjectItems keeps only this repository and reads the field values by na
 
 test('buildFieldMutation sets every field in one request and skips an option the project lacks', () => {
     const warnings: string[] = [];
-    const mutation = buildFieldMutation(schema, 'ITEM_1', { waitingOn: 'author', reason: 'our-turn', since: '2026-09-01' }, { warning: (message) => warnings.push(message) });
+    const mutation = buildFieldMutation(
+        schema,
+        'ITEM_1',
+        { waitingOn: 'author', reason: 'our-turn', since: '2026-09-01' },
+        { warning: (message) => warnings.push(message) },
+    );
 
     assert.ok(mutation);
     assert.match(mutation.query, /waitingOn: updateProjectV2ItemFieldValue/);
@@ -148,7 +171,9 @@ test('applyProjectChanges sets the fields on the item it just added and carries 
                 throw new Error('Could not resolve to a node');
             }
 
-            return (query.includes('addProjectV2ItemById') ? { addProjectV2ItemById: { item: { id: 'ITEM_NEW' } } } : {}) as T;
+            return (
+                query.includes('addProjectV2ItemById') ? { addProjectV2ItemById: { item: { id: 'ITEM_NEW' } } } : {}
+            ) as T;
         },
     };
     const errors: string[] = [];
@@ -167,7 +192,10 @@ test('applyProjectChanges sets the fields on the item it just added and carries 
 
     assert.deepEqual(failed, ['item ITEM_BROKEN']);
     assert.equal(errors.length, 1);
-    assert.deepEqual(calls.slice(1).map((variables) => variables.itemId ?? variables.contentId), ['PR_1', 'ITEM_NEW']);
+    assert.deepEqual(
+        calls.slice(1).map((variables) => variables.itemId ?? variables.contentId),
+        ['PR_1', 'ITEM_NEW'],
+    );
 });
 
 const pullRequestNode = (id: string, pullRequestId: string) => ({
@@ -208,13 +236,31 @@ test('fetchProject reads a page item by item when the page fails, and skips the 
                 throw new Error('Something went wrong');
             }
 
-            return { organization: { projectV2: { items: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: [{ id: 'ITEM_1' }, { id: 'ITEM_BAD' }, { id: 'ITEM_2' }] } } } } as T;
+            return {
+                organization: {
+                    projectV2: {
+                        items: {
+                            pageInfo: { hasNextPage: false, endCursor: null },
+                            nodes: [{ id: 'ITEM_1' }, { id: 'ITEM_BAD' }, { id: 'ITEM_2' }],
+                        },
+                    },
+                },
+            } as T;
         },
     };
 
-    const { items } = await fetchProject(github, { warning: (message) => warnings.push(message) }, 'shopware', 69, 'shopware/shopware');
+    const { items } = await fetchProject(
+        github,
+        { warning: (message) => warnings.push(message) },
+        'shopware',
+        69,
+        'shopware/shopware',
+    );
 
-    assert.deepEqual(items.map((candidate) => candidate.id), ['ITEM_1', 'ITEM_2']);
+    assert.deepEqual(
+        items.map((candidate) => candidate.id),
+        ['ITEM_1', 'ITEM_2'],
+    );
     assert.equal(warnings.length, 1);
     assert.match(warnings[0], /ITEM_BAD.*Something went wrong/);
 });
@@ -225,13 +271,30 @@ test('fetchProject does not read item by item while the pages succeed', async ()
         async graphql<T>(query: string): Promise<T> {
             queries.push(query);
 
-            return (query.includes('fields(first: 50)')
-                ? schemaPage
-                : { organization: { projectV2: { items: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: [pullRequestNode('ITEM_1', 'PR_1')] } } } }) as T;
+            return (
+                query.includes('fields(first: 50)')
+                    ? schemaPage
+                    : {
+                          organization: {
+                              projectV2: {
+                                  items: {
+                                      pageInfo: { hasNextPage: false, endCursor: null },
+                                      nodes: [pullRequestNode('ITEM_1', 'PR_1')],
+                                  },
+                              },
+                          },
+                      }
+            ) as T;
         },
     };
 
-    const { items } = await fetchProject(github, { warning: () => assert.fail('no warning expected') }, 'shopware', 69, 'shopware/shopware');
+    const { items } = await fetchProject(
+        github,
+        { warning: () => assert.fail('no warning expected') },
+        'shopware',
+        69,
+        'shopware/shopware',
+    );
 
     assert.equal(items.length, 1);
     assert.equal(queries.length, 2);

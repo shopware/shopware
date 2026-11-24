@@ -3,19 +3,24 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolRequiresNoPrivilege;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
 use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
-#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List the MCP toolsets and whether each is enabled for the current session, either in the connect URL or with shopware-toolset-enable. Use this when no advertised tool fits the task: a toolset\'s tools become available once you enable it.')]
+#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false), description: 'List the MCP toolsets and whether each is enabled for the current session, either in the connect URL or with shopware-toolset-enable. Use this when no advertised tool fits the task: a toolset\'s tools become available once you enable it.')]
 #[McpToolGroup('discovery')]
+#[McpToolRequiresNoPrivilege(reason: 'Discovery meta-tool, it only returns capabilities the allowlist of the caller already permits.')]
 class ToolsetsListTool extends McpToolResponse
 {
     /**
@@ -29,12 +34,18 @@ class ToolsetsListTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
+        // Not advertised on the stateless era (2026-07-28): which toolsets are enabled is session state,
+        // and there is no toolset-enable to follow up with. See McpProtocolEra::HIDDEN_ON_STATELESS_ERA.
+        if (McpProtocolEra::isStateless($this->requestStack->getMainRequest())) {
+            return $this->errorResult(McpProtocolEra::toolsetToolUnavailableMessage(McpToolsetRegistry::LIST_TOOLSETS_TOOL));
+        }
+
         $enabledToolsets = $this->enabledToolsets();
         $areAllToolsetsEnabled = \in_array(McpToolsetRegistry::ALL_TOOLSETS, $enabledToolsets, true);
 
-        return $this->success([
+        return $this->successResult([
             'toolsets' => array_map(
                 static fn (array $toolset): array => [
                     ...$toolset,

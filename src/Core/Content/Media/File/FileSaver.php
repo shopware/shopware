@@ -7,6 +7,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
+use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -74,7 +76,18 @@ class FileSaver
         );
 
         $this->extensionValidator->validate($mediaFile->getFileExtension(), $currentMedia->isPrivate(), $context, $mediaId);
+        $this->extensionValidator->validateContentType($mediaFile->getFileExtension(), $mediaFile->getMimeType());
         $this->fileContentValidationStrategy->validate($mediaFile);
+
+        if ($currentMedia->hasFile()) {
+            $this->eventDispatcher->dispatch(new BeforeMediaFileReplacedEvent(
+                $mediaId,
+                $mediaFile->getFileExtension(),
+                $mediaFile->getMimeType(),
+                $mediaFile->getFileSize(),
+                $context,
+            ));
+        }
 
         $this->cleanup->removeOldMediaData($currentMedia, $context);
 
@@ -117,7 +130,20 @@ class FileSaver
             $context
         );
 
+        if (MediaUploadService::isExternalUrl($currentMedia->getPath())) {
+            $this->renameExternalMedia($currentMedia, $destination, $context);
+
+            return;
+        }
+
         $this->doRenameMedia($currentMedia, $destination, $context);
+    }
+
+    private function renameExternalMedia(MediaEntity $media, string $destination, Context $context): void
+    {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($media, $destination): void {
+            $this->mediaRepository->update([['id' => $media->getId(), 'fileName' => $destination]], $context);
+        });
     }
 
     private function doRenameMedia(MediaEntity $media, string $destination, Context $context): void

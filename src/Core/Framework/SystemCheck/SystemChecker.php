@@ -21,7 +21,7 @@ class SystemChecker
      */
     public function __construct(
         private readonly iterable $checks,
-        private readonly ?SystemCheckResultStore $resultStore = null,
+        private readonly SystemCheckResultStorage $resultStorage,
     ) {
     }
 
@@ -36,7 +36,7 @@ class SystemChecker
         $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf('Check not allowed to run in this execution context: %s', $context->name));
 
         // only checks that ran are stored: a skip says nothing about the check and would overwrite its last real result
-        $this->resultStore?->save($executedResults, $context);
+        $this->resultStorage->save($executedResults, $context);
 
         return array_merge($results, $skippedChecksResults);
     }

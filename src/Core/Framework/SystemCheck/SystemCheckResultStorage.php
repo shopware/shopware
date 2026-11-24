@@ -8,8 +8,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
-use Shopware\Core\Framework\SystemCheck\Check\Status;
-use Shopware\Core\Framework\SystemCheck\Check\StoredResult;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 
 /**
@@ -19,7 +17,7 @@ use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
  * @internal
  */
 #[Package('framework')]
-class SystemCheckResultStore
+class SystemCheckResultStorage
 {
     public function __construct(
         private readonly Connection $connection,
@@ -58,47 +56,5 @@ class SystemCheckResultStore
                 $this->logger->warning('Could not store the system check result', ['check' => $result->name, 'exception' => $e]);
             }
         }
-    }
-
-    /**
-     * @return array<string, StoredResult> keyed by check name
-     */
-    public function all(): array
-    {
-        $stored = [];
-        foreach ($this->connection->fetchAllAssociative('SELECT name, status, healthy, message, extra, execution_context, checked_at FROM system_check_result') as $row) {
-            $status = self::status((string) $row['status']);
-            $context = SystemCheckExecutionContext::tryFrom((string) $row['execution_context']);
-
-            // a row written by another version that this one cannot read is left out
-            if ($status === null || $context === null) {
-                continue;
-            }
-
-            $stored[(string) $row['name']] = new StoredResult(
-                new Result(
-                    name: (string) $row['name'],
-                    status: $status,
-                    message: (string) $row['message'],
-                    healthy: $row['healthy'] === null ? null : (bool) $row['healthy'],
-                    extra: $row['extra'] === null ? [] : (array) json_decode((string) $row['extra'], true, flags: \JSON_THROW_ON_ERROR),
-                ),
-                $context,
-                new \DateTimeImmutable((string) $row['checked_at'], new \DateTimeZone('UTC')),
-            );
-        }
-
-        return $stored;
-    }
-
-    private static function status(string $name): ?Status
-    {
-        foreach (Status::cases() as $status) {
-            if ($status->name === $name) {
-                return $status;
-            }
-        }
-
-        return null;
     }
 }

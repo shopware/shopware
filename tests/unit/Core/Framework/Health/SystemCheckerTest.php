@@ -11,7 +11,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
-use Shopware\Core\Framework\SystemCheck\SystemCheckResultStore;
+use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 
 /**
  * @internal
@@ -26,7 +26,7 @@ class SystemCheckerTest extends TestCase
         $secondCheck = $this->createMock(BaseCheck::class);
         $checks = [$firstCheck, $secondCheck];
 
-        $checker = new SystemChecker($checks);
+        $checker = new SystemChecker($checks, static::createStub(SystemCheckResultStorage::class));
         $context = SystemCheckExecutionContext::WEB;
         $result = new Result('test', Status::OK, 'test', true, []);
 
@@ -51,7 +51,7 @@ class SystemCheckerTest extends TestCase
         $secondCheck = $this->createMock(BaseCheck::class);
         $checks = [$firstCheck, $secondCheck];
 
-        $checker = new SystemChecker($checks);
+        $checker = new SystemChecker($checks, static::createStub(SystemCheckResultStorage::class));
         $context = SystemCheckExecutionContext::WEB;
         $resultForRunningTest = new Result('test', Status::OK, 'test', true, []);
         $skippedResult = new Result('test', Status::SKIPPED, 'Check not allowed to run in this execution context: WEB', null, []);
@@ -75,7 +75,7 @@ class SystemCheckerTest extends TestCase
         $highPriorityCheck = $this->createMock(BaseCheck::class);
         $lowPriorityCheck = $this->createMock(BaseCheck::class);
 
-        $checker = new SystemChecker([$highPriorityCheck, $lowPriorityCheck]);
+        $checker = new SystemChecker([$highPriorityCheck, $lowPriorityCheck], static::createStub(SystemCheckResultStorage::class));
         $context = SystemCheckExecutionContext::WEB;
         $result = new Result('test', Status::ERROR, 'test', false, []);
         $skippedResult = new Result('test', Status::SKIPPED, 'Check is not run due to previous failed checks.', null, []);
@@ -107,10 +107,10 @@ class SystemCheckerTest extends TestCase
         $allowed->method('category')->willReturn(Category::EXTERNAL);
         $allowed->method('run')->willReturn($ran);
 
-        $store = $this->createMock(SystemCheckResultStore::class);
-        $store->expects($this->once())->method('save')->with([$ran], SystemCheckExecutionContext::CLI);
+        $storage = $this->createMock(SystemCheckResultStorage::class);
+        $storage->expects($this->once())->method('save')->with([$ran], SystemCheckExecutionContext::CLI);
 
-        (new SystemChecker([$notAllowed, $allowed], $store))->check(SystemCheckExecutionContext::CLI);
+        (new SystemChecker([$notAllowed, $allowed], $storage))->check(SystemCheckExecutionContext::CLI);
     }
 
     public function testDoesNotStoreChecksSkippedAfterAFailedSystemCheck(): void
@@ -127,9 +127,9 @@ class SystemCheckerTest extends TestCase
         $featureCheck->method('name')->willReturn('feature');
         $featureCheck->expects($this->never())->method('run');
 
-        $store = $this->createMock(SystemCheckResultStore::class);
-        $store->expects($this->once())->method('save')->with([$failed], SystemCheckExecutionContext::CLI);
+        $storage = $this->createMock(SystemCheckResultStorage::class);
+        $storage->expects($this->once())->method('save')->with([$failed], SystemCheckExecutionContext::CLI);
 
-        (new SystemChecker([$systemCheck, $featureCheck], $store))->check(SystemCheckExecutionContext::CLI);
+        (new SystemChecker([$systemCheck, $featureCheck], $storage))->check(SystemCheckExecutionContext::CLI);
     }
 }

@@ -100,10 +100,10 @@ sequenceDiagram
 
 Getting a new ShopId or removing its apps is the last moment the copy still holds the secret production needs.
 
-The copy only keeps secrets if it took over production. It can tell from the shop URL it has stored as its own:
+The copy only keeps secrets if it took over production. It can tell from the ShopId check, which compares the stored APP_URL, installation path and sales channel domains with the running shop:
 
-- After "Move shop permanently", staging has `https://staging.shop.example` stored, which is where it runs. It took over, so it keeps the secret.
-- A fresh copy still has production's `https://shop.example` stored. It never took over, so it keeps nothing.
+- After "Move shop permanently", staging has its own details stored, like `https://staging.shop.example`, so the check passes. It took over, so it keeps the secret.
+- A fresh copy still has production's details stored, like `https://shop.example`, so the check fails. It never took over, so it keeps nothing.
 
 For each app, the copy keeps its current secret.
 If a registration broke off halfway, it also keeps the secret from that attempt, since the app may already expect it.
@@ -143,7 +143,7 @@ Moving the secrets from the copy to production safely, for example through a pas
 | A recovery token: the copy signs a short note with its secret, and production sends it along when it registers | Every app would have to update its SDK first, and it adds a new way for an app to accept an old secret. Tokens apps already get from shops are signed the same way, so they could pass as a recovery token. |
 | The copy tells the app with a webhook when it gets a new ShopId | The app has to store every message and judge it by the URLs each shop reports about itself. |
 | Keep nothing, print the copy's secret when needed | Only works before the copy runs `reinstall-apps`. After that the secret is gone. |
-| The copy names production's ShopId when it registers as a new shop | `uninstall-apps` and `system:setup:staging` don't register at all. The extra field would also break every deployed app, because the SDK only checks [part of the signed request](https://github.com/shopware/app-php-sdk/blob/976bd3a993619ac80482d630ca312020033552ad/src/Authentication/RequestVerifier.php#L192-L199). |
+| The copy names production's ShopId when it registers as a new shop | `uninstall-apps` and `system:setup:staging` without `--reinstall-apps` don't register at all. The extra field would also break every deployed app, because the SDK only checks [part of the signed request](https://github.com/shopware/app-php-sdk/blob/976bd3a993619ac80482d630ca312020033552ad/src/Authentication/RequestVerifier.php#L192-L199). |
 | Store the shop's identity outside the database | It can be copied too, and it can't undo a takeover that already happened. |
 | Store app data by ShopId and URL together | Changes how app data is stored and how real moves work, and copies can share a URL. |
 | Recover through `app:secret:rotate --adopt-secrets` | Mixes two jobs in one command: giving the shop a new secret, and registering with a secret from another shop. |

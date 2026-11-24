@@ -8,6 +8,14 @@ Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now
 PHP configuration files also receive the current environment through `$container->env()`.
 Check existing environment-specific configuration that was previously ignored, including Monolog handler levels.
 
+### Regenerating a document keeps its deep link and its stored files
+
+`DocumentGenerator::generate()` with the id of an existing document now keeps the document's deep link code and its stored PDF and HTML files, and renders only the file type that is missing.
+Before, every regeneration created a new deep link code and replaced both files: asking for the HTML of a PDF-only document unlinked its PDF, and documents created before 6.7 never got their HTML file.
+While a stored file is kept, the document also keeps its order version and config, and the generated document in the result carries that order version.
+The missing file is rendered from the current order.
+To get fresh files for an existing document, generate a new document instead of regenerating it.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

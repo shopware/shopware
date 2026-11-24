@@ -13,7 +13,7 @@ class LastIdQuery implements IterableQuery
 {
     private int|string|null $lastId = null;
 
-    public function __construct(private readonly QueryBuilder $query)
+    public function __construct(private readonly QueryBuilder $query, private ?string $initialUuidPredicate = null)
     {
     }
 
@@ -25,7 +25,12 @@ class LastIdQuery implements IterableQuery
         }
 
         $lastId = array_key_last($data);
-        $binary = $this->query->getParameterType('lastId') === ParameterType::BINARY;
+        $binary = $this->initialUuidPredicate !== null || $this->query->getParameterType('lastId') === ParameterType::BINARY;
+        if ($this->initialUuidPredicate !== null) {
+            $this->query->andWhere($this->initialUuidPredicate);
+            $this->initialUuidPredicate = null;
+        }
+
         $this->lastId = $binary ? Uuid::fromBytesToHex((string) $lastId) : (int) $lastId;
 
         $this->query->setParameter('lastId', $binary ? (string) $lastId : $this->lastId, $binary ? ParameterType::BINARY : ParameterType::INTEGER);

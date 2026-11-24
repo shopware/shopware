@@ -60,12 +60,15 @@ class IteratorFactoryTest extends TestCase
         $this->restrictToFixtureIds($iterator);
 
         static::assertInstanceOf(LastIdQuery::class, $iterator);
+        static::assertStringNotContainsString(':lastId', $iterator->getQuery()->getSQL());
         static::assertSame(3, $iterator->fetchCount());
         static::assertSame(\array_slice($this->ids, 0, 2), array_values($iterator->fetch()));
         static::assertSame(['offset' => $this->ids[1]], $iterator->getOffset());
-
         $offset = json_decode(json_encode($iterator->getOffset(), \JSON_THROW_ON_ERROR), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(['offset' => $this->ids[1]], $offset);
+        static::assertStringContainsString('.id > :lastId', $iterator->getQuery()->getSQL());
+        static::assertSame(1, $iterator->fetchCount());
+        static::assertSame([$this->ids[2]], array_values($iterator->fetch()));
 
         $this->connection->delete('media', ['id' => Uuid::fromHexToBytes($this->ids[0])]);
         $resumed = $this->factory->createIterator('media', $offset, limit: 2);

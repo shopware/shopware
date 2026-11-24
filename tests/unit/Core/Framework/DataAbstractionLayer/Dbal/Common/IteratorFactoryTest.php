@@ -49,8 +49,7 @@ class IteratorFactoryTest extends TestCase
         $iterator = $this->factory->createIterator('media', limit: 100);
 
         static::assertInstanceOf(LastIdQuery::class, $iterator);
-        static::assertSame('', $iterator->getQuery()->getParameter('lastId'));
-        static::assertSame(ParameterType::BINARY, $iterator->getQuery()->getParameterType('lastId'));
+        static::assertArrayNotHasKey('lastId', $iterator->getQuery()->getParameters());
         static::assertSame(100, $iterator->getQuery()->getMaxResults());
     }
 

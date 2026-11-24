@@ -34,6 +34,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@cyclonedx/cyclonedx-library": "10.0.0",
     "@popperjs/core": "2.11.8",
     "@shopware-ag/dive": "4.1.0",
     "@swc/core": "1.10.14",
@@ -54,6 +55,7 @@
     "postcss-loader": "8.1.1",
     "postcss-pxtorem": "6.1.0",
     "qrcode": "1.5.4",
+    "rollup-plugin-sbom": "3.2.3",
     "sass": "1.83.4",
     "sass-loader": "16.0.4",
     "style-loader": "4.0.0",
@@ -74,7 +76,6 @@
     "@babel/plugin-proposal-decorators": "7.23.7",
     "@babel/preset-env": "7.23.7",
     "@babel/preset-typescript": "7.23.3",
-    "@cyclonedx/cyclonedx-library": "10.0.0",
     "@eslint/js": "9.39.3",
     "@eslint/json": "2.0.0",
     "@storybook/addon-docs": "10.6.3",
@@ -98,7 +99,6 @@
     "license-checker-rseidelsohn": "4.3.0",
     "lodash.get": "4.4.2",
     "prettier": "3.5.3",
-    "rollup-plugin-sbom": "3.2.3",
     "sass-embedded": "1.97.3",
     "storybook": "10.6.3",
     "stylelint": "16.16.0",

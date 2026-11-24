@@ -18,6 +18,7 @@ use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
@@ -52,7 +53,8 @@ class LandingPageLoaderTest extends TestCase
         $landingPageLoader = new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $landingPageRouteMock,
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class)
         );
 
         $request = new Request([], [], []);
@@ -70,7 +72,8 @@ class LandingPageLoaderTest extends TestCase
         $landingPageLoader = new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $landingPageRouteMock,
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class)
         );
 
         $landingPageId = Uuid::randomHex();
@@ -128,6 +131,7 @@ class LandingPageLoaderTest extends TestCase
             static::createStub(GenericPageLoader::class),
             $this->createLandingPageRoute($landingPage, $request, $context),
             static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class),
             $contentRoute,
         );
 
@@ -170,6 +174,7 @@ class LandingPageLoaderTest extends TestCase
             static::createStub(GenericPageLoader::class),
             $this->createLandingPageRoute($landingPage, $request, $context),
             static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class),
             $contentRoute,
         );
 
@@ -203,6 +208,7 @@ class LandingPageLoaderTest extends TestCase
             static::createStub(GenericPageLoader::class),
             $this->createLandingPageRoute($landingPage, $request, $context),
             static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class),
             $contentRoute,
         );
 
@@ -306,7 +312,8 @@ class LandingPageLoaderTest extends TestCase
         return new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $this->createLandingPageRoute($landingPage, $request, $salesChannelContext),
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class)
         );
     }
 
@@ -332,7 +339,8 @@ class LandingPageLoaderTest extends TestCase
         return new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $this->createLandingPageRoute($landingPage, $request, $salesChannelContext),
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class)
         );
     }
 

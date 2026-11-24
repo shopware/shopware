@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
-use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -42,7 +41,7 @@ class SystemCheckResultStorageTest extends TestCase
         $this->storage->save([
             new Result('AppUrlVerification', Status::OK, 'APP_URL points to this shop', true, ['statusCode' => 204, 'responseTime' => 0.5]),
             new Result('LocalesReadiness', Status::WARNING, 'Some locales are invalid', null),
-        ], SystemCheckExecutionContext::CLI);
+        ]);
 
         static::assertSame([
             [
@@ -51,7 +50,6 @@ class SystemCheckResultStorageTest extends TestCase
                 'healthy' => 1,
                 'message' => 'APP_URL points to this shop',
                 'extra' => ['statusCode' => 204, 'responseTime' => 0.5],
-                'execution_context' => 'cli',
                 'checked_at' => '2026-11-24 10:00:00.000',
             ],
             [
@@ -60,7 +58,6 @@ class SystemCheckResultStorageTest extends TestCase
                 'healthy' => null,
                 'message' => 'Some locales are invalid',
                 'extra' => [],
-                'execution_context' => 'cli',
                 'checked_at' => '2026-11-24 10:00:00.000',
             ],
         ], $this->rows());
@@ -68,16 +65,15 @@ class SystemCheckResultStorageTest extends TestCase
 
     public function testALaterRunOverwritesTheStoredResult(): void
     {
-        $this->storage->save([new Result('AppUrlVerification', Status::OK, 'APP_URL points to this shop', true)], SystemCheckExecutionContext::CLI);
+        $this->storage->save([new Result('AppUrlVerification', Status::OK, 'APP_URL points to this shop', true)]);
 
         $this->clock->modify('+1 hour');
-        $this->storage->save([new Result('AppUrlVerification', Status::ERROR, 'APP_URL does not point to this shop', false)], SystemCheckExecutionContext::RECURRENT);
+        $this->storage->save([new Result('AppUrlVerification', Status::ERROR, 'APP_URL does not point to this shop', false)]);
 
         $rows = $this->rows();
 
         static::assertCount(1, $rows);
         static::assertSame('ERROR', $rows[0]['status']);
-        static::assertSame('recurrent', $rows[0]['execution_context']);
         static::assertSame('2026-11-24 11:00:00.000', $rows[0]['checked_at']);
     }
 
@@ -86,7 +82,7 @@ class SystemCheckResultStorageTest extends TestCase
      */
     private function rows(): array
     {
-        $rows = $this->connection->fetchAllAssociative('SELECT name, status, healthy, message, extra, execution_context, checked_at FROM system_check_result ORDER BY name');
+        $rows = $this->connection->fetchAllAssociative('SELECT name, status, healthy, message, extra, checked_at FROM system_check_result ORDER BY name');
 
         return array_map(static fn (array $row) => [
             ...$row,

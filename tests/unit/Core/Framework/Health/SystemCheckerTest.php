@@ -108,7 +108,7 @@ class SystemCheckerTest extends TestCase
         $allowed->method('run')->willReturn($ran);
 
         $storage = $this->createMock(SystemCheckResultStorage::class);
-        $storage->expects($this->once())->method('save')->with([$ran], SystemCheckExecutionContext::CLI);
+        $storage->expects($this->once())->method('save')->with([$ran]);
 
         (new SystemChecker([$notAllowed, $allowed], $storage))->check(SystemCheckExecutionContext::CLI);
     }
@@ -128,7 +128,7 @@ class SystemCheckerTest extends TestCase
         $featureCheck->expects($this->never())->method('run');
 
         $storage = $this->createMock(SystemCheckResultStorage::class);
-        $storage->expects($this->once())->method('save')->with([$failed], SystemCheckExecutionContext::CLI);
+        $storage->expects($this->once())->method('save')->with([$failed]);
 
         (new SystemChecker([$systemCheck, $featureCheck], $storage))->check(SystemCheckExecutionContext::CLI);
     }

@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
-use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Symfony\Component\Clock\MockClock;
 
@@ -26,6 +25,6 @@ class SystemCheckResultStorageTest extends TestCase
         $connection->expects($this->once())->method('transactional')->willThrowException(static::createStub(TableNotFoundException::class));
 
         $storage = new SystemCheckResultStorage($connection, new MockClock());
-        $storage->save([new Result('AppUrlVerification', Status::OK, 'APP_URL points to this shop', true)], SystemCheckExecutionContext::CLI);
+        $storage->save([new Result('AppUrlVerification', Status::OK, 'APP_URL points to this shop', true)]);
     }
 }

@@ -37,8 +37,7 @@ class SystemChecker
 
         // a skip says nothing about the check and would overwrite its last real result
         $this->resultStorage->save(
-            array_filter($results, static fn (Result $result) => $result->status !== Status::SKIPPED),
-            $context
+            array_filter($results, static fn (Result $result) => $result->status !== Status::SKIPPED)
         );
 
         return array_merge($results, $skippedChecksResults);

@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
-use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 
 /**
  * @internal
@@ -25,7 +24,7 @@ class SystemCheckResultStorage
     /**
      * @param array<Result> $results
      */
-    public function save(array $results, SystemCheckExecutionContext $context): void
+    public function save(array $results): void
     {
         $checkedAt = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $queue = new MultiInsertQueryQueue($this->connection, useReplace: true);
@@ -38,7 +37,6 @@ class SystemCheckResultStorage
                     'healthy' => $result->healthy === null ? null : (int) $result->healthy,
                     'message' => $result->message,
                     'extra' => json_encode($result->extra, \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION),
-                    'execution_context' => $context->value,
                     'checked_at' => $checkedAt,
                 ]);
             }

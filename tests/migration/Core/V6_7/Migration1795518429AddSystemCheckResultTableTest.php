@@ -43,7 +43,7 @@ class Migration1795518429AddSystemCheckResultTableTest extends TestCase
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'system_check_result'));
         static::assertSame(
-            ['name', 'status', 'healthy', 'message', 'extra', 'execution_context', 'checked_at'],
+            ['name', 'status', 'healthy', 'message', 'extra', 'checked_at'],
             $this->connection->fetchFirstColumn(
                 'SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table ORDER BY ORDINAL_POSITION',
                 ['table' => 'system_check_result']

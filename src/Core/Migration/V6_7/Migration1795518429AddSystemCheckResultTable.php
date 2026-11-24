@@ -26,7 +26,6 @@ class Migration1795518429AddSystemCheckResultTable extends MigrationStep
                 `healthy`           TINYINT(1)   NULL,
                 `message`           LONGTEXT     NOT NULL,
                 `extra`             JSON         NULL,
-                `execution_context` VARCHAR(32)  NOT NULL,
                 `checked_at`        DATETIME(3)  NOT NULL,
                 PRIMARY KEY (`name`),
                 CONSTRAINT `json.system_check_result.extra` CHECK (JSON_VALID(`extra`))

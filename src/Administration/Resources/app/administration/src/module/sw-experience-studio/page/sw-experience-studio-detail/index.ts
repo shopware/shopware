@@ -662,10 +662,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async openWorkspace(id: string): Promise<void> {
-            await this.layoutTypesRequest;
             this.isLoading = true;
             this.workspaceError = false;
             try {
+                await this.layoutTypesRequest;
                 const workspace = await this.workspaceStore.get(id);
                 const configuration = copyWorkspaceConfiguration(workspace.configuration);
                 const { openLayouts, missingReferences } = await this.restoreWorkspaceLayouts(configuration);
@@ -747,9 +747,12 @@ export default Shopware.Component.wrapComponentConfig({
             let missingReference = false;
             const entityType = this.resolvePreviewContext(item.layout)?.entityType;
             if (!entityType) {
-                if (this.layoutTypeLoadError === null) {
-                    item.previewEntityId = null;
+                if (this.layoutTypeLoadError !== null) {
+                    // A failed entity-types request does not establish that the saved preview entity is invalid.
+                    return false;
                 }
+
+                item.previewEntityId = null;
 
                 return false;
             }
@@ -1046,7 +1049,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async openLayoutById(layoutId: string): Promise<void> {
-            await this.layoutTypesRequest;
             const existingLayout = this.openLayouts.find((item) => item.id === layoutId);
 
             if (existingLayout) {
@@ -1059,6 +1061,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
+                await this.layoutTypesRequest;
                 const layout = await this.layoutRepository.get(layoutId, Shopware.Context.api, this.layoutLoadCriteria);
 
                 if (!layout) {

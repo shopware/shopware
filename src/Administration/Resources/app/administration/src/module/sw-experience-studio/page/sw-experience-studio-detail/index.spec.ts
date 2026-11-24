@@ -238,7 +238,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(repositoryFactory.create).not.toHaveBeenCalled();
     });
 
-    it('waits for the entity type request before opening a layout and applies its assigned preview context', async () => {
+    it('marks a new layout as loading while waiting for entity types and applies its assigned preview context', async () => {
         let resolveLayoutTypes: () => void;
         const layoutTypesRequest = new Promise<void>((resolve) => {
             resolveLayoutTypes = resolve;
@@ -282,6 +282,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
         const open = methods.openLayoutById.call(vm, layout.id);
         await Promise.resolve();
+        expect(vm.isLoading).toBe(true);
         expect(vm.layoutRepository.get).not.toHaveBeenCalled();
 
         vm.availableLayoutTypes = ['product'];

@@ -96,7 +96,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $registry->method('resolve')->willReturn([]);
 
         $command = $this->layoutUpdate(['layout' => self::STORED_LAYOUT]);
-        $validator = $this->validator($gate, $registry, $this->storedRootSource($command, 'category'));
+        $validator = $this->validator($gate, $registry, $this->storedRecord($command, 'category'));
 
         $event = $this->event([$command]);
         $validator->preValidate($event);
@@ -145,7 +145,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $gate->expects($this->never())->method('resolvability');
 
         $command = $this->layoutUpdate(['layout' => self::STORED_LAYOUT]);
-        $validator = $this->validator($gate, null, $this->storedRootSource($command, null));
+        $validator = $this->validator($gate, null, $this->storedRecord($command, null));
 
         $event = $this->event([$command]);
         $validator->preValidate($event);
@@ -234,11 +234,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator = $this->validator($gate, $this->registryKnowing(['product']));
 
         // No memo entry exists for this command; the gate must not look for one, or it would fail hard.
-        $command = $this->layoutCreate(['root_source' => 'product']);
-        $write = WriteContext::createFromContext(Context::createDefaultContext());
-        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, new LayoutWriteContext());
-
-        $event = new PreWriteValidationEvent($write, [$command]);
+        $event = $this->event([$this->layoutCreate(['root_source' => 'product'])]);
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
@@ -249,14 +245,27 @@ class ContentLayoutWriteValidatorTest extends TestCase
     {
         $validator = $this->validatorRejectingBeforeResolvability();
 
-        $write = WriteContext::createFromContext(Context::createDefaultContext());
-        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, new LayoutWriteContext());
-
-        $event = new PreWriteValidationEvent($write, [$this->layoutCreate(['root_source' => 'bogus'])]);
+        $event = $this->event([$this->layoutCreate(['root_source' => 'bogus'])]);
         $validator->preValidate($event);
 
         $violation = $this->onlyViolation($event);
         static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
+    }
+
+    #[TestDox('runs the membership check only for a root-source-only update of a stored layout, looking up no memo entry for the stored layout value')]
+    public function testRootSourceOnlyUpdateOfAStoredLayoutRunsMembershipOnly(): void
+    {
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->expects($this->never())->method('wellFormedness');
+        $gate->expects($this->never())->method('resolvability');
+
+        $command = $this->layoutUpdate(['root_source' => 'product']);
+        $validator = $this->validator($gate, $this->registryKnowing(['product']), $this->storedRecord($command, 'product', self::STORED_LAYOUT));
+
+        $event = $this->event([$command]);
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
     #[TestDox('runs resolvability against the declared root source on creation and records a binding error')]
@@ -377,7 +386,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $registry->expects($this->never())->method('resolve');
 
         $command = $this->layoutUpdate(['layout' => self::STORED_LAYOUT]);
-        $validator = $this->validator($gate, $registry, $this->storedRootSource($command, 'category'));
+        $validator = $this->validator($gate, $registry, $this->storedRecord($command, 'category'));
 
         $event = $this->event([$command]);
         $validator->preValidate($event);
@@ -401,13 +410,14 @@ class ContentLayoutWriteValidatorTest extends TestCase
     }
 
     /**
-     * A write outcome over a database that stores the command's layout with the given root source.
+     * A write outcome over a database that stores the command's layout record with the given root source and
+     * layout value.
      */
-    private function storedRootSource(WriteCommand $command, ?string $rootSource): WriteOutcome
+    private function storedRecord(WriteCommand $command, ?string $rootSource, ?string $layout = null): WriteOutcome
     {
         $rowLoader = static::createStub(RowLoader::class);
         $rowLoader->method('load')->willReturn([
-            [...$command->getPrimaryKey(), ContentLayoutDefinition::ROOT_SOURCE_FIELD => $rootSource],
+            [...$command->getPrimaryKey(), ContentLayoutDefinition::ROOT_SOURCE_FIELD => $rootSource, ContentLayoutDefinition::LAYOUT_FIELD => $layout],
         ]);
 
         return new WriteOutcome($rowLoader);

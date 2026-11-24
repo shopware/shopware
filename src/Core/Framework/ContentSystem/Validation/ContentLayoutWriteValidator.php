@@ -23,7 +23,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * record's root source in the registry, then resolvability of the tree against that source's root-ambient context,
  * then admissibility of the tree's data mappings against that same source.
  * Each layout record gets one verdict, on its state after the whole batch: the tree behind the layout value the
- * record stores, judged against its resulting root source, the created value or else the stored one.
+ * batch writes for the record, if it writes one, judged against its resulting root source, the created value or
+ * else the stored one.
  * The per-step rationale is inline in validateRecord().
  *
  * The tree is not decoded here: the gate judges the tree the layout field serializer memoized while encoding the
@@ -76,7 +77,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
 
     private function validateRecord(PreWriteValidationEvent $event, OutcomeRow $row, Context $context, ?LayoutWriteContext $memo): void
     {
-        $tree = $this->resultingTree($memo, $event->getWriteContext(), $row);
+        $tree = $this->writtenTree($memo, $event->getWriteContext(), $row);
         $setsRootSource = $row->payloadContainsAny(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
         $rootSource = $row->getResultingValue(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
         $violations = new ConstraintViolationList();
@@ -120,10 +121,11 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     }
 
     /**
-     * The tree behind the layout value the record holds after the batch, looked up in the memo by that value. An
-     * absent entry throws {@see ContentSystemException::layoutWriteMemoMissing()}.
+     * The tree behind the layout value the batch writes for the record, looked up in the memo by that value; null
+     * when the batch does not write the column. An absent entry throws
+     * {@see ContentSystemException::layoutWriteMemoMissing()}.
      */
-    private function resultingTree(?LayoutWriteContext $memo, WriteContext $write, OutcomeRow $row): ?StoredTree
+    private function writtenTree(?LayoutWriteContext $memo, WriteContext $write, OutcomeRow $row): ?StoredTree
     {
         $encoded = $row->getPayloadValue(ContentLayoutDefinition::LAYOUT_FIELD);
 

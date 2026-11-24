@@ -1917,6 +1917,16 @@ elasticsearch:
 
 Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
 
+# 6.7.16.2
+
+## Critical Fixes
+
+### Shopware can be installed with Composer again
+
+Twig 3.31.1 fixes security issues in the Twig sandbox, and Composer now refuses to install older Twig versions. Together with the Twig version cap in `shopware/conflicts` 0.6.3, no installable Twig version was left, so installing or updating Shopware 6.7.15.0 to 6.7.16.1 with Composer failed.
+
+Shopware now requires `shopware/conflicts` 0.6.4 and `twig/twig` ^3.31.1, so it can be installed and updated again.
+
 # 6.7.16.1
 
 ## Security Fixes

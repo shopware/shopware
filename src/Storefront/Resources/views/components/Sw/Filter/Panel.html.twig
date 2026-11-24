@@ -35,7 +35,7 @@
 {% endfor %}
 
 {% set hasOffcanvas = offcanvasBreakpoint != 'xs' %}
-{% set offcanvasToggleClass = offcanvasBreakpoint ? 'd-block d-' ~ offcanvasBreakpoint ~ '-none' : 'd-block' %}
+{% set offcanvasToggleClass = offcanvasBreakpoint ? 'd-flex d-' ~ offcanvasBreakpoint ~ '-none' : 'd-flex' %}
 
 {% set filterPanelOptions = {
     visibleFilterCount: visibleFilterCount,

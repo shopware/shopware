@@ -28,15 +28,12 @@
 
 .sw-filter-panel__offcanvas-toggle.btn-filter {
     padding-right: var(--bs-btn-padding-x);
-    text-align: center;
+    justify-content: center;
+    align-items: center;
     width: 100%;
 
     .sw-icon {
         position: static;
-
-        > svg {
-            vertical-align: -0.125em;
-        }
     }
 }
 

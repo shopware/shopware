@@ -238,31 +238,31 @@ class FilterPanelComponentTest extends TestCase
         yield 'without a setting the filters move inline from lg on, as before the setting existed' => [
             null,
             'sw-offcanvas offcanvas-start offcanvas-lg',
-            'sw-filter-panel__offcanvas-toggle d-block d-lg-none',
+            'sw-filter-panel__offcanvas-toggle d-flex d-lg-none',
         ];
 
         yield 'a breakpoint the setting leaves open keeps its default' => [
             ['xl' => true],
             'sw-offcanvas offcanvas-start offcanvas-lg',
-            'sw-filter-panel__offcanvas-toggle d-block d-lg-none',
+            'sw-filter-panel__offcanvas-toggle d-flex d-lg-none',
         ];
 
         yield 'turning off an earlier breakpoint moves the switch down' => [
             ['md' => false],
             'sw-offcanvas offcanvas-start offcanvas-md',
-            'sw-filter-panel__offcanvas-toggle d-block d-md-none',
+            'sw-filter-panel__offcanvas-toggle d-flex d-md-none',
         ];
 
         yield 'a larger breakpoint turned back on cannot reopen the offcanvas after the first one turned off' => [
             ['sm' => false, 'lg' => true, 'xl' => true],
             'sw-offcanvas offcanvas-start offcanvas-sm',
-            'sw-filter-panel__offcanvas-toggle d-block d-sm-none',
+            'sw-filter-panel__offcanvas-toggle d-flex d-sm-none',
         ];
 
         yield 'turning every breakpoint on keeps the filters in the offcanvas on every viewport' => [
             true,
             'sw-offcanvas offcanvas-start offcanvas',
-            'sw-filter-panel__offcanvas-toggle d-block',
+            'sw-filter-panel__offcanvas-toggle d-flex',
         ];
     }
 

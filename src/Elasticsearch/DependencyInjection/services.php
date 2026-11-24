@@ -108,6 +108,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service_closure;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -732,6 +733,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('product.repository'),
             service(ElasticsearchFieldBuilder::class),
             param('elasticsearch.administration.indexing_batch_size'),
+            service_closure(AdminSearchRegistry::class),
         ])
         ->tag('shopware.elastic.admin-searcher-index', ['key' => 'product']);
 

@@ -58,7 +58,8 @@ class AdminSearcherTest extends TestCase
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
         $this->registry->method('getIndexers')->willReturn(['product' => $this->productIndexer]);
         $this->registry->method('hasIndexer')->willReturn(true);

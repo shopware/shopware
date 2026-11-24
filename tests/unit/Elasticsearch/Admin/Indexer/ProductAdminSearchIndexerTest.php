@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
@@ -44,7 +45,8 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
     }
 
@@ -86,7 +88,8 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::createStub(IteratorFactory::class),
             $repository,
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $result = [
@@ -110,7 +113,8 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $id = '809c1844f4734243b6aa04aba860cd45';
@@ -152,7 +156,8 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $id = '809c1844f4734243b6aa04aba860cd45';
@@ -168,7 +173,8 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $productId = Uuid::randomHex();
@@ -242,14 +248,15 @@ class ProductAdminSearchIndexerTest extends TestCase
         $documentId = Uuid::randomHex();
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchFirstColumn')->willReturn([$variantId]);
+        $connection->method('fetchAllKeyValue')->willReturn([$variantId => $productId]);
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $event = $this->createWrittenEvent([
@@ -276,14 +283,18 @@ class ProductAdminSearchIndexerTest extends TestCase
         $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, ProductIndexer::UPDATE_IDS_CHUNK_SIZE - 1));
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchFirstColumn')->willReturn($variantIds);
+        $connection->method('fetchAllKeyValue')->willReturn(array_fill_keys($variantIds, $productId));
+
+        $registry = $this->createMock(AdminSearchRegistry::class);
+        $registry->expects($this->never())->method('updateIds');
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => $registry,
         );
 
         $event = $this->createWrittenEvent([
@@ -310,14 +321,15 @@ class ProductAdminSearchIndexerTest extends TestCase
         $variantsWithDocuments = \array_slice($variantIds, 0, 15);
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchFirstColumn')->willReturn($variantIds);
+        $connection->method('fetchAllKeyValue')->willReturn(array_fill_keys($variantIds, $productId));
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $documentResults = [];
@@ -350,14 +362,15 @@ class ProductAdminSearchIndexerTest extends TestCase
         $documentId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchFirstColumn');
+        $connection->expects($this->never())->method('fetchAllKeyValue');
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $event = $this->createWrittenEvent([
@@ -379,19 +392,20 @@ class ProductAdminSearchIndexerTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
-            ->method('fetchFirstColumn')
+            ->method('fetchAllKeyValue')
             ->with(
                 static::stringContains('parent_id IN (:ids)'),
                 static::callback(static fn (array $params): bool => $params['ids'] === [Uuid::fromHexToBytes($parentId)])
             )
-            ->willReturn([$variantId]);
+            ->willReturn([$variantId => $parentId]);
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($indexer, $parentId, $variantId): void {
@@ -405,18 +419,58 @@ class ProductAdminSearchIndexerTest extends TestCase
         $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, ProductIndexer::UPDATE_IDS_CHUNK_SIZE - 1));
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchFirstColumn')->willReturn($variantIds);
+        $connection->method('fetchAllKeyValue')->willReturn(array_fill_keys($variantIds, $parentId));
+
+        $registry = $this->createMock(AdminSearchRegistry::class);
+        $registry->expects($this->never())->method('updateIds');
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => $registry,
         );
 
         Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($indexer, $parentId): void {
             static::assertSame([$parentId], $indexer->getUpdatedIds($this->createProductWrittenEvent($parentId)));
+        });
+    }
+
+    public function testGetUpdatedIdsQueuesTheVariantsOfLargeFamiliesWhenOnlyAnAssociationIsWritten(): void
+    {
+        $parentId = Uuid::randomHex();
+        $tagId = Uuid::randomHex();
+        $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, ProductIndexer::UPDATE_IDS_CHUNK_SIZE));
+        $context = Context::createDefaultContext();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn(array_fill_keys($variantIds, $parentId));
+
+        $registry = $this->createMock(AdminSearchRegistry::class);
+        $registry->expects($this->once())
+            ->method('updateIds')
+            ->with(ProductDefinition::ENTITY_NAME, $variantIds, $context);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100,
+            static fn (): AdminSearchRegistry => $registry,
+        );
+
+        $primaryKey = ['productId' => $parentId, 'productVersionId' => Defaults::LIVE_VERSION, 'tagId' => $tagId];
+        $event = new EntityWrittenContainerEvent($context, new NestedEventCollection([
+            new EntityWrittenEvent('product_tag', [
+                new EntityWriteResult($primaryKey, $primaryKey, 'product_tag', EntityWriteResult::OPERATION_INSERT),
+            ], $context),
+        ]), []);
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($indexer, $event, $parentId): void {
+            static::assertSame([$parentId], $indexer->getUpdatedIds($event));
         });
     }
 
@@ -429,19 +483,20 @@ class ProductAdminSearchIndexerTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
-            ->method('fetchFirstColumn')
+            ->method('fetchAllKeyValue')
             ->with(
                 static::stringContains('parent_id IN (:ids)'),
                 static::callback(static fn (array $params): bool => $params['ids'] === Uuid::fromHexToBytesList([$writtenProductId, $productWithDocumentId]))
             )
-            ->willReturn([$variantId]);
+            ->willReturn([$variantId => $writtenProductId]);
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $event = new EntityWrittenContainerEvent(
@@ -473,14 +528,15 @@ class ProductAdminSearchIndexerTest extends TestCase
         $productId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchFirstColumn');
+        $connection->expects($this->never())->method('fetchAllKeyValue');
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         Feature::withFeatureDisabled('ENABLE_OPENSEARCH_FOR_ADMIN_API', function () use ($indexer, $productId): void {
@@ -495,7 +551,8 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $search = new Search();
@@ -544,7 +601,8 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         foreach (['457', '457232'] as $term) {
@@ -563,7 +621,8 @@ class ProductAdminSearchIndexerTest extends TestCase
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
-            100
+            100,
+            static fn (): AdminSearchRegistry => static::createStub(AdminSearchRegistry::class),
         );
 
         $result = $indexer->globalCriteria("test\n", new Search());

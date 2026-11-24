@@ -193,7 +193,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
         expect(entityRepository.searchIds).not.toHaveBeenCalled();
     });
 
-    it('keeps a saved preview entity after the entity type request failed without a missing-reference warning', async () => {
+    it('keeps a saved preview entity without a missing-reference warning when entity types failed to load', async () => {
         const { editor, target, entityRepository } = createRestore();
         editor.availableLayoutTypes = [];
         editor.layoutTypeLoadError = 'Failed to load layout types.';

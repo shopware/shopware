@@ -20,6 +20,7 @@ function createEditor(params: Record<string, string> = {}) {
         loadMappingCandidates: jest.fn(),
         onHistoryKeydown: jest.fn(),
         pendingLinkedLayoutId: null as string | null,
+        layoutTypesRequest: null as Promise<void> | null,
         isWorkspacePickerOpen: false,
     };
 }
@@ -42,10 +43,14 @@ describe('Experience Studio workspace entry', () => {
         expect(editor.openWorkspace).not.toHaveBeenCalled();
     });
 
-    it('opens a workspace directly when its ID is in the route', () => {
+    it('starts loading entity types before opening a workspace from the route', () => {
         const editor = createEditor({ workspaceId: 'workspace-1' });
+        const layoutTypesRequest = new Promise<void>(() => undefined);
+        editor.loadLayoutTypes.mockReturnValue(layoutTypesRequest);
+
         component.created.call(editor);
 
+        expect(editor.layoutTypesRequest).toBe(layoutTypesRequest);
         expect(editor.openWorkspace).toHaveBeenCalledWith('workspace-1');
         expect(editor.workspaceStore.activate).not.toHaveBeenCalled();
     });

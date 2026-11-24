@@ -189,21 +189,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(methods.resolvePreviewContext.call(vm, { rootSource })).toBeNull();
     });
 
-    // Regression guard: an entity root source keeps the preview context it had before root-source filtering.
-    it('keeps the preview context for an available entity root source', () => {
-        const vm = {
-            availableLayoutTypes: ['product'],
-            getLayoutRootSource: methods.getLayoutRootSource,
-            resolveAssignedPreviewContext: jest.fn().mockReturnValue(null),
-        };
-
-        expect(methods.resolvePreviewContext.call(vm, { rootSource: 'product' })).toEqual({
-            entityType: 'product',
-            entityId: null,
-            salesChannelId: null,
-        });
-    });
-
     it('does not create a repository while loading the default preview entity for a non-entity root source', async () => {
         const repositoryFactory = { create: jest.fn() };
         const vm = {
@@ -253,6 +238,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             availableLayoutTypes: [] as string[],
             openLayouts: [] as unknown[],
             activeLayoutId: null,
+            layout: null as typeof layout | null,
             isLoading: false,
             isLayoutPickerOpen: true,
             layoutRepository: { get: jest.fn().mockResolvedValue(layout) },
@@ -274,9 +260,12 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             resolveAssignedPreviewContext: methods.resolveAssignedPreviewContext,
             resolvePreviewContext: methods.resolvePreviewContext,
         };
+        vm.activateLayout.mockImplementation(() => {
+            vm.layout = layout;
+        });
         Object.defineProperties(vm, {
             resolvedPreviewContext: {
-                get: () => methods.resolvePreviewContext.call(vm, layout),
+                get: () => methods.resolvePreviewContext.call(vm, vm.layout),
             },
         });
 

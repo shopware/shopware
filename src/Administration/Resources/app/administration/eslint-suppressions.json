@@ -4606,7 +4606,7 @@
       "count": 4
     },
     "@typescript-eslint/no-restricted-types": {
-      "count": 44
+      "count": 43
     },
     "max-lines": {
       "count": 1
@@ -10034,11 +10034,6 @@
       "count": 1
     },
     "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/sw-promotion-v2-cart-condition-form.spec.js": {
-    "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },

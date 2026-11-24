@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
+use Shopware\Core\Framework\ContentSystem\Cache\MappedMediaCacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -103,12 +104,9 @@ class CategoryMediaMappingCacheInvalidationTest extends TestCase
     {
         $mapped = $this->cachePage($this->categoryId);
         $other = $this->cachePage($this->otherCategoryId);
-        $text = $this->cachePage($this->textCategoryId);
         static::assertSame(str_replace('{id}', $this->mediaId, $before), $this->cachedMedia($mapped)[$field]);
         $otherContent = $this->store->lookup($other)?->getContent();
-        $textContent = $this->store->lookup($text)?->getContent();
         static::assertIsString($otherContent);
-        static::assertIsString($textContent);
 
         $primaryKey = $entity === 'media_translation'
             ? ['mediaId' => $this->mediaId, 'languageId' => Defaults::LANGUAGE_SYSTEM]
@@ -122,7 +120,6 @@ class CategoryMediaMappingCacheInvalidationTest extends TestCase
 
         static::assertNull($this->store->lookup($mapped), 'A media edit must evict the mapped page.');
         static::assertSame($otherContent, $this->store->lookup($other)?->getContent());
-        static::assertSame($textContent, $this->store->lookup($text)?->getContent());
         static::assertSame($after, $this->cachedMedia($this->cachePage($this->categoryId))[$field]);
     }
 
@@ -135,6 +132,14 @@ class CategoryMediaMappingCacheInvalidationTest extends TestCase
         yield 'direct translation title write' => ['media_translation', 'title', 'Original title', 'Updated title'];
         yield 'replacement file name' => ['media', 'fileName', 'original', 'replacement'];
         yield 'replacement file path' => ['media', 'path', 'media/{id}.png', 'media/replacement.png'];
+    }
+
+    public function testOnlyARenderThatMapsTheMediaRecordsADependencyOnIt(): void
+    {
+        $mediaTag = MappedMediaCacheInvalidator::buildName($this->mediaId);
+
+        static::assertContains($mediaTag, $this->render($this->categoryId)['tags']);
+        static::assertNotContains($mediaTag, $this->render($this->textCategoryId)['tags'], 'A render of a category that shows the media without mapping it must not depend on the media.');
     }
 
     public function testDeletingMediaEvictsItsMappedPage(): void
@@ -200,15 +205,27 @@ class CategoryMediaMappingCacheInvalidationTest extends TestCase
         return $id;
     }
 
-    private function cachePage(string $categoryId): Request
+    /**
+     * @return array{content: string, tags: list<string>}
+     */
+    private function render(string $categoryId): array
     {
         $path = '/store-api/content/category/' . $categoryId;
         $this->browser->request('GET', $path);
         $served = $this->browser->getResponse();
         static::assertSame(Response::HTTP_OK, $served->getStatusCode(), (string) $served->getContent());
-        $tags = static::getContainer()->get(CacheTagCollector::class)->get(Request::create($path));
+
+        return [
+            'content' => (string) $served->getContent(),
+            'tags' => static::getContainer()->get(CacheTagCollector::class)->get(Request::create($path)),
+        ];
+    }
+
+    private function cachePage(string $categoryId): Request
+    {
+        ['content' => $content, 'tags' => $tags] = $this->render($categoryId);
         $request = Request::create('http://localhost/category-media-cache/' . $categoryId);
-        $response = new Response((string) $served->getContent());
+        $response = new Response($content);
         $response->setPublic()->setMaxAge(3600)->setSharedMaxAge(3600);
         $response->setDate(new \DateTimeImmutable('-2 seconds'));
         $response->headers->addCacheControlDirective('stale-while-revalidate', '1');

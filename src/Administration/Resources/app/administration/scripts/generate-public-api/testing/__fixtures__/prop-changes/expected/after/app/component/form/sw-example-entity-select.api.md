@@ -16,8 +16,8 @@ inject
 
 props
   entity: string
-  placeholderText?: string  default=literal
-  value?: string  default=literal
+  placeholderText?: string  default=''
+  value?: string  default=null
 
 emits
   update:value(...args: any[])

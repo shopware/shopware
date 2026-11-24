@@ -13,8 +13,8 @@ component sw-example-filter  private  js  [private]
   visibility-source export  [private]
 
 props
-  delay?: number  default=literal  [private]
-  placeholder?: string  default=literal  [private]
+  delay?: number  default=500  [private]
+  placeholder?: string  default=''  [private]
 
 emits
   sw-example-filter-term-change(...args: any[])  [private]

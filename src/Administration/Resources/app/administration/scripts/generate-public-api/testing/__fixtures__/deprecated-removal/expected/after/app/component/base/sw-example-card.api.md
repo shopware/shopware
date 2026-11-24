@@ -12,8 +12,8 @@ component sw-example-card  public  js
   template src/app/component/base/sw-example-card/sw-example-card.html.twig
 
 props
-  isLoading?: boolean  default=literal
-  title?: string  default=literal
+  isLoading?: boolean  default=false
+  title?: string  default=''
 
 emits
   toggle(...args: any[])

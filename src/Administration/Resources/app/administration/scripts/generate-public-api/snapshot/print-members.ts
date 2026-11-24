@@ -6,8 +6,8 @@
 import { byCodePoint } from '../helpers/code-point-order';
 import { blockLabel } from '../model/blocks';
 import type { FlagContext } from '../model/flag-states';
-import { isKind, KINDS, MEMBER_KINDS, namePath } from '../model/members';
-import type { Member, MemberKind, Parameter } from '../model/members';
+import { isKind, KINDS, MEMBER_KINDS, namePath, propType } from '../model/members';
+import type { DefaultValue, Member, MemberKind, Parameter } from '../model/members';
 import { flagStateMarker, line, markerLabels } from './report-outline';
 import type { Line, Section } from './report-outline';
 
@@ -22,8 +22,26 @@ export function kindsPlaced(placement: (typeof MEMBER_KINDS)[MemberKind]['placem
     return KINDS.filter((kind) => MEMBER_KINDS[kind].placement === placement);
 }
 
-function parameterText({ name, type, optional, rest }: Parameter): string {
-    return `${rest ? '...' : ''}${name}${optional ? '?' : ''}: ${type ?? (rest ? `${UNTYPED}[]` : UNTYPED)}`;
+/** The default as the source writes it, `factory` for a factory, `null` without one. */
+function defaultText(value: DefaultValue): string | null {
+    if (value.kind === 'none') {
+        return null;
+    }
+
+    return value.kind === 'value' ? value.text : 'factory';
+}
+
+function parameterText({ name, type, default: value, optional, rest }: Parameter): string {
+    const typeText = type ?? (rest ? `${UNTYPED}[]` : UNTYPED);
+    const fallback = defaultText(value);
+
+    return `${rest ? '...' : ''}${name}${optional ? '?' : ''}: ${typeText}${fallback === null ? '' : ` = ${fallback}`}`;
+}
+
+function propText(prop: Member<'prop'>): string {
+    const fallback = defaultText(prop.default);
+
+    return `${prop.name}${prop.required ? '' : '?'}: ${propType(prop) ?? UNTYPED}${fallback === null ? '' : `  default=${fallback}`}`;
 }
 
 /** A member without a signature in the source takes whatever it is called with. */
@@ -46,15 +64,14 @@ const MEMBER_TEXTS: { [Kind in MemberKind]: (member: Member<Kind>) => string } =
     mixin: ({ name }) => name,
     inject: ({ name, from }) => (from === name ? name : `${name} from ${from}`),
     provide: ({ name }) => `${name}: ${UNTYPED}`,
-    prop: ({ name, type, required, default: value }) =>
-        `${name}${required ? '' : '?'}: ${type ?? UNTYPED}${value === 'none' ? '' : `  default=${value}`}`,
+    prop: propText,
     emit: ({ name, payload }) => `${name}(${parametersText(payload)})`,
     slot: ({ name, scope, block }) =>
         `${name}  ${scope.length === 0 ? '{}' : `{ ${scope.join(', ')} }`}  block=${blockLabel(block)}`,
     data: dataText,
     computed: ({ name, type }) => `${name}: ${type ?? UNTYPED}`,
     method: (method) => `${method.name}(${parametersText(method.parameters)}): ${returnText(method)}`,
-    ref: ({ name, target, list }) => `${name}  -> ${target}${list ? '  list' : ''}`,
+    ref: ({ name, target, list, block }) => `${name}  -> ${target}${list ? '  list' : ''}  block=${blockLabel(block)}`,
 };
 
 /** By name, a nested data key directly below its parent. */

@@ -7,8 +7,8 @@
  */
 import type { BcChangeKind, Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagContext } from '../../model/flag-states';
-import { isTemplateMember, KINDS, MEMBER_KINDS, memberId, parameterId } from '../../model/members';
-import type { Member, MemberKind, Parameter } from '../../model/members';
+import { isTemplateMember, KINDS, MEMBER_KINDS, memberId, namePath, parameterId, propType } from '../../model/members';
+import type { DefaultValue, Member, MemberKind, Parameter } from '../../model/members';
 import type { SourceLine } from '../../model/source-line';
 import { coveringDeprecation } from '../facts/block-facts';
 import type { BlockFacts } from '../facts/block-facts';
@@ -16,7 +16,7 @@ import type { ComponentFacts } from '../facts/component-facts';
 import { sectionLine } from '../facts/member-facts';
 import { isMajorOnly } from '../finding';
 import { rule } from './rule';
-import type { FindingTexts, Rule } from './rule';
+import type { FindingTexts, Rule, RuleDefinition, TextContext } from './rule';
 
 /** The first place of every member of the kind. What a rule compares of all places, it reads from the facts. */
 function membersOf<Kind extends MemberKind>(facts: ComponentFacts, kind: Kind): Member<Kind>[] {
@@ -37,8 +37,29 @@ function inBoth<Kind extends MemberKind>(base: ComponentFacts, head: ComponentFa
     });
 }
 
+/** The object a nested data key stands in, `null` for every other member. */
+function parentName(member: Pick<Member, 'kind' | 'name'>): string | null {
+    const path = namePath(member);
+
+    return path.length > 1 ? path.slice(0, -1).join('.') : null;
+}
+
+/** A nested data key goes with its object, when the change is about that object too. */
+function withoutNestedKeys<Item>(changed: Item[], memberOf: (item: Item) => { kind: MemberKind; name: string }): Item[] {
+    const changedNames = new Set(changed.map((item) => memberOf(item).name));
+
+    return changed.filter((item) => {
+        const parent = parentName(memberOf(item));
+
+        return parent === null || !changedNames.has(parent);
+    });
+}
+
 function onlyIn<Kind extends MemberKind>(facts: ComponentFacts, other: ComponentFacts, kind: Kind): Member<Kind>[] {
-    return membersOf(facts, kind).filter(({ name }) => !other.members[kind].has(name));
+    return withoutNestedKeys(
+        membersOf(facts, kind).filter(({ name }) => !other.members[kind].has(name)),
+        ({ name }) => ({ kind, name }),
+    );
 }
 
 /** The member as the element of a change, or something `below` it such as `/param:item`. */
@@ -59,6 +80,13 @@ function ownMarkers({ kind, name }: Pick<Member, 'kind' | 'name'>, facts: Compon
     return facts.members[kind].get(name)?.flatMap(({ markers }) => markers) ?? [];
 }
 
+/** The markers that announce a change to a member: its own and, for a nested data key, those of its objects. */
+function announcingMarkers(member: Pick<Member, 'kind' | 'name'>, facts: ComponentFacts): Marker[] {
+    return namePath(member).flatMap((_key, index, path) =>
+        ownMarkers({ kind: member.kind, name: path.slice(0, index + 1).join('.') }, facts),
+    );
+}
+
 function serialized(marker: Marker): string {
     return JSON.stringify(marker);
 }
@@ -75,11 +103,12 @@ function enclosingDeprecations({ kind, name }: Pick<Member, 'kind' | 'name'>, fa
     );
 }
 
-function isBcChange(marker: Marker, kind: string, parameter?: string): boolean {
+/** A `@bc-change` of the kind whose keys hold the `expected` values. */
+function isBcChange(marker: Marker, kind: BcChangeKind, expected: Record<string, string> = {}): boolean {
     return (
         marker.tag === 'bc-change' &&
         marker.kind === kind &&
-        (parameter === undefined || marker.parameters.parameter === parameter)
+        Object.entries(expected).every(([key, value]) => marker.parameters[key] === value)
     );
 }
 
@@ -103,7 +132,7 @@ interface RemovalPolicy {
 
 /** A member of the options object can stay beside its replacement, with a marker that announces its removal. */
 const DECLARED: RemovalPolicy = {
-    markers: ownMarkers,
+    markers: announcingMarkers,
     gone: (kind) => `The ${label(kind)} is gone`,
     fix: ({ kind, name, rename }, flags) =>
         rename === undefined
@@ -253,6 +282,28 @@ function memberAdded(kind: MemberKind): Rule {
     });
 }
 
+function memberBecamePrivate(kind: MemberKind): Rule {
+    return rule({
+        id: 'visibility_became_private',
+        group: 'Break',
+        changes: (base, head) =>
+            withoutNestedKeys(
+                inBoth(base, head, kind).filter(({ was, now }) => !was.isPrivate && now.isPrivate),
+                ({ now }) => now,
+            ).map((member) => keptElement(member)),
+        texts: ({ name }, { flags }) => ({
+            explanation: `The ${label(kind)} became @private, which removes it from the public API, so plugin code that uses ${name} can break with any later change.`,
+            fix: `pattern "Becomes private". Keep it public, mark it @bc-change BecomesPrivate version:${flags.majorVersion}, and make it @private in the major.`,
+        }),
+        announcement: {
+            rule: 'announced_change',
+            subject: `The ${label(kind)}`,
+            markers: (change, facts) => announcingMarkers(change, facts),
+            matches: (_change, marker) => isBcChange(marker, 'BecomesPrivate'),
+        },
+    });
+}
+
 const propNowRequired = rule({
     id: 'prop_now_required',
     group: 'Break',
@@ -267,22 +318,133 @@ const propNowRequired = rule({
     announcement: {
         rule: 'announced_change',
         subject: 'The prop',
-        markers: (change, facts) => ownMarkers(change, facts),
+        markers: (change, facts) => announcingMarkers(change, facts),
         matches: (_change, marker) => isBcChange(marker, 'PropBecomesRequired'),
     },
 });
 
+/** A prop that gets a `PropType` on the constructors it had. Vue checks a value against them as before. */
+function isAnnotated({ was, now }: Kept): boolean {
+    return (
+        was.kind === 'prop' &&
+        now.kind === 'prop' &&
+        was.constructors === now.constructors &&
+        was.annotation === null &&
+        now.annotation !== null
+    );
+}
+
+/** How the declared type of a member changed. Only `retyped` can mean that a plugin gets another kind of value. */
+type Transition = 'retyped' | 'gained' | 'lost' | 'annotated';
+
+function transitionOf(member: Kept, from: string | null, to: string | null): Transition {
+    if (isAnnotated(member)) {
+        return 'annotated';
+    }
+
+    if (from === null) {
+        return 'gained';
+    }
+
+    return to === null ? 'lost' : 'retyped';
+}
+
+/** A default that callers no longer fall back to: gone, or another value. */
+interface DefaultChange {
+    from: string | null;
+    to: string | null;
+}
+
+function valueOf(value: DefaultValue): string | null {
+    return value.kind === 'value' ? value.text : null;
+}
+
+/** A factory has no value to compare, so only its removal counts. */
+function defaultChange(was: DefaultValue, now: DefaultValue): DefaultChange | null {
+    const removed = was.kind !== 'none' && now.kind === 'none';
+    const changed = was.kind === 'value' && now.kind === 'value' && was.text !== now.text;
+
+    return removed || changed ? { from: valueOf(was), to: valueOf(now) } : null;
+}
+
+/** The default as a marker names it: without spaces, and `undefined` for a default that is gone. */
+function markerDefault(value: string | null): string {
+    return markerType(value ?? 'undefined');
+}
+
+function markerKeysText(keys: Record<string, string>): string {
+    return Object.entries(keys)
+        .map(([key, value]) => `${key}:${value}`)
+        .join(' ');
+}
+
+/**
+ * The rule for a changed default. `subject` names what holds the default, `callers` who falls back to it, and
+ * `marker` the `@bc-change` on the member that announces the new default.
+ */
+function defaultChanged<Change extends DefaultChange & Pick<Member, 'kind' | 'name'>>({
+    id,
+    changes,
+    subject,
+    callers,
+    marker,
+}: {
+    id: string;
+    changes: RuleDefinition<Change>['changes'];
+    subject: (change: Change) => string;
+    callers: (change: Change, context: TextContext) => string;
+    marker: { kind: BcChangeKind; holder: string; keys: (change: Change) => Record<string, string> };
+}): Rule {
+    const markerKeys = (change: Change) => ({ ...marker.keys(change), default: markerDefault(change.to) });
+
+    return rule({
+        id,
+        group: 'Break',
+        changes,
+        texts: (change, context) => ({
+            explanation:
+                change.to === null
+                    ? `The ${subject(change)} no longer has a default, so ${callers(change, context)} leave it undefined.`
+                    : `The default of the ${subject(change)} changed from ${change.from} to ${change.to}, so ${callers(change, context)} get another value.`,
+            fix: `keep the default, or mark the ${marker.holder} @bc-change ${marker.kind} version:${context.flags.majorVersion} ${markerKeysText(markerKeys(change))}.`,
+        }),
+        announcement: {
+            rule: 'announced_change',
+            subject: `The ${marker.holder}`,
+            markers: (change, facts) => announcingMarkers(change, facts),
+            matches: (change, found) => isBcChange(found, marker.kind, markerKeys(change)),
+        },
+    });
+}
+
+/** A prop that became required needs no default, which `prop_now_required` reports. */
+const propDefaultChanged = defaultChanged({
+    id: 'prop_default_changed',
+    changes: (base, head) =>
+        inBoth(base, head, 'prop').flatMap((prop) => {
+            const change = prop.now.required ? null : defaultChange(prop.was.default, prop.now.default);
+
+            return change === null ? [] : [{ ...keptElement(prop), ...change }];
+        }),
+    subject: () => 'prop',
+    callers: ({ name }, { component }) => `plugin templates that render ${component} without ${name}`,
+    marker: { kind: 'PropDefaultValueChange', holder: 'prop', keys: () => ({}) },
+});
+
 function declaredTypes<Kind extends MemberKind>(members: Kept<Kind>[], typeOf: (member: Member<Kind>) => string | null) {
-    return members
-        .map((member) => ({ ...keptElement(member), from: typeOf(member.was), to: typeOf(member.now) }))
-        .filter(({ from, to }) => from !== to);
+    return members.flatMap((member) => {
+        const from = typeOf(member.was);
+        const to = typeOf(member.now);
+
+        return from === to ? [] : [{ ...keptElement(member), from, to, transition: transitionOf(member, from, to) }];
+    });
 }
 
 type TypedKind = 'prop' | 'computed' | 'method';
 
 /** The kinds that declare a type, with where each one holds it. A method declares what it returns. */
 const DECLARED_TYPE: { [Kind in TypedKind]: (member: Member<Kind>) => string | null } = {
-    prop: ({ type }) => type,
+    prop: propType,
     computed: ({ type }) => type,
     method: ({ returns }) => returns,
 };
@@ -293,9 +455,8 @@ function typeChanges<Kind extends TypedKind>(base: ComponentFacts, head: Compone
     return declaredTypes(inBoth(base, head, kind), DECLARED_TYPE[kind] as (member: Member<Kind>) => string | null);
 }
 
-/** A type that both commits declare. A member that gets or loses its type is `type_widened`. */
-function isRetyped({ from, to }: { from: string | null; to: string | null }): boolean {
-    return from !== null && to !== null;
+function isRetyped({ transition }: { transition: Transition }): boolean {
+    return transition === 'retyped';
 }
 
 /** How a marker writes a type: a value of a marker ends at a space. */
@@ -331,26 +492,31 @@ function returnTypeChanged(kind: 'computed' | 'method'): Rule {
         announcement: {
             rule: 'announced_change',
             subject: `The ${label(kind)}`,
-            markers: (change, facts) => ownMarkers(change, facts),
+            markers: (change, facts) => announcingMarkers(change, facts),
             matches: ({ to }, marker) =>
-                marker.tag === 'bc-change' &&
-                RETURN_TYPE_MARKERS.includes(marker.kind) &&
-                marker.parameters.type === markerType(to),
+                RETURN_TYPE_MARKERS.some((markerKind) => isBcChange(marker, markerKind, { type: markerType(to) })),
         },
     });
 }
+
+const WIDENED_TEXT: Record<
+    Exclude<Transition, 'retyped'>,
+    (subject: string, from: string | null, to: string | null) => string
+> = {
+    annotated: (subject, from, to) =>
+        `The ${subject} now declares the type ${to}. Vue still checks a value against ${from}, as before.`,
+    gained: (subject, _from, to) => `The ${subject} now declares the type ${to}. It was untyped before.`,
+    lost: (subject, from) => `The ${subject} no longer declares a type. It was ${from} before.`,
+};
 
 const typeWidened = rule({
     id: 'type_widened',
     group: 'Info',
     changes: (base, head) =>
-        TYPED_KINDS.flatMap((kind) => typeChanges(base, head, kind)).filter((change) => !isRetyped(change)),
-    texts: ({ kind, from, to }) => ({
-        explanation:
-            from === null
-                ? `The ${label(kind)} now declares the type ${to}. It was untyped before.`
-                : `The ${label(kind)} no longer declares a type. It was ${from} before.`,
-    }),
+        TYPED_KINDS.flatMap((kind) => typeChanges(base, head, kind)).flatMap((change) =>
+            change.transition === 'retyped' ? [] : [{ ...change, transition: change.transition }],
+        ),
+    texts: ({ kind, from, to, transition }) => ({ explanation: WIDENED_TEXT[transition](label(kind), from, to) }),
 });
 
 /** A parameter in both commits: under the same name, or under another name at the same position. */
@@ -542,8 +708,8 @@ const paramMissing = rule({
     announcement: {
         rule: 'announced_change',
         subject: 'The method',
-        markers: (change, facts) => ownMarkers(change, facts),
-        matches: ({ parameter }, marker) => isBcChange(marker, 'ParameterRemoval', parameter),
+        markers: (change, facts) => announcingMarkers(change, facts),
+        matches: ({ parameter }, marker) => isBcChange(marker, 'ParameterRemoval', { parameter }),
     },
 });
 
@@ -566,9 +732,25 @@ const paramNowRequired = rule({
     announcement: {
         rule: 'announced_change',
         subject: 'The method',
-        markers: (change, facts) => ownMarkers(change, facts),
-        matches: ({ parameter }, marker) => isBcChange(marker, 'NewRequiredParameter', parameter),
+        markers: (change, facts) => announcingMarkers(change, facts),
+        matches: ({ parameter }, marker) => isBcChange(marker, 'NewRequiredParameter', { parameter }),
     },
+});
+
+/** A parameter that became required needs no default, which `param_now_required` reports. */
+const paramDefaultChanged = defaultChanged({
+    id: 'param_default_changed',
+    changes: (base, head) =>
+        parameterChanges(base, head).flatMap(({ method, placed }) =>
+            placed.flatMap(({ was, now }) => {
+                const change = isRequired(now) ? null : defaultChange(was.default, now.default);
+
+                return change === null ? [] : [{ ...parameterElement(method, now), ...change }];
+            }),
+        ),
+    subject: ({ parameter }) => `parameter ${parameter}`,
+    callers: ({ name }) => `plugin calls and $super('${name}', ...) calls that do not pass it`,
+    marker: { kind: 'ParameterDefaultValueChange', holder: 'method', keys: ({ parameter }) => ({ parameter }) },
 });
 
 const paramAdded = rule({
@@ -669,7 +851,10 @@ function markerAdded(id: string, tag: Marker['tag'], announces: string): Rule {
 export const MEMBER_RULES: readonly Rule[] = [
     ...KINDS.map(memberMissing),
     ...KINDS.filter((kind) => COMING_AND_GOING[kind].isAddition).map(memberAdded),
+    // A member of the template carries no comment of its own, so it cannot become @private.
+    ...KINDS.filter((kind) => !MEMBER_KINDS[kind].fromTemplate).map(memberBecamePrivate),
     propNowRequired,
+    propDefaultChanged,
     typeChanged,
     returnTypeChanged('computed'),
     returnTypeChanged('method'),
@@ -677,6 +862,7 @@ export const MEMBER_RULES: readonly Rule[] = [
     methodSignatureChanged,
     paramMissing,
     paramNowRequired,
+    paramDefaultChanged,
     paramAdded,
     methodParamRenamed,
     refTargetChanged,

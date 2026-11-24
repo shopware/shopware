@@ -12,7 +12,7 @@ component sw-example-list  public  js
   template src/app/component/base/sw-example-list/sw-example-list.html.twig
 
 props
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
 
 emits
   item-delete(...args: any[])
@@ -24,7 +24,7 @@ data
 
 methods
   onDeleteItem(item: any, itemIndex: any): any
-  onPageChange(page: any, limit?: any): any
+  onPageChange(page: any, limit?: any = 25): any
   validateSelection(): Promise<any>
 
 blocks

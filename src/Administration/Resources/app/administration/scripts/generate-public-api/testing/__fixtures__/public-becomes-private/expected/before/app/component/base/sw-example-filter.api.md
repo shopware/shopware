@@ -12,8 +12,8 @@ component sw-example-filter  public  js
   template src/app/component/base/sw-example-filter/sw-example-filter.html.twig
 
 props
-  delay?: number  default=literal
-  placeholder?: string  default=literal
+  delay?: number  default=500
+  placeholder?: string  default=''
 
 emits
   sw-example-filter-term-change(...args: any[])

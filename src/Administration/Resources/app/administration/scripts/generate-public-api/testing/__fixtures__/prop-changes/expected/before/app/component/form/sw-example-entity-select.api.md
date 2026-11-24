@@ -15,10 +15,10 @@ inject
   repositoryFactory
 
 props
-  entity?: string  default=literal
-  placeholder?: string  default=literal
-  showClearableButton?: boolean  default=literal
-  value?: string  default=literal
+  entity?: string  default='product'
+  placeholder?: string  default=''
+  showClearableButton?: boolean  default=false
+  value?: string  default=null
 
 emits
   update:value(...args: any[])

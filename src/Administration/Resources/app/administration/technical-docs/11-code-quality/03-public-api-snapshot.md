@@ -168,7 +168,7 @@ inject
 
 props
   entity: string
-  value?: string  default=literal
+  value?: string  default='medium'
 
 emits
   update:value(...args: any[])
@@ -188,8 +188,8 @@ methods
   onSave(): Promise<any>  [deprecated tag:v6.8.0]
 
 refs
-  grid  -> sw-data-grid
-  rows  -> sw-data-grid-row  list
+  grid  -> sw-data-grid  block=sw_example_card_grid
+  rows  -> sw-data-grid-row  list  block=sw_example_card_grid
 
 notes
   unresolved computed ...mapPageErrors(errorConfig)
@@ -200,13 +200,13 @@ notes
 | `mixins` | The registered mixins on one line, in the order the component applies them |
 | `inject` | The local name, and the injected key when it differs |
 | `provide` | The provided key |
-| `props` | The name with `?` for an optional prop, its type, and `default=literal` or `default=factory` |
+| `props` | The name with `?` for an optional prop, its type, and its default as the source writes it, or `default=factory` |
 | `emits` | The event with the parameters of its validator, `...args: any[]` for the array form |
 | `slots` | The name, the props the slot passes, and the block around it |
 | `data` | The key, and the keys of a nested object literal indented below it |
 | `computed` | The name and the type its getter declares |
-| `methods` | The signature. A parameter with a default is optional, a destructured one is named `arg<position>`, and a method that returns a promise returns `Promise<any>` |
-| `refs` | The ref and the tag it sits on, with `list` for a ref inside a `v-for` |
+| `methods` | The signature. A parameter with a default is optional and shows its default, a destructured one is named `arg<position>`, and a method that returns a promise returns `Promise<any>` |
+| `refs` | The ref, the tag it sits on, with `list` for a ref inside a `v-for`, and the block around it |
 | `notes` | What the generator could not read, see below |
 
 The sections stand in this order, with `blocks` and `crossings` between `methods` and `refs`.
@@ -217,6 +217,7 @@ The sections stand in this order, with `blocks` and `crossings` between `methods
   A JavaScript member is `any`.
   A TypeScript member keeps the text of its annotation, and a prop the type argument of `PropType<...>`.
 - The prop constructors map to `string`, `number`, `boolean`, `object`, `any[]` and `(...args: any[]) => any`.
+  Any other constructor, such as `Criteria`, keeps its name, and `null` in a list of constructors is `null`.
   A list of constructors is printed in code point order, so reordering it changes nothing.
 - A method returns a promise when it is `async`, declares a `Promise` return type, or every `return` hands back a promise the source builds: a `.then()`, `.catch()` or `.finally()` chain, a `Promise.*()` call or `new Promise()`.
   A plain call such as `this.repository.save()` may return a promise too, but only the type checker knows, so it does not count.
@@ -224,6 +225,7 @@ The sections stand in this order, with `blocks` and `crossings` between `methods
 - `mapPropertyErrors`, `mapCollectionPropertyErrors`, `mapState`, `mapGetters`, `mapWritableState`, `mapActions` and `mapMutations` add the members they list as literals.
   A method keeps its parameters when a helper such as `debounce` wraps the function.
 - Slots and refs are read from the template after the merge along the extend chain, so an extend child lists what its parent renders too.
+  A slot or a ref in two blocks has one line per block, because a plugin replaces it when it overrides that block.
 - A marker in the comment directly above a member follows its line: `[deprecated tag:vX]`, `[bc-change <Kind> vX]` with the parameter it names, and `[private]`.
   The comment can be a JSDoc comment or a `//` line.
   A block shows its markers the same way, behind its context.
@@ -257,6 +259,7 @@ A break behind the major flag would be invisible in a single state.
 Everything without `@private` is public.
 A component is private when the comment directly above its `export default`, or directly above its registration, has an `@private` tag.
 A private component stays in the snapshot, and its report marks every line `[private]`.
+A key inside a `@private` data object is private too.
 
 ### Not covered yet
 
@@ -266,7 +269,7 @@ A private component stays in the snapshot, and its report marks every line `[pri
   Its report has the note `unresolved options` instead.
 - A mixin has no unit of its own, so a member that a mixin loses is not reported.
 - The members of a core `Component.override` are missing.
-- The constructors from `Shopware.Data` are no prop types yet, and the keys of `data()` have no types.
+- The keys of `data()` have no types.
 - The `.d.ts` contracts are not generated yet.
   They arrive together with the entry points `current.d.ts` and `major.d.ts`, so they can be type-checked from the start.
   Until then, the fixture views `block-contract` and `member-contract` are on the expected-fail list.
@@ -326,6 +329,7 @@ onDeleteItem(item, itemIndex) {
 | `BlockMoved` | A block moves under another parent block | `parent` |
 | `ScopeVariableRemoval` | A block loses a template variable from a `v-for` or a slot | `variable` |
 | `PropBecomesRequired` | An optional prop becomes required | none |
+| `PropDefaultValueChange` | The default value of a prop changes | `default` |
 | `EmitPayloadChange` | The payload of an event changes | none |
 | `RouteParentChange` | A route moves under another parent route, or to the top level | `parent` |
 | `RegistryGroupChange` | A registry entry, for example a rule condition, moves to another group | `group` |
@@ -334,8 +338,8 @@ The first five kinds have the names of the PHP attributes in `src/Core/Framework
 Their keys are shorter than the PHP arguments, for example `parameter` for `parameterName` and `type` for `newType`.
 `BecomesPrivate` is what PHP calls `BecomesInternal`.
 The other kinds exist only in the Administration.
-The break check uses `BlockMoved` and `ScopeVariableRemoval` so far.
-The other kinds can still change until it uses them.
+The break check does not use `EmitPayloadChange`, `RouteParentChange` and `RegistryGroupChange` yet.
+They can still change until it uses them.
 
 `eslint-rules/deprecation-rules/utils/api-markers.ts` holds the grammar and the kinds.
 The ESLint rule `sw-deprecation-rules/valid-api-markers` uses it and reports, in `.js`, `.ts`, `.vue` and `.html.twig` files:
@@ -417,7 +421,10 @@ The rules below those are about what only one kind has.
 | `ref_target_changed` | Break | A ref sits on another tag, or moved into or out of a `v-for` | Methods it calls on the ref are gone |
 | `type_changed` | Break | The declared type of a prop changed | Values it passes may no longer fit |
 | `return_type_changed` | Break | The declared type of a computed property or the return type of a method changed | Code that uses the value may no longer fit |
-| `type_widened` | Info | An untyped member got a type, or a typed one lost it | Nothing |
+| `type_widened` | Info | An untyped member got a type, a typed one lost it, or a prop got a `PropType` on the constructors it had | Nothing |
+| `prop_default_changed` | Break | An optional prop lost its default, or its default value changed | Templates that do not pass it get `undefined` or another value |
+| `param_default_changed` | Break | An optional parameter lost its default, or its default value changed | Calls that do not pass it get `undefined` or another value |
+| `visibility_became_private` | Break | A member of the options object became `@private` | Its code may change in any release |
 | `deprecation_added`, `bc_change_added` | Info | A member got a new marker | Nothing yet, the upgrade notes should name it |
 
 - Parameters are matched by name, and a destructured one by its pattern, because a caller passes them by position.
@@ -428,6 +435,12 @@ The rules below those are about what only one kind has.
 - `type_changed` and `return_type_changed` compare the text of the declaration.
   Whether another type still fits needs the type checker, so every other text fails the check until a reviewer has checked it.
   A method with two declared return types is compared by `return_type_changed` only, also when one of them is a `Promise`.
+- A `PropType` on the constructors a prop had is `type_widened`, because Vue checks a value against the same constructors as before.
+  Another constructor or another `PropType` is `type_changed`.
+- The defaults compare the text of the value, also when it names a `const` of the same file.
+  A factory has no value to compare, so only a factory that goes away is reported.
+- A nested data key follows its object.
+  An object that comes or goes is reported once, without its keys, and a key that goes away is announced by a marker on an object around it too.
 - An extend child is compared with the members it inherits along its extend chain.
   An override that the child drops is no change, and a member that the parent loses is reported once, on the parent.
   A method that only returns `this.$super()` of itself also returns a promise when the method it overrides does.
@@ -463,6 +476,9 @@ A marker announces a change when it sits in the Twig comments directly before th
 | `@bc-change ParameterRemoval` with the `parameter`, on the method | `param_missing` | `announced_change` |
 | `@bc-change NewRequiredParameter` with the `parameter`, on the method | `param_now_required` | `announced_change` |
 | `@bc-change PropBecomesRequired`, on the prop | `prop_now_required` | `announced_change` |
+| `@bc-change PropDefaultValueChange` with the new `default` without spaces, `undefined` for a removed one, on the prop | `prop_default_changed` | `announced_change` |
+| `@bc-change ParameterDefaultValueChange` with the `parameter` and the new `default`, on the method | `param_default_changed` | `announced_change` |
+| `@bc-change BecomesPrivate`, on the member | `visibility_became_private` | `announced_change` |
 | `@bc-change ReturnTypeNarrowing` or `ReturnTypeWidening` with the new `type` without spaces, on the method or computed property | `return_type_changed` | `announced_change` |
 
 The marker counts from the version it names on.

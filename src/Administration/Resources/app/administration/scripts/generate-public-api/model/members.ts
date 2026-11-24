@@ -20,6 +20,7 @@ export interface Parameter {
     name: string;
     pattern: string | null;
     type: string | null;
+    default: DefaultValue;
     optional: boolean;
     rest: boolean;
 }
@@ -34,14 +35,21 @@ export function parameterId({ name, pattern }: Parameter): string {
     return pattern?.replace(/\s+/g, '') ?? name;
 }
 
-/** @private */
-export type PropDefault = 'none' | 'literal' | 'factory';
+/**
+ * @private
+ *
+ * The default of a prop or a parameter: a value as the source writes it, or a factory, whose body is not
+ * compared.
+ */
+export type DefaultValue = { kind: 'none' } | { kind: 'factory' } | { kind: 'value'; text: string };
 
 /**
  * What a kind of the options object knows besides the name. A type of `null` is untyped, which is what a JS
  * member is.
  *
  * - `inject.from`: the key the value is injected by.
+ * - `prop.constructors`: the constructors Vue checks a value against, `prop.annotation` the type of a `PropType`
+ *   on them. `propType` is what the prop declares of the two.
  * - `emit.payload`: the parameters of the validator, `null` for the array form, which declares none.
  * - `data.nested`: the value is an object literal, whose keys are members of their own named `parent.key`.
  * - `method.parameters`: `null` when the method is no function in the source, for example an imported one.
@@ -54,7 +62,7 @@ interface OptionDetails {
     mixin: object;
     inject: { from: string };
     provide: object;
-    prop: { type: string | null; required: boolean; default: PropDefault };
+    prop: { constructors: string | null; annotation: string | null; required: boolean; default: DefaultValue };
     emit: { payload: Parameter[] | null };
     data: { nested: boolean };
     computed: { type: string | null };
@@ -64,7 +72,7 @@ interface OptionDetails {
 /**
  * @private
  *
- * Where the template holds a member: the block around its first place, `null` outside of every block.
+ * Where the template holds a member: the block around it, `null` outside of every block.
  */
 export interface TemplatePlace {
     block: string | null;
@@ -143,10 +151,19 @@ export type Member<Kind extends MemberKind = MemberKind> = {
  * @private
  *
  * The keys from the top of `data()` down to the member: `pagination.limit` gives `['pagination', 'limit']`. The
- * name of every other member is a path of one key.
+ * name of every other member is a path of one key, also when it holds a dot, as an inject key may.
  */
-export function namePath({ name }: Pick<Member, 'name'>): string[] {
-    return name.split('.');
+export function namePath({ kind, name }: Pick<Member, 'kind' | 'name'>): string[] {
+    return kind === 'data' ? name.split('.') : [name];
+}
+
+/**
+ * @private
+ *
+ * The type a prop declares: its `PropType`, or the constructors without one.
+ */
+export function propType({ annotation, constructors }: Pick<Member<'prop'>, 'annotation' | 'constructors'>): string | null {
+    return annotation ?? constructors;
 }
 
 /**

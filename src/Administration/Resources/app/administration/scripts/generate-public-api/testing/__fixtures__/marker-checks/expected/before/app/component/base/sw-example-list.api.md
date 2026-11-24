@@ -12,7 +12,7 @@ component sw-example-list  public  js
   template src/app/component/base/sw-example-list/sw-example-list.html.twig
 
 props
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
 
 emits
   item-delete(...args: any[])

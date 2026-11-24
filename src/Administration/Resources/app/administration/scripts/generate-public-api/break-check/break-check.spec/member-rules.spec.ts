@@ -49,6 +49,23 @@ describe('scripts/generate-public-api/break-check/break-check member rules', () 
             expect(memberSummary(check(before, after))).toEqual(['Break  data_missing  data:pagination.limit']);
         });
 
+        it('reports a removed or new data object once, without its keys', () => {
+            const before = { options: 'data() { return { pagination: { page: 1, limit: 25 } }; }' };
+            const after = { options: 'data() { return {}; }' };
+
+            expect(memberSummary(check(before, after))).toEqual(['Break  data_missing  data:pagination']);
+            expect(memberSummary(check(after, before))).toEqual(['Addition  data_added  data:pagination']);
+        });
+
+        it('reports every removed key with a dot in its name, which only data nests', () => {
+            const before = { options: "inject: { sw: 'sw', 'sw.acl': 'sw.acl' }" };
+
+            expect(memberSummary(check(before, {}))).toEqual([
+                'Break  inject_missing  inject:sw',
+                'Break  inject_missing  inject:sw.acl',
+            ]);
+        });
+
         it('points a removed member to the option that held it and names a member that looks like its new name', () => {
             const [removed] = check(
                 { options: 'props: {\n placeholder: String,\n size: Number },' },
@@ -114,7 +131,48 @@ describe('scripts/generate-public-api/break-check/break-check member rules', () 
             const before = methods('load(id) {}');
             const after = methods('/** @private */\nload() {}');
 
-            expect(memberSummary(check(before, after))).toEqual(['Break  param_missing  method:load/param:id']);
+            expect(memberSummary(check(before, after))).toEqual([
+                'Break  param_missing  method:load/param:id',
+                'Break  visibility_became_private  method:load',
+            ]);
+        });
+
+        it('reports a member that becomes @private as a break, until its @bc-change version is released', () => {
+            const privateAfter = {
+                options:
+                    'props: {\n/** @private */\nsize: String },\ndata() { return {\n/** @private */\npagination: { page: 1 } }; }',
+            };
+            const publicBefore = { options: 'props: { size: String },\ndata() { return { pagination: { page: 1 } }; }' };
+            const announced = methods('/** @bc-change BecomesPrivate version:v6.7.0 */\nonSave() {}');
+
+            expect(memberSummary(check(publicBefore, privateAfter))).toEqual([
+                'Break  visibility_became_private  data:pagination',
+                'Break  visibility_became_private  prop:size',
+            ]);
+            expect(memberSummary(check(announced, methods('/** @private */\nonSave() {}')))).toEqual([
+                'Allowed  announced_change  method:onSave',
+            ]);
+        });
+
+        it('lets the keys of a data object follow its @deprecated or @private marker', () => {
+            const marked = (marker: string, keys: string) => ({
+                options: `data() { return {\n/** ${marker} */\npagination: { ${keys} } }; }`,
+            });
+            const deprecated = '@deprecated tag:v6.7.0 - Will be removed.';
+            const removed = { options: 'data() { return {}; }' };
+
+            expect(memberSummary(check(marked(deprecated, 'page: 1, limit: 25'), removed))).toEqual([
+                'Allowed  deprecated_removal  data:pagination',
+            ]);
+            expect(memberSummary(check(marked('@private', 'page: 1, limit: 25'), removed))).toEqual([
+                'Private  data_missing  data:pagination',
+            ]);
+            expect(memberSummary(check(marked(deprecated, 'page: 1, limit: 25'), marked(deprecated, 'page: 1')))).toEqual([
+                'Allowed  deprecated_removal  data:pagination.limit',
+            ]);
+            expect(memberSummary(check(marked('@private', 'page: 1, limit: 25'), marked('@private', 'page: 1')))).toEqual([
+                'Private  data_missing  data:pagination.limit',
+            ]);
         });
 
         it('allows a slot and a ref to go away in the major state with a deprecated block around them', () => {
@@ -166,6 +224,20 @@ describe('scripts/generate-public-api/break-check/break-check member rules', () 
             expect(memberSummary(check(before, after))).toEqual(['Break  slot_missing  slot:title']);
         });
 
+        it('keeps the removal of a ref a break when only one of its places is in a deprecated block', () => {
+            const deprecated =
+                '{# @deprecated tag:v6.7.0 - Will be removed. #}\n{% block sw_example_card_a %}<div ref="grid"></div>{% endblock %}';
+            const plain = '{% block sw_example_card_b %}<div ref="grid"></div>{% endblock %}';
+            const after = template('{% block sw_example_card_b %}<div></div>{% endblock %}');
+
+            [`${deprecated}\n${plain}`, `${plain}\n${deprecated}`].forEach((blocks) => {
+                expect(memberSummary(check(template(blocks), after))).toEqual([
+                    'Break  ref_missing  ref:grid',
+                    'Allowed  deprecated_removal  block:sw_example_card_a',
+                ]);
+            });
+        });
+
         it('reports a new marker on a member as a hint', () => {
             const after = methods(
                 '/** @deprecated tag:v6.8.0 - Will be removed. */\nload() {}',
@@ -210,6 +282,90 @@ describe('scripts/generate-public-api/break-check/break-check member rules', () 
             const typed = (type: string) => ({ options: `props: { size: ${type} }` });
 
             expect(check(typed('[String, Number]'), typed('[Number, String]'))).toEqual([]);
+        });
+
+        it('reports a changed or removed default value of a prop, and nothing for a new default or another factory', () => {
+            const sized = (option: string) => ({ options: `props: { size: { type: String${option} } }` });
+
+            expect(check(sized(", default: 'medium'"), sized(", default: 'large'"))).toMatchObject([
+                {
+                    rule: 'prop_default_changed',
+                    group: 'Break',
+                    explanation:
+                        "The default of the prop changed from 'medium' to 'large', so plugin templates that render sw-example-card without size get another value.",
+                },
+            ]);
+            expect(check(sized(", default: 'medium'"), sized(''))).toMatchObject([
+                {
+                    rule: 'prop_default_changed',
+                    group: 'Break',
+                    explanation:
+                        'The prop no longer has a default, so plugin templates that render sw-example-card without size leave it undefined.',
+                },
+            ]);
+            expect(memberSummary(check(sized(', default: () => []'), sized('')))).toEqual([
+                'Break  prop_default_changed  prop:size',
+            ]);
+            expect(check(sized(''), sized(", default: 'medium'"))).toEqual([]);
+            expect(check(sized(', default: () => []'), sized(', default: () => [1]'))).toEqual([]);
+        });
+
+        it('allows a changed default of a prop once a @bc-change marker with the new value is released', () => {
+            const marked = (value: string) => ({
+                options: `props: {\n/** @bc-change PropDefaultValueChange version:v6.7.0 default:${value} */\nsize: { type: String, default: 'medium' } }`,
+            });
+            const large = { options: "props: { size: { type: String, default: 'large' } }" };
+
+            expect(memberSummary(check(marked("'large'"), large))).toEqual(['Allowed  announced_change  prop:size']);
+            expect(memberSummary(check(marked("'small'"), large))).toEqual(['Break  prop_default_changed  prop:size']);
+            expect(memberSummary(check(marked('undefined'), { options: 'props: { size: String }' }))).toEqual([
+                'Allowed  announced_change  prop:size',
+            ]);
+        });
+
+        it('reports a PropType on the same constructor as widened, and a PropType on another constructor as a break', () => {
+            const typed = (type: string) => ({
+                script: `import template from './sw-example-card.html.twig';
+                    export default Shopware.Component.wrapComponentConfig({ template, props: { media: { type: ${type} } } });`,
+                extension: 'ts' as const,
+            });
+
+            expect(check(typed('Object'), typed('Object as PropType<Media | null>'))).toMatchObject([
+                {
+                    rule: 'type_widened',
+                    group: 'Info',
+                    explanation:
+                        'The prop now declares the type Media | null. Vue still checks a value against object, as before.',
+                },
+            ]);
+            expect(memberSummary(check(typed('Array'), typed('Array as PropType<Media[]>')))).toEqual([
+                'Info  type_widened  prop:media',
+            ]);
+            expect(memberSummary(check(typed('Object'), typed('Array as PropType<Media[]>')))).toEqual([
+                'Break  type_changed  prop:media',
+            ]);
+            expect(memberSummary(check(typed('Object as PropType<Media>'), typed('Object as PropType<Product>')))).toEqual([
+                'Break  type_changed  prop:media',
+            ]);
+            expect(
+                memberSummary(check(typed('String as PropType<string>'), typed("String as PropType<'a' | 'b'>"))),
+            ).toEqual(['Break  type_changed  prop:media']);
+        });
+
+        it('compares a constructor outside the built-in ones by its name', () => {
+            const typed = (type: string) => ({ options: `props: { product: ${type} }` });
+            const explanations = (before: string, after: string) =>
+                check(typed(before), typed(after)).map(({ rule, explanation }) => `${rule}: ${explanation}`);
+
+            expect(explanations('Object', 'Entity')).toEqual([
+                'type_changed: The declared type of the prop changed from object to Entity, so values that plugin templates pass as product may no longer fit.',
+            ]);
+            expect(explanations('Entity', 'Criteria')).toEqual([
+                'type_changed: The declared type of the prop changed from Entity to Criteria, so values that plugin templates pass as product may no longer fit.',
+            ]);
+            expect(explanations('[String, null]', '[String, Criteria]')).toEqual([
+                'type_changed: The declared type of the prop changed from null | string to Criteria | string, so values that plugin templates pass as product may no longer fit.',
+            ]);
         });
 
         it('reports another type of a computed property as a break', () => {

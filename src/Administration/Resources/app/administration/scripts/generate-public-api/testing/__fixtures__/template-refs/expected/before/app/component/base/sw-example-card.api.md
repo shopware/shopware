@@ -12,8 +12,8 @@ component sw-example-card  public  js
   template src/app/component/base/sw-example-card/sw-example-card.html.twig
 
 props
-  isManual?: boolean  default=literal
-  title?: string  default=literal
+  isManual?: boolean  default=false
+  title?: string  default=''
 
 data
   items: any
@@ -28,6 +28,6 @@ blocks
       sw_example_card_header_title
 
 refs
-  grid  -> sw-data-grid
-  titleField  -> sw-text-field
+  grid  -> sw-data-grid  block=sw_example_card_grid
+  titleField  -> sw-text-field  block=sw_example_card_header_title
 ```

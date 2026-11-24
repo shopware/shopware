@@ -9,7 +9,7 @@ import { cardUnit, reportOf, section } from './sources';
 
 describe('scripts/generate-public-api/read/options/option-members in the snapshot', () => {
     describe('props', () => {
-        it('prints the type, whether the prop is required and the kind of its default', () => {
+        it('prints the type, whether the prop is required and its default value or factory', () => {
             const options = `props: {
                 title: { type: String, required: true },
                 size: { type: [String, Number], default: 'm' },
@@ -20,11 +20,11 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
             }`;
 
             expect(section('props', { options })).toEqual([
-                'anything?: any  default=literal',
+                'anything?: any  default=null',
                 'entity?: object  default=factory',
                 'items?: any[]  default=factory',
                 'onSave?: (...args: any[]) => any',
-                'size?: number | string  default=literal',
+                "size?: number | string  default='m'",
                 'title: string',
             ]);
         });
@@ -204,7 +204,7 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
             expect(section('methods', { options })).toEqual([
                 'close(): any',
                 'load(criteria: any): Promise<any>',
-                'onPageChange(page: any, limit?: any): any',
+                'onPageChange(page: any, limit?: any = 25): any',
                 'onSave(): any',
                 'onSelect(arg0: any, ...rest: any[]): any',
                 'reset(hard: any): any',
@@ -357,7 +357,10 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
                 {% endblock %}
             `;
 
-            expect(section('refs', { template })).toEqual(['grid  -> sw-data-grid', 'inputs  -> input  list']);
+            expect(section('refs', { template })).toEqual([
+                'grid  -> sw-data-grid  block=sw_example_card',
+                'inputs  -> input  list  block=sw_example_card',
+            ]);
             expect(section('notes', { template })).toEqual(['dynamic-ref refName']);
         });
 
@@ -389,8 +392,8 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
             `;
 
             expect(section('refs', { template })).toEqual([
-                'tabs  -> mt-tabs  [from v6.8.0]',
-                'tabs  -> sw-tabs  [until v6.8.0]',
+                'tabs  -> mt-tabs  block=sw_example_card  [from v6.8.0]',
+                'tabs  -> sw-tabs  block=sw_example_card  [until v6.8.0]',
             ]);
             expect(section('slots', { template })).toEqual(['icon  {}  block=sw_example_card_new  [from v6.8.0]']);
         });

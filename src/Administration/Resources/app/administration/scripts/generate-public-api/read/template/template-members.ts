@@ -58,13 +58,14 @@ function slotScope(slot: ElementNode): string[] {
 }
 
 /**
- * What makes two places of a member differ for a plugin. A ref points to one kind of target, and a slot is
- * rendered inside one block.
+ * What makes two places of a member differ for a plugin. A ref points to one kind of target, a slot passes one
+ * scope, and both are rendered inside one block, which a plugin replaces when it overrides that block.
  */
 function placeKey(member: TemplateMember): string {
     const details = {
+        block: member.block,
         target: member.kind === 'ref' ? [member.target, member.list] : null,
-        slot: member.kind === 'slot' ? [member.block, member.scope] : null,
+        slot: member.kind === 'slot' ? member.scope : null,
     };
 
     return JSON.stringify([member.kind, member.name, details]);

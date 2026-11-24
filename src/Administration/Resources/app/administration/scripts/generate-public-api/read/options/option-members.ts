@@ -10,7 +10,7 @@ import { byCodePoint } from '../../helpers/code-point-order';
 import { parseMarkers } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import { BOTH_STATES } from '../../model/flag-states';
-import type { ComponentMembers, Member, OptionKind, Parameter, PropDefault } from '../../model/members';
+import type { ComponentMembers, DefaultValue, Member, OptionKind, Parameter } from '../../model/members';
 import {
     docOf,
     isFunctionNode,
@@ -31,7 +31,7 @@ const PRIVATE_TAG = /^[\s*]*@private\b/m;
 // Enough of an expression to find it in the source, without printing a whole function into the report.
 const NOTE_LENGTH = 80;
 
-// The runtime types of the prop constructors. Any other constructor says nothing a plugin can rely on.
+// The types of the built-in prop constructors. Any other constructor is a class, which stands for its own type.
 const PROP_TYPES: Record<string, string> = {
     String: 'string',
     Number: 'number',
@@ -238,47 +238,72 @@ function provide(value: ts.Node, reading: Reading): Member<'provide'>[] {
     }));
 }
 
-/** `String`, `[String, Number]` or `Object as PropType<Product>`. */
-function propType(type: ts.Node, reading: Reading): string | null {
-    if (ts.isAsExpression(type)) {
-        const [annotated] = ts.isTypeReferenceNode(type.type) ? (type.type.typeArguments ?? []) : [];
+/**
+ * The constructors Vue checks a value against: `String`, `[String, null]` or a class such as `Criteria`. A
+ * single `null` checks nothing, so the prop is untyped.
+ */
+function propConstructors(type: ts.Node, inList = false): string | null {
+    const value = ts.isExpression(type) ? withoutTypeSyntax(type) : type;
 
-        return annotated === undefined ? propType(type.expression, reading) : reading.text(annotated);
-    }
-
-    if (ts.isArrayLiteralExpression(type)) {
-        const types = type.elements.map((element) => propType(element, reading));
+    if (ts.isArrayLiteralExpression(value)) {
+        const types = value.elements.map((element) => propConstructors(element, true));
 
         return types.length > 0 && types.every((name) => name !== null) ? types.sort(byCodePoint).join(' | ') : null;
     }
 
-    return ts.isIdentifier(type) ? (PROP_TYPES[type.text] ?? null) : null;
+    if (value.kind === ts.SyntaxKind.NullKeyword) {
+        return inList ? 'null' : null;
+    }
+
+    return ts.isIdentifier(value) ? (PROP_TYPES[value.text] ?? value.text) : null;
+}
+
+/** `Product` of `Object as PropType<Product>`. */
+function propAnnotation(type: ts.Node, reading: Reading): string | null {
+    if (!ts.isAsExpression(type)) {
+        return null;
+    }
+
+    const [annotated] = ts.isTypeReferenceNode(type.type) ? (type.type.typeArguments ?? []) : [];
+
+    return annotated === undefined ? propAnnotation(type.expression, reading) : reading.text(annotated);
+}
+
+function propTypes(type: ts.Node, reading: Reading): Pick<Member<'prop'>, 'constructors' | 'annotation'> {
+    return { constructors: propConstructors(type), annotation: propAnnotation(type, reading) };
 }
 
 function optionOf(options: ts.ObjectLiteralExpression, name: string): ts.ObjectLiteralElementLike | undefined {
     return options.properties.find((property) => memberName(property) === name);
 }
 
-function propDefault(options: ts.ObjectLiteralExpression, reading: Reading): PropDefault {
+function propDefault(options: ts.ObjectLiteralExpression, reading: Reading): DefaultValue {
     const declared = optionOf(options, 'default');
 
     if (declared === undefined) {
-        return 'none';
+        return { kind: 'none' };
     }
 
-    return isFunctionNode(reading.value(declared)) ? 'factory' : 'literal';
+    const value = reading.value(declared);
+
+    return isFunctionNode(value) ? { kind: 'factory' } : { kind: 'value', text: reading.text(value) };
 }
 
-function propDetails(value: ts.Node, reading: Reading): Pick<Member<'prop'>, 'type' | 'required' | 'default'> {
+function propDetails(
+    value: ts.Node,
+    reading: Reading,
+): Pick<Member<'prop'>, 'constructors' | 'annotation' | 'required' | 'default'> {
     if (!ts.isObjectLiteralExpression(value)) {
-        return { type: propType(value, reading), required: false, default: 'none' };
+        return { ...propTypes(value, reading), required: false, default: { kind: 'none' } };
     }
 
     const type = optionOf(value, 'type');
     const required = optionOf(value, 'required');
 
     return {
-        type: type !== undefined && ts.isPropertyAssignment(type) ? propType(type.initializer, reading) : null,
+        ...(type !== undefined && ts.isPropertyAssignment(type)
+            ? propTypes(type.initializer, reading)
+            : { constructors: null, annotation: null }),
         required:
             required !== undefined &&
             ts.isPropertyAssignment(required) &&
@@ -292,9 +317,10 @@ function props(value: ts.Node, reading: Reading): Member<'prop'>[] {
         return literalNames(value, 'props', reading).map((name) => ({
             kind: 'prop',
             ...reading.common(name.text, name),
-            type: null,
+            constructors: null,
+            annotation: null,
             required: false,
-            default: 'none',
+            default: { kind: 'none' },
         }));
     }
 
@@ -318,6 +344,7 @@ function parametersOf(fn: FunctionNode, reading: Reading): Parameter[] {
             name: ts.isIdentifier(name) ? name.text : `arg${position}`,
             pattern: ts.isIdentifier(name) ? null : reading.text(name),
             type: type === undefined ? null : reading.text(type),
+            default: initializer === undefined ? { kind: 'none' } : { kind: 'value', text: reading.text(initializer) },
             optional: initializer !== undefined || questionToken !== undefined,
             rest: dotDotDotToken !== undefined,
         }));
@@ -349,14 +376,22 @@ function emits(value: ts.Node, reading: Reading): Member<'emit'>[] {
     });
 }
 
-function dataMembers(object: ts.ObjectLiteralExpression, path: string, reading: Reading): Member<'data'>[] {
+/** A key inside a `@private` object is private too. */
+function dataMembers(
+    object: ts.ObjectLiteralExpression,
+    path: string,
+    reading: Reading,
+    insidePrivate = false,
+): Member<'data'>[] {
     return entriesOf(object, 'data', reading).flatMap(({ name, member }) => {
         const value = ts.isPropertyAssignment(member) ? withoutTypeSyntax(member.initializer) : member;
         const nested = ts.isObjectLiteralExpression(value) && value.properties.length > 0 ? value : null;
+        const common = reading.common(`${path}${name}`, member);
+        const isPrivate = insidePrivate || common.isPrivate;
 
         return [
-            { kind: 'data' as const, ...reading.common(`${path}${name}`, member), nested: nested !== null },
-            ...(nested === null ? [] : dataMembers(nested, `${path}${name}.`, reading)),
+            { kind: 'data' as const, ...common, isPrivate, nested: nested !== null },
+            ...(nested === null ? [] : dataMembers(nested, `${path}${name}.`, reading, isPrivate)),
         ];
     });
 }

@@ -36,6 +36,23 @@ describe('scripts/generate-public-api/break-check/break-check method rules', () 
         ]);
     });
 
+    it('reports a changed default of a parameter, which a released @bc-change marker with the new value allows', () => {
+        const marked = (value: string) =>
+            methods(
+                `/** @bc-change ParameterDefaultValueChange version:v6.7.0 parameter:limit default:${value} */\nload(limit = 25) {}`,
+            );
+
+        expect(memberSummary(check(methods('load(limit = 25) {}'), methods('load(limit = 50) {}')))).toEqual([
+            'Break  param_default_changed  method:load/param:limit',
+        ]);
+        expect(memberSummary(check(marked('50'), methods('load(limit = 50) {}')))).toEqual([
+            'Allowed  announced_change  method:load/param:limit',
+        ]);
+        expect(memberSummary(check(marked('100'), methods('load(limit = 50) {}')))).toEqual([
+            'Break  param_default_changed  method:load/param:limit',
+        ]);
+    });
+
     it('names the removed parameter in the middle, not the one that moved up', () => {
         const [finding, ...others] = check(methods('load(id, force, limit) {}'), methods('load(id, limit) {}'));
 

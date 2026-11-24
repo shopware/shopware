@@ -11,6 +11,79 @@ component sw-flow-sequence-action  private  js  [private]
   template src/module/sw-flow/component/sw-flow-sequence-action/sw-flow-sequence-action.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-inline-snippet  [private]
+
+inject
+  feature  [private]
+  flowBuilderService  [private]
+  repositoryFactory  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
+  sequence: object  [private]
+
+data
+  appFlowActions: any  [private]
+  currentSequence: any  [private]
+  fieldError: any  [private]
+  isAppAction: any  [private]
+  selectedAction: any  [private]
+
+computed
+  actionClasses: any  [private]
+  actionGroups: any  [private]
+  actionOptions: any  [private]
+  appActions: any  [private]
+  availableActions: any  [private]
+  currentLocale: any  [private]
+  customFieldSetRepository: any  [private]
+  customFieldSets: any  [private]
+  customFields: any  [private]
+  customerGroups: any  [private]
+  documentTypes: any  [private]
+  errorArrow: any  [private]
+  getSelectedAppAction: any  [private]
+  groups: any  [private]
+  hasAvailableAction: any  [private]
+  invalidSequences: any  [private]
+  mailTemplates: any  [private]
+  modalName: any  [private]
+  sequenceData: any  [private]
+  sequenceRepository: any  [private]
+  sequences: any  [private]
+  showAddAction: any  [private]
+  stateMachineState: any  [private]
+  stopFlowActionName: any  [private]
+  triggerActions: any  [private]
+  triggerEvent: any  [private]
+
+methods
+  actionsWithoutStopFlow(): any  [private]
+  addAction(action: any): any  [private]
+  capitalize(msg: any): any  [private]
+  editAction(action: any): any  [private]
+  getActionDescriptions(sequence: any): any  [private]
+  getActionTitle(actionName: any): any  [private]
+  getStopFlowIndex(actions: any): any  [private]
+  isAppDisabled(appAction: any): any  [private]
+  isNotStopFlow(item: any): any  [private]
+  isValidAction(actionName: any): any  [private]
+  moveAction(action: any, type: any, key: any): any  [private]
+  onCloseModal(): any  [private]
+  onEditAction(sequence: any, target: any, key: any): any  [private]
+  onSaveActionSuccess(sequence: any): any  [private]
+  openDynamicModal(value: any): any  [private]
+  removeAction(id: any): any  [private]
+  removeActionContainer(): any  [private]
+  removeFieldError(): any  [private]
+  setFieldError(): any  [private]
+  showMoveOption(action: any, type: any): any  [private]
+  sortActionOptions(actions: any): any  [private]
+  sortByPosition(sequences: any): any  [private]
+  stopFlowStyle(value: any): any  [private]
+
 blocks
   sw_flow_sequence_action  [private]
     sw_flow_sequence_action_card  [private]
@@ -40,4 +113,7 @@ blocks
 
 crossings
   v-if  sw_flow_sequence_action_actions_empty -> sw_flow_sequence_action_actions_list  [private]
+
+refs
+  contextButton  -> sw-context-button  list  block=sw_flow_sequence_action_actions_item_context_button  [private]
 ```

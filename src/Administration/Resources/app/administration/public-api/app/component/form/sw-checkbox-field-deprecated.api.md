@@ -11,6 +11,52 @@ component sw-checkbox-field-deprecated  private  js  [private]
   template src/app/component/form/sw-checkbox-field-deprecated/sw-checkbox-field-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-form-field, remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  ariaLabel?: string  default=factory  [private]
+  bordered?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  error?: object  default=null  [private]
+  ghostValue?: boolean  default=null  [private]
+  id?: string  default=factory  [private]
+  inheritedValue?: boolean  default=null  [private]
+  label?: string  default=undefined  [private]
+  padded?: boolean  default=false  [private]
+  partlyChecked?: boolean  default=false  [private]
+  value?: boolean  default=null  [private]
+
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_checkbox_field  [private]
+  label  {}  block=sw_checkbox_field  [private]
+
+data
+  currentValue: any  [private]
+
+computed
+  attrsWithoutClass: any  [private]
+  hasError: any  [private]
+  iconName: any  [private]
+  identification: any  [private]
+  inputState: any  [private]
+  isInheritanceField: any  [private]
+  isInherited: any  [private]
+  isPartlyChecked: any  [private]
+  swCheckboxFieldClasses: any  [private]
+  swCheckboxFieldContentClasses: any  [private]
+
+methods
+  onChange(changeEvent: any): any  [private]
+
 blocks
   sw_checkbox_field  [private]
 ```

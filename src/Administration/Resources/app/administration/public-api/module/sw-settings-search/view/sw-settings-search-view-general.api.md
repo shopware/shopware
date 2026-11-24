@@ -10,6 +10,19 @@ component sw-settings-search-view-general  public  js
   source src/module/sw-settings-search/view/sw-settings-search-view-general/index.js
   template src/module/sw-settings-search/view/sw-settings-search-view-general/sw-settings-search-view-general.html.twig
 
+props
+  isLoading?: boolean  default=false
+  productSearchConfigs?: object  default=factory
+
+emits
+  excluded-search-terms-load(...args: any[])
+
+data
+  searchConfigId: any
+
+methods
+  loadData(): any
+
 blocks
   sw_settings_search_view_general
     sw_settings_search_excluded_search_terms_card

@@ -10,6 +10,28 @@ component sw-product-detail-seo  public  js
   source src/module/sw-product/view/sw-product-detail-seo/index.js
   template src/module/sw-product/view/sw-product-detail-seo/sw-product-detail-seo.html.twig
 
+inject
+  acl
+  feature
+  repositoryFactory
+
+data
+  currentSalesChannelId: any
+
+computed
+  categories: any
+  isLoading: any
+  mainCategoryRepository: any
+  parentMainCategory: any
+  parentProduct: any
+  product: any
+  productMainCategory: any
+
+methods
+  onAddMainCategory(mainCategory: any): any
+  onChangeSalesChannel(currentSalesChannelId: any): any
+  onRemoveMainCategory(mainCategory: any): any
+
 blocks
   sw_product_detail_seo
     sw_product_detail_seo_general
@@ -18,4 +40,7 @@ blocks
       sw_product_detail_seo_urls_content
         sw_product_detail_seo_urls_content_seo_additional  [scope: props]
           sw_product_detail_seo_urls_content_seo_additional_edit  [scope: currentValue, isInherited, props]
+
+refs
+  seoForm  -> sw-product-seo-form  block=sw_product_detail_seo_general_content
 ```

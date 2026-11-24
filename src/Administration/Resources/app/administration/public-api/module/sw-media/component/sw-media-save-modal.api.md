@@ -10,6 +10,42 @@ component sw-media-save-modal  public  js
   source src/module/sw-media/component/sw-media-save-modal/index.js
   template src/module/sw-media/component/sw-media-save-modal/sw-media-save-modal.html.twig
 
+inject
+  repositoryFactory
+
+props
+  fileType?: string  default='png'
+  initialFileName?: string  default=null
+  initialFolderId?: string  default=null
+
+emits
+  modal-close(...args: any[])
+  save-media(...args: any[])
+
+data
+  compact: any
+  currentFolder: any
+  fileName: any
+  folderId: any
+  isLoading: any
+  selection: any
+
+computed
+  mediaFolderRepository: any
+  mediaRepository: any
+
+methods
+  addResizeListener(): any
+  beforeDestroyComponent(): any
+  createdComponent(): any
+  fetchCurrentFolder(): Promise<any>
+  getComponentWidth(): any
+  getMediaEntityForUpload(): any
+  mountedComponent(): any
+  onEmitModalClosed(): any
+  onSaveMedia(): Promise<any>
+  removeOnResizeListener(): any
+
 blocks
   sw_media_modal_v2
     sw_media_save_modal_content
@@ -20,4 +56,8 @@ blocks
       sw_media_save_modal_button_cancel
       sw_media_save_modal_button_save
       sw_media_save_modal_input_file_name
+
+refs
+  mediaLibrary  -> sw-media-library  block=sw_media_save_modal_media_library
+  swMediaModal  -> sw-modal  block=sw_media_modal_v2
 ```

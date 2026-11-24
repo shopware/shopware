@@ -95,6 +95,17 @@ Extensions have to be adjusted:
 - `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
   Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
 
+### Variants lead back to their main product
+
+The back button of the variant detail page now leads to its main product and reads "Main product".
+The back link above its content is removed.
+The block `sw_product_detail_content_top` stays, but is empty.
+
+### Settings smart bar titles drop the "Settings ›" prefix
+
+Settings pages no longer start their smart bar title with "Settings ›", since the back button names the settings.
+Settings pages of extensions can drop that prefix as well.
+
 ## Storefront
 
 ### Production Vite builds generate JavaScript SBOMs
@@ -1204,13 +1215,6 @@ With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after t
 The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.
 Without a resolvable title it shows only the icon, labelled "Go back".
 Pages whose route hierarchy does not lead back to where users expect can pass the new optional `backRoute` and `backLabel` props of `sw-page`.
-The variant detail page uses them to lead back to its main product.
-The back link above its content is removed.
-The block `sw_product_detail_content_top` stays, but is empty.
-
-Settings pages no longer start their smart bar title with "Settings ›", since the back button names the settings.
-Settings pages of extensions can drop that prefix as well.
-
 ### Custom fields on the customer create page
 
 The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.

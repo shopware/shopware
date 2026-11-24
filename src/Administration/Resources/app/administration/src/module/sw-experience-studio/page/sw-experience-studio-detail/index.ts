@@ -2311,6 +2311,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.writeElementPropertyValue(element, payload.propertyKey, payload.value);
         },
 
+        /**
+         * Translatable edits store explicit values for the active frame's language and preserve other entries.
+         * Clearing text stores an empty string, which remains empty in the preview and Storefront.
+         * Resetting a translation to inherited content is outside the current editing workflow.
+         * Null is intentionally rejected because removing a language entry would restore rendering fallback.
+         */
         writeElementPropertyValue(element: ContentElementNode, propertyKey: string, value: unknown): void {
             if (!this.isTranslatableProperty(element.component, propertyKey)) {
                 this.applyLayoutMutation((layout) => {
@@ -2327,7 +2333,6 @@ export default Shopware.Component.wrapComponentConfig({
                     return false;
                 }
 
-                // A translatable property takes a string, number or boolean; null would remove the entry.
                 if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
                     this.notifyMutationError([]);
 

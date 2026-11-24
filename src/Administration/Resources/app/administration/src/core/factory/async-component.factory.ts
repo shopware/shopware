@@ -1263,6 +1263,14 @@ const LEADING_GUARD_PATTERN =
     /^\s*[\w$.]+\.triggerDeprecationOrThrow\(\s*(['"`])(\w+)\1\s*(?:,\s*(['"`])((?:\\.|(?!\3)[^\\])*)\3\s*[,)])?/;
 
 /**
+ * Matches the counters Istanbul puts at the start of every function when Jest collects coverage, like
+ * `cov_1a().f[17]++; cov_1a().s[38]++;` with their `istanbul ignore next` comment, so the guard after them is still
+ * found in CI.
+ */
+const LEADING_COVERAGE_COUNTERS =
+    /^(?:\s*\/\*\s*istanbul ignore next\s*\*\/|\s*cov_\w+\(\)\.[bfs]\[\d+\](?:\[\d+\])?\+\+;)*/;
+
+/**
  * Reports every override of `componentName` that overrides a deprecated `computed` or method of `baseConfig`, with
  * or without `this.$super()`. The member's own guard only runs when the member is called, which can be behind a
  * click, while the override stops working once the member is removed either way. An override registered inside
@@ -1434,7 +1442,8 @@ function callsSuper(func: MemberFunction): boolean {
 function leadingDeprecationGuard(func: MemberFunction): DeprecationGuard | null {
     const source = func.toString();
     const bodyStart = functionBodyStart(source);
-    const match = bodyStart === -1 ? null : LEADING_GUARD_PATTERN.exec(source.slice(bodyStart));
+    const body = bodyStart === -1 ? null : source.slice(bodyStart);
+    const match = body === null ? null : LEADING_GUARD_PATTERN.exec(body.replace(LEADING_COVERAGE_COUNTERS, ''));
 
     if (!match) {
         return null;

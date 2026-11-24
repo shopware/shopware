@@ -3,6 +3,7 @@
  */
 
 import deprecationBaseline from 'src/core/deprecation-baseline.json';
+import swUploadListener from 'src/app/component/utils/sw-upload-listener';
 import { deprecations, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 import { ComponentFactory, mount, setupComponentFactoryHooks } from './native-block-condition.fixtures';
 
@@ -227,6 +228,23 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
 
         expect(deprecations).toHaveTriggered(
             'Component.override(\'sw-super-accessor\') overrides the deprecated computed "oldValue", so the override stops working once "oldValue" is removed with V6_8_0_0.',
+        );
+    });
+
+    it('reports an override of a deprecated method of a component from src, which CI instruments for coverage', async () => {
+        ComponentFactory.register('sw-upload-listener', swUploadListener);
+        ComponentFactory.override('sw-upload-listener', {
+            methods: {
+                updateSuccessNotification() {
+                    return null;
+                },
+            },
+        });
+
+        await ComponentFactory.build('sw-upload-listener');
+
+        expect(deprecations).toHaveTriggered(
+            'Component.override(\'sw-upload-listener\') overrides the deprecated method "updateSuccessNotification"',
         );
     });
 

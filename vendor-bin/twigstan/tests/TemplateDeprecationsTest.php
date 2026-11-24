@@ -54,6 +54,52 @@ class TemplateDeprecationsTest extends TestCase
      */
     public static function cases(): iterable
     {
+        yield 'include preserves its matching inactive removal guard' => [[
+            'caller.twig' => "{% set\n## @deprecated tag:v6.8.0 - Removed.\nold = 'Old'\n%}{% if not feature('v6.8.0.0') %}{% include 'child.twig' %}{% endif %}",
+            'child.twig' => '{{ old }}',
+        ], []];
+
+        yield 'active removal guard does not hide a read in an included template' => [[
+            'caller.twig' => "{% set\n## @deprecated tag:v6.8.0 - Removed.\nold = 'Old'\n%}{% if feature('v6.8.0.0') %}{% include 'child.twig' %}{% endif %}",
+            'child.twig' => '{{ old }}',
+        ], [
+            ['child.twig', 1, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "caller.twig").'],
+        ]];
+
+        yield 'clean typed inputs are forwarded implicitly to deprecated include inputs' => [[
+            'input.twig' => "{% types {\n## @deprecated tag:v6.8.0 - Removed.\nold?: 'string'\n} %}",
+            'caller.twig' => "{% types {old: 'string'} %}\n{% include 'input.twig' %}",
+        ], [
+            ['caller.twig', 2, 'Template input "old" is deprecated: tag:v6.8.0 - Removed. (declared in "input.twig").'],
+        ]];
+
+        yield 'nested traits retain the original deprecated declaration' => [[
+            'first.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% block old %}Old{% endblock %}',
+            'second.twig' => '{% use \'first.twig\' %}',
+            'child.twig' => "{% use 'second.twig' %}\n{% block old %}New{% endblock %}",
+        ], [
+            ['child.twig', 2, 'Block override "old" is deprecated: tag:v6.8.0 - Removed. (declared in "first.twig").'],
+        ]];
+
+        yield 'embedded block overrides are checked against their actual parent' => [[
+            'base.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% block old %}Old{% endblock %}',
+            'child.twig' => "{% embed 'base.twig' %}\n{% block old %}New{% endblock %}{% endembed %}",
+        ], [
+            ['child.twig', 2, 'Block override "old" is deprecated: tag:v6.8.0 - Removed. (declared in "base.twig").'],
+        ]];
+
+        yield 'embedded blocks receive the enclosing variable provenance' => [[
+            'base.twig' => '{% block content %}Content{% endblock %}',
+            'caller.twig' => "{% set\n## @deprecated tag:v6.8.0 - Removed.\nold = 'Old'\n%}{% embed 'base.twig' %}\n{% block content %}{{ old }}{% endblock %}{% endembed %}",
+        ], [
+            ['caller.twig', 5, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "caller.twig").'],
+        ]];
+
+        yield 'embed only keeps replacement bindings separate from the enclosing context' => [[
+            'base.twig' => '{% block content %}Content{% endblock %}',
+            'caller.twig' => "{% set\n## @deprecated tag:v6.8.0 - Removed.\nold = 'Old'\n%}{% embed 'base.twig' with {old: 'New'} only %}\n{% block content %}{{ old }}{% endblock %}{% endembed %}",
+        ], []];
+
         yield 'explicit calls resolve the requested external template' => [[
             'base.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% block old %}Old{% endblock %}',
             'caller.twig' => '{{ block(\'old\', \'base.twig\') }}',

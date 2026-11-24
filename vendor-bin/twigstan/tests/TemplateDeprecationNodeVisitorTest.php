@@ -24,6 +24,31 @@ use TwigStan\Twig\TwigFileCanonicalizer;
 #[CoversClass(TemplateDeprecationNodeVisitor::class)]
 class TemplateDeprecationNodeVisitorTest extends TestCase
 {
+    public function testEmbeddedModuleDiagnosticsAreNotDuplicatedByTheEnclosingModule(): void
+    {
+        $templates = [
+            'base.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% block old %}Old{% endblock %}',
+            'caller.twig' => "{% embed 'base.twig' %}\n{% block old %}New{% endblock %}{% endembed %}",
+        ];
+        $twig = new Environment(new ArrayLoader($templates));
+        $twig->addNodeVisitor(new TemplateDeprecationNodeVisitor(array_keys($templates)));
+        $messages = [];
+        set_error_handler(static function (int $level, string $message) use (&$messages): bool {
+            $messages[] = $message;
+
+            return true;
+        }, \E_USER_DEPRECATED);
+        try {
+            $twig->parse($twig->tokenize(new Source($templates['caller.twig'], 'caller.twig')));
+        } finally {
+            restore_error_handler();
+        }
+
+        static::assertCount(1, $messages);
+        static::assertStringContainsString('Block override "old" is deprecated:', $messages[0]);
+        static::assertStringContainsString('in "caller.twig" at line 2.', $messages[0]);
+    }
+
     public function testOnlyAddsAnalysisDiagnosticsWithoutChangingCompiledRuntimeCode(): void
     {
         $source = new Source("{% set\n## @deprecated tag:v6.8.0 - Removed.\nold = 'Old'\n%}{{ old }}", 'view.twig');

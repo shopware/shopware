@@ -14,6 +14,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Node\BlockNode;
 use Twig\Node\BlockReferenceNode;
+use Twig\Node\EmbedNode;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\Binary\AndBinary;
 use Twig\Node\Expression\Binary\OrBinary;
@@ -40,10 +41,11 @@ use Twig\Node\WithNode;
  * @internal
  *
  * @phpstan-type Declaration array{message: string, template: string, line: int}
+ * @phpstan-type Diagnostic array{line: int, message: string, kind: string, name: string}
  * @phpstan-type Context array<string, array<string, Declaration>>
- * @phpstan-type Block array{template: string, node: BlockNode}
+ * @phpstan-type Block array{template: string, node: BlockNode, module: ModuleNode}
  * @phpstan-type Blocks array<string, list<Block>>
- * @phpstan-type Frame array{blocks: Blocks, block: string|null, index: int, stack: list<string>, guards: list<array{Node, bool}>}
+ * @phpstan-type Frame array{blocks: Blocks, block: string|null, index: int, stack: list<string>, guards: list<array{Node, bool}>, module: ModuleNode}
  */
 #[Package('framework')]
 final class TemplateDeprecations
@@ -56,7 +58,7 @@ final class TemplateDeprecations
     private array $modules = [];
 
     /**
-     * @var array<string, array<string, array{line: int, message: string}>>
+     * @var array<string, array<string, Diagnostic>>
      */
     private array $diagnostics = [];
 
@@ -92,7 +94,7 @@ final class TemplateDeprecations
     }
 
     /**
-     * @return list<array{line: int, message: string}>
+     * @return list<Diagnostic>
      */
     public function getDiagnostics(string $template): array
     {
@@ -130,8 +132,9 @@ final class TemplateDeprecations
     /**
      * @param Context $context
      * @param list<string> $stack
+     * @param list<array{Node, bool}> $guards
      */
-    private function render(string $template, array $context, array $stack): void
+    private function render(string|ModuleNode $template, array $context, array $stack, array $guards = []): void
     {
         $chain = $this->hierarchy($template, $stack);
         if ($chain === []) {
@@ -148,10 +151,10 @@ final class TemplateDeprecations
                 }
             }
         }
-        $frame = ['blocks' => $blocks, 'block' => null, 'index' => 0, 'stack' => [...$stack, ...array_keys($chain)], 'guards' => []];
+        $frame = ['blocks' => $blocks, 'block' => null, 'index' => 0, 'stack' => [...$stack, ...array_keys($chain)], 'guards' => $guards, 'module' => reset($chain)];
         $base = array_key_last($chain);
-        foreach ($chain as $owner => $module) {
-            $this->walk($module->getNode('body'), $context, $owner, $frame, $owner !== $base);
+        foreach ($chain as $identity => $module) {
+            $this->walk($module->getNode('body'), $context, $this->key($module), [...$frame, 'module' => $module], $identity !== $base);
         }
     }
 
@@ -160,11 +163,15 @@ final class TemplateDeprecations
      *
      * @return array<string, ModuleNode>
      */
-    private function hierarchy(string $template, array $stack = []): array
+    private function hierarchy(string|ModuleNode $template, array $stack = []): array
     {
         $chain = [];
-        while (($module = $this->module($template)) !== null && !isset($chain[$this->key($module)])) {
-            $key = $this->key($module);
+        while (($module = $template instanceof ModuleNode ? $template : $this->module($template)) !== null) {
+            $index = $module->getAttribute('index');
+            $key = $this->key($module) . ($index === null ? '' : '#embed:' . $index);
+            if (isset($chain[$key])) {
+                break;
+            }
             if (\in_array($key, $stack, true)) {
                 return [];
             }
@@ -187,8 +194,8 @@ final class TemplateDeprecations
     private function inheritedBlocks(array $chain): array
     {
         $blocks = [];
-        foreach ($chain as $owner => $module) {
-            foreach ($this->blocks($module, $owner) as $name => $definitions) {
+        foreach ($chain as $module) {
+            foreach ($this->blocks($module, $this->key($module)) as $name => $definitions) {
                 $blocks[$name] = [...($blocks[$name] ?? []), ...$definitions];
             }
         }
@@ -197,10 +204,16 @@ final class TemplateDeprecations
     }
 
     /**
+     * @param list<string> $visited
+     *
      * @return Blocks
      */
-    private function blocks(ModuleNode $module, string $owner): array
+    private function blocks(ModuleNode $module, string $owner, array $visited = []): array
     {
+        if (\in_array($owner, $visited, true)) {
+            return [];
+        }
+        $visited[] = $owner;
         $blocks = [];
         foreach ($module->getNode('traits') as $trait) {
             $name = $this->literal($trait->getNode('template'));
@@ -211,18 +224,15 @@ final class TemplateDeprecations
             foreach ($trait->getNode('targets') as $name => $target) {
                 $aliases[$name] = $target->getAttribute('value');
             }
-            foreach ($import->getNode('blocks') as $body) {
-                $block = $body->getNode('0');
-                \assert($block instanceof BlockNode);
-                $name = $block->getAttribute('name');
-                $blocks[$aliases[$name] ?? $name] = [['template' => $this->key($import), 'node' => $block]];
+            foreach ($this->blocks($import, $this->key($import), $visited) as $name => $definitions) {
+                $blocks[$aliases[$name] ?? $name] = $definitions;
             }
         }
         foreach ($module->getNode('blocks') as $body) {
             $block = $body->getNode('0');
             \assert($block instanceof BlockNode);
             $name = $this->bindingName($block);
-            $blocks[$name] = [['template' => $owner, 'node' => $block], ...($blocks[$name] ?? [])];
+            $blocks[$name] = [['template' => $owner, 'node' => $block, 'module' => $module], ...($blocks[$name] ?? [])];
         }
 
         return $blocks;
@@ -238,6 +248,8 @@ final class TemplateDeprecations
             foreach ($node as $type) {
                 if (($declaration = $this->declaration($type, $owner)) !== null) {
                     $context[$this->bindingName($type)] = [$this->declarationKey($declaration) => $declaration];
+                } else {
+                    $context[$this->bindingName($type)] ??= [];
                 }
             }
 
@@ -350,6 +362,16 @@ final class TemplateDeprecations
 
             return;
         }
+        if ($node instanceof EmbedNode) {
+            foreach ($frame['module']->getAttribute('embedded_templates') as $embedded) {
+                if ($embedded instanceof ModuleNode && $embedded->getAttribute('index') === $node->getAttribute('index') && $embedded->hasNode('parent')) {
+                    $this->include($embedded->getNode('parent'), $node->hasNode('variables') ? $node->getNode('variables') : null, !$node->getAttribute('only'), $node, $context, $owner, $frame, $embedded);
+                    break;
+                }
+            }
+
+            return;
+        }
         if ($node instanceof IncludeNode) {
             $this->include($node->getNode('expr'), $node->hasNode('variables') ? $node->getNode('variables') : null, !$node->getAttribute('only'), $node, $context, $owner, $frame);
 
@@ -400,17 +422,17 @@ final class TemplateDeprecations
         if ($definition === null) {
             return;
         }
-        $key = 'block:' . $definition['template'] . ':' . $name . ':' . $index;
+        $key = 'block:' . spl_object_id($definition['node']) . ':' . $name . ':' . $index;
         if (\in_array($key, $frame['stack'], true)) {
             return;
         }
-        $this->walk($definition['node']->getNode('body'), $context, $definition['template'], [...$frame, 'block' => $name, 'index' => $index, 'stack' => [...$frame['stack'], $key]]);
+        $this->walk($definition['node']->getNode('body'), $context, $definition['template'], [...$frame, 'block' => $name, 'index' => $index, 'stack' => [...$frame['stack'], $key], 'module' => $definition['module']]);
     }
 
     /** @param Context $context
      * @param Frame $frame
      */
-    private function include(Node $expression, ?Node $variables, bool $withContext, Node $call, array &$context, string $owner, array $frame): void
+    private function include(Node $expression, ?Node $variables, bool $withContext, Node $call, array &$context, string $owner, array $frame, ?ModuleNode $embedded = null): void
     {
         $this->walk($expression, $context, $owner, $frame);
         if ($variables !== null) {
@@ -429,15 +451,15 @@ final class TemplateDeprecations
             }
         }
         $inputs = [];
-        foreach ($this->hierarchy($name) as $inputOwner => $inputModule) {
-            $inputs += $this->inputs($inputModule->getNode('body'), $inputOwner);
+        foreach ($this->hierarchy($name) as $inputModule) {
+            $inputs += $this->inputs($inputModule->getNode('body'), $this->key($inputModule));
         }
         foreach ($inputs as $input => $declaration) {
             if (\array_key_exists($input, $passed)) {
                 $this->report($owner, $call, 'Template input', $input, $declaration, $frame['guards']);
             }
         }
-        $this->render($name, $passed, $frame['stack']);
+        $this->render($embedded ?? $name, $passed, $frame['stack'], $frame['guards']);
     }
 
     /**
@@ -508,7 +530,7 @@ final class TemplateDeprecations
             return;
         }
         $message = \sprintf('%s "%s" is deprecated: %s (declared in "%s").', $kind, $name, $declaration['message'], $declaration['template']);
-        $this->diagnostics[$owner][$node->getTemplateLine() . ':' . $message] = ['line' => $node->getTemplateLine(), 'message' => $message];
+        $this->diagnostics[$owner][$node->getTemplateLine() . ':' . $message] = ['line' => $node->getTemplateLine(), 'message' => $message, 'kind' => $kind, 'name' => $name];
     }
 
     /**

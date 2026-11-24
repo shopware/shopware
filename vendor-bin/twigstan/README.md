@@ -110,6 +110,7 @@ Ordinary comments remain implementation notes and do not deprecate an API.
 
 Overriding a deprecated block is reported even when the override does not call `parent()`.
 Explicit block calls resolve the target template and retain deprecations from ancestors and imported block aliases.
+Nested traits and literal `embed` overrides retain their original declaration and enclosing context.
 Variable reads follow the declaration through inherited block contexts and statically resolved includes.
 Clean reassignments and include argument overrides establish new bindings; aliasing a deprecated variable reports the source read without deprecating the alias.
 Loop targets, `with` scopes and `include ... only` keep their own binding scopes.
@@ -119,6 +120,7 @@ Both include tags and the `include()` function are supported.
 The source catalogue keeps declaration provenance separate from PHPStan's inferred context arrays.
 It is built before emitting diagnostics, so include ordering does not affect which deprecated bindings are recognised.
 The analysis resolves literal template references; dynamic template targets and macro interfaces are not inferred by this check.
+Deprecated input-call checks use literal argument maps and declared context bindings; keys hidden in dynamic argument maps are not inferred.
 Register all analysed templates with `TemplateDeprecationNodeVisitor`, using their loader names, when adapting the loader for another project or plugin.
 The Storefront loader registers the core Storefront template directory.
 

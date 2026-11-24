@@ -140,7 +140,7 @@ class McpListenStreamTest extends TestCase
             }
         }
 
-        static::assertNotNull($bumpedAt, 'the stream flushed no frame, so the tools version was never bumped');
+        static::assertNotNull($bumpedAt, 'the stream sent no keep-alive, so the tools version was never bumped');
 
         $ack = self::firstFrameWith($frames, StatelessProtocol::ACKNOWLEDGED_NOTIFICATION);
         static::assertLessThan($frames[0][0] + 1.0, $ack[0], 'the acknowledgement must be flushed right away, not when the stream ends');
@@ -247,20 +247,24 @@ class McpListenStreamTest extends TestCase
     }
 
     /**
-     * Sends the stream the way PHP-FPM would and records when each frame leaves PHP's output buffer. $onFirstFrame
-     * runs once the first frame, the acknowledgement, has left the buffer, while the stream is open.
+     * Sends the stream the way PHP-FPM would and records when each frame leaves PHP's output buffer.
+     *
+     * $onPolling runs once, on the first keep-alive: only then has the stream read the versions it compares
+     * against. The acknowledgement is flushed before that read, so a bump there would not count as a change.
      *
      * @return non-empty-list<array{float, string}>
      */
-    private static function sendAndTimeFrames(StreamedResponse $response, callable $onFirstFrame): array
+    private static function sendAndTimeFrames(StreamedResponse $response, callable $onPolling): array
     {
         $frames = [[microtime(true), '']];
+        $polling = false;
 
-        ob_start(static function (string $chunk) use (&$frames, $onFirstFrame): string {
+        ob_start(static function (string $chunk) use (&$frames, &$polling, $onPolling): string {
             if ($chunk !== '') {
                 $frames[] = [microtime(true), $chunk];
-                if (\count($frames) === 2) {
-                    $onFirstFrame();
+                if (!$polling && str_starts_with($chunk, ': keep-alive')) {
+                    $polling = true;
+                    $onPolling();
                 }
             }
 

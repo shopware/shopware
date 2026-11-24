@@ -1,0 +1,21 @@
+Public API check failed: 1 unannounced break.
+
+Break (1)
+  service_missing  service:exampleExportService  current, major
+    The service is gone, so plugin code that uses Shopware.Service('exampleExportService') gets undefined.
+    Fix: pattern "Removal". Keep the service and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.
+
+Addition (1)
+  service_added  service:exampleImportService  current, major
+    A new public service that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/app/service/example-import.service.ts:5
+
+Allowed (1)
+  deprecated_removal  service:exampleLegacyService  current, major
+    The service carries @deprecated tag:v6.7.0, which announced that it goes away.
+
+Private (1)
+  service_missing  service:exampleInternalService  current, major
+    The service is gone, so plugin code that uses Shopware.Service('exampleInternalService') gets undefined.
+    Fix: pattern "Removal". Keep the service and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.

@@ -1,0 +1,46 @@
+[
+    {
+        "group": "Break",
+        "rule": "service_missing",
+        "explanation": "The service is gone, so plugin code that uses Shopware.Service('exampleExportService') gets undefined.",
+        "fix": "pattern \"Removal\". Keep the service and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.",
+        "element": "service:exampleExportService",
+        "states": [
+            "current",
+            "major"
+        ]
+    },
+    {
+        "group": "Addition",
+        "rule": "service_added",
+        "explanation": "A new public service that plugins can rely on from now on.",
+        "fix": "mark it @private if it is not meant for plugins.",
+        "element": "service:exampleImportService",
+        "states": [
+            "current",
+            "major"
+        ],
+        "at": "src/app/service/example-import.service.ts:5"
+    },
+    {
+        "group": "Allowed",
+        "rule": "deprecated_removal",
+        "explanation": "The service carries @deprecated tag:v6.7.0, which announced that it goes away.",
+        "element": "service:exampleLegacyService",
+        "states": [
+            "current",
+            "major"
+        ]
+    },
+    {
+        "group": "Private",
+        "rule": "service_missing",
+        "explanation": "The service is gone, so plugin code that uses Shopware.Service('exampleInternalService') gets undefined.",
+        "fix": "pattern \"Removal\". Keep the service and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.",
+        "element": "service:exampleInternalService",
+        "states": [
+            "current",
+            "major"
+        ]
+    }
+]

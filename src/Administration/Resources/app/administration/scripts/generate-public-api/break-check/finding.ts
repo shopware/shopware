@@ -5,6 +5,7 @@
  * prints the findings.
  */
 import type { FlagState } from '../model/flag-states';
+import type { SourceLine } from '../model/source-line';
 
 /**
  * @private
@@ -44,4 +45,30 @@ export interface Finding {
 /** @private */
 export function isMajorOnly(states: readonly FlagState[]): boolean {
     return states.length === 1 && states[0] === 'major';
+}
+
+/**
+ * @private
+ *
+ * What a rule or an announcement says about a change, before the break check knows where it is and whether it
+ * is about private API.
+ */
+export type Judgement = Pick<Finding, 'group' | 'rule' | 'explanation' | 'fix' | 'possibleRename'>;
+
+/**
+ * @private
+ *
+ * The finding for a judged change. A change to private API is listed as `Private`, whatever it would count as.
+ */
+export function findingFor(
+    judged: Judgement,
+    { element, states, isPrivate, at }: { element: string; states: FlagState[]; isPrivate: boolean; at?: SourceLine },
+): Finding {
+    return {
+        ...judged,
+        group: isPrivate ? 'Private' : judged.group,
+        element,
+        states,
+        ...(at === undefined ? {} : { at: `${at.file}:${at.line}` }),
+    };
 }

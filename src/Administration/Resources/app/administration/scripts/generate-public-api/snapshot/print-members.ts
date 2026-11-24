@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  *
- * Prints the sections of a report that list the members of a component, one line per member.
+ * Prints the sections of a report that list the members of a unit, one line per member.
  */
 import { byCodePoint } from '../helpers/code-point-order';
 import { blockLabel } from '../model/blocks';
@@ -70,6 +70,7 @@ const MEMBER_TEXTS: { [Kind in MemberKind]: (member: Member<Kind>) => string } =
         `${name}  ${scope.length === 0 ? '{}' : `{ ${scope.join(', ')} }`}  block=${blockLabel(block)}`,
     data: dataText,
     computed: ({ name, type }) => `${name}: ${type ?? UNTYPED}`,
+    property: ({ name, type }) => `${name}: ${type ?? UNTYPED}`,
     method: (method) => `${method.name}(${parametersText(method.parameters)}): ${returnText(method)}`,
     ref: ({ name, target, list, block }) => `${name}  -> ${target}${list ? '  list' : ''}  block=${blockLabel(block)}`,
 };
@@ -104,7 +105,7 @@ function mixinLines(mixins: Member<'mixin'>[]): Line[] {
 /**
  * @private
  *
- * One section per kind of `kinds` that the component has members of, in that order.
+ * One section per kind of `kinds`, in that order. A kind the unit has no members of gives an empty section.
  */
 export function memberSections(members: Member[], kinds: readonly MemberKind[], flags: FlagContext): Section[] {
     return kinds.map((kind) => {

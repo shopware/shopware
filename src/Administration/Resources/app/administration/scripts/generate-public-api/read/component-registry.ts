@@ -4,12 +4,12 @@
  * Finds the `Component.register`, `Component.extend` and `Component.override` calls and the files behind them.
  */
 import ts from 'typescript';
-import { isEslintDirective } from '../../../eslint-rules/deprecation-rules/utils/eslint-directive';
-import { BOTH_STATES, inBothStates } from '../model/flag-states';
 import type { FlagContext, FlagStates } from '../model/flag-states';
 import type { Registration } from '../model/model';
 import type { SourceTree } from '../source/source-tree';
-import { ConditionChain, conditionTruths } from './flag-conditions';
+import { guardStates } from './flag-conditions';
+import { isScriptFile, parseScript, resolveModule, scriptLanguage } from './modules';
+import { hasPrivateTag, statementOf } from './script-nodes';
 
 const CALL_KINDS = [
     'register',
@@ -45,58 +45,6 @@ type ComponentFiles = Pick<Registration, 'source' | 'sfc' | 'template' | 'langua
 const COMPONENT_CALL = new RegExp(`\\bComponent\\s*\\.\\s*(?:${CALL_KINDS.join('|')})\\s*\\(`);
 
 const COMPONENT_FACTORY = /(?:^|\.)Component$/;
-
-const SCRIPT_FILE = /\.(?:js|ts)$/;
-
-const PRIVATE_TAG = /^[\s/*]*@private\b/m;
-
-const MODULE_SUFFIXES = [
-    '',
-    '.ts',
-    '.js',
-    '/index.ts',
-    '/index.js',
-];
-
-function parseScript(file: string, tree: SourceTree): ts.SourceFile {
-    return ts.createSourceFile(file, tree.read(file), ts.ScriptTarget.Latest, true);
-}
-
-function directory(file: string): string {
-    return file.slice(0, file.lastIndexOf('/'));
-}
-
-function resolveModule(specifier: string, importer: string, tree: SourceTree): string {
-    const base = specifier.startsWith('src/')
-        ? specifier
-        : new URL(specifier, `file:///${directory(importer)}/`).pathname.slice(1);
-    const resolved = MODULE_SUFFIXES.map((suffix) => `${base}${suffix}`).find((file) => tree.has(file));
-
-    if (resolved === undefined) {
-        throw new Error(`${importer}: the import '${specifier}' matches no source file.`);
-    }
-
-    return resolved;
-}
-
-function commentBody({ pos, end, kind }: ts.CommentRange, source: ts.SourceFile): string {
-    const closerLength = kind === ts.SyntaxKind.MultiLineCommentTrivia ? 2 : 0;
-
-    return source.text.slice(pos + 2, end - closerLength);
-}
-
-/**
- * Only the comment directly above a statement counts, as in the ESLint rule `private-feature-declarations`.
- * The file header of a registration function says nothing about a single component.
- * ESLint directives between that comment and the statement are skipped, as the rule skips them.
- */
-function hasPrivateTag(statement: ts.Node, source: ts.SourceFile): boolean {
-    const comment = (ts.getLeadingCommentRanges(source.text, statement.getFullStart()) ?? [])
-        .filter((range) => !isEslintDirective(commentBody(range, source)))
-        .at(-1);
-
-    return comment !== undefined && PRIVATE_TAG.test(source.text.slice(comment.pos, comment.end));
-}
 
 function importedFile(source: ts.SourceFile, suffix: string, tree: SourceTree): string | null {
     const specifiers = source.statements
@@ -147,7 +95,7 @@ function componentFiles(file: string, tree: SourceTree): ComponentFiles {
         source: file,
         sfc: null,
         template: importedFile(source, '.html.twig', tree),
-        language: file.endsWith('.ts') ? 'ts' : 'js',
+        language: scriptLanguage(file),
         privateExport: defaultExport !== undefined && hasPrivateTag(defaultExport, source),
     };
 }
@@ -185,28 +133,6 @@ function visibilityOf(
     return privateRegistration
         ? { visibility: 'private', visibilitySource: 'registration' }
         : { visibility: 'public', visibilitySource: 'default' };
-}
-
-/** The flag states in which the `if` statements around `node` let it run. */
-function guardStates(node: ts.Node, flags: FlagContext): FlagStates {
-    let states = BOTH_STATES;
-
-    for (let child = node; child.parent !== undefined; child = child.parent) {
-        const { parent } = child;
-
-        if (ts.isIfStatement(parent) && child !== parent.expression) {
-            const chain = new ConditionChain();
-            const thenStates = chain.branch(conditionTruths(parent.expression, flags));
-
-            states = inBothStates(states, child === parent.thenStatement ? thenStates : chain.elseBranch());
-        }
-    }
-
-    return states;
-}
-
-function statementOf(node: ts.Node): ts.Node {
-    return ts.isStatement(node) || node.parent === undefined ? node : statementOf(node.parent);
 }
 
 interface ComponentCall {
@@ -345,7 +271,7 @@ export function componentCalls(tree: SourceTree, flags: FlagContext): ComponentC
     const overrides: Override[] = [];
 
     tree.files
-        .filter((file) => SCRIPT_FILE.test(file) && COMPONENT_CALL.test(tree.read(file)))
+        .filter((file) => isScriptFile(file) && COMPONENT_CALL.test(tree.read(file)))
         .forEach((file) => {
             const source = parseScript(file, tree);
 

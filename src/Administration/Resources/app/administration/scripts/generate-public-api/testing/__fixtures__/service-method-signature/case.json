@@ -1,0 +1,4 @@
+{
+    "description": "The methods of a service that a factory returns changed a default, lost a parameter and became async, and the service lost a property",
+    "majorFlags": ["v6.8.0.0"]
+}

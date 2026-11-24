@@ -1,0 +1,61 @@
+[
+    {
+        "group": "Break",
+        "rule": "method_signature_changed",
+        "explanation": "The method now returns a Promise, so plugin code that uses the return value of Shopware.Service('exampleSearchService').reset() gets a Promise instead.",
+        "fix": "keep the method sync and add an async method under a new name.",
+        "element": "service:exampleSearchService/method:reset",
+        "states": [
+            "current",
+            "major"
+        ],
+        "at": "src/module/sw-example/service/example-search.service.js:23"
+    },
+    {
+        "group": "Break",
+        "rule": "param_default_changed",
+        "explanation": "The default of the parameter limit changed from 25 to 50, so plugin calls of Shopware.Service('exampleSearchService').search() that do not pass it get another value.",
+        "fix": "keep the default, or mark the method @bc-change ParameterDefaultValueChange version:v6.8.0 parameter:limit default:50.",
+        "element": "service:exampleSearchService/method:search/param:limit",
+        "states": [
+            "current",
+            "major"
+        ],
+        "at": "src/module/sw-example/service/example-search.service.js:15"
+    },
+    {
+        "group": "Break",
+        "rule": "param_missing",
+        "explanation": "The parameter forceReload is gone, so the value that plugin calls of Shopware.Service('exampleSearchService').getFields() pass for it is ignored.",
+        "fix": "pattern \"Parameter removal\". Keep forceReload, mark the method @bc-change ParameterRemoval version:v6.8.0 parameter:forceReload, and remove it in the major.",
+        "element": "service:exampleSearchService/method:getFields/param:forceReload",
+        "states": [
+            "current",
+            "major"
+        ],
+        "at": "src/module/sw-example/service/example-search.service.js:19"
+    },
+    {
+        "group": "Break",
+        "rule": "property_missing",
+        "explanation": "The property is gone, so plugin code that reads Shopware.Service('exampleSearchService').maxResults gets undefined.",
+        "fix": "pattern \"Removal\". Keep the property and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.",
+        "element": "service:exampleSearchService/property:maxResults",
+        "states": [
+            "current",
+            "major"
+        ],
+        "at": "src/module/sw-example/service/example-search.service.js:9"
+    },
+    {
+        "group": "Addition",
+        "rule": "param_added",
+        "explanation": "A new optional parameter offset.",
+        "element": "service:exampleSearchService/method:search/param:offset",
+        "states": [
+            "current",
+            "major"
+        ],
+        "at": "src/module/sw-example/service/example-search.service.js:15"
+    }
+]

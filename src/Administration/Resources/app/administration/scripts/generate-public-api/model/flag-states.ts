@@ -66,6 +66,18 @@ export function inBothStates(a: FlagStates, b: FlagStates): FlagStates {
     return perState((state) => a[state] && b[state]);
 }
 
+/**
+ * @private
+ *
+ * The elements of a unit that exists in `states`: each one in the states it shares with the unit, and none
+ * that shares no state with it.
+ */
+export function existingIn<Element extends { states: FlagStates }>(states: FlagStates, elements: Element[]): Element[] {
+    return elements
+        .map((element) => ({ ...element, states: inBothStates(states, element.states) }))
+        .filter((element) => FLAG_STATES.some((state) => element.states[state]));
+}
+
 function inAnyState(a: FlagStates, b: FlagStates): FlagStates {
     return perState((state) => a[state] || b[state]);
 }

@@ -59,8 +59,9 @@ export interface FixtureTest {
 /**
  * @private
  *
- * The comparisons that cannot pass yet. A view is listed while no case passes it. Once some cases pass,
- * the view leaves the list and the cases that still fail it are listed as single comparisons.
+ * The comparisons that cannot pass yet. A view is listed while no case that expects something of it passes.
+ * Once some of them pass, the view leaves the list and the cases that still fail it are listed as single
+ * comparisons.
  */
 export interface ExpectedFailures {
     views: readonly string[];
@@ -78,20 +79,36 @@ export interface PublicApiTools<Snapshot extends SnapshotFiles = SnapshotFiles> 
     classifyChanges: (base: Snapshot, head: Snapshot) => Finding[];
 }
 
-interface UnitKind {
-    /** Sections of the outline in an `.api.md` report. */
+/** What a unit kind compares, in the outlines, entries and findings of the units of its owner. */
+interface Parts {
+    /**
+     * Sections of the outline of a unit in an `.api.md` report. The name of the owner stands for the header of
+     * the outline, which starts with it.
+     */
     reportSections: readonly string[];
     /** Members of a registry entry in a `.d.ts` contract. */
     contractMembers: readonly string[];
-    /** Keys of a component entry in `index.json`. */
+    /** Keys of an entry of the owner in `index.json`. */
     indexKeys: readonly string[];
-    /** Kinds of the elements a finding is about, the `block` in `component:sw-card/block:sw_card_header`. */
+    /**
+     * Kinds of the elements a finding is about, the `block` in `component:sw-card/block:sw_card_header`. The name
+     * of the owner stands for a finding about the unit itself, such as `service:acl`.
+     */
     elementKinds: readonly string[];
 }
 
-const NO_PARTS: UnitKind = { reportSections: [], contractMembers: [], indexKeys: [], elementKinds: [] };
+/** The units a unit kind is about: `component` reads the outlines that start with `component`, and so on. */
+type Owner = 'component' | 'service';
 
-const PART_LABELS: Record<keyof UnitKind, (value: string) => string> = {
+interface UnitKind extends Parts {
+    owner: Owner;
+}
+
+const NO_PARTS: Parts = { reportSections: [], contractMembers: [], indexKeys: [], elementKinds: [] };
+
+const OWNERS: readonly Owner[] = ['component', 'service'];
+
+const PART_LABELS: Record<keyof Parts, (value: string) => string> = {
     reportSections: (section) => `report section ${section}`,
     contractMembers: (member) => `contract member ${member}`,
     indexKeys: (key) => `index key ${key}`,
@@ -107,17 +124,20 @@ const BLOCK_CONTEXT = { reportSection: 'block-context', contractMember: 'blockCo
 
 /*
  * The block tree, its contract, the block structure and the findings on blocks are built in separate steps, and
- * so are the members of a component, their contract and the findings on them. A part can only be listed once a
- * case expects it: the `mixins`, `provide` and `notes` sections of a report are covered by the specs instead.
+ * so are the members of a component, their contract and the findings on them. A service is built in two: the
+ * unit with its registration, and its members. A part can only be listed once a case expects it: the `mixins`,
+ * `provide` and `notes` sections of a report are covered by the specs instead.
  */
 const UNIT_KINDS: Record<string, UnitKind> = {
     'block-tree': {
         ...NO_PARTS,
+        owner: 'component',
         reportSections: ['blocks'],
         indexKeys: ['blocks'],
     },
     'block-contract': {
         ...NO_PARTS,
+        owner: 'component',
         contractMembers: [
             'blocks',
             BLOCK_CONTEXT.contractMember,
@@ -126,6 +146,7 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
     'block-structure': {
         ...NO_PARTS,
+        owner: 'component',
         reportSections: [
             BLOCK_CONTEXT.reportSection,
             'crossings',
@@ -133,6 +154,7 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
     'block-findings': {
         ...NO_PARTS,
+        owner: 'component',
         elementKinds: [
             'block',
             'crossing',
@@ -140,6 +162,7 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
     'component-members': {
         ...NO_PARTS,
+        owner: 'component',
         reportSections: [
             'inject',
             'props',
@@ -153,6 +176,7 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
     'member-contract': {
         ...NO_PARTS,
+        owner: 'component',
         contractMembers: [
             'props',
             'emits',
@@ -168,11 +192,34 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
     'member-findings': {
         ...NO_PARTS,
+        owner: 'component',
         elementKinds: [
             'prop',
             'computed',
             'method',
             'ref',
+        ],
+    },
+    'service-units': {
+        ...NO_PARTS,
+        owner: 'service',
+        reportSections: ['service'],
+        indexKeys: [
+            'file',
+            'visibility',
+        ],
+        elementKinds: ['service'],
+    },
+    'service-members': {
+        ...NO_PARTS,
+        owner: 'service',
+        reportSections: [
+            'properties',
+            'methods',
+        ],
+        elementKinds: [
+            'property',
+            'method',
         ],
     },
 };
@@ -223,12 +270,28 @@ const REPORT_SECTION_SPLITS: Partial<Record<string, (section: string) => string[
     blocks: splitBlockContextSection,
 };
 
-function reportSections(report: string, sections: readonly string[]): string {
-    const outline = REPORT_OUTLINE.exec(report)?.[1] ?? '';
+function isOwner(name: string): name is Owner {
+    return (OWNERS as readonly string[]).includes(name);
+}
 
-    return outline
-        .split('\n\n')
-        .flatMap((section) => REPORT_SECTION_SPLITS[sectionName(section)]?.(section) ?? [section])
+/** The sections of the report with the owner of the outline each one belongs to, whose header starts with its name. */
+function ownedSections(report: string): { owner: Owner | undefined; section: string }[] {
+    const outline = REPORT_OUTLINE.exec(report)?.[1] ?? '';
+    let owner: Owner | undefined;
+
+    return outline.split('\n\n').map((section) => {
+        const name = sectionName(section);
+
+        owner = isOwner(name) ? name : owner;
+
+        return { owner, section };
+    });
+}
+
+function reportSections(report: string, { owner, reportSections: sections }: UnitKind): string {
+    return ownedSections(report)
+        .filter((owned) => owned.owner === owner)
+        .flatMap(({ section }) => REPORT_SECTION_SPLITS[sectionName(section)]?.(section) ?? [section])
         .filter((section) => sections.includes(sectionName(section)))
         .join('\n\n');
 }
@@ -337,9 +400,10 @@ function contractMembers(contract: string, members: readonly string[]): string {
         .join('\n');
 }
 
-function indexEntries(index: string, keys: readonly string[]): string {
-    const { components = {} } = JSON.parse(index) as { components?: Record<string, Record<string, unknown>> };
-    const entries = Object.entries(components)
+/** The entries of the owner stand in the index below its plural, `components` or `services`. */
+function indexEntries(index: string, { owner, indexKeys: keys }: UnitKind): string {
+    const registries = JSON.parse(index) as Partial<Record<string, Record<string, Record<string, unknown>>>>;
+    const entries = Object.entries(registries[`${owner}s`] ?? {})
         .map(([name, entry]) => [
             name,
             Object.fromEntries(keys.filter((key) => Object.hasOwn(entry, key)).map((key) => [key, entry[key]])),
@@ -350,9 +414,9 @@ function indexEntries(index: string, keys: readonly string[]): string {
 }
 
 const FILE_SLICES: { matches: (file: string) => boolean; slice: (content: string, kind: UnitKind) => string }[] = [
-    { matches: (file) => file.endsWith('.api.md'), slice: (content, kind) => reportSections(content, kind.reportSections) },
+    { matches: (file) => file.endsWith('.api.md'), slice: reportSections },
     { matches: (file) => file.endsWith('.d.ts'), slice: (content, kind) => contractMembers(content, kind.contractMembers) },
-    { matches: (file) => file === 'index.json', slice: (content, kind) => indexEntries(content, kind.indexKeys) },
+    { matches: (file) => file === 'index.json', slice: indexEntries },
 ];
 
 /**
@@ -369,15 +433,24 @@ function sliceSnapshot(files: Record<string, string>, kind: UnitKind): Record<st
     );
 }
 
-const ELEMENT_KIND = /^[^/]+\/([a-z-]+):/;
+const ELEMENT = /^([a-z-]+):[^/]+(?:\/([a-z-]+):)?/;
 
-/** The kind of the element below its owner, `block` for `component:sw-card/block:sw_card_header/scope:item`. */
-function elementKind(finding: Finding): string | undefined {
-    return ELEMENT_KIND.exec(finding.element)?.[1];
+/**
+ * The owner of the element and its kind below the owner: `block` for `component:sw-card/block:sw_card_header/scope:item`,
+ * and the owner itself for a finding about the unit, such as `service:acl`.
+ */
+function elementOf(finding: Finding): { owner: string; kind: string } | undefined {
+    const [, owner, kind] = ELEMENT.exec(finding.element) ?? [];
+
+    return owner === undefined ? undefined : { owner, kind: kind ?? owner };
 }
 
-function sliceFindings(findings: Finding[], kind: UnitKind): Finding[] {
-    return findings.filter((finding) => kind.elementKinds.includes(elementKind(finding) ?? ''));
+function sliceFindings(findings: Finding[], { owner, elementKinds }: UnitKind): Finding[] {
+    return findings.filter((finding) => {
+        const element = elementOf(finding);
+
+        return element !== undefined && element.owner === owner && elementKinds.includes(element.kind);
+    });
 }
 
 function sliceCase(output: CaseOutput, kind: UnitKind): CaseOutput {
@@ -460,8 +533,11 @@ function once<Result>(compute: () => Result): () => Result {
 }
 
 function unitKindParts(kind: UnitKind): { label: string; part: UnitKind }[] {
-    return (Object.keys(PART_LABELS) as (keyof UnitKind)[]).flatMap((field) =>
-        kind[field].map((value) => ({ label: PART_LABELS[field](value), part: { ...NO_PARTS, [field]: [value] } })),
+    return (Object.keys(PART_LABELS) as (keyof Parts)[]).flatMap((field) =>
+        kind[field].map((value) => ({
+            label: PART_LABELS[field](value),
+            part: { ...NO_PARTS, owner: kind.owner, [field]: [value] },
+        })),
     );
 }
 
@@ -528,13 +604,16 @@ export function fixtureTests<Snapshot extends SnapshotFiles>(
 
         return Object.entries(VIEWS).map(([view, slice]) => {
             const name = `${fixture.name}/${view}`;
+            const expected = slice(fixture.expected);
+            // A case that expects nothing of a view passes it before the view is built, as a service does for blocks.
+            const awaitsView = expectedFailures.views.includes(view) && !isEmpty(expected);
 
             return {
                 name,
                 view,
-                expectedToFail: expectedFailures.views.includes(view) || expectedFailures.comparisons.includes(name),
+                expectedToFail: awaitsView || expectedFailures.comparisons.includes(name),
                 actual: () => slice(output()),
-                expected: slice(fixture.expected),
+                expected,
             };
         });
     });

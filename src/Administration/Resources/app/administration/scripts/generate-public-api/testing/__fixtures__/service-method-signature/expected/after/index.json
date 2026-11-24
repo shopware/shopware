@@ -1,0 +1,16 @@
+{
+    "components": {},
+    "services": {
+        "exampleSearchService": {
+            "file": "module/sw-example/service/example-search.service",
+            "visibility": "public"
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

@@ -1,0 +1,24 @@
+{
+    "components": {},
+    "services": {
+        "exampleExportService": {
+            "file": "app/service/example-export.service",
+            "visibility": "public"
+        },
+        "exampleInternalService": {
+            "file": "app/service/example-internal.service",
+            "visibility": "private"
+        },
+        "exampleLegacyService": {
+            "file": "app/service/example-legacy.service",
+            "visibility": "public"
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

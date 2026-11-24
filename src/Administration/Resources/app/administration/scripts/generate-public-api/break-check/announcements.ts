@@ -5,7 +5,7 @@
  */
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagContext, FlagState } from '../model/flag-states';
-import type { ChangedFacts } from './facts/component-facts';
+import type { ChangedFacts } from './facts/unit-facts';
 import { isMajorOnly } from './finding';
 import type { Finding } from './finding';
 import type { Announcement } from './rules/rule';
@@ -19,16 +19,24 @@ function isReleased({ version }: Marker, flags: FlagContext): boolean {
 }
 
 /**
+ * @private
+ *
+ * The markers of the changed element: at the base commit in a flag state, and at the head commit.
+ */
+export interface MarkerSources {
+    base: (state: FlagState) => Marker[];
+    head: Marker[];
+}
+
+/**
  * The markers that can announce a change. A change that only the major state has is also announced by a marker
  * for that major, which is how a change is prepared behind the major flag. Only such a marker may come with the
  * same pull request, so it is the one marker of the head that counts.
  */
-function dueMarkers(announcement: Announcement, states: FlagState[], change: ChangedFacts, flags: FlagContext): Marker[] {
+function dueMarkers(markers: MarkerSources, states: FlagState[], flags: FlagContext): Marker[] {
     const isForMajor = ({ version }: Marker): boolean => isMajorOnly(states) && version === flags.majorVersion;
-    const fromBase = states
-        .flatMap((state) => announcement.markers(change.baseFacts[state]))
-        .filter((marker) => isReleased(marker, flags) || isForMajor(marker));
-    const fromHead = announcement.markers(change.headFacts.current).filter(isForMajor);
+    const fromBase = states.flatMap(markers.base).filter((marker) => isReleased(marker, flags) || isForMajor(marker));
+    const fromHead = markers.head.filter(isForMajor);
 
     return [
         ...fromBase,
@@ -42,22 +50,45 @@ function announcedText(subject: string, marker: Marker): string {
         : `${subject} carries @bc-change ${marker.kind} version:${marker.version}, which announced this change.`;
 }
 
+type AnnouncedFinding = Pick<Finding, 'group' | 'rule' | 'explanation'>;
+
 /**
  * @private
  *
- * What the finding says when a marker announced the change, `undefined` when none did.
+ * What the finding says when one of `markers` announced the change, `undefined` when none did.
+ */
+export function announcedBy(
+    announcement: Pick<Announcement, 'rule' | 'subject' | 'matches'>,
+    markers: MarkerSources,
+    states: FlagState[],
+    flags: FlagContext,
+): AnnouncedFinding | undefined {
+    const marker = dueMarkers(markers, states, flags).find((candidate) => announcement.matches(candidate));
+
+    return marker && { group: 'Allowed', rule: announcement.rule, explanation: announcedText(announcement.subject, marker) };
+}
+
+/**
+ * @private
+ *
+ * The same for a change a rule found, whose announcement reads the markers out of the facts of the unit.
  */
 export function announced(
     announcement: Announcement | undefined,
     states: FlagState[],
     change: ChangedFacts,
     flags: FlagContext,
-): Pick<Finding, 'group' | 'rule' | 'explanation'> | undefined {
-    if (announcement === undefined) {
-        return undefined;
-    }
-
-    const marker = dueMarkers(announcement, states, change, flags).find((candidate) => announcement.matches(candidate));
-
-    return marker && { group: 'Allowed', rule: announcement.rule, explanation: announcedText(announcement.subject, marker) };
+): AnnouncedFinding | undefined {
+    return (
+        announcement &&
+        announcedBy(
+            announcement,
+            {
+                base: (state) => announcement.markers(change.baseFacts[state]),
+                head: announcement.markers(change.headFacts.current),
+            },
+            states,
+            flags,
+        )
+    );
 }

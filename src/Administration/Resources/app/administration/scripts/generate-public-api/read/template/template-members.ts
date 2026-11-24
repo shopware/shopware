@@ -10,7 +10,7 @@ import type { DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compile
 import { byCodePoint } from '../../helpers/code-point-order';
 import { BOTH_STATES, inBothStates, mergeStates } from '../../model/flag-states';
 import type { FlagContext } from '../../model/flag-states';
-import type { ComponentMembers, Member, TemplateKind, TemplatePlace } from '../../model/members';
+import type { UnitMembers, Member, TemplateKind, TemplatePlace } from '../../model/members';
 import type { BlockNode } from './block-tree';
 import { BranchStack, walkBranches } from './flag-branches';
 import { blockBoundary, lineAt } from './rendered-template';
@@ -88,7 +88,7 @@ class TemplateMemberReader {
         private readonly flags: FlagContext,
     ) {}
 
-    public read(): ComponentMembers {
+    public read(): UnitMembers {
         this.visit(this.template.nodes);
 
         return {
@@ -173,6 +173,6 @@ class TemplateMemberReader {
  * The slots and template refs of the rendered `template`, each once per place that differs in what a plugin
  * sees of it.
  */
-export function readTemplateMembers(template: RenderedTemplate, flags: FlagContext): ComponentMembers {
+export function readTemplateMembers(template: RenderedTemplate, flags: FlagContext): UnitMembers {
     return new TemplateMemberReader(template, flags).read();
 }

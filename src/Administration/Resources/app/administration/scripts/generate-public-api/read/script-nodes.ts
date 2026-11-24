@@ -4,6 +4,7 @@
  * Reads the nodes of a script's syntax tree: what an expression stands for, and the names and lines of members.
  */
 import ts from 'typescript';
+import { isEslintDirective } from '../../../eslint-rules/deprecation-rules/utils/eslint-directive';
 import type { SourceLine } from '../model/source-line';
 
 /**
@@ -76,11 +77,16 @@ export function memberValue(member: ts.ObjectLiteralElementLike, source: ts.Sour
 }
 
 /** @private */
-export type FunctionNode = ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration;
+export type FunctionNode = ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration | ts.FunctionDeclaration;
 
 /** @private */
 export function isFunctionNode(node: ts.Node): node is FunctionNode {
-    return ts.isFunctionExpression(node) || ts.isArrowFunction(node) || ts.isMethodDeclaration(node);
+    return (
+        ts.isFunctionExpression(node) ||
+        ts.isArrowFunction(node) ||
+        ts.isMethodDeclaration(node) ||
+        ts.isFunctionDeclaration(node)
+    );
 }
 
 /**
@@ -140,6 +146,14 @@ export function textOf(node: ts.Node, source: ts.SourceFile): string {
     return node.getText(source).replace(/\s+/g, ' ').trim();
 }
 
+function commentBody({ pos, end, kind }: ts.CommentRange, source: ts.SourceFile): string {
+    return source.text.slice(pos + 2, kind === ts.SyntaxKind.MultiLineCommentTrivia ? end - 2 : end);
+}
+
+function commentsAbove(node: ts.Node, source: ts.SourceFile): string[] {
+    return (ts.getLeadingCommentRanges(source.text, node.getFullStart()) ?? []).map((range) => commentBody(range, source));
+}
+
 /**
  * @private
  *
@@ -147,9 +161,45 @@ export function textOf(node: ts.Node, source: ts.SourceFile): string {
  * comment or in a `//` line.
  */
 export function docOf(node: ts.Node, source: ts.SourceFile): string {
-    return (ts.getLeadingCommentRanges(source.text, node.getFullStart()) ?? [])
-        .map(({ pos, end, kind }) =>
-            source.text.slice(pos + 2, kind === ts.SyntaxKind.MultiLineCommentTrivia ? end - 2 : end),
-        )
-        .join('\n');
+    return commentsAbove(node, source).join('\n');
+}
+
+/**
+ * @private
+ *
+ * The comment that speaks for a declaration or a registration as a whole: the one directly above its statement,
+ * as in the ESLint rule `private-feature-declarations`. A file header says nothing about a single declaration.
+ * ESLint directives between that comment and the statement are skipped, as the rule skips them.
+ */
+export function declarationDoc(statement: ts.Node, source: ts.SourceFile): string {
+    return (
+        commentsAbove(statement, source)
+            .filter((comment) => !isEslintDirective(comment))
+            .at(-1) ?? ''
+    );
+}
+
+const PRIVATE_TAG = /^[\s*]*@private\b/m;
+
+/**
+ * @private
+ *
+ * Whether the content of a comment has an `@private` tag.
+ */
+export function isPrivateDoc(doc: string): boolean {
+    return PRIVATE_TAG.test(doc);
+}
+
+/** @private */
+export function hasPrivateTag(statement: ts.Node, source: ts.SourceFile): boolean {
+    return isPrivateDoc(declarationDoc(statement, source));
+}
+
+/**
+ * @private
+ *
+ * The statement the node is part of.
+ */
+export function statementOf(node: ts.Node): ts.Node {
+    return ts.isStatement(node) || node.parent === undefined ? node : statementOf(node.parent);
 }

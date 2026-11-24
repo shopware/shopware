@@ -25,6 +25,6 @@ interface Events extends Record<string | symbol, unknown> {
 const emitter = mitt<Events>();
 
 /**
- * @private
+ * @public
  */
 export default emitter;

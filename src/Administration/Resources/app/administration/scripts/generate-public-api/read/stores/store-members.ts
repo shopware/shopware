@@ -8,9 +8,10 @@ import ts from 'typescript';
 import type { Member, UnitMembers } from '../../model/members';
 import type { Declarations, Located } from '../declarations';
 import { entriesOf, functionOf, literalValue, Reading, readOptions, signatureOf } from '../member-reading';
-import type { OptionReader } from '../member-reading';
+import type { Common, OptionReader } from '../member-reading';
 import { callOf, isFunctionNode, memberName, returnedObject, returnedValues, withoutTypeSyntax } from '../script-nodes';
 import type { FunctionNode } from '../script-nodes';
+import { GETTER_CALLS, STATE_CALLS } from '../vue-values';
 
 type StoreMember = Member<'state'> | Member<'getter'> | Member<'action'>;
 
@@ -140,16 +141,8 @@ export function optionsMembers({ node, source }: Located<ts.ObjectLiteralExpress
     return { ...readOptions(node, OPTION_READERS, reading), notes: reading.notes };
 }
 
-// What these calls of Vue return is state, and what `computed` returns is a getter.
-const STATE_CALLS = [
-    'ref',
-    'shallowRef',
-    'reactive',
-    'shallowReactive',
-    'readonly',
-];
-
-const GETTER_CALLS = ['computed'];
+// What `STATE_CALLS` return is state, and what `GETTER_CALLS` return is a getter. A reactive object is followed
+// to the object it wraps, which is state like every other value.
 
 /** `T` of `ref<T>(...)`, or what the function inside `computed(...)` declares to return. */
 function builtType(call: ts.CallExpression): ts.TypeNode | undefined {
@@ -159,25 +152,21 @@ function builtType(call: ts.CallExpression): ts.TypeNode | undefined {
     return call.typeArguments?.[0] ?? (inner !== undefined && isFunctionNode(inner) ? inner.type : undefined);
 }
 
-/** A value that a setup store returns: a getter, an action, or state for everything else. `at` carries its comment. */
-function setupMember(name: string, at: ts.Node, { node, source }: Located, reading: Reading): StoreMember {
-    const typeReading = new Reading(source);
+/** A value that a setup store returns: a getter, an action, or state for everything else. */
+function setupMember(common: Common, { node, source }: Located): StoreMember {
+    const reading = new Reading(source);
     const getter = callOf(node, GETTER_CALLS);
     const built = getter ?? callOf(node, STATE_CALLS);
 
     if (built !== undefined) {
-        return {
-            kind: getter === undefined ? 'state' : 'getter',
-            ...reading.common(name, at),
-            type: typeReading.typeText(builtType(built)),
-        };
+        return { kind: getter === undefined ? 'state' : 'getter', ...common, type: reading.typeText(builtType(built)) };
     }
 
     const fn = functionOf(node);
 
     return fn === undefined
-        ? { kind: 'state', ...reading.common(name, at), type: null }
-        : { kind: 'action', ...reading.common(name, at), ...signatureOf(fn, name, typeReading) };
+        ? { kind: 'state', ...common, type: null }
+        : { kind: 'action', ...common, ...signatureOf(fn, common.name, reading) };
 }
 
 /** A key of the object a setup store returns, `null` for one that holds no value the reader knows. */
@@ -199,27 +188,23 @@ function returnedMember(
         return null;
     }
 
-    const { value, at } = literalValue(member, declarations, reading);
+    const { value, common } = literalValue(name, member, declarations, reading);
 
-    return setupMember(name, at, value, reading);
+    return setupMember(common, value);
 }
 
 /**
- * The keys of a reactive object that a setup store spreads into what it returns, as `...state` or
- * `...toRefs(state)` for `const state = reactive({ ... })`. `null` for a spread of anything else.
+ * The keys of an object that a setup store spreads into what it returns, as `...state` or `...toRefs(state)`
+ * for `const state = reactive({ ... })`. `null` for a spread of anything but an object literal of the same file.
  */
 function spreadState(spread: ts.SpreadAssignment, declarations: Declarations, reading: Reading): StoreMember[] | null {
-    const written = withoutTypeSyntax(spread.expression);
-    const [wrapped] = callOf(written, ['toRefs'])?.arguments ?? [];
-    const { node, source } = declarations.valueOf(wrapped ?? written, reading.source);
-    const [object] = callOf(node, STATE_CALLS)?.arguments ?? [];
-    const literal = object && withoutTypeSyntax(object);
+    const { node, source } = declarations.valueOf(spread.expression, reading.source);
 
-    if (literal === undefined || !ts.isObjectLiteralExpression(literal) || source !== reading.source) {
+    if (!ts.isObjectLiteralExpression(node) || source !== reading.source) {
         return null;
     }
 
-    return entriesOf(literal, 'members', reading).map(({ name, member }) => ({
+    return entriesOf(node, 'members', reading).map(({ name, member }) => ({
         kind: 'state',
         ...reading.common(name, member),
         type: null,

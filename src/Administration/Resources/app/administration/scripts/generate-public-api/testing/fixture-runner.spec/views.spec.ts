@@ -8,6 +8,7 @@ import {
     BLOCK_FINDING,
     EXPECTED,
     FINDINGS,
+    GLOBAL_METHOD_FINDING,
     FIXTURE,
     MEMBER_FINDINGS,
     NO_FAILURES,
@@ -127,6 +128,8 @@ describe('fixtureTests views', () => {
                 'service-members',
                 'store-units',
                 'store-members',
+                'global-units',
+                'global-members',
                 'complete',
             ],
         ],
@@ -198,6 +201,21 @@ describe('fixtureTests views', () => {
             'a finding on an action of a store',
             withFinding(STORE_ACTION_FINDING, { group: 'Private' }),
             ['store-members', 'complete'],
+        ],
+        [
+            'the header of an object of the Shopware object in the report',
+            withFile('core/shopware.api.md', 'ts  object', 'ts  instance'),
+            ['global-units', 'complete'],
+        ],
+        [
+            'a method of an object of the Shopware object in the report',
+            withFile('core/shopware.api.md', 'register(name: string)', 'register()'),
+            ['global-members', 'complete'],
+        ],
+        [
+            'a finding on a method of an object of the Shopware object',
+            withFinding(GLOBAL_METHOD_FINDING, { group: 'Private' }),
+            ['global-members', 'complete'],
         ],
     ])('fails only the views that cover a difference in %s', (_, output, expectedFailingViews) => {
         expect(failingViews(output)).toEqual(expectedFailingViews);

@@ -134,7 +134,7 @@ export function isFunctionNode(node: ts.Node): node is FunctionNode {
  * What each `return` of the function hands back, `undefined` for a bare `return`. A function without a block
  * body returns its expression. The returns of nested functions are not the function's own.
  */
-export function returnedValues(fn: FunctionNode): (ts.Expression | undefined)[] {
+export function returnedValues(fn: FunctionNode | ts.GetAccessorDeclaration): (ts.Expression | undefined)[] {
     const { body } = fn;
 
     if (body === undefined) {
@@ -204,13 +204,11 @@ export function docOf(node: ts.Node, source: ts.SourceFile): string {
 }
 
 /**
- * @private
- *
  * The comment that speaks for a declaration or a registration as a whole: the one directly above its statement,
  * as in the ESLint rule `private-feature-declarations`. A file header says nothing about a single declaration.
  * ESLint directives between that comment and the statement are skipped, as the rule skips them.
  */
-export function declarationDoc(statement: ts.Node, source: ts.SourceFile): string {
+function declarationDoc(statement: ts.Node, source: ts.SourceFile): string {
     return (
         commentsAbove(statement, source)
             .filter((comment) => !isEslintDirective(comment))
@@ -234,6 +232,46 @@ export function hasPrivateTag(statement: ts.Node, source: ts.SourceFile): boolea
     return isPrivateDoc(declarationDoc(statement, source));
 }
 
+/** The name a statement declares: that of a function or a class, or of the one variable of a `const`. */
+function declaredName(statement: ts.Node): string | undefined {
+    const [variable] = ts.isVariableStatement(statement) ? statement.declarationList.declarations : [];
+    const name = ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement) ? statement.name : variable?.name;
+
+    return name !== undefined && ts.isIdentifier(name) ? name.text : undefined;
+}
+
+/** `export default example;` for what a statement declares as `example`, where the sources often write its comment. */
+function defaultExportOf(statement: ts.Node, source: ts.SourceFile): ts.Statement | undefined {
+    const name = declaredName(statement);
+
+    return name === undefined
+        ? undefined
+        : source.statements.filter(ts.isExportAssignment).find(({ expression }) => {
+              const exported = withoutTypeSyntax(expression);
+
+              return ts.isIdentifier(exported) && exported.text === name;
+          });
+}
+
+/**
+ * @private
+ *
+ * The comments that speak for what the node declares or is the value of: the one directly above it when it is
+ * a member of an object or a class, and otherwise the one above its statement and the one above the default
+ * export of what that statement declares.
+ */
+export function declarationDocs(node: ts.Node, source: ts.SourceFile): string[] {
+    if (ts.isObjectLiteralElement(node) || ts.isClassElement(node)) {
+        return [declarationDoc(node, source)];
+    }
+
+    const statement = statementOf(node);
+
+    return [statement, defaultExportOf(statement, source)]
+        .filter((declared) => declared !== undefined)
+        .map((declared) => declarationDoc(declared, source));
+}
+
 /**
  * @private
  *
@@ -241,4 +279,61 @@ export function hasPrivateTag(statement: ts.Node, source: ts.SourceFile): boolea
  */
 export function statementOf(node: ts.Node): ts.Node {
     return ts.isStatement(node) || node.parent === undefined ? node : statementOf(node.parent);
+}
+
+const HIDDEN_MODIFIERS = [
+    ts.SyntaxKind.PrivateKeyword,
+    ts.SyntaxKind.ProtectedKeyword,
+];
+
+/**
+ * @private
+ *
+ * The modifiers of a node, such as `static` and `private`.
+ */
+export function modifiersOf(node: ts.Node): readonly ts.Modifier[] {
+    return ts.canHaveModifiers(node) ? (ts.getModifiers(node) ?? []) : [];
+}
+
+function hasModifier(node: ts.Node, kinds: readonly ts.SyntaxKind[]): boolean {
+    return modifiersOf(node).some(({ kind }) => kinds.includes(kind));
+}
+
+/**
+ * @private
+ *
+ * A class element or a constructor parameter under its name. `isHidden` is one that code outside the class
+ * cannot reach.
+ */
+export interface NamedClassElement {
+    element: ts.ClassElement | ts.ParameterDeclaration;
+    name: string;
+    isHidden: boolean;
+    isStatic: boolean;
+}
+
+/**
+ * @private
+ *
+ * The elements and constructor parameters of the class that have a literal name. A `#private` or computed name
+ * gives none.
+ */
+export function namedClassElements(declaration: ts.ClassLikeDeclaration): NamedClassElement[] {
+    const parameters = declaration.members.find(ts.isConstructorDeclaration)?.parameters ?? [];
+
+    return [...declaration.members, ...parameters].flatMap((element): NamedClassElement[] => {
+        const { name } = element;
+        const isNamed = name !== undefined && (ts.isIdentifier(name) || ts.isStringLiteralLike(name));
+
+        return isNamed
+            ? [
+                  {
+                      element,
+                      name: name.text,
+                      isHidden: hasModifier(element, HIDDEN_MODIFIERS),
+                      isStatic: hasModifier(element, [ts.SyntaxKind.StaticKeyword]),
+                  },
+              ]
+            : [];
+    });
 }

@@ -11,6 +11,7 @@
             "visibility": "public"
         }
     },
+    "globals": {},
     "mixins": {},
     "modules": {},
     "positionIdentifiers": {},

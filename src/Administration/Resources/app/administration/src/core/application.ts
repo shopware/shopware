@@ -63,6 +63,8 @@ class ApplicationBootstrapper {
 
     /**
      * Returns all containers. Use this method if you want to get initializers in your services.
+     *
+     * @public
      */
     getContainer<T extends Bottle.IContainerChildren>(containerName: T): Bottle.IContainer[T] {
         if (typeof containerName === 'string' && this.$container.container[containerName]) {
@@ -161,6 +163,8 @@ class ApplicationBootstrapper {
      * API gateways but can be a simple service.
      *
      * The service will be added to a nested DI container.
+     *
+     * @public
      *
      * @example
      * Shopware.Application.addServiceProvider('productService', (container) => {
@@ -266,6 +270,8 @@ class ApplicationBootstrapper {
 
     /**
      * Registers a service provider decorator for either every service provider in the container or a defined one.
+     *
+     * @public
      *
      * @example
      * Shopware.Application.addServiceProviderDecorator((container, next) => {

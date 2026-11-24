@@ -112,6 +112,21 @@ const STORE_REPORT = [
     '',
 ].join('\n');
 
+const GLOBAL_REPORT = [
+    '# Globals of src/core/shopware.ts',
+    '',
+    '```text',
+    'global Shopware.Example  public  ts  object',
+    '',
+    'properties',
+    '  limit: any',
+    '',
+    'methods',
+    '  register(name: string): boolean',
+    '```',
+    '',
+].join('\n');
+
 const INDEX = `${JSON.stringify(
     {
         components: {
@@ -122,6 +137,9 @@ const INDEX = `${JSON.stringify(
         },
         stores: {
             example: { file: 'app/store/example.store', visibility: 'public' },
+        },
+        globals: {
+            'Shopware.Example': { file: 'core/shopware', visibility: 'public' },
         },
         mixins: {},
     },
@@ -189,6 +207,21 @@ const SERVICE_FINDINGS = [
     { ...SERVICE_METHOD_FINDING, element: 'service:exampleService/property:limit' },
 ];
 
+/** One finding per kind of member of an object of the Shopware object. */
+const GLOBAL_FINDINGS: Finding[] = [
+    'global:Shopware.Example/method:register',
+    'global:Shopware.Example/property:limit',
+].map((element) => ({
+    group: 'Break',
+    rule: 'visibility_became_private',
+    element,
+    states: ['current', 'major'],
+    explanation: 'It became private.',
+}));
+
+/** @private */
+export const [GLOBAL_METHOD_FINDING] = GLOBAL_FINDINGS;
+
 /** One finding about the store itself, and one per kind of its members. */
 const STORE_FINDINGS: Finding[] = [
     'store:example',
@@ -210,6 +243,7 @@ export const FINDINGS = [
     ...MEMBER_FINDINGS,
     ...SERVICE_FINDINGS,
     ...STORE_FINDINGS,
+    ...GLOBAL_FINDINGS,
 ];
 
 /** @private */
@@ -221,6 +255,7 @@ export const FILES = {
     'app/component/base/sw-example-card.d.ts': CONTRACT,
     'app/service/example.service.api.md': SERVICE_REPORT,
     'app/store/example.store.api.md': STORE_REPORT,
+    'core/shopware.api.md': GLOBAL_REPORT,
     'index.json': INDEX,
     'current.d.ts': '/// <reference path="./app/component/base/sw-example-card.d.ts" />\n',
 };
@@ -275,6 +310,8 @@ export const VIEWS = [
     'service-members',
     'store-units',
     'store-members',
+    'global-units',
+    'global-members',
     'complete',
 ];
 

@@ -12,6 +12,7 @@ import { BOTH_STATES } from '../model/flag-states';
 import type { DeclaredKind, Member, Parameter, UnitMembers } from '../model/members';
 import type { Declarations, Located } from './declarations';
 import {
+    declarationDocs,
     docOf,
     isFunctionNode,
     isPrivateDoc,
@@ -28,8 +29,12 @@ import type { FunctionNode } from './script-nodes';
 // Enough of an expression to find it in the source, without printing a whole function into the report.
 const NOTE_LENGTH = 80;
 
-/** The name, line and JSDoc every member has. */
-type Common = Pick<Member, 'name' | 'at' | 'markers' | 'isPrivate' | 'states'>;
+/**
+ * @private
+ *
+ * The name, line and JSDoc every member has.
+ */
+export type Common = Pick<Member, 'name' | 'at' | 'markers' | 'isPrivate' | 'states'>;
 
 /**
  * @private
@@ -121,21 +126,60 @@ export function entriesOf(
 /**
  * @private
  *
- * The value of `{ key: value }` or `{ key }` across files, and the node that carries its comment and its line.
- * A value that the same file declares under a name, as `{ getToken }` does for a function, carries them where
- * it is declared.
+ * What a member holds, across files, with the name, line and comments of the member. `written` is the value as
+ * the member writes it. A member that names what another place declares, as `{ getToken }` and
+ * `{ build: factory.build }` do, also carries the comments of that declaration, and one that names a
+ * declaration of the same file has its line.
+ */
+export function namedValue(
+    name: string,
+    member: ts.Node,
+    written: ts.Expression,
+    declarations: Declarations,
+    reading: Reading,
+): { value: Located; common: Common } {
+    const expression = withoutTypeSyntax(written);
+    const value = declarations.valueOf(expression, reading.source);
+    const own = reading.common(name, member);
+    const namesDeclaration =
+        (ts.isIdentifier(expression) || ts.isPropertyAccessExpression(expression)) && value.node !== expression;
+
+    if (!namesDeclaration) {
+        return { value, common: own };
+    }
+
+    const docs = declarationDocs(value.node, value.source);
+    const isDeclaredHere = ts.isIdentifier(expression) && value.source === reading.source;
+
+    return {
+        value,
+        common: {
+            ...own,
+            at: isDeclaredHere ? lineOf(statementOf(value.node), value.source) : own.at,
+            markers: [...own.markers, ...docs.flatMap(markersIn)],
+            isPrivate: own.isPrivate || docs.some(isPrivateDoc),
+        },
+    };
+}
+
+/**
+ * @private
+ *
+ * The same for `{ key: value }` and `{ key }` of an object literal.
  */
 export function literalValue(
+    name: string,
     member: ts.PropertyAssignment | ts.ShorthandPropertyAssignment,
     declarations: Declarations,
     reading: Reading,
-): { value: Located; at: ts.Node } {
-    const written = ts.isPropertyAssignment(member) ? member.initializer : member.name;
-    const value = declarations.valueOf(written, reading.source);
-    const isDeclaredHere =
-        ts.isIdentifier(withoutTypeSyntax(written)) && value.source === reading.source && !ts.isIdentifier(value.node);
-
-    return { value, at: isDeclaredHere ? statementOf(value.node) : member };
+): { value: Located; common: Common } {
+    return namedValue(
+        name,
+        member,
+        ts.isPropertyAssignment(member) ? member.initializer : member.name,
+        declarations,
+        reading,
+    );
 }
 
 /**

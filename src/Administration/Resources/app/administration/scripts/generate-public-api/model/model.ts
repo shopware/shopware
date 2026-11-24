@@ -67,15 +67,18 @@ export type ComponentUnit = Registration &
  *
  * - `source`: the file that declares the object behind the name, which is the file of the registration when
  *   that could not be followed. `at` is the line of that declaration, where a finding about the unit points to.
- * - `file`: the path of the snapshot files of `source` below `public-api/`, without extension. Units of one
- *   kind that share a source share a report.
+ * - `file`: the path of the snapshot files of the unit below `public-api/`, without extension. It is that of
+ *   `source`, so units of one kind that share a source share a report, or that of `registeredIn` for a unit
+ *   of the `Shopware` object.
+ * - `visibilitySource`: where a private unit gets that from: `export` is the comment of its own declaration,
+ *   and `parent` the object above it.
  * - `markers`: the `@deprecated` and `@bc-change` markers in the comment about the unit as a whole.
  */
 export type RegisteredUnit = UnitMembers & {
     name: string;
     language: 'js' | 'ts';
     visibility: 'public' | 'private';
-    visibilitySource: 'default' | 'export';
+    visibilitySource: 'default' | 'export' | 'parent';
     markers: Marker[];
     registeredIn: string;
     source: string;
@@ -115,6 +118,20 @@ export type StoreUnit = RegisteredUnit & {
 /**
  * @private
  *
+ * One object of the global `Shopware` object, named as plugin code writes it: `Shopware`, `Shopware.Component`
+ * or `Shopware.Utils.string`. Its members are what the object holds, and an object below it is a unit of its
+ * own. `registeredIn` is the file that builds the `Shopware` object, and all of these units share its report.
+ *
+ * - `shape`: `instance` for an instance of a class, `object` for an object literal, and `class` for a class
+ *   that plugin code uses through its static members.
+ */
+export type GlobalUnit = RegisteredUnit & {
+    shape: 'instance' | 'object' | 'class';
+};
+
+/**
+ * @private
+ *
  * A block of a template that no registered component and no core override uses.
  */
 export interface UnusedBlock {
@@ -133,6 +150,7 @@ export interface Model {
     components: ComponentUnit[];
     services: ServiceUnit[];
     stores: StoreUnit[];
+    globals: GlobalUnit[];
     droppedBlocks: DroppedBlock[];
     unusedBlocks: UnusedBlock[];
 }

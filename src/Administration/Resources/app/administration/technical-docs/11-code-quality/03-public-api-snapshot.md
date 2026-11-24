@@ -4,7 +4,7 @@
 
 The Administration gets a generated snapshot of its public API and a check that blocks unannounced breaks, see [#22591](https://github.com/shopware/shopware/issues/22591).
 Both are built in steps.
-Five parts exist so far: the snapshot of the components with their blocks and members, the snapshot of the services and the stores, the markers that announce a change, the break check for all three, and the fixtures that the generator and the break check have to satisfy.
+Five parts exist so far: the snapshot of the components with their blocks and members, the snapshot of the services, the stores and the `Shopware` object, the markers that announce a change, the break check for all of them, and the fixtures that the generator and the break check have to satisfy.
 The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`, the code of the generator in `scripts/generate-public-api/`.
 
 ## Snapshot
@@ -12,6 +12,7 @@ The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-marke
 The snapshot is committed in `public-api/`.
 It lists every component that core registers, with the members its options object declares and the blocks of the template it renders.
 It also lists every service that core registers, with the properties and methods of the object behind it, and every store with its state, getters and actions.
+The global `Shopware` object is listed with the objects below it.
 A pull request that adds, renames, moves or removes a block, a prop, a method, a service or a store therefore shows that change in its diff.
 
 Regenerate it after such a change and commit the result:
@@ -34,11 +35,12 @@ A component has one report, named after the component and placed beside its fold
 The services of a source file share one report, named after that file without the leading `src/`.
 `src/core/service/api/cache.api.service.js` gives `public-api/core/service/api/cache.api.service.api.md`.
 The stores of a source file share one report in the same way.
+The `Shopware` object and the objects below it share the report of the file that builds it, `public-api/core/shopware.api.md`.
 
 | File | Content |
 |---|---|
 | `<name>.api.md` | The report for reviewers, which merges both flag states |
-| `index.json` | The components with their file, visibility, parent and the names of the blocks they render, and the services and stores with their file and visibility, for tools such as ESLint rules |
+| `index.json` | The components with their file, visibility, parent and the names of the blocks they render, and the services, the stores and the objects of the `Shopware` object with their file and visibility, for tools such as ESLint rules |
 
 The `.d.ts` contracts follow once they can be type-checked, see "Not covered yet".
 All files are marked as generated, so GitHub collapses them in a diff.
@@ -286,11 +288,11 @@ What the generator cannot follow becomes a line under `notes`, and the service s
 
 | Note | Reason |
 |---|---|
-| `unresolved provider ...` | The provider returns something the generator cannot follow, such as an instance of a class it reads from `Shopware.Classes` |
+| `unresolved provider ...` | The provider returns something the generator cannot follow, such as a value it gets from a package |
 | `unresolved parent ...` | The class extends one that the sources do not declare under that name |
 | `unresolved members ...` | An object literal spreads something that is no object literal, or has a computed key |
 
-The Administration has 10 of these notes today.
+The Administration has one of these notes today.
 
 ### Stores
 
@@ -328,6 +330,48 @@ actions
 - An unreadable part is a line under `notes`: `unresolved state ...`, `unresolved getters ...`, `unresolved actions ...`, `unresolved members ...` for the object a setup store returns, and `unresolved store ...` for a definition the generator cannot follow.
   The Administration has none of these notes today.
 
+### The Shopware object
+
+The global `Shopware` object is `ShopwareInstance` in `src/core/shopware.ts`, an instance of `ShopwareClass`.
+The snapshot has one unit for the object and one for every object below it, named as plugin code writes it.
+
+```text
+global Shopware  public  ts  instance
+  registered src/core/shopware.ts
+  source src/core/shopware.ts
+
+properties
+  Example: any
+  Utils: any
+
+methods
+  Service(serviceName: SN): ServiceContainer[SN]
+
+global Shopware.Example  public  ts  object
+  registered src/core/shopware.ts
+  source src/core/shopware.ts
+
+methods
+  getRegistry(): Map<string, unknown>  [private]
+  register(name: string, example: unknown): boolean
+```
+
+- A unit lists what its object holds: a function is a method with the signature of its declaration, and every other value a property.
+  An object below it is a property here and a unit of its own, so `Shopware.Utils.string` is the property `string` of `Shopware.Utils` and the unit `Shopware.Utils.string`.
+- The header line names the unit, its visibility, the language of its source and its shape.
+  `instance` is an instance of a class, `object` an object literal, and `class` a class that plugin code uses through its static members.
+  `source` is the file that declares the object.
+- The units end two objects below `Shopware`, so `Shopware.Utils.string.camelCase` is the deepest member.
+  An object further down is a property without members.
+- A function, and a class without static members, is no unit.
+- A getter of `ShopwareClass` is a property, and what it returns is the unit below it.
+  A function or getter that declares to return a class, as `static get instance(): Store` does, gives an instance of that class.
+- A member that names what another file declares, as `register: ExampleFactory.register` does, has the signature of that declaration.
+  It also has its `@private` tag and its markers, in addition to those in the comment above the member itself.
+
+The generator reads the `Shopware` name in other sources too.
+A service whose provider builds `new RepositoryFactory()` for `const RepositoryFactory = Shopware.Classes._private.RepositoryFactory`, or for a class it takes from `const { EntityHydrator } = Shopware.Data`, has the members of that class.
+
 ### Flag states
 
 The snapshot covers two flag states: `current`, with the next major flag off, and `major`, with that flag and every flag that names it as its `major` in `feature.yaml` on.
@@ -353,6 +397,12 @@ The comment above an `export default` of that class or function below it counts 
 A `@deprecated` or `@bc-change` marker in the same comment is the marker of the service.
 A store is private when the comment directly above the constant that holds it has an `@private` tag, as in `const exampleStore = Shopware.Store.register(...)`, or the comment above the `export default` of that constant.
 The tag on the exported type of a store says nothing about the store.
+An object of the `Shopware` object is private when the member that holds it is private, when an object above it is, or when the comment above its class or its declaration has an `@private` tag.
+A member that holds a private object is private too.
+The report of a private object says where that comes from: `visibility-source export` is the comment of its own class or declaration, and `visibility-source parent` the object above it.
+A private class can make single members public with a `@public` tag in the comment of the member.
+The object is public then, and every member without the tag stays private.
+`Shopware.Application` is such an object: `getContainer`, `addServiceProvider` and `addServiceProviderDecorator` are public, because plugins cannot avoid them.
 
 ### Not covered yet
 
@@ -364,8 +414,9 @@ The tag on the exported type of a store says nothing about the store.
 - The members of a core `Component.override` are missing.
 - The keys of `data()` have no types.
 - A decorator or a middleware that core adds to a service changes its members at runtime and is not read.
-- A service whose provider reads its class from the `Shopware` object has no members, see its note.
-  The same holds for the members a service inherits from such a class.
+- The functions that every built plugin bundle calls, such as `overrideComponentSetup`, are private in the snapshot.
+  A change to them is no break yet.
+- A member that an instance of the `Shopware` object inherits from a parent class is listed, but it has no unit below it.
 - The types of a service are those the source writes, so an inferred type is `any`.
 - A state property whose type is an imported interface, and a value without a written type, are `any`.
 - No spec compares the services and the stores with the container and with Pinia at runtime, as `option-members.spec/runtime.spec.ts` does for the options of a component.
@@ -386,6 +437,7 @@ The generator stops with an error when it cannot read something:
 - a service name that two registrations give to two different objects
 - a store registration without a literal id, outside `src/app/store/index.ts`, which implements `register`
 - a store id that is registered twice
+- a `src/core/shopware.ts` that no longer exports `ShopwareInstance` as an instance of a class
 
 ## Markers
 
@@ -559,12 +611,12 @@ The rules below those are about what only one kind has.
 - The arguments of an event and the props of a slot are not compared yet.
 - The break check does not validate markers yet: a `@bc-change` that names a parameter the method does not have is reported as `bc_change_added`.
 
-### Rules for services and stores
+### Rules for services, stores and the Shopware object
 
-The rules for members apply to the members of a service and of a store too.
-A service has the kinds `property` and `method`, and a store the kinds `state`, `getter` and `action`.
+The rules for members apply to the members of a service, of a store and of an object of the `Shopware` object too.
+A service and an object of the `Shopware` object have the kinds `property` and `method`, and a store the kinds `state`, `getter` and `action`.
 Every rule for the parameters, the result and the return type of a method also runs on an action, and its text names the action.
-A finding says how plugin code reaches the member, `Shopware.Service('<name>').<member>` or `Shopware.Store.get('<id>').<member>`, where a finding about a component names `$super`.
+A finding says how plugin code reaches the member, `Shopware.Service('<name>').<member>`, `Shopware.Store.get('<id>').<member>` or the path of the object such as `Shopware.Utils.string.<member>`, where a finding about a component names `$super`.
 `break-check/plugin-use.ts` holds these wordings.
 
 `break-check/unit-changes.ts` reports a service or a store as a whole:
@@ -582,7 +634,11 @@ A finding says how plugin code reaches the member, `Shopware.Service('<name>').<
 - A service is compared with the members it inherits from its parent classes.
   A member that a parent class loses is reported on every service that inherits it.
 - A getter that becomes a state property, or the reverse, is a member that is gone and a new one.
-- The id of a unit is `service:<name>` or `store:<id>`, and a member stands below it, as in `service:acl/method:can` and `store:notification/action:createNotification`.
+- An object of the `Shopware` object is never reported as a whole.
+  One that is gone is `property_missing` on the object above it, a new one is `property_added` there, and one that becomes private is `visibility_became_private` on the member that holds it.
+  The members of an object are compared when both commits have the object.
+- A member of a private class that loses its `@public` tag is `visibility_became_private`.
+- The id of a unit is `service:<name>`, `store:<id>` or `global:<path>`, and a member stands below it, as in `service:acl/method:can`, `store:notification/action:createNotification` and `global:Shopware.Component/method:register`.
 - A marker that a service or a store gets is not reported yet, while one on a member is `deprecation_added` or `bc_change_added`.
 
 ### Groups
@@ -594,7 +650,7 @@ The rule of a finding names the change, and its group says what the change count
 | `Break` | An unannounced break. Only this group fails the check |
 | `Addition` | New public API |
 | `Allowed` | A change that a marker on the block or the member announced |
-| `Private` | A change to a component, service or store that is `@private` in the base commit, or to a `@private` member of a public one |
+| `Private` | A change to a component, service, store or object of the `Shopware` object that is private in the base commit, or to a private member of a public one |
 | `Info` | A change that a reviewer may want to look at |
 
 A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag, or in the comment directly above the member:
@@ -696,7 +752,7 @@ The members have three unit kinds:
 | `member-contract` | The members of a component besides its blocks in the `.d.ts` contracts |
 | `member-findings` | The findings on props, computed properties, methods and refs |
 
-A service and a store have two unit kinds each:
+A service, a store and an object of the `Shopware` object have two unit kinds each:
 
 | Unit kind | Compares |
 |---|---|
@@ -704,8 +760,10 @@ A service and a store have two unit kinds each:
 | `service-members` | The sections `properties` and `methods` of a service in the reports, and the findings on its properties and methods |
 | `store-units` | The header of a store in the reports, its entry in the index, and the findings about the store as a whole |
 | `store-members` | The sections `state`, `getters` and `actions` of a store in the reports, and the findings on those members |
+| `global-units` | The header of an object of the `Shopware` object in the reports, and its entry in the index |
+| `global-members` | The sections `properties` and `methods` of such an object in the reports, and the findings on its properties and methods |
 
-A unit kind belongs to components, to services or to stores, and it only reads the outlines, index entries and findings of those.
+A unit kind belongs to components, to services, to stores or to the objects of the `Shopware` object, and it only reads the outlines, index entries and findings of those.
 The `methods` section of a service is therefore no part of `component-members`.
 
 A unit kind can only list a part that some case expects.

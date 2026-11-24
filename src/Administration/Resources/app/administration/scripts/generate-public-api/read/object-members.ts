@@ -1,16 +1,18 @@
 /**
  * @sw-package framework
  *
- * Reads the members of a plain object: an instance of a class, or an object literal. These are the properties
- * and methods that code holding the object can reach, so `private`, `protected`, `#private` and static members
- * of a class are left out.
+ * Reads the members of a plain object: an instance of a class, an object literal, or a class with its static
+ * members. These are the properties and methods that code holding the object can reach, so `private`,
+ * `protected` and `#private` members of a class are left out.
  */
 import ts from 'typescript';
-import type { Member } from '../../model/members';
-import type { Declarations, Located } from '../declarations';
-import { functionOf, literalValue, Reading, signatureOf } from '../member-reading';
-import { memberName, statementOf, withoutTypeSyntax } from '../script-nodes';
-import type { FunctionNode } from '../script-nodes';
+import type { Member } from '../model/members';
+import type { Declarations, Located } from './declarations';
+import { functionOf, literalValue, namedValue, Reading, signatureOf } from './member-reading';
+import type { Common } from './member-reading';
+import { callOf, memberName, modifiersOf, namedClassElements, statementOf, withoutTypeSyntax } from './script-nodes';
+import type { FunctionNode, NamedClassElement } from './script-nodes';
+import { VALUE_CALLS } from './vue-values';
 
 type ObjectMember = Member<'method'> | Member<'property'>;
 
@@ -25,40 +27,35 @@ export interface ObjectMembers {
 }
 
 /** `signature` reads the function, which may stand in another file than the member that names it. */
-function method(name: string, node: ts.Node, fn: FunctionNode, reading: Reading, signature = reading): ObjectMember {
-    return { kind: 'method', ...reading.common(name, node), ...signatureOf(fn, name, signature) };
+function method(common: Common, fn: FunctionNode, signature: Reading): ObjectMember {
+    return { kind: 'method', ...common, ...signatureOf(fn, common.name, signature) };
 }
 
-function property(name: string, node: ts.Node, type: ts.TypeNode | undefined, reading: Reading): ObjectMember {
-    return { kind: 'property', ...reading.common(name, node), type: reading.typeText(type) };
+function property(common: Common, type: ts.TypeNode | undefined, reading: Reading): ObjectMember {
+    return { kind: 'property', ...common, type: reading.typeText(type) };
 }
 
 /** A method or an accessor, which a class and an object literal declare alike. A getter is a property. */
 function declaredMember(element: ts.Node, name: string, reading: Reading): ObjectMember | undefined {
     if (ts.isMethodDeclaration(element)) {
-        return method(name, element, element, reading);
+        return method(reading.common(name, element), element, reading);
     }
 
     if (ts.isGetAccessorDeclaration(element)) {
-        return property(name, element, element.type, reading);
+        return property(reading.common(name, element), element.type, reading);
     }
 
-    return ts.isSetAccessorDeclaration(element) ? property(name, element, element.parameters[0]?.type, reading) : undefined;
+    return ts.isSetAccessorDeclaration(element)
+        ? property(reading.common(name, element), element.parameters[0]?.type, reading)
+        : undefined;
 }
 
 /** A member that holds a value: a function is a method, also behind a helper, and every other value a property. */
-function valueMember(
-    name: string,
-    node: ts.Node,
-    value: Located,
-    type: ts.TypeNode | undefined,
-    reading: Reading,
-): ObjectMember {
-    const fn = functionOf(value.node);
+function valueMember(common: Common, value: Located, type: ts.TypeNode | undefined, reading: Reading): ObjectMember {
+    // A ref holds a value, also when a function computes it.
+    const fn = callOf(value.node, VALUE_CALLS) === undefined ? functionOf(value.node) : undefined;
 
-    return fn === undefined
-        ? property(name, node, type, reading)
-        : method(name, node, fn, reading, new Reading(value.source));
+    return fn === undefined ? property(common, type, reading) : method(common, fn, new Reading(value.source));
 }
 
 /** A member of a name that occurs twice is the first one, or with `last` the one that replaces the others. */
@@ -119,72 +116,68 @@ export function thisAssignments(declaration: ts.ClassLikeDeclaration): ThisAssig
     return found;
 }
 
-const HIDDEN_MODIFIERS = [
-    ts.SyntaxKind.PrivateKeyword,
-    ts.SyntaxKind.ProtectedKeyword,
-    ts.SyntaxKind.StaticKeyword,
-];
-
-function modifiersOf(node: ts.Node): readonly ts.Modifier[] {
-    return ts.canHaveModifiers(node) ? (ts.getModifiers(node) ?? []) : [];
-}
-
-/** A class element or a constructor parameter under its name. A `#private` or computed name gives none. */
-interface NamedElement {
-    element: ts.ClassElement | ts.ParameterDeclaration;
-    name: string;
-    isHidden: boolean;
-}
-
-function namedElements(declaration: ts.ClassLikeDeclaration): NamedElement[] {
-    const parameters = declaration.members.find(ts.isConstructorDeclaration)?.parameters ?? [];
-
-    return [...declaration.members, ...parameters].flatMap((element): NamedElement[] => {
-        const { name } = element;
-        const isNamed = name !== undefined && (ts.isIdentifier(name) || ts.isStringLiteralLike(name));
-
-        return isNamed
-            ? [
-                  {
-                      element,
-                      name: name.text,
-                      isHidden: modifiersOf(element).some(({ kind }) => HIDDEN_MODIFIERS.includes(kind)),
-                  },
-              ]
-            : [];
-    });
-}
-
 /** What a class element or a constructor parameter declares, `undefined` for one that declares no member. */
-function classMember({ element, name }: NamedElement, source: ts.SourceFile, reading: Reading): ObjectMember | undefined {
+function classMember(
+    { element, name }: NamedClassElement,
+    declarations: Declarations,
+    reading: Reading,
+): ObjectMember | undefined {
     if (ts.isParameter(element)) {
         // `constructor(public readonly id: string)` declares a property, a plain parameter none.
-        return modifiersOf(element).length > 0 ? property(name, element, element.type, reading) : undefined;
+        return modifiersOf(element).length > 0 ? property(reading.common(name, element), element.type, reading) : undefined;
     }
 
     if (!ts.isPropertyDeclaration(element)) {
         return declaredMember(element, name, reading);
     }
 
-    const value = element.initializer === undefined ? element : withoutTypeSyntax(element.initializer);
+    if (element.initializer === undefined) {
+        return property(reading.common(name, element), element.type, reading);
+    }
 
-    return valueMember(name, element, { node: value, source }, element.type, reading);
+    const { value, common } = namedValue(name, element, element.initializer, declarations, reading);
+
+    return valueMember(common, value, element.type, reading);
+}
+
+/** The members that the elements declare, in their order. */
+function declaredMembers(elements: NamedClassElement[], declarations: Declarations, reading: Reading): ObjectMember[] {
+    return elements.map((element) => classMember(element, declarations, reading)).filter((member) => member !== undefined);
 }
 
 /** A declared member comes before what the constructor assigns to `this` under the same name. */
-function ownMembers({ node, source }: Located<ts.ClassLikeDeclaration>, reading: Reading): ObjectMember[] {
-    const elements = namedElements(node);
-    const hidden = new Set(elements.filter(({ isHidden }) => isHidden).map(({ name }) => name));
+function ownMembers(
+    { node, source }: Located<ts.ClassLikeDeclaration>,
+    declarations: Declarations,
+    reading: Reading,
+): ObjectMember[] {
+    const elements = namedClassElements(node);
+    const declaredNames = new Set(elements.filter(({ isHidden, isStatic }) => isHidden || isStatic).map(({ name }) => name));
 
     return uniqueByName([
-        ...elements
-            .filter(({ isHidden }) => !isHidden)
-            .map((element) => classMember(element, source, reading))
-            .filter((member) => member !== undefined),
+        ...declaredMembers(
+            elements.filter(({ isHidden, isStatic }) => !isHidden && !isStatic),
+            declarations,
+            reading,
+        ),
         ...thisAssignments(node)
-            .filter(({ name }) => !hidden.has(name))
-            .map(({ name, value, statement }) => valueMember(name, statement, { node: value, source }, undefined, reading)),
+            .filter(({ name }) => !declaredNames.has(name))
+            .map(({ name, value, statement }) =>
+                valueMember(reading.common(name, statement), { node: value, source }, undefined, reading),
+            ),
     ]);
+}
+
+/**
+ * @private
+ *
+ * The static members of the class that code outside of it can reach, which plugin code uses on the class itself.
+ */
+export function staticMembers(declaration: Located<ts.ClassLikeDeclaration>, declarations: Declarations): ObjectMembers {
+    const reading = new Reading(declaration.source);
+    const elements = namedClassElements(declaration.node).filter(({ isHidden, isStatic }) => isStatic && !isHidden);
+
+    return { members: uniqueByName(declaredMembers(elements, declarations, reading)), notes: reading.notes };
 }
 
 function parentOf({ node }: Located<ts.ClassLikeDeclaration>): ts.Expression | undefined {
@@ -203,7 +196,7 @@ export function instanceMembers(
     seen: readonly ts.Node[] = [],
 ): ObjectMembers {
     const reading = new Reading(declaration.source);
-    const own = ownMembers(declaration, reading);
+    const own = ownMembers(declaration, declarations, reading);
     const parent = parentOf(declaration);
     const parentClass = parent && declarations.valueOf(parent, declaration.source);
 
@@ -235,12 +228,12 @@ function literalMember(
     const declared = declaredMember(element, name, reading);
 
     if (declared !== undefined || (!ts.isPropertyAssignment(element) && !ts.isShorthandPropertyAssignment(element))) {
-        return declared ?? property(name, element, undefined, reading);
+        return declared ?? property(reading.common(name, element), undefined, reading);
     }
 
-    const { value, at } = literalValue(element, declarations, reading);
+    const { value, common } = literalValue(name, element, declarations, reading);
 
-    return valueMember(name, at, value, undefined, reading);
+    return valueMember(common, value, undefined, reading);
 }
 
 /** The members of an object literal that another one spreads, `null` when it spreads something else. */

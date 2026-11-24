@@ -15,9 +15,9 @@ import { findRegistrations } from '../registered-units';
 import type { Registered } from '../registered-units';
 import { isMethodCall, lineOf } from '../script-nodes';
 import type { MethodCall } from '../script-nodes';
-import { thisAssignments } from './object-members';
+import { thisAssignments } from '../object-members';
 import { providedBy } from './provided-object';
-import type { ProvidedObject } from './provided-object';
+import type { ResolvedObject } from '../resolved-object';
 
 /**
  * @private
@@ -26,7 +26,7 @@ import type { ProvidedObject } from './provided-object';
  */
 export interface ServiceRegistration extends Registered {
     registration: ServiceUnit['registration'];
-    provided: ProvidedObject;
+    provided: ResolvedObject;
 }
 
 const SERVICE_ACCESSOR = /(?:^|\.)Service$/;

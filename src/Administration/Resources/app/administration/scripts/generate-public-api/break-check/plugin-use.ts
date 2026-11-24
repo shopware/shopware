@@ -72,6 +72,15 @@ export function serviceUse(name: string): PluginUse {
     return { ...use, withoutUnit: `plugin code that uses ${use.unit} gets undefined` };
 }
 
+/**
+ * @private
+ *
+ * The wording for an object of the global `Shopware` object, which plugin code names by its path.
+ */
+export function globalUse(path: string): PluginUse {
+    return { ...objectUse(path), withoutUnit: `plugin code that uses ${path} gets undefined` };
+}
+
 /** @private */
 export function storeUse(name: string): PluginUse {
     const use = objectUse(`Shopware.Store.get('${name}')`);

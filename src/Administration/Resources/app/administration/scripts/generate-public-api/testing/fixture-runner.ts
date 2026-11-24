@@ -102,6 +102,7 @@ const OWNERS = [
     'component',
     'service',
     'store',
+    'global',
 ] as const;
 
 type Owner = (typeof OWNERS)[number];
@@ -128,8 +129,8 @@ const BLOCK_CONTEXT = { reportSection: 'block-context', contractMember: 'blockCo
 
 /*
  * The block tree, its contract, the block structure and the findings on blocks are built in separate steps, and
- * so are the members of a component, their contract and the findings on them. A service and a store are built
- * in two each: the unit with its registration, and its members. A part can only be listed once a case expects
+ * so are the members of a component, their contract and the findings on them. A service, a store and an object of the
+ * `Shopware` object are built in two each: the unit with its registration, and its members. A part can only be listed once a case expects
  * it: the `mixins`, `provide` and `notes` sections of a report are covered by the specs instead.
  */
 const UNIT_KINDS: Record<string, UnitKind> = {
@@ -248,6 +249,27 @@ const UNIT_KINDS: Record<string, UnitKind> = {
             'state',
             'getter',
             'action',
+        ],
+    },
+    'global-units': {
+        ...NO_PARTS,
+        owner: 'global',
+        reportSections: ['global'],
+        indexKeys: [
+            'file',
+            'visibility',
+        ],
+    },
+    'global-members': {
+        ...NO_PARTS,
+        owner: 'global',
+        reportSections: [
+            'properties',
+            'methods',
+        ],
+        elementKinds: [
+            'property',
+            'method',
         ],
     },
 };

@@ -1,0 +1,30 @@
+{
+    "components": {},
+    "services": {},
+    "stores": {},
+    "globals": {
+        "Shopware": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Example": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.string": {
+            "file": "core/shopware",
+            "visibility": "public"
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

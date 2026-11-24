@@ -1,0 +1,4 @@
+{
+    "description": "Objects of the Shopware object lost methods, a method got a required parameter, and an object is gone",
+    "majorFlags": ["v6.8.0.0"]
+}

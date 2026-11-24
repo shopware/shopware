@@ -241,6 +241,53 @@ describe('scripts/generate-public-api/read/services/service-units', () => {
         });
     });
 
+    describe('names of the Shopware object', () => {
+        const shopware = [
+            "import RepositoryFactory from 'src/core/data/repository-factory.data';",
+            "import data from 'src/core/data/index';",
+            'class ShopwareClass {',
+            '    public Classes = { _private: { RepositoryFactory } };',
+            '    public Data = data;',
+            '}',
+            'const ShopwareInstance = new ShopwareClass();',
+            'export { ShopwareClass, ShopwareInstance };',
+        ].join('\n');
+        const sources = {
+            'src/core/shopware.ts': shopware,
+            'src/core/data/repository-factory.data.ts':
+                'export default class RepositoryFactory { create(entityName: string) {} }',
+            'src/core/data/index.ts':
+                "import EntityHydrator from './entity-hydrator.data';\nexport default { EntityHydrator };",
+            'src/core/data/entity-hydrator.data.ts': 'export default class EntityHydrator { hydrate(response) {} }',
+        };
+
+        it('follows a class that the provider reads from the Shopware object', () => {
+            const main = [
+                'const RepositoryFactory = Shopware.Classes._private.RepositoryFactory;',
+                "Shopware.Application.addServiceProvider('exampleService', () => new RepositoryFactory());",
+            ].join('\n');
+
+            expect(outline(treeOf({ ...sources, [MAIN]: main }), 'core/data/repository-factory.data.api.md')).toEqual([
+                'service exampleService  public  ts  untyped  provider',
+                '  registered src/app/main.ts',
+                '  source src/core/data/repository-factory.data.ts',
+                'methods',
+                '  create(entityName: string): any',
+            ]);
+        });
+
+        it('follows a class that a destructuring takes from the Shopware object', () => {
+            const main = [
+                'const { EntityHydrator: Hydrator } = Shopware.Data;',
+                "Shopware.Application.addServiceProvider('exampleService', () => new Hydrator());",
+            ].join('\n');
+
+            expect(outline(treeOf({ ...sources, [MAIN]: main }), 'core/data/entity-hydrator.data.api.md')).toContain(
+                '  hydrate(response: any): any',
+            );
+        });
+    });
+
     describe('registrations', () => {
         it('reads Shopware.Service().register like addServiceProvider, also in a chain of calls', () => {
             const main = mainFile(

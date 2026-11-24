@@ -11,11 +11,11 @@ import type { SourceLine } from '../model/source-line';
 import { withInheritedMembers } from './facts/member-facts';
 import { factsOf } from './facts/unit-facts';
 import type { UnitFacts } from './facts/unit-facts';
-import { componentUse, serviceUse, storeUse } from './plugin-use';
+import { componentUse, globalUse, serviceUse, storeUse } from './plugin-use';
 import type { PluginUse } from './plugin-use';
 
 /** @private */
-export type UnitKind = 'component' | 'service' | 'store';
+export type UnitKind = 'component' | 'service' | 'store' | 'global';
 
 /**
  * What a kind says about one of its units. `parent` is the name of the unit it inherits its elements from,
@@ -69,7 +69,7 @@ function components(model: Model): UnitOfKind[] {
 }
 
 /** A unit that a script declares brings its own comment and line, and it inherits from no other unit. */
-function declared(units: RegisteredUnit[]): UnitOfKind[] {
+function registered(units: RegisteredUnit[]): UnitOfKind[] {
     return units.map((unit) => ({
         name: unit.name,
         parent: null,
@@ -88,8 +88,10 @@ function declared(units: RegisteredUnit[]): UnitOfKind[] {
  */
 export const UNIT_KINDS: Record<UnitKind, UnitKindDefinition> = {
     component: { units: components, use: componentUse, reportedAsWhole: false },
-    service: { units: ({ services }) => declared(services), use: serviceUse, reportedAsWhole: true },
-    store: { units: ({ stores }) => declared(stores), use: storeUse, reportedAsWhole: true },
+    service: { units: ({ services }) => registered(services), use: serviceUse, reportedAsWhole: true },
+    store: { units: ({ stores }) => registered(stores), use: storeUse, reportedAsWhole: true },
+    // An object below `Shopware` is a member of the object above it, which reports it when it comes or goes.
+    global: { units: ({ globals }) => registered(globals), use: globalUse, reportedAsWhole: false },
 };
 
 function unitId(kind: UnitKind, name: string): string {

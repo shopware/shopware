@@ -8,14 +8,14 @@ import { mergeStates } from '../../model/flag-states';
 import type { FlagContext } from '../../model/flag-states';
 import type { ServiceUnit } from '../../model/model';
 import type { SourceTree } from '../../source/source-tree';
-import { registeredUnit } from '../registered-units';
+import { registeredUnit, unitDoc } from '../registered-units';
 import type { RegisteredObject } from '../registered-units';
 import type { Declarations } from '../declarations';
 import { interfaceEntries } from '../global-interfaces';
 import { Reading } from '../member-reading';
-import { instanceMembers, objectMembers } from './object-members';
-import { isSameObject } from './provided-object';
-import type { ProvidedObject } from './provided-object';
+import { instanceMembers, objectMembers } from '../object-members';
+import { isSameObject } from '../resolved-object';
+import type { ResolvedObject } from '../resolved-object';
 import { serviceRegistrations } from './service-registry';
 import type { ServiceRegistration } from './service-registry';
 
@@ -35,30 +35,31 @@ function declaredAs(type: string | undefined): ServiceUnit['declared'] {
 
 const NO_MEMBERS = { members: [], notes: [] };
 
-function serviceObject(provided: ProvidedObject, declarations: Declarations): RegisteredObject {
+function serviceObject(provided: ResolvedObject, declarations: Declarations): RegisteredObject {
     switch (provided.kind) {
         case 'instance':
             return {
                 ...instanceMembers(provided.declaration, declarations),
                 home: provided.declaration,
-                holder: provided.declaration,
+                doc: unitDoc(provided.declaration),
             };
         case 'object':
             return {
                 ...objectMembers(provided.declaration, declarations),
                 home: provided.declaration,
-                holder: provided.factory,
+                doc: unitDoc(provided.factory),
             };
-        case 'callable':
-            return { ...NO_MEMBERS, home: provided.declaration, holder: provided.declaration };
+        case 'class':
+        case 'function':
+            return { ...NO_MEMBERS, home: provided.declaration, doc: unitDoc(provided.declaration) };
         case 'nothing':
-            return { ...NO_MEMBERS, home: null, holder: null };
+            return { ...NO_MEMBERS, home: null, doc: unitDoc(null) };
         case 'unresolved': {
             const reading = new Reading(provided.expression.source);
 
             reading.unresolved('provider', provided.expression.node);
 
-            return { members: [], notes: reading.notes, home: null, holder: null };
+            return { members: [], notes: reading.notes, home: null, doc: unitDoc(null) };
         }
         default:
             return provided satisfies never;

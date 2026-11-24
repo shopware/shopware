@@ -26,13 +26,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * record stores, judged against its resulting root source, the created value or else the stored one.
  * The per-step rationale is inline in validateRecord().
  *
- * The tree is not decoded here. The layout field serializer decoded it while encoding the column and left it on
- * the write `Context` ({@see LayoutWriteContext}) under the encoded value, so this gate judges the tree that is
- * about to be stored rather than a second decode of the same column. The gate only reads the memo and never
- * removes an entry, because the DAL dispatches the validation event again when it retries the write's
- * transaction in the same `WriteContext`, without encoding again: the retry finds the same trees and reaches the
- * same verdict. Only the entries of this write's `WriteContext` are read: the entries another write on the same
- * `Context` left, a nested write a listener started included, count as absent.
+ * The tree is not decoded here: the gate judges the tree the layout field serializer memoized while encoding the
+ * column, see {@see LayoutWriteContext}.
  *
  * @internal
  *
@@ -83,11 +78,6 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     {
         $tree = $this->resultingTree($memo, $event->getWriteContext(), $row);
         $setsRootSource = $row->payloadContainsAny(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
-
-        if ($tree === null && !$setsRootSource) {
-            return;
-        }
-
         $rootSource = $row->getResultingValue(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
         $violations = new ConstraintViolationList();
 
@@ -130,11 +120,8 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     }
 
     /**
-     * The tree behind the layout value the record holds after the batch, looked up in the memo by that value.
-     * Every value the layout column is written with was put there: the serializer memoizes while encoding the
-     * column, before this event can fire. So an absent entry is a broken write path, not an input the gate could
-     * rule on: re-decoding the column instead would silently gate a tree other than the one the serializer encoded
-     * for storage, which is precisely the guarantee this gate exists to hold.
+     * The tree behind the layout value the record holds after the batch, looked up in the memo by that value. An
+     * absent entry throws {@see ContentSystemException::layoutWriteMemoMissing()}.
      */
     private function resultingTree(?LayoutWriteContext $memo, WriteContext $write, OutcomeRow $row): ?StoredTree
     {

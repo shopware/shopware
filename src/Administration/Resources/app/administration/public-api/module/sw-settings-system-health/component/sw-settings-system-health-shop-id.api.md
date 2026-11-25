@@ -14,25 +14,25 @@ component sw-settings-system-health-shop-id  private  ts  [private]
 inject
   shopIdChangeService  [private]
 
-props
-  check: SystemHealthCheck  [private]
-
 data
   isOpening: any  [private]
   shopIdCheck: any  [private]
 
 computed
   appsOnHold: string[]  [private]
-  columns: any  [private]
+  columns: Array<{ property: string; label: string }>  [private]
   fingerprints: Fingerprint[]  [private]
   impact: string  [private]
+  rows: Fingerprint[]  [private]
   summary: string | null  [private]
 
 methods
-  displayValue(value: string | null): string  [private]
-  fingerprintLabel(identifier: string): string  [private]
   openResolveDialog(): Promise<void>  [private]
 
 blocks
   sw_settings_system_health_shop_id  [private]
+
+notes
+  unresolved options setup  [private]
+  unresolved props checkViewProps  [private]
 ```

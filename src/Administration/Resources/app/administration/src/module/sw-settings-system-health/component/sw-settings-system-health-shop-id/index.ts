@@ -81,7 +81,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         columns(): Array<{ property: string; label: string }> {
-            return ['identifier', 'storedValue', 'currentValue', 'matches'].map((property) => ({
+            return [
+                'identifier',
+                'storedValue',
+                'currentValue',
+                'matches',
+            ].map((property) => ({
                 property,
                 label: this.$t(`sw-settings-system-health.shop-id.column.${property}`),
             }));

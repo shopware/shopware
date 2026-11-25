@@ -842,8 +842,10 @@ class CriteriaParser
         }
 
         if ($filter instanceof NotEqualsFilter && $filter->getValue() === null) {
-            return new ExistsQuery(
-                $this->buildAccessor($definition, $filter->getField(), $context)
+            return $this->createNestedQuery(
+                new ExistsQuery($this->buildAccessor($definition, $filter->getField(), $context)),
+                $definition,
+                $filter->getField()
             );
         }
 

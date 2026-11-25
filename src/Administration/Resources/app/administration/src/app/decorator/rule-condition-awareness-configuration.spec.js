@@ -61,9 +61,27 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
             ...(aware.config.equalsAny ?? []),
         ]);
 
-        const unknown = [...new Set(referenced)].filter((type) => !knownTypes.has(type));
+        const unknown = [...new Set(referenced)].filter(
+            (type) => !knownTypes.has(type) && !service.isDeliveryContainer({ type }),
+        );
 
         expect(unknown).toHaveLength(0);
+    });
+
+    it.each([
+        ['personaPromotions', true],
+        ['orderPromotions', true],
+        ['cartPromotions', true],
+        ['promotionSetGroups', true],
+        ['promotionDiscounts', true],
+        ['paymentMethods', true],
+        ['shippingMethodPriceCalculations', false],
+        ['shippingMethodPrices', false],
+        ['shippingMethods', false],
+    ])('blocks conditions applying to a single delivery for %s: %s', (assignment, blocked) => {
+        expect(service.getAwarenessConfigurationByAssignmentName(assignment).notEquals.includes('deliveryContainer')).toBe(
+            blocked,
+        );
     });
 
     it.each(EXPECTED_AWARENESS_CONFIGURATIONS)(

@@ -228,7 +228,8 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
     private function findExistingMediaIdByHash(string $downloadedHash, Context $context): ?string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('metaData.hash', $downloadedHash));
+        $criteria->addFilter(new EqualsFilter('fileHash', $downloadedHash));
+        $criteria->setLimit(1);
 
         return $this->mediaRepository->searchIds($criteria, $context)->firstId();
     }

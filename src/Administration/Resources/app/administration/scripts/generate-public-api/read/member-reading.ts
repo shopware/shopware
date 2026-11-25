@@ -250,6 +250,18 @@ function everyReturn(fn: FunctionNode, matches: (value: ts.Expression) => boolea
     return values.length > 0 && values.every((value) => value !== undefined && matches(value));
 }
 
+/** What the `return` statements of the function hand back, for a function whose declared type does not say. */
+function promiseOfBody(fn: FunctionNode): boolean | null {
+    if (fn.body === undefined) {
+        return null;
+    }
+
+    const returned = combined(returnedValues(fn).map(promiseOf));
+
+    // A type that only the type checker resolves can be a promise whatever the body hands back.
+    return returned === false && fn.type !== undefined ? null : returned;
+}
+
 /**
  * Whether callers get a promise, `null` when only the type checker knows, as for a plain call such as
  * `return this.repository.save()`.
@@ -259,16 +271,7 @@ function returnsPromise(fn: FunctionNode): boolean | null {
         return true;
     }
 
-    const declared = fn.type === undefined ? null : promiseOfType(fn.type);
-
-    if (declared !== null || fn.body === undefined) {
-        return declared;
-    }
-
-    const returned = combined(returnedValues(fn).map(promiseOf));
-
-    // A type that only the type checker resolves can be a promise whatever the body hands back.
-    return returned === false && fn.type !== undefined ? null : returned;
+    return (fn.type === undefined ? null : promiseOfType(fn.type)) ?? promiseOfBody(fn);
 }
 
 /**

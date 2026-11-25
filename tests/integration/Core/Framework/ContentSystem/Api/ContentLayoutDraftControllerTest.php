@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -115,10 +116,89 @@ class ContentLayoutDraftControllerTest extends TestCase
 
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', ['draftId' => $draft['id']]);
 
-        $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString(ContentSystemException::MISSING_REQUEST_FIELD, (string) $response->getContent());
+        static::assertSame(['This value should be of type string.'], $this->errorDetails(Response::HTTP_BAD_REQUEST));
         static::assertSame(['live', 'other'], $this->liveIds($layoutId));
+    }
+
+    #[TestDox('a body field the draft route does not declare is a client error, not silently ignored')]
+    public function testUnknownBodyFieldIsABadRequest(): void
+    {
+        $layoutId = $this->createLayout();
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/create-draft', ['fromRevison' => Uuid::randomHex()]);
+
+        static::assertSame([ContentSystemException::UNKNOWN_REQUEST_FIELD], $this->errorCodes(Response::HTTP_BAD_REQUEST));
+        static::assertSame([], $this->json('GET', $layoutId . '/drafts')['drafts']);
+    }
+
+    #[TestDox('a non-string fromRevisionId is a client error instead of a draft of the live revision')]
+    public function testNonStringFromRevisionIdIsABadRequest(): void
+    {
+        $layoutId = $this->createLayout();
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/create-draft', ['fromRevisionId' => 5]);
+
+        static::assertSame(['This value should be of type null|string.'], $this->errorDetails(Response::HTTP_BAD_REQUEST));
+        static::assertSame([], $this->json('GET', $layoutId . '/drafts')['drafts']);
+    }
+
+    #[TestDox('an unknown fromRevisionId answers 404')]
+    public function testUnknownFromRevisionIdIsNotFound(): void
+    {
+        $layoutId = $this->createLayout();
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/create-draft', ['fromRevisionId' => Uuid::randomHex()]);
+
+        static::assertSame([ContentSystemException::CONTENT_LAYOUT_REVISION_NOT_FOUND], $this->errorCodes(Response::HTTP_NOT_FOUND));
+    }
+
+    #[DataProvider('invalidDraftNames')]
+    #[TestDox('a draft name the draft table cannot hold meaningfully is a client error')]
+    public function testInvalidDraftNameIsABadRequest(string $name): void
+    {
+        $layoutId = $this->createLayout();
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/create-draft', ['name' => $name]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
+        static::assertSame([], $this->json('GET', $layoutId . '/drafts')['drafts']);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidDraftNames(): iterable
+    {
+        yield 'an empty name is blank' => [''];
+        yield 'a whitespace-only name is blank after trimming' => ['   '];
+        yield 'a name longer than the 255-character column' => [str_repeat('a', 256)];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function errorCodes(int $status): array
+    {
+        return array_column($this->errors($status), 'code');
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function errorDetails(int $status): array
+    {
+        return array_column($this->errors($status), 'detail');
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function errors(int $status): array
+    {
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame($status, $response->getStatusCode(), (string) $response->getContent());
+
+        return json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
     }
 
     /**

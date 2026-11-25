@@ -126,7 +126,7 @@ class LayoutRevisionStore
         );
     }
 
-    public function graph(string $layoutId, string $published): RevisionGraph
+    public function graph(string $layoutId, string $live): RevisionGraph
     {
         $revisions = [];
         foreach ($this->connection->fetchAllAssociative(
@@ -151,7 +151,7 @@ class LayoutRevisionStore
             $drafts[$draft->id] = $draft;
         }
 
-        return new RevisionGraph($revisions, $drafts, $published);
+        return new RevisionGraph($revisions, $drafts, $live);
     }
 
     /**
@@ -185,8 +185,8 @@ class LayoutRevisionStore
     {
         $this->connection->executeStatement(
             <<<'SQL'
-                INSERT INTO `content_layout_draft` (`id`, `content_layout_id`, `name`, `base_revision_id`, `head_revision_id`, `live_revision_id`, `created_at`, `updated_at`)
-                VALUES (:id, :layoutId, :name, :base, :head, :live, :createdAt, :updatedAt)
+                INSERT INTO `content_layout_draft` (`id`, `content_layout_id`, `name`, `base_revision_id`, `head_revision_id`, `live_at_open_revision_id`, `created_at`, `updated_at`)
+                VALUES (:id, :layoutId, :name, :base, :head, :liveAtOpen, :createdAt, :updatedAt)
                 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `head_revision_id` = VALUES(`head_revision_id`), `updated_at` = VALUES(`updated_at`)
                 SQL,
             [
@@ -195,7 +195,7 @@ class LayoutRevisionStore
                 'name' => $draft->name,
                 'base' => Uuid::fromHexToBytes($draft->base),
                 'head' => Uuid::fromHexToBytes($draft->head),
-                'live' => Uuid::fromHexToBytes($draft->live),
+                'liveAtOpen' => Uuid::fromHexToBytes($draft->liveAtOpen),
                 'createdAt' => $draft->createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'updatedAt' => $draft->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
@@ -240,7 +240,7 @@ class LayoutRevisionStore
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
                 SELECT LOWER(HEX(`id`)) AS `id`, `name`, LOWER(HEX(`base_revision_id`)) AS `base`, LOWER(HEX(`head_revision_id`)) AS `head`,
-                    LOWER(HEX(`live_revision_id`)) AS `live`, `created_at`, `updated_at`
+                    LOWER(HEX(`live_at_open_revision_id`)) AS `live_at_open`, `created_at`, `updated_at`
                 FROM `content_layout_draft`
                 SQL . ' ' . $where,
             $parameters,
@@ -251,7 +251,7 @@ class LayoutRevisionStore
             (string) $row['name'],
             (string) $row['base'],
             (string) $row['head'],
-            (string) $row['live'],
+            (string) $row['live_at_open'],
             $this->date((string) $row['created_at']),
             $this->date((string) $row['updated_at']),
         ), $rows);

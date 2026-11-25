@@ -1020,13 +1020,13 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function layoutPublishConflict(string $layoutId, string $publishedRevisionId): self
+    public static function layoutPublishConflict(string $layoutId, string $liveRevisionId): self
     {
         return new self(
             Response::HTTP_CONFLICT,
             self::LAYOUT_PUBLISH_CONFLICT,
-            'Content layout "{{ layoutId }}" was published as revision "{{ publishedRevisionId }}" in the meantime; publishing would replace that state unseen.',
-            ['layoutId' => $layoutId, 'publishedRevisionId' => $publishedRevisionId]
+            'Content layout "{{ layoutId }}" went live as revision "{{ liveRevisionId }}" in the meantime; publishing would replace that state unseen.',
+            ['layoutId' => $layoutId, 'liveRevisionId' => $liveRevisionId]
         );
     }
 

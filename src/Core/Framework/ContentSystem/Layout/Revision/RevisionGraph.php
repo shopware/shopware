@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The metadata of a layout's revision history, without any tree: every revision points at its parent, drafts
- * are movable pointers to a head revision, and `published` names the revision the layout column projects.
+ * are movable pointers to a head revision, and `live` names the revision the layout column projects.
  *
  * @internal
  */
@@ -20,34 +20,13 @@ final readonly class RevisionGraph
     public function __construct(
         public array $revisions,
         public array $drafts,
-        public string $published,
+        public string $live,
     ) {
     }
 
     public function revision(string $id): ?LayoutRevision
     {
         return $this->revisions[$id] ?? null;
-    }
-
-    public function draft(string $id): ?LayoutDraft
-    {
-        return $this->drafts[$id] ?? null;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function draftIdsAt(string $revisionId): array
-    {
-        $ids = [];
-
-        foreach ($this->drafts as $draft) {
-            if ($draft->head === $revisionId) {
-                $ids[] = $draft->id;
-            }
-        }
-
-        return $ids;
     }
 
     public function isAncestorOrSelf(string $ancestorId, string $revisionId): bool
@@ -62,14 +41,14 @@ final readonly class RevisionGraph
     }
 
     /**
-     * The revisions that no draft, no ever-published revision and the published one reach through their
+     * The revisions that no draft, no ever-published revision and the live one reach through their
      * parent chain. A rollback therefore never makes a newer live state prunable.
      *
      * @return list<string>
      */
     public function unreachableIds(): array
     {
-        $tips = [$this->published];
+        $tips = [$this->live];
         foreach ($this->revisions as $revision) {
             if ($revision->publishedAt !== null) {
                 $tips[] = $revision->id;
@@ -77,7 +56,7 @@ final readonly class RevisionGraph
         }
         foreach ($this->drafts as $draft) {
             $tips[] = $draft->head;
-            $tips[] = $draft->live;
+            $tips[] = $draft->liveAtOpen;
         }
 
         $reachable = [];
@@ -89,50 +68,5 @@ final readonly class RevisionGraph
         }
 
         return array_map('strval', array_keys(array_diff_key($this->revisions, $reachable)));
-    }
-
-    /**
-     * `createdAt` only has millisecond precision, so revisions saved within the same instant are ordered by
-     * their distance from the root instead: a child always sorts before its parent.
-     *
-     * @return list<LayoutRevision>
-     */
-    public function newestFirst(): array
-    {
-        $depths = [];
-        foreach ($this->revisions as $id => $revision) {
-            $this->depth((string) $id, $depths);
-        }
-
-        $revisions = array_values($this->revisions);
-
-        usort(
-            $revisions,
-            static fn (LayoutRevision $a, LayoutRevision $b): int => [$b->createdAt, $depths[$b->id]] <=> [$a->createdAt, $depths[$a->id]],
-        );
-
-        return $revisions;
-    }
-
-    /**
-     * A revision whose parent was pruned counts as a root.
-     *
-     * @param array<string, int> $known memoized depths, so one pass over all revisions stays linear
-     */
-    private function depth(string $id, array &$known): void
-    {
-        $chain = [];
-        $cursor = $id;
-
-        while ($cursor !== null && isset($this->revisions[$cursor]) && !isset($known[$cursor])) {
-            $chain[] = $cursor;
-            $cursor = $this->revisions[$cursor]->parent;
-        }
-
-        $depth = $cursor !== null && isset($known[$cursor]) ? $known[$cursor] : -1;
-
-        foreach (array_reverse($chain) as $chainId) {
-            $known[$chainId] = ++$depth;
-        }
     }
 }

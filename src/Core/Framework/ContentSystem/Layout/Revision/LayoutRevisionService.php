@@ -61,8 +61,8 @@ class LayoutRevisionService
      */
     public function listDrafts(string $layoutId): array
     {
-        return $this->locked($layoutId, function (string $published) use ($layoutId): array {
-            $drafts = array_values($this->store->graph($layoutId, $published)->drafts);
+        return $this->locked($layoutId, function (string $live) use ($layoutId): array {
+            $drafts = array_values($this->store->graph($layoutId, $live)->drafts);
 
             usort($drafts, static fn (LayoutDraft $a, LayoutDraft $b): int => $b->updatedAt <=> $a->updatedAt);
 
@@ -84,20 +84,20 @@ class LayoutRevisionService
 
     public function history(string $layoutId): RevisionGraph
     {
-        return $this->locked($layoutId, fn (string $published): RevisionGraph => $this->store->graph($layoutId, $published));
+        return $this->locked($layoutId, fn (string $live): RevisionGraph => $this->store->graph($layoutId, $live));
     }
 
     public function createDraft(string $layoutId, ?string $name = null, ?string $fromRevisionId = null): LayoutDraft
     {
-        return $this->locked($layoutId, function (string $published) use ($layoutId, $name, $fromRevisionId): LayoutDraft {
-            $base = $fromRevisionId ?? $published;
+        return $this->locked($layoutId, function (string $live) use ($layoutId, $name, $fromRevisionId): LayoutDraft {
+            $base = $fromRevisionId ?? $live;
 
-            if ($this->store->graph($layoutId, $published)->revision($base) === null) {
+            if ($this->store->graph($layoutId, $live)->revision($base) === null) {
                 throw ContentSystemException::contentLayoutRevisionNotFound($layoutId, $base);
             }
 
             $now = $this->now();
-            $draft = new LayoutDraft(Uuid::randomHex(), $name ?? self::DEFAULT_DRAFT_NAME, $base, $base, $published, $now, $now);
+            $draft = new LayoutDraft(Uuid::randomHex(), $name ?? self::DEFAULT_DRAFT_NAME, $base, $base, $live, $now, $now);
 
             $this->store->saveDraft($layoutId, $draft);
 
@@ -126,21 +126,22 @@ class LayoutRevisionService
 
     /**
      * Publishes the head the caller last saw and removes the draft. Publishing never replaces a live state its
-     * caller has not seen: the draft must still be based on the live state it was opened from, or contain the
-     * current one. The DAL update and the pointer move share one transaction, so a tree the write gate refuses
+     * caller has not seen: if the live revision changed since the draft was opened, it may only have moved forward,
+     * and the draft must contain it. Containment alone is not enough, since a rollback moves live back to a revision
+     * every newer draft contains. The DAL update and the pointer move share one transaction, so a tree the write gate refuses
      * leaves the draft and the live pointer where they were.
      */
     public function publish(string $layoutId, string $draftId, string $expectedHead, Context $context): void
     {
-        $this->locked($layoutId, function (string $published) use ($layoutId, $draftId, $expectedHead, $context): void {
+        $this->locked($layoutId, function (string $live) use ($layoutId, $draftId, $expectedHead, $context): void {
             $draft = $this->draft($layoutId, $draftId);
 
             if ($draft->head !== $expectedHead) {
                 throw ContentSystemException::layoutVersionConflict($layoutId);
             }
 
-            if ($draft->live !== $published && !$this->store->graph($layoutId, $published)->isAncestorOrSelf($published, $draft->head)) {
-                throw ContentSystemException::layoutPublishConflict($layoutId, $published);
+            if ($draft->liveAtOpen !== $live && !$this->movedForwardInto($layoutId, $live, $draft)) {
+                throw ContentSystemException::layoutPublishConflict($layoutId, $live);
             }
 
             $this->store->deleteDraft($layoutId, $draftId);
@@ -149,14 +150,21 @@ class LayoutRevisionService
         });
     }
 
-    public function deleteDraft(string $layoutId, string $draftId): void
+    public function discardDraft(string $layoutId, string $draftId): void
     {
-        $this->locked($layoutId, function (string $published) use ($layoutId, $draftId): void {
+        $this->locked($layoutId, function (string $live) use ($layoutId, $draftId): void {
             $this->draft($layoutId, $draftId);
             $this->store->deleteDraft($layoutId, $draftId);
 
-            $this->store->deleteRevisions($layoutId, $this->store->graph($layoutId, $published)->unreachableIds());
+            $this->store->deleteRevisions($layoutId, $this->store->graph($layoutId, $live)->unreachableIds());
         });
+    }
+
+    private function movedForwardInto(string $layoutId, string $live, LayoutDraft $draft): bool
+    {
+        $graph = $this->store->graph($layoutId, $live);
+
+        return $graph->isAncestorOrSelf($draft->liveAtOpen, $live) && $graph->isAncestorOrSelf($live, $draft->head);
     }
 
     /**
@@ -215,7 +223,7 @@ class LayoutRevisionService
     /**
      * @template T
      *
-     * @param \Closure(string): T $operation receives the id of the published revision
+     * @param \Closure(string): T $operation receives the id of the live revision
      *
      * @return T
      */

@@ -25,3 +25,18 @@ In addition to the structural `400`s of the stateless endpoints (`mutationTarget
 Detached content (`orphaned`), dropped wiring (`droppedWiring`), and dropped property values (`droppedProperties`) are **left out of the commit and reported**. The stored tree omits them and the response returns them. The caller therefore re-places subtrees with `attach-element`, re-wires the keys, or re-applies the values. See [The module drops nothing silently and reports every loss](../../docs/principles/failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).
 
 Runtime definition failures also include invalid filenames and binding canonicalization/type errors (500 with their specific codes). Preset-loading operations additionally expose preset load and validation errors. See [definition-load errors](../../docs/definition-load-errors.md) for the code/status mapping and app-install distinction.
+
+## Draft routes
+
+The rejections of the draft routes of `ContentLayoutDraftController` ([persisted-mutation.md](persisted-mutation.md#drafts)):
+
+| Condition                                                                         | HTTP | Factory / source                                    |
+|-----------------------------------------------------------------------------------|------|-----------------------------------------------------|
+| `{layoutId}` names no stored layout                                               | 404  | `contentLayoutNotFound`                             |
+| A body field the route does not declare                                           | 400  | `unknownRequestField`                               |
+| A missing or wrongly typed body field, or a blank or over-long `name`             | 400  | `#[MapRequestPayload]` validation                   |
+| `draftId` names no draft of the layout                                            | 404  | `contentLayoutDraftNotFound`                        |
+| `create-draft`: `fromRevisionId` names no revision of the layout                  | 404  | `contentLayoutRevisionNotFound`                     |
+| `publish-draft`: `expectedHead` is no longer the draft head                       | 409  | `layoutVersionConflict` (nothing written)           |
+| `publish-draft`: live moved back, or to a revision the draft does not contain     | 409  | `layoutPublishConflict` (nothing written)           |
+| `publish-draft`: the draft head breaks resolvability for a bound source           | 400  | `ContentLayoutWriteValidator` rejects the `content_layout` write (`WriteException`); the draft stays |

@@ -50,7 +50,7 @@ class Migration1793099454AddContentLayoutRevisionTables extends MigrationStep
                 `name` VARCHAR(255) NOT NULL,
                 `base_revision_id` BINARY(16) NOT NULL,
                 `head_revision_id` BINARY(16) NOT NULL,
-                `live_revision_id` BINARY(16) NOT NULL,
+                `live_at_open_revision_id` BINARY(16) NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NOT NULL,
                 PRIMARY KEY (`id`),

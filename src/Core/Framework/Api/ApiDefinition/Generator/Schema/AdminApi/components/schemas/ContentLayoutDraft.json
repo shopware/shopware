@@ -1,0 +1,63 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentLayoutDraft": {
+                "title": "Content layout draft",
+                "type": "object",
+                "description": "A named pointer into the revision graph of a stored layout.",
+                "required": ["id", "name", "base", "head", "createdAt", "updatedAt"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Id of the draft.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3c"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Display name of the draft.",
+                        "example": "Summer campaign"
+                    },
+                    "base": {
+                        "type": "string",
+                        "description": "Id of the revision the draft was opened from: the live revision, or `fromRevisionId` for a rollback.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3e"
+                    },
+                    "head": {
+                        "type": "string",
+                        "description": "Id of the latest revision saved on the draft; the `expectedHead` of the next draft mutation and of `publish-draft`.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3d"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-06-22T10:00:00+00:00"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-06-22T10:05:00+00:00"
+                    }
+                }
+            },
+            "ContentLayoutPersistedMutationResponse": {
+                "title": "Content layout persisted mutation response",
+                "description": "The mutation response of a persisted mutation route. A draft mutation also returns the draft it moved.",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutMutationResponse" },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "draft": {
+                                "allOf": [{ "$ref": "#/components/schemas/ContentLayoutDraft" }],
+                                "description": "Present only for a draft mutation (`draftId` in the body). Its `head` is the revision the mutation appended."
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

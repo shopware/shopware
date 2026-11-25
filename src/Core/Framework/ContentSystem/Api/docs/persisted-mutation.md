@@ -29,11 +29,19 @@ A draft is a named pointer into the layout's revision graph (`Layout/Revision/La
 | `POST /api/_action/content-system/layout/{layoutId}/discard-draft`   | `draftId`                    | `content_layout:update` | `204`                     |
 | `POST /api/_action/content-system/layout/{layoutId}/publish-draft`   | `draftId`, `expectedHead`    | `content_layout:update` | `204`                     |
 
+Each `POST` binds its body to a request DTO (`ContentLayoutCreateDraftRequest`, `ContentLayoutDiscardDraftRequest`, `ContentLayoutPublishDraftRequest`) via `#[MapRequestPayload]`, so an unknown field is a `400` `UNKNOWN_REQUEST_FIELD` and a missing or wrongly typed field a `400`.
+A `name` is at most 255 characters and not blank; without one the draft is named `Draft`.
 A new draft starts at the live revision, or at `fromRevisionId` to roll back.
 Publishing writes the draft head to the live layout through the DAL, which enforces resolvability, and removes the draft.
-A stale `expectedHead` is a `409` `LAYOUT_VERSION_CONFLICT`.
-A draft opened before another draft or a direct layout write went live is a `409` `LAYOUT_PUBLISH_CONFLICT`, unless it already contains that live state.
-A missing `draftId` or `expectedHead` is a `400` `MISSING_REQUEST_FIELD`, an unknown draft a `404` `CONTENT_LAYOUT_DRAFT_NOT_FOUND`.
+If the live revision changed since the draft was opened, publishing is a `409` `LAYOUT_PUBLISH_CONFLICT` unless live only moved forward and the draft contains it.
+Another draft or a direct layout write that went live in the meantime therefore conflicts, and so does a rollback, although every newer draft descends from the restored revision.
+A draft branched from another draft's head can be published after that draft.
+The client reopens a draft from the new live state or discards it; publishing never replaces a live state the draft has not seen.
+Rejections: [persisted-mutation-errors.md](persisted-mutation-errors.md#draft-routes).
+
+Every draft edit stores the full tree as a new revision.
+Discarding a draft prunes the revisions nothing else reaches; publishing prunes nothing, and every revision that was ever live keeps its ancestors.
+The revision table therefore grows with every published edit; a retention policy is an open point.
 
 ## Mutating a draft
 

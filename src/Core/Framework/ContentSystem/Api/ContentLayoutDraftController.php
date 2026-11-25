@@ -2,19 +2,19 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
  * Drafts of a content layout, named pointers into its revision graph, see {@see LayoutRevisionService}. A draft is
@@ -57,50 +57,36 @@ class ContentLayoutDraftController
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/create-draft', name: 'api.action.content_system.layout.draft.create', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
-    public function createDraft(string $layoutId, RequestDataBag $data): JsonResponse
-    {
-        $draft = $this->revisionService->createDraft(
-            $layoutId,
-            $this->string($data, 'name'),
-            $this->string($data, 'fromRevisionId'),
-        );
+    public function createDraft(
+        string $layoutId,
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        ?ContentLayoutCreateDraftRequest $payload = null,
+    ): JsonResponse {
+        $draft = $this->revisionService->createDraft($layoutId, $payload?->name, $payload?->fromRevisionId);
 
         return new JsonResponse(['draft' => LayoutDraftNormalizer::draft($draft)]);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/discard-draft', name: 'api.action.content_system.layout.draft.discard', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
-    public function discardDraft(string $layoutId, RequestDataBag $data): Response
-    {
-        $this->revisionService->deleteDraft($layoutId, $this->required($data, 'draftId'));
+    public function discardDraft(
+        string $layoutId,
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        ContentLayoutDiscardDraftRequest $payload,
+    ): Response {
+        $this->revisionService->discardDraft($layoutId, $payload->draftId);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/publish-draft', name: 'api.action.content_system.layout.draft.publish', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
-    public function publishDraft(string $layoutId, RequestDataBag $data, Context $context): Response
-    {
-        $this->revisionService->publish(
-            $layoutId,
-            $this->required($data, 'draftId'),
-            $this->required($data, 'expectedHead'),
-            $context,
-        );
+    public function publishDraft(
+        string $layoutId,
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        ContentLayoutPublishDraftRequest $payload,
+        Context $context,
+    ): Response {
+        $this->revisionService->publish($layoutId, $payload->draftId, $payload->expectedHead, $context);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * A non-string value reads as absent.
-     */
-    private function string(RequestDataBag $data, string $key): ?string
-    {
-        $value = $data->get($key);
-
-        return \is_string($value) ? $value : null;
-    }
-
-    private function required(RequestDataBag $data, string $key): string
-    {
-        return $this->string($data, $key) ?? throw ContentSystemException::missingRequestField([$key]);
     }
 }

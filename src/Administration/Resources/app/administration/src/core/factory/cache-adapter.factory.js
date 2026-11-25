@@ -42,12 +42,16 @@ const flushCacheUrls = [
 
 const readOnlyPostPaths = [
     /^search(-ids)?\//,
-    /^_info\//,
     /^_admin\/(es-)?search$/,
     /^_admin\/product-stream-preview\//,
     /^_admin\/check-customer-email-valid$/,
+    /^_admin\/sanitize-html$/,
+    /^_admin\/tag-filter-ids$/,
     /^_action\/calculate-prices?$/,
     /^_action\/user\/check-(email|username)-unique$/,
+    /^_action\/extension-sdk\/sign-uri$/,
+    /^_action\/custom-snippet\/render$/,
+    /^_action\/increment\//,
 ];
 
 // the timeout at which the response in the cache gets cleared
@@ -66,17 +70,23 @@ const requestCacheTimeout = 1500;
  */
 export default function cacheAdapterFactory(originalAdapter, requestCaches = {}) {
     return (config) => {
-        const requestPath = config?.url?.replace(/^\//, '').split('?')[0] ?? '';
+        const requestPath = getRequestPath(config);
         const requestChangesData = changesData(config?.method, requestPath);
         const shouldFlushCache = flushCacheUrls.includes(config?.url);
 
         // remove all caches when something gets changed
         if (requestChangesData || shouldFlushCache) {
-            Object.keys(requestCaches).forEach((key) => {
-                delete requestCaches[key];
-            });
+            const flushRequestCaches = () => {
+                Object.keys(requestCaches).forEach((key) => {
+                    delete requestCaches[key];
+                });
+            };
 
-            return originalAdapter(config);
+            flushRequestCaches();
+            const request = originalAdapter(config);
+            request.then(flushRequestCaches, flushRequestCaches);
+
+            return request;
         }
 
         // ignore requests which are not in the allowedUrlList
@@ -122,12 +132,22 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
     };
 }
 
+function getRequestPath(config) {
+    let url = config?.url ?? '';
+
+    if (config?.baseURL && /^[a-z][a-z\d+.-]*:\/\//i.test(url) && url.startsWith(config.baseURL)) {
+        url = url.slice(config.baseURL.length);
+    }
+
+    return url.replace(/^\//, '').split('?')[0];
+}
+
 function changesData(method, requestPath) {
     if (method === 'post') {
         return !readOnlyPostPaths.some((pattern) => pattern.test(requestPath));
     }
 
-    return !!method && method !== 'get';
+    return ['put', 'patch', 'delete'].includes(method);
 }
 
 /**

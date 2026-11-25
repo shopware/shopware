@@ -1,0 +1,35 @@
+class	status_filter	regex	note
+gate	*	^(.*/)?phpstan[^/]*\.neon[^/]*$	PHPStan configuration and baselines
+gate	*	^(.*/)?\.php-cs-fixer[^/]*\.php$	PHP-CS-Fixer configuration
+gate	*	^(.*/)?rector\.php$	Rector configuration
+gate	*	^(.*/)?phpunit[^/]*\.xml\.dist$	PHPUnit configuration
+gate	*	^\.github/workflows/[^/]*\.ya?ml$	CI workflows
+gate	*	^src/Core/DevOps/StaticAnalyze/	custom static analysis rules
+gate	*	^src/(Administration|Storefront)/Resources/app/[^/]+/eslint\.config\.[^/]+$	Administration and Storefront ESLint configuration
+gate	*	^(.*/)?eslint-rules/	custom ESLint rules
+gate	*	^(.*/)?\.stylelintrc[^/]*$	Stylelint configuration
+gate	*	^(.*/)?stylelint\.config\.[^/]+$	Stylelint configuration (Storefront)
+gate	*	^(.*/)?\.fallowrc\.json$	dead-code check configuration
+gate	*	^(.*/)?\.prettierrc[^/]*$	Prettier configuration
+gate	*	^(.*/)?tsconfig[^/]*\.json$	TypeScript configuration
+bc-convention	*	^src/Core/Framework/Deprecation/	deprecation and BC attributes
+bc-convention	*	^\.bc-exclude\.php$	BC checker exclusions
+none	*	(^|/)(__fixtures__|_fixtures|__snapshots__)/	fixtures and snapshots define no pattern
+none	*	^\.agents/skills/[^/]+/(tests|scripts)/	skill tests and scripts are no guideline
+guideline	*	^adr/	architecture decision records
+guideline	*	^coding-guidelines/	coding guidelines
+guideline	*	^(.*/)?AGENTS\.md$	agent instructions
+guideline	*	^\.agents/skills/	agent skills
+guideline	*	^(.*/)?technical-docs/	technical documentation
+migration-tooling	*	^(.*/)?codemods/	codemods
+dependency	*	^(.*/)?composer\.json$	Composer requirements
+dependency	*	^(.*/)?package\.json$	npm dependencies
+none	*	/scripts/	tooling scripts are no reusable surface
+reusable-surface	A	^src/Core/Test/Stub/	test stubs
+reusable-surface	A	^tests/(.*/)?Stub[^/]*/	test stubs
+none	*	^(.*/)?[^/]*\.spec\.[^/]*$	tests are no reusable surface
+none	*	^(.*/)?public-api/	generated snapshots are no reusable surface
+none	*	^(.*/)?Migration/	migrations are no reusable surface
+none	*	^(.*/)?Resources/public/	built assets are no reusable surface
+none	*	\.d\.ts$	declaration files are no reusable surface
+reusable-surface	A	^src/.*\.(php|ts|js|vue)$	new source files

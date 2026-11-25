@@ -1,0 +1,6 @@
+interface:
+  display_name: "Shopware Base Adoption"
+  short_description: "Find base changes the branch's own files have not adopted"
+  default_prompt: "Use $sw-base-adoption to audit what the base branch introduced that this branch's own files have not adopted."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,2 @@
+id	output_regex	generator_command	check_note
+admin-public-api	^src/Administration/Resources/app/administration/public-api/.*\.api\.md$	composer admin:generate-public-api	regenerate, then compare the owned snapshot files; composer admin:check-public-api checks them

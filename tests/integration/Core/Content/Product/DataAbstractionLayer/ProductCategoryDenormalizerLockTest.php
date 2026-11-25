@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
- * Runs without the usual test transaction: another connection can only lock committed rows.
- *
  * @internal
  */
 #[Package('inventory')]

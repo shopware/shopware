@@ -53,9 +53,6 @@ class ProductCategoryDenormalizerTest extends TestCase
         static::assertCount(1, array_unique($transactions), 'The category tree was written in more than one transaction.');
     }
 
-    /**
-     * A parent with more variants than fit into one statement loses a category
-     */
     public function testRemovesTheCategoryFromEveryProductOfAFamilyLargerThanOneBatch(): void
     {
         $productIds = array_map(static fn (): string => Uuid::randomHex(), range(1, 300));
@@ -134,11 +131,11 @@ class ProductCategoryDenormalizerTest extends TestCase
     }
 
     /**
-     * @param list<array{product_id: string, paths: string|null, ids: string|null, category_tree: string|null}> $mapping categories and stored tree the read side returns per product
-     * @param list<array{product_id: string, category_id: string}> $storedRows product_category_tree rows the read side returns
+     * @param list<array{product_id: string, paths: string|null, ids: string|null, category_tree: string|null}> $mapping
+     * @param list<array{product_id: string, category_id: string}> $storedRows
      * @param \Closure(ProductCategoryDenormalizer): void $action
      *
-     * @return list<array{transaction: int|null, values: list<mixed>}> for every write, the number of the outermost transaction it ran in (null outside of one) and the written values
+     * @return list<array{transaction: int|null, values: list<mixed>}>
      */
     private function captureWrites(array $mapping, array $storedRows, \Closure $action): array
     {
@@ -170,7 +167,7 @@ class ProductCategoryDenormalizerTest extends TestCase
      * @param list<string> $products
      * @param list<array{transaction: int|null, values: list<mixed>}> $writes
      *
-     * @return list<string> the products named in a write that also writes the value
+     * @return list<string>
      */
     private static function productsWrittenWith(string $value, array $products, array $writes): array
     {

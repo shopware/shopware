@@ -1,0 +1,4 @@
+{
+    "description": "Deprecated prop, computed property, method and block removed in the announced major",
+    "majorFlags": ["v6.9.0.0"]
+}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Resource;
 
+use Mcp\Schema\Content\TextResourceContents;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -66,12 +67,13 @@ class StateMachineResourceTest extends TestCase
         $repository->method('search')->willReturn($searchResult);
 
         $resource = new StateMachineResource($repository);
-        $result = ($resource)();
+        $result = ($resource)()->contents[0];
+        static::assertInstanceOf(TextResourceContents::class, $result);
 
-        static::assertSame('shopware://state-machines', $result['uri']);
-        static::assertSame('application/json', $result['mimeType']);
+        static::assertSame('shopware://state-machines', $result->uri);
+        static::assertSame('application/json', $result->mimeType);
 
-        $data = json_decode($result['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($result->text, true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $data);
         static::assertSame('order.state', $data[0]['technicalName']);
         static::assertCount(2, $data[0]['states']);

@@ -28,6 +28,7 @@ export const BC_CHANGE_KINDS = {
     BlockMoved: ['parent'],
     ScopeVariableRemoval: ['variable'],
     PropBecomesRequired: [],
+    PropDefaultValueChange: ['default'],
     EmitPayloadChange: [],
     RouteParentChange: ['parent'],
     RegistryGroupChange: ['group'],

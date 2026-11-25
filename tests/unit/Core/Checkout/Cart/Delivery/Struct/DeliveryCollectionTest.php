@@ -23,7 +23,7 @@ use Shopware\Core\System\Country\CountryEntity;
 #[CoversClass(DeliveryCollection::class)]
 class DeliveryCollectionTest extends TestCase
 {
-    public function testGetShipmentsLeavesOutShippingDiscountsAndSortsByShippingCosts(): void
+    public function testGetShipmentsLeavesOutShippingDiscountsAndKeepsTheCollectionOrder(): void
     {
         $deliveries = new DeliveryCollection([
             $this->createDelivery('standard', 4.95),
@@ -34,7 +34,7 @@ class DeliveryCollectionTest extends TestCase
         ]);
 
         static::assertSame(
-            ['express', 'standard', 'second-standard', 'free'],
+            ['standard', 'express', 'free', 'second-standard'],
             array_values($deliveries->getShipments()->map(static fn (Delivery $delivery) => $delivery->getShippingMethod()->getId()))
         );
     }

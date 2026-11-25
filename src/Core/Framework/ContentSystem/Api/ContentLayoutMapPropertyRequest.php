@@ -18,6 +18,7 @@ final class ContentLayoutMapPropertyRequest
         public readonly string $propertyKey,
         public readonly array $source,
         public readonly ?string $expectedVersion,
+        public readonly ?string $branchId = null,
         public readonly ?string $expectedHead = null,
     ) {
     }

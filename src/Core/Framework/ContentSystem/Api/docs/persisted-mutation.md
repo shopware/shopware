@@ -16,25 +16,26 @@ A fresh insert with a required `resolvedBy` reference and no compatible mapping 
 
 > **Concurrency:** `expectedVersion` is the row's `updatedAt` at millisecond precision. `PersistedLayoutMutator::mutate()` holds the layout row lock that publishing also takes across load, version check, commit and diagnosis, so a second writer from the same state gets a `409`. Lock mechanism and interim limitations: [Mutation/docs/runners.md](../../Mutation/docs/runners.md#persistedlayoutmutator).
 
-## Branch routes
+## Mutating a draft branch
 
-Every action also has a branch route under `/api/_action/content-system/layout/{layoutId}/branches/{branchId}/`, with the same ACL and the route name `api.action.content_system.layout.branch_<op>`.
-A branch route applies the edit to the head of the draft branch and appends the result as one revision; the live layout is not written.
+A body with `branchId` names a draft branch of the layout.
+The action then applies the edit to the head of that branch and appends the result as one revision; the live layout is not written.
 It delegates to `PersistedLayoutMutator::mutateBranch()`, which runs the stateless draft pipeline, consumer mirroring included, and admits the tree like a saved draft, so only publishing enforces resolvability ([Mutation/docs/runners.md](../../Mutation/docs/runners.md#branch-target)).
 The body carries `expectedHead`, the branch head revision id as last read, instead of `expectedVersion`.
 A stale or missing `expectedHead` is a `409` and nothing is appended.
 The response is the mutation response plus `revision` and `branch`, in the shapes the revision routes return; the next mutation sends `branch.head` as its `expectedHead`.
-Each route rejects the other route's token with a `400` `UNKNOWN_REQUEST_FIELD`.
+A live mutation with `expectedHead`, or a branch mutation with `expectedVersion`, is a `400` `UNKNOWN_REQUEST_FIELD`.
 
 ## Request
 
 The layout is named in the path.
-Every body carries the operation's fields (identical to the stateless endpoints, minus the shared envelope) plus the token of its route: `expectedVersion` on live routes, `expectedHead` on branch routes.
+Every body carries the operation's fields (identical to the stateless endpoints, minus the shared envelope) plus the token of its target: `expectedVersion` for the live layout, `branchId` and `expectedHead` for a draft branch.
 
 | Field             | Required       | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 |-------------------|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `expectedVersion` | live routes: yes (nullable); branch routes: no | Optimistic-concurrency token of the live routes: the layout's `updatedAt` as last read. `null` for a never-updated layout. A mismatch is a `409`, an unparseable token a `400`, and nothing is written in either case.                                                                                                                                                                                                                                                                                                         |
-| `expectedHead`    | branch routes: yes; live routes: no | Optimistic-concurrency token of the branch routes: the branch head revision id as last read (`branch.head`). A missing or stale head is a `409` and nothing is appended. |
+| `expectedVersion` | live: yes (nullable); branch: no | Optimistic-concurrency token of a live mutation: the layout's `updatedAt` as last read. `null` for a never-updated layout. A mismatch is a `409`, an unparseable token a `400`, and nothing is written in either case.                                                                                                                                                                                                                                                                                                         |
+| `branchId`        | no             | The draft branch to mutate instead of the live layout. |
+| `expectedHead`    | branch: yes; live: no | Optimistic-concurrency token of a branch mutation: the branch head revision id as last read (`branch.head`). A missing or stale head is a `409` and nothing is appended. |
 | operation fields  | per op         | `insert-element` (`ContentLayoutInsertRequest`): `type` (+ `parentElementId`, `slot`, `index`, `bindingSpecificationId`); `remove-element` (`ContentLayoutRemoveRequest`): `elementId`; `move-element` (`ContentLayoutMoveRequest`): `elementId` (+ `newParentId`, `newSlot`, `index`); `replace-element` (`ContentLayoutReplaceRequest`): `elementId`, `newType`; `duplicate-element` (`ContentLayoutDuplicateRequest`): `elementId` (+ `index`); `wrap-elements` (`ContentLayoutWrapElementsRequest`): `elementIds`, `containerType`, `slot`; `unwrap-element` (`ContentLayoutUnwrapRequest`): `containerElementId`; `attach-element` (`ContentLayoutAttachRequest`): `element` (a raw subtree, ids reminted) (+ `parentElementId`, `slot`, `index`); `bind-element` (`ContentLayoutBindRequest`): `elementId`, `bindingSpecificationId`; `map-property` (`ContentLayoutMapPropertyRequest`): `elementId`, `propertyKey`, `source`; `unmap-property` (`ContentLayoutUnmapPropertyRequest`): `elementId`, `propertyKey`; `update-element-properties` (`ContentLayoutUpdateElementPropertiesRequest`): `elementId` (+ `values`, `removeKeys`, at least one non-empty, per [mutation.md](mutation.md#request)); `translate-element` (`ContentLayoutTranslateElementRequest`): `elementId`, `values` (non-empty, per [mutation.md](mutation.md#request)). |
 
 Example (`replace-element`):

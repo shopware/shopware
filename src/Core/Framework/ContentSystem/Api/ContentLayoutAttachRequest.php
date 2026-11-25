@@ -23,6 +23,7 @@ final class ContentLayoutAttachRequest
         public readonly ?string $parentElementId = null,
         public readonly ?string $slot = null,
         public readonly ?int $index = null,
+        public readonly ?string $branchId = null,
         public readonly ?string $expectedHead = null,
     ) {
     }

@@ -14,6 +14,7 @@ final class ContentLayoutBindRequest
         public readonly string $elementId,
         public readonly string $bindingSpecificationId,
         public readonly ?string $expectedVersion,
+        public readonly ?string $branchId = null,
         public readonly ?string $expectedHead = null,
     ) {
     }

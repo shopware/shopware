@@ -33,7 +33,7 @@ properties
   Shortcut: any
   Snippet: any
   State: any  [deprecated tag:v6.8.0]
-  Store: any  [private]
+  Store: any
   Telemetry: any  [private]
   Template: any
   Utils: any
@@ -438,20 +438,19 @@ methods
   _registerPrivateProperty(name: string, property: $TSFixMe): this
   _registerProperty(name: string, property: $TSFixMe): this
 
-global Shopware.Store  private  ts  instance  [private]
-  registered src/core/shopware.ts  [private]
-  source src/app/store/index.ts  [private]
-  visibility-source parent  [private]
+global Shopware.Store  public  ts  instance
+  registered src/core/shopware.ts
+  source src/app/store/index.ts
 
 properties
-  _rootState: Pinia  [private] [private]
+  _rootState: Pinia  [private]
 
 methods
-  clear(): void  [private] [private]
-  get(id: Id): PiniaRootState[Id]  [private]
-  list(): string[]  [private]
-  register(idOrStoreDefinition: string | DefineStoreOptions<Id, S, G, A>, storeDefinition?: () => DefineStoreOptions<Id, S, G, A>): any  [private]
-  unregister(id: keyof PiniaRootState): void  [private]
+  clear(): void  [private]
+  get(id: Id): PiniaRootState[Id]
+  list(): string[]
+  register(idOrStoreDefinition: string | DefineStoreOptions<Id, S, G, A>, storeDefinition?: () => DefineStoreOptions<Id, S, G, A>): any
+  unregister(id: keyof PiniaRootState): void
 
 global Shopware.Telemetry  private  ts  instance  [private]
   registered src/core/shopware.ts  [private]

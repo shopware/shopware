@@ -17604,7 +17604,7 @@
         },
         "Shopware.Store": {
             "file": "core/shopware",
-            "visibility": "private"
+            "visibility": "public"
         },
         "Shopware.Telemetry": {
             "file": "core/shopware",

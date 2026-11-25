@@ -116,8 +116,8 @@ class ChangeCustomerGroupActionTest extends TestCase
         /** @var CustomerGroupEntity $customerGroupId */
         $customerGroupId = static::getContainer()->get('customer_group.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertSame($customerGroupId->getId(), $customer->getGroupId());
     }

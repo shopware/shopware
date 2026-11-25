@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-create-base', { sync: true }), {
@@ -66,6 +67,7 @@ async function createWrapper() {
 
 describe('src/module/sw-order/view/sw-order-create-base', () => {
     beforeEach(() => {
+        allowDeprecation('The component "sw-order-create-base" is deprecated');
         Shopware.Store.get('swOrder').$reset();
     });
 
@@ -88,7 +90,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalled();
 
@@ -114,7 +116,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
 
@@ -140,7 +142,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
 
@@ -204,7 +206,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const orderSummary = wrapper.find('.sw-order-create-summary__data');
         expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
         expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountTotal');
@@ -219,7 +221,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
             lineItems: [],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const orderSummary = wrapper.find('.sw-order-create-summary__data');
         expect(orderSummary.html()).toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
@@ -246,7 +248,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
             ],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const onShippingChargeEditedSpy = jest.spyOn(wrapper.vm, 'onShippingChargeEdited').mockImplementation(() => {});
 

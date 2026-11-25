@@ -165,7 +165,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
         };
 
         wrapper.vm.element.data.media = media;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.previewSource).toStrictEqual(media);
     });
@@ -174,7 +174,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.element.config.media.value = 'media-id';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.previewSource).toBe('media-id');
     });
@@ -184,7 +184,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
 
         wrapper.vm.element.config.media.source = 'default';
         wrapper.vm.element.config.media.value = Shopware.Constants.CMS.MEDIA.previewMountain;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const previewSource = wrapper.vm.previewSource;
 

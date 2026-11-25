@@ -59,7 +59,7 @@ final readonly class ExtensionDispatcher
      */
     public function publish(string $name, Extension $extension, callable $function): mixed
     {
-        $this->dispatcher->dispatch($extension, self::pre($name));
+        $this->dispatch($extension, self::pre($name));
 
         if (!$extension->isPropagationStopped()) {
             try {
@@ -69,7 +69,7 @@ final readonly class ExtensionDispatcher
 
                 $extension->resetPropagation();
 
-                $this->dispatcher->dispatch($extension, self::error($name));
+                $this->dispatch($extension, self::error($name));
 
                 // if the extensions want to gracefully handle the exception, they can put in a result, otherwise we rethrow the exception
                 if ($extension->result === null) {
@@ -80,8 +80,18 @@ final readonly class ExtensionDispatcher
 
         $extension->resetPropagation();
 
-        $this->dispatcher->dispatch($extension, self::post($name));
+        $this->dispatch($extension, self::post($name));
 
         return $extension->result();
+    }
+
+    /**
+     * @param Extension<mixed> $extension
+     */
+    private function dispatch(Extension $extension, string $eventName): void
+    {
+        if ($this->dispatcher->hasListeners($eventName)) {
+            $this->dispatcher->dispatch($extension, $eventName);
+        }
     }
 }

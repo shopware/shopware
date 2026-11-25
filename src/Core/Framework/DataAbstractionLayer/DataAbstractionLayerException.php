@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBui
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnableToLoadPathException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -88,6 +90,7 @@ class DataAbstractionLayerException extends HttpException
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
     public const EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE = 'FRAMEWORK__EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE';
     public const REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID = 'FRAMEWORK__REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID';
+    public const REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT = 'FRAMEWORK__REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
     public const MISSING_FIELD_VALUE = 'FRAMEWORK__MISSING_FIELD_VALUE';
     public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
@@ -155,6 +158,28 @@ class DataAbstractionLayerException extends HttpException
     public const CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE = 'FRAMEWORK__DAL_CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE';
     public const FIELD_CANNOT_BE_EXCLUDED = 'FRAMEWORK__DAL_FIELD_CANNOT_BE_EXCLUDED';
     public const CANNOT_EXCLUDE_UNKNOWN_FIELD = 'FRAMEWORK__DAL_CANNOT_EXCLUDE_UNKNOWN_FIELD';
+
+    public const OUTCOME_ROW_COLUMN_NOT_REQUESTED = 'FRAMEWORK__DAL_OUTCOME_ROW_COLUMN_NOT_REQUESTED';
+    public const WRITE_OUTCOME_WITHOUT_COLUMNS = 'FRAMEWORK__DAL_WRITE_OUTCOME_WITHOUT_COLUMNS';
+
+    public static function writeOutcomeWithoutColumns(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::WRITE_OUTCOME_WITHOUT_COLUMNS,
+            'WriteOutcome needs the columns to read.',
+        );
+    }
+
+    public static function outcomeRowColumnNotRequested(string $column): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::OUTCOME_ROW_COLUMN_NOT_REQUESTED,
+            'Column "{{ column }}" was not requested. Pass it to WriteOutcome with the other columns.',
+            ['column' => $column],
+        );
+    }
 
     public static function criteriaFieldsAndExcludedFieldsAreMutuallyExclusive(): self
     {
@@ -270,6 +295,15 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID,
             'Expected string as last element of ids array.'
+        );
+    }
+
+    public static function repositoryIteratorMissingAutoIncrement(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REPOSITORY_ITERATOR_MISSING_AUTO_INCREMENT,
+            'Expected the id search result to contain the autoIncrement value of the last id.'
         );
     }
 
@@ -643,7 +677,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_AGGREGATION_NAME,
-            'Invalid aggregation name "{{ name }}", cannot contain question marks und colon.',
+            'Invalid aggregation name "{{ name }}". It must not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.',
             ['name' => $name]
         );
     }
@@ -901,6 +935,16 @@ class DataAbstractionLayerException extends HttpException
         return new DefinitionNotFoundException($entity);
     }
 
+    public static function accessorNotAllowedInApiScope(string $accessor): ApiProtectionException
+    {
+        return new ApiProtectionException($accessor);
+    }
+
+    public static function runtimeFieldInCriteria(string $accessor): RuntimeFieldInCriteriaException
+    {
+        return new RuntimeFieldInCriteriaException($accessor);
+    }
+
     public static function entityRepositoryNotFound(string $entity): EntityRepositoryNotFoundException
     {
         return new EntityRepositoryNotFoundException($entity);
@@ -1023,13 +1067,13 @@ class DataAbstractionLayerException extends HttpException
     public static function invalidIdentifier(string $identifier): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            return new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier');
+            return new \InvalidArgumentException('Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier');
         }
 
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DBAL_INVALID_IDENTIFIER,
-            'Backtick, question mark, colon, or control character not allowed in identifier "{{ identifier }}"',
+            'Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier "{{ identifier }}"',
             ['identifier' => $identifier]
         );
     }

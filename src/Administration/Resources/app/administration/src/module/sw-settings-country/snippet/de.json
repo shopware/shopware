@@ -61,7 +61,7 @@
       "labelVatIdRequired": "USt-ID ist Pflichtfeld",
       "labelIsEu": "Mitgliedstaat der Europäischen Union",
       "helpTextIsEu": "Einschalten, um die Anzeige der innergemeinschaftlichen Lieferung zu aktivieren.",
-      "helpTextLabelVatIdRequired": "Bitte den globalen Schalter unter \"Einstellungen > Login/Registrierung\" beachten.",
+      "helpTextLabelVatIdRequired": "Geschäftskunden müssen eine USt-ID angeben, wenn dieses Land ausgewählt ist. Setzt die Kontotyp-Auswahl unter \"Einstellungen > Anmeldung & Registrierung\" voraus.",
       "titleOptions": "Optionen",
       "currencyDependentValues": "Währungsabhängige Werte",
       "labelPostalCodeRequired": "Postleitzahl ist Pflichtfeld",

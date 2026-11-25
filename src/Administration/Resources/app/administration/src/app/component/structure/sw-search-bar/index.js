@@ -19,7 +19,6 @@ const COLLAPSE_BREAKPOINT = 500;
  * @status ready
  * @example-type code-only
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -187,9 +186,16 @@ export default {
         },
 
         criteriaCollection() {
-            return {
-                product: new Criteria(1, this.searchLimit + 1).addAssociation('options.group'),
-            };
+            const collection = {};
+
+            // Search types can supply their own criteria via `searchTypeService.upsertType`
+            Object.values(this.searchTypeService.getTypes()).forEach((type) => {
+                if (type.entityName && typeof type.criteria === 'function') {
+                    collection[type.entityName] = type.criteria(this.searchLimit + 1);
+                }
+            });
+
+            return collection;
         },
 
         currentUser() {

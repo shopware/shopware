@@ -4,7 +4,7 @@ These rules apply to code under `src/Administration/Resources/app/administration
 
 ## Layers
 
-- Follow existing Administration code style and component patterns in the area you touch.
+- Model new code on the reference implementations listed in `src/Administration/Resources/app/administration/AGENTS.md`, not on the code next to it.
 - Do not introduce breaking changes to public Administration APIs or extension points without prior discussion.
 - Use the repository-root composer wrappers for Administration linting, formatting, tests, and builds.
 - Keep `core` free of Vue-related code. Modules may import shared non-Vue functionality from `core`.

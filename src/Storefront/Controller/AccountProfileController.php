@@ -69,6 +69,7 @@ class AccountProfileController extends StorefrontController
         name: 'frontend.account.profile.page',
         defaults: [
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
             PlatformRequest::ATTRIBUTE_NO_STORE => true,
         ],
         methods: [Request::METHOD_GET]
@@ -84,16 +85,20 @@ class AccountProfileController extends StorefrontController
             'passwordFormViolation' => $request->attributes->get('passwordFormViolation'),
             'emailFormViolation' => $request->attributes->get('emailFormViolation'),
             'profileFormData' => $request->attributes->get('profileFormData'),
+            'redirectTo' => RequestParamHelper::get($request, 'redirectTo'),
         ]);
     }
 
     #[Route(
         path: '/account/profile',
         name: 'frontend.account.profile.save',
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
-    public function saveProfile(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
+    public function saveProfile(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer, Request $request): Response
     {
         try {
             $this->changeCustomerProfileRoute->change($data, $context, $customer);
@@ -104,6 +109,10 @@ class AccountProfileController extends StorefrontController
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), ['e' => $exception]);
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
+        }
+
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'forwardTo')) {
+            return $this->createActionResponse($request);
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');

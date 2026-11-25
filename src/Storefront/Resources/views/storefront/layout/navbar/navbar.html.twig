@@ -2,7 +2,7 @@
     <div class="container">
         {% set navbarOptions = {} %}
         {% if not feature('v6.8.0.0') %}
-            {# @deprecated tag:v6.8.0 - pathIdList will be removed. Use window.activeNavigationPathIdList instead. #}
+            {# @deprecated tag:v6.8.0 - The pathIdList key will be removed, because the ESI-cached navbar holds the path of another page. Use shopware.navigation.pathIdList or window.activeNavigationPathIdList instead. #}
             {% set navbarOptions = {
                 pathIdList: shopware.navigation.pathIdList
             } %}

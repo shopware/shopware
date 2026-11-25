@@ -3,6 +3,7 @@
  */
 import { createI18n } from 'vue-i18n';
 import type FeatureClass from 'src/core/feature';
+import { deprecations, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 import type * as LegacySyntax from './i18n-legacy-syntax.helper';
 
 // The vue-i18n 8 argument order is intentionally not covered by the vue-i18n 10 types.
@@ -44,15 +45,16 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
     });
 
     describe('createTranslate', () => {
-        it('translates with the vue-i18n 10 argument order without a warning', () => {
+        it('translates with the vue-i18n 10 argument order without a deprecation', () => {
             const t = createTranslate(createGlobalT());
 
             expect(t.call(component, 'greeting', { name: 'Ada' })).toBe('Hello Ada');
             expect(t.call(component, 'items', { name: 'Ada' }, 2)).toBe('2 items for Ada');
-            expect(warnSpy).not.toHaveBeenCalled();
+            expect(deprecations).not.toHaveTriggered('vue-i18n 8 argument order');
         });
 
         it('keeps the named parameters of calls in the vue-i18n 8 argument order and warns once per call site', () => {
+            useProductionDeprecationGuard();
             const t = createTranslate(createGlobalT());
 
             expect(t.call(component, 'items', 1, { name: 'Ada' })).toBe('one item for Ada');
@@ -70,6 +72,7 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
         });
 
         it('warns separately per API for the same snippet key', () => {
+            useProductionDeprecationGuard();
             const globalT = createGlobalT();
 
             createTranslate(globalT)('upload', 2, { count: 2, total: 5 });
@@ -86,7 +89,7 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
             const t = createTranslate(createGlobalT());
 
             expect(t('items', 2, { named: { name: 'Ada' } })).toBe('2 items for Ada');
-            expect(warnSpy).not.toHaveBeenCalled();
+            expect(deprecations).not.toHaveTriggered('vue-i18n 8 argument order');
         });
 
         it('throws for the vue-i18n 8 argument order once the 6.9 major flag is active', () => {
@@ -102,6 +105,7 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
 
     describe('createDeprecatedTc', () => {
         it('translates like $t and names the replacement in a deduplicated warning', () => {
+            useProductionDeprecationGuard();
             const tc = createDeprecatedTc(createGlobalT(), '$tc', '$t');
 
             expect(tc.call(component, 'greeting', { name: 'Ada' })).toBe('Hello Ada');
@@ -118,6 +122,7 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
         });
 
         it('warns separately for every component using the same key', () => {
+            useProductionDeprecationGuard();
             const tc = createDeprecatedTc(createGlobalT(), '$tc', '$t');
 
             tc.call({ $options: { name: 'sw-first' } }, 'upload', { count: 1, total: 1 });
@@ -130,14 +135,8 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
             const tc = createDeprecatedTc(createGlobalT(), 'Shopware.Snippet.tc', 'Shopware.Snippet.t');
 
             expect(tc('items', 3, { name: 'Ada' })).toBe('3 items for Ada');
-            expect(warnSpy).toHaveBeenCalledWith(
-                '[Deprecation]',
-                expect.stringContaining("Replace Shopware.Snippet.tc('items') with Shopware.Snippet.t('items')."),
-            );
-            expect(warnSpy).toHaveBeenCalledWith(
-                '[Deprecation]',
-                expect.stringContaining("Use Shopware.Snippet.t('items', namedParameters, plural) instead."),
-            );
+            expect(deprecations).toHaveTriggered("Replace Shopware.Snippet.tc('items') with Shopware.Snippet.t('items').");
+            expect(deprecations).toHaveTriggered("Use Shopware.Snippet.t('items', namedParameters, plural) instead.");
         });
 
         it('throws once the 6.9 major flag is active', () => {
@@ -150,6 +149,7 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
         });
 
         it('does not warn in production builds', () => {
+            useProductionDeprecationGuard();
             const nodeEnv = process.env.NODE_ENV;
             process.env.NODE_ENV = 'production';
 

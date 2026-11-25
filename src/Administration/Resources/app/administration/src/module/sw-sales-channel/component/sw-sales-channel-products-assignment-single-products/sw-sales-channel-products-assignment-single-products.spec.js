@@ -29,7 +29,7 @@ function setProductData(products) {
     };
 }
 
-async function createWrapper() {
+async function createWrapper({ onSearch = () => {} } = {}) {
     return mount(await wrapTestComponent('sw-sales-channel-products-assignment-single-products', { sync: true }), {
         global: {
             stubs: {
@@ -78,7 +78,11 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(productData),
+                            search: (criteria) => {
+                                onSearch(criteria);
+
+                                return Promise.resolve(productData);
+                            },
                         };
                     },
                 },
@@ -113,6 +117,27 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
+    it.activeFeatureFlags(['v6.8.0.0'])('does not load the visibilities of the products', async () => {
+        setProductData([]);
+        const searchedCriteria = [];
+        await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
+        await flushPromises();
+
+        expect(searchedCriteria).toHaveLength(1);
+        expect(searchedCriteria[0].associations).toBeUndefined();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
+    it.deprecated('v6.8.0.0')('loads the visibilities with their sales channels before 6.8', async () => {
+        setProductData([]);
+        const searchedCriteria = [];
+        await createWrapper({ onSearch: (criteria) => searchedCriteria.push(criteria.parse()) });
+        await flushPromises();
+
+        expect(searchedCriteria).toHaveLength(1);
+        expect(searchedCriteria[0].associations.visibilities.associations).toHaveProperty('salesChannel');
+    });
+
     it('should display data grid when there is product data', async () => {
         setProductData([
             {
@@ -122,7 +147,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         ]);
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
     });
@@ -147,7 +172,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         ]);
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.find('.sw-data-grid__select-all.mt-field--checkbox__container input').trigger('click');
         expect(wrapper.emitted('selection-change').at(-1)).toEqual([
@@ -195,7 +220,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
     it('should get products when changing page', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.getProducts = jest.fn();
         expect(wrapper.vm.productCriteria.sortings).toEqual([]);
         wrapper.vm.products.criteria = mockCriteria();

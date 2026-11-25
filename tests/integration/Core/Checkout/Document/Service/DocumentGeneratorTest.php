@@ -689,7 +689,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertCount(0, $result->getSuccess()->getElements());
         static::assertNotCount(0, $result->getErrors());
         static::assertArrayHasKey($this->orderId, $result->getErrors());
-        static::assertSame('Document number 1001 has already been allocated.', $result->getErrors()[$this->orderId]->getMessage());
+        static::assertSame('Document number 1001 has already been allocated for document type "invoice".', $result->getErrors()[$this->orderId]->getMessage());
     }
 
     public function testCreateInvoiceIsExistingNumberPdf(): void
@@ -726,7 +726,7 @@ class DocumentGeneratorTest extends TestCase
         $errors = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getErrors();
         static::assertNotCount(0, $errors);
         static::assertArrayHasKey($this->orderId, $errors);
-        static::assertSame($errors[$this->orderId]->getMessage(), 'Document number 1002 has already been allocated.');
+        static::assertSame($errors[$this->orderId]->getMessage(), 'Document number 1002 has already been allocated for document type "delivery_note".');
     }
 
     public function testGenerateStaticDocument(): void
@@ -884,13 +884,11 @@ class DocumentGeneratorTest extends TestCase
             $mediaFiles = $mediaRepository->search(new Criteria([$documentMediaFileId, $documentA11yMediaFileId]), $this->context)->getEntities();
             static::assertNotNull($mediaFiles);
 
-            /** @var MediaEntity $media */
             $media = $mediaFiles->get($documentMediaFileId);
-            static::assertNotNull($media);
+            static::assertInstanceOf(MediaEntity::class, $media);
 
-            /** @var MediaEntity $mediaAyy1 */
             $mediaAyy1 = $mediaFiles->get($documentA11yMediaFileId);
-            static::assertNotNull($mediaAyy1);
+            static::assertInstanceOf(MediaEntity::class, $mediaAyy1);
 
             $filePath = $media->getPath();
 

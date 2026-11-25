@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,7 +37,8 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
         private readonly EntityRepository $appRepository,
         private readonly AppManager $appManager,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly AppUrlVerifier $appUrlVerifier,
     ) {
     }
 
@@ -46,7 +49,7 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
 
     public function getDescription(): string
     {
-        return 'This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.';
+        return 'This is only the right option if you have permanently moved your live shop to a new server or environment. Shopware re-registers the apps with the same shop identifier, so they keep their data. The apps stop working in the previous installation, even if it is still running. Never choose this for a staging or test copy: the apps in your live shop will stop working.';
     }
 
     public function resolve(Context $context): void
@@ -58,6 +61,14 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
             // no resolution needed
             return;
         } catch (ShopIdChangeSuggestedException $e) {
+            // Verify APP_URL before storing it with the shop ID. Once stored, the change counts as
+            // resolved, so a broken APP_URL would be accepted and every re-registration below would fail.
+            $state = $this->appUrlVerifier->forceVerify();
+
+            if (!$state->is(VerificationStatus::PASS)) {
+                throw AppException::appUrlFailedVerification($state);
+            }
+
             $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
         }
 

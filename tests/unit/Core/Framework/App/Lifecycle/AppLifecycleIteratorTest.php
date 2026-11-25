@@ -30,8 +30,7 @@ class AppLifecycleIteratorTest extends TestCase
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
-        $repository = new StaticEntityRepository([new EntityCollection(), new EntityCollection()]);
+        $repository = StaticEntityRepository::of(AppCollection::class, [new EntityCollection(), new EntityCollection()]);
 
         $lifecycle = new AppLifecycleIterator(
             $repository,
@@ -62,8 +61,7 @@ class AppLifecycleIteratorTest extends TestCase
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
-        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+        $repository = StaticEntityRepository::of(AppCollection::class, [new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
 
         $lifecycle = new AppLifecycleIterator(
             $repository,
@@ -95,8 +93,7 @@ class AppLifecycleIteratorTest extends TestCase
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
-        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+        $repository = StaticEntityRepository::of(AppCollection::class, [new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
 
         $lifecycle = new AppLifecycleIterator(
             $repository,
@@ -125,8 +122,7 @@ class AppLifecycleIteratorTest extends TestCase
 
         $appLoader = static::createStub(AppLoader::class);
 
-        /** @var StaticEntityRepository<AppCollection> */
-        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+        $repository = StaticEntityRepository::of(AppCollection::class, [new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
 
         $lifecycle = new AppLifecycleIterator(
             $repository,
@@ -161,8 +157,7 @@ class AppLifecycleIteratorTest extends TestCase
         // The app is not on disk, so without the pending-secret guard the cleanup would uninstall it.
         $appLoader = static::createStub(AppLoader::class);
 
-        /** @var StaticEntityRepository<AppCollection> */
-        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+        $repository = StaticEntityRepository::of(AppCollection::class, [new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
 
         $lifecycle = new AppLifecycleIterator(
             $repository,
@@ -190,8 +185,7 @@ class AppLifecycleIteratorTest extends TestCase
 
         $appLoader = static::createStub(AppLoader::class);
 
-        /** @var StaticEntityRepository<AppCollection> */
-        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+        $repository = StaticEntityRepository::of(AppCollection::class, [new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
 
         $lifecycle = new AppLifecycleIterator(
             $repository,
@@ -218,8 +212,7 @@ class AppLifecycleIteratorTest extends TestCase
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> */
-        $repository = new StaticEntityRepository([new EntityCollection(), new EntityCollection()]);
+        $repository = StaticEntityRepository::of(AppCollection::class, [new EntityCollection(), new EntityCollection()]);
 
         $lifecycle = new AppLifecycleIterator(
             $repository,

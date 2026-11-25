@@ -2,14 +2,14 @@ import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import '../../store/order-detail.store';
 import { getCartErrorMessage } from '../../cart-error.helper';
+import { getDeliveryDiscounts } from '../../order-delivery.helper';
 
 /**
  * @sw-package checkout
  */
 
-const { Store, Mixin, Utils } = Shopware;
+const { Store, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { array } = Utils;
 const ApiService = Shopware.Classes.ApiService;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -61,6 +61,8 @@ export default {
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
             hasNewVersionId: false,
+            versionOrderId: null,
+            versionRequestId: 0,
             hasOrderDeepEdit: false,
             missingProductLineItems: [],
             promotionsToDelete: [],
@@ -89,9 +91,19 @@ export default {
         /** @deprecated tag:v6.8.0 - isLoading will be removed, use loading.order instead */
         isLoading: {
             get() {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-order-detail.isLoading is deprecated. Use loading.order instead.',
+                );
+
                 return this.loading.order;
             },
             set(value) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-order-detail.isLoading is deprecated. Use loading.order instead.',
+                );
+
                 Store.get('swOrderDetail').setLoading(['order', value]);
             },
         },
@@ -167,11 +179,7 @@ export default {
         },
 
         deliveryDiscounts() {
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return array.slice(this.order.deliveries, 1) || [];
-            }
-
-            return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
+            return getDeliveryDiscounts(this.order);
         },
 
         orderCriteria() {
@@ -205,11 +213,10 @@ export default {
                 .addAssociation('primaryOrderDelivery.stateMachineState')
                 .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
 
+            criteria.addAssociation('deliveries.shippingMethod').addAssociation('deliveries.shippingOrderAddress.country');
+
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                criteria
-                    .addAssociation('deliveries.shippingMethod')
-                    .addAssociation('deliveries.shippingOrderAddress')
-                    .addAssociation('transactions.paymentMethod');
+                criteria.addAssociation('transactions.paymentMethod');
             }
 
             criteria.addAssociation('stateMachineState');
@@ -245,6 +252,13 @@ export default {
 
     watch: {
         orderId() {
+            this.beforeDestroyComponent();
+
+            this.hasOrderDeepEdit = false;
+            this.missingProductLineItems = [];
+            this.promotionsToDelete = [];
+            this.deliveryDiscountsToDelete = [];
+
             this.createdComponent();
         },
 
@@ -265,6 +279,17 @@ export default {
 
     beforeRouteLeave(to, from, next) {
         if (this.isOrderEditing) {
+            this.nextRoute = next;
+            this.isDisplayingLeavePageWarning = true;
+
+            return;
+        }
+
+        next();
+    },
+
+    beforeRouteUpdate(to, from, next) {
+        if (to.params.id !== from.params.id && this.isOrderEditing) {
             this.nextRoute = next;
             this.isDisplayingLeavePageWarning = true;
 
@@ -307,6 +332,7 @@ export default {
         beforeDestroyComponent(useKeepalive = false) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
             Store.get('swOrderDetail').resetCustomer();
+            this.versionRequestId += 1;
 
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;
@@ -315,12 +341,12 @@ export default {
 
                 // clean up recently created version
                 if (useKeepalive) {
-                    this.orderRepository.deleteVersionWithKeepalive(this.orderId, oldVersionContext.versionId);
+                    this.orderRepository.deleteVersionWithKeepalive(this.versionOrderId, oldVersionContext.versionId);
 
                     return;
                 }
 
-                this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
+                this.orderRepository.deleteVersion(this.versionOrderId, oldVersionContext.versionId);
             }
         },
 
@@ -328,13 +354,23 @@ export default {
          * @deprecated tag:v6.8.0 - createdById will be removed (there is a template usage that needs to be removed as well)
          */
         updateCreatedById(createdById) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.updateCreatedById() is deprecated and createdById will be removed (there is a template usage that needs to be removed as well).',
+            );
+
             this.createdById = createdById;
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
-        onChangeLanguage() {},
+        onChangeLanguage() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onChangeLanguage() is deprecated. Will be removed without replacement.',
+            );
+        },
 
         saveEditsFinish() {
             this.isSaveSuccessful = false;
@@ -344,7 +380,12 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
-        onStartEditing() {},
+        onStartEditing() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onStartEditing() is deprecated. Will be removed without replacement.',
+            );
+        },
 
         async onSaveEdits() {
             Store.get('swOrderDetail').setLoading(['order', true]);
@@ -415,7 +456,7 @@ export default {
                 };
 
                 if (addressMapping.type === 'shipping') {
-                    mapping.deliveryId = this.order.primaryOrderDeliveryId;
+                    mapping.deliveryId = addressMapping.deliveryId ?? this.order.primaryOrderDeliveryId;
 
                     if (!Shopware.Feature.isActive('v6.8.0.0')) {
                         mapping.deliveryId = this.order.deliveries[0].id;
@@ -487,6 +528,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be replaced by `saveAndReload`
          */
         onSaveAndReload() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onSaveAndReload() is deprecated. Will be replaced by `saveAndReload`.',
+            );
+
             return this.saveAndReload();
         },
 
@@ -510,6 +556,11 @@ export default {
          * @deprecated tag:v6.8.0 - isLoading will be removed, use loading.order instead
          */
         onUpdateLoading(loadingValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onUpdateLoading() is deprecated. Use loading.order instead.',
+            );
+
             this.isLoading = loadingValue;
         },
 
@@ -517,6 +568,11 @@ export default {
          * @deprecated tag:v6.8.0 - isEditing will be removed, use editing instead
          */
         onUpdateEditing(editingValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onUpdateEditing() is deprecated. Use editing instead.',
+            );
+
             this.isEditing = editingValue;
         },
 
@@ -566,16 +622,28 @@ export default {
             Store.get('swOrderDetail').setOrderAddressIds(null);
             this.hasNewVersionId = false;
 
-            return this.orderRepository
-                .createVersion(this.orderId)
-                .then((newContext) => {
-                    this.hasNewVersionId = true;
+            const orderId = this.orderId;
+            this.versionRequestId += 1;
+            const requestId = this.versionRequestId;
 
-                    Store.get('swOrderDetail').versionContext = newContext;
+            if (!this.acl.can('order.editor')) {
+                return this.reloadEntityData(false);
+            }
 
-                    return this.reloadEntityData(false);
-                })
-                .then(() => this.convertMissingProductLineItems());
+            return this.orderRepository.createVersion(orderId).then((newContext) => {
+                if (requestId !== this.versionRequestId) {
+                    this.orderRepository.deleteVersion(orderId, newContext.versionId);
+
+                    return null;
+                }
+
+                this.hasNewVersionId = true;
+                this.versionOrderId = orderId;
+
+                Store.get('swOrderDetail').versionContext = newContext;
+
+                return this.reloadEntityData(false).then(() => this.convertMissingProductLineItems());
+            });
         },
 
         updateOrderAddresses(mappings) {

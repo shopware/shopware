@@ -84,6 +84,7 @@ class WebhookManagerTest extends TestCase
         $this->bus = new CollectingMessageBus();
         $this->webhookOutboxStore = $this->createMock(WebhookOutboxStore::class);
         $this->webhookOutboxStore->method('markRunning')->willReturn(new OutboxEntry(
+            webhookId: 'stub',
             webhookEventId: 'stub',
             sequence: 1,
             executionCount: 1,
@@ -580,7 +581,7 @@ class WebhookManagerTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             $this->webhookOutboxStore,
-            new PolicyRegistry([new AppEventPolicy(), new PrivilegePolicy($this->aclRoleLoader)]),
+            new PolicyRegistry([new AppEventPolicy(), new PrivilegePolicy($this->aclRoleLoader, $this->webhookOutboxStore)]),
         );
     }
 

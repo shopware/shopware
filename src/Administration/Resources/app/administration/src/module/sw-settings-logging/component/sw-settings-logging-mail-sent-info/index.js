@@ -10,21 +10,26 @@ export default {
     template,
 
     computed: {
+        hasMailContent() {
+            return !!this.logEntry.context?.additionalData?.contents;
+        },
+
         entryInfoTabs() {
-            return [
-                {
-                    label: this.$t('sw-settings-logging.mailInfo.tabHTML'),
-                    name: 'html',
-                },
-                {
-                    label: this.$t('sw-settings-logging.mailInfo.tabPlain'),
-                    name: 'plain',
-                },
+            const tabs = [
                 {
                     label: this.$t('sw-settings-logging.entryInfo.tabRaw'),
                     name: 'raw',
                 },
             ];
+
+            if (this.hasMailContent) {
+                tabs.unshift(
+                    { label: this.$t('sw-settings-logging.mailInfo.tabHTML'), name: 'html' },
+                    { label: this.$t('sw-settings-logging.mailInfo.tabPlain'), name: 'plain' },
+                );
+            }
+
+            return tabs;
         },
 
         recipientString() {
@@ -48,7 +53,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.activeTab = 'html';
+            this.activeTab = this.hasMailContent ? 'html' : 'raw';
         },
     },
 };

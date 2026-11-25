@@ -92,6 +92,21 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $index = $row['index'];
             $count = (int) $row['doc_count'];
 
+            if (!$this->client->indices()->exists(['index' => $index])) {
+                $this->exceptionLogger->warning(\sprintf(
+                    'Dropped the alias switch of the Elasticsearch index "%s", because the index no longer exists. Reindex the entity "%s" to rebuild it.',
+                    $index,
+                    $row['entity'],
+                ));
+
+                $this->connection->executeStatement(
+                    'DELETE FROM elasticsearch_index_task WHERE id = :id',
+                    ['id' => $row['id']]
+                );
+
+                continue;
+            }
+
             $this->client->indices()->refresh(['index' => $index]);
 
             if ($count > 0) {

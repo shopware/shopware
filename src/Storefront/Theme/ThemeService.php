@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
@@ -47,6 +48,11 @@ class ThemeService implements ResetInterface
      */
     public const CONFIG_KEY_PENDING_THEME = 'storefront.pendingThemeAssignment';
 
+    /**
+     * Context state that makes `updateTheme()` skip the theme compile, so a caller can compile after committing its transaction.
+     */
+    public const STATE_SKIP_COMPILE = 'theme-skip-compile';
+
     private bool $notified = false;
 
     /**
@@ -76,15 +82,19 @@ class ThemeService implements ResetInterface
      * Only compiles a single theme/saleschannel combination.
      * Use `compileThemeById` to compile all dependend saleschannels
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'notifyOnAsyncCompletion', parameterType: 'bool', defaultValue: true, description: 'Whether the user is notified once the asynchronous compilation is completed. Callers compiling several themes or sales channels at once pass true only for the last one, so the user is notified once.')]
     public function compileTheme(
         string $salesChannelId,
         string $themeId,
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
-        bool $withAssets = true
+        bool $withAssets = true/* , bool $notifyOnAsyncCompletion = true */
     ): void {
         if ($this->isAsyncCompilation($context)) {
-            $this->handleAsync($salesChannelId, $themeId, $withAssets, $context);
+            /** @deprecated tag:v6.8.0 - Remove next line as $notifyOnAsyncCompletion will become a part of method signature */
+            $notifyOnAsyncCompletion = (bool) (\func_get_args()[5] ?? true);
+
+            $this->handleAsync($salesChannelId, $themeId, $withAssets, $context, notifyOnCompletion: $notifyOnAsyncCompletion);
 
             return;
         }
@@ -99,19 +109,14 @@ class ThemeService implements ResetInterface
             $context
         );
 
-        // Refresh the runtime config values when the static file loader is used.
-        // The static file loader is only used for the compiled theme configuration;
-        // the resolved values are still stored in the runtime config table.
-        if (!$this->configLoader instanceof StaticFileConfigLoader) {
-            $importMap = null;
-            if ($this->themeCompiler instanceof ThemeCompiler) {
-                $importMap = $this->themeCompiler->buildComponentImportMap(
-                    $configurationCollection ?? $this->extensionRegistry->getConfigurations()
-                );
+        $configurationCollection ??= $this->extensionRegistry->getConfigurations();
 
-                $importMap ??= ['imports' => []];
-            }
+        $importMap = null;
+        if ($this->themeCompiler instanceof ThemeCompiler) {
+            $importMap = $this->themeCompiler->buildComponentImportMap($configurationCollection) ?? ['imports' => []];
+        }
 
+        try {
             $this->themeRuntimeConfigService->refreshRuntimeConfig(
                 $themeId,
                 $themeConfig,
@@ -120,13 +125,11 @@ class ThemeService implements ResetInterface
                 $configurationCollection,
                 $importMap,
             );
-        } else {
-            try {
-                $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
-            } catch (ConnectionException) {
-                // Static file compilation is also used in database-less build environments; the theme can be compiled,
-                // but persisted runtime configuration values cannot be refreshed without a database connection.
-                return;
+        } catch (ConnectionException $e) {
+            // Static file compilation is also used in database-less build environments; the theme can be compiled,
+            // but the persisted runtime configuration cannot be refreshed without a database connection.
+            if (!$this->configLoader instanceof StaticFileConfigLoader) {
+                throw $e;
             }
         }
     }
@@ -137,7 +140,7 @@ class ThemeService implements ResetInterface
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null
     ): void {
-        if ($this->configLoader instanceof StaticFileConfigLoader || !$this->themeCompiler instanceof ThemeCompiler) {
+        if (!$this->themeCompiler instanceof ThemeCompiler) {
             return;
         }
 
@@ -167,14 +170,17 @@ class ThemeService implements ResetInterface
         bool $withAssets = true
     ): array {
         $mappings = $this->getThemeDependencyMapping($themeId);
+        $lastMapping = $mappings->last();
         $compiledThemeIds = [];
         foreach ($mappings as $mapping) {
+            // like the start, the completion of an async compilation is notified only once
             $this->compileTheme(
                 $mapping->getSalesChannelId(),
                 $mapping->getThemeId(),
                 $context,
                 $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
-                $withAssets
+                $withAssets,
+                $mapping === $lastMapping
             );
 
             $compiledThemeIds[] = $mapping->getThemeId();
@@ -220,12 +226,12 @@ class ThemeService implements ResetInterface
             $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
         }
 
-        if (\array_key_exists('configValues', $data)) {
-            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues'], $context));
-        }
+        // The event carries the submitted values, not the merged config built below.
+        $configValuesChanged = \array_key_exists('configValues', $data);
+        $changedConfig = $configValuesChanged ? $data['configValues'] : [];
 
         // This part is not executed if the theme was reset before, because the config values are then empty.
-        if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
+        if ($configValuesChanged && $theme->getConfigValues()) {
             $submittedChanges = $data['configValues'];
             $currentConfig = $theme->getConfigValues();
             $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
@@ -242,11 +248,18 @@ class ThemeService implements ResetInterface
 
         $this->themeRepository->update([$data], $context);
 
+        // Dispatch after the write, because listeners such as StaticFileConfigDumper read the theme config from the database.
+        if ($configValuesChanged) {
+            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $changedConfig, $context));
+        }
+
         // Administration resets inherited values before saving. Replace that intermediate
         // runtime configuration even for unassigned themes and descendants compiled asynchronously.
         $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
 
-        $this->compileThemeById($themeId, $context, null, false);
+        if (!$context->hasState(self::STATE_SKIP_COMPILE)) {
+            $this->compileThemeById($themeId, $context, null, false);
+        }
     }
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
@@ -294,8 +307,7 @@ class ThemeService implements ResetInterface
 
     public function resetTheme(string $themeId, Context $context): void
     {
-        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->first();
-        if (!$theme) {
+        if (!$this->themeRepository->searchIds(new Criteria([$themeId]), $context)->has($themeId)) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 
@@ -468,7 +480,8 @@ class ThemeService implements ResetInterface
         string $themeId,
         bool $withAssets,
         Context $context,
-        bool $assign = false
+        bool $assign = false,
+        bool $notifyOnCompletion = true
     ): void {
         $this->messageBus->dispatch(
             new CompileThemeMessage(
@@ -476,7 +489,8 @@ class ThemeService implements ResetInterface
                 $themeId,
                 $withAssets,
                 $context,
-                $assign
+                $assign,
+                $notifyOnCompletion
             )
         );
 

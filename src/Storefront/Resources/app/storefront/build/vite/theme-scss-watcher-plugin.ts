@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import type { Plugin, ViteDevServer } from 'vite';
-import { compileString as sassCompileString, Logger } from 'sass-embedded';
+import { compileStringAsync as sassCompileStringAsync, Logger } from 'sass-embedded';
 
 type ThemeStyleEntry = {
     filepath: string;
@@ -77,7 +77,7 @@ function resolveThemeVariablesFile(projectRoot: string, themeId: string): string
  * `~vendor/bootstrap/…` resolve correctly regardless of which entry they
  * appear in.
  */
-function compileAll(entries: ThemeStyleEntry[], themeId: string, domainUrl: string, projectRoot: string): { css: string; loadedFiles: string[] } {
+async function compileAll(entries: ThemeStyleEntry[], themeId: string, domainUrl: string, projectRoot: string): Promise<{ css: string; loadedFiles: string[] }> {
     // Collect all resolve-mapping aliases across all entries into one set.
     const aliasMap = new Map<string, string>();
     for (const entry of entries) {
@@ -97,7 +97,7 @@ function compileAll(entries: ThemeStyleEntry[], themeId: string, domainUrl: stri
                 return pathToFileURL(path.join(realPath, url.slice(prefix.length)));
             },
         })),
-        // compileString has no implicit filesystem resolver, so absolute paths
+        // compileStringAsync has no implicit filesystem resolver, so absolute paths
         // written into our virtual @import statements must be handled explicitly.
         {
             findFileUrl(url: string): URL | null {
@@ -132,7 +132,11 @@ function compileAll(entries: ThemeStyleEntry[], themeId: string, domainUrl: stri
         .map(e => `@import '${e.filepath.split(path.sep).join('/')}';`)
         .join('\n');
 
-    const result = sassCompileString(`${themeVariablesImport}\n${assetOverrides}\n${imports}`, {
+    // Use the async API: the sync one talks to the Dart Sass process through
+    // sync-child-process, which corrupts the protobuf stream on Node >= 24.22
+    // ("Invalid protobuf: illegal tag") because it ignores the byte offset of
+    // pooled stdout chunks.
+    const result = await sassCompileStringAsync(`${themeVariablesImport}\n${assetOverrides}\n${imports}`, {
         importers,
         quietDeps: true,
         logger: Logger.silent,
@@ -217,19 +221,18 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                     return;
                 }
 
-                try {
-                    const { css, loadedFiles } = compileAll(styleEntries, themeId, domainUrl, projectRoot);
+                compileAll(styleEntries, themeId, domainUrl, projectRoot).then(({ css, loadedFiles }) => {
                     registerLoadedFiles(server, loadedFiles);
                     res.setHeader('Content-Type', 'text/css; charset=utf-8');
                     res.setHeader('Cache-Control', 'no-cache');
                     res.end(css);
-                } catch (err) {
+                }, (err: unknown) => {
                     const message = err instanceof Error ? err.message : String(err);
                     logger.error(`[sw-theme-scss] Compile error: ${message}`, { timestamp: true });
                     res.setHeader('Content-Type', 'text/css; charset=utf-8');
                     res.statusCode = 500;
                     res.end(`/* [sw-theme-scss] Compilation error:\n   ${message}\n*/`);
-                }
+                });
             });
 
             // ----------------------------------------------------------------
@@ -276,16 +279,15 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                 // Warm-up compile: discover and watch all transitive SCSS imports
                 // so that changes to partials trigger a reload from the first edit,
                 // not only after the browser has loaded /theme-scss/all.css once.
-                try {
-                    const { loadedFiles } = compileAll(styleEntries, themeId, domainUrl, projectRoot);
+                compileAll(styleEntries, themeId, domainUrl, projectRoot).then(({ loadedFiles }) => {
                     registerLoadedFiles(server, loadedFiles);
                     logger.info(
                         `[sw-theme-scss] Watching ${watchedScssFiles.size} SCSS file(s) (including transitive imports).`,
                         { timestamp: true },
                     );
-                } catch {
+                }, () => {
                     // Errors are already surfaced by the middleware on first request.
-                }
+                });
             });
 
             // ----------------------------------------------------------------
@@ -307,12 +309,12 @@ export function themeScssWatcherPlugin(projectRoot: string): Plugin {
                         watchedScssFiles.add(themeVariablesFile);
                         server.watcher.add(themeVariablesFile);
                     }
-                    try {
-                        const { loadedFiles } = compileAll(styleEntries, themeId, domainUrl, projectRoot);
+                    compileAll(styleEntries, themeId, domainUrl, projectRoot).then(({ loadedFiles }) => {
                         registerLoadedFiles(server, loadedFiles);
-                    } catch { /* surfaced by middleware */ }
-                    logger.info('[sw-theme-scss] theme-files.json reloaded — entry list updated.', { timestamp: true });
-                    server.ws.send({ type: 'full-reload' });
+                    }, () => { /* surfaced by middleware */ }).finally(() => {
+                        logger.info('[sw-theme-scss] theme-files.json reloaded — entry list updated.', { timestamp: true });
+                        server.ws.send({ type: 'full-reload' });
+                    });
                     return;
                 }
 

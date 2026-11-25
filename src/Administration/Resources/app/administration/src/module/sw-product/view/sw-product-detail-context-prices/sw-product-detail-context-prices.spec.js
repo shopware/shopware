@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const { EntityCollection } = Shopware.Data;
 
@@ -93,6 +94,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
     let wrapper;
 
     beforeEach(() => {
+        allowDeprecation('sw-product-detail-context-prices.assetFilter is deprecated');
         Shopware.Store.get('swProductDetail').$reset();
 
         if (Shopware.Store.get('context')) {
@@ -126,7 +128,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isChild).toBe(true);
         expect(wrapper.vm.isInherited).toBe(true);
@@ -143,7 +145,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isChild).toBe(false);
         expect(wrapper.vm.isInherited).toBe(false);
@@ -157,7 +159,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
         expect(emptyState.classes()).toContain('mt-empty-state');
@@ -176,7 +178,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
         expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesInherited');
@@ -194,10 +196,10 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.isInherited = false;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
         expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesNotInherited');
@@ -217,13 +219,13 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         };
 
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const switchInput = () => wrapper.find('.sw-product-detail-context-prices__inherit-switch input');
         expect(switchInput().attributes('disabled')).toBeDefined();
 
         wrapper.vm.isInherited = false;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(switchInput().attributes('disabled')).toBeUndefined();
     });
@@ -423,7 +425,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         const newValue = 10;
         await firstQuantityEndInput.setValue(newValue);
         await firstQuantityEndInput.trigger('blur');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(firstQuantityEndInput.element.value).toBe(newValue.toString());
         expect(wrapper.vm.product.prices).toHaveLength(2);

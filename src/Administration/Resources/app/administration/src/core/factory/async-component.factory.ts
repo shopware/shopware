@@ -4,7 +4,6 @@
 
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 import { warn } from 'src/core/service/utils/debug.utils';
-import { cloneDeep } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
@@ -57,6 +56,21 @@ export default {
     markComponentAsSync,
 };
 
+/**
+ * @private
+ * Added to native setup SFCs by the Vite 8 watcher: `ShopwareSetupHmrMeta` of the shopware-setup Vite plugin,
+ * plus the hot data of their module.
+ */
+export type SetupHmrMetadata = {
+    componentName: string;
+    mode: 'base' | 'override';
+    version: string;
+    data: {
+        reloadPage?: boolean;
+        instances?: Set<unknown>;
+    };
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ComponentConfig extends ComponentOptions {
     functional?: boolean;
@@ -67,6 +81,8 @@ export interface ComponentConfig extends ComponentOptions {
     loading?: ComponentConfig;
     delay?: number;
     name?: string;
+    /** @private */
+    __shopwareSetupHmr?: SetupHmrMetadata;
 }
 
 /**
@@ -77,13 +93,16 @@ type AwaitedComponentConfig = () => Promise<ComponentConfig | boolean>;
 const componentRegistry = new Map<string, AwaitedComponentConfig>();
 
 /**
- * Registry which holds all component overrides
  * @private
  */
-type IndexedAwaitedComponentConfig = {
+export type IndexedAwaitedComponentConfig = {
     index: number;
     config: AwaitedComponentConfig;
 };
+/**
+ * Registry which holds all component overrides
+ * @private
+ */
 const overrideRegistry = new Map<string, IndexedAwaitedComponentConfig[]>();
 
 /**
@@ -172,7 +191,7 @@ type PublicProps = VNodeProps & AllowedComponentProps & ComponentCustomProps;
 
 type EmitsToProps<T extends EmitsOptions> = T extends string[]
     ? {
-          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents,
+          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
           [K in string & `on${Capitalize<T[number]>}`]?: (...args: any[]) => any;
       }
     : T extends ObjectEmitsOptions
@@ -705,6 +724,30 @@ async function initComponent(componentName: string): Promise<void> {
 }
 
 /**
+ * The Vue HMR runtime can only swap a native setup SFC as it is.
+ * Once the factory composed it with other components, a script edit needs a page reload to compose it again.
+ */
+function requirePageReloadOnHotUpdate(config: ComponentConfig): void {
+    if (process.env.NODE_ENV === 'production') {
+        return;
+    }
+
+    if (config.__shopwareSetupHmr) {
+        config.__shopwareSetupHmr.data.reloadPage = true;
+    }
+}
+
+function requirePageReloadIfComposed(componentName: string, config: ComponentConfig): void {
+    if (process.env.NODE_ENV === 'production') {
+        return;
+    }
+
+    if (overrideRegistry.has(componentName) || config.extends || config.mixins?.length) {
+        requirePageReloadOnHotUpdate(config);
+    }
+}
+
+/**
  * Returns the complete component including extension and overrides.
  * @private
  */
@@ -719,6 +762,8 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     if (typeof resultConfig === 'boolean') {
         throw new Error(`The component registry could not build the component with the name "${componentName}".`);
     }
+
+    requirePageReloadIfComposed(componentName, resultConfig);
 
     // let config: ComponentConfig = Object.create(resultConfig) as ComponentConfig;
     let config: ComponentConfig = { ...resultConfig } as ComponentConfig;
@@ -739,6 +784,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         }
 
         if (extendComp) {
+            requirePageReloadOnHotUpdate(extendComp);
             enrichSuperChain(extendComp, config);
 
             config.extends = extendComp;
@@ -748,14 +794,14 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     }
 
     if (overrideRegistry.has(componentName)) {
-        // clone the override configuration to prevent side-effects to the config
-        const overrides = cloneDeep(overrideRegistry.get(componentName));
-
         // Resolve all override configs in parallel, then separate by type
-        const resolvedEntries = await Promise.all(overrides!.map((overrideEntry) => overrideEntry.config()));
+        const resolvedEntries = await Promise.all(
+            overrideRegistry.get(componentName)!.map((overrideEntry) => overrideEntry.config()),
+        );
 
         const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
-            (resolvedConfig) => () => Promise.resolve(resolvedConfig),
+            (resolvedConfig) => () =>
+                Promise.resolve(typeof resolvedConfig === 'boolean' ? resolvedConfig : copyOverrideConfig(resolvedConfig)),
         );
 
         // Continue with standard Options API overrides
@@ -811,6 +857,33 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     }
 
     return config;
+}
+
+/**
+ * The resolved config of an override is cached and shared by every build of its component, but `convertOverrides` and
+ * `enrichSuperChain` move and add properties and methods. Each build therefore works on its own copy, so that a later
+ * build cannot take a method or prop away from a component that an earlier build already returned.
+ */
+function copyOverrideConfig(overrideConfig: ComponentConfig): ComponentConfig {
+    const copy = copyOwnProperties(overrideConfig);
+    Reflect.ownKeys(copy).forEach((key) => {
+        const descriptor = Object.getOwnPropertyDescriptor(copy, key);
+        if (descriptor && 'value' in descriptor && types.isPlainObject(descriptor.value)) {
+            Object.defineProperty(copy, key, {
+                ...descriptor,
+                value: copyOwnProperties(descriptor.value as object),
+            });
+        }
+    });
+
+    return copy;
+}
+
+/**
+ * Unlike a spread, this keeps getters unevaluated and keeps non-enumerable properties.
+ */
+function copyOwnProperties<T extends object>(object: T): T {
+    return Object.create(Object.getPrototypeOf(object) as object | null, Object.getOwnPropertyDescriptors(object)) as T;
 }
 
 /**
@@ -944,7 +1017,7 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
             // is computed getter/setter definition
             if (methodOrComputed === 'computed' && typeof method === 'object') {
                 Object.entries(method as object).forEach(([cmd, func]) => {
-                    const path = `${String(name)}.${String(cmd)}`;
+                    const path = `${name}.${cmd}`;
 
                     superRegistry = updateSuperRegistry(superRegistry, path, func, methodOrComputed, config);
                 });

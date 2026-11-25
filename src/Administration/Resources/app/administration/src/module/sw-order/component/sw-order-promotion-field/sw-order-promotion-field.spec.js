@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import OrderApiService from 'src/core/service/api/order.api.service';
 
 /**
  * @sw-package checkout
@@ -68,6 +69,15 @@ const createStateMapper = (customOrder = {}) => {
     Shopware.Store.get('swOrderDetail').order = { ...orderFixture, ...customOrder };
 };
 
+/**
+ * The real order API service, so the deprecated toggle still runs its guard, answering every request with a success.
+ */
+function createOrderApiService() {
+    const httpClient = { post: () => Promise.resolve(successResponseForNotification) };
+
+    return new OrderApiService(httpClient, { getToken: () => 'token' });
+}
+
 async function createWrapper(privileges = []) {
     const notificationMixin = {
         methods: {
@@ -101,10 +111,7 @@ async function createWrapper(privileges = []) {
                         },
                     }),
                 },
-                orderService: {
-                    toggleAutomaticPromotions: () => {
-                        return Promise.resolve(successResponseForNotification);
-                    },
+                orderService: Object.assign(createOrderApiService(), {
                     addPromotionToOrder: (orderId, orderVersionId, code) => {
                         createStateMapper({
                             lineItems: [
@@ -137,7 +144,7 @@ async function createWrapper(privileges = []) {
 
                         return Promise.resolve(successResponseForNotification);
                     },
-                },
+                }),
                 acl: {
                     can: (identifier) => {
                         if (!identifier) {
@@ -208,8 +215,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();
         expect(wrapper.vm.disabledAutoPromotions).toBeTruthy();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.disabledAutoPromotions).toBeFalsy();
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();
@@ -314,7 +320,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
             },
         ];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.promotionsRemoved).toEqual([wrapper.vm.promotionUpdates[0]]);
         expect(wrapper.vm.promotionsAdded).toEqual([wrapper.vm.promotionUpdates[1]]);
@@ -327,7 +333,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(modal.text()).toContain('New Auto promo');
 
         wrapper.vm.dismissPromotionUpdates();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
     });

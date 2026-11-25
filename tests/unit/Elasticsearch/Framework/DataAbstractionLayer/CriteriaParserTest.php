@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -62,7 +63,6 @@ class CriteriaParserTest extends TestCase
 
         $definition = $this->getDefinition();
 
-        /** @var CompositeAggregation $esAgg */
         $esAgg = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             static::createStub(CustomFieldService::class),
@@ -1315,6 +1315,25 @@ EOT,
                 ],
             ],
         ];
+
+        yield 'NotEqualsFilter null on nested association field' => [
+            new NotEqualsFilter('unit.id', null),
+            [
+                'nested' => [
+                    'path' => 'unit',
+                    'query' => [
+                        'exists' => ['field' => 'unit.id'],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'NotEqualsFilter null on field' => [
+            new NotEqualsFilter('test', null),
+            [
+                'exists' => ['field' => 'test'],
+            ],
+        ];
     }
 
     public function getDefinition(string $entityName = 'product'): EntityDefinition
@@ -1333,6 +1352,30 @@ EOT,
         );
 
         return $instanceRegistry->getByEntityName($entityName);
+    }
+
+    public function testPriceSortingFallsBackForUnmappedCurrency(): void
+    {
+        $sorting = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            static::createStub(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
+        ))->parseSorting(new FieldSorting('product.price', FieldSorting::DESCENDING), $this->getDefinition(), Context::createDefaultContext());
+
+        static::assertSame('price.c_' . Defaults::CURRENCY . '.gross', $sorting->getField());
+        static::assertSame(['unmapped_type' => 'double'], $sorting->getParameters());
+    }
+
+    public function testPriceSortingOnNotIndexedPathKeepsFailing(): void
+    {
+        $sorting = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            static::createStub(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
+        ))->parseSorting(new FieldSorting('product.price.listPrice', FieldSorting::DESCENDING), $this->getDefinition(), Context::createDefaultContext());
+
+        static::assertSame('price.listPrice.c_' . Defaults::CURRENCY . '.gross', $sorting->getField());
+        static::assertSame([], $sorting->getParameters());
     }
 
     /**

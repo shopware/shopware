@@ -13,11 +13,11 @@ Each file in this directory is a single MCP tool -- an action that AI clients ca
 ## Patterns
 - Use constructor injection for dependencies
 - Place the `#[McpTool]` attribute on the class with `name` and `description`
-- Extend `McpToolResponse` and return via `$this->success()` or `$this->error()` from `__invoke`
+- Extend `McpToolResponse`, declare `__invoke(): McpToolResult` and return `$this->successResult()` or `$this->errorResult()`
 - Use `McpContextProvider` to get the authenticated `Context`
 - Write operations must accept a `bool $dryRun = true` parameter. The `executeWithDryRun` helper adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions from firing during preview, and rolls back the transaction afterward
 - Entity tools must validate entity existence with `$this->registry->has($entity)` before ACL checks to provide clear "entity not found" messages
-- Entity tools that accept criteria JSON must validate the built `Criteria` with `AclCriteriaValidator` before DAL access — the top-level `requirePrivilege()` check does not cover association reads (see `EntityReadTool`/`EntitySearchTool`/`EntityAggregateTool`)
+- Entity tools that accept criteria JSON must validate the built `Criteria` with `AclCriteriaValidator` before DAL access — the top-level `requirePrivilegeResult()` check does not cover association reads (see `EntityReadTool`/`EntitySearchTool`/`EntityAggregateTool`)
 - Entity tools that return DAL data must inject `JsonEntityEncoder` and use it instead of `jsonSerialize()` to respect `includes`/`excludes`
 - Entity tools returning DAL data should use the `McpEntityIncludes` trait and call `applyDefaultIncludes()` to keep responses compact (see below)
 
@@ -74,7 +74,7 @@ class EntityDeleteTool extends McpToolResponse { ... }
 
 ## Declaring required privileges (`#[McpToolRequires]`)
 
-When a tool requires specific ACL privileges to run, annotate it with `#[McpToolRequires]`. This is **declarative only** — it does NOT add a new enforcement layer. Runtime enforcement still depends on `requirePrivilege()` calls inside `__invoke()` and the DAL's own ACL checks.
+When a tool requires specific ACL privileges to run, annotate it with `#[McpToolRequires]`. This is **declarative only** — it does NOT add a new enforcement layer. Runtime enforcement still depends on `requirePrivilegeResult()` calls inside `__invoke()` and the DAL's own ACL checks.
 
 The attribute serves as operator documentation: `debug:mcp` shows it in the **Privileges** column, the `/_action/mcp/capabilities` API exposes it in `requiredPrivileges`, and the Admin UI uses it to warn when an integration's assigned role is missing privileges.
 
@@ -98,7 +98,8 @@ class EntityReadTool extends McpToolResponse { ... }
 
 - The attribute is **repeatable** — add multiple `#[McpToolRequires]` lines when a tool needs more than one privilege.
 - Use `entityParam` + `operations` for entity tools where the privilege depends on the `$entity` parameter passed at runtime. The Admin UI renders this as `<entity>:read` with a tooltip.
-- Still call `$this->requirePrivilege($context, 'system_config:read')` (or the equivalent) inside `__invoke()` for actual runtime enforcement.
+- Still call `$this->requirePrivilegeResult($context, 'system_config:read')` (or the equivalent) inside `__invoke()` for actual runtime enforcement.
+- A tool that reads no shop data declares `#[McpToolRequiresNoPrivilege(reason: '...')]` instead; it grants nothing at runtime. PHPStan (`shopware.mcpAdminToolMissingRequires`) requires exactly one of the two attributes on every Admin API tool, see `../AGENTS.md`.
 
 ### Current privilege declarations (core tools)
 
@@ -115,28 +116,52 @@ class EntityReadTool extends McpToolResponse { ... }
 | `shopware-entity-delete` | `<entity>:delete` (dynamic) |
 | `shopware-entity-sync` | `<entity>:create`, `<entity>:update`, `<entity>:delete` (dynamic, per operation) |
 | `shopware-theme-config` (Storefront) | `theme:read`, `theme:update` |
+| `shopware-entity-schema` | none, `#[McpToolRequiresNoPrivilege]` (reads entity definitions only) |
+| `shopware-tool-search` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
+| `shopware-toolsets-list` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
+| `shopware-toolset-enable` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
 
 ## Response format convention
-All tools must extend the `McpToolResponse` abstract class. It provides two helpers:
+All tools must extend the `McpToolResponse` abstract class.
+A tool returns a `McpToolResult` (`Shopware\Core\Framework\Mcp\Result`), the result independent of any wire format, built with two helpers:
 
-**Success**: `$this->success(array $data, array $meta = [])`
+**Success**: `$this->successResult(mixed $data, array $meta = [], ?string $summary = null)`
+
+**Error**: `$this->errorResult(string $message, string $code = McpToolError::TOOL_ERROR, array $details = [])`
+
+The other helpers return a `McpToolResult` failure too: `requirePrivilegeResult()`, `missingPrivilegesResult()`, `invalidCriteriaResult()`, `decodeJsonOrErrorResult()` (the decoded array or a failure) and `executeWithDryRunResult()`.
+
+Rules:
+- `data` holds the actual result (structure is tool-specific)
+- `meta` is optional, used for pagination (`total`, `page`, `limit`), context (`salesChannelId`), and write metadata (`dryRun`)
+- `summary` is an optional short text for the model next to the data, never a replacement for it
+- A failure has a message, a `McpToolError` code (`missing_privilege`, `invalid_arguments`, `not_found`, `tool_error`), so clients can match on it instead of the message, and optional `details` the model needs to fix the call
+- Results at or above 20 KB (measured as the legacy envelope) get `responseSize` in the metadata so the LLM can see the cost of the current call and learn to use tighter `includes`/`limit` next time.
+  `successResult()` doesn't decide whether a response is too large to send inline, the renderer does (see below)
+- A tool with an `outputSchema` returns exactly the data the schema describes; metadata the model needs belongs into the data and the schema
+- A PHPStan rule (`McpToolResponseRule`) enforces that all `#[McpTool]` classes extend the abstract class
+
+### Legacy string results (deprecated)
+
+Before `McpToolResult`, tools returned the `{"success": …}` JSON string that `success()` and `error()` build:
+
 ```json
 {"success": true, "data": [...], "_meta": {"total": 42, "page": 1}}
-```
-
-**Error**: `$this->error(string $message, string $code = McpToolError::TOOL_ERROR)`
-```json
 {"success": false, "error": "Human-readable message", "code": "tool_error"}
 ```
 
-Rules:
-- `success` (bool) is always present at root
-- `data` holds the actual result (structure is tool-specific)
-- `_meta` is optional, used for pagination (`total`, `page`, `limit`), context (`salesChannelId`), and write metadata (`dryRun`)
-- `error` (string) and `code` only appear when `success` is false. Use a `McpToolError` constant for `code` (`missing_privilege`, `invalid_arguments`, `not_found`, `tool_error`), so clients can match on it instead of the message
-- Responses at or above 20 KB include `_meta.responseSize` so the LLM can see the cost of the current call and learn to use tighter `includes`/`limit` next time.
-  `success()` doesn't decide whether a response is too large to send inline, the renderer does (see below)
-- A PHPStan rule (`McpToolResponseRule`) enforces that all `#[McpTool]` classes extend the abstract class
+Returning that string, from these helpers or built by hand, is deprecated.
+It keeps working: `McpToolResultParser` reads it into a `McpToolResult`, and both render the same on every protocol revision (`McpToolResponseTest`).
+The string can't carry a summary or error details.
+`success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` stay for extensions that declare `__invoke(): string`; each has a `…Result` counterpart.
+They are `@deprecated tag:v6.8.0` and trigger a deprecation, which throws once the `v6.8.0.0` flag is active.
+`McpToolResultReferenceHandler` does the same for a PHP tool that returns the string, so a hand-built string is covered too.
+App tools are registered as closures and are not reported, because the envelope stays their response format.
+This deprecates the PHP return value only; the legacy text format that old protocol revisions receive is not affected.
+All core tools return `McpToolResult`.
+`McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a tool method with a native `string` return type, including `?string` and unions, a `mixed` return type, or no return type.
+It is registered in `core-rules.neon` only, so it guards core without failing extension builds; it moves to `rules.neon` with 6.8.0.
+App tools keep the envelope as their response format.
 
 ### What the client receives
 
@@ -168,12 +193,13 @@ The negotiated protocol revision picks the format, never a feature flag.
     {"result": [{"entity": "tax", "ids": ["0190..."], "operation": "upsert"}], "_meta": {"dryRun": true}}
     ```
 
-- **Before 2025-06-18 (legacy envelope, deprecated):** the only text block is the tool's `{"success": …}` string as it returned it, or the envelope rebuilt from a `McpToolResult` (data, metadata, error message and code, but no summary or error details).
+- **Before 2025-06-18 (legacy envelope, deprecated):** the only text block is the envelope rebuilt from the `McpToolResult` (data, metadata, error message and code, but no summary or error details), or the tool's legacy `{"success": …}` string as it returned it.
   These revisions have no `structuredContent` and no `resource_link`.
   The envelope is deprecated as a wire format and stays for these clients; it is not scheduled for removal
 - **Large results.** The renderer measures the text blocks plus the encoded `structuredContent` of every successful result it renders.
   That is a `McpToolResult`, or a string whose JSON has a boolean `success` (`McpToolResultParser`), from core, plugin, bundle and app tools alike, including a hand-built string in that envelope.
   Anything else, such as plain text or JSON without a boolean `success`, passes through `McpToolResultReferenceHandler` unchanged and is never measured or stored.
+  From a PHP tool, plain text is deprecated; `McpToolResult::text()` sends the same text and is never stored either.
   Since 2025-06-18 a tool that declares an `outputSchema` is never stored either: the link has no `structuredContent`, so a client that validates it against the schema would reject the result.
   Such a tool keeps its result inline at any size and has to bound it itself, for example with a `limit`.
   Before 2025-06-18 there is no `structuredContent` to validate, so its results are stored like any other.
@@ -189,7 +215,8 @@ The negotiated protocol revision picks the format, never a feature flag.
   - The linked response stays small: the tool's metadata is kept up to `MAX_LINKED_META_SIZE` (10 KB) in its order, and the keys that don't fit are named in `_meta.omittedMeta`.
     It names at most `MAX_OMITTED_META_KEYS` (50) keys, each cut at 100 bytes, and `_meta.omittedMetaCount` holds the total, so many small keys can't make the link large again.
     The tool's own links are kept up to `MAX_LINKED_LINKS` (20) and `MAX_LINKED_LINKS_SIZE` (10 KB) in their order, the rest is counted in `_meta.omittedLinkCount`; the link to the stored result is always added after them.
-    Before 2025-06-18 the stored envelope still holds them; since 2025-06-18 the stored resource is the plain data only
+    Before 2025-06-18 the stored envelope still holds them; since 2025-06-18 the stored resource is the plain data only, so omitted metadata cannot be fetched at all.
+    Put large values a model needs into the data, not into `meta`.
   - The pointer is signed for the caller (`McpToolResultPrincipal`; Admin: integration and user; Store: sales channel and `sw-context-token`) and expires after an hour.
     So it works on a later request and without an MCP session, but only for the same caller.
     The full content is fetched via `resources/read` (`ToolResultResource` on the Admin API, `StoreApiToolResultResource` on the Store API).
@@ -200,7 +227,7 @@ The negotiated protocol revision picks the format, never a feature flag.
     `McpToolResultCacheCleanupTask` removes rows older than `shopware.mcp.tool_result_cache_ttl`
 - `_meta["shopware/generatedAt"]` is always set
 
-A tool may also return a `McpToolResult` directly; it is rendered the same way. Tools that return a `CallToolResult` themselves bypass the renderer.
+Tools that return a `CallToolResult` themselves bypass the renderer.
 
 ## Pagination with shopware-entity-search
 
@@ -260,6 +287,65 @@ $this->applyDefaultIncludes($definition, $criteriaObj);
 - **User-provided includes**: injects `translated` into the includes for any entity with translated fields, recursing into loaded associations
 
 All entity read tools use `JsonEntityEncoder` for serialization (not the Store API serializer), so `includes`/`excludes` filtering works consistently regardless of whether the data comes from a regular or sales channel repository.
+
+## Tool annotations (`readOnlyHint`, `destructiveHint`, ...)
+
+Every core tool declares the tool annotations of the MCP specification with the `annotations` argument of `#[McpTool]`:
+
+```php
+use Mcp\Schema\ToolAnnotations;
+
+#[McpTool(
+    name: 'shopware-entity-delete',
+    title: 'Entity Delete',
+    annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false),
+    description: '...',
+)]
+```
+
+Clients read them in `tools/list`, and in the tool definitions `shopware-tool-search` returns, to decide when to ask the user before a call.
+They are hints, not enforcement: ACL and `dryRun` still protect the shop.
+A tool without annotations gets the spec defaults, which describe a destructive tool that reaches outside the shop.
+`McpToolRegistrationTest::testEveryCoreToolDeclaresAnnotations()` fails for a core tool on either endpoint that leaves out a hint it needs, and `McpToolAnnotationsTest` pins the values below as clients receive them.
+
+How to choose:
+- `readOnlyHint: true` when the tool never changes its environment: no shop data, no configuration, no session state.
+  The spec says `destructiveHint` and `idempotentHint` are only meaningful when `readOnlyHint` is false, so read tools leave them out.
+- `readOnlyHint: false` as soon as one action of the tool writes, even if `dryRun` defaults to true.
+  The hints describe what the tool can do, not what one call with default arguments does.
+- `destructiveHint: true` when the tool can remove or overwrite existing data: records, record fields, configuration, theme settings, order states.
+  The spec reserves `destructiveHint: false` for tools that only make additive updates, so a tool that edits existing records is destructive.
+  `destructiveHint: false` when the tool only creates data or changes session state.
+- `idempotentHint: true` when repeating a call with the same arguments has no further effect.
+  Creating records without a caller-supplied id, or firing state transitions that can start flows and send mails, is not idempotent.
+- `openWorldHint: false` when the tool only acts on the shop itself.
+  `openWorldHint: true` when it reaches external systems, such as fetching a caller-supplied URL.
+- Leave out `title` in the annotations; the `title` argument of `#[McpTool]` already sets the display name.
+
+| Tool | readOnly | destructive | idempotent | openWorld |
+|---|---|---|---|---|
+| `shopware-entity-schema`, `shopware-entity-search`, `shopware-entity-read`, `shopware-entity-aggregate`, `shopware-system-config-read` | true | | | false |
+| `shopware-tool-search`, `shopware-toolsets-list` (Admin and Store API) | true | | | false |
+| `shopware-store-api-context` (Store API) | true | | | false |
+| `shopware-toolset-enable` (Admin and Store API) | false | false | true | false |
+| `shopware-entity-upsert` | false | true | false | false |
+| `shopware-media-upload` | false | true | false | true |
+| `shopware-entity-delete` | false | true | true | false |
+| `shopware-order-state` | false | true | false | false |
+| `shopware-system-config-write` | false | true | true | false |
+| `shopware-theme-config` (Storefront) | false | true | true | false |
+
+Notes on the less obvious rows:
+- `shopware-toolset-enable` changes which tools the session advertises, so it is not read-only.
+  It touches no shop data, and enabling a toolset twice changes nothing.
+- `shopware-entity-upsert` is destructive because an update overwrites existing fields, even though it removes no record.
+  It is not idempotent because a payload without ids creates new records on every call.
+- `shopware-entity-delete` is idempotent: deleting the same records again reports them as not found and changes nothing.
+- `shopware-media-upload` downloads the file from a caller-supplied URL, which makes it the only core tool reaching outside the shop.
+  It is destructive because a `productId` makes the new file the product cover and replaces the current one.
+- `shopware-theme-config` has a read action too, but the tool as a whole can overwrite theme settings.
+
+App tools from `mcp.xml` carry no annotations yet.
 
 ## Read tools
 - `EntitySchemaTool` (`shopware-entity-schema`) -- entity field/association introspection
@@ -322,17 +408,17 @@ Plugin tools are registered via `shopware.mcp.tool` DI tag and use the `merchant
 
 ## Error handling for extension developers
 Tools extending `McpToolResponse` benefit from built-in error handling:
-- `executeWithDryRun()` catches any `\Throwable` and returns it as a structured `$this->error()` response
-- Unhandled exceptions from `__invoke()` produce a generic MCP error (`-32603`). Prefer catching known exceptions and returning `$this->error($message)` instead.
+- `executeWithDryRunResult()` catches any `\Throwable` and returns it as a `$this->errorResult()` failure
+- Unhandled exceptions from `__invoke()` produce a generic MCP error (`-32603`). Prefer catching known exceptions and returning `$this->errorResult($message)` instead.
 - Write tools should validate inputs before the operation (e.g., `SystemConfigWriteTool` rejects null values, entity tools validate entity existence)
-- `invalidCriteriaError()` renders a `RequestCriteriaBuilder::fromArray()` failure as an actionable message. Wrap **only** the `fromArray()` call and catch `ShopwareHttpException`: the builder reports bad payloads through several unrelated classes (`SearchRequestException` with one pointer per rejected element, `DataAbstractionLayerException` directly, `FrameworkException::associationNotFound()`, and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from `ApiCriteriaValidator`). Keep the following read/search/aggregate call outside the `try`, so a real DAL failure still reaches the log instead of being reported as bad input.
+- `invalidCriteriaResult()` renders a `RequestCriteriaBuilder::fromArray()` failure as an actionable message. Wrap **only** the `fromArray()` call and catch `ShopwareHttpException`: the builder reports bad payloads through several unrelated classes (`SearchRequestException` with one pointer per rejected element, `DataAbstractionLayerException` directly, `FrameworkException::associationNotFound()`, and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from `ApiCriteriaValidator`). Keep the following read/search/aggregate call outside the `try`, so a real DAL failure still reaches the log instead of being reported as bad input.
 
 ## Adding a new tool
 1. Create a class in this directory
 2. Add `#[McpTool(name: 'shopware-{tool-name}', description: '...')]` on the class
 3. If the tool only works after using another tool first, add `#[McpToolDependsOn('other-tool-name')]` (repeatable)
-4. If the tool requires specific ACL privileges, add `#[McpToolRequires('privilege:operation')]` (repeatable); for entity tools use `#[McpToolRequires(entityParam: 'entity', operations: ['read'])]`. Still call `$this->requirePrivilege()` inside `__invoke()` for actual runtime enforcement.
-5. Extend `McpToolResponse` and return via `$this->success()` / `$this->error()`
+4. If the tool requires specific ACL privileges, add `#[McpToolRequires('privilege:operation')]` (repeatable); for entity tools use `#[McpToolRequires(entityParam: 'entity', operations: ['read'])]`. Still call `$this->requirePrivilegeResult()` inside `__invoke()` for actual runtime enforcement. If it needs no privilege, add `#[McpToolRequiresNoPrivilege(reason: '...')]` instead.
+5. Extend `McpToolResponse`, declare `__invoke(): McpToolResult` and return `$this->successResult()` / `$this->errorResult()`
 6. For entity tools: validate with `$this->registry->has($entity)` before ACL checks
 7. Register in `src/Core/Framework/DependencyInjection/mcp.php` with the `mcp.tool` tag
 8. Add unit test in `tests/unit/Core/Framework/Mcp/Tool/`

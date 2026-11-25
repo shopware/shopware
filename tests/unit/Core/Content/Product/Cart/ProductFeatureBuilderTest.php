@@ -8,11 +8,18 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
@@ -31,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFo
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -41,8 +49,12 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection as TaxRuleEntityCollection;
+use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -94,12 +106,7 @@ class ProductFeatureBuilderTest extends TestCase
         $this->translator->method('trans')->willReturnArgument(0);
         $this->salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->productFeatureBuilder = new ProductFeatureBuilder(
-            $this->customFieldRepository,
-            $this->languageLocaleProvider,
-            $this->definitionRegistry,
-            $this->translator,
-        );
+        $this->productFeatureBuilder = $this->createProductFeatureBuilder($this->translator);
     }
 
     public function testAddFeaturesIntoLineItems(): void
@@ -446,6 +453,69 @@ class ProductFeatureBuilderTest extends TestCase
         static::assertSame([], $features);
     }
 
+    public function testPriceCustomFieldWithNetBasisDerivesTheGrossFromTheStoredNet(): void
+    {
+        $taxId = Uuid::randomHex();
+
+        $tax = (new TaxEntity())->assign(['id' => $taxId, 'taxRate' => 19.0, 'name' => 'tax', 'position' => 1]);
+        $tax->setRules(new TaxRuleEntityCollection());
+
+        $context = Generator::generateSalesChannelContext(
+            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET, 'displayGross' => true]),
+            taxRules: new TaxCollection([$tax]),
+        );
+
+        $features = $this->buildCustomFieldFeatures(
+            ['de-DE' => 'Aufpreis'],
+            content: [['currencyId' => Defaults::CURRENCY, 'net' => 10.0, 'gross' => 999.0, 'linked' => true]],
+            type: CustomFieldTypes::PRICE,
+            context: $context,
+            taxId: $taxId,
+        );
+
+        static::assertSame(11.9, $features[0]['value']['display']);
+    }
+
+    public function testPriceCustomFieldWithNetBasisConvertsTheFallbackNetBeforeDerivingTheGross(): void
+    {
+        $taxId = Uuid::randomHex();
+
+        $tax = (new TaxEntity())->assign(['id' => $taxId, 'taxRate' => 19.0, 'name' => 'tax', 'position' => 1]);
+        $tax->setRules(new TaxRuleEntityCollection());
+
+        $context = Generator::generateSalesChannelContext(
+            baseContext: new Context(
+                new SystemSource(),
+                currencyId: self::CURRENCY_ID,
+                languageIdChain: self::LANGUAGE_CHAIN,
+                currencyFactor: 1.5,
+            ),
+            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET, 'displayGross' => true]),
+            taxRules: new TaxCollection([$tax]),
+        );
+
+        $features = $this->buildCustomFieldFeatures(
+            ['de-DE' => 'Aufpreis'],
+            content: [['currencyId' => Defaults::CURRENCY, 'net' => 9.99, 'gross' => 999.0, 'linked' => true]],
+            type: CustomFieldTypes::PRICE,
+            context: $context,
+            taxId: $taxId,
+        );
+
+        static::assertSame(17.83, $features[0]['value']['display']);
+    }
+
+    public function testPriceCustomFieldWithNullBasisKeepsTheStoredGross(): void
+    {
+        $features = $this->buildCustomFieldFeatures(
+            ['de-DE' => 'Aufpreis'],
+            content: [['currencyId' => Defaults::CURRENCY, 'net' => 10.0, 'gross' => 11.9, 'linked' => true]],
+            type: CustomFieldTypes::PRICE
+        );
+
+        static::assertSame(11.9, $features[0]['value']['display']);
+    }
+
     /**
      * @return iterable<string, array{array<string, string>}>
      */
@@ -497,11 +567,24 @@ class ProductFeatureBuilderTest extends TestCase
             static fn (string $id, array $parameters, ?string $domain, ?string $locale): string => $snippetsByLocale[$locale ?? ''][$id] ?? $id
         );
 
-        $this->productFeatureBuilder = new ProductFeatureBuilder(
+        $this->productFeatureBuilder = $this->createProductFeatureBuilder($translator);
+    }
+
+    private function createProductFeatureBuilder(TranslatorInterface $translator): ProductFeatureBuilder
+    {
+        $taxCalculator = new TaxCalculator();
+        $cashRounding = new CashRounding();
+
+        return new ProductFeatureBuilder(
             $this->customFieldRepository,
             $this->languageLocaleProvider,
             $this->definitionRegistry,
             $translator,
+            new PriceSelector($taxCalculator, new ExtensionDispatcher(new EventDispatcher())),
+            new QuantityPriceCalculator(
+                new GrossPriceCalculator($taxCalculator, $cashRounding),
+                new NetPriceCalculator($taxCalculator, $cashRounding)
+            ),
         );
     }
 
@@ -523,7 +606,8 @@ class ProductFeatureBuilderTest extends TestCase
         string $type = CustomFieldTypes::TEXT,
         array $config = [],
         array $referencedEntities = [],
-        ?SalesChannelContext $context = null
+        ?SalesChannelContext $context = null,
+        ?string $taxId = null
     ): array {
         $this->languageLocaleProvider->method('getLocaleForLanguageId')->willReturnMap([
             [self::CHILD_LANGUAGE_ID, 'de-AT'],
@@ -542,6 +626,7 @@ class ProductFeatureBuilderTest extends TestCase
         $product->setId($productId);
         $product->setTranslated(['customFields' => ['custom_material' => $content]]);
         $product->setFeatureSet($this->createCustomFieldFeatureSet());
+        $product->setTaxId($taxId);
 
         $customField = $this->createCustomField($labels, $type, $config);
 

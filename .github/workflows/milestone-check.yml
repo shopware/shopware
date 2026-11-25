@@ -31,6 +31,8 @@ permissions:
 
 jobs:
   check:
+    # an edit reruns the check only when the base branch changed; the label itself comes in as labeled/unlabeled
+    if: ${{ github.event.action != 'edited' || github.event.changes.base != null }}
     name: Milestone label
     runs-on: ubuntu-24.04
     steps:

@@ -1,91 +1,98 @@
 <!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_customer_imitate_customer_modal %}
-<sw-modal
-    :title="modalTitle"
-    :is-loading="isLoading"
-    class="sw-customer-imitate-customer-modal"
-    @modal-close="onCancel"
+<mt-modal-root
+    is-open
+    @change="onModalRootChange"
 >
-    {% block sw_customer_imitate_customer_modal_alert %}
-    <mt-banner
-        v-if="!isLoading && hasSalesChannelDomains"
-        variant="attention"
+    <mt-modal
+        :title="modalTitle"
     >
-        <i18n-t
-            keypath="sw-customer.imitateCustomerModal.modalInfo"
-            tag="p"
-            scope="local"
-        >
-            <template #logout>
-                <b>{{ $t('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
-            </template>
-        </i18n-t>
-    </mt-banner>
+        <div class="sw-customer-imitate-customer-modal">
+            <mt-loader v-if="isLoading" />
 
-    <mt-banner
-        v-else-if="!isLoading"
-        variant="info"
-    >
-        {{ $t('sw-customer.imitateCustomerModal.modalInfoNoDomains') }}
-    </mt-banner>
+    {% block sw_customer_imitate_customer_modal_alert %}
+            <mt-banner
+                v-if="!isLoading && hasSalesChannelDomains"
+                variant="attention"
+            >
+                <i18n-t
+                    keypath="sw-customer.imitateCustomerModal.modalInfo"
+                    tag="p"
+                    scope="local"
+                >
+                    <template #logout>
+                        <b>{{ $t('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
+                    </template>
+                </i18n-t>
+            </mt-banner>
+
+            <mt-banner
+                v-else-if="!isLoading"
+                variant="info"
+            >
+                {{ $t('sw-customer.imitateCustomerModal.modalInfoNoDomains') }}
+            </mt-banner>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_description %}
-    <div
-        v-if="!isLoading && hasSalesChannelDomains"
-        class="imitate-customer-modal-description"
-    >
-        {{ modalDescription }}
-    </div>
+            <div
+                v-if="!isLoading && hasSalesChannelDomains"
+                class="imitate-customer-modal-description"
+            >
+                {{ modalDescription }}
+            </div>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_body %}
-    <div
-        v-if="!isLoading && hasSalesChannelDomains"
-        class="imitate-customer-modal-container"
-    >
+            <div
+                v-if="!isLoading && hasSalesChannelDomains"
+                class="imitate-customer-modal-container"
+            >
         {% block sw_customer_imitate_customer_modal_sales_channel_domain_items %}
-        <div
-            v-for="salesChannelDomain of salesChannelDomains"
-            :key="salesChannelDomain.id"
-            class="imitate-customer-modal-item"
-            @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId, salesChannelDomain.url)"
-        >
-            <div class="imitate-customer-modal-item-content">
-                <div class="imitate-customer-modal-item-title">
-                    <div class="imitate-customer-modal-item-header">
-                        {{ salesChannelDomain.salesChannel.translated.name }}
-                    </div>
+                <div
+                    v-for="salesChannelDomain of salesChannelDomains"
+                    :key="salesChannelDomain.id"
+                    class="imitate-customer-modal-item"
+                    @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId, salesChannelDomain.url)"
+                >
+                    <div class="imitate-customer-modal-item-content">
+                        <div class="imitate-customer-modal-item-title">
+                            <div class="imitate-customer-modal-item-header">
+                                {{ salesChannelDomain.salesChannel.translated.name }}
+                            </div>
 
-                    <div class="imitate-customer-modal-item-url">
-                        {{ salesChannelDomain.url }}
+                            <div class="imitate-customer-modal-item-url">
+                                {{ salesChannelDomain.url }}
+                            </div>
+                        </div>
+
+                        <mt-icon
+                            name="regular-external-link-s"
+                            size="14px"
+                        />
                     </div>
                 </div>
-
-                <mt-icon
-                    name="regular-external-link-s"
-                    size="14px"
-                />
-            </div>
-        </div>
         {% endblock %}
-    </div>
+            </div>
     {% endblock %}
+
+        </div>
 
     {% block sw_customer_imitate_customer_modal_footer %}
-    <template #modal-footer>
-        <div>
+        <template #footer>
+            <div class="sw-customer-imitate-customer-modal__footer">
             {% block sw_customer_imitate_customer_modal_footer_cancel %}
-            <mt-button
-                size="small"
-                variant="secondary"
-                @click="onCancel"
-            >
-                {{ $t('global.default.close') }}
-            </mt-button>
+                <mt-modal-close
+                    as="mt-button"
+                    size="small"
+                    variant="secondary"
+                >
+                    {{ $t('global.default.close') }}
+                </mt-modal-close>
             {% endblock %}
-        </div>
-    </template>
+            </div>
+        </template>
     {% endblock %}
-</sw-modal>
+    </mt-modal>
+</mt-modal-root>
 {% endblock %}

@@ -2,7 +2,8 @@
  * @sw-package framework
  */
 
-import normalizeFeatureFlag from '../_helper_/normalizeFeatureFlag';
+import { isSameFlag, normalizeFeatureFlag } from '../../scripts/feature-flags';
+import { toHaveTriggered } from '../_helper_/deprecations';
 
 type EachTable = Parameters<jest.It['each']>[0];
 type TestCallback = (() => unknown) | ((done: jest.DoneCallback) => unknown);
@@ -38,10 +39,7 @@ function withPendingFeatureFlags<T>(featureFlags: readonly string[], register: (
 /** @private */
 export function createDeprecatedTest(testFunction: jest.It): jest.It['deprecated'] {
     return (removedIn: string) => {
-        const normalizedRemovedIn = normalizeFeatureFlag(removedIn);
-        const isRemoved = getActiveFeatureFlags().some((featureFlag) => {
-            return normalizeFeatureFlag(featureFlag) === normalizedRemovedIn;
-        });
+        const isRemoved = getActiveFeatureFlags().some((featureFlag) => isSameFlag(featureFlag, removedIn));
         const register = isRemoved ? testFunction.skip : testFunction;
 
         // Applied before Jest interpolates `%s` and friends, so the suffix trails the whole title.
@@ -86,3 +84,5 @@ export function createActiveFeatureFlagsTest(testFunction: jest.It): jest.It['ac
 
 it.deprecated = createDeprecatedTest(it);
 it.activeFeatureFlags = createActiveFeatureFlagsTest(it);
+
+expect.extend({ toHaveTriggered });

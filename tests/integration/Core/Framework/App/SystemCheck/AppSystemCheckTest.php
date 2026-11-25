@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\SystemCheck\AppSystemCheck;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Symfony\Component\Clock\MockClock;
 
 /**
@@ -274,60 +276,48 @@ class AppSystemCheckTest extends TestCase
         ?string $updatedAt = '-1 minute',
         ?string $lastUsageAt = null,
     ): string {
-        $unique = Uuid::randomHex();
-        $integrationId = Uuid::randomBytes();
-        $appId = Uuid::randomBytes();
-        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $appId = (new AppFixture(static::getContainer()->get('app.repository')))
+            ->createAppFromData(['active' => $active, 'appSecret' => $appSecret])
+            ->getId();
 
-        $this->connection->insert('acl_role', [
-            'id' => $aclRoleId = Uuid::randomBytes(),
-            'name' => 'role-' . $unique,
-            'privileges' => json_encode([], \JSON_THROW_ON_ERROR),
-            'created_at' => $now,
-        ]);
+        // timestamps and pending secrets the repository does not let a test set
+        $this->connection->executeStatement(
+            'UPDATE app
+             INNER JOIN integration ON integration.id = app.integration_id
+             SET app.unconfirmed_app_secrets = :unconfirmed, app.created_at = :createdAt, app.updated_at = :updatedAt, integration.last_usage_at = :lastUsageAt
+             WHERE app.id = :id',
+            [
+                'id' => Uuid::fromHexToBytes($appId),
+                'unconfirmed' => $unconfirmedSecrets ? json_encode(['secret' => 'pending'], \JSON_THROW_ON_ERROR) : null,
+                'createdAt' => $this->date($createdAt),
+                'updatedAt' => $updatedAt !== null ? $this->date($updatedAt) : null,
+                'lastUsageAt' => $lastUsageAt !== null ? $this->date($lastUsageAt) : null,
+            ],
+        );
 
-        $this->connection->insert('integration', [
-            'id' => $integrationId,
-            'access_key' => 'key-' . $unique,
-            'secret_access_key' => 'secret-' . $unique,
-            'label' => 'integration-' . $unique,
-            'last_usage_at' => $lastUsageAt !== null ? $this->clock->now()->modify($lastUsageAt)->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
-            'created_at' => $now,
-        ]);
+        return $appId;
+    }
 
-        $this->connection->insert('app', [
-            'id' => $appId,
-            'name' => 'app-' . $unique,
-            'path' => '/dev/null',
-            'version' => '1.0.0',
-            'active' => (int) $active,
-            'app_secret' => $appSecret,
-            'unconfirmed_app_secrets' => $unconfirmedSecrets ? json_encode(['secret' => 'pending'], \JSON_THROW_ON_ERROR) : null,
-            'integration_id' => $integrationId,
-            'acl_role_id' => $aclRoleId,
-            'created_at' => $this->clock->now()->modify($createdAt)->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'updated_at' => $updatedAt !== null ? $this->clock->now()->modify($updatedAt)->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
-        ]);
-
-        return Uuid::fromBytesToHex($appId);
+    private function date(string $modifier): string
+    {
+        return $this->clock->now()->modify($modifier)->format(Defaults::STORAGE_DATE_TIME_FORMAT);
     }
 
     private function createWebhook(string $appId, bool $active = true, int $errorCount = 0): string
     {
-        $webhookId = Uuid::randomBytes();
+        $webhookId = Uuid::randomHex();
 
-        $this->connection->insert('webhook', [
+        static::getContainer()->get('webhook.repository')->create([[
             'id' => $webhookId,
-            'name' => 'hook-' . Uuid::randomHex(),
-            'event_name' => 'product.written',
+            'name' => 'hook-' . $webhookId,
+            'eventName' => 'product.written',
             'url' => 'https://example.com/webhook',
-            'app_id' => Uuid::fromHexToBytes($appId),
-            'active' => (int) $active,
-            'error_count' => $errorCount,
-            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+            'appId' => $appId,
+            'active' => $active,
+            'errorCount' => $errorCount,
+        ]], Context::createDefaultContext());
 
-        return $webhookId;
+        return Uuid::fromHexToBytes($webhookId);
     }
 
     private function createRetryingDelivery(

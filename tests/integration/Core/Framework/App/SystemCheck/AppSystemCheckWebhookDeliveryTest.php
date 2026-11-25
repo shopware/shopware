@@ -7,10 +7,10 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\SystemCheck\AppSystemCheck;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
@@ -174,48 +175,17 @@ class AppSystemCheckWebhookDeliveryTest extends TestCase
 
     private function createAppWithWebhook(): string
     {
-        $unique = Uuid::randomHex();
-        $aclRoleId = Uuid::randomBytes();
-        $integrationId = Uuid::randomBytes();
-        $appId = Uuid::randomBytes();
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $appId = (new AppFixture(static::getContainer()->get('app.repository')))
+            ->createAppFromData(['appSecret' => 'app-secret'])
+            ->getId();
 
-        $this->connection->insert('acl_role', [
-            'id' => $aclRoleId,
-            'name' => 'role-' . $unique,
-            'privileges' => json_encode([], \JSON_THROW_ON_ERROR),
-            'created_at' => $now,
-        ]);
-
-        $this->connection->insert('integration', [
-            'id' => $integrationId,
-            'access_key' => 'key-' . $unique,
-            'secret_access_key' => 'secret-' . $unique,
-            'label' => 'integration-' . $unique,
-            'created_at' => $now,
-        ]);
-
-        $this->connection->insert('app', [
-            'id' => $appId,
-            'name' => 'app-' . $unique,
-            'path' => '/dev/null',
-            'version' => '1.0.0',
-            'active' => 1,
-            'app_secret' => 'app-secret-' . $unique,
-            'integration_id' => $integrationId,
-            'acl_role_id' => $aclRoleId,
-            'created_at' => $now,
-        ]);
-
-        $this->connection->insert('webhook', [
-            'id' => Uuid::randomBytes(),
-            'name' => 'webhook-' . $unique,
-            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+        static::getContainer()->get('webhook.repository')->create([[
+            'name' => 'webhook-' . $appId,
+            'eventName' => CustomerBeforeLoginEvent::EVENT_NAME,
             'url' => 'https://example.com/webhook',
-            'app_id' => $appId,
-            'created_at' => $now,
-        ]);
+            'appId' => $appId,
+        ]], Context::createDefaultContext());
 
-        return Uuid::fromBytesToHex($appId);
+        return $appId;
     }
 }

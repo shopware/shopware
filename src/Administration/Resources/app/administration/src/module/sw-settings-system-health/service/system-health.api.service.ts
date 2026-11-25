@@ -11,13 +11,13 @@ import type { SystemHealthCheck } from '../types';
  */
 export default class SystemHealthApiService extends ApiService {
     constructor(httpClient: HttpClient, loginService: LoginService) {
-        super(httpClient, loginService, '_admin/system-health', 'application/json');
+        super(httpClient, loginService, 'system-check', 'application/json');
         this.name = 'systemHealthApiService';
     }
 
     getChecks(): Promise<SystemHealthCheck[]> {
         return this.httpClient
-            .get('_admin/system-health', { headers: this.getBasicHeaders() })
+            .get('_info/system-check/results', { headers: this.getBasicHeaders() })
             .then((response) => (response.data as { checks: SystemHealthCheck[] }).checks);
     }
 
@@ -26,7 +26,7 @@ export default class SystemHealthApiService extends ApiService {
      */
     run(name: string | null = null): Promise<void> {
         return this.httpClient
-            .post('_admin/system-health/run', null, {
+            .post('_action/system-check/run', null, {
                 headers: this.getBasicHeaders(),
                 params: name ? { check: name } : {},
             })

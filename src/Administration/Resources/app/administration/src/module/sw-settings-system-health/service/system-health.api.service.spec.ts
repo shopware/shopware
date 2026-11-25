@@ -19,14 +19,14 @@ describe('module/sw-settings-system-health/service/system-health.api.service', (
     it('should load the checks', async () => {
         const { service, mock } = createService();
         const checks = [{ name: 'AppUrlVerification', category: 'EXTERNAL', result: null }];
-        mock.onGet('/_admin/system-health').reply(200, { checks });
+        mock.onGet('/_info/system-check/results').reply(200, { checks });
 
         expect(await service.getChecks()).toEqual(checks);
     });
 
     it('should queue all checks without a name', async () => {
         const { service, mock } = createService();
-        mock.onPost('/_admin/system-health/run').reply(202);
+        mock.onPost('/_action/system-check/run').reply(202);
 
         await service.run();
 
@@ -35,7 +35,7 @@ describe('module/sw-settings-system-health/service/system-health.api.service', (
 
     it('should queue one check by its name', async () => {
         const { service, mock } = createService();
-        mock.onPost('/_admin/system-health/run').reply(202);
+        mock.onPost('/_action/system-check/run').reply(202);
 
         await service.run('AppUrlVerification');
 

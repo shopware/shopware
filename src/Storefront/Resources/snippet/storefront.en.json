@@ -70,6 +70,7 @@
       "next": "Next page",
       "last": "Last page",
       "page": "Page",
+      "metaPageSuffix": "%content% – Page %page%",
       "title": "Pagination"
     }
   },

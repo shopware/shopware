@@ -11,6 +11,38 @@ component sw-experience-studio-translation-settings  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-translation-settings/sw-experience-studio-translation-settings.html.twig  [private]
   visibility-source export  [private]
 
+props
+  allowEdit?: boolean  default=false  [private]
+  fields: LayoutTranslationField[]  [private]
+  isLoadingTypes?: boolean  default=false  [private]
+  languageId?: string  default=factory  [private]
+  languageName?: string  default=''  [private]
+  mappingCandidates?: ContentSystemMappingCandidate[]  default=factory  [private]
+  typeLoadError?: string  default=null  [private]
+  violations?: ContentSystemViolation[]  default=factory  [private]
+
+emits
+  focus-element(...args: any[])  [private]
+  update-properties(...args: any[])  [private]
+
+data
+  visibleFieldCount: any  [private]
+
+computed
+  hasMoreFields: boolean  [private]
+  visibleElements: TranslationElement[]  [private]
+  visibleFields: LayoutTranslationField[]  [private]
+
+methods
+  getElementLabel(entry: TranslationElement): string  [private]
+  getMappings(group: TranslationElement): Record<string, string>  [private]
+  getValues(group: TranslationElement): Record<string, unknown>  [private]
+  onUpdateField(group: TranslationElement, payload: { key: string; value: unknown }): void  [private]
+  showMoreFields(): Promise<void>  [private]
+
 blocks
   sw_experience_studio_translation_settings  [private]
+
+refs
+  translationSettings  -> div  block=sw_experience_studio_translation_settings  [private]
 ```

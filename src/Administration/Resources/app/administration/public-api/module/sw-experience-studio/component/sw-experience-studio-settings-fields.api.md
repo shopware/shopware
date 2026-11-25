@@ -16,8 +16,11 @@ inject
 
 props
   allowEdit?: boolean  default=false  [private]
+  allowMapping?: boolean  default=true  [private]
+  fieldIdPrefix?: string  default=''  [private]
   fields: SettingsFieldDefinition[]  [private]
   isLoadingMappingCandidates?: boolean  default=false  [private]
+  languageName?: string  default=''  [private]
   mappingCandidateLoadError?: string  default=null  [private]
   mappingCandidates?: ContentSystemMappingCandidate[]  default=factory  [private]
   mappings?: Record<string, string>  default=factory  [private]
@@ -53,6 +56,7 @@ methods
   getEntityMultiValue(key: string): string[]  [private]
   getEntityName(property: ContentSystemElementTypeProperty): string | null  [private]
   getEntityRepository(entityName: string): Repository<keyof EntitySchema.EntityKeys>  [private]
+  getFieldControlKey(key: string): string  [private]
   getFieldMappingLabel(field: SettingsFieldDefinition): string  [private]
   getFieldMappingPath(field: SettingsFieldDefinition): string | null  [private]
   getFieldPanelTechnicalName(field: SettingsFieldDefinition): string | null  [private]

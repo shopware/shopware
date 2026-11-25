@@ -11,6 +11,18 @@ component sw-experience-studio-preview-list  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-preview-list/sw-experience-studio-preview-list.html.twig  [private]
   visibility-source export  [private]
 
+props
+  frames: CanvasFrame[]  [private]
+  layoutId: string  [private]
+
+emits
+  close(...args: any[])  [private]
+  select(...args: any[])  [private]
+
+computed
+  layoutFrames: CanvasFrame[]  [private]
+  viewportIcons: Record<Viewport, string>  [private]
+
 blocks
   sw_experience_studio_preview_list  [private]
 ```

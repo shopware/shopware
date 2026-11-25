@@ -32,6 +32,7 @@ computed
   workspaceStore: ExperienceStudioWorkspaceStore  [private]
 
 methods
+  getCreatorName(...args: any[]): any  [private]
   onModalRootChange(isOpen: boolean): void  [private]
   onPageChange(page: number): void  [private]
   onSearch(term: string): void  [private]

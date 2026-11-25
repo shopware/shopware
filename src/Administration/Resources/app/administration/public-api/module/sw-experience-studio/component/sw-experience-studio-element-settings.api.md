@@ -16,6 +16,8 @@ props
   isLoadingMappingCandidates?: boolean  default=false  [private]
   isLoadingStyleOptions?: boolean  default=false  [private]
   isLoadingTypes?: boolean  default=false  [private]
+  languageId?: string  default=factory  [private]
+  languageName?: string  default=''  [private]
   layout?: object  default=null  [private]
   mappingCandidateLoadError?: string  default=null  [private]
   mappingCandidates?: ContentSystemMappingCandidate[]  default=factory  [private]

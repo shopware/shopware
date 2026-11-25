@@ -15,11 +15,10 @@ props
   allowCreate?: boolean  default=false  [private]
   frames?: CanvasFrame[]  default=factory  [private]
   isResizingSettings?: boolean  default=false  [private]
-  layoutId?: string  default=''  [private]
   layoutName?: string  default=''  [private]
   settingsMaxWidth?: number  default=800  [private]
+  settingsTitle?: string  default=''  [private]
   settingsWidth?: number  default=320  [private]
-  viewport?: Viewport  default='desktop'  [private]
   workspaceConfiguration?: WorkspaceConfiguration | null  default=null  [private]
 
 emits
@@ -27,18 +26,22 @@ emits
   create-layout(...args: any[])  [private]
   frame-activate(...args: any[])  [private]
   frame-close(...args: any[])  [private]
+  frame-open-another(...args: any[])  [private]
+  frame-translate(...args: any[])  [private]
   frame-viewport-change(...args: any[])  [private]
   open-layout(...args: any[])  [private]
   settings-close(...args: any[])  [private]
+  settings-open(...args: any[])  [private]
   settings-resize-keydown(...args: any[])  [private]
   settings-resize-start(...args: any[])  [private]
-  viewport-change(...args: any[])  [private]
 
 slots
   frame-controls  { frame }  block=(root)  [private]
+  frame-menu  { frame, popover-class }  block=(root)  [private]
   layouts  { open-structure }  block=(root)  [private]
   preview  { frame }  block=(root)  [private]
   settings  {}  block=(root)  [private]
+  settings-toolbar  {}  block=(root)  [private]
   structure  { back-to-layouts }  block=(root)  [private]
 
 data
@@ -62,6 +65,7 @@ data
   isSettingsOpen: any  [private]
   isViewportTransitioning: any  [private]
   resizeDirections: any  [private]
+  viewportIcons: any  [private]
   viewportTransitionTimer: any  [private]
 
 computed
@@ -70,35 +74,27 @@ computed
   contextMenuReference: { getBoundingClientRect: () => DOMRect } | undefined  [private]
   frameIds: string  [private]
   isDraggingCanvas: boolean  [private]
+  selectedFrameId: string  [private]
   visibleFrames: CanvasFrame[]  [private]
   worldStyle: Record<string, string>  [private]
 
 methods
-  activateFrame(layoutId: string, emit?: any = true): void  [private]
+  activateFrame(frameId: string, emit?: any = true): void  [private]
   applyViewportPreset(viewport: ViewportPreset): void  [private]
   clamp(value: number, minimum: number, maximum: number): number  [private]
   clampPosition(value: number): number  [private]
   closeContextMenu(): void  [private]
-  closePanel(): void  [private]
-  closeSettingsPanel(): void  [private]
-  closeStructurePanel(): void  [private]
   createFrameState(frame: CanvasFrame): { x: number; y: number; width: number; height: number }  [private]
   emitConfiguration(): void  [private]
   frameStyleFor(frame: CanvasFrame): Record<string, string>  [private]
-  getAvailableFrameX(state: { x: number; y: number; width: number; height: number }): number  [private]
-  getCurrentUserId(): string | null  [private]
-  getDefaultFrameHeight(): number  [private]
   getWorkspace(): HTMLElement | null  [private]
   getWorkspaceConfiguration(): WorkspaceConfiguration  [private]
   initializeFrameStates(): void  [private]
   normalizeCanvasZoom(zoom: number): number  [private]
   onCanvasContextMenu(event: MouseEvent): void  [private]
   onContextMenuOpenChange(open: boolean): void  [private]
-  onViewportChange(viewport: ViewportPreset, layoutId?: string): void  [private]
-  openSettingsPanel(): void  [private]
-  openStructure(layoutId: string): void  [private]
-  restoreCanvasPosition(): void  [private]
-  saveCanvasPosition(isManuallyPlaced?: any = false): void  [private]
+  onViewportChange(viewport: ViewportPreset, frameId: string): void  [private]
+  saveCanvasPosition(): void  [private]
   startViewportTransition(): void  [private]
   syncActiveFrameState(): void  [private]
 
@@ -108,4 +104,6 @@ refs
 
 notes
   unresolved methods ...canvasInteractionHandlers  [private]
+  unresolved methods ...canvasPanelHandlers  [private]
+  unresolved options setup  [private]
 ```

@@ -11,6 +11,28 @@ component sw-experience-studio-layout-tree  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-layout-tree/sw-experience-studio-layout-tree.html.twig  [private]
   visibility-source export  [private]
 
+props
+  frames: CanvasFrame[]  [private]
+  isLoading?: boolean  default=false  [private]
+  items: LayoutTreeItem[]  [private]
+
+emits
+  assign(...args: any[])  [private]
+  close-frame(...args: any[])  [private]
+  close-layout(...args: any[])  [private]
+  select-frame(...args: any[])  [private]
+  select-layout(...args: any[])  [private]
+
+data
+  collapsedLayoutIds: any  [private]
+
+computed
+  activeLayoutId: string | null  [private]
+
+methods
+  isExpanded(layoutId: string): boolean  [private]
+  toggleLayout(layoutId: string): void  [private]
+
 blocks
   sw_experience_studio_layout_tree  [private]
 ```

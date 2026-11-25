@@ -15,6 +15,7 @@ inject
   acl  [private]
 
 props
+  languageId?: string  default=factory  [private]
   layout?: ContentLayoutEntity | null  default=null  [private]
   selectedElementId?: string  default=null  [private]
   showBackButton?: boolean  default=false  [private]

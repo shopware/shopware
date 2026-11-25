@@ -11,6 +11,19 @@ component sw-experience-studio-frame-menu  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-frame-menu/sw-experience-studio-frame-menu.html.twig  [private]
   visibility-source export  [private]
 
+props
+  label: string  [private]
+
+emits
+  open-another(...args: any[])  [private]
+  translate(...args: any[])  [private]
+
+slots
+  default  { popover-class }  block=sw_experience_studio_frame_menu  [private]
+
+data
+  popoverClass: any  [private]
+
 blocks
   sw_experience_studio_frame_menu  [private]
 ```

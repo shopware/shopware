@@ -54,7 +54,7 @@ properties:
     adminUI:
       component: "switch"
       breakpointAware: true
-      helpText: "When active, the filters are shown as a filter button that opens all filters in an Off-Canvas menu instead of showing them directly."
+      helpText: "When active, the filters are shown as a filter button that opens all filters in an off-canvas menu instead of showing them directly."
       helpTextSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.helpText"
     properties:
       xs:

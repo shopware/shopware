@@ -11,19 +11,52 @@ component sw-advanced-selection-rule  private  js  [private]
   template src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/sw-advanced-selection-rule.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  ruleConditionDataProviderService  [private]
+
+props
+  restrictedRuleIds?: any[]  default=factory  [private]
+  restrictedRuleIdsTooltipLabel?: string  default=factory  [private]
+  ruleAwareGroupKey: string  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  selection-submit(...args: any[])  [private]
+
+computed
+  aggregations: any  [private]
+  assignmentProperties: any  [private]
+  associationFilterOptions: any  [private]
+  associations: any  [private]
+  columns: any  [private]
+  conditionFilterOptions: any  [private]
+  context: any  [private]
+  dateFilter: any  [deprecated tag:v6.8.0] [private]
+  filters: any  [private]
+  getRuleDefinition: any  [private]
+  groupFilterOptions: any  [private]
+
+methods
+  getColumnClass(item: any): any  [private]
+  getCounts(id: any, aggregations: any): any  [private]
+  isRecordSelectable(item: any): any  [private]
+  isRestricted(item: any): any  [private]
+  tooltipConfig(rule: any): any  [private]
+
 blocks
   sw_advanced_selection_rule  [private]
     sw_advanced_selection_rule__list_grid_columns_description  [private]
-      sw_advanced_selection_rule__list_grid_columns_description_content  [private]
+      sw_advanced_selection_rule__list_grid_columns_description_content  [scope: item] [private]
     sw_advanced_selection_rule__list_grid_columns_name  [private]
-      sw_advanced_selection_rule__list_grid_columns_name_content  [private]
+      sw_advanced_selection_rule__list_grid_columns_name_content  [scope: item] [private]
     sw_advanced_selection_rule__list_grid_columns_priority  [private]
-      sw_advanced_selection_rule__list_grid_columns_priority_content  [private]
+      sw_advanced_selection_rule__list_grid_columns_priority_content  [scope: item] [private]
     sw_advanced_selection_rule_list_grid_columns_assignments  [private]
     sw_advanced_selection_rule_list_grid_columns_create_date  [private]
-      sw_advanced_selection_rule_list_grid_columns_create_date_content  [private]
+      sw_advanced_selection_rule_list_grid_columns_create_date_content  [scope: item] [private]
     sw_advanced_selection_rule_list_grid_columns_invalid  [private]
-      sw_advanced_selection_rule_list_grid_columns_invalid_content  [private]
+      sw_advanced_selection_rule_list_grid_columns_invalid_content  [scope: item] [private]
     sw_advanced_selection_rule_list_grid_columns_tags  [private]
-      sw_advanced_selection_rule_list_grid_columns_tags_content  [private]
+      sw_advanced_selection_rule_list_grid_columns_tags_content  [scope: item, tag] [private]
 ```

@@ -10,6 +10,19 @@ component sw-bulk-edit-save-modal-error  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error/sw-bulk-edit-save-modal-error.html.twig
 
+props
+  failedItems?: any[]  default=factory
+
+emits
+  buttons-update(...args: any[])
+  title-set(...args: any[])
+
+methods
+  createdComponent(): any
+  getFailureReason(failedItem: any): any
+  setTitle(): any
+  updateButtons(): any
+
 blocks
   sw_bulk_edit_save_modal_error
     sw_bulk_edit_save_modal_error_content

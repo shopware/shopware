@@ -47,6 +47,13 @@ class ProductListingLoader
     final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
 
     /**
+     * Criteria state that keeps inactive and sold-out closeout products in the listing, as long as they match
+     * the given criteria. Each group shows its configured variant, even if it is inactive or a sold-out closeout product.
+     * Used by the product stream preview in the Administration.
+     */
+    final public const STATE_INCLUDE_INACTIVE = 'includeInactive';
+
+    /**
      * @deprecated tag:v6.8.0 - Will be removed. Reduced listing loading now uses Criteria::excludeFields()
      *             to drop heavy columns instead of allow-listing fields.
      *
@@ -221,12 +228,13 @@ class ProductListingLoader
     /**
      * @param array<string> $ids
      * @param list<Filter> $postFilters
+     * @param list<ProductAvailableFilter>|null $availableFilters
      *
      * @throws \JsonException
      *
      * @return array<string>
      */
-    private function loadPreviews(array $ids, SalesChannelContext $context, array $postFilters): array
+    private function loadPreviews(array $ids, SalesChannelContext $context, array $postFilters, ?array $availableFilters = null): array
     {
         $ids = array_combine($ids, $ids);
 
@@ -273,17 +281,22 @@ class ProductListingLoader
             return $ids;
         }
 
-        // filter inactive and not available variants
         $criteria = new Criteria(array_values($mapping));
-        $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannelId()));
 
-        if ($this->systemConfigService->getBool(
-            'core.listing.hideCloseoutProductsWhenOutOfStock',
-            $context->getSalesChannelId()
-        )) {
-            $criteria->addFilter(
-                $this->productCloseoutFilterFactory->create($context)
-            );
+        if ($availableFilters !== null) {
+            $criteria->addFilter(...$availableFilters);
+        } else {
+            // filter inactive and not available variants
+            $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannelId()));
+
+            if ($this->systemConfigService->getBool(
+                'core.listing.hideCloseoutProductsWhenOutOfStock',
+                $context->getSalesChannelId()
+            )) {
+                $criteria->addFilter(
+                    $this->productCloseoutFilterFactory->create($context)
+                );
+            }
         }
 
         $this->dispatcher->dispatch(
@@ -384,7 +397,7 @@ class ProductListingLoader
             ]));
         }
 
-        if ($this->systemConfigService->getBool(
+        if (!$criteria->hasState(self::STATE_INCLUDE_INACTIVE) && $this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
         )) {
@@ -408,10 +421,12 @@ class ProductListingLoader
         $shouldLoadPreviews = !$this->shouldSkipGrouping($criteria) && $this->shouldLoadPreviews($criteria, $context);
 
         if ($shouldLoadPreviews) {
+            $availableFilters = $this->getIncludeInactiveAvailableFilters($criteria);
+
             $mapping = $this->extensions->publish(
                 name: LoadPreviewExtension::NAME,
                 extension: new LoadPreviewExtension($keys, $context, $criteria->getPostFilters()),
-                function: $this->loadPreviews(...)
+                function: fn ($ids, $context, $postFilters): array => $this->loadPreviews($ids, $context, $postFilters, $availableFilters)
             );
         }
 
@@ -441,7 +456,29 @@ class ProductListingLoader
         $read = $criteria->cloneForRead(array_values($mapping));
         $read->addAssociation('options.group');
 
+        $availableFilters = $this->getIncludeInactiveAvailableFilters($criteria);
+        if ($availableFilters !== null) {
+            $read->addFilter(...$availableFilters);
+        }
+
         return $this->productRepository->search($read, $context);
+    }
+
+    /**
+     * The sales channel adds its default available filter, which also requires active products, only if the criteria has none.
+     *
+     * @return list<ProductAvailableFilter>|null
+     */
+    private function getIncludeInactiveAvailableFilters(Criteria $criteria): ?array
+    {
+        if (!$criteria->hasState(self::STATE_INCLUDE_INACTIVE)) {
+            return null;
+        }
+
+        return array_values(array_filter(
+            $criteria->getFilters(),
+            static fn (Filter $filter): bool => $filter instanceof ProductAvailableFilter
+        ));
     }
 
     private function shouldSkipGrouping(Criteria $criteria): bool

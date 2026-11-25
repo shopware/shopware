@@ -14,6 +14,7 @@ module.exports = {
         'no-vue-options-api': require('./no-vue-options-api'),
         'no-import-meta-glob-extglob': require('./no-import-meta-glob-extglob'),
         'no-manual-deprecation-notices': require('./no-manual-deprecation-notices'),
+        'require-deprecation-guard': require('./require-deprecation-guard'),
         'valid-api-markers': require('./valid-api-markers'),
     },
 };

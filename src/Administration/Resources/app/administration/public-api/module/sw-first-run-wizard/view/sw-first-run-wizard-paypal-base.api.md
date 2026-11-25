@@ -10,6 +10,9 @@ component sw-first-run-wizard-paypal-base  public  js
   source src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base/index.js
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base/sw-first-run-wizard-paypal-base.html.twig
 
+computed
+  filteredAttributes: any
+
 blocks
   sw_first_run_wizard_paypal_base
 ```

@@ -11,6 +11,9 @@ component sw-inheritance-warning  private  js  [private]
   template src/app/component/structure/sw-inheritance-warning/sw-inheritance-warning.html.twig  [private]
   visibility-source export  [private]
 
+props
+  name: string  [private]
+
 blocks
   sw_inheritance_warning  [private]
     sw_inheritance_warning_icon  [private]

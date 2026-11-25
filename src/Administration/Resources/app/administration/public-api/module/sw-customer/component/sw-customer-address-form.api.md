@@ -10,6 +10,57 @@ component sw-customer-address-form  public  js
   source src/module/sw-customer/component/sw-customer-address-form/index.js
   template src/module/sw-customer/component/sw-customer-address-form/sw-customer-address-form.html.twig
 
+inject
+  repositoryFactory
+
+props
+  address: object  default=factory
+  customer: object
+  disabled?: boolean  default=false
+
+slots
+  default  { ...{ disabled } }  block=sw_customer_address_form_container
+
+data
+  country: any
+  states: any
+
+computed
+  addressAdditionalAddressLine1Error: any
+  addressAdditionalAddressLine2Error: any
+  addressCityError: any
+  addressCityError: any
+  addressCompanyError: any
+  addressCountryIdError: any
+  addressCountryStateIdError: any
+  addressDepartmentError: any
+  addressFirstNameError: any
+  addressFirstNameError: any
+  addressLastNameError: any
+  addressLastNameError: any
+  addressPhoneNumberError: any
+  addressRepository: any
+  addressSalutationIdError: any
+  addressSalutationIdError: any
+  addressStreetError: any
+  addressStreetError: any
+  addressTitleError: any
+  addressZipcodeError: any
+  addressZipcodeError: any
+  countryCriteria: any
+  countryId: any
+  countryRepository: any
+  countryStateRepository: any
+  hasStates: any
+  isBusinessAccountType: any
+  salutationCriteria: any
+  stateCriteria: any
+
+methods
+  getCountryStates(): Promise<any>
+  removeRequiredFieldError(field: any): any
+  setFieldRequired(field: any, isRequired: any): any
+
 blocks
   sw_customer_address_form
     sw_customer_address_form_container
@@ -21,7 +72,7 @@ blocks
       sw_customer_address_form_extension_slot
       sw_customer_address_form_first_name_field
       sw_customer_address_form_last_name_field
-      sw_customer_address_form_phone_number_field
+      sw_customer_address_form_phone_number_field  [after v-if]
       sw_customer_address_form_salutation_title_container
         sw_customer_address_form_salutation_field
         sw_customer_address_form_title_field

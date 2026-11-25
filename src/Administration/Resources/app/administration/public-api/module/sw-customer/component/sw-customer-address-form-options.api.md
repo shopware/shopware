@@ -10,6 +10,25 @@ component sw-customer-address-form-options  public  js
   source src/module/sw-customer/component/sw-customer-address-form-options/index.js
   template src/module/sw-customer/component/sw-customer-address-form-options/sw-customer-address-form-options.html.twig
 
+props
+  address: object  default=factory
+  customFieldSets: any[]
+  customer: object
+  disabled?: boolean  default=false
+
+emits
+  default-address-change(...args: any[])
+
+data
+  isDefaultBillingAddressId: any
+  isDefaultShippingAddressId: any
+
+methods
+  createdComponent(): any
+  isDefaultAddress(defaultAddressId: any): any
+  onChangeDefaultBillingAddress(active: any): any
+  onChangeDefaultShippingAddress(active: any): any
+
 blocks
   sw_customer_address_form_options
     sw_customer_address_form_options_custom_field_sets

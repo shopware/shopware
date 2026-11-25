@@ -10,6 +10,44 @@ component sw-cms-create-wizard  public  ts
   source src/module/sw-cms/component/sw-cms-create-wizard/index.ts
   template src/module/sw-cms/component/sw-cms-create-wizard/sw-cms-create-wizard.html.twig
 
+inject
+  cmsPageTypeService
+  customEntityDefinitionService
+  feature
+
+props
+  page: Entity<'cms_page'>
+
+emits
+  on-section-select(...args: any[])
+  wizard-complete(...args: any[])
+
+data
+  step: any
+  steps: object
+    pageName: any
+    pageType: any
+    sectionType: any
+
+computed
+  assetFilter: any
+  cmsPageStore: any
+  currentPageType: any
+  customEntities: any
+  isCompletable: any
+  isCustomEntityType: any
+  pagePreviewMedia: any
+  pagePreviewStyle: any
+  pageTypeSelectionStyle: any
+  visiblePageTypes: any
+
+methods
+  getStepName(stepValue: number): any
+  goToStep(stepName: string): any
+  onCompletePageCreation(): any
+  onPageTypeSelect(type: string): any
+  onSectionSelect(section: Entity<'cms_section'>): any
+
 blocks
   sw_cms_create_wizard
     sw_cms_create_wizard_first_step
@@ -17,13 +55,13 @@ blocks
       sw_cms_create_wizard_first_step_helptext
       sw_cms_create_wizard_page_type
         sw_cms_create_wizard_page_type_options
-    sw_cms_create_wizard_second_step
+    sw_cms_create_wizard_second_step  [after v-if]
       sw_cms_create_wizard_second_step_back
       sw_cms_create_wizard_second_step_helptext
       sw_cms_create_wizard_section
-    sw_cms_create_wizard_third_step
+    sw_cms_create_wizard_third_step  [after v-if]
       sw_cms_create_wizard_page_completion
-        sw_cms_create_wizard_page_completion_buttons
+        sw_cms_create_wizard_page_completion_buttons  [after v-if]
           sw_cms_create_wizard_page_completion_save_button
         sw_cms_create_wizard_page_name
       sw_cms_create_wizard_page_preview

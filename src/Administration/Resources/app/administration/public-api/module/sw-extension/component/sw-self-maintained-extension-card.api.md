@@ -9,21 +9,33 @@ component sw-self-maintained-extension-card  private  js  [private]
   extends sw-extension-card-base  [private]
   registered src/module/sw-extension/index.js  [private]
   source src/module/sw-extension/component/sw-self-maintained-extension-card/index.js  [private]
-  template src/module/sw-extension/component/sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-extension-error  [private]
+
+props
+  extension: object  [private]
+
+computed
+  extensionCardClasses: any  [private]
+  isInstalled: any  [private]
+  permissions: any  [private]
+
+methods
+  activateExtension(): Promise<any>  [private]
+  changeExtensionStatus(): Promise<any>  [private]
+  deactivateExtension(): Promise<any>  [private]
+  installAndActivateExtension(): Promise<any>  [private]
+  installExtension(): Promise<any>  [private]
+  removeExtension(removeData: any): Promise<any>  [private]
+
 blocks
-  sw_extension_permissions_details_modal  [private]
-    sw_extension_permissions_details_modal_content  [private]
-      sw_extension_permissions_details_modal_table  [private]
-        sw_extension_permissions_details_modal_table_body  [private]
-          sw_extension_permissions_details_modal_table_permissions  [private]
-            sw_extension_permissions_details_modal_permission_row  [private]
-              sw_extension_permissions_details_modal_permission_entity  [private]
-              sw_extension_permissions_details_modal_permission_operation  [private]
-            sw_extension_permissions_details_modal_permissions_category  [private]
-        sw_extension_permissions_details_modal_table_head  [private]
-          sw_extension_permissions_details_modal_table_head_row  [private]
-    sw_extension_permissions_details_modal_footer  [private]
-      sw_extension_permissions_details_modal_footer_inner  [private]
+  sw_extension_card_base_activation_switch  [inherited] [private]
+    sw_extension_card_base_info_inactive_label  [inherited] [private]
+  sw_extension_card_base_activation_switch_switch  [inherited] [private]
+  sw_extension_card_base_context_menu_actions  [inherited] [private]
+    sw_extension_card_base_context_menu_actions_additional  [inherited] [after v-if] [private]
+  sw_extension_card_base_info_content  [inherited] [private]
+  sw_extension_card_base_modals  [inherited] [after v-if] [private]
 ```

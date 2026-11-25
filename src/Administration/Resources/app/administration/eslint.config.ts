@@ -288,7 +288,7 @@ export default [
             '!scripts/generate-public-api/',
             '!scripts/generate-public-api/**/*',
             // Fixture source trees are inputs of the generator, not Administration code.
-            'scripts/generate-public-api/__fixtures__/**/*',
+            'scripts/generate-public-api/testing/__fixtures__/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',
@@ -929,6 +929,23 @@ export default [
         ],
         rules: {
             'sw-deprecation-rules/no-manual-deprecation-notices': 'off',
+        },
+    },
+
+    // Runtime side of the deprecation lifecycle, see
+    // adr/2026-08-10-administration-javascript-deprecation-guards.md
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+        ],
+        ignores: [
+            'src/**/*.spec.js',
+            'src/**/*.spec.ts',
+            'src/**/*.spec/**',
+        ],
+        rules: {
+            'sw-deprecation-rules/require-deprecation-guard': 'error',
         },
     },
 

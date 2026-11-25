@@ -10,6 +10,38 @@ component sw-settings-number-range-list  public  js
   source src/module/sw-settings-number-range/page/sw-settings-number-range-list/index.js
   template src/module/sw-settings-number-range/page/sw-settings-number-range-list/sw-settings-number-range-list.html.twig
 
+mixins
+  notification, listing, placeholder
+
+inject
+  acl
+  repositoryFactory
+
+data
+  entityName: any
+  isLoading: any
+  naturalSorting: any
+  numberRange: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  collapseButtonClass: any
+  expandButtonClass: any
+  filters: any
+  numberRangeRepository: any
+
+methods
+  getList(): any
+  getNumberRangeColumns(): any
+  invalidateNumberRangeCaches(): any
+  onChangeLanguage(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  onInlineEditSave(promise: any, numberRange: any): any
+
 blocks
   sw_settings_list
     sw_settings_number_range_index
@@ -19,14 +51,14 @@ blocks
             sw_settings_number_range_list_grid_inner
               sw_number_range_list_grid_columns_name
               sw_settings_number_range_list_grid_action_modals
-                sw_settings_number_range_list_delete_modal
-                  sw_settings_number_range_list_delete_modal_confirm_delete_text
-                  sw_settings_number_range_list_delete_modal_footer
-                    sw_settings_number_range_list_delete_modal_cancel
-                    sw_settings_number_range_list_delete_modal_confirm
+                sw_settings_number_range_list_delete_modal  [scope: item]
+                  sw_settings_number_range_list_delete_modal_confirm_delete_text  [scope: item]
+                  sw_settings_number_range_list_delete_modal_footer  [scope: item]
+                    sw_settings_number_range_list_delete_modal_cancel  [scope: item]
+                    sw_settings_number_range_list_delete_modal_confirm  [scope: item]
               sw_settings_number_range_list_grid_columns_actions
-                sw_settings_number_range_list_grid_columns_actions_delete
-                sw_settings_number_range_list_grid_columns_actions_edit
+                sw_settings_number_range_list_grid_columns_actions_delete  [scope: item]
+                sw_settings_number_range_list_grid_columns_actions_edit  [scope: item]
               sw_settings_number_ranges_set_list_empty_message
       sw_settings_number_range_list_language_switch
       sw_settings_number_range_list_search_bar
@@ -36,4 +68,7 @@ blocks
         sw_settings_number_range_list_smart_bar_header_title
           sw_settings_number_range_list_smart_bar_header_amount
           sw_settings_number_range_list_smart_bar_header_title_text
+
+refs
+  swSettingsNumberRangeGrid  -> sw-entity-listing  block=sw_settings_number_range_list_grid_inner
 ```

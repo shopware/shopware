@@ -10,6 +10,70 @@ component sw-settings-shipping-detail  public  js
   source src/module/sw-settings-shipping/page/sw-settings-shipping-detail/index.js
   template src/module/sw-settings-shipping/page/sw-settings-shipping-detail/sw-settings-shipping-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+  ruleConditionDataProviderService
+
+props
+  shippingMethodId?: string  default=null
+
+data
+  currenciesLoading: any
+  customFieldSets: any
+  isLoading: any
+  isProcessLoading: any
+  isSaveSuccessful: any
+  logoMediaItem: any
+  uploadTag: any
+
+computed
+  currencies: any
+  currencyRepository: any
+  deliveryTimeCriteria: any
+  deliveryTimeRepository: any
+  identifier: any
+  isNewShippingMethod: any
+  mediaRepository: any
+  restrictedRuleIds: any
+  ruleFilter: any
+  shippingMethod: any
+  shippingMethodAvailabilityRuleIdError: any
+  shippingMethodCriteria: any
+  shippingMethodDeliveryTimeIdError: any
+  shippingMethodNameError: any
+  shippingMethodPricesRepository: any
+  shippingMethodRepository: any
+  shippingMethodTechnicalNameError: any
+  showCustomFields: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  filterIncompletePrices(): any
+  getIncompletePrices(): any
+  loadCurrencies(): any
+  loadCustomFieldSets(): Promise<any>
+  loadEntityData(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onDropMedia(mediaItem: any): any
+  onError(error: any): any
+  onSave(): Promise<any>
+  onSaveRule(ruleId: any): any
+  onUnlinkLogo(): any
+  openMediaSidebar(): any
+  saveOnLanguageChange(): any
+  setMediaFromSidebar(mediaEntity: any): any
+  setMediaItem(arg0: any): any
+  sortCurrencies(currencies: any): any
+
 blocks
   sw_settings_shipping_detail
     sw_settings_shipping_detail_actions
@@ -36,4 +100,12 @@ blocks
     sw_settings_shipping_detail_language_switch
     sw_settings_shipping_detail_sidebar
       sw_setting_shipping_detail_sidebar_media_item
+
+crossings
+  v-if  sw_settings_shipping_detail_price_matrices -> sw_settings_shipping_detail_content
+  v-if  sw_settings_shipping_detail_tax_cost -> sw_settings_shipping_detail_content
+
+refs
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_setting_shipping_detail_sidebar_media_item
+  priceMatrices  -> sw-settings-shipping-price-matrices  block=sw_settings_shipping_detail_price_matrices
 ```

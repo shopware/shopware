@@ -11,6 +11,17 @@ component sw-alert  private  ts  [private]
   template src/app/component/base/sw-alert/sw-alert.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+
+slots
+  actions  {}  block=(root)  [private]
+  default  {}  block=sw_alert  [private]
+  default  {}  block=(root)  [private]
+
 blocks
   sw_alert  [private]
+
+crossings
+  v-if  sw_alert -> (root)  [private]
 ```

@@ -9,4 +9,47 @@ component sw-sales-channel-detail-agentic-files  public  js
   registered src/module/sw-sales-channel/index.js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/sw-sales-channel-detail-agentic-files.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+  salesChannelFileApiService
+
+props
+  salesChannel?: object  default=null
+
+data
+  files: any
+  isLoading: any
+  limit: any
+  page: any
+  paginationSteps: any
+
+computed
+  columns: any
+  paginatedFiles: any
+  salesChannelFileRepository: any
+  total: any
+
+methods
+  ensureSalesChannelFileCollection(): any
+  ensureSalesChannelFileConfiguration(file: any): any
+  findSalesChannelFileConfiguration(file: any): any
+  formatSnippetPathSegment(segment: any): any
+  getDescription(file: any): any
+  getDescriptionSnippetKey(file: any): any
+  getDetailRoute(file: any): any
+  getDisplayFileName(file: any): any
+  getEnabledLabel(file: any): any
+  getEnabledVariant(file: any): any
+  getPublicPath(file: any): any
+  getToggleLabel(file: any): any
+  hasTemplateOverrides(file: any): any
+  isEnabled(file: any): any
+  loadFiles(): Promise<any>
+  onChangePage(data: any): any
+  onToggleEnabled(file: any): any
 ```

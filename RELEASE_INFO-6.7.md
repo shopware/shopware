@@ -44,6 +44,21 @@ The webpack hot proxy (`composer watch:storefront`) does not use it.
 SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
 ```
 
+### Twig changes apply without a reload in the Storefront dev servers
+
+`composer watch:storefront` applies Twig changes to the open page without a reload.
+The Vite dev server `composer storefront:dev-server` reloads the page on a Twig change by default and applies it in place with `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr`.
+With `SHOPWARE_STOREFRONT_DEV_UPDATE=manual` it does not watch the Twig files.
+Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are, and open AJAX modals, the cart and the navigation offcanvas are rendered again as well.
+Elements with a Storefront plugin keep their markup.
+If a change cannot be applied, for example because the markup of a plugin element changed, a notice on the page asks for a reload.
+Requests of the Twig hot reload bypass the HTTP cache in debug mode.
+After a Twig file was added or removed, the next request of the Twig hot reload clears the compiled Twig templates in debug mode, so new and removed overrides apply as well.
+Inline scripts in changed markup do not run again, so initialize JavaScript through the PluginManager.
+The browser console warns once if the shop does not run in debug mode or a response came from an HTTP cache, for example Varnish.
+In every hot mode session, the browser console also lists extensions whose JavaScript is compiled but not loaded, because they have no production build yet.
+See `src/Storefront/Resources/app/storefront/src/dev/twig-hmr/README.md` for details and limits.
+
 # 6.7.17.0
 
 ## Critical Fixes
@@ -1757,21 +1772,6 @@ Switch comparisons against `categoryId` to `activeId`, because `categoryId` hold
 With the `v6.8.0.0` flag active, the template no longer sets the deprecated `breadcrumbCategory` and `breadcrumbKeys` variables and ignores the `breadcrumbCollection` input.
 Use `breadcrumb` and `loop.last` instead, and pass the entries as `breadcrumb`.
 See `UPGRADE-6.8.md` for the full variable mapping.
-
-### Twig changes apply without a reload in the Storefront dev servers
-
-`composer watch:storefront` applies Twig changes to the open page without a reload.
-The Vite dev server `composer storefront:dev-server` reloads the page on a Twig change by default and applies it in place with `SHOPWARE_STOREFRONT_DEV_UPDATE=hmr`.
-With `SHOPWARE_STOREFRONT_DEV_UPDATE=manual` it does not watch the Twig files.
-Open modals, offcanvas menus, active tabs, edited form values and the focus stay as they are, and open AJAX modals, the cart and the navigation offcanvas are rendered again as well.
-Elements with a Storefront plugin keep their markup.
-If a change cannot be applied, for example because the markup of a plugin element changed, a notice on the page asks for a reload.
-Requests of the Twig hot reload bypass the HTTP cache in debug mode.
-After a Twig file was added or removed, the next request of the Twig hot reload clears the compiled Twig templates in debug mode, so new and removed overrides apply as well.
-Inline scripts in changed markup do not run again, so initialize JavaScript through the PluginManager.
-The browser console warns once if the shop does not run in debug mode or a response came from an HTTP cache, for example Varnish.
-In every hot mode session, the browser console also lists extensions whose JavaScript is compiled but not loaded, because they have no production build yet.
-See `src/Storefront/Resources/app/storefront/src/dev/twig-hmr/README.md` for details and limits.
 
 ### Legal guarantee notice on the registration form
 

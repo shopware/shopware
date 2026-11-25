@@ -76,7 +76,6 @@ use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Content\Media\Subscriber\MediaFolderConfigLoadedSubscriber;
 use Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber;
 use Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber;
-use Shopware\Core\Content\Media\Subscriber\MediaWriteSubscriber;
 use Shopware\Core\Content\Media\Subscriber\VideoCoverCleanupSubscriber;
 use Shopware\Core\Content\Media\Subscriber\VideoCoverLoadedSubscriber;
 use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollectionNormalizer;
@@ -105,7 +104,6 @@ use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
@@ -445,6 +443,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.private'),
             service('media_folder.repository'),
             service('event_dispatcher'),
+            service('messenger.default_bus'),
             service(ThumbnailSizeCalculator::class),
             service(Connection::class),
             service(ThumbnailProcessorInterface::class),
@@ -737,11 +736,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('media.repository'),
         ])
         ->tag('kernel.event_subscriber');
-
-    $services->set(MediaWriteSubscriber::class)
-        ->args([service(Connection::class), service('event_dispatcher'), service('messenger.default_bus')])
-        ->tag('messenger.message_handler', ['method' => 'notify'])
-        ->tag('kernel.event_listener', ['event' => EntityWriteEvent::class, 'method' => 'beforeWrite']);
 
     $services->set(MediaLoadedSubscriber::class)
         ->tag('kernel.event_listener', ['event' => 'media.loaded', 'method' => 'unserialize', 'priority' => 100])

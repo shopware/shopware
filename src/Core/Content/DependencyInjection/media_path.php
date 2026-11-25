@@ -121,7 +121,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(IteratorFactory::class),
             service(MediaPathUpdater::class),
             service(Connection::class),
-            service('event_dispatcher'),
+            service('messenger.default_bus'),
         ])
         ->tag('shopware.entity_indexer');
 

@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
+use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -34,6 +35,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -51,6 +54,8 @@ class ThumbnailServiceTest extends TestCase
     private FilesystemOperator&Stub $filesystemPrivate;
 
     private EventDispatcherInterface&Stub $dispatcher;
+
+    private MessageBusInterface $bus;
 
     private Connection&Stub $connection;
 
@@ -72,6 +77,8 @@ class ThumbnailServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->bus = static::createStub(MessageBusInterface::class);
+        $this->bus->method('dispatch')->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
         $this->filesystemPublic = static::createStub(FilesystemOperator::class);
         $this->filesystemPrivate = static::createStub(FilesystemOperator::class);
         $this->dispatcher = static::createStub(EventDispatcherInterface::class);
@@ -407,6 +414,7 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $this->dispatcher,
+            $this->bus,
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
@@ -427,6 +435,7 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $this->dispatcher,
+            $this->bus,
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
@@ -447,6 +456,7 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $this->dispatcher,
+            $this->bus,
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
@@ -535,6 +545,7 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $dispatcher,
+            $this->bus,
             $this->thumbnailSizeCalculator,
             $connection,
             new GdImageThumbnailProcessor(),
@@ -544,6 +555,7 @@ class ThumbnailServiceTest extends TestCase
         $result = $service->generate($mediaCollection, $this->context);
 
         static::assertSame(1, $result);
+        static::assertNotContains(MediaIndexerEvent::class, $dispatchedEvents);
         static::assertContains(ThumbnailGeneratedEvent::class, $dispatchedEvents);
     }
 
@@ -595,6 +607,7 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $dispatcher,
+            $this->bus,
             $this->thumbnailSizeCalculator,
             $connection,
             new GdImageThumbnailProcessor(),
@@ -670,6 +683,7 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $dispatcher,
+            $this->bus,
             $this->thumbnailSizeCalculator,
             $connection,
             new GdImageThumbnailProcessor(),
@@ -763,6 +777,7 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $this->dispatcher,
+            $this->bus,
             $this->thumbnailSizeCalculator,
             $connection ?? $this->connection,
             $processor ?? new GdImageThumbnailProcessor(),

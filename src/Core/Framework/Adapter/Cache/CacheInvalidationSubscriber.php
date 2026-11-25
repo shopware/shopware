@@ -18,7 +18,7 @@ use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
-use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
@@ -34,11 +34,13 @@ use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\Message\InvalidateMediaCache;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -66,6 +68,7 @@ use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('framework')]
 /**
@@ -80,6 +83,7 @@ class CacheInvalidationSubscriber
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly Connection $connection,
         private readonly bool $productStreamIndexerEnabled,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -363,7 +367,19 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate($logs);
     }
 
-    public function invalidateMedia(MediaIndexerEvent $event): void
+    public function onMediaWritten(EntityWrittenContainerEvent $event): void
+    {
+        $context = $event->getContext();
+        if ($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING)) {
+            return;
+        }
+
+        /** @var list<string> $mediaIds */
+        $mediaIds = $event->getPrimaryKeys(MediaDefinition::ENTITY_NAME);
+        InvalidateMediaCache::dispatch($this->bus, $mediaIds, $context);
+    }
+
+    public function invalidateMedia(InvalidateMediaCache $message): void
     {
         /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
         $productIds = $this->connection->fetchAllAssociative(
@@ -381,7 +397,7 @@ class CacheInvalidationSubscriber
                     INNER JOIN product_document AS pd ON (pdt.product_document_id = pd.id AND pdt.product_document_version_id = pd.version_id)
                     INNER JOIN product ON (pd.product_id = product.id AND pd.product_version_id = product.version_id)
                     WHERE pdt.media_id IN (:ids) AND pd.version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => Uuid::fromHexToBytesList($message->mediaIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::STRING]
         );
 
@@ -394,11 +410,11 @@ class CacheInvalidationSubscriber
 
         $tags = [
             ...array_map(ProductDetailRoute::buildName(...), $productIds),
-            ...$this->getMediaUsageTags($event->getIds(), $productIds),
+            ...$this->getMediaUsageTags($message->mediaIds, $productIds),
         ];
 
         if (Feature::isActive('CACHE_REWORK')) {
-            $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $event->getIds()));
+            $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $message->mediaIds));
         }
 
         $this->cacheInvalidator->invalidate($tags);

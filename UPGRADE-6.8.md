@@ -463,6 +463,7 @@ Previously, these routes could return unrelated records or fail because the unde
 The destructive migration removed `media.thumbnails_ro`.
 Use the DAL thumbnails association or query `media_thumbnail` by `media_id`.
 Remove calls and decorators targeting the deprecated `MediaIndexer` and remove `media.indexer` from indexing jobs.
+Replace subscriptions to `MediaIndexerEvent` with `media.written`, `media.deleted` or `ThumbnailGeneratedEvent` as appropriate.
 
 ## Recovery entity accessors
 

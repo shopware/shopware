@@ -7,7 +7,7 @@
 Read `media.thumbnails` through the DAL.
 The `MediaIndexer` service and its `media.indexer` CLI name are deprecated and perform no work.
 Extensions that need additional thumbnail fields or thumbnail-loaded subscribers should request the explicit association.
-`MediaIndexerEvent` is emitted for writes that affect media covers and no longer runs for a full media reindex.
+`MediaIndexerEvent` is deprecated and is no longer dispatched. Subscribe to `media.written`, `media.deleted` or `ThumbnailGeneratedEvent` depending on the change you need to observe.
 
 ## API
 

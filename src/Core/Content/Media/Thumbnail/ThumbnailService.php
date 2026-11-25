@@ -12,7 +12,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
-use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -22,6 +21,7 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
+use Shopware\Core\Framework\Adapter\Cache\Message\InvalidateMediaCache;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -50,6 +51,7 @@ class ThumbnailService
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly EntityRepository $mediaFolderRepository,
         private readonly EventDispatcherInterface $dispatcher,
+        private readonly MessageBusInterface $bus,
         private readonly ThumbnailSizeCalculator $thumbnailSizeCalculator,
         private readonly Connection $connection,
         private readonly ThumbnailProcessorInterface $thumbnailProcessor,
@@ -98,7 +100,7 @@ class ThumbnailService
             $generate[] = $media;
         }
 
-        // Notify media listeners once after all thumbnail paths have been written.
+        // Invalidate the covers once after all thumbnail paths have been written.
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         if ($delete !== []) {
@@ -133,9 +135,7 @@ class ThumbnailService
             }
         }
 
-        if ($collection->count() > 0) {
-            $this->dispatcher->dispatch(new MediaIndexerEvent(array_values($collection->getIds()), $context));
-        }
+        InvalidateMediaCache::dispatch($this->bus, $collection->getIds(), $context);
 
         return \count($updates);
     }
@@ -224,7 +224,7 @@ class ThumbnailService
             }, EntityIndexerRegistry::DISABLE_INDEXING, MediaDeletionSubscriber::SKIP_FILE_DELETE);
         });
 
-        $this->dispatcher->dispatch(new MediaIndexerEvent([$media->getId()], $context));
+        InvalidateMediaCache::dispatch($this->bus, [$media->getId()], $context);
 
         /** @var list<array{id:string, mediaId:string, mediaThumbnailSizeId:string, width:int, height:int}> $update */
         $this->deleteStaleThumbnailFiles($media, $toBeDeletedPaths, $update);

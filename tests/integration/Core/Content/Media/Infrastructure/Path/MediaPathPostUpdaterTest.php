@@ -33,7 +33,7 @@ class MediaPathPostUpdaterTest extends TestCase
             static::getContainer()->get(IteratorFactory::class),
             static::getContainer()->get(MediaPathUpdater::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('messenger.default_bus'),
         );
 
         $ids = new IdsCollection();
@@ -73,7 +73,7 @@ class MediaPathPostUpdaterTest extends TestCase
             static::getContainer()->get(IteratorFactory::class),
             $internal,
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get('event_dispatcher')
+            static::getContainer()->get('messenger.default_bus')
         );
 
         $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class), 250);

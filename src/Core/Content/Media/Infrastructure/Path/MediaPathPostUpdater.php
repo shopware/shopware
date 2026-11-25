@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Infrastructure\Path;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
-use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Framework\Adapter\Cache\Message\InvalidateMediaCache;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\SynchronousPostUpdateI
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('discovery')]
 class MediaPathPostUpdater extends SynchronousPostUpdateIndexer
@@ -25,7 +25,7 @@ class MediaPathPostUpdater extends SynchronousPostUpdateIndexer
         private readonly IteratorFactory $iteratorFactory,
         private readonly MediaPathUpdater $updater,
         private readonly Connection $connection,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly MessageBusInterface $bus
     ) {
     }
 
@@ -69,7 +69,7 @@ class MediaPathPostUpdater extends SynchronousPostUpdateIndexer
 
         $this->updater->updateThumbnails($thumbnailsWithMissingPaths);
 
-        $this->dispatcher->dispatch(new MediaIndexerEvent(array_values($ids), $message->getContext()));
+        InvalidateMediaCache::dispatch($this->bus, $ids, $message->getContext());
     }
 
     public function getTotal(): int

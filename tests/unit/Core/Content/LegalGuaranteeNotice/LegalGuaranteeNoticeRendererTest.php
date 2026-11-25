@@ -38,6 +38,51 @@ class LegalGuaranteeNoticeRendererTest extends TestCase
         static::assertSame($this->readFixture('en'), $result);
     }
 
+    public function testRenderTextForLanguageUsesResolvedLocale(): void
+    {
+        $renderer = $this->createRenderer('de');
+
+        $result = $renderer->renderTextForLanguage('irrelevant-language-id');
+
+        static::assertSame($this->readFixture('de', 'html'), $result);
+    }
+
+    public function testRenderTextForLanguageFallsBackToEnglishForUnsupportedLocale(): void
+    {
+        $renderer = $this->createRenderer('tr');
+
+        $result = $renderer->renderTextForLanguage('irrelevant-language-id');
+
+        static::assertSame($this->readFixture('en', 'html'), $result);
+    }
+
+    public function testEveryNoticeSvgIsHiddenFromAssistiveTechnology(): void
+    {
+        $svgFiles = glob(self::RESOURCE_DIR . '/*.svg');
+        static::assertNotFalse($svgFiles);
+        static::assertCount(24, $svgFiles);
+
+        foreach ($svgFiles as $svgFile) {
+            static::assertStringContainsString(
+                '<svg id="Layer_1" aria-hidden="true" focusable="false" ',
+                $this->readFixture(basename($svgFile, '.svg')),
+            );
+        }
+    }
+
+    public function testEveryNoticeSvgHasATextAlternativeInItsLanguage(): void
+    {
+        $svgFiles = glob(self::RESOURCE_DIR . '/*.svg');
+        static::assertNotFalse($svgFiles);
+        static::assertCount(24, $svgFiles);
+
+        foreach ($svgFiles as $svgFile) {
+            $locale = basename($svgFile, '.svg');
+
+            static::assertStringStartsWith('<div lang="' . $locale . '">', $this->readFixture($locale, 'html'));
+        }
+    }
+
     public function testLinkForLanguageResolvesGermanLink(): void
     {
         $renderer = $this->createRenderer('de');
@@ -76,6 +121,8 @@ class LegalGuaranteeNoticeRendererTest extends TestCase
         $twig = new Environment(new ArrayLoader([
             '@Content/legal-guarantee-notice/de.svg' => $this->readFixture('de'),
             '@Content/legal-guarantee-notice/en.svg' => $this->readFixture('en'),
+            '@Content/legal-guarantee-notice/de.html' => $this->readFixture('de', 'html'),
+            '@Content/legal-guarantee-notice/en.html' => $this->readFixture('en', 'html'),
         ]));
 
         $localeCodeProvider = static::createStub(LanguageLocaleCodeProvider::class);
@@ -84,9 +131,9 @@ class LegalGuaranteeNoticeRendererTest extends TestCase
         return new LegalGuaranteeNoticeRenderer($twig, $localeCodeProvider);
     }
 
-    private function readFixture(string $locale): string
+    private function readFixture(string $locale, string $extension = 'svg'): string
     {
-        $content = file_get_contents(self::RESOURCE_DIR . '/' . $locale . '.svg');
+        $content = file_get_contents(self::RESOURCE_DIR . '/' . $locale . '.' . $extension);
         static::assertIsString($content);
 
         return $content;

@@ -16,9 +16,9 @@ class LegalGuaranteeNoticeRouteResponse extends StoreApiResponse
      */
     protected $object;
 
-    public function __construct(?string $svg, ?string $link)
+    public function __construct(?string $svg, ?string $link, ?string $text = null)
     {
-        parent::__construct(new ArrayStruct(['svg' => $svg, 'link' => $link], 'legal_guarantee_notice'));
+        parent::__construct(new ArrayStruct(['svg' => $svg, 'link' => $link, 'text' => $text], 'legal_guarantee_notice'));
     }
 
     public function getObject(): ArrayStruct

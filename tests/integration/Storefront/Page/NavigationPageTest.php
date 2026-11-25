@@ -71,6 +71,9 @@ class NavigationPageTest extends TestCase
         $meta = $metaInformation->getVars();
         $canonical = $meta['canonical'];
 
+        static::assertIsString($canonical);
+        static::assertNotSame('', $canonical);
+
         $seoUrl = $seoUrlHandler->replace($canonical, $request->getHost(), $context);
 
         static::assertSame('/', $seoUrl);

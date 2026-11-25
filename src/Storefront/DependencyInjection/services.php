@@ -96,7 +96,6 @@ use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
-use Shopware\Storefront\Framework\Routing\ProductListingPageOutOfRangeSubscriber;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\ResponseHeaderListener;
 use Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist;
@@ -430,9 +429,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
-    $services->set(ProductListingPageOutOfRangeSubscriber::class)
-        ->tag('kernel.event_subscriber');
-
     $services->set(TemplateDataSubscriber::class)
         ->args([
             service(HreflangLoaderInterface::class),
@@ -490,6 +486,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GenericPageLoader::class),
             service(LandingPageRoute::class),
             service('event_dispatcher'),
+            service(SeoUrlPlaceholderHandlerInterface::class),
         ]);
 
     $services->set(MenuOffcanvasPageletLoader::class)
@@ -556,6 +553,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDetailRoute::class),
             service('product_review.repository'),
             service(SystemConfigService::class),
+            service(SeoUrlPlaceholderHandlerInterface::class),
             service(CategoryBreadcrumbBuilder::class),
         ]);
 

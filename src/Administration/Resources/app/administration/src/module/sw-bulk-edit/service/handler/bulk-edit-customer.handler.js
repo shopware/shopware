@@ -52,7 +52,7 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
                 case 'decline':
                     promises.push(
                         RetryHelper.retry(() => {
-                            this.customerGroupRegistrationService.decline(
+                            return this.customerGroupRegistrationService.decline(
                                 entityIds,
                                 {},
                                 {
@@ -68,7 +68,7 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
                 case 'accept':
                     promises.push(
                         RetryHelper.retry(() => {
-                            this.customerGroupRegistrationService.accept(
+                            return this.customerGroupRegistrationService.accept(
                                 entityIds,
                                 {},
                                 {

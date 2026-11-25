@@ -1,0 +1,59 @@
+diff --git a/src/Storefront/DependencyInjection/theme.php b/src/Storefront/DependencyInjection/theme.php
+index 5f61af422dc..0648b2b99f6 100644
+--- a/src/Storefront/DependencyInjection/theme.php
++++ b/src/Storefront/DependencyInjection/theme.php
+@@ -516,7 +516,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+         ->public()
+         ->args([
+             service(Connection::class),
+-        ]);
++        ])
++        ->tag('kernel.reset', ['method' => 'reset']);
+ 
+     $services->set(ThemeExceptionHandler::class)
+         ->tag('shopware.dal.exception_handler');
+diff --git a/tests/unit/Storefront/DependencyInjection/ThemeServiceConfigTest.php b/tests/unit/Storefront/DependencyInjection/ThemeServiceConfigTest.php
+new file mode 100644
+index 00000000000..c0dc6b15d29
+--- /dev/null
++++ b/tests/unit/Storefront/DependencyInjection/ThemeServiceConfigTest.php
+@@ -0,0 +1,39 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Tests\Unit\Storefront\DependencyInjection;
++
++use PHPUnit\Framework\Attributes\CoversNothing;
++use PHPUnit\Framework\TestCase;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
++use Symfony\Component\Config\FileLocator;
++use Symfony\Component\DependencyInjection\ContainerBuilder;
++use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
++
++/**
++ * Guards the service definitions of the Storefront theme.php.
++ *
++ * @internal
++ */
++#[Package('discovery')]
++#[CoversNothing]
++class ThemeServiceConfigTest extends TestCase
++{
++    private ContainerBuilder $container;
++
++    protected function setUp(): void
++    {
++        $this->container = new ContainerBuilder();
++        $loader = new PhpFileLoader($this->container, new FileLocator());
++        $loader->load(__DIR__ . '/../../../../src/Storefront/DependencyInjection/theme.php');
++    }
++
++    public function testSalesChannelThemeLoaderIsResetBetweenRequests(): void
++    {
++        static::assertSame(
++            [['method' => 'reset']],
++            $this->container->getDefinition(DatabaseSalesChannelThemeLoader::class)->getTag('kernel.reset'),
++            'DatabaseSalesChannelThemeLoader memoises the themes per sales channel, so it must be reset between requests and worker messages',
++        );
++    }
++}

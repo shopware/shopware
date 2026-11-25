@@ -61,7 +61,8 @@ No Twig is compiled in the browser.
 
 `build/twig-hmr/watch-paths.js` reads the view directories of every bundle and every active app from `var/plugins.json`.
 In the dev environment Twig loads app templates from the same directories, so app overrides hot reload like plugin overrides.
-It watches those with a `storefront` or `components` directory.
+Extension view directories are always watched, because extensions can render templates from any directory below their views.
+Core bundles are watched only when they have a `storefront` or `components` directory, so bundles with mail or document templates are skipped.
 `build/twig-hmr/update-batcher.js` collects the changes of 50 ms, so both dev servers send them as one update.
 A batch with an added or removed file is sent with `structural: true`.
 

@@ -5,6 +5,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { DOCUMENT_TYPES } from '../../order.types';
 import { REQUIRES_INVOICE } from './index';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -18,20 +19,6 @@ const orderFixture = {
     amountNet: 80,
     amountGross: 100,
     lineItems: [],
-};
-
-const documentFixture = {
-    orderId: 'order1',
-    sent: true,
-    documentMediaFileId: null,
-    documentType: {
-        id: '1',
-        name: 'Invoice',
-        technicalName: 'invoice',
-    },
-    config: {
-        documentNumber: '1000',
-    },
 };
 
 function getCollection(entity, collection) {
@@ -63,7 +50,7 @@ const documentTypeRepsoitoryMock = {
 };
 
 const documentRepositoryMock = {
-    searchIds: jest.fn().mockResolvedValue(getCollection('document', [documentFixture])),
+    searchIds: jest.fn().mockResolvedValue({ total: 1, data: ['invoice-id'] }),
 };
 
 const defaultProps = {
@@ -113,6 +100,10 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-order/component/sw-order-select-document-type-modal', () => {
+    beforeEach(() => {
+        allowDeprecation('The component "sw-order-select-document-type-modal" is deprecated');
+    });
+
     it('should enable credit note if there is at least one invoice exists and order has credit item', async () => {
         const wrapper = await createWrapper({
             order: {
@@ -162,6 +153,8 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
 
         expect(documentRepositoryMock.searchIds).toHaveBeenCalledWith(
             expect.objectContaining({
+                limit: 1,
+                totalCountMode: 0,
                 filters: expect.arrayContaining([
                     expect.objectContaining({
                         field: 'order.id',
@@ -206,7 +199,7 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
     });
 
     it('should add help text & disabled if document type needs invoice to be created first', async () => {
-        documentRepositoryMock.searchIds.mockResolvedValueOnce(getCollection('document', []));
+        documentRepositoryMock.searchIds.mockResolvedValueOnce({ total: 0, data: [] });
 
         const wrapper = await createWrapper();
         await flushPromises();

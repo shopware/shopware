@@ -6,9 +6,13 @@ const { Mixin } = Shopware;
  * @sw-package after-sales
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
 
     emits: ['loading-preview'],
 

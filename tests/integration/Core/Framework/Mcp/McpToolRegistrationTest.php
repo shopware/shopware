@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use Mcp\Capability\RegistryInterface;
+use Mcp\Schema\Tool;
 use Mcp\Server;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -74,6 +75,47 @@ class McpToolRegistrationTest extends TestCase
         yield 'store-api tool search' => [self::STORE_API, StoreApiToolSearchTool::NAME, StoreApiToolSearchTool::class];
         yield 'store-api toolset enable' => [self::STORE_API, McpToolsetRegistry::ENABLE_TOOLSET_TOOL, StoreApiToolsetEnableTool::class];
         yield 'store-api toolsets list' => [self::STORE_API, McpToolsetRegistry::LIST_TOOLSETS_TOOL, StoreApiToolsetsListTool::class];
+    }
+
+    /**
+     * Clients use the annotations to decide when to ask the user before a call. A core tool without them
+     * falls back to the spec defaults, which describe a destructive tool reaching outside the shop, so
+     * every core tool states the hints that are meaningful for it. See `src/Core/Framework/Mcp/Tool/AGENTS.md`.
+     */
+    #[DataProvider('servers')]
+    public function testEveryCoreToolDeclaresAnnotations(string $server): void
+    {
+        $registry = $this->registry($server);
+        $checked = 0;
+
+        foreach ($registry->getTools()->references as $tool) {
+            static::assertInstanceOf(Tool::class, $tool);
+            $handler = $registry->getTool($tool->name)->handler;
+            if (!\is_array($handler) || !\is_string($handler[0]) || !(str_starts_with($handler[0], 'Shopware\\Core\\') || str_starts_with($handler[0], 'Shopware\\Storefront\\'))) {
+                continue;
+            }
+
+            ++$checked;
+            $annotations = $tool->annotations;
+            static::assertNotNull($annotations, \sprintf('%s declares no annotations', $tool->name));
+            static::assertNotNull($annotations->readOnlyHint, \sprintf('%s does not declare readOnlyHint', $tool->name));
+            static::assertNotNull($annotations->openWorldHint, \sprintf('%s does not declare openWorldHint', $tool->name));
+
+            if ($annotations->readOnlyHint) {
+                continue;
+            }
+
+            static::assertNotNull($annotations->destructiveHint, \sprintf('%s writes but does not declare destructiveHint', $tool->name));
+            static::assertNotNull($annotations->idempotentHint, \sprintf('%s writes but does not declare idempotentHint', $tool->name));
+        }
+
+        static::assertGreaterThan(0, $checked);
+    }
+
+    public static function servers(): \Generator
+    {
+        yield 'admin' => [self::ADMIN];
+        yield 'store-api' => [self::STORE_API];
     }
 
     /**

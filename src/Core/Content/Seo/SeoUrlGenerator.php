@@ -92,13 +92,25 @@ class SeoUrlGenerator
             // after the associations of the template, so the route can restrict them, e.g. to the sales channel
             $route->prepareCriteria($criteria, $salesChannel);
 
+            $templateName = $this->getTemplateName($template);
             $criteria->setLimit(50);
+            // A route's sort order or offset applies to the whole result set, across ID batches.
+            if ($criteria->getSorting() !== [] || $criteria->getOffset() > 0) {
+                $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
+                while ($searchResult = $iterator->fetch()) {
+                    yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $templateName);
+                }
 
-            /** @var RepositoryIterator<EntityCollection<covariant Entity>> $iterator */
-            $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
+                return;
+            }
 
-            while ($searchResult = $iterator->fetch()) {
-                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template));
+            foreach (array_chunk(array_unique($criteria->getIds(), \SORT_REGULAR), 50) as $chunk) {
+                $criteria->setIds($chunk);
+                $searchResult = $context->enableInheritance(
+                    static fn (Context $context): EntitySearchResult => $repository->search($criteria, $context)
+                );
+
+                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $templateName);
             }
         }
     }

@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -70,10 +71,19 @@ class SeoUrlGeneratorTest extends TestCase
     public function testGenerateProducesSeoUrlWithCorrectFields(): void
     {
         $entity = $this->createTestEntity();
+        $missingIds = array_map(static fn (int $i): string => 'missing-' . $i, range(1, 50));
 
         $entityRepository = new StaticEntityRepository([
-            new EntityCollection([$entity]),
-            new EntityCollection(),
+            static function (Criteria $criteria) use ($missingIds): EntityCollection {
+                static::assertSame($missingIds, $criteria->getIds());
+
+                return new EntityCollection();
+            },
+            static function (Criteria $criteria) use ($entity): EntityCollection {
+                static::assertSame(['entity-1'], $criteria->getIds());
+
+                return new EntityCollection([$entity]);
+            },
         ], $this->createTestDefinition());
 
         $parser = static::createStub(TwigVariableParser::class);
@@ -106,7 +116,8 @@ class SeoUrlGeneratorTest extends TestCase
             $requestStack
         );
 
-        $urls = iterator_to_array($generator->generate(['entity-1'], '  seo-path  ', $route, $this->context, $this->salesChannel), false);
+        $ids = [...$missingIds, 'entity-1', $missingIds[0]];
+        $urls = iterator_to_array($generator->generate($ids, '  seo-path  ', $route, $this->context, $this->salesChannel), false);
 
         static::assertCount(1, $urls);
         static::assertSame('entity-1', $urls[0]->getForeignKey());
@@ -114,6 +125,28 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertSame('/base/path-info', $urls[0]->getPathInfo());
         static::assertSame('seo-path', $urls[0]->getSeoPathInfo());
         static::assertSame($this->salesChannel->getId(), $urls[0]->getSalesChannelId());
+    }
+
+    public function testRouteSortingAppliesAcrossIdBatches(): void
+    {
+        $ids = array_map(static fn (int $i): string => 'entity-' . $i, range(1, 51));
+        $definition = $this->createTestDefinition();
+        $repository = StaticEntityRepository::of(EntityCollection::class, [
+            static function (Criteria $criteria) use ($ids): EntityCollection {
+                static::assertSame($ids, $criteria->getIds());
+                static::assertSame('name', $criteria->getSorting()[0]->getField());
+
+                return new EntityCollection();
+            },
+        ], $definition);
+        $route = static::createStub(SeoUrlRouteInterface::class);
+        $route->method('getConfig')->willReturn(new SeoUrlRouteConfig($definition, ProductPageSeoUrlRoute::ROUTE_NAME, 'template', true));
+        $route->method('prepareCriteria')->willReturnCallback(static function (Criteria $criteria): void {
+            $criteria->addSorting(new FieldSorting('name'));
+        });
+        $generator = $this->createGenerator([self::TEST_ENTITY_NAME => $repository], $this->createTwigEnvironment(), static::createStub(TwigVariableParser::class));
+
+        static::assertSame([], iterator_to_array($generator->generate($ids, 'template', $route, $this->context, $this->salesChannel)));
     }
 
     public function testGeneratePathInfoWithTheTargetRouteAndMergedRouteParameters(): void

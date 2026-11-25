@@ -66,11 +66,13 @@ class PercentageRatioProductStreamMigrationTest extends TestCase
         static::getContainer()->get(ProductStreamIndexer::class)->handle(new ProductStreamIndexingMessage([$streamId], null, $context));
         static::assertEquals($this->compiledFilter($streamId), $compiledFilter, 'the compiled filter of the group differs from its conditions');
 
-        if ($brokenBeforeTheMigration) {
-            static::assertNotEqualsCanonicalizing($expectedProducts, $matchesBeforeMigration, 'the group was not broken before the migration');
-        } else {
+        if (!$brokenBeforeTheMigration) {
             static::assertEqualsCanonicalizing($expectedProducts, $matchesBeforeMigration);
+
+            return;
         }
+
+        static::assertNotEqualsCanonicalizing($expectedProducts, $matchesBeforeMigration, 'the group was not broken before the migration');
     }
 
     /**

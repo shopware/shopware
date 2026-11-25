@@ -165,6 +165,8 @@ export default {
             }
 
             this.condition.value = null;
+            // bounds left over from a range condition
+            this.actualCondition.parameters = null;
         },
 
         changeType({ type, parameters }) {
@@ -175,6 +177,17 @@ export default {
                 if (type !== null && this.actualCondition.field === 'cheapestPrice.percentage') {
                     this.applyPercentageDefaultValue(parameters);
                 }
+
+                return;
+            }
+
+            // wrapping in or unwrapping from a `not` condition keeps the value, without one the condition reads as "is (not) empty"
+            if (
+                parameters === null &&
+                this.actualCondition.field === 'cheapestPrice.percentage' &&
+                (this.actualCondition.value ?? null) === null
+            ) {
+                this.applyPercentageDefaultValue(parameters);
             }
         },
 

@@ -83,6 +83,19 @@ export default {
             );
         },
 
+        // an `equals` condition without a value matches the products for which the field is empty
+        isEmptyCondition() {
+            return (
+                this.conditionDataProviderService.hasEmptyOperators(this.fieldName) &&
+                this.actualCondition.type === 'equals' &&
+                (this.actualCondition.value ?? null) === null
+            );
+        },
+
+        isEmptyFilterType() {
+            return this.conditionDataProviderService.isEmptyType(this.filterType);
+        },
+
         filterType: {
             get() {
                 const conditionType = this.getConditionType(this.condition);
@@ -90,10 +103,18 @@ export default {
                     return this.getRangeType(this.actualCondition);
                 }
 
+                if (this.isEmptyCondition) {
+                    return this.condition.type === 'not' ? 'isNotEmpty' : 'isEmpty';
+                }
+
                 return conditionType;
             },
 
             set(type) {
+                if (this.conditionDataProviderService.isEmptyType(type)) {
+                    this.$emit('empty-change', { type: type === 'isEmpty' ? 'equals' : 'notEquals' });
+                    return;
+                }
                 if (this.conditionDataProviderService.isRangeType(type)) {
                     this.onChangeType('range', this.getParameters(type));
                     return;
@@ -125,7 +146,7 @@ export default {
             if (this.fieldType === null) {
                 return [];
             }
-            return this.conditionDataProviderService.getOperatorSet(this.fieldType).map((operator) => {
+            return this.conditionDataProviderService.getOperatorSet(this.fieldType, this.fieldName).map((operator) => {
                 return {
                     label: this.$t(operator.label),
                     value: operator.identifier,

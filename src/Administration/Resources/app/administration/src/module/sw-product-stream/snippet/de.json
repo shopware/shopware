@@ -43,7 +43,9 @@
         "notContains": "Enthält nicht",
         "range": "Zwischen",
         "since": "Zeit nach",
-        "until": "Zeit bis"
+        "until": "Zeit bis",
+        "isEmpty": "Ist leer",
+        "isNotEmpty": "Ist nicht leer"
       },
       "timeUnits": {
         "days": "Tage"

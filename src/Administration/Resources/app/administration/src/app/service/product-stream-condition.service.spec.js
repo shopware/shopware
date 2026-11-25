@@ -74,6 +74,44 @@ describe('app/service/product-stream-condition.service.js', () => {
         expect(service.negateOperator('equalsAll').identifier).toBe('notEqualsAll');
     });
 
+    it('should offer the empty operators for the price/list price ratio', async () => {
+        const identifiers = service.getOperatorSet('float', 'cheapestPrice.percentage').map(({ identifier }) => identifier);
+
+        expect(identifiers).toEqual([
+            'equals',
+            'greaterThan',
+            'greaterThanEquals',
+            'lessThan',
+            'lessThanEquals',
+            'notEquals',
+            'range',
+            'isEmpty',
+            'isNotEmpty',
+        ]);
+    });
+
+    it.each([
+        ['another float field', 'cheapestPrice'],
+        ['no field', undefined],
+    ])('should not offer the empty operators for %s', async (_description, field) => {
+        const identifiers = service.getOperatorSet('float', field).map(({ identifier }) => identifier);
+
+        expect(identifiers).not.toContain('isEmpty');
+        expect(identifiers).not.toContain('isNotEmpty');
+    });
+
+    it('should be able to check via hasEmptyOperators', async () => {
+        expect(service.hasEmptyOperators('cheapestPrice.percentage')).toBe(true);
+        expect(service.hasEmptyOperators('cheapestPrice')).toBe(false);
+    });
+
+    it('should be able to check via isEmptyType', async () => {
+        expect(service.isEmptyType('isEmpty')).toBe(true);
+        expect(service.isEmptyType('isNotEmpty')).toBe(true);
+        expect(service.isEmptyType('equals')).toBe(false);
+        expect(service.isEmptyType(null)).toBe(false);
+    });
+
     it.each([
         ['null', null, []],
         ['undefined', undefined, []],

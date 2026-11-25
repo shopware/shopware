@@ -484,8 +484,14 @@
 
         <template v-else>
             {% block sw_product_stream_value_single_value %}
+            <sw-container
+                v-if="isEmptyFilterType"
+                ref="product-stream-value-empty-placeholder"
+                class="sw-product-stream-value__placeholder"
+            />
             <component
                 :is="inputComponent"
+                v-else
                 ref="product-stream-value-single-value-component"
                 v-model:value="stringValue"
                 :disabled="disabled"

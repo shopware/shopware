@@ -1113,7 +1113,7 @@ class RegisterRouteTest extends TestCase
             static::assertArrayHasKey('errors', $response);
         } else {
             static::assertSame('customer', $response['apiAlias']);
-            static::assertNull($response['vatIds']);
+            static::assertCount(0, $response['vatIds']);
             static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
             static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 

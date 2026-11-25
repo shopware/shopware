@@ -669,15 +669,18 @@ const methodSignatureChanged = rule({
     id: 'method_signature_changed',
     group: 'Break',
     changes: (base, head) => [
-        ...inBoth(base, head, 'method')
+        ...inBoth(base, head, 'method').flatMap((method) => {
+            const { was, now } = method;
             // Two declared return types are compared by `return_type_changed`, which a marker can announce.
-            .filter(
-                ({ was, now }) =>
-                    (was.returns === null || now.returns === null) && was.returnsPromise !== now.returnsPromise,
-            )
-            .map((method) =>
-                withSignature(keptElement(method), { change: 'promise', nowReturnsPromise: method.now.returnsPromise }),
-            ),
+            const isDeclaredTwice = was.returns !== null && now.returns !== null;
+
+            return isDeclaredTwice ||
+                was.returnsPromise === null ||
+                now.returnsPromise === null ||
+                was.returnsPromise === now.returnsPromise
+                ? []
+                : [withSignature(keptElement(method), { change: 'promise', nowReturnsPromise: now.returnsPromise })];
+        }),
         ...parameterChanges(base, head).flatMap(({ method, reordered, before, after, inserted }) => [
             ...(reordered
                 ? [

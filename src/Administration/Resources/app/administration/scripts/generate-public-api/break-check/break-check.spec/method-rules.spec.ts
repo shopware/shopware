@@ -147,9 +147,29 @@ describe('scripts/generate-public-api/break-check/break-check method rules', () 
         expect(memberSummary(check(methods('async load() {}'), methods('load() {}')))).toEqual([
             'Break  method_signature_changed  method:load',
         ]);
-        expect(
-            memberSummary(check(methods('load() { return this.repository.save(); }'), methods('async load() {}'))),
-        ).toEqual(['Break  method_signature_changed  method:load']);
+        expect(memberSummary(check(methods('load() { return [this.id]; }'), methods('async load() {}')))).toEqual([
+            'Break  method_signature_changed  method:load',
+        ]);
+    });
+
+    it('reports a method that declared a type that is no promise and becomes async', () => {
+        const declared = (type: string) => ({ options: `methods: {\nload(): ${type} {}\n}`, extension: 'ts' as const });
+        const becomesAsync = (type: string) => memberSummary(check(declared(type), methods('async load() {}')));
+        const signatureChanged = 'Break  method_signature_changed  method:load';
+
+        expect(becomesAsync('void')).toContain(signatureChanged);
+        expect(becomesAsync('string[] | null')).toContain(signatureChanged);
+        expect(becomesAsync('AxiosPromise')).not.toContain(signatureChanged);
+    });
+
+    it('reports nothing when only the type checker knows whether a method returned a promise', () => {
+        const plain = methods("load() { return this.httpClient.get('/example'); }");
+        const chained = methods("load() { return this.httpClient.get('/example').then(({ data }) => data); }");
+
+        expect(check(plain, chained)).toEqual([]);
+        expect(check(chained, plain)).toEqual([]);
+        expect(check(plain, methods("async load() { return this.httpClient.get('/example'); }"))).toEqual([]);
+        expect(check(methods('load() { return this.repository.save(); }'), methods('load() {}'))).toEqual([]);
     });
 
     it('reports nothing when a method that returns a promise chain becomes async', () => {

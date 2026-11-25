@@ -162,6 +162,15 @@ describe('scripts/generate-public-api/break-check/break-check service rules', ()
             );
         });
 
+        it('reports nothing when an API method that hands back the request chains on its promise', () => {
+            const request = "    load() {\n        return this.httpClient.get('/example');\n    }";
+            const handled =
+                "    load() {\n        return this.httpClient.get('/example').then(ApiService.handleResponse);\n    }";
+
+            expect(check(classTree(request), classTree(handled))).toEqual([]);
+            expect(check(classTree(handled), classTree(request))).toEqual([]);
+        });
+
         it('reports a property whose declared type changed, and a new type as info', () => {
             const findings = check(
                 classTree('    limit: number;\n    label;'),

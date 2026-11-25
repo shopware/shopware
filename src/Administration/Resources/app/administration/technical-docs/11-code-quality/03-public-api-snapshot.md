@@ -225,6 +225,7 @@ The sections stand in this order, with `blocks` and `crossings` between `methods
   A list of constructors is printed in code point order, so reordering it changes nothing.
 - A method returns a promise when it is `async`, declares a `Promise` return type, or every `return` hands back a promise the source builds: a `.then()`, `.catch()` or `.finally()` chain, a `Promise.*()` call or `new Promise()`.
   A plain call such as `this.repository.save()` may return a promise too, but only the type checker knows, so it does not count.
+  A method returns no promise when it declares a type such as `void` or `string[]`, or when every `return` hands back nothing or a value the source builds, such as a literal, an object, an array or a comparison.
 - The options object is found behind `wrapComponentConfig`, `defineComponent` and a `const` of the same file.
 - `mapPropertyErrors`, `mapCollectionPropertyErrors`, `mapState`, `mapGetters`, `mapWritableState`, `mapActions` and `mapMutations` add the members they list as literals.
   A method keeps its parameters when a helper such as `debounce` wraps the function.
@@ -496,6 +497,8 @@ The rules below those are about what only one kind has.
 - `type_changed` and `return_type_changed` compare the text of the declaration.
   Whether another type still fits needs the type checker, so every other text fails the check until a reviewer has checked it.
   A method with two declared return types is compared by `return_type_changed` only, also when one of them is a `Promise`.
+- A method starts or stops returning a promise only when the source shows it on both sides.
+  `return this.httpClient.get(...)` that gains a `.then()` or becomes `async` is no finding, because the call may already return a promise.
 - A `PropType` on the constructors a prop had is `type_widened`, because Vue checks a value against the same constructors as before.
   Another constructor or another `PropType` is `type_changed`.
 - The defaults compare the text of the value, also when it names a `const` of the same file.

@@ -55,7 +55,8 @@ export type DefaultValue = { kind: 'none' } | { kind: 'factory' } | { kind: 'val
  * - `data.nested`: the value is an object literal, whose keys are members of their own named `parent.key`.
  * - `method.parameters`: `null` when the method is no function in the source, for example an imported one.
  * - `method.returnsPromise`: the method is `async`, declares a `Promise` return type, or every `return` hands
- *   back a promise it visibly builds, such as `.then()` or `Promise.all()`.
+ *   back a promise it visibly builds, such as `.then()` or `Promise.all()`. `false` when the declared type or
+ *   every returned value is visibly no promise, and `null` when only the type checker knows.
  * - `method.returnsSuper`: every `return` hands back `this.$super()` of the same method, so the method returns
  *   whatever the method it overrides returns.
  */
@@ -67,7 +68,12 @@ interface OptionDetails {
     emit: { payload: Parameter[] | null };
     data: { nested: boolean };
     computed: { type: string | null };
-    method: { parameters: Parameter[] | null; returns: string | null; returnsPromise: boolean; returnsSuper: boolean };
+    method: {
+        parameters: Parameter[] | null;
+        returns: string | null;
+        returnsPromise: boolean | null;
+        returnsSuper: boolean;
+    };
 }
 
 /**

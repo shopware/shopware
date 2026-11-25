@@ -124,13 +124,104 @@ function isVisiblePromise(expression: ts.Expression): boolean {
     return PROMISE_CHAIN.includes(name.text) || (ts.isIdentifier(receiver) && receiver.text === 'Promise');
 }
 
-function isPromiseType(type: ts.TypeNode | undefined): boolean {
-    return (
-        type !== undefined &&
-        ts.isTypeReferenceNode(type) &&
-        ts.isIdentifier(type.typeName) &&
-        type.typeName.text === 'Promise'
-    );
+// The values a function can hand back that are visibly no promise.
+const VALUE_EXPRESSIONS = new Set([
+    ts.SyntaxKind.StringLiteral,
+    ts.SyntaxKind.NumericLiteral,
+    ts.SyntaxKind.BigIntLiteral,
+    ts.SyntaxKind.RegularExpressionLiteral,
+    ts.SyntaxKind.NoSubstitutionTemplateLiteral,
+    ts.SyntaxKind.TemplateExpression,
+    ts.SyntaxKind.TrueKeyword,
+    ts.SyntaxKind.FalseKeyword,
+    ts.SyntaxKind.NullKeyword,
+    ts.SyntaxKind.ThisKeyword,
+    ts.SyntaxKind.ObjectLiteralExpression,
+    ts.SyntaxKind.ArrayLiteralExpression,
+    ts.SyntaxKind.ArrowFunction,
+    ts.SyntaxKind.FunctionExpression,
+    ts.SyntaxKind.ClassExpression,
+    ts.SyntaxKind.PrefixUnaryExpression,
+    ts.SyntaxKind.TypeOfExpression,
+    ts.SyntaxKind.VoidExpression,
+    ts.SyntaxKind.DeleteExpression,
+]);
+
+// The binary operators that hand back one of their operands, which may be a promise.
+const OPERAND_OPERATORS = new Set([
+    ts.SyntaxKind.AmpersandAmpersandToken,
+    ts.SyntaxKind.BarBarToken,
+    ts.SyntaxKind.QuestionQuestionToken,
+    ts.SyntaxKind.CommaToken,
+    ts.SyntaxKind.EqualsToken,
+    ts.SyntaxKind.AmpersandAmpersandEqualsToken,
+    ts.SyntaxKind.BarBarEqualsToken,
+    ts.SyntaxKind.QuestionQuestionEqualsToken,
+]);
+
+// The declared return types that are visibly no promise.
+const VALUE_TYPES = new Set([
+    ts.SyntaxKind.VoidKeyword,
+    ts.SyntaxKind.UndefinedKeyword,
+    ts.SyntaxKind.NeverKeyword,
+    ts.SyntaxKind.BooleanKeyword,
+    ts.SyntaxKind.StringKeyword,
+    ts.SyntaxKind.NumberKeyword,
+    ts.SyntaxKind.BigIntKeyword,
+    ts.SyntaxKind.SymbolKeyword,
+    ts.SyntaxKind.LiteralType,
+    ts.SyntaxKind.ArrayType,
+    ts.SyntaxKind.TupleType,
+    ts.SyntaxKind.TypeLiteral,
+    ts.SyntaxKind.FunctionType,
+]);
+
+/** `true` when every part is a promise, `false` when none is, which also holds for no parts, and `null` else. */
+function combined(parts: (boolean | null)[]): boolean | null {
+    if (parts.length > 0 && parts.every((part) => part === true)) {
+        return true;
+    }
+
+    return parts.every((part) => part === false) ? false : null;
+}
+
+/**
+ * Whether a returned value is a promise, `null` when only the type checker knows. `undefined` stands for a
+ * `return` without a value.
+ */
+function promiseOf(expression: ts.Expression | undefined): boolean | null {
+    if (expression === undefined) {
+        return false;
+    }
+
+    const value = withoutTypeSyntax(expression);
+
+    if (isVisiblePromise(value)) {
+        return true;
+    }
+
+    if (ts.isBinaryExpression(value)) {
+        return OPERAND_OPERATORS.has(value.operatorToken.kind) ? null : false;
+    }
+
+    if (ts.isIdentifier(value)) {
+        return value.text === 'undefined' ? false : null;
+    }
+
+    return ts.isNewExpression(value) || VALUE_EXPRESSIONS.has(value.kind) ? false : null;
+}
+
+/** The same for a declared type. A type name such as `AxiosPromise` is `null`, as only the type checker resolves it. */
+function promiseOfType(type: ts.TypeNode): boolean | null {
+    if (ts.isUnionTypeNode(type)) {
+        return combined(type.types.map(promiseOfType));
+    }
+
+    if (ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName) && type.typeName.text === 'Promise') {
+        return true;
+    }
+
+    return VALUE_TYPES.has(type.kind) ? false : null;
 }
 
 /** `this.$super('onSave', ...)` inside the method `onSave`. */
@@ -160,13 +251,24 @@ function everyReturn(fn: FunctionNode, matches: (value: ts.Expression) => boolea
 }
 
 /**
- * Whether callers get a promise. A plain call such as `this.repository.save()` may return one, but only the
- * type checker knows, so the reader does not count it.
+ * Whether callers get a promise, `null` when only the type checker knows, as for a plain call such as
+ * `return this.repository.save()`.
  */
-function returnsPromise(fn: FunctionNode): boolean {
-    const isAsync = fn.modifiers?.some(({ kind }) => kind === ts.SyntaxKind.AsyncKeyword) ?? false;
+function returnsPromise(fn: FunctionNode): boolean | null {
+    if (fn.modifiers?.some(({ kind }) => kind === ts.SyntaxKind.AsyncKeyword)) {
+        return true;
+    }
 
-    return isAsync || isPromiseType(fn.type) || everyReturn(fn, isVisiblePromise);
+    const declared = fn.type === undefined ? null : promiseOfType(fn.type);
+
+    if (declared !== null || fn.body === undefined) {
+        return declared;
+    }
+
+    const returned = combined(returnedValues(fn).map(promiseOf));
+
+    // A type that only the type checker resolves can be a promise whatever the body hands back.
+    return returned === false && fn.type !== undefined ? null : returned;
 }
 
 /**
@@ -183,7 +285,7 @@ export function signatureOf(
     return {
         parameters: fn === undefined ? null : parametersOf(fn, reading),
         returns: fn?.type === undefined ? null : reading.text(fn.type),
-        returnsPromise: fn !== undefined && returnsPromise(fn),
+        returnsPromise: fn === undefined ? null : returnsPromise(fn),
         returnsSuper: fn !== undefined && everyReturn(fn, (returned) => isSuperCall(returned, name)),
     };
 }

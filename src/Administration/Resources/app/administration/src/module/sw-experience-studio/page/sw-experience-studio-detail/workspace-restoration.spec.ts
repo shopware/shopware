@@ -107,16 +107,17 @@ function createRestore() {
 }
 
 describe('Experience Studio workspace preview reference restoration', () => {
-    it('rejects a workspace action while waiting for entity types before opening a workspace', async () => {
-        const { editor, target } = createRestore();
-        let resolveLayoutTypes: () => void;
-        const layoutTypesRequest = new Promise<void>((resolve) => {
-            resolveLayoutTypes = resolve;
-        });
+    it('rejects a workspace action while the opening workspace waits for entity types', async () => {
+        const { editor, target, entityTypeService } = createRestore();
+        let resolveLayoutTypes: (types: string[]) => void;
+        entityTypeService.getEntityTypes.mockReturnValue(
+            new Promise<string[]>((resolve) => {
+                resolveLayoutTypes = resolve;
+            }),
+        );
         const executeWorkspaceAction = jest.fn();
         const workspaceEditor = {
             ...editor,
-            layoutTypesRequest,
             openLayouts: [],
             isWorkspaceTransitioning: false,
             isSavingAll: false,
@@ -126,11 +127,12 @@ describe('Experience Studio workspace preview reference restoration', () => {
         };
 
         const open = methods.openWorkspace.call(workspaceEditor, target.id);
+        await flushPromises();
         await methods.requestWorkspaceAction.call(workspaceEditor, { type: 'open', id: 'other' });
 
         expect(executeWorkspaceAction).not.toHaveBeenCalled();
 
-        resolveLayoutTypes!();
+        resolveLayoutTypes!(['product']);
         await open;
     });
 

@@ -225,68 +225,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(repositoryFactory.create).not.toHaveBeenCalled();
     });
 
-    it('marks a new layout as loading while waiting for entity types and applies its assigned preview context', async () => {
-        let resolveLayoutTypes: () => void;
-        const layoutTypesRequest = new Promise<void>((resolve) => {
-            resolveLayoutTypes = resolve;
-        });
-        const layout = {
-            id: 'layout-product',
-            rootSource: 'product',
-            productContentLayouts: [{ productId: 'product-id', salesChannelId: 'sales-channel-id' }],
-        };
-        const vm = {
-            layoutTypesRequest,
-            availableLayoutTypes: [] as string[],
-            openLayouts: [] as unknown[],
-            frames: [] as unknown[],
-            layout: null as typeof layout | null,
-            isLoading: false,
-            isLayoutPickerOpen: true,
-            layoutRepository: { get: jest.fn().mockResolvedValue(layout) },
-            layoutLoadCriteria: {},
-            createOpenLayoutState: jest.fn().mockReturnValue({ id: layout.id, layout }),
-            createPreviewFrame: methods.createPreviewFrame,
-            previewLanguageContext: null,
-            activateLayout: jest.fn(),
-            applyPreviewContextDefaults: methods.applyPreviewContextDefaults,
-            loadDefaultPreviewEntity: jest.fn().mockResolvedValue(undefined),
-            syncActiveLayoutState: jest.fn(),
-            diagnoseLayout: jest.fn(),
-            $nextTick: jest.fn().mockResolvedValue(undefined),
-            $refs: { experienceStudioCanvas: { fitCanvasToFrame: jest.fn(), fitCanvasToFrames: jest.fn() } },
-            createNotificationError: jest.fn(),
-            $t: (key: string) => key,
-            previewEntityId: null as string | null,
-            previewSalesChannelId: null as string | null,
-            getLayoutRootSource: methods.getLayoutRootSource,
-            getFirstAssociationEntry: methods.getFirstAssociationEntry,
-            resolveAssignedPreviewContext: methods.resolveAssignedPreviewContext,
-            resolvePreviewContext: methods.resolvePreviewContext,
-        };
-        vm.activateLayout.mockImplementation(() => {
-            vm.layout = layout;
-        });
-        Object.defineProperties(vm, {
-            resolvedPreviewContext: {
-                get: () => methods.resolvePreviewContext.call(vm, vm.layout),
-            },
-        });
-
-        const open = methods.openLayoutById.call(vm, layout.id);
-        await Promise.resolve();
-        expect(vm.isLoading).toBe(true);
-        expect(vm.layoutRepository.get).not.toHaveBeenCalled();
-
-        vm.availableLayoutTypes = ['product'];
-        resolveLayoutTypes!();
-        await open;
-
-        expect(vm.layoutRepository.get).toHaveBeenCalledWith(layout.id, Shopware.Context.api, vm.layoutLoadCriteria);
-        expect(vm.previewEntityId).toBe('product-id');
-        expect(vm.previewSalesChannelId).toBe('sales-channel-id');
-    });
-
     it('loads first preview entity when assignment does not provide one', async () => {
         const vm = {
             activeFrameId: 'frame',

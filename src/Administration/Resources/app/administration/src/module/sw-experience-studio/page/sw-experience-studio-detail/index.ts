@@ -813,9 +813,10 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
             this.workspaceError = false;
             try {
-                await this.layoutTypesRequest;
+                const layoutTypesRequest = this.ensureLayoutTypesLoaded();
                 const workspace = await this.workspaceStore.get(id);
                 const configuration = copyWorkspaceConfiguration(workspace.configuration);
+                await layoutTypesRequest;
                 const { openLayouts, frames, missingReferences } = await this.restoreWorkspaceLayouts(configuration);
                 const { salesChannelId, languageContext, missingSalesChannel } = await this.restoreWorkspacePreviewContext(
                     configuration.previewSalesChannelId,
@@ -1404,12 +1405,14 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                await this.layoutTypesRequest;
+                const layoutTypesRequest = this.ensureLayoutTypesLoaded();
                 const layout = await this.layoutRepository.get(layoutId, Shopware.Context.api, this.layoutLoadCriteria);
 
                 if (!layout) {
                     return;
                 }
+
+                await layoutTypesRequest;
 
                 // Another open request may have completed while this layout was loading.
                 if (this.openLayouts.some((item) => item.id === layoutId)) {

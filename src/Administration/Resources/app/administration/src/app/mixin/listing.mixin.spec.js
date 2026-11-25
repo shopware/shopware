@@ -5,7 +5,7 @@
  */
 import 'src/app/mixin/listing.mixin';
 import { mount, config } from '@vue/test-utils';
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createMemoryHistory, createWebHashHistory } from 'vue-router';
 import Bottle from 'bottlejs';
 import ApplicationBootstrapper from 'src/core/application';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
@@ -32,6 +32,7 @@ async function createWrapper({
             return getListMock();
         },
     },
+    history = createWebHashHistory(),
 } = {}) {
     // delete global $router and $routes mocks
     delete config.global.mocks.$router;
@@ -50,7 +51,7 @@ async function createWrapper({
                 component: { template: '<div></div>' },
             },
         ],
-        history: createWebHashHistory(),
+        history,
     });
 
     await router.push(routeFirstPush);
@@ -562,6 +563,151 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         expect(wrapper.vm.page).toBe(1);
         expect(router.currentRoute.value.query.term).toBe('new search value');
         expect(router.currentRoute.value.query.page).toBe('1');
+    });
+
+    it('should reset term and page when the same route is opened again without a query', async () => {
+        await wrapper.unmount();
+
+        const listParams = [];
+        wrapper = await createWrapper({
+            methods: {
+                getList() {
+                    listParams.push({ term: this.term, page: this.page });
+                },
+            },
+        });
+        await router.push({
+            name: 'sw.product.index',
+            query: { page: 3, limit: 25, term: 'old search value' },
+        });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: 'old search value', page: 3 });
+
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: '', page: 1 });
+        expect(router.currentRoute.value.query.term).toBe('');
+        expect(router.currentRoute.value.query.page).toBe('1');
+    });
+
+    it('should leave the term untouched when the same route is opened again without a query or a term', async () => {
+        await wrapper.unmount();
+
+        const listParams = [];
+        wrapper = await createWrapper({
+            methods: {
+                getList() {
+                    listParams.push({ term: this.term, page: this.page });
+                },
+            },
+        });
+        await router.push({
+            name: 'sw.product.index',
+            query: { page: 3, limit: 25 },
+        });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: undefined, page: 3 });
+
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: undefined, page: 1 });
+        expect(router.currentRoute.value.query.page).toBe('1');
+        expect(router.currentRoute.value.fullPath).not.toContain('term=');
+    });
+
+    it('should clear the term when the browser goes back to the same route without a term', async () => {
+        await wrapper.unmount();
+
+        const listParams = [];
+        wrapper = await createWrapper({
+            history: createMemoryHistory(),
+            methods: {
+                getList() {
+                    listParams.push({ term: this.term, page: this.page });
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.term).toBeUndefined();
+
+        await router.push({
+            name: 'sw.product.index',
+            query: { ...router.currentRoute.value.query, term: 'shirt' },
+        });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: 'shirt', page: 1 });
+
+        router.back();
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.term).toBeUndefined();
+        expect(listParams.at(-1)).toEqual({ term: '', page: 1 });
+    });
+
+    it('should keep the term when the browser goes back to the same route with the term', async () => {
+        await wrapper.unmount();
+
+        const listParams = [];
+        wrapper = await createWrapper({
+            history: createMemoryHistory(),
+            methods: {
+                getList() {
+                    listParams.push({ term: this.term, page: this.page });
+                },
+            },
+        });
+        await flushPromises();
+
+        await router.push({
+            name: 'sw.product.index',
+            query: { ...router.currentRoute.value.query, term: 'shirt' },
+        });
+        await flushPromises();
+        await router.push({
+            name: 'sw.product.index',
+            query: { ...router.currentRoute.value.query, page: 2 },
+        });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: 'shirt', page: 2 });
+
+        router.back();
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.term).toBe('shirt');
+        expect(listParams.at(-1)).toEqual({ term: 'shirt', page: 1 });
+    });
+
+    it('should keep a default term on creation and the page and term on a direct resetListing call', async () => {
+        await wrapper.unmount();
+
+        let listing;
+        wrapper = await createWrapper({
+            defaultData: { term: 'foo' },
+            methods: {
+                getList() {
+                    listing = this;
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(listing.term).toBe('foo');
+        expect(router.currentRoute.value.query.term).toBe('foo');
+
+        await router.push({ name: 'sw.product.index', query: { page: 3, limit: 25, term: 'shirt' } });
+        await flushPromises();
+        listing.resetListing();
+        await flushPromises();
+
+        expect({ term: listing.term, page: listing.page }).toEqual({ term: 'shirt', page: 3 });
+        expect(router.currentRoute.value.query).toMatchObject({ term: 'shirt', page: '3' });
     });
 
     it('should update the data correctly on onSwitchFilter', async () => {

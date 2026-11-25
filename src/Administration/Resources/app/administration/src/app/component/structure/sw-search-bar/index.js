@@ -233,10 +233,20 @@ export default {
 
     watch: {
         // Watch for changes in query parameters
-        $route(newValue) {
+        $route(newValue, oldValue) {
             // Use type search again when route changes and the term is undefined
             if (this.isComponentMounted === true && newValue.query.term === undefined && this.initialSearchType) {
                 this.currentSearchType = this.initialSearchType;
+            }
+
+            if (
+                newValue.query.term === undefined &&
+                newValue.name === oldValue?.name &&
+                oldValue?.query.term !== undefined
+            ) {
+                this.searchTerm = '';
+
+                return;
             }
 
             // Do not modify the search term when the user is currently typing

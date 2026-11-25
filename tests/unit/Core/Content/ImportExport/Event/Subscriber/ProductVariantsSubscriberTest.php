@@ -85,24 +85,8 @@ class ProductVariantsSubscriberTest extends TestCase
         $writtenEvent = new EntityWrittenEvent(ProductDefinition::ENTITY_NAME, [], $this->context);
         $event = $this->createEvent(
             ProductDefinition::ENTITY_NAME,
-            result: new EntityWrittenContainerEvent($this->context, new NestedEventCollection([$writtenEvent]), [])
-        );
-
-        $this->createSubscriber()->onAfterImportRecord($event);
-    }
-
-    public function testReturnsEarlyForNonStringParentId(): void
-    {
-        $writeResult = new EntityWriteResult(
-            ['id' => Uuid::randomBytes()],
-            ['productNumber' => 'parent'],
-            ProductDefinition::ENTITY_NAME,
-            EntityWriteResult::OPERATION_INSERT
-        );
-        $writtenEvent = new EntityWrittenEvent(ProductDefinition::ENTITY_NAME, [$writeResult], $this->context);
-        $event = $this->createEvent(
-            ProductDefinition::ENTITY_NAME,
-            result: new EntityWrittenContainerEvent($this->context, new NestedEventCollection([$writtenEvent]), [])
+            result: new EntityWrittenContainerEvent($this->context, new NestedEventCollection([$writtenEvent]), []),
+            record: ['id' => Uuid::randomHex()]
         );
 
         $this->createSubscriber()->onAfterImportRecord($event);
@@ -118,13 +102,19 @@ class ProductVariantsSubscriberTest extends TestCase
         $groupRepository = StaticEntityRepository::of(PropertyGroupCollection::class, [[$groupId]]);
         $optionRepository = StaticEntityRepository::of(PropertyGroupOptionCollection::class, [[$mediumOptionId], [$largeOptionId]]);
 
+        $mediumSettingId = Uuid::randomHex();
+
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->exactly(2))->method('executeStatement')->willReturn(1);
+        $connection->expects($this->once())->method('transactional')->willReturnCallback(static fn (\Closure $func) => $func($connection));
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['id' => Uuid::fromHexToBytes($mediumSettingId), 'property_group_option_id' => Uuid::fromHexToBytes($mediumOptionId)],
+        ]);
+        $connection->method('executeStatement')->willReturn(1);
 
         $syncService = $this->createMock(SyncServiceInterface::class);
         $syncService->expects($this->once())
             ->method('sync')
-            ->willReturnCallback(function (array $operations, Context $context) use ($parentId, $groupId, $mediumOptionId, $largeOptionId): SyncResult {
+            ->willReturnCallback(function (array $operations, Context $context) use ($parentId, $groupId, $mediumOptionId, $largeOptionId, $mediumSettingId): SyncResult {
                 static::assertSame($this->context, $context);
                 static::assertCount(2, $operations);
                 static::assertInstanceOf(SyncOperation::class, $operations[0]);
@@ -138,6 +128,7 @@ class ProductVariantsSubscriberTest extends TestCase
 
                 $mediumOption = $firstOperationPayload[0];
                 self::assertSame($parentId, $mediumOption['parentId']);
+                self::assertSame('parent.0', $mediumOption['productNumber']);
                 self::assertSame($mediumOptionId, $mediumOption['options'][0]['id']);
                 self::assertSame('M', $mediumOption['options'][0]['name']);
                 self::assertSame($groupId, $mediumOption['options'][0]['group']['id']);
@@ -151,10 +142,12 @@ class ProductVariantsSubscriberTest extends TestCase
                 self::assertSame('size', $largeOption['options'][0]['group']['name']);
 
                 $mediumConfiguratorSetting = $secondOperationPayload[0];
+                self::assertSame($mediumSettingId, $mediumConfiguratorSetting['id']);
                 self::assertSame($parentId, $mediumConfiguratorSetting['productId']);
                 self::assertSame($mediumOptionId, $mediumConfiguratorSetting['optionId']);
 
                 $largeConfiguratorSetting = $secondOperationPayload[1];
+                self::assertSame(Uuid::fromStringToHex($parentId . '.' . $largeOptionId . '_configurator'), $largeConfiguratorSetting['id']);
                 self::assertSame($parentId, $largeConfiguratorSetting['productId']);
                 self::assertSame($largeOptionId, $largeConfiguratorSetting['optionId']);
 
@@ -162,6 +155,12 @@ class ProductVariantsSubscriberTest extends TestCase
             });
 
         $subscriber = new ProductVariantsSubscriber($syncService, $connection, $groupRepository, $optionRepository);
+        $otherWriteResult = new EntityWriteResult(
+            Uuid::randomHex(),
+            ['productNumber' => 'other'],
+            ProductDefinition::ENTITY_NAME,
+            EntityWriteResult::OPERATION_INSERT
+        );
         $writeResult = new EntityWriteResult(
             $parentId,
             ['productNumber' => 'parent'],
@@ -174,10 +173,11 @@ class ProductVariantsSubscriberTest extends TestCase
             new EntityWrittenContainerEvent(
                 $this->context,
                 new NestedEventCollection([
-                    new EntityWrittenEvent(ProductDefinition::ENTITY_NAME, [$writeResult], $this->context),
+                    new EntityWrittenEvent(ProductDefinition::ENTITY_NAME, [$otherWriteResult, $writeResult], $this->context),
                 ]),
                 []
-            )
+            ),
+            ['id' => $parentId]
         );
 
         $subscriber->onAfterImportRecord($event);
@@ -188,7 +188,7 @@ class ProductVariantsSubscriberTest extends TestCase
         $syncService = $this->createMock(SyncServiceInterface::class);
         $syncService->expects($this->never())->method('sync');
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('executeStatement');
+        $connection->expects($this->never())->method('transactional');
 
         return new ProductVariantsSubscriber(
             $syncService,
@@ -200,15 +200,17 @@ class ProductVariantsSubscriberTest extends TestCase
 
     /**
      * @param array<string, mixed> $row
+     * @param array<string, mixed> $record
      */
     private function createEvent(
         string $sourceEntity,
         array $row = ['variants' => 'size: M'],
-        ?EntityWrittenContainerEvent $result = null
+        ?EntityWrittenContainerEvent $result = null,
+        array $record = []
     ): ImportExportAfterImportRecordEvent {
         return new ImportExportAfterImportRecordEvent(
             $result ?? new EntityWrittenContainerEvent($this->context, new NestedEventCollection(), []),
-            [],
+            $record,
             $row,
             new Config([], ['sourceEntity' => $sourceEntity], []),
             $this->context,

@@ -1,13 +1,35 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { Models, Enums, Serialize, Spec } from '@cyclonedx/cyclonedx-library';
 import sbom from 'rollup-plugin-sbom';
 
 const PLUGIN_NAME = 'shopware-storefront-sbom';
 
-function reportDirectory(bundleRoot) {
-    return path.join(bundleRoot, 'Resources/sbom/storefront');
+const REPORT_PATH = ['Resources', 'sbom', 'storefront'];
+
+/**
+ * Extension source trees are untrusted data: their build runs without their Vite config or install scripts.
+ * Refuse a report directory reached through symlinks below the bundle root, so a shipped link cannot redirect
+ * report writes or deletions outside of it. Returns null when the directory is missing and `create` is false.
+ */
+function reportDirectory(bundleRoot, { create = false } = {}) {
+    let directory = fs.realpathSync(bundleRoot);
+    for (const segment of REPORT_PATH) {
+        directory = path.join(directory, segment);
+        let stat = fs.lstatSync(directory, { throwIfNoEntry: false });
+        if (!stat) {
+            if (!create) {
+                return null;
+            }
+            fs.mkdirSync(directory);
+            stat = fs.lstatSync(directory);
+        }
+        if (stat.isSymbolicLink() || !stat.isDirectory()) {
+            throw new Error(`[${PLUGIN_NAME}] Refusing to use SBOM report path that is not a real directory: ${directory}`);
+        }
+    }
+    return directory;
 }
 
 function outputDirectory(config, outputOptions) {
@@ -49,8 +71,11 @@ function composerMetadata(bundleRoot) {
 }
 
 export function clearStorefrontSbomReports({ bundleRoot, target }) {
+    if (!fs.existsSync(bundleRoot)) {
+        return;
+    }
     const directory = reportDirectory(bundleRoot);
-    if (!fs.existsSync(directory)) {
+    if (!directory) {
         return;
     }
 
@@ -495,12 +520,26 @@ export function storefrontSbomPlugin(options) {
                         component.hashes.set(Enums.HashAlgorithm['SHA-256'], createHash('sha256').update(contents).digest('hex'));
                     }
                 }
-                const directory = reportDirectory(options.bundleRoot);
-                await fs.promises.mkdir(directory, { recursive: true });
+                const directory = reportDirectory(options.bundleRoot, { create: true });
                 const destination = path.join(directory, report.filename);
-                const temporary = `${destination}.tmp`;
-                await fs.promises.writeFile(temporary, `${serializer.serialize(report.bom, { sortLists: true, space: 2 })}\n`);
-                await fs.promises.rename(temporary, destination);
+                // Exclusive creation never follows or reuses a planted file; rename replaces a planted link itself.
+                const temporary = path.join(directory, `.${report.filename}.${randomBytes(8).toString('hex')}.tmp`);
+                const handle = await fs.promises.open(
+                    temporary,
+                    fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | (fs.constants.O_NOFOLLOW ?? 0),
+                    0o644,
+                );
+                try {
+                    try {
+                        await handle.writeFile(`${serializer.serialize(report.bom, { sortLists: true, space: 2 })}\n`);
+                    } finally {
+                        await handle.close();
+                    }
+                    await fs.promises.rename(temporary, destination);
+                } catch (error) {
+                    await fs.promises.rm(temporary, { force: true });
+                    throw error;
+                }
             },
         },
     };

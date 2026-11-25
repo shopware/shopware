@@ -655,7 +655,38 @@ describe('production Storefront SBOMs', () => {
         };
 
         await expect(buildFixture(root, { 'main.js': 'export default 1;' }, { plugins: [plugin] }))
-            .rejects.toThrow(/EEXIST|ENOTDIR/);
+            .rejects.toThrow(/Refusing to use SBOM report path/);
+    });
+
+    it.each([
+        'components.cdx.json.tmp',
+        'components.cdx.json',
+    ])('does not follow a symlink planted as Resources/sbom/storefront/%s', async (planted) => {
+        const root = path.join(fixtureRoot, `PlantedFile-${planted}`);
+        const victim = path.join(fixtureRoot, `victim-${planted}.env`);
+        fs.writeFileSync(victim, 'APP_SECRET=keep');
+        fs.mkdirSync(path.join(root, 'Resources/sbom/storefront'), { recursive: true });
+        fs.symlinkSync(victim, path.join(root, 'Resources/sbom/storefront', planted));
+
+        await buildFixture(root, { 'main.js': 'export default 1;' });
+
+        expect(fs.readFileSync(victim, 'utf8')).toBe('APP_SECRET=keep');
+        expect(fs.lstatSync(path.join(root, 'Resources/sbom/storefront/components.cdx.json')).isFile()).toBe(true);
+        expect(readReport(root).bomFormat).toBe('CycloneDX');
+    });
+
+    it('refuses a report directory reached through a symlink', async () => {
+        const root = path.join(fixtureRoot, 'PlantedDirectory');
+        const victim = path.join(fixtureRoot, 'victim-directory');
+        fs.mkdirSync(path.join(victim, 'storefront'), { recursive: true });
+        fs.writeFileSync(path.join(victim, 'storefront/components.cdx.json'), 'keep');
+        fs.mkdirSync(path.join(root, 'Resources'), { recursive: true });
+        fs.symlinkSync(victim, path.join(root, 'Resources/sbom'));
+
+        await expect(buildFixture(root, { 'main.js': 'export default 1;' }))
+            .rejects.toThrow(/Refusing to use SBOM report path/);
+        expect(fs.readdirSync(path.join(victim, 'storefront'))).toEqual(['components.cdx.json']);
+        expect(fs.readFileSync(path.join(victim, 'storefront/components.cdx.json'), 'utf8')).toBe('keep');
     });
 
     it('fails generation when a bundled package has no resolved version', async () => {

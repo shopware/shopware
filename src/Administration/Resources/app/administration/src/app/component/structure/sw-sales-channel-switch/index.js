@@ -15,7 +15,6 @@ const { debug } = Shopware.Utils;
  * @component-example
  * <sw-sales-channel-switch></sw-sales-channel-switch>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

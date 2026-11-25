@@ -140,16 +140,44 @@ class EntityDefinitionQueryHelper
     }
 
     /**
-     * Removes whole `extensions` path segments from a field accessor. A segment that only contains the
-     * text as a substring is left unchanged. Field-access validation and SQL construction must share this
-     * normalization so an accessor is interpreted consistently.
+     * Removes `extensions` segments during entity traversal and preserves the suffix of a resolved value field.
+     * Field-access validation and SQL construction must share this normalization.
      */
-    public static function removeExtensionPathSegments(string $accessor): string
+    public static function removeExtensionPathSegments(string $accessor, EntityDefinition $definition, ?string $root = null): string
     {
-        return implode('.', array_filter(
-            explode('.', $accessor),
-            static fn (string $segment): bool => $segment !== 'extensions',
-        ));
+        if (!str_contains($accessor, 'extensions')) {
+            return $accessor;
+        }
+
+        $root ??= $definition->getEntityName();
+        $prefix = str_starts_with($accessor, $root . '.') ? $root . '.' : '';
+        $parts = explode('.', substr($accessor, \strlen($prefix)));
+
+        foreach ($parts as $index => $part) {
+            if ($part === 'extensions') {
+                unset($parts[$index]);
+
+                continue;
+            }
+
+            if ($prefix === '' && $part === $root && $index === array_key_first($parts)) {
+                continue;
+            }
+
+            $field = $definition->getFields()->get($part);
+            if ($field === null) {
+                continue;
+            }
+
+            if (!$field instanceof AssociationField) {
+                // Association traversal ends here, so any remaining `extensions` keys stay in the accessor.
+                break;
+            }
+
+            $definition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
+        }
+
+        return $prefix . implode('.', $parts);
     }
 
     /**
@@ -157,7 +185,7 @@ class EntityDefinitionQueryHelper
      */
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
-        $parts = explode('.', self::removeExtensionPathSegments($accessor));
+        $parts = explode('.', self::removeExtensionPathSegments($accessor, $definition));
         if ($definition->getEntityName() === $parts[0]) {
             array_shift($parts);
         }
@@ -339,7 +367,7 @@ class EntityDefinitionQueryHelper
      */
     public function getFieldAccessor(string $fieldName, EntityDefinition $definition, string $root, Context $context): string
     {
-        $fieldName = self::removeExtensionPathSegments($fieldName);
+        $fieldName = self::removeExtensionPathSegments($fieldName, $definition, $root);
 
         $original = $fieldName;
         $prefix = $root . '.';
@@ -464,7 +492,7 @@ class EntityDefinitionQueryHelper
         Context $context,
         ?CriteriaPartInterface $criteriaPart = null
     ): void {
-        $accessor = self::removeExtensionPathSegments($accessor);
+        $accessor = self::removeExtensionPathSegments($accessor, $definition, $root);
 
         $parts = explode('.', $accessor);
 

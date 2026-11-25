@@ -109,19 +109,14 @@ class ThemeService implements ResetInterface
             $context
         );
 
-        // Refresh the runtime config values when the static file loader is used.
-        // The static file loader is only used for the compiled theme configuration;
-        // the resolved values are still stored in the runtime config table.
-        if (!$this->configLoader instanceof StaticFileConfigLoader) {
-            $importMap = null;
-            if ($this->themeCompiler instanceof ThemeCompiler) {
-                $importMap = $this->themeCompiler->buildComponentImportMap(
-                    $configurationCollection ?? $this->extensionRegistry->getConfigurations()
-                );
+        $configurationCollection ??= $this->extensionRegistry->getConfigurations();
 
-                $importMap ??= ['imports' => []];
-            }
+        $importMap = null;
+        if ($this->themeCompiler instanceof ThemeCompiler) {
+            $importMap = $this->themeCompiler->buildComponentImportMap($configurationCollection) ?? ['imports' => []];
+        }
 
+        try {
             $this->themeRuntimeConfigService->refreshRuntimeConfig(
                 $themeId,
                 $themeConfig,
@@ -130,13 +125,11 @@ class ThemeService implements ResetInterface
                 $configurationCollection,
                 $importMap,
             );
-        } else {
-            try {
-                $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
-            } catch (ConnectionException) {
-                // Static file compilation is also used in database-less build environments; the theme can be compiled,
-                // but persisted runtime configuration values cannot be refreshed without a database connection.
-                return;
+        } catch (ConnectionException $e) {
+            // Static file compilation is also used in database-less build environments; the theme can be compiled,
+            // but the persisted runtime configuration cannot be refreshed without a database connection.
+            if (!$this->configLoader instanceof StaticFileConfigLoader) {
+                throw $e;
             }
         }
     }
@@ -147,7 +140,7 @@ class ThemeService implements ResetInterface
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null
     ): void {
-        if ($this->configLoader instanceof StaticFileConfigLoader || !$this->themeCompiler instanceof ThemeCompiler) {
+        if (!$this->themeCompiler instanceof ThemeCompiler) {
             return;
         }
 

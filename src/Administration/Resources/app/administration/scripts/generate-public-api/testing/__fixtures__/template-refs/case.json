@@ -1,0 +1,4 @@
+{
+    "description": "Template ref removed and moved to another component. The removed CSS class is no public API",
+    "majorFlags": ["v6.8.0.0"]
+}

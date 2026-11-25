@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\ThemeService;
@@ -58,13 +59,13 @@ class ThemeConfigTool extends McpToolResponse
         string $config = '{}',
         #[Schema(description: 'Preview the change without writing. Leave true first, then call again with false to persist.')]
         bool $dryRun = true,
-    ): string {
+    ): McpToolResult {
         if ($action !== 'get' && $action !== 'update') {
-            return $this->error(\sprintf('Unknown action "%s". Use "get" or "update".', $action));
+            return $this->errorResult(\sprintf('Unknown action "%s". Use "get" or "update".', $action));
         }
 
         if ($salesChannelId === '') {
-            return $this->error('salesChannelId is required. Use the shopware://sales-channels resource to find available sales channel IDs.');
+            return $this->errorResult('salesChannelId is required. Use the shopware://sales-channels resource to find available sales channel IDs.');
         }
 
         $context = $this->contextProvider->getContext();
@@ -73,7 +74,7 @@ class ThemeConfigTool extends McpToolResponse
             ? ['theme:read', 'theme:update']
             : ['theme:read'];
 
-        if ($error = $this->requirePrivilege($context, ...$requiredPrivileges)) {
+        if ($error = $this->requirePrivilegeResult($context, ...$requiredPrivileges)) {
             return $error;
         }
 
@@ -83,13 +84,13 @@ class ThemeConfigTool extends McpToolResponse
         $resolved = $this->resolveSalesChannelId($salesChannelId);
 
         if (isset($resolved['error'])) {
-            return $this->error($resolved['error']);
+            return $this->errorResult($resolved['error']);
         }
 
         $themeId = $this->resolveThemeId($resolved['id']);
 
         if ($themeId === null) {
-            return $this->error(\sprintf('No theme assigned to sales channel "%s".', $salesChannelId));
+            return $this->errorResult(\sprintf('No theme assigned to sales channel "%s".', $salesChannelId));
         }
 
         return $action === 'get'
@@ -97,34 +98,34 @@ class ThemeConfigTool extends McpToolResponse
             : $this->handleUpdate($themeId, $config, $dryRun, $context);
     }
 
-    private function handleGet(string $themeId, Context $context): string
+    private function handleGet(string $themeId, Context $context): McpToolResult
     {
         try {
             $configuration = $this->themeService->getPlainThemeConfiguration($themeId, $context);
         } catch (\Throwable $e) {
-            return $this->error('Failed to read theme config: ' . $e->getMessage());
+            return $this->errorResult('Failed to read theme config: ' . $e->getMessage());
         }
 
-        return $this->success([
+        return $this->successResult([
             'themeId' => $themeId,
             'config' => $configuration,
         ]);
     }
 
-    private function handleUpdate(string $themeId, string $configJson, bool $dryRun, Context $context): string
+    private function handleUpdate(string $themeId, string $configJson, bool $dryRun, Context $context): McpToolResult
     {
         /** @var array<string, array{value: mixed}> $configValues */
-        $configValues = $this->decodeJsonOrError($configJson, 'config');
-        if (\is_string($configValues)) {
+        $configValues = $this->decodeJsonOrErrorResult($configJson, 'config');
+        if ($configValues instanceof McpToolResult) {
             return $configValues;
         }
 
         if ($configValues === []) {
-            return $this->error('Config must be a non-empty JSON object with key-value pairs, e.g. {"sw-color-brand-primary": {"value": "#0000ff"}}');
+            return $this->errorResult('Config must be a non-empty JSON object with key-value pairs, e.g. {"sw-color-brand-primary": {"value": "#0000ff"}}');
         }
 
         if ($dryRun) {
-            return $this->success([
+            return $this->successResult([
                 'themeId' => $themeId,
                 'configToApply' => $configValues,
                 'note' => 'Dry-run preview only. Config key names are not validated against the theme schema.',
@@ -134,10 +135,10 @@ class ThemeConfigTool extends McpToolResponse
         try {
             $this->themeService->updateTheme($themeId, $configValues, null, $context);
         } catch (\Throwable $e) {
-            return $this->error('Theme update failed: ' . $e->getMessage());
+            return $this->errorResult('Theme update failed: ' . $e->getMessage());
         }
 
-        return $this->success([
+        return $this->successResult([
             'themeId' => $themeId,
             'updatedKeys' => array_keys($configValues),
         ], ['dryRun' => false]);

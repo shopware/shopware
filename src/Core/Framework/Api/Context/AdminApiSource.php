@@ -36,6 +36,8 @@ class AdminApiSource implements ContextSource, \JsonSerializable
      */
     private array $permissions = [];
 
+    private ?string $appId = null;
+
     public function __construct(
         private readonly ?string $userId,
         private readonly ?string $integrationId = null,
@@ -69,6 +71,22 @@ class AdminApiSource implements ContextSource, \JsonSerializable
     public function isSelf(string $userId): bool
     {
         return $this->isDirectUser() && $this->userId === $userId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setAppId(?string $appId): void
+    {
+        $this->appId = $appId;
+    }
+
+    /**
+     * @internal
+     */
+    public function getAppId(): ?string
+    {
+        return $this->appId;
     }
 
     public function setIsAdmin(bool $isAdmin): void

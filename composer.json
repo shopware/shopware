@@ -127,7 +127,7 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.3",
+        "shopware/conflicts": "0.6.4",
         "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
@@ -191,7 +191,7 @@
         "symfony/yaml": "~7.4.23",
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
-        "twig/twig": "^3.29.0",
+        "twig/twig": "^3.31.1",
         "zircote/swagger-php": "^6.4"
     },
     "require-dev": {
@@ -257,18 +257,20 @@
     ],
     "scripts-descriptions": {
         "admin:check-extensions": "[EXPERIMENTAL] Type-checks and lints Administration extensions (interactive; -- --help for flags)",
+        "admin:check-public-api": "Compare the Administration public API of two commits and list the breaks (-- <base> <head>).",
         "admin:code-mods": "[DEPRECATED] Run admin code mods, use admin:upgrade-extensions instead",
         "admin:codemod:sfc-migration": "Convert Options API Administration components into native setup SFCs (-- <path> [--write] [--replace-originals])",
         "admin:create:test": "Create a admin test blueprint",
-        "admin:generate-blocks-list": "Generate the list of all blocks. Used to track block changes in the administration.",
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
+        "admin:generate-public-api": "Generate the snapshot of the Administration public API in public-api/. Used to show public API changes in pull requests.",
         "admin:generate-shopware-modules": "Generate the shopware:* module registry and its ambient declarations.",
         "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:setup-extension-tooling": "[EXPERIMENTAL] Generates TypeScript/ESLint configs for installed Administration extensions",
         "admin:setup-extension-tooling:check": "[EXPERIMENTAL] Read-only dry-run of admin:setup-extension-tooling (exit 1 on drift)",
+        "admin:test-extensions": "[EXPERIMENTAL] Runs the specs of Administration extensions with the Administration's Jest (interactive; -- --help for flags)",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:major": "Launches the jest unit test-suite for the Admin with the upcoming major feature flag enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
@@ -362,10 +364,10 @@
     },
     "scripts": {
         "admin:check-extensions": "@npm:admin:bin npm run extension-tooling:check --",
+        "admin:check-public-api": "@npm:admin run check-public-api --",
         "admin:code-mods": "@npm:admin run code-mods --",
         "admin:codemod:sfc-migration": "@npm:admin run codemod:sfc-migration --",
         "admin:create:test": "@npm:admin run create-test",
-        "admin:generate-blocks-list": "@npm:admin run generate-blocks-list",
         "admin:generate-data-set-list": [
             "@npm:admin run generate-data-set-list"
         ],
@@ -376,11 +378,16 @@
         "admin:generate-position-identifier-list": [
             "@npm:admin run generate-position-identifier-list"
         ],
+        "admin:generate-public-api": "@npm:admin run generate-public-api",
         "admin:generate-shopware-modules": "@npm:admin run generate-shopware-modules",
         "admin:lint:snippets": "@npm:admin run lint:snippets",
         "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:setup-extension-tooling": "@npm:admin:bin npm run extension-tooling:setup --",
         "admin:setup-extension-tooling:check": "@npm:admin:bin npm run extension-tooling:setup -- --check",
+        "admin:test-extensions": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:admin:bin npm run extension-tooling:test --"
+        ],
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",

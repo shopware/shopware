@@ -117,7 +117,10 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     v-if="rule && !rule.isNew()"
                     class="sw-settings-rule-detail__tabs"
@@ -136,7 +139,7 @@
                     </sw-tabs-item>
                     {% endblock %}
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             {% block sw_settings_rule_detail_content_view %}

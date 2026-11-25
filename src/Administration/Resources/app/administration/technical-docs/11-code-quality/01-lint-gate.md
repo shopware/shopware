@@ -41,6 +41,9 @@ It also fails when a baseline still holds entries of a file that no longer exist
 Those entries would let a new violation of the same rule pass in another file.
 `npm run lint:fix` removes them.
 
+The job checks `fallow-baseline.json` the same way, with totals per finding category instead of per rule, see [Unused code](02-unused-code.md).
+It skips the check for deleted files there, because `npm run lint:fallow` already fails on entries that match nothing.
+
 ## How a new rule joins
 
 A pull request that turns on a rule with existing violations adds them to the baseline with `npm run lint -- --suppress-rule <rule>`.
@@ -64,6 +67,7 @@ Reviewers of such a pull request check the diff of `eslint-suppressions.json`.
 | `filename-rules/not-match` | JavaScript files in `src`, specs are excluded | New source files in `src` are TypeScript |
 | `sw-core-rules/no-new-mixins` | `src`, specs are excluded | Shared logic goes into a composable in `src/app/composables`, using existing mixins stays allowed |
 | `sw-test-rules/no-vm-access` | `*.spec.js`, `*.spec.ts` | Specs assert what a component renders, emits or requests, not its internals through `wrapper.vm` |
+| `sw-deprecation-rules/valid-api-markers` | JavaScript, TypeScript, Vue and Twig files | A malformed `@deprecated` or `@bc-change` marker announces nothing, see [Public API snapshot](03-public-api-snapshot.md) |
 
 `sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.
 It still reports `wrapper.vm.$emit()`, because emitting on the mounted component skips its own code.

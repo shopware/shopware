@@ -57,14 +57,14 @@ class MailSender extends AbstractMailSender
 
         if ($disabled) {
             $receiver = array_map(static fn ($address) => $address->getAddress(), $email->getTo());
+            $logData = ['subject' => $email->getSubject(), 'receiver' => implode(', ', $receiver)];
+            if (!MailLogData::isSensitiveMessage($email)) {
+                $logData['content'] = $email->getTextBody();
+            }
 
             $this->logger->info(
                 'Tried to send mail but delivery is disabled.',
-                [
-                    'subject' => $email->getSubject(),
-                    'receiver' => implode(', ', $receiver),
-                    'content' => $email->getTextBody(),
-                ]
+                $logData
             );
 
             return;

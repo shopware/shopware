@@ -11,8 +11,10 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -110,6 +112,24 @@ class PreWriteValidationEventTest extends TestCase
         static::assertSame([$commands[0], $commands[2]], $event->getCommandsForEntity('product'));
         static::assertSame([$commands[1]], $event->getCommandsForEntity('category'));
         static::assertSame([], $event->getCommandsForEntity('not-found'));
+    }
+
+    public function testGetExplicitCommandsForEntityExcludesCascadeAndSetNullSideEffects(): void
+    {
+        $ids = new IdsCollection();
+
+        $commands = $this->getCommands([
+            ['entityName' => 'product', 'type' => 'insert', 'primaryKey' => ['id' => $ids->getBytes('p1')]],
+            ['entityName' => 'product', 'type' => 'delete', 'primaryKey' => ['id' => $ids->getBytes('p2')]],
+            ['entityName' => 'product', 'type' => 'cascade-delete', 'primaryKey' => ['id' => $ids->getBytes('p3')]],
+            ['entityName' => 'product', 'type' => 'set-null', 'primaryKey' => ['id' => $ids->getBytes('p4')]],
+        ]);
+
+        $event = new PreWriteValidationEvent($this->context, $commands);
+
+        // the caller's own insert and delete remain, the DAL side effects are dropped
+        static::assertSame([$commands[0], $commands[1]], $event->getExplicitCommandsForEntity('product'));
+        static::assertSame([], $event->getExplicitCommandsForEntity('not-found'));
     }
 
     public static function getPrimaryKeysProvider(): \Generator
@@ -343,6 +363,12 @@ class PreWriteValidationEventTest extends TestCase
                     break;
                 case 'delete':
                     $commands[] = new DeleteCommand($definition, $primaryKey, $existence);
+                    break;
+                case 'cascade-delete':
+                    $commands[] = new CascadeDeleteCommand($definition, $primaryKey, $existence);
+                    break;
+                case 'set-null':
+                    $commands[] = new SetNullOnDeleteCommand($definition, [], $primaryKey, $existence, '', false);
                     break;
             }
         }

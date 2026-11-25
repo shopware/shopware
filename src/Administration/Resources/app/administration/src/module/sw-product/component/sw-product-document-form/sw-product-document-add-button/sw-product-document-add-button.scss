@@ -1,0 +1,10 @@
+.sw-product-document-add-button__language-link {
+    color: var(--color-text-brand-default);
+    text-decoration: underline;
+
+    &:hover,
+    &:focus-visible,
+    &:active {
+        color: var(--color-text-brand-default);
+    }
+}

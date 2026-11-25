@@ -109,7 +109,7 @@ describe('src/app/service/custom-field.service.js', () => {
         await customFieldService.getCustomFieldSets('sales_channel', false, 100);
 
         expect(searchMock).toHaveBeenCalledTimes(2);
-        expect(searchMock.mock.calls[0][0].limit).toBe(25);
+        expect(searchMock.mock.calls[0][0].limit).toBeNull();
         expect(searchMock.mock.calls[1][0].limit).toBe(100);
     });
 });

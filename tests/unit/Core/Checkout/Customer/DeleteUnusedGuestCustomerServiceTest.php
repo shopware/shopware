@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -42,11 +44,9 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
     public function testCountConfig(): void
     {
-        $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository
-            ->expects($this->once())
-            ->method('aggregate')
-            ->willReturn(new AggregationResultCollection([new CountResult('customer-count', 2)]));
+        $customerRepository = StaticEntityRepository::of(CustomerCollection::class, [
+            new AggregationResultCollection([new CountResult('customer-count', 2)]),
+        ]);
 
         $configService = $this->createMock(SystemConfigService::class);
         $configService
@@ -59,6 +59,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
         $result = $service->countUnusedCustomers(Context::createDefaultContext());
 
         static::assertSame(2, $result);
+        static::assertCount(1, $customerRepository->searchedCriteria);
     }
 
     public function testDeleteCustomer(): void

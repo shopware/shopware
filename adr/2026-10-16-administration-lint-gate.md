@@ -30,6 +30,23 @@ Rules listed in `rulesWithoutInlineDisable` can't be disabled with a comment, so
 
 The workflow is described in `src/Administration/Resources/app/administration/technical-docs/11-code-quality/01-lint-gate.md`.
 
+### Unused code
+
+ESLint checks one file at a time, so it can't find unused files, exports or dependencies.
+[Fallow](https://fallow.tools) checks those, with its own baseline `fallow-baseline.json` under the same rules.
+The CI job counts its entries per finding category, and a new category needs a change to `.fallowrc.json`.
+
+We tried Knip first and chose Fallow for three reasons:
+
+- Fallow runs in about 0.5 seconds, Knip took about 4 seconds.
+- Fallow reads the config files of other tools without running them.
+  Knip loads them by running them.
+- Knip needed an npm override that forced `yaml` to version 2, Fallow needs none.
+
+Fallow has its own baseline format and the flags `--fail-on-stale-baseline` and `baselines prune`, so the check needs no custom baseline script.
+
+The workflow is described in `src/Administration/Resources/app/administration/technical-docs/11-code-quality/02-unused-code.md`.
+
 ## Consequences
 
 - New code follows the rules from its first commit, without a cleanup of the existing code first.
@@ -40,3 +57,4 @@ The workflow is described in `src/Administration/Resources/app/administration/te
   The trade is visible in the diff of the baseline.
 - Any change to `eslint.config.ts` or `extension-tooling/eslint.mjs` lets new rules into the baseline, so reviewers check the baseline diff of such a change.
 - The Storefront's Administration modules share the configuration and have their own baseline.
+- Fallow can't see the imports of extensions, so exports that extensions use are tagged `@public`.

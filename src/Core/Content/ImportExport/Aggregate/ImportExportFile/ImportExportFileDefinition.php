@@ -33,6 +33,11 @@ class ImportExportFileDefinition extends EntityDefinition
         return ImportExportFileEntity::class;
     }
 
+    public function getCollectionClass(): string
+    {
+        return ImportExportFileCollection::class;
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';

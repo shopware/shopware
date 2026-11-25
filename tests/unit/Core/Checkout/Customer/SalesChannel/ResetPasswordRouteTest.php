@@ -43,12 +43,12 @@ class ResetPasswordRouteTest extends TestCase
 {
     public function testResetsAllRateLimitersOnPasswordReset(): void
     {
-        $email = 'Customer@Example.com';
+        $email = " \u{00A0}Customer@Example.com\u{3000}  ";
         $ip = '10.0.0.1';
         $hash = 'valid-hash';
         $customerId = Uuid::randomHex();
         $recoveryId = Uuid::randomHex();
-        $expectedEmailKey = strtolower($email);
+        $expectedEmailKey = 'customer@example.com';
         $expectedCombinedKey = $expectedEmailKey . '-' . $ip;
 
         $customer = new CustomerEntity();
@@ -85,7 +85,7 @@ class ResetPasswordRouteTest extends TestCase
             ->willReturnCallback(function (string $route, string $key) use (&$resetCalls): void {
                 $resetCalls[] = [$route, $key];
             });
-        $rateLimiter->expects($this->exactly(2))
+        $rateLimiter->expects($this->exactly(3))
             ->method('resetIfConfigured')
             ->willReturnCallback(function (string $route, string $key) use (&$resetIfConfiguredCalls): void {
                 $resetIfConfiguredCalls[] = [$route, $key];
@@ -130,6 +130,7 @@ class ResetPasswordRouteTest extends TestCase
         static::assertSame([
             [RateLimiter::LOGIN_USER, $expectedEmailKey],
             [RateLimiter::LOGIN_CLIENT, $ip],
+            [RateLimiter::RESET_PASSWORD_USER, $expectedEmailKey],
         ], $resetIfConfiguredCalls);
     }
 

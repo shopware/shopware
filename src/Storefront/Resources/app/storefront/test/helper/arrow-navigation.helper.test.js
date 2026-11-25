@@ -5,7 +5,7 @@ const itemContainerSelector = 'ul.itemContainer';
 const itemSelector = 'li';
 
 /** @deprecated tag:v6.8.0 - ArrowNavigationHelper will be removed without replacement. */
-describe('arrow-navigation.helper', () => {
+describe.deprecated('v6.8.0.0')('arrow-navigation.helper', () => {
     beforeEach(() => {
         document.body.innerHTML = template;
     });

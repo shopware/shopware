@@ -2146,6 +2146,30 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
+    public function testPriceSortingInCurrencyWithoutIndexedPrice(): void
+    {
+        $ids = self::$indexedIds;
+
+        try {
+            $expected = array_values($ids->getList(['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'p.5', 'v.6.1']));
+
+            $context = new Context(new SystemSource(), [], Uuid::randomHex(), [Defaults::LANGUAGE_SYSTEM]);
+
+            $criteria = new Criteria($expected);
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addSorting(new FieldSorting('product.price', FieldSorting::ASCENDING));
+            $criteria->addSorting(new FieldSorting('product.autoIncrement', FieldSorting::ASCENDING));
+
+            $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, $context);
+
+            static::assertEqualsCanonicalizing($expected, array_values($result->getIds()));
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
     public function testCheapestPriceAggregation(): void
     {
         $ids = self::$indexedIds;

@@ -283,9 +283,11 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader->load(new Request(), $this->getContextWithDummyCustomer());
 
         $events = $eventDispatcher->getEvents();
-        static::assertCount(3, $events);
+        static::assertCount(5, $events);
 
         static::assertInstanceOf(BuildValidationEvent::class, $events['framework.validation.address.create']);
+        static::assertInstanceOf(BuildValidationEvent::class, $events['framework.validation.address.create.billing']);
+        static::assertInstanceOf(BuildValidationEvent::class, $events['framework.validation.address.create.shipping']);
         static::assertInstanceOf(BuildValidationEvent::class, $events['framework.validation.address.update']);
         static::assertInstanceOf(CheckoutConfirmPageLoadedEvent::class, $events[0]);
     }
@@ -350,6 +352,55 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader->load(new Request(), $context);
     }
 
+    public function testAddressValidationIsDispatchedPerAddressType(): void
+    {
+        $context = $this->getContextWithDummyCustomer();
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+
+        $billingAddress = $customer->getActiveBillingAddress();
+        static::assertNotNull($billingAddress);
+
+        $shippingAddress = (new CustomerAddressEntity())->assign(['id' => Uuid::randomHex(), 'countryId' => Uuid::randomHex()]);
+        $customer->assign(['activeShippingAddress' => $shippingAddress]);
+
+        $events = $this->loadCollectingAddressValidationEvents($context);
+
+        static::assertCount(2, $events['framework.validation.address.create']);
+        foreach ($events['framework.validation.address.create'] as $event) {
+            static::assertSame([], $event->getData()->all());
+        }
+
+        static::assertCount(1, $events['framework.validation.address.create.billing']);
+        $billing = $events['framework.validation.address.create.billing'][0];
+        static::assertSame($billingAddress->getId(), $billing->getData()->get('id'));
+        static::assertSame($events['framework.validation.address.create'][0]->getDefinition(), $billing->getDefinition());
+
+        static::assertCount(1, $events['framework.validation.address.create.shipping']);
+        $shipping = $events['framework.validation.address.create.shipping'][0];
+        static::assertSame($shippingAddress->getId(), $shipping->getData()->get('id'));
+        static::assertSame($events['framework.validation.address.create'][1]->getDefinition(), $shipping->getDefinition());
+    }
+
+    public function testSameBillingAndShippingAddressIsValidatedForBothTypes(): void
+    {
+        $context = $this->getContextWithDummyCustomer();
+        $billingAddress = $context->getCustomer()?->getActiveBillingAddress();
+        static::assertNotNull($billingAddress);
+
+        $events = $this->loadCollectingAddressValidationEvents($context);
+
+        static::assertCount(2, $events['framework.validation.address.create']);
+        $definition = $events['framework.validation.address.create'][0]->getDefinition();
+
+        foreach (['billing', 'shipping'] as $addressType) {
+            static::assertCount(1, $events['framework.validation.address.create.' . $addressType]);
+            $event = $events['framework.validation.address.create.' . $addressType][0];
+            static::assertSame($billingAddress->getId(), $event->getData()->get('id'));
+            static::assertSame($definition, $event->getDefinition());
+        }
+    }
+
     private function createLoader(
         ?EventDispatcherInterface $eventDispatcher = null,
         ?StorefrontCartFacade $cartService = null,
@@ -365,6 +416,34 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $validator ?? static::createStub(DataValidator::class),
             static::createStub(AbstractTranslator::class),
         );
+    }
+
+    /**
+     * @return array<string, list<BuildValidationEvent>>
+     */
+    private function loadCollectingAddressValidationEvents(SalesChannelContext $context): array
+    {
+        $addressValidation = static::createStub(DataValidationFactoryInterface::class);
+        $addressValidation
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
+
+        $events = [
+            'framework.validation.address.create' => [],
+            'framework.validation.address.create.billing' => [],
+            'framework.validation.address.create.shipping' => [],
+        ];
+
+        $eventDispatcher = new EventDispatcher();
+        foreach (array_keys($events) as $eventName) {
+            $eventDispatcher->addListener($eventName, static function (BuildValidationEvent $event) use (&$events, $eventName): void {
+                $events[$eventName][] = $event;
+            });
+        }
+
+        $this->createLoader(eventDispatcher: $eventDispatcher, addressValidationFactory: $addressValidation)->load(new Request(), $context);
+
+        return $events;
     }
 
     private function createCartService(): StorefrontCartFacade

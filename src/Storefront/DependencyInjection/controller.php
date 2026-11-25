@@ -200,6 +200,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DeleteAddressRoute::class),
             service(ContextSwitchRoute::class),
             service(SalesChannelContextService::class),
+            service(ChangeCustomerProfileRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -299,6 +300,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContextSwitchRoute::class),
             service('request_stack'),
             service('router.default'),
+            service(SeoUrlPlaceholderHandlerInterface::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -410,6 +412,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DocumentRoute::class),
             service(LogoutRoute::class),
+            param('shopware.security.private_media_csp'),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -464,7 +467,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('twig'),
+            service('ux.twig_component.component_factory'),
             service(StorybookService::class),
+            service(HtmlSanitizer::class),
         ])
         ->call('setContainer', [service('service_container')]);
 };

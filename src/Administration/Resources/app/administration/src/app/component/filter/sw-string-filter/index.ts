@@ -2,9 +2,12 @@
  * @sw-package framework
  */
 
+import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-string-filter.html.twig';
 
 const { Criteria } = Shopware.Data;
+
+type CriteriaFilter = Parameters<CriteriaType['addFilter']>[0];
 
 /**
  * @private
@@ -62,6 +65,14 @@ export default Shopware.Component.wrapComponentConfig({
                 filterCriteria = Criteria.equalsAny(this.filter.property, filterValue);
             } else {
                 filterCriteria = Criteria[this.criteriaFilterType](this.filter.property, filterValue);
+            }
+
+            const additionalFilters = (this.filter.additionalFilters ?? []) as CriteriaFilter[];
+            if (additionalFilters.length > 0) {
+                filterCriteria = Criteria.multi('AND', [
+                    ...additionalFilters,
+                    filterCriteria,
+                ]);
             }
 
             this.$emit('filter-update', this.filter.name, [filterCriteria], filterValue);

@@ -26,8 +26,9 @@ export default class NavbarPlugin extends Plugin {
         activeClass: 'active',
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed. Use window.activeNavigationPathIdList instead.
          * Array of ids representing the path to the currently active category.
+         * Only used when `window.activeNavigationPathIdList` is not set.
+         * The navbar is ESI-cached, so a value rendered into the navbar markup can belong to another page.
          */
         pathIdList: [],
     };
@@ -145,9 +146,11 @@ export default class NavbarPlugin extends Plugin {
      * @private
      */
     _setCurrentPage() {
+        let activeNavItem = null;
+
         if (window.activeNavigationId) {
             const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
-            const activeNavItem = this.el.querySelector(navItemSelector);
+            activeNavItem = this.el.querySelector(navItemSelector);
 
             if (activeNavItem) {
                 activeNavItem.setAttribute('aria-current', 'page');
@@ -155,8 +158,14 @@ export default class NavbarPlugin extends Plugin {
             }
         }
 
-        // Use window.activeNavigationPathIdList (from main page, not ESI-cached) with fallback to options for backward compatibility
-        const pathIdList = window.activeNavigationPathIdList || this.options.pathIdList || [];
+        const pathIdList = this._getActivePathIdList();
+
+        if (pathIdList === null) {
+            this._setActiveTopLevelLinkFromDom(activeNavItem);
+
+            return;
+        }
+
         pathIdList.forEach((id) => {
             const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', id);
             const activeNavItem = this.el.querySelector(navItemSelector);
@@ -165,6 +174,49 @@ export default class NavbarPlugin extends Plugin {
                 activeNavItem.classList.add(this.options.activeClass);
             }
         });
+    }
+
+    /**
+     * Returns the ids of the parent categories of the current page, or null if no source provides them.
+     *
+     * `window.activeNavigationPathIdList` is rendered per request and wins over the `pathIdList` option.
+     *
+     * @returns {string[]|null}
+     * @private
+     */
+    _getActivePathIdList() {
+        if (Array.isArray(window.activeNavigationPathIdList)) {
+            return window.activeNavigationPathIdList;
+        }
+
+        if (Array.isArray(this.options.pathIdList) && this.options.pathIdList.length > 0) {
+            console.warn('[NavbarPlugin] Using the pathIdList option. Set window.activeNavigationPathIdList for ESI-safe navigation.');
+
+            return this.options.pathIdList;
+        }
+
+        return null;
+    }
+
+    /**
+     * Fallback for themes that replace the block rendering `window.activeNavigationPathIdList`:
+     * marks the top level link whose dropdown contains the current page as active.
+     *
+     * @param {HTMLElement|null} activeNavItem
+     * @private
+     */
+    _setActiveTopLevelLinkFromDom(activeNavItem) {
+        if (!activeNavItem || !this._topLevelLinks) {
+            return;
+        }
+
+        console.warn('[NavbarPlugin] Deriving the active navigation from the DOM. Set window.activeNavigationPathIdList for the full path.');
+
+        const topLevelLink = Array.from(this._topLevelLinks).find((link) => {
+            return link !== activeNavItem && link.closest(this.options.navItemSelector)?.contains(activeNavItem);
+        });
+
+        topLevelLink?.classList.add(this.options.activeClass);
     }
 
     /**

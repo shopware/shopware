@@ -15,6 +15,17 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(UserException::class)]
 class UserExceptionTest extends TestCase
 {
+    public function testUsernameNotUnique(): void
+    {
+        $previous = new \RuntimeException('Database error');
+        $exception = UserException::usernameNotUnique($previous);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('USER__USERNAME_NOT_UNIQUE', $exception->getErrorCode());
+        static::assertSame('The username is already in use.', $exception->getMessage());
+        static::assertSame($previous, $exception->getPrevious());
+    }
+
     public function testSalesChannelNotFound(): void
     {
         $exception = UserException::salesChannelNotFound();
@@ -37,5 +48,14 @@ class UserExceptionTest extends TestCase
             'parameterName' => 'email',
             'path' => 'user.email',
         ], $exception->getParameters());
+    }
+
+    public function testUserChangeNotAllowed(): void
+    {
+        $exception = UserException::userChangeNotAllowed();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(UserException::USER_CHANGE_NOT_ALLOWED, $exception->getErrorCode());
+        static::assertSame('A user and its access keys can only be changed or deleted by that user or an admin.', $exception->getMessage());
     }
 }

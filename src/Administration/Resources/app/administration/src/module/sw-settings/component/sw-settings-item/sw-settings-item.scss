@@ -39,6 +39,15 @@
             font-size: var(--font-size-xs);
             word-break: break-all;
             padding: 8px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: var(--scale-size-8);
+
+            /** @deprecated tag:v6.8.0 - Will be removed **/
+            .mt-promo-badge .icon--solid-party-horn {
+                display: none;
+            }
         }
 
         &:hover,

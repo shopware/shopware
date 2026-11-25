@@ -89,7 +89,6 @@ class PagingProcessorTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(24);
 
-        $result = new ProductListingResult('foo', 100, new ProductCollection(), null, $criteria, Context::createDefaultContext());
         $context = static::createStub(SalesChannelContext::class);
 
         $config = new StaticSystemConfigService([
@@ -97,6 +96,10 @@ class PagingProcessorTest extends TestCase
         ]);
 
         $processor = new PagingListingProcessor($config);
+        $processor->prepare($request, $criteria, $context);
+
+        $result = new ProductListingResult('foo', 100, new ProductCollection(), null, $criteria, Context::createDefaultContext());
+
         $processor->process($request, $result, $context);
 
         static::assertSame(2, $result->getPage());

@@ -49,28 +49,27 @@ const arPlacementElement = {
     },
 };
 
-const arReadyCard = { title: {}, elements: [arReadyElement] };
-
-function mediaConfigCards(elements) {
-    return [arReadyCard, { title: {}, elements }];
-}
-
-function mediaSchema(elements) {
-    return [
-        { name: null, title: {}, cards: [arReadyCard] },
-        { name: 'spatial', title: {}, cards: [{ title: {}, elements }] },
-    ];
-}
+/**
+ * The `core.media` config as in `media.xml`: one card that holds both AR fields.
+ */
+const mediaConfig = [[arReadyElement, arPlacementElement]];
 
 /**
- * Answers both system config routes with the `core.media` elements behind the first card and tab,
- * in the shape of each route.
+ * Answers both system config routes with the given cards, each a list of `core.media` elements,
+ * in the shape of each route. `getSchema` gets every card in a tab of its own.
  */
-function createSystemConfigHttpClient(elements = [arPlacementElement]) {
+function createSystemConfigHttpClient(cards = mediaConfig) {
+    const configCards = cards.map((elements) => ({ title: {}, elements }));
+    const schema = configCards.map((card, index) => ({
+        name: index === 0 ? null : `tab${index}`,
+        title: {},
+        cards: [card],
+    }));
+
     return {
         get: jest.fn((url) =>
             Promise.resolve({
-                data: url === '_action/system-config/get-schema' ? mediaSchema(elements) : mediaConfigCards(elements),
+                data: url === '_action/system-config/get-schema' ? schema : configCards,
             }),
         ),
     };
@@ -307,9 +306,22 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     it('should offer no AR placement options when the media system config has no placement field', async () => {
-        const wrapper = await openArPlacementSelect(createSystemConfigApiService(createSystemConfigHttpClient([])));
+        const wrapper = await openArPlacementSelect(
+            createSystemConfigApiService(createSystemConfigHttpClient([[arReadyElement]])),
+        );
 
         expect(arPlacementResults(wrapper)).toHaveLength(0);
+    });
+
+    it('should find the AR placement field outside the first tab', async () => {
+        const httpClient = createSystemConfigHttpClient([[arReadyElement], [arPlacementElement]]);
+
+        const wrapper = await openArPlacementSelect(createSystemConfigApiService(httpClient));
+
+        expect(arPlacementResults(wrapper)).toEqual([
+            'sw-media.sidebar.actions.horizontal',
+            'sw-media.sidebar.actions.vertical',
+        ]);
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed together with systemConfigApiService.getConfig().
@@ -328,6 +340,21 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             'sw-media.sidebar.actions.vertical',
         ]);
     });
+
+    // @deprecated tag:v6.8.0 - The test will be removed together with systemConfigApiService.getConfig().
+    it.deprecated('v6.8.0.0')(
+        'should find the AR placement field outside the first card of an overridden getConfig',
+        async () => {
+            const httpClient = createSystemConfigHttpClient([[arReadyElement], [arPlacementElement]]);
+
+            const wrapper = await openArPlacementSelect(overrideGetConfig(createSystemConfigApiService(httpClient)));
+
+            expect(arPlacementResults(wrapper)).toEqual([
+                'sw-media.sidebar.actions.horizontal',
+                'sw-media.sidebar.actions.vertical',
+            ]);
+        },
+    );
 
     it.activeFeatureFlags(['v6.8.0.0'])('should ignore an overridden getConfig', async () => {
         const httpClient = createSystemConfigHttpClient();

@@ -29,4 +29,19 @@ class CsvFileWriterTest extends TestCase
 
         static::assertSame("=firstName;city\n'=1+1;Berlin\n'@SUM(1);Hamburg\n", $filesystem->read('export.csv'));
     }
+
+    public function testABackslashBeforeAQuoteKeepsTheValueInOneCellForSpreadsheets(): void
+    {
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $config = new Config([], [], []);
+
+        $writer = new CsvFileWriter($filesystem);
+        $writer->append($config, ['name' => 'Max', 'street' => 'A\";=1+1;\"', 'city' => 'Berlin'], 0);
+        $writer->finish($config, 'export.csv');
+
+        $resource = $filesystem->readStream('export.csv');
+        fgetcsv($resource, 0, ';', '"', '');
+
+        static::assertSame(['Max', 'A\";=1+1;\"', 'Berlin'], fgetcsv($resource, 0, ';', '"', ''));
+    }
 }

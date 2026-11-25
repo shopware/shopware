@@ -38,7 +38,9 @@ class CsvFileWriter extends AbstractFileWriter
      */
     private function writeToBuffer(array $data): void
     {
-        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure, '\\') === false) {
+        // Spreadsheet applications read CSV as defined in RFC 4180, which has no escape character.
+        // With one, a value containing a backslash before a quote would end its cell early and start new cells.
+        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure, '') === false) {
             throw ImportExportException::couldNotWriteToBuffer();
         }
     }

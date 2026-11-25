@@ -5,11 +5,18 @@
 ### CSV exports escape values that start a formula
 
 Values in CSV exports that start with `=`, `+`, `-`, `@`, a tab, a carriage return or a line feed, or with the full-width `＝`, `＋`, `－` or `＠`, now get a single quote (`'`) in front.
+A value that already starts with quotes followed by one of these characters gets one more quote.
 Spreadsheet applications then show such a value as text instead of running it as a formula.
 This also applies to the file of invalid records that an import creates.
 The header row and plain numbers such as `-2` stay unchanged.
-A CSV import removes the quote in front of such a value again, so an exported file imports with its original values.
-Integrations that read exported files themselves see the quote.
+Integrations that read exported files themselves see the added quote.
+
+`CsvReader` removes one quote in front of a value that starts with one of these characters, in every imported file.
+An exported file therefore imports with its original values, and a value such as `'+49 30 123456` in a file made by hand is imported as `+49 30 123456`.
+
+CSV exports and imports now quote values as defined in RFC 4180, like spreadsheet applications do: a backslash is a plain character, and every double quote in a value is doubled.
+Files exported by an earlier version that contain a backslash right before a double quote, for example a JSON custom field with a quote in its text, are read differently.
+Export such files again, or set the parameter `escape` to `\` in the `config` of the import profile or of the import request.
 
 ## API
 

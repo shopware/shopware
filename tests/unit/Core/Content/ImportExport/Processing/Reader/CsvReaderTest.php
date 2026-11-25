@@ -169,6 +169,7 @@ class CsvReaderTest extends TestCase
         $records = [
             ['street' => '-', 'phoneNumber' => '+49 30 123456', 'stock' => '-2', 'name' => '=1+1', 'title' => '\'=1+1'],
             ['street' => 'Main Street 1', 'phoneNumber' => "\t1", 'stock' => '3', 'name' => '\'Quoted', 'title' => ''],
+            ['street' => 'A\";=1+1;\"', 'phoneNumber' => 'C:\path\\', 'stock' => '0', 'name' => '{"text":"say \"hi\""}', 'title' => 'x'],
         ];
 
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter());

@@ -28,7 +28,7 @@ class CsvReader extends AbstractReader
     public function __construct(
         private string $delimiter = ';',
         private string $enclosure = '"',
-        private string $escape = '\\',
+        private string $escape = '',
         private bool $withHeader = true
     ) {
     }

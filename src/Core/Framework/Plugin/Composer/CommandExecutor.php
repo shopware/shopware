@@ -45,7 +45,7 @@ class CommandExecutor
             ]
         );
 
-        $exitCode = $this->application->run($input, $output);
+        $exitCode = $this->runComposer($input, $output);
 
         $this->unlockComposerPackage($lockState);
 
@@ -72,7 +72,7 @@ class CommandExecutor
             ]
         );
 
-        $exitCode = $this->application->run($input, $output);
+        $exitCode = $this->runComposer($input, $output);
 
         if ($exitCode === Command::SUCCESS) {
             // Composer reverts the files, when the remove command fails. We don't need a reset on an error case
@@ -82,6 +82,23 @@ class CommandExecutor
         }
 
         throw PluginException::pluginComposerRemove($pluginName, $pluginComposerName, $output->fetch());
+    }
+
+    /**
+     * Composer's Installer disables the garbage collector and enables it again only when it succeeds.
+     * Restore the previous state, otherwise the rest of the process runs without garbage collection.
+     */
+    private function runComposer(ArrayInput $input, BufferedOutput $output): int
+    {
+        $gcEnabled = gc_enabled();
+
+        try {
+            return $this->application->run($input, $output);
+        } finally {
+            if ($gcEnabled) {
+                gc_enable();
+            }
+        }
     }
 
     /**

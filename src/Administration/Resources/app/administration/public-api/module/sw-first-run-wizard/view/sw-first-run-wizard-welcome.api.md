@@ -11,6 +11,21 @@ component sw-first-run-wizard-welcome  private  js  [private]
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome/sw-first-run-wizard-welcome.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+emits
+  buttons-update(...args: any[])  [private]
+  frw-set-title(...args: any[])  [private]
+
+computed
+  assetFilter: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  setTitle(): any  [private]
+  updateButtons(): any  [private]
+
 blocks
   sw_first_run_wizard_welcome  [private]
 ```

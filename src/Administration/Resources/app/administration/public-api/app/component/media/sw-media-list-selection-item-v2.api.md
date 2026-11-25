@@ -11,13 +11,31 @@ component sw-media-list-selection-item-v2  private  js  [private]
   template src/app/component/media/sw-media-list-selection-item-v2/sw-media-list-selection-item-v2.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+  hideActions?: boolean  default=false  [private]
+  hideTooltip?: boolean  default=false  [private]
+  item: any  [private]
+
+emits
+  click(...args: any[])  [private]
+  item-remove(...args: any[])  [private]
+
+computed
+  isPlaceholder: any  [private]
+  productImageClasses: any  [private]
+  sourceId: any  [private]
+
 blocks
   sw_media_list_selection_item_v2  [private]
-    sw_media_list_selection_item_v2_placeholder  [private]
+    sw_media_list_selection_item_v2_placeholder  [after v-if] [private]
       sw_media_list_selection_item_v2_placeholder_icon  [private]
     sw_media_list_selection_item_v2_preview  [private]
       sw_media_list_selection_item_v2_preview_actions  [private]
         sw_media_list_selection_item_v2_context  [private]
           sw_media_list_selection_item_v2_context_delete_action  [private]
       sw_media_list_selection_item_v2_preview_media  [private]
+
+crossings
+  v-if  sw_media_list_selection_item_v2_preview -> sw_media_list_selection_item_v2_placeholder  [private]
 ```

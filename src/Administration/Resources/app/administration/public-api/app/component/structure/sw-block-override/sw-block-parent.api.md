@@ -9,4 +9,7 @@ component sw-block-parent  private  ts  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/structure/sw-block-override/sw-block-parent/index.ts  [private]
   visibility-source export  [private]
+
+notes
+  unresolved options setup  [private]
 ```

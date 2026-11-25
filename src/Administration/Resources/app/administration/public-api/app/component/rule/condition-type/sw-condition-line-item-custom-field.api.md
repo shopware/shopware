@@ -11,6 +11,24 @@ component sw-condition-line-item-custom-field  public  js
   source src/app/component/rule/condition-type/sw-condition-line-item-custom-field/index.js
   template src/app/component/rule/condition-type/sw-condition-line-item-custom-field/sw-condition-line-item-custom-field.html.twig
 
+mixins
+  sw-inline-snippet
+
+computed
+  customFieldCriteria: any
+  operator: any
+  operators: any
+  renderedField: any
+  renderedFieldValue: any
+  selectedField: any
+  selectedFieldSet: any
+  truncateFilter: any
+
+methods
+  getFieldDescription(item: any): any
+  getTooltipConfig(item: any): any
+  onFieldChange(id: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -20,10 +38,16 @@ blocks
         sw_condition_base_field_delete_action  [inherited]
       sw_condition_base_field_condition  [inherited]
       sw_condition_value_before_content  [inherited]
-      sw_condition_value_content  [replaced]
+      sw_condition_value_content  [replaced] [after v-if]
         sw_condition_line_item_custom_field_field
-          sw_condition_line_item_custom_field_field_description
+          sw_condition_line_item_custom_field_field_description  [scope: index, isSelected, item, setValue]
         sw_condition_line_item_custom_field_operator
-        sw_condition_line_item_custom_field_value
+        sw_condition_line_item_custom_field_value  [after v-if]
     sw_condition_base_error  [inherited]
+
+refs
+  selectedField  -> sw-entity-single-select  block=sw_condition_line_item_custom_field_field
+
+notes
+  unresolved mixins Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)
 ```

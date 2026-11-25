@@ -11,6 +11,31 @@ component sw-sales-channel-switch  private  js  [private]
   template src/app/component/structure/sw-sales-channel-switch/sw-sales-channel-switch.html.twig  [private]
   visibility-source export  [private]
 
+props
+  abortChangeFunction?: (...args: any[]) => any  [private]
+  disabled?: boolean  default=false  [private]
+  label?: string  default=''  [private]
+  salesChannelCriteria?: object  default=factory  [private]
+  saveChangesFunction?: (...args: any[]) => any  [private]
+
+emits
+  change-sales-channel-id(...args: any[])  [private]
+
+data
+  lastSalesChannelId: any  [private]
+  newSalesChannelId: any  [private]
+  salesChannelId: any  [private]
+  showUnsavedChangesModal: any  [private]
+
+methods
+  changeToNewSalesChannel(salesChannelId: any): any  [private]
+  checkAbort(): any  [private]
+  emitChange(): any  [private]
+  onChange(id: any): any  [private]
+  onClickRevertUnsavedChanges(): any  [private]
+  onClickSaveChanges(): Promise<any>  [private]
+  onCloseChangesModal(): any  [private]
+
 blocks
   sw_sales_channel_switch  [private]
     sw_sales_channel_switch_modal  [private]
@@ -19,5 +44,8 @@ blocks
         sw_sales_channel_switch_footer_button_revert  [private]
         sw_sales_channel_switch_footer_button_save  [private]
       sw_sales_channel_switch_message  [private]
-    sw_sales_channel_switch_select  [private]
+    sw_sales_channel_switch_select  [after v-if] [private]
+
+refs
+  salesChannelSelect  -> sw-entity-single-select  block=sw_sales_channel_switch_select  [private]
 ```

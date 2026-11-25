@@ -11,6 +11,39 @@ component sw-generic-social-media-card  private  ts  [private]
   template src/module/sw-custom-entity/component/sw-generic-social-media-card/sw-generic-social-media-card.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  ogDescription?: string | null  default=''  [private]
+  ogImageId?: EntityKey<'media'> | null  default=null  [private]
+  ogTitle?: string | null  default=''  [private]
+
+emits
+  update:og-description(...args: any[])  [private]
+  update:og-image-id(...args: any[])  [private]
+  update:og-title(...args: any[])  [private]
+
+data
+  mediaModalIsOpen: any  [private]
+  ogImageEntity: any  [private]
+
+computed
+  mediaRepository: Repository<'media'>  [private]
+  uploadTag: string  [private]
+
+methods
+  emitMediaId(mediaId: EntityKey<'media'> | null): any  [private]
+  emitOgDescription(ogDescription: string): any  [private]
+  emitOgTitle(ogTitle: string): any  [private]
+  loadOgImage(): Promise<void>  [private]
+  onCloseMediaModal(): void  [private]
+  onCreated(): void  [private]
+  onImageUpload(arg0: { targetId: EntityKey<'media'> }): any  [private]
+  onOpenMediaModal(): void  [private]
+  onSelectionChanges(result: Entity<'media'>[]): void  [private]
+  removeOgImage(): void  [private]
+
 blocks
   sw_generic_social_media_card  [private]
 ```

@@ -10,6 +10,17 @@ component sw-media-replace  public  js
   registered src/app/component/index.ts
   source src/app/component/media/sw-media-replace/index.js
 
+props
+  itemToReplace: object
+
+data
+  multiSelect: any
+
+methods
+  cleanUpFailure(mediaEntity: any, message: any): any
+  getMediaEntityForUpload(): any
+  handlePresignedUpload(files: any): any
+
 blocks
   sw_media_upload_v2  [inherited]
     sw_media_upload_v2_compact  [inherited]
@@ -17,22 +28,30 @@ blocks
         sw_media_upload_v2_compact_button_context_menu_actions  [inherited]
       sw_media_upload_v2_compact_button_file_upload  [inherited]
       sw_media_upload_v2_compact_url_form  [inherited]
-    sw_media_upload_v2_file_input  [inherited]
-    sw_media_upload_v2_regular  [inherited]
+    sw_media_upload_v2_file_input  [inherited] [after v-if]
+    sw_media_upload_v2_regular  [inherited] [after v-if]
       sw_media_upload_v2_regular_drop_zone  [inherited]
-        sw_media_upload_v2_actions  [inherited]
-          sw_media_upload_v2_regular_actions_add  [inherited]
+        sw_media_upload_v2_actions  [inherited] [after v-if]
+          sw_media_upload_v2_regular_actions_add  [inherited] [after v-if]
             sw_media_upload_v2_regular_media_sidebar_button  [inherited]
-            sw_media_upload_v2_regular_upload_button  [inherited]
+            sw_media_upload_v2_regular_upload_button  [inherited] [after v-if]
           sw_media_upload_v2_regular_actions_url  [inherited]
         sw_media_upload_v2_preview  [inherited]
           sw_media_upload_v2_regular_caption  [inherited]
-          sw_media_upload_v2_regular_preview_fallback  [inherited]
+          sw_media_upload_v2_regular_preview_fallback  [inherited] [after v-if]
           sw_media_upload_v2_regular_preview_file  [inherited]
       sw_media_upload_v2_regular_header  [inherited]
-        sw_media_upload_v2_regular_header_helptext  [inherited]
+        sw_media_upload_v2_regular_header_helptext  [inherited] [after v-if]
         sw_media_upload_v2_regular_header_label  [inherited]
-        sw_media_upload_v2_regular_header_switch  [inherited]
+        sw_media_upload_v2_regular_header_switch  [inherited] [after v-if]
           sw_media_upload_v2_regular_header_switch_file_upload  [inherited]
-          sw_media_upload_v2_regular_header_switch_url_upload  [inherited]
+          sw_media_upload_v2_regular_header_switch_url_upload  [inherited] [after v-if]
+
+crossings
+  v-if  sw_media_upload_v2_regular_preview_file -> sw_media_upload_v2_regular_preview_fallback
+
+refs
+  dropzone  -> div  block=sw_media_upload_v2_regular_drop_zone
+  fileForm  -> form  block=sw_media_upload_v2_file_input
+  fileInput  -> input  block=sw_media_upload_v2_file_input
 ```

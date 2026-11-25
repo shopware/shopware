@@ -9,4 +9,28 @@ component sw-settings-measurement-default-units  public  js
   registered src/module/sw-settings-measurement/index.js
   source src/module/sw-settings-measurement/component/sw-settings-measurement-default-units/index.js
   template src/module/sw-settings-measurement/component/sw-settings-measurement-default-units/sw-settings-measurement-default-units.html.twig
+
+inject
+  acl
+
+props
+  measurementSystem: object
+  measurementSystems: any[]
+  measurementUnits: object
+
+emits
+  measurement-system-change(...args: any[])
+
+computed
+  lengthUnitOptions: any
+  measurementLengthUnitError: any
+  measurementSystemOptions: any
+  measurementUnitSystemError: any
+  measurementWeightUnitError: any
+  weightUnitOptions: any
+
+methods
+  getUnitOptionsByType(type: any): any
+  labelUnitCallback(item: any): any
+  onChangeMeasurementSystem(technicalName: any): any
 ```

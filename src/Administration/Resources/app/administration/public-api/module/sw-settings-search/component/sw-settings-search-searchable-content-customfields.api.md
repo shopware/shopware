@@ -10,24 +10,72 @@ component sw-settings-search-searchable-content-customfields  public  js
   source src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields/index.js
   template src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields/sw-settings-search-searchable-content-customfields.html.twig
 
+mixins
+  notification, sw-inline-snippet
+
+inject
+  acl
+  repositoryFactory
+
+props
+  columns: any[]
+  isEmpty: boolean
+  isLoading?: boolean  default=false
+  repository: object
+  searchConfigs?: any[]  default=factory
+
+emits
+  config-add(...args: any[])
+  config-delete(...args: any[])
+  config-save(...args: any[])
+  data-load(...args: any[])
+
+data
+  addedCustomFieldIds: any
+  currentCustomFieldId: any
+  customFields: any
+
+computed
+  assetFilter: any
+  customFieldCriteria: any
+  customFieldFilteredCriteria: any
+  customFieldRepository: any
+
+methods
+  createdComponent(): any
+  getMatchingCustomFields(field: any): any
+  onAddField(): any
+  onInlineEditCancel(): any
+  onInlineEditSave(promise: any): any
+  onRemove(currentField: any): any
+  onResetRanking(currentField: any): any
+  onSelectCustomField(currentField: any): any
+  showCustomFieldWithSet(field: any): any
+
 blocks
   sw_settings_search_searchable_content_customfields
     sw_settings_search_searchable_content_customfields_empty_state
       sw_settings_search_searchable_content_customfields_empty_state_action
-      sw_settings_search_searchable_content_customfields_state_image
-    sw_settings_search_searchable_content_customfields_grid
+      sw_settings_search_searchable_content_customfields_state_image  [deprecated tag:v6.8.0]
+    sw_settings_search_searchable_content_customfields_grid  [after v-if]
       sw_settings_search_searchable_content_customfields_columns_actions
-        sw_settings_search_searchable_content_customfields_columns_actions_delete
-        sw_settings_search_searchable_content_customfields_columns_actions_edit
+        sw_settings_search_searchable_content_customfields_columns_actions_delete  [scope: item]
+        sw_settings_search_searchable_content_customfields_columns_actions_edit  [scope: item]
       sw_settings_search_searchable_content_customfields_field
-        sw_settings_search_searchable_content_customfields_field_editor
-        sw_settings_search_searchable_content_customfields_field_label
+        sw_settings_search_searchable_content_customfields_field_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_customfields_field_label  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_customfields_ranking
-        sw_settings_search_searchable_content_customfields_ranking_editor
+        sw_settings_search_searchable_content_customfields_ranking_editor  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_customfields_searchable
-        sw_settings_search_searchable_content_customfields_searchable_editor
-        sw_settings_search_searchable_content_customfields_searchable_label
+        sw_settings_search_searchable_content_customfields_searchable_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_customfields_searchable_label  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_customfields_tokenize
-        sw_settings_search_searchable_content_customfields_tokenize_editor
-        sw_settings_search_searchable_content_customfields_tokenize_label
+        sw_settings_search_searchable_content_customfields_tokenize_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_customfields_tokenize_label  [scope: isInlineEdit, item]
+
+crossings
+  v-if  sw_settings_search_searchable_content_customfields_empty_state -> sw_settings_search_searchable_content_customfields_grid
+
+refs
+  customGrid  -> sw-entity-listing  block=sw_settings_search_searchable_content_customfields_grid
 ```

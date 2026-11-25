@@ -11,16 +11,25 @@ component sw-cms-el-config-product-name  private  js  [private]
   source src/module/sw-cms/elements/product-name/config/index.js  [private]
   visibility-source export  [private]
 
+computed
+  isProductPage: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_el_config_text  [inherited] [private]
     sw_cms_el_config_text_mt_tabs  [inherited] [from v6.8.0] [private]
-    sw_cms_el_config_text_tab_content  [inherited] [until v6.8.0] [private]
-    sw_cms_el_text_config_content  [inherited] [until v6.8.0] [private]
+    sw_cms_el_config_text_tab_content  [inherited] [scope: active] [until v6.8.0] [private]
+    sw_cms_el_text_config_content  [inherited] [scope: active] [until v6.8.0] [private]
     sw_cms_el_text_config_mt_content  [inherited] [from v6.8.0] [private]
       sw_cms_el_text_config_mt_content_field  [inherited] [from v6.8.0] [private]
-    sw_cms_el_text_config_mt_settings  [inherited] [from v6.8.0] [private]
+    sw_cms_el_text_config_mt_settings  [inherited] [after v-if] [from v6.8.0] [private]
       sw_cms_el_text_config_mt_settings_vertical_align  [inherited] [from v6.8.0] [private]
-    sw_cms_el_text_config_settings  [inherited] [until v6.8.0] [private]
-      sw_cms_el_text_config_settings_vertical_align  [inherited] [until v6.8.0] [private]
-    sw_cms_el_text_config_tab_options  [inherited] [until v6.8.0] [private]
+    sw_cms_el_text_config_settings  [inherited] [after v-if] [scope: active] [until v6.8.0] [private]
+      sw_cms_el_text_config_settings_vertical_align  [inherited] [scope: active] [until v6.8.0] [private]
+    sw_cms_el_text_config_tab_options  [inherited] [scope: active] [until v6.8.0] [private]
+
+refs
+  swCmsTextEditor  -> mt-text-editor  block=sw_cms_el_text_config_mt_content_field  [from v6.8.0] [private]
 ```

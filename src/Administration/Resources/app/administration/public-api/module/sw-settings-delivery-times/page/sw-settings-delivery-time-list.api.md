@@ -10,6 +10,27 @@ component sw-settings-delivery-time-list  public  js
   source src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list/index.js
   template src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list/sw-settings-delivery-time-list.html.twig
 
+mixins
+  listing, placeholder
+
+inject
+  acl
+  repositoryFactory
+
+data
+  deliveryTimes: any
+  isLoading: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  deliveryTimeRepository: any
+
+methods
+  deliveryTimeColumns(): any
+  getList(): any
+  onChangeLanguage(): any
+
 blocks
   sw_settings_delivery_time_list
     sw_settings_delivery_time_list_content

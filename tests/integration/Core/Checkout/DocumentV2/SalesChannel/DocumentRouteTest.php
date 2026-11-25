@@ -432,6 +432,38 @@ class DocumentRouteTest extends TestCase
         ];
     }
 
+    public function testDownloadOfAPdfOnlyDocumentWithHtmlPreferredInAcceptHeaderReturnsThePdf(): void
+    {
+        $customerId = $this->loginBrowser($this->browser);
+        $this->createOrder(
+            $customerId,
+            ['salesChannelId' => $this->ids->get('sales-channel')]
+        );
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'), PdfRenderer::FILE_EXTENSION, ['fileTypes' => [PdfRenderer::FILE_EXTENSION]]);
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $this->browser->request(
+            'GET',
+            '/store-api/document/download/' . $document->getId() . '/' . $document->getDeepLinkCode(),
+            [],
+            [],
+            ['HTTP_ACCEPT' => HtmlRenderer::FILE_CONTENT_TYPE . ', ' . PdfRenderer::FILE_CONTENT_TYPE . ';q=0.9']
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertStringContainsString(PdfRenderer::FILE_CONTENT_TYPE, (string) $response->headers->get('content-type'));
+    }
+
     public function testDownloadV2DocumentWithRequestedFormat(): void
     {
         $customerId = $this->loginBrowser($this->browser);

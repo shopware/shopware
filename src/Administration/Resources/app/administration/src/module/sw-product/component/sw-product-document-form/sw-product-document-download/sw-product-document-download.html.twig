@@ -1,0 +1,9 @@
+{% block sw_product_document_download %}
+<sw-context-menu-item
+    class="sw-product-document-form__download"
+    :disabled="!acl.can('media.viewer') || !media"
+    @click="downloadDocument"
+>
+    {{ $t('sw-product.documentForm.contextDownload') }}
+</sw-context-menu-item>
+{% endblock %}

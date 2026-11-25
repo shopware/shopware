@@ -11,12 +11,31 @@ component sw-self-maintained-extension-card  private  js  [private]
   source src/module/sw-extension/component/sw-self-maintained-extension-card/index.js  [private]
   visibility-source export  [private]
 
+mixins
+  sw-extension-error  [private]
+
+props
+  extension: object  [private]
+
+computed
+  extensionCardClasses: any  [private]
+  isInstalled: any  [private]
+  permissions: any  [private]
+
+methods
+  activateExtension(): Promise<any>  [private]
+  changeExtensionStatus(): Promise<any>  [private]
+  deactivateExtension(): Promise<any>  [private]
+  installAndActivateExtension(): Promise<any>  [private]
+  installExtension(): Promise<any>  [private]
+  removeExtension(removeData: any): Promise<any>  [private]
+
 blocks
   sw_extension_card_base_activation_switch  [inherited] [private]
     sw_extension_card_base_info_inactive_label  [inherited] [private]
   sw_extension_card_base_activation_switch_switch  [inherited] [private]
   sw_extension_card_base_context_menu_actions  [inherited] [private]
-    sw_extension_card_base_context_menu_actions_additional  [inherited] [private]
+    sw_extension_card_base_context_menu_actions_additional  [inherited] [after v-if] [private]
   sw_extension_card_base_info_content  [inherited] [private]
-  sw_extension_card_base_modals  [inherited] [private]
+  sw_extension_card_base_modals  [inherited] [after v-if] [private]
 ```

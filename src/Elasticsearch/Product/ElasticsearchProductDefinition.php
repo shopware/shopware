@@ -134,6 +134,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'visibility' => self::INT_FIELD,
             ]),
             'coverId' => self::KEYWORD_FIELD,
+            'documents' => ElasticsearchFieldBuilder::nested([
+                'translations' => ElasticsearchFieldBuilder::nested(['languageId' => self::KEYWORD_FIELD]),
+            ]),
             'weight' => self::FLOAT_FIELD,
             'width' => self::FLOAT_FIELD,
             'type' => self::KEYWORD_FIELD,
@@ -230,6 +233,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $groups = $this->fetchProperties(\array_keys($groupIds));
 
+        $productDocuments = $this->fetchDocuments(\array_keys($data));
+
         $languageMapping = $this->getLanguageMapping();
 
         foreach ($data as $id => $item) {
@@ -310,6 +315,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 }, ElasticsearchIndexingUtils::parseJson($item, 'tags'))),
                 'parentId' => $item['parentId'],
                 'coverId' => $item['coverId'],
+                'documents' => $productDocuments[$id] ?? [],
                 'childCount' => (int) $item['childCount'],
                 'categories' => ElasticsearchFieldMapper::toManyAssociations(items: $categories, translatedFields: ['name']),
                 'manufacturer' => [
@@ -534,6 +540,71 @@ SQL;
         }
 
         return $base;
+    }
+
+    /**
+     * @param array<string> $productIds
+     *
+     * @return array<string, list<array{id: string, _count: int, translations: list<array{languageId: string, _count: int}>}>>
+     */
+    private function fetchDocuments(array $productIds): array
+    {
+        $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        /** @var array<string, string> $ownerIds */
+        $ownerIds = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), LOWER(HEX(documents)) FROM product WHERE id IN (:ids) AND version_id = :liveVersionId AND documents IS NOT NULL',
+            ['ids' => Uuid::fromHexToBytesList($productIds), 'liveVersionId' => $liveVersionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        if ($ownerIds === []) {
+            return [];
+        }
+
+        $sql = <<<'SQL'
+SELECT
+       LOWER(HEX(pd.product_id)) AS ownerId,
+       LOWER(HEX(pd.id)) AS id,
+       LOWER(HEX(pdt.language_id)) AS languageId
+FROM product_document pd
+         LEFT JOIN product_document_translation pdt
+            ON pdt.product_document_id = pd.id
+            AND pdt.product_document_version_id = pd.version_id
+WHERE pd.product_id IN (:ownerIds)
+  AND pd.product_version_id = :liveVersionId
+  AND pd.version_id = :liveVersionId
+SQL;
+
+        /** @var list<array{ownerId: string, id: string, languageId: string|null}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            $sql,
+            [
+                'ownerIds' => Uuid::fromHexToBytesList(array_values(array_unique($ownerIds))),
+                'liveVersionId' => $liveVersionId,
+            ],
+            [
+                'ownerIds' => ArrayParameterType::BINARY,
+            ]
+        );
+
+        $documentsByOwner = [];
+        foreach ($rows as $row) {
+            $documentsByOwner[$row['ownerId']][$row['id']] ??= ['id' => $row['id'], '_count' => 1, 'translations' => []];
+
+            if ($row['languageId'] !== null) {
+                $documentsByOwner[$row['ownerId']][$row['id']]['translations'][] = ['languageId' => $row['languageId'], '_count' => 1];
+            }
+        }
+
+        $documents = [];
+        foreach ($ownerIds as $productId => $ownerId) {
+            if (isset($documentsByOwner[$ownerId])) {
+                $documents[$productId] = array_values($documentsByOwner[$ownerId]);
+            }
+        }
+
+        return $documents;
     }
 
     /**

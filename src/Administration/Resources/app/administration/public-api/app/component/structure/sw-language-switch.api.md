@@ -11,6 +11,38 @@ component sw-language-switch  private  js  [private]
   template src/app/component/structure/sw-language-switch/sw-language-switch.html.twig  [private]
   visibility-source export  [private]
 
+props
+  abortChangeFunction?: (...args: any[]) => any  default=factory  [private]
+  allowEdit?: boolean  default=true  [private]
+  changeGlobalLanguage?: boolean  default=true  [private]
+  disabled?: boolean  default=false  [private]
+  saveChangesFunction?: (...args: any[]) => any  default=factory  [private]
+  savePermission?: boolean  default=true  [private]
+
+emits
+  on-change(...args: any[])  [private]
+
+data
+  languageId: any  [private]
+  lastLanguageId: any  [private]
+  newLanguageId: any  [private]
+  showUnsavedChangesModal: any  [private]
+
+computed
+  languageCacheKey: any  [private]
+  languageCriteria: any  [private]
+
+methods
+  changeToNewLanguage(languageId: any): any  [private]
+  checkAbort(): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  emitChange(): any  [private]
+  onClickRevertUnsavedChanges(): any  [private]
+  onClickSaveChanges(): Promise<any>  [private]
+  onCloseChangesModal(): any  [private]
+  onInput(newLanguageId: any): any  [private]
+
 blocks
   sw_language_switch  [private]
     sw_language_switch_modal  [private]

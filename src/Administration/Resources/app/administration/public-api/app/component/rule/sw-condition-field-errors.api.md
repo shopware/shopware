@@ -11,6 +11,21 @@ component sw-condition-field-errors  private  js  [private]
   template src/app/component/rule/sw-condition-field-errors/sw-condition-field-errors.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  conditionType  [private]
+
+props
+  errors: object  [private]
+
+computed
+  hiddenCount: any  [private]
+  labels: any  [private]
+  summary: any  [private]
+  visibleLabels: any  [private]
+
+methods
+  resolveLabel(field: any): any  [private]
+
 blocks
   sw_condition_field_errors  [private]
 ```

@@ -12,9 +12,11 @@ use Mcp\Server\Stateless\RequestMeta;
 use Mcp\Server\Stateless\StatelessProtocol;
 use Mcp\Server\Subscription\NotificationBusInterface;
 use Mcp\Server\Subscription\PublishingEventDispatcher;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
@@ -92,6 +94,19 @@ class McpListenStreamTest extends TestCase
         self::$listenKernel = $kernel;
     }
 
+    protected function tearDown(): void
+    {
+        if ($this->salesChannelIds === []) {
+            return;
+        }
+
+        static::getContainer()->get('sales_channel.repository')->delete(
+            array_map(static fn (string $id): array => ['id' => $id], $this->salesChannelIds),
+            Context::createDefaultContext()
+        );
+        $this->salesChannelIds = [];
+    }
+
     public function testOnlyTheServerWithTheBusAnnouncesListChangedOnDiscover(): void
     {
         $admin = self::capabilities((string) self::kernel()->handle($this->adminRequest('server/discover'))->getContent());
@@ -143,6 +158,17 @@ class McpListenStreamTest extends TestCase
         static::assertNull(self::firstFrameWith($frames, 'notifications/prompts/list_changed', required: false), 'only the bumped list is announced');
 
         static::assertStringContainsString('"resultType":"complete"', end($frames)[1], 'the stream ends gracefully after its lifetime');
+    }
+
+    #[Depends('testOnlyTheServerWithTheBusAnnouncesListChangedOnDiscover')]
+    public function testTheClassLeavesNoStorefrontSalesChannelBehind(): void
+    {
+        $leaked = $this->container()->get(Connection::class)->fetchFirstColumn(
+            'SELECT LOWER(HEX(`sales_channel_id`)) FROM `sales_channel_domain` WHERE `url` = :url',
+            ['url' => 'http://localhost']
+        );
+
+        static::assertSame([], $leaked, 'a sales channel with the domain http://localhost was committed and never removed');
     }
 
     private static function installServers(ContainerInterface $container): void

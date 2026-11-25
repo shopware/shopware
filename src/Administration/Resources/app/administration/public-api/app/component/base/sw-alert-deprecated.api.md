@@ -11,6 +11,29 @@ component sw-alert-deprecated  private  ts  [private]
   template src/app/component/base/sw-alert-deprecated/sw-alert-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+props
+  appearance?: AppearanceType  default='default'  [private]
+  closable?: boolean  default=false  [private]
+  icon?: string  default=null  [private]
+  notificationIndex?: string  default=null  [private]
+  showIcon?: boolean  default=true  [private]
+  title?: string  default=''  [private]
+  variant?: NotificationVariant  default='info'  [private]
+
+emits
+  close(...args: any[])  [private]
+
+slots
+  actions  {}  block=sw_alert_actions  [private]
+  customIcon  {}  block=sw_alert_icon  [private]
+  default  {}  block=sw_alert_message  [private]
+
+computed
+  alertBodyClasses: CssClasses  [private]
+  alertClasses: CssClasses  [private]
+  alertIcon: string  [private]
+  hasActionSlot: boolean  [private]
+
 blocks
   sw_alert  [private]
     sw_alert_inner  [private]

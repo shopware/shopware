@@ -10,6 +10,67 @@ component sw-product-cross-selling-form  public  js
   source src/module/sw-product/component/sw-product-cross-selling-form/index.js
   template src/module/sw-product/component/sw-product-cross-selling-form/sw-product-cross-selling-form.html.twig
 
+mixins
+  placeholder
+
+inject
+  productStreamConditionService
+  repositoryFactory
+
+provide
+  productCustomFields: any
+
+props
+  allowEdit?: boolean  default=true
+  crossSelling: object
+
+data
+  assignmentKey: any
+  optionSearchTerm: any
+  productStream: any
+  productStreamFilter: any
+  productStreamFilterTree: any
+  showDeleteModal: any
+  showModalPreview: any
+  sortBy: any
+  sortDirection: any
+  useManualAssignment: any
+
+computed
+  associationValue: any
+  crossSellingAssigmentRepository: any  [deprecated tag:v6.8.0]
+  crossSellingNameError: any
+  crossSellingPositionError: any
+  crossSellingTitle: any
+  crossSellingTypeError: any
+  crossSellingTypeOptions: any
+  crossSellingTypes: any
+  disablePositioning: any  [deprecated tag:v6.8.0]
+  isLoading: any
+  previewDisabled: any
+  product: any
+  productCrossSellingRepository: any  [deprecated tag:v6.8.0]
+  productStreamCriteria: any
+  productStreamFilterCriteria: any
+  productStreamFilterRepository: any
+  productStreamRepository: any
+  sortingConCat: any
+  sortingTypeOptions: any
+  sortingTypes: any
+
+methods
+  closeModalPreview(): any
+  createdComponent(): any
+  getProductStreamFilter(): any
+  loadStreamPreview(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(): any
+  onShowDeleteModal(): any
+  onSortingChanged(value: any): any
+  onTypeChanged(value: any): any
+  openModalPreview(): any
+  updateProductStreamFilterTree(arg0: any): any
+
 blocks
   sw_product_cross_selling_form
     sw_prduct_cross_selling_form_card
@@ -31,4 +92,7 @@ blocks
       sw_product_detail_cross_selling_form_modal_delete_footer
         sw_product_detail_cross_selling_form_modal_delete_action_delete
         sw_product_detail_cross_selling_modal_delete_action_cancel
+
+refs
+  modalPreview  -> sw-product-stream-modal-preview  block=sw_product_detail_cross_selling_modal_preview_modal
 ```

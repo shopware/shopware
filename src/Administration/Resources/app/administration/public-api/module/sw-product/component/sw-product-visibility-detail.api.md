@@ -10,6 +10,26 @@ component sw-product-visibility-detail  public  js
   source src/module/sw-product/component/sw-product-visibility-detail/index.js
   template src/module/sw-product/component/sw-product-visibility-detail/sw-product-visibility-detail.html.twig
 
+props
+  disabled?: boolean  default=false
+
+data
+  items: any
+  limit: any
+  page: any
+  total: any
+
+computed
+  filteredItems: any
+  names: any
+  product: any
+  truncateFilter: any
+
+methods
+  changeVisibilityValue(event: any, item: any): any
+  createdComponent(): any
+  onPageChange(params: any): any
+
 blocks
   sw_product_visibility_detail
     sw_product_visibility_detail_columns

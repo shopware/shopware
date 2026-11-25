@@ -11,6 +11,19 @@ component sw-sidebar-navigation-item  private  js  [private]
   template src/app/component/sidebar/sw-sidebar-navigation-item/sw-sidebar-navigation-item.html.twig  [private]
   visibility-source export  [private]
 
+props
+  sidebarItem: object  [private]
+
+emits
+  item-click(...args: any[])  [private]
+
+computed
+  badgeTypeClasses: any  [private]
+  tooltipContent: any  [private]
+
+methods
+  emitButtonClicked(): any  [private]
+
 blocks
   sw_sidebar_navigation_item  [private]
     sw_sidebar_navigation_item_content  [private]

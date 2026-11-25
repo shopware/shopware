@@ -11,6 +11,41 @@ component sw-flow-affiliate-and-campaign-code-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal/sw-flow-affiliate-and-campaign-code-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification  [private]
+
+inject
+  flowBuilderService  [private]
+
+props
+  action?: string  default=null  [private]
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  affiliateCode: object  [private]
+    upsert: any  [private]
+    value: any  [private]
+  campaignCode: object  [private]
+    upsert: any  [private]
+    value: any  [private]
+  entity: any  [private]
+  entityError: any  [private]
+
+computed
+  entityOptions: any  [private]
+  triggerActions: any  [private]
+  triggerEvent: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  fieldError(field: any): any  [private]
+  onClose(): any  [private]
+  onSave(): any  [private]
+
 blocks
   sw_flow_affiliate_and_campaign_code_modal  [private]
     sw_flow_affiliate_and_campaign_code_modal_content  [private]

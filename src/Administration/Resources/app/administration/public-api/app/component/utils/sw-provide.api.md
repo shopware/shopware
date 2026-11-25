@@ -9,4 +9,7 @@ component sw-provide  private  ts  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/utils/sw-provide/index.ts  [private]
   visibility-source export  [private]
+
+notes
+  unresolved options setup  [private]
 ```

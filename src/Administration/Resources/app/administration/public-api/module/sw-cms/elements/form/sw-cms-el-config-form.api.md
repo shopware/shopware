@@ -11,6 +11,29 @@ component sw-cms-el-config-form  private  js  [private]
   template src/module/sw-cms/elements/form/config/sw-cms-el-config-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  systemConfigApiService  [private]
+
+data
+  activeTab: any  [private]
+
+computed
+  formTypeOptions: any  [private]
+  getLastMailClass: any  [private]
+  requireConfigTab: any  [private]
+  tabs: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getShopMail(): Promise<any>  [private]
+  setShopMail(): Promise<any>  [private]
+  updateMailReceiver(value: any): Promise<any>  [private]
+  validateMail(): any  [private]
+
 blocks
   sw_cms_el_config_form  [private]
     sw_cms_el_config_form_mt_tabs  [from v6.8.0] [private]

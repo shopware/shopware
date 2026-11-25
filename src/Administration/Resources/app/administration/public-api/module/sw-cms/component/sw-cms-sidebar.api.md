@@ -10,6 +10,108 @@ component sw-cms-sidebar  public  ts
   source src/module/sw-cms/component/sw-cms-sidebar/index.ts
   template src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar.html.twig
 
+mixins
+  cms-state, placeholder
+
+inject
+  acl
+  cmsBlockFavorites
+  cmsPageTypeService
+  cmsService
+  feature
+  repositoryFactory
+
+props
+  demoEntity?: string  default=null
+  demoEntityIdProp?: string  default=null
+  disabled?: boolean  default=false
+  isDefaultLayout?: boolean  default=false
+  page: Entity<'cms_page'>
+
+emits
+  block-duplicate(...args: any[])
+  block-stage-drop(...args: any[])
+  current-block-change(...args: any[])
+  demo-entity-change(...args: any[])
+  open-layout-assignment(...args: any[])
+  open-layout-set-as-default(...args: any[])
+  page-save(...args: any[])
+  page-type-change(...args: any[])
+  page-update(...args: any[])
+  section-duplicate(...args: any[])
+
+data
+  currentBlockCategory: any
+  currentDragSectionIndex: any
+  demoEntityId: any
+  navigatorDontRemind: any
+  showSidebarNavigatorModal: any
+
+computed
+  addBlockTitle: any
+  blockRepository: any
+  blockTypes: any
+  cmsBlockCategories: any
+  cmsBlockCategoriesOptions: any
+  cmsBlocks: any
+  cmsBlocksBySelectedBlockCategory: any
+  demoContext: any
+  demoCriteria: any
+  hasPageConfigErrors: any
+  isLayoutAssignmentDisabled: any
+  mediaRepository: any
+  pageConfigErrors: any
+  pageNameError: any
+  pageSections: any
+  pageTypes: any
+  pageTypesOptions: any
+  showDefaultLayoutSelection: any
+  sidebarItemSettings: any
+  slotRepository: any
+  tooltipDisabled: any
+
+methods
+  blockIsDuplicable(block: Entity<'cms_block'>): any
+  blockIsRemovable(block: Entity<'cms_block'>): any
+  blockIsUnique(block: Entity<'cms_block'>): any
+  blockTypeExists(type: string): any
+  createdComponent(): any
+  getDragData(block: Entity<'cms_block'>, sectionIndex: number): DragObject
+  getDropData(block: Entity<'cms_block'>, sectionIndex: number): DropObject
+  getMainContentBlocks(sectionBlocks: EntityCollection<'cms_block'>): any
+  getSidebarContentBlocks(sectionBlocks: EntityCollection<'cms_block'>): any
+  isDisabledPageType(pageType: PageType): any
+  moveSectionDown(section: Entity<'cms_section'>): any
+  moveSectionUp(section: Entity<'cms_section'>): any
+  onBlockDelete(block: Entity<'cms_block'>, section: Entity<'cms_section'> | null): any
+  onBlockDragSort(dragData: DragData, dropData: DropData, validDrop: boolean): any
+  onBlockDragStop(data: DragData): any
+  onBlockDropAbort(dragData: DragData, dropData: DropData): any
+  onBlockDuplicate(block: Entity<'cms_block'>, section: Entity<'cms_section'> | null): any
+  onBlockStageDrop(dragData: DragData, dropData: DropData): any
+  onCloseBlockConfig(): any
+  onDemoEntityChange(demoEntityId: EntityKey<'product'>): any
+  onNavigatorBlockDelete(block: Entity<'cms_block'>, section: Entity<'cms_section'>): any
+  onNavigatorSectionDelete(sectionId: EntityKey<'cms_section'>): any
+  onOpenLayoutAssignment(): any
+  onOpenLayoutSetAsDefault(): any
+  onPageTypeChange(pageType: PageType): any
+  onRemoveSectionBackgroundMedia(section: Entity<'cms_section'>): any
+  onSectionDelete(sectionId: EntityKey<'cms_section'>): any
+  onSectionDuplicate(section: Entity<'cms_section'>): any
+  onSetSectionBackgroundMedia(arg0: [Entity<'media'>], section: Entity<'cms_section'>): any
+  onSidebarNavigationCancel(): any
+  onSidebarNavigationConfirm(): any
+  onSidebarNavigatorClick(): any
+  onToggleBlockFavorite(blockName: string): any
+  onVisibilityChange(selectedBlock: Entity<'cms_block'>, viewport: string, isVisible: boolean): any
+  openSectionSettings(sectionIndex: number): any
+  pageUpdate(): any
+  refreshPosition(blocks: EntityCollection<'cms_block'>): any
+  sectionIsDuplicable(section: Entity<'cms_section'>): any
+  successfulUpload(media: MediaUploadResult, section: Entity<'cms_section'>): any
+  uploadTag(section: Entity<'cms_section'>): any
+
 blocks
   sw_cms_sidebar
     sw_cms_sidebar_block_and_section_settings
@@ -69,4 +171,11 @@ blocks
           sw_cms_sidebar_page_settings_name_field
           sw_cms_sidebar_page_settings_type_field
         sw_cms_sidebar_page_settings_header
+
+refs
+  blockNavigator  -> sw-sidebar-item  block=sw_cms_sidebar_navigator
+  blockSelectionSidebar  -> sw-sidebar-item  block=sw_cms_sidebar_block_overview
+  itemConfigSidebar  -> sw-sidebar-item  block=sw_cms_sidebar_block_and_section_settings
+  layoutAssignment  -> sw-sidebar-item  block=sw_cms_sidebar_layout_assignment
+  pageConfigSidebar  -> sw-sidebar-item  block=sw_cms_sidebar_page_settings
 ```

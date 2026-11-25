@@ -11,6 +11,17 @@ component sw-contextual-field  private  js  [private]
   template src/app/component/form/field-base/sw-contextual-field/sw-contextual-field.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  hint  {}  block=sw_contextual_field  [private]
+  label  {}  block=sw_contextual_field  [private]
+  sw-contextual-field-prefix  { ...{ disabled, identification } }  block=sw_contextual_field  [private]
+  sw-contextual-field-suffix  { ...{ disabled, identification } }  block=sw_contextual_field  [private]
+  sw-field-input  { ...{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix } }  block=sw_contextual_field  [private]
+
+computed
+  hasPrefix: any  [private]
+  hasSuffix: any  [private]
+
 blocks
   sw_contextual_field  [private]
 ```

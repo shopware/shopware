@@ -10,6 +10,19 @@ component sw-settings-item  public  js
   source src/module/sw-settings/component/sw-settings-item/index.js
   template src/module/sw-settings/component/sw-settings-item/sw-settings-item.html.twig
 
+props
+  disabled?: boolean  default=false
+  label: string
+  showNewBadge?: boolean  default=false
+  to: object  default=factory
+
+slots
+  icon  {}  block=sw_settings_item_icon
+  label  {}  block=sw_settings_item_label
+
+computed
+  classes: any
+
 blocks
   sw_settings_item
     sw_settings_item_icon

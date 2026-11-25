@@ -11,10 +11,28 @@ component sw-colorpicker  private  ts  [private]
   template src/app/component/form/sw-colorpicker/sw-colorpicker.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  modelValue?: number  default=undefined  [private]
+  value?: number | string  default=null  [private]
+
+slots
+  default  {}  block=sw_colorpicker  [private]
+  default  {}  block=(root)  [private]
+
+computed
+  currentValue: any  [private]
+
+methods
+  getSlots(): any  [private]
+
 blocks
   sw_colorpicker  [private]
   sw_colorpicker_deprecated  [after v-if] [private]
 
 crossings
   v-if  sw_colorpicker -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

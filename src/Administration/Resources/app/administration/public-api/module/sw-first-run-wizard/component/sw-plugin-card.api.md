@@ -11,6 +11,33 @@ component sw-plugin-card  private  ts  [private]
   template src/module/sw-first-run-wizard/component/sw-plugin-card/sw-plugin-card.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-extension-error  [private]
+
+inject
+  cacheApiService  [private]
+  extensionHelperService  [private]
+  shopwareExtensionService  [private]
+
+props
+  plugin: RecommendedPlugin  [private]
+  showDescription?: boolean  default=true  [private]
+
+emits
+  extension-activated(...args: any[])  [private]
+  on-plugin-installed(...args: any[])  [private]
+
+data
+  pluginIsLoading: any  [private]
+
+computed
+  pluginIsNotActive: boolean  [private]
+  truncateFilter: any  [private]
+
+methods
+  onInstall(): void  [private]
+  setupPlugin(): Promise<void>  [private]
+
 blocks
   sw_plugin_card  [private]
 ```

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\StoredResult;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
-use Shopware\Core\Framework\SystemCheck\SystemCheckException;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -79,14 +78,6 @@ class SystemCheckControllerTest extends TestCase
         $this->systemChecker->expects($this->once())->method('queueCheck')->with('LocalesReadiness');
 
         $this->controller->run(new Request(['check' => 'LocalesReadiness']));
-    }
-
-    public function testRejectsAnUnknownCheck(): void
-    {
-        $this->systemChecker->expects($this->never())->method('queueCheck');
-        $this->expectExceptionObject(SystemCheckException::unknownCheck('Unknown'));
-
-        $this->controller->run(new Request(['check' => 'Unknown']));
     }
 
     private function check(string $name, Category $category): BaseCheck

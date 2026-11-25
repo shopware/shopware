@@ -12,6 +12,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\SystemCheck\Message\RunSystemChecks;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Shopware\Core\Framework\SystemCheck\SystemCheckException;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 
@@ -127,12 +128,30 @@ class SystemCheckerTest extends TestCase
     public function testQueuesACheck(): void
     {
         $messageBus = new CollectingMessageBus();
-        $checker = new SystemChecker([], static::createStub(SystemCheckResultStorage::class), $messageBus);
+        $checker = new SystemChecker(
+            [$this->check('AppUrlVerification', SystemCheckExecutionContext::CLI)],
+            static::createStub(SystemCheckResultStorage::class),
+            $messageBus,
+        );
 
         $checker->queueCheck('AppUrlVerification');
 
         static::assertCount(1, $messageBus->getMessages());
         static::assertEquals(new RunSystemChecks('AppUrlVerification'), $messageBus->getMessages()[0]->getMessage());
+    }
+
+    public function testRejectsQueueingAnUnknownCheck(): void
+    {
+        $messageBus = new CollectingMessageBus();
+        $checker = new SystemChecker([], static::createStub(SystemCheckResultStorage::class), $messageBus);
+
+        $this->expectExceptionObject(SystemCheckException::unknownCheck('Unknown'));
+
+        try {
+            $checker->queueCheck('Unknown');
+        } finally {
+            static::assertSame([], $messageBus->getMessages());
+        }
     }
 
     public function testDoesNotStoreChecksNotAllowedInTheContext(): void

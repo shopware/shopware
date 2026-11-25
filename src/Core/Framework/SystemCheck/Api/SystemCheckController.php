@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
-use Shopware\Core\Framework\SystemCheck\SystemCheckException;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -59,25 +58,8 @@ class SystemCheckController
     #[Route(path: '/api/_action/system-check/run', name: 'api.action.system-check.run', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:system_health']], methods: ['POST'])]
     public function run(Request $request): Response
     {
-        $name = $request->query->has('check') ? $request->query->getString('check') : null;
-
-        if ($name !== null && !$this->exists($name)) {
-            throw SystemCheckException::unknownCheck($name);
-        }
-
-        $this->systemChecker->queueCheck($name);
+        $this->systemChecker->queueCheck($request->query->has('check') ? $request->query->getString('check') : null);
 
         return new Response(null, Response::HTTP_ACCEPTED);
-    }
-
-    private function exists(string $name): bool
-    {
-        foreach ($this->checks as $check) {
-            if ($check->name() === $name) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

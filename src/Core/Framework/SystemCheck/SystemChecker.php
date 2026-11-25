@@ -33,6 +33,11 @@ class SystemChecker
      */
     public function queueCheck(?string $name = null): void
     {
+        $names = array_map(static fn (BaseCheck $check) => $check->name(), [...$this->checks]);
+        if ($name !== null && !\in_array($name, $names, true)) {
+            throw SystemCheckException::unknownCheck($name);
+        }
+
         $this->messageBus->dispatch(new RunSystemChecks($name));
     }
 

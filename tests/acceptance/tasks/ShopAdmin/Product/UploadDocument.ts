@@ -1,6 +1,7 @@
 import { test as base } from '@playwright/test';
 import type { FixtureTypes, Task, ProductDocumentType } from '@fixtures/AcceptanceTest';
-import { createDocument, getMediaId } from '@fixtures/AcceptanceTest';
+import { createDocument } from '@fixtures/AcceptanceTest';
+import { trackUploadedDocumentMedia } from '@tasks/trackDocumentMedia';
 
 export interface UploadDocumentOptions {
     /** File type to generate. Defaults to a valid PDF. Use 'txt' for the unsupported-type case. */
@@ -14,13 +15,9 @@ export interface UploadDocumentOptions {
  * Success and error assertions stay in the spec, so the same task serves both.
  */
 export const UploadDocument = base.extend<{ UploadDocument: Task }, FixtureTypes>({
-    UploadDocument: async ({ AdminProductDetail, AdminApiContext }, use) => {
-        const uploadedMediaNames: string[] = [];
-
+    UploadDocument: async ({ AdminProductDetail, AdminApiContext, TestDataService }, use) => {
         const task = (documentName: string, options: UploadDocumentOptions = {}) => {
             return async function UploadDocument() {
-                uploadedMediaNames.push(documentName);
-
                 const document = createDocument(options.type, { sizeInBytes: options.sizeInBytes });
 
                 // A rejected upload leaves the modal open; close it so the next upload can click Add.
@@ -45,21 +42,12 @@ export const UploadDocument = base.extend<{ UploadDocument: Task }, FixtureTypes
                     AdminProductDetail.addDocumentsModal.waitFor({ state: 'hidden' }).catch(() => {}),
                     AdminProductDetail.documentUploadError.waitFor({ state: 'visible' }).catch(() => {}),
                 ]);
+
+                // The file lives independently of the product; register it so cleanup removes it.
+                await trackUploadedDocumentMedia(TestDataService, AdminApiContext, documentName);
             };
         };
 
         await use(task);
-
-        // Best-effort cleanup: delete the uploaded media (a rejected upload created none).
-        for (const mediaName of uploadedMediaNames) {
-            try {
-                const mediaId = await getMediaId(mediaName, AdminApiContext);
-                if (mediaId) {
-                    await AdminApiContext.delete(`media/${mediaId}`);
-                }
-            } catch {
-                // Nothing to clean up.
-            }
-        }
     },
 });

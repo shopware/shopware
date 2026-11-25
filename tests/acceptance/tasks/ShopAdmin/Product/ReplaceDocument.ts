@@ -1,6 +1,7 @@
 import { test as base } from '@playwright/test';
 import type { FixtureTypes, Task, ProductDocumentType } from '@fixtures/AcceptanceTest';
 import { createDocument } from '@fixtures/AcceptanceTest';
+import { trackUploadedDocumentMedia } from '@tasks/trackDocumentMedia';
 
 export interface ReplaceDocumentOptions {
     type?: ProductDocumentType;
@@ -12,7 +13,7 @@ export interface ReplaceDocumentOptions {
  * Edit, remove the current file and upload a fresh one. The title and position stay the same.
  */
 export const ReplaceDocument = base.extend<{ ReplaceDocument: Task }, FixtureTypes>({
-    ReplaceDocument: async ({ AdminProductDetail }, use) => {
+    ReplaceDocument: async ({ AdminProductDetail, AdminApiContext, TestDataService }, use) => {
         const task = (documentName: string, options: ReplaceDocumentOptions = {}) => {
             return async function ReplaceDocument() {
                 const document = createDocument(options.type, { sizeInBytes: options.sizeInBytes });
@@ -34,6 +35,9 @@ export const ReplaceDocument = base.extend<{ ReplaceDocument: Task }, FixtureTyp
                 await AdminProductDetail.editDocumentRemoveFileButton.waitFor({ state: 'visible' });
                 await AdminProductDetail.editDocumentApplyButton.click();
                 await AdminProductDetail.editDocumentModal.waitFor({ state: 'hidden' });
+
+                // The replacement file is a new, independent media; register it so cleanup removes it.
+                await trackUploadedDocumentMedia(TestDataService, AdminApiContext, documentName);
             };
         };
 

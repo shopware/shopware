@@ -66,11 +66,11 @@
         font-size: var(--font-size-2xs);
     }
 
-    // the details read as their own area: indented under the name, on a sunken background
+    // the details read as their own area: indented under the name, on a sunken background;
+    // no bottom padding: the last section brings its own spacing, and flow-root keeps that margin inside the panel
     &__panel {
-        margin: 0 0 var(--scale-size-20) calc(8rem + var(--scale-size-12));
-        // no bottom padding: the last section brings its own spacing; flow-root keeps that margin inside the panel
         display: flow-root;
+        margin: 0 0 var(--scale-size-20) calc(8rem + var(--scale-size-12));
         padding: var(--scale-size-24) var(--scale-size-24) 0;
         border-radius: var(--border-radius-card, 8px);
         background: var(--color-elevation-surface-sunken);

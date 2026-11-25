@@ -34,3 +34,4 @@ import '../build/vue-setup-transform/shopware-setup-macros';
 import '../src/module/sw-flow/service';
 import '../src/module/sw-extension/service';
 import '../src/module/sw-settings-services/service';
+import '../src/module/sw-settings-system-health/service';

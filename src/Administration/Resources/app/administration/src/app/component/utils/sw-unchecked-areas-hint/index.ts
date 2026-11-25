@@ -20,11 +20,18 @@ export default Shopware.Component.wrapComponentConfig({
             type: Array as PropType<string[]>,
             required: true,
         },
+
+        // Snippet key of the sentence, with an {areas} placeholder for the area names
+        textSnippet: {
+            type: String,
+            required: false,
+            default: 'global.sw-unchecked-areas-hint.text',
+        },
     },
 
     computed: {
         hintText(): string {
-            return this.$t('global.sw-unchecked-areas-hint.text', {
+            return this.$t(this.textSnippet, {
                 areas: this.labels.map((label) => this.$t(label)).join(', '),
             });
         },

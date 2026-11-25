@@ -41,9 +41,21 @@
         </sw-container>
         {% endblock %}
 
+        {% block sw_settings_tag_detail_assignments_unchecked_areas_hint %}
+        <sw-unchecked-areas-hint
+            class="sw-settings-tag-detail-assignments__unchecked-areas-hint"
+            :labels="uncheckedAreaLabels"
+            text-snippet="sw-settings-tag.detail.assignments.textUncheckedAreas"
+        />
+        {% endblock %}
+
         <template #grid>
             {% block sw_settings_tag_detail_assignments_grid %}
-            <sw-container columns="300px 1fr">
+            <sw-container
+                v-if="selectedEntity"
+                class="sw-settings-tag-detail-assignments__grid"
+                columns="300px 1fr"
+            >
                 <sw-card-section divider="right">
                     {% block sw_settings_tag_detail_assignments_associations_grid %}
                     <sw-data-grid

@@ -14,6 +14,7 @@ mixins
   listing
 
 inject
+  acl
   repositoryFactory
 
 props
@@ -43,6 +44,7 @@ data
   showSelected: any
 
 computed
+  assignmentAreas: any
   assignmentAssociations: any
   assignmentAssociationsColumns: any
   entitiesColumns: any
@@ -52,6 +54,7 @@ computed
   selectedAssignments: any
   tagDefinition: any
   totalAssignments: any
+  uncheckedAreaLabels: any
 
 methods
   addTagAggregations(criteria: any, filter?: any = true): any
@@ -90,6 +93,7 @@ blocks
         sw_settings_tag_detail_assignments_header_selected_filter
         sw_settings_tag_detail_assignments_header_total_selected
       sw_settings_tag_detail_assignments_toolbar
+      sw_settings_tag_detail_assignments_unchecked_areas_hint
 
 crossings
   v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_category -> sw_settings_tag_detail_assignments_entities_grid_column_name_customer

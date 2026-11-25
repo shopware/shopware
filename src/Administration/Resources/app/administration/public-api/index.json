@@ -15317,7 +15317,8 @@
                 "sw_settings_tag_detail_assignments_header",
                 "sw_settings_tag_detail_assignments_header_selected_filter",
                 "sw_settings_tag_detail_assignments_header_total_selected",
-                "sw_settings_tag_detail_assignments_toolbar"
+                "sw_settings_tag_detail_assignments_toolbar",
+                "sw_settings_tag_detail_assignments_unchecked_areas_hint"
             ]
         },
         "sw-settings-tag-detail-modal": {
@@ -15389,7 +15390,8 @@
                 "sw_settings_tag_list_smart_bar_header",
                 "sw_settings_tag_list_smart_bar_header_amount",
                 "sw_settings_tag_list_smart_bar_header_title",
-                "sw_settings_tag_list_smart_bar_header_title_text"
+                "sw_settings_tag_list_smart_bar_header_title_text",
+                "sw_settings_tag_list_unchecked_areas_hint"
             ]
         },
         "sw-settings-tax-detail": {

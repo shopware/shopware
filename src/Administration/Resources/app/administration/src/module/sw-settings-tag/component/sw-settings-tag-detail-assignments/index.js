@@ -2,6 +2,8 @@
  * @sw-package inventory
  */
 import utils from 'src/core/service/util.service';
+import { getReadableAreas, getUncheckedAreas } from 'src/core/helper/readable-areas.helper';
+import { getTagAssignmentAreas } from '../../helper/tag-assignment-areas';
 import template from './sw-settings-tag-detail-assignments.html.twig';
 import './sw-settings-tag-detail-assignments.scss';
 
@@ -14,7 +16,10 @@ export default {
 
     inheritAttrs: false,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     emits: ['remove-assignment', 'add-assignment'],
 
@@ -53,9 +58,15 @@ export default {
     },
 
     data() {
+        // Opens the first area the user may read, unless the list opened a specific one
+        const [firstReadableArea] = getReadableAreas(
+            this.acl,
+            getTagAssignmentAreas(Shopware.EntityDefinition.get('tag').properties),
+        );
+
         return {
-            selectedEntity: this.entity ?? 'product',
-            selectedAssignment: this.property ?? 'products',
+            selectedEntity: this.entity ?? firstReadableArea?.entity ?? null,
+            selectedAssignment: this.property ?? firstReadableArea?.key ?? null,
             entitiesGridKey: null,
             preSelected: {},
             entities: null,
@@ -75,23 +86,30 @@ export default {
         },
 
         isInheritable() {
+            if (!this.selectedEntity) {
+                return false;
+            }
+
             return Shopware.EntityDefinition.get(this.selectedEntity)?.properties?.tags?.flags?.inherited === true;
         },
 
+        assignmentAreas() {
+            return getTagAssignmentAreas(this.tagDefinition.properties);
+        },
+
+        // Only areas the user may read, because the API rejects the search for an unreadable one
         assignmentAssociations() {
-            const assignmentAssociations = [];
-
-            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation === 'many_to_many') {
-                    assignmentAssociations.push({
-                        name: this.$t(`sw-settings-tag.detail.assignments.${propertyName}`),
-                        entity: property.entity,
-                        assignment: propertyName,
-                    });
-                }
+            return getReadableAreas(this.acl, this.assignmentAreas).map((area) => {
+                return {
+                    name: this.$t(area.label),
+                    entity: area.entity,
+                    assignment: area.key,
+                };
             });
+        },
 
-            return assignmentAssociations;
+        uncheckedAreaLabels() {
+            return getUncheckedAreas(this.acl, this.assignmentAreas).map((area) => area.label);
         },
 
         assignmentAssociationsColumns() {
@@ -115,12 +133,11 @@ export default {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
-            if (this.selectedEntity === 'product') {
-                criteria.addAssociation('options.group');
-            }
-            if (this.selectedEntity === 'order') {
-                criteria.addAssociation('orderCustomer');
-            }
+            this.assignmentAreas
+                .find((area) => area.entity === this.selectedEntity)
+                ?.associations.forEach((association) => {
+                    criteria.addAssociation(association);
+                });
 
             if (this.isInheritable) {
                 this.addTagAggregations(criteria);
@@ -225,6 +242,13 @@ export default {
 
     methods: {
         getList() {
+            if (!this.selectedEntity) {
+                this.entities = null;
+                this.isLoading = false;
+
+                return Promise.resolve();
+            }
+
             this.isLoading = true;
             const criteria = this.entityCriteria;
 

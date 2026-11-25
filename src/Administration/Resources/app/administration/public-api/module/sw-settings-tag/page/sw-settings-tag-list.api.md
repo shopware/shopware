@@ -46,14 +46,18 @@ data
   tags: any
 
 computed
+  assignmentAreas: any
   assignmentFilterOptions: any
   assignmentProperties: any
+  canMergeTags: any
   filterCount: any
   hasAssignmentFilter: any
+  hasMergePrivileges: any
   tagColumns: any
   tagCriteria: any
   tagDefinition: any
   tagRepository: any
+  uncheckedAreaLabels: any
 
 methods
   getBulkMergeMessageGlue(ids: any, id: any): any
@@ -71,6 +75,7 @@ methods
   onDuplicate(item: any): any
   onFilter(): any
   onMergeTags(selection: any): Promise<any>
+  onOpenBulkMergeModal(): any
   onSaveFinish(): any
   resetFilters(): any
   setAggregations(criteria: any): any
@@ -115,6 +120,7 @@ blocks
             sw_settings_tag_list_grid_toolbar_filter_header
             sw_settings_tag_list_grid_toolbar_filter_menu_trigger
           sw_settings_tag_list_grid_toolbar_search
+        sw_settings_tag_list_unchecked_areas_hint
       sw_settings_tag_list_search_bar
       sw_settings_tag_list_smart_bar_actions
         sw_settings_tag_list_smart_bar_actions_add

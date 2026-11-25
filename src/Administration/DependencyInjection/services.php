@@ -178,6 +178,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(FilterTagIdsService::class),
+            service(AclCriteriaValidator::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

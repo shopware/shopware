@@ -16,14 +16,24 @@
                 background-color: var(--color-elevation-surface-sunken);
             }
 
+            // The hint row stays empty when every area is readable, so the grid keeps the stretching row
             .mt-card__content {
-                grid-template-rows: auto 1fr;
+                grid-template-rows: auto auto 1fr;
             }
 
             .mt-card__content,
             .sw-card-section {
                 position: relative;
                 padding: 0;
+            }
+
+            .sw-settings-tag-detail-assignments__unchecked-areas-hint {
+                grid-row: 2;
+                padding: var(--scale-size-12) var(--scale-size-16);
+            }
+
+            .sw-settings-tag-detail-assignments__grid {
+                grid-row: 3;
             }
 
             .sw-settings-tag-detail-assignments__filter-selected {

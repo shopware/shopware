@@ -13,6 +13,7 @@ component sw-unchecked-areas-hint  private  ts  [private]
 
 props
   labels: string[]  [private]
+  textSnippet?: string  default='global.sw-unchecked-areas-hint.text'  [private]
 
 computed
   hintText: string  [private]

@@ -17,6 +17,11 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### PHP 8.6 support
+
+Shopware now supports PHP 8.6.
+Verify that your plugins and other Composer dependencies support PHP 8.6 before upgrading your PHP runtime.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.

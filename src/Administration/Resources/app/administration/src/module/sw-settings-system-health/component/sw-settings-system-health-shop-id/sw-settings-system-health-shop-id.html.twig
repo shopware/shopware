@@ -1,0 +1,44 @@
+{% block sw_settings_system_health_shop_id %}
+<div class="sw-settings-system-health-shop-id">
+    <sw-settings-system-health-check-details
+        :check="check"
+        :summary="summary"
+        :impact="impact"
+    >
+        <template #action>
+            <mt-button
+                v-if="appsOnHold.length > 0"
+                variant="secondary"
+                size="small"
+                :is-loading="isOpening"
+                @click="openResolveDialog"
+            >
+                {{ $t('sw-settings-system-health.resolution.resolve') }}
+            </mt-button>
+        </template>
+
+        <sw-data-grid
+            v-if="rows.length > 0"
+            :data-source="rows"
+            :columns="columns"
+            :show-selection="false"
+            :show-actions="false"
+            :show-settings="false"
+            :allow-inline-edit="false"
+            :allow-column-edit="false"
+        >
+            <template #column-matches="{ item }">
+                <sw-status :color="item.matches ? 'green' : 'red'">
+                    {{ $t(item.matches ? 'sw-settings-system-health.shop-id.match' : 'sw-settings-system-health.shop-id.mismatch') }}
+                </sw-status>
+            </template>
+        </sw-data-grid>
+    </sw-settings-system-health-check-details>
+
+    <sw-app-shop-id-change-modal
+        v-if="shopIdCheck"
+        :shop-id-check="shopIdCheck"
+        @modal-close="shopIdCheck = null"
+    />
+</div>
+{% endblock %}

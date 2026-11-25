@@ -15,6 +15,14 @@ If you generate types from the schema, regenerate them and handle `null` for the
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+## Administration
+
+### Deprecated `sw-product-detail.loadLanguage()`
+
+The method `loadLanguage()` of the Administration page `sw-product-detail` is deprecated and will be removed in v6.8.0.
+The page no longer calls it when the content language changes, because the language auto-fetching service loads the content language with its locale into `Shopware.Context.api.language`.
+Read `Shopware.Context.api.language` instead, and watch `Shopware.Context.api.languageId` to react to a language switch.
+
 # 6.7.17.0
 
 ## Critical Fixes
@@ -1090,12 +1098,6 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
 ## Administration
-
-### Deprecated `sw-product-detail.loadLanguage()`
-
-The method `loadLanguage()` of the Administration page `sw-product-detail` is deprecated and will be removed in v6.8.0.
-The page no longer calls it when the content language changes, because the language auto-fetching service loads the content language with its locale into `Shopware.Context.api.language`.
-Read `Shopware.Context.api.language` instead, and watch `Shopware.Context.api.languageId` to react to a language switch.
 
 ### Product list filters by product documents
 

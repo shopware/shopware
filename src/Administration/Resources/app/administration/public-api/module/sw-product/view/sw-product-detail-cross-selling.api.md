@@ -10,11 +10,45 @@ component sw-product-detail-cross-selling  public  js
   source src/module/sw-product/view/sw-product-detail-cross-selling/index.js
   template src/module/sw-product/view/sw-product-detail-cross-selling/sw-product-detail-cross-selling.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  allowEdit?: boolean  default=true
+
+data
+  crossSelling: any
+  isInherited: any
+  showRestoreInheritanceModal: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  crossSellingRepository: any
+  emptyStateDescription: any
+  isChild: any
+  isLoading: any
+  isSystemDefaultLanguage: any
+  onAddCrossSellingTooltipMessage: any
+  parentCrossSellingHref: any
+  product: any
+  showCrossSellingCard: any
+
+methods
+  loadAssignedProducts(crossSelling: any): any
+  mountedComponent(): any
+  onAddCrossSelling(): any
+  onCloseRestoreInheritanceModal(): any
+  onConfirmRestoreInheritance(): any
+  onShowRestoreInheritanceModal(): any
+  removeInheritance(): any
+  restoreInheritance(): any
+
 blocks
   sw_product_detail_cross_selling
     sw_product_detail_cross_selling_empty_state_card  [after v-if]
       sw_product_detail_cross_selling_empty_state
-        sw_product_detail_cross_selling_empty_state_actions
+        sw_product_detail_cross_selling_empty_state_actions  [deprecated tag:v6.8.0]
         sw_product_detail_cross_selling_empty_state_actions_add  [after v-if]
         sw_product_detail_cross_selling_empty_state_content
           sw_product_detail_cross_selling_empty_state_content_child

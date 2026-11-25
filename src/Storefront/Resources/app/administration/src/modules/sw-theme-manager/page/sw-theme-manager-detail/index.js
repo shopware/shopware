@@ -724,7 +724,10 @@ export default {
         getBind(field, inheritance = null, inheritedValue = null) {
             const config = Object.assign({}, field);
 
-            if (!this.isFieldHandlingLabelAndHelpText(field)) {
+            if (this.isFieldHandlingLabelAndHelpText(field)) {
+                config.label = this.getSnippet(field.labelSnippetKey) || field.label;
+                config.helpText = this.getSnippet(field.helpTextSnippetKey) || field.helpText;
+            } else {
                 config.label = undefined;
                 config.labelSnippetKey = undefined;
                 config.helpText = undefined;

@@ -11,7 +11,24 @@ component sw-product-document-add-button  private  ts  [private]
   template src/module/sw-product/component/sw-product-document-form/sw-product-document-add-button/sw-product-document-add-button.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+  isInherited?: boolean  default=false  [private]
+
+emits
+  documents-add(...args: any[])  [private]
+
+computed
+  isSystemDefaultLanguage: boolean  [private]
+  tooltipContent: string  [private]
+
+methods
+  onTooltipClick(event: MouseEvent): void  [private]
+
 blocks
   sw_product_document_add_button  [private]
     sw_product_document_add_button_language_hint  [after v-if] [private]
+
+notes
+  unresolved options setup  [private]
 ```

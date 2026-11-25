@@ -10,6 +10,30 @@ component sw-order-product-select  public  js
   source src/module/sw-order/component/sw-order-product-select/index.js
   template src/module/sw-order/component/sw-order-product-select/sw-order-product-select.html.twig
 
+props
+  item: object
+  salesChannelId: string  default=''
+  taxStatus: string  default=''
+
+slots
+  result-item  { ...{ item, index } }  block=sw_order_product_select_existing_product
+  selection-label-property  { ...{ item } }  block=sw_order_product_select_existing_product
+
+data
+  product: any
+
+computed
+  contextWithInheritance: any
+  isShownItemLabelInput: any
+  isShownProductSelect: any
+  lineItemPriceTypes: any
+  lineItemTypes: any
+  productCriteria: any
+  productRepository: any
+
+methods
+  onItemChanged(newProductId: any): any
+
 blocks
   sw_order_product_select
     sw_order_product_select_blank_item

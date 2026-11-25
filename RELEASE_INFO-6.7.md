@@ -9,6 +9,11 @@ The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for t
 The responses are unchanged.
 If you generate types from the schema, regenerate them and handle `null` for these fields.
 
+### Legal guarantee notice text in the Store API
+
+`GET /store-api/legal-guarantee-notice` also returns `text`, the notice as HTML in the language of `svg`.
+The SVG is now `aria-hidden`, so headless frontends should render `text` as its text alternative.
+
 ## App System
 
 ### Deprecated the old shop ID format
@@ -32,6 +37,14 @@ Extensions have to be adjusted:
   The resolved placement, such as `bottom-end`, is in the `data-placement` attribute of `.mt-floating-ui__content`.
 - The menu stacks at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
   The private `zIndex` prop of `sw-context-button` was removed.
+
+## Storefront
+
+### Text alternative for the legal guarantee notice
+
+The notice SVGs are now `aria-hidden`, and the notice link is described by the notice's text, visually hidden and rendered by the new Twig filter `sw_legal_guarantee_notice_text`.
+The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
+Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
 # 6.7.17.0
 
@@ -1921,6 +1934,16 @@ elasticsearch:
 ```
 
 Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
+
+# 6.7.16.2
+
+## Critical Fixes
+
+### Shopware can be installed with Composer again
+
+Twig 3.31.1 fixes security issues in the Twig sandbox, and Composer now refuses to install older Twig versions. Together with the Twig version cap in `shopware/conflicts` 0.6.3, no installable Twig version was left, so installing or updating Shopware 6.7.15.0 to 6.7.16.1 with Composer failed.
+
+Shopware now requires `shopware/conflicts` 0.6.4 and `twig/twig` ^3.31.1, so it can be installed and updated again.
 
 # 6.7.16.1
 

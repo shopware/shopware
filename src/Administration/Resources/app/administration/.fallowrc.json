@@ -59,7 +59,7 @@
     "ignorePatterns": [
         "!build/**",
         "scripts/codemods/sfc-migration/__fixtures__/**",
-        "scripts/generate-public-api/__fixtures__/**"
+        "scripts/generate-public-api/testing/__fixtures__/**"
     ],
     "ignoreFindings": ["build/vite-plugins/**/_fixtures/**"],
     "ignoreDependencies": [

@@ -11,6 +11,9 @@ component sw-cms-preview-center-text  private  js  [private]
   template src/module/sw-cms/blocks/text-image/center-text/preview/sw-cms-preview-center-text.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_center_text_preview  [private]
 ```

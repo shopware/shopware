@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command;
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Service\TranslationArchiveLoader;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationUpdater;
@@ -32,11 +34,14 @@ class InstallTranslationCommandTest extends TestCase
 
     private TranslationMetadataStore&MockObject $metadataStore;
 
+    private TranslationArchiveLoader&Stub $archiveLoader;
+
     private TranslationConfig $config;
 
     protected function setUp(): void
     {
         $this->translationLoader = $this->createMock(TranslationLoader::class);
+        $this->archiveLoader = static::createStub(TranslationArchiveLoader::class);
         $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
         $this->config = new TranslationConfig(
             new Uri('http://localhost:8000'),
@@ -577,13 +582,130 @@ class InstallTranslationCommandTest extends TestCase
         $tester->execute(['--all' => true, '--offline' => true]);
     }
 
+    public function testAllDownloadsTheLocalesRequiringUpdateFromTheArchive(): void
+    {
+        $this->configureArchive();
+        $this->initMetadataRequiringUpdate('en-GB', 'es-ES', 'de-DE');
+
+        $archiveLoader = $this->createMock(TranslationArchiveLoader::class);
+        $archiveLoader->expects($this->once())->method('download')->with(['en-GB', 'es-ES', 'de-DE']);
+        $this->archiveLoader = $archiveLoader;
+        $this->translationLoader->expects($this->never())->method('download');
+
+        $linked = [];
+        $this->translationLoader->expects($this->exactly(3))
+            ->method('link')
+            ->willReturnCallback(static function (string $locale) use (&$linked): void {
+                $linked[] = $locale;
+            });
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--all' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertSame(['en-GB', 'es-ES', 'de-DE'], $linked);
+        static::assertStringContainsString('Downloaded the translations from the translation archive.', $tester->getDisplay());
+    }
+
+    public function testAllRequiresTheArchiveToCoverTheNewestUpdateOfTheDownloadedLocales(): void
+    {
+        $this->configureArchive();
+
+        $enGb = MetadataEntry::create(['locale' => 'en-GB', 'updatedAt' => '2026-01-01T00:00:00+00:00', 'progress' => 100]);
+        $esEs = MetadataEntry::create(['locale' => 'es-ES', 'updatedAt' => '2026-03-01T00:00:00+00:00', 'progress' => 100]);
+        $deDeInstalled = MetadataEntry::create(['locale' => 'de-DE', 'updatedAt' => '2026-06-01T00:00:00+00:00', 'progress' => 100]);
+        $enGb->markForUpdate();
+        $esEs->markForUpdate();
+        $this->initMetadataLoader(new MetadataCollection([$enGb, $esEs, $deDeInstalled]));
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
+        $this->translationLoader->expects($this->never())->method('download');
+
+        $archiveLoader = $this->createMock(TranslationArchiveLoader::class);
+        $archiveLoader->expects($this->once())
+            ->method('download')
+            ->with(['en-GB', 'es-ES'], static::equalTo(new \DateTime('2026-03-01T00:00:00+00:00')));
+        $this->archiveLoader = $archiveLoader;
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--all' => true]);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function testAllDownloadsEachLocaleWhenTheArchiveCannotBeUsed(): void
+    {
+        $this->configureArchive();
+        $this->initMetadataRequiringUpdate('en-GB', 'es-ES', 'de-DE');
+
+        $this->archiveLoader->method('download')
+            ->willThrowException(SnippetException::translationArchiveUnavailable('the archive is no zip file'));
+        $this->translationLoader->expects($this->exactly(3))->method('download');
+        $this->translationLoader->expects($this->exactly(3))->method('link');
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--all' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertStringContainsString(
+            'The translation archive cannot be used: the archive is no zip file. Downloading the translation files one by one.',
+            $tester->getDisplay(),
+        );
+    }
+
+    public function testLocalesOptionDownloadsEachLocaleWithoutTheArchive(): void
+    {
+        $this->configureArchive();
+        $this->initMetadataRequiringUpdate('es-ES', 'de-DE');
+
+        $archiveLoader = $this->createMock(TranslationArchiveLoader::class);
+        $archiveLoader->expects($this->never())->method('download');
+        $this->archiveLoader = $archiveLoader;
+        $this->translationLoader->expects($this->exactly(2))->method('download');
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--locales' => 'es-ES,de-DE']);
+        $tester->assertCommandIsSuccessful();
+    }
+
     private function getCommand(): InstallTranslationCommand
     {
         return new InstallTranslationCommand(
             $this->config,
             $this->metadataStore,
             new TranslationUpdater($this->translationLoader, $this->metadataStore),
+            $this->archiveLoader,
         );
+    }
+
+    private function configureArchive(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['en-GB', 'es-ES', 'de-DE'],
+            [],
+            new LanguageCollection(),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+            archiveManifestUrl: new Uri('http://localhost:8000/manifest.json'),
+        );
+    }
+
+    private function initMetadataRequiringUpdate(string ...$locales): void
+    {
+        $collection = new MetadataCollection(array_map(
+            static fn (string $locale): MetadataEntry => MetadataEntry::create([
+                'locale' => $locale,
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+            $locales,
+        ));
+
+        foreach ($collection as $entry) {
+            $entry->markForUpdate();
+        }
+
+        $this->initMetadataLoader($collection);
     }
 
     private function initMetadataLoader(MetadataCollection $collection): void

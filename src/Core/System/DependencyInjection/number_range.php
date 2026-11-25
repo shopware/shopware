@@ -5,6 +5,7 @@ namespace Shopware\Core\System\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateDefinition;
@@ -71,7 +72,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AbstractIncrementStorage::class)
         ->factory([service(IncrementStorageRegistry::class), 'getStorage']);
 
-    $services->set(NumberRangeTypeResolver::class);
+    $services->set(NumberRangeTypeResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 
     $services->set(IncrementStorageMetricsDecorator::class)
         ->decorate(AbstractIncrementStorage::class)

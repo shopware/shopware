@@ -57,6 +57,7 @@ class DefinitionValidator
         'product.cheapest_price',
         'product.cheapest_price_accessor',
         'sales_channel_domain.external_storefront_language_id',
+        'product_document.media',
     ];
 
     /**
@@ -127,6 +128,10 @@ class DefinitionValidator
         'mcp_tool_result_cache',
         'mcp_toolset_session',
         'mcp_list_version',
+        'cms_page_media_usage',
+        'category_translation_media_usage',
+        'product_translation_media_usage',
+        'landing_page_translation_media_usage',
         'webhook_delivery',
         'webhook_stream',
     ];
@@ -714,6 +719,11 @@ class DefinitionValidator
         )->first();
 
         $definitionClass = $this->displayName($definition);
+        // Recovery records deliberately have no incoming association.
+        if ($reverseSide === null && \in_array($definition->getEntityName() . '.' . $association->getPropertyName(), ['user_recovery.user', 'customer_recovery.customer'], true)) {
+            return $associationViolations;
+        }
+
         if ($reverseSide === null) {
             $associationViolations[$definitionClass][] = \sprintf(
                 'Missing reverse one-to-one association for %s <-> %s (%s)',

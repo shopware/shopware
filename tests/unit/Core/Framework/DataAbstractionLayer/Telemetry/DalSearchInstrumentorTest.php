@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -150,7 +151,7 @@ class DalSearchInstrumentorTest extends TestCase
     {
         $this->meter = new CollectingMeter();
         // a provider without the metric configuration must disable the metric, never break the DAL
-        $instrumentor = new DalSearchInstrumentor($this->meter, new EntityGroupResolver(), new MetricConfigProvider([]), true);
+        $instrumentor = new DalSearchInstrumentor($this->meter, new EntityGroupResolver(new LabelMappingRegistry([EntityGroupResolver::MAPPING => ['product' => 'product', 'product_*' => 'product', 'order' => 'order']], 'other')), new MetricConfigProvider([]), true);
 
         $instrumentor->measure(
             DalSearchInstrumentor::OPERATION_SEARCH,
@@ -170,7 +171,7 @@ class DalSearchInstrumentorTest extends TestCase
             'dal.search.duration' => ['type' => 'histogram', 'description' => 'test', 'enabled' => $metricEnabled],
         ]);
 
-        return new DalSearchInstrumentor($this->meter, new EntityGroupResolver(), $configProvider, $globalEnabled);
+        return new DalSearchInstrumentor($this->meter, new EntityGroupResolver(new LabelMappingRegistry([EntityGroupResolver::MAPPING => ['product' => 'product', 'product_*' => 'product', 'order' => 'order']], 'other')), $configProvider, $globalEnabled);
     }
 
     private function definition(string $entityName): EntityDefinition

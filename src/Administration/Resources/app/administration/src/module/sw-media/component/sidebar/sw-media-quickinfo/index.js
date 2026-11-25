@@ -182,7 +182,10 @@ export default {
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
             });
 
-            if (Shopware.Feature.isActive('V6_8_0_0')) {
+            const getConfig = this.systemConfigApiService.getConfig;
+            const usesOwnGetConfig = getConfig !== Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
+
+            if (Shopware.Feature.isActive('V6_8_0_0') || !usesOwnGetConfig) {
                 this.systemConfigApiService.getSchema('core.media').then((schema) => {
                     const placementElement = schema
                         .flatMap((tab) => tab.cards)
@@ -202,7 +205,7 @@ export default {
                     });
                 });
             } else {
-                // @deprecated tag:v6.8.0 - Extensions may still override getConfig, so it stays the source until then.
+                // @deprecated tag:v6.8.0 - An extension's getConfig override stays the source until then.
                 Shopware.Feature.silence('V6_8_0_0', () => {
                     this.systemConfigApiService.getConfig('core.media').then((cards) => {
                         const placementElement = cards

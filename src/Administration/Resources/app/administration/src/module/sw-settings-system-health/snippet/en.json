@@ -52,7 +52,8 @@
             "ProductDetailReadiness": "Product pages",
             "ProductListingReadiness": "Category pages",
             "AppUrlVerification": "App URL",
-            "ShopId": "Shop identity"
+            "ShopId": "Shop identity",
+            "AppSystem": "App connections"
         },
         "storefront-pages": {
             "summary": "{failed} of {total} pages did not load."
@@ -81,6 +82,10 @@
             },
             "AppUrlVerification": {
                 "impact": "Apps can only be installed and receive data when this shop is reachable at APP_URL. Check the APP_URL environment variable and that the shop is reachable from the internet."
+            },
+            "AppSystem": {
+                "impact": "Affected apps may not work as expected. The reason for each app is in the table; most of them need the app's support or a reinstall.",
+                "action": "Open My extensions"
             }
         },
         "section": {
@@ -165,6 +170,23 @@
                 "storedValue": "Stored value",
                 "currentValue": "Current value",
                 "matches": "State"
+            }
+        },
+        "app-system": {
+            "column": {
+                "name": "App",
+                "status": "Status",
+                "reason": "Reason",
+                "lastStatusCode": "Last response code"
+            },
+            "reason": {
+                "inactive": "App is inactive",
+                "registration_incomplete": "Registration did not finish",
+                "credentials_rejected": "App server rejects the shop",
+                "delivery_failing": "Webhook deliveries are failing",
+                "webhooks_suspended": "Webhooks suspended after errors",
+                "no_app_activity": "No API activity for 7 days",
+                "no_signal": "No signal yet"
             }
         }
     },

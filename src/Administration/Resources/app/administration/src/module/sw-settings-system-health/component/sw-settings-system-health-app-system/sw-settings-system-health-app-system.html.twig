@@ -1,0 +1,31 @@
+{% block sw_settings_system_health_app_system %}
+<sw-settings-system-health-check-details :check="check">
+    <sw-data-grid
+        v-if="apps.length > 0"
+        :data-source="apps"
+        :columns="columns"
+        :show-selection="false"
+        :show-actions="false"
+        :show-settings="false"
+        :allow-inline-edit="false"
+        :allow-column-edit="false"
+    >
+        <template #column-status="{ item }">
+            <sw-status :color="statusColor(item.status)">
+                {{ statusLabel(item.status) }}
+            </sw-status>
+        </template>
+
+        <template #column-reason="{ item }">
+            {{ item.reason ? $t(`sw-settings-system-health.app-system.reason.${item.reason}`) : '-' }}
+        </template>
+
+        <template #column-lastStatusCode="{ item }">
+            <sw-settings-system-health-response-code
+                v-if="item.lastStatusCode"
+                :status-code="item.lastStatusCode"
+            />
+        </template>
+    </sw-data-grid>
+</sw-settings-system-health-check-details>
+{% endblock %}

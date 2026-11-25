@@ -45,3 +45,7 @@ registry.register('LocalesReadiness', {
     resolveRoute: 'sw.settings.language.index',
 });
 registry.register('ShopId', { component: 'sw-settings-system-health-shop-id' });
+registry.register('AppSystem', {
+    component: 'sw-settings-system-health-app-system',
+    resolveRoute: 'sw.extension.my-extensions.listing.app',
+});

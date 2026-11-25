@@ -116,14 +116,21 @@ type ListEventsOptions = {
     per_page: number;
 };
 
+type IssueLabel = { name: string };
+
 type GitHubRestClient = PullRequestDiffClient & {
     paginate(
         route: (options: ListEventsOptions) => Promise<{ data: IssueEvent[] }>,
         options: ListEventsOptions,
     ): Promise<IssueEvent[]>;
+    paginate(
+        route: (options: ListEventsOptions) => Promise<{ data: IssueLabel[] }>,
+        options: ListEventsOptions,
+    ): Promise<IssueLabel[]>;
     rest: {
         issues: {
             listEvents(options: ListEventsOptions): Promise<{ data: IssueEvent[] }>;
+            listLabelsOnIssue(options: ListEventsOptions): Promise<{ data: IssueLabel[] }>;
             addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
             removeLabel(options: { owner: string; repo: string; issue_number: number; name: string }): Promise<unknown>;
         };
@@ -528,21 +535,15 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
     ].includes(context.payload.action);
 }
 
-function presentLabels(context: PullRequestContext): string[] {
-    return (context.payload.pull_request.labels ?? []).map((label) => label.name);
-}
-
-export function missingLabels(context: PullRequestContext, wanted: string[]): string[] {
-    const present = new Set(presentLabels(context));
-
-    return wanted.filter((label) => !present.has(label));
+export function missingLabels(present: string[], wanted: string[]): string[] {
+    return wanted.filter((label) => !present.includes(label));
 }
 
 /** The labels of the in-flight majors the pull request carries but the diff no longer earns. */
-export function unsupportedLabels(context: PullRequestContext, majors: string[], wanted: string[]): string[] {
+export function unsupportedLabels(present: string[], majors: string[], wanted: string[]): string[] {
     const managed = new Set(majors.flatMap((major) => [`major/${major}`, `major/${major}-cleanup`]));
 
-    return presentLabels(context).filter((label) => managed.has(label) && !wanted.includes(label));
+    return present.filter((label) => managed.has(label) && !wanted.includes(label));
 }
 
 /** Only a label this workflow added is its to take back; the latest addition decides. */
@@ -597,8 +598,17 @@ export async function detectMajorLabels(
     const majorPaths = parseMajorPaths(readFile(MAJOR_PATHS_PATH));
     const evidence = evidenceForDiff({ diff, flags, majorPaths });
     const wanted = evidence.map(({ label }) => label);
-    const missing = missingLabels(context, wanted);
-    const unsupported = complete ? unsupportedLabels(context, majors, wanted) : [];
+    const issue = {
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        issue_number: context.payload.pull_request.number,
+        per_page: 100,
+    };
+    // Read live, not from the payload: an earlier run for a quick push may have changed them
+    // since this event fired, and a stale "present" would keep a label it just removed off.
+    const present = (await github.paginate(github.rest.issues.listLabelsOnIssue, issue)).map(({ name }) => name);
+    const missing = missingLabels(present, wanted);
+    const unsupported = unsupportedLabels(present, majors, wanted);
 
     core.info(
         wanted.length === 0
@@ -606,31 +616,28 @@ export async function detectMajorLabels(
             : ['markers found:', ...evidence.map(formatEvidence)].join('\n'),
     );
 
-    if (!complete && unsupportedLabels(context, majors, wanted).length > 0) {
+    if (!complete && unsupported.length > 0) {
         core.info('the diff was not read in full, so existing major labels stay');
     }
 
-    if (missing.length === 0 && unsupported.length === 0) {
+    const removable = complete ? unsupported : [];
+
+    if (missing.length === 0 && removable.length === 0) {
         return NO_CHANGES;
     }
 
-    // The payload only shows the labels as they are now, not who added or removed them.
-    const events = await github.paginate(github.rest.issues.listEvents, {
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: context.payload.pull_request.number,
-        per_page: 100,
-    });
+    // The labels show what is there now, not who added or removed them.
+    const events = await github.paginate(github.rest.issues.listEvents, issue);
     const add = withoutRemovedLabels(missing, events);
-    const remove = addedByWorkflow(unsupported, events);
+    const remove = addedByWorkflow(removable, events);
     const overruled = missing.filter((label) => !add.includes(label));
-    const keptManual = unsupported.filter((label) => !remove.includes(label));
+    const keptManual = removable.filter((label) => !remove.includes(label));
 
     if (overruled.length > 0) {
         core.info(`not re-adding ${overruled.join(', ')}: removed from this pull request before`);
     }
     if (keptManual.length > 0) {
-        core.info(`keeping ${keptManual.join(', ')}: added by a person, not by this workflow`);
+        core.info(`keeping ${keptManual.join(', ')}: not added by this workflow`);
     }
     if (remove.length > 0) {
         core.info(`removing ${remove.join(', ')}: no marker in the diff supports it any more`);

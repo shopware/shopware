@@ -14,12 +14,15 @@ on:
       - reopened
       - synchronize
       - ready_for_review
-      # Only a changed base counts; `shouldDetect` drops title and description edits.
       - edited
 
 permissions:
   contents: read
   pull-requests: write
+
+# One run per pull request at a time, so two quick pushes cannot add and take back a label in parallel.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
 
 jobs:
   label:

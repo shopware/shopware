@@ -696,20 +696,9 @@ test('the upgrade guide still labels by path although Markdown carries no marker
 });
 
 test('missingLabels drops labels the pull request already carries', () => {
-    const context = {
-        eventName: 'pull_request_target',
-        repo: { owner: 'shopware', repo: 'shopware' },
-        payload: {
-            action: 'synchronize',
-            pull_request: {
-                number: 1,
-                base: { ref: 'trunk' },
-                labels: [{ name: 'major/6.8' }, { name: 'domain/checkout' }],
-            },
-        },
-    };
-    assert.deepEqual(missingLabels(context, ['major/6.8', 'major/6.8-cleanup']), ['major/6.8-cleanup']);
-    assert.deepEqual(missingLabels(context, ['major/6.8']), []);
+    const present = ['major/6.8', 'domain/checkout'];
+    assert.deepEqual(missingLabels(present, ['major/6.8', 'major/6.8-cleanup']), ['major/6.8-cleanup']);
+    assert.deepEqual(missingLabels(present, ['major/6.8']), []);
 });
 
 const TWO_MAJORS = parseFeatureRegistry(`shopware:
@@ -795,20 +784,43 @@ const tooLarge = Object.assign(new Error('Sorry, the diff exceeded the maximum n
     response: { data: { errors: [{ resource: 'PullRequest', field: 'diff', code: 'too_large' }] } },
 });
 
-const detect = (github: object, labels: Array<{ name: string }> = []) => {
+type FakeClient = {
+    paginate?: (route: unknown, options: object) => Promise<unknown[]>;
+    rest: { issues?: object } & Record<string, unknown>;
+};
+
+/**
+ * `labels` is what the API reports now; the payload carries a stale snapshot on purpose,
+ * so a test that passed through the payload would see the wrong set.
+ */
+const detect = (github: FakeClient, labels: Array<{ name: string }> = []) => {
     const warnings: string[] = [];
     const infos: string[] = [];
     const files: Record<string, string> = { [FEATURE_REGISTRY_PATH]: REGISTRY, [MAJOR_PATHS_PATH]: PATH_MAP };
+    const listLabelsOnIssue = async () => ({ data: labels });
+    const client = {
+        ...github,
+        paginate: async (route: unknown, options: object) => {
+            if (route === listLabelsOnIssue) {
+                assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', issue_number: 1, per_page: 100 });
+
+                return labels;
+            }
+
+            return github.paginate ? github.paginate(route, options) : assert.fail('unexpected paginate call');
+        },
+        rest: { ...github.rest, issues: { ...github.rest.issues, listLabelsOnIssue } },
+    };
     const run = detectMajorLabels(
         {
-            github: github as Parameters<typeof detectMajorLabels>[0]['github'],
+            github: client as unknown as Parameters<typeof detectMajorLabels>[0]['github'],
             core: { info: (message) => infos.push(message), warning: (message) => warnings.push(message) },
             context: {
                 eventName: 'pull_request_target',
                 repo: { owner: 'shopware', repo: 'shopware' },
                 payload: {
                     action: 'synchronize',
-                    pull_request: { number: 1, base: { ref: 'trunk' }, labels },
+                    pull_request: { number: 1, base: { ref: 'trunk' }, labels: [{ name: 'stale/payload' }] },
                 },
             },
         },
@@ -931,7 +943,7 @@ test('a label a person set stays although the diff does not earn it', async () =
     );
 
     assert.deepEqual(await run, { add: [], remove: ['major/6.8-cleanup'] });
-    assert.ok(infos.includes('keeping major/6.8: added by a person, not by this workflow'));
+    assert.ok(infos.includes('keeping major/6.8: not added by this workflow'));
 });
 
 test('a label of a major that is no longer in flight is left alone', async () => {
@@ -1071,4 +1083,21 @@ test('applyMajorLabels adds and removes, and shrugs at a label already gone', as
     );
 
     assert.deepEqual(calls, ['add major/6.9', 'remove major/6.8', 'remove major/6.8-cleanup']);
+});
+
+test('labels are read live, so a quick earlier run that removed one does not leave it off', async () => {
+    const { run } = detectWithEvents(
+        upgradeDiff,
+        [],
+        [
+            { event: 'labeled', label: { name: 'major/6.8' }, actor: workflow },
+            { event: 'unlabeled', label: { name: 'major/6.8' }, actor: workflow },
+        ],
+    );
+
+    assert.deepEqual(await run, { add: ['major/6.8'], remove: [] });
+});
+
+test('addedByWorkflow keeps a label without any addition on record', () => {
+    assert.deepEqual(addedByWorkflow(['major/6.8'], []), []);
 });

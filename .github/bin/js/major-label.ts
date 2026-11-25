@@ -5,9 +5,9 @@
  * says the pull request changes what that major does: it documents an upgrade step,
  * stabilises an experimental API, narrows a signature, or moves a major feature flag.
  * `major/<version>-cleanup` says it only leaves something behind for that major — an
- * `@deprecated tag:` annotation, or a new `@experimental stableVersion:` that someone has
- * to stabilise later. A pull request can earn both, and can earn labels for more than one
- * major at once.
+ * `@deprecated tag:` annotation or the call that reports it, or a new
+ * `@experimental stableVersion:` that someone has to stabilise later. A pull request can
+ * earn both, and can earn labels for more than one major at once.
  *
  * A marker counts only where the pull request changes how often it occurs in a file, so a
  * line that merely passes the flag to a reformatted call is not a change to the flag.
@@ -181,9 +181,10 @@ export function parseMajorPaths(mapYaml: string): string[] {
 }
 
 /**
- * Tests, specs, prose and agent tooling name flags and deprecation tags to exercise or
+ * Tests, specs, fixtures, prose and tooling name flags and deprecation tags to exercise or
  * describe them, never to change what a major does: `#[DisabledFeatures(['v6.8.0.0'])]` in a
- * test labelled every pull request that touched one. UPGRADE files still count by path.
+ * test labelled every pull request that touched one, and `"majorFlags": ["v6.8.0.0"]` in the
+ * public API snapshot fixtures did the same. UPGRADE files still count by path.
  */
 export function isIgnoredPath(path: string): boolean {
     return (
@@ -191,8 +192,11 @@ export function isIgnoredPath(path: string): boolean {
         path.startsWith('.agents/') ||
         path.startsWith('tests/') ||
         /\.(spec|test)\.[cm]?[jt]sx?$/.test(path) ||
+        /\.(spec|test|fixtures?)\//.test(path) ||
         /\/Resources\/app\/(administration|storefront)\/test\//.test(path) ||
+        /\/Resources\/app\/administration\/(scripts|eslint-rules)\//.test(path) ||
         path.includes('/__tests__/') ||
+        path.includes('/__fixtures__/') ||
         /\.md$/i.test(path)
     );
 }
@@ -236,11 +240,8 @@ function isChangedLine(line: string): boolean {
     return (line.startsWith('+') || line.startsWith('-')) && !line.startsWith('+++') && !line.startsWith('---');
 }
 
-/**
- * Whether the changed line at `index` sits in a docblock that also says `@internal`. The
- * docblock is read as the line's own side of the diff sees it, within the line's hunk.
- */
-function isInInternalDocblock(lines: string[], index: number): boolean {
+/** The changed line's hunk as its own side of the diff sees it, and the line's position in it. */
+function sideView(lines: string[], index: number): { view: string[]; position: number } {
     const side = lines[index][0];
     let hunkStart = index;
     while (hunkStart > 0 && !lines[hunkStart - 1].startsWith('@@')) {
@@ -257,6 +258,13 @@ function isInInternalDocblock(lines: string[], index: number): boolean {
             view.push(lines[cursor]);
         }
     }
+
+    return { view, position };
+}
+
+/** Whether the changed line at `index` sits in a docblock that also says `@internal`. */
+function isInInternalDocblock(lines: string[], index: number): boolean {
+    const { view, position } = sideView(lines, index);
 
     let start = position;
     while (start >= 0 && !view[start].includes('/**')) {
@@ -277,6 +285,29 @@ function isInInternalDocblock(lines: string[], index: number): boolean {
     return view.slice(start, end + 1).some((line) => line.includes('@internal'));
 }
 
+// `#[` opens a PHP attribute, not a comment.
+const COMMENT_LINE = /^\s*(\*|\/\/|\/\*|#(?!\[)|\{#|<!--)/;
+
+const DEPRECATION_CALL = /(?:triggerDeprecationOrThrow|deprecated\w*Message|silence|silent)\s*\(|\bdeprecated\s*:\s*\{/g;
+
+/**
+ * Whether the match at `column` is a direct argument of a deprecation call or of a
+ * `deprecated: { version }` declaration, possibly opened a few lines above. Such a flag
+ * reports or silences a deprecation for the major, which is cleanup: every PHP deprecation
+ * passes `'v6.8.0.0'` to `triggerDeprecationOrThrow()`, and counting that as behaviour put
+ * `major/6.8` on every pull request that deprecated something.
+ */
+function isDeprecationArgument(lines: string[], index: number, column: number): boolean {
+    const { view, position } = sideView(lines, index);
+    const text = [
+        ...view.slice(Math.max(0, position - 3), position).map((line) => line.slice(1)),
+        view[position].slice(1, column),
+    ].join('\n');
+    const opener = [...text.matchAll(DEPRECATION_CALL)].at(-1);
+
+    return opener !== undefined && !/[(){};]/.test(text.slice(opener.index + opener[0].length));
+}
+
 function markerBalance(section: string, markers: LineMarker[]): Map<string, { kind: MarkerKind; delta: number }> {
     const balance = new Map<string, { kind: MarkerKind; delta: number }>();
     const lines = section.split('\n');
@@ -286,13 +317,24 @@ function markerBalance(section: string, markers: LineMarker[]): Map<string, { ki
             return;
         }
 
-        markers.forEach(({ kind, pattern }, markerIndex) => {
+        const isComment = COMMENT_LINE.test(line.slice(1));
+
+        markers.forEach(({ kind: markerKind, pattern }, markerIndex) => {
             for (const match of line.matchAll(pattern)) {
-                if (kind === 'stabilisation' && isInInternalDocblock(lines, index)) {
+                if (markerKind === 'stabilisation' && isInInternalDocblock(lines, index)) {
                     continue;
                 }
 
-                const key = `${markerIndex}:${match[0]}`;
+                // A comment documents the flag; only the deprecation and stability annotations live there.
+                if (markerKind === 'behaviour' && isComment) {
+                    continue;
+                }
+
+                const kind =
+                    markerKind === 'behaviour' && isDeprecationArgument(lines, index, match.index) ? 'cleanup' : markerKind;
+                // `V6_8_0_0` and `v6.8.0.0` are one flag, so switching the spelling changes nothing.
+                const marker = match[0].replace(/\bV(\d+)_(\d+)_(\d+)_(\d+)\b/, 'v$1.$2.$3.$4');
+                const key = `${kind}:${markerIndex}:${marker}`;
                 const entry = balance.get(key) ?? { kind, delta: 0 };
                 entry.delta += line.startsWith('+') ? 1 : -1;
                 balance.set(key, entry);

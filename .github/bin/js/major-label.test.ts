@@ -260,6 +260,94 @@ test('a flag mentioned in a deprecation docblock earns cleanup through the tag a
     );
 });
 
+test('a flag named in a code comment is not — the comment describes the code next to it', () => {
+    for (const line of [
+        "+ * leadingDeprecationGuard(function () { Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'x'); });",
+        "+    // only reached while 'v6.8.0.0' is inactive",
+        '+    # WEBHOOKS_REWORK: off until 6.8',
+        "+    {# 'v6.8.0.0' switches the block below #}",
+    ]) {
+        assert.deepEqual(evaluate('src/Core/Framework/Feature.php', line), { behaviour: false, cleanup: false }, line);
+    }
+});
+
+test('switching between the two spellings of the major flag is not a change', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/app/init-post/worker.init.ts',
+            "-    if (!Shopware.Feature.isActive('v6.8.0.0')) {\n+    if (!Shopware.Feature.isActive('V6_8_0_0')) {",
+        ),
+        { behaviour: false, cleanup: false },
+    );
+});
+
+test('a PHP attribute is not a comment', () => {
+    assert.deepEqual(evaluate('src/Core/Framework/Context.php', "+    #[Feature('v6.8.0.0')]"), {
+        behaviour: true,
+        cleanup: false,
+    });
+});
+
+test('reporting a deprecation for the target major is cleanup, not behaviour', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Core/Content/Rule/RuleException.php',
+            "+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0'));",
+        ),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('a deprecation report spread over several lines is cleanup too', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/app/component/utils/sw-loader/index.js',
+            "+            Shopware.Feature.triggerDeprecationOrThrow(\n+                'V6_8_0_0',\n+                'sw-loader is deprecated. Use mt-loader instead.',\n+            );",
+        ),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('a deprecated declaration for the target major is cleanup', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/app/component/utils/sw-popover/index.ts',
+            "+    deprecated: {\n+        version: 'v6.8.0.0',\n+        comment: 'Use mt-floating-ui instead.',\n+    },",
+        ),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('silencing a deprecation report is cleanup', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/module/sw-media/index.js',
+            "+            return Shopware.Feature.silence('V6_8_0_0', () => this.ruleFilter);",
+        ),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('a flag check inside a silenced callback is still behaviour', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/module/sw-media/index.js',
+            "+            return Shopware.Feature.silence('V6_8_0_0', () => {\n+                if (Shopware.Feature.isActive('V6_8_0_0')) {",
+        ),
+        { behaviour: true, cleanup: true },
+    );
+});
+
+test('replacing a flag check with a deprecation report changes the behaviour', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Core/Framework/Feature.php',
+            "-        if (Feature::isActive('v6.8.0.0')) {\n+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'x is deprecated');",
+        ),
+        { behaviour: true, cleanup: true },
+    );
+});
+
 test('a flag that already flipped is not', () => {
     assert.deepEqual(evaluate('src/Core/Cart.php', "+        if (Feature::isActive('v6.7.0.0')) {"), {
         behaviour: false,
@@ -496,6 +584,11 @@ test('isIgnoredPath skips tests, specs, prose and agent tooling but keeps shippe
         'src/Administration/Resources/app/administration/src/core/__tests__/helper.ts',
         'coding-guidelines/core/backward-compatibility.md',
         'RELEASE_INFO-6.7.md',
+        'src/Administration/Resources/app/administration/scripts/generate-public-api/__fixtures__/service-removed/case.json',
+        'src/Administration/Resources/app/administration/scripts/generate-public-api/testing/fixture-runner.spec/example.ts',
+        'src/Administration/Resources/app/administration/scripts/generate-public-api/example-components.ts',
+        'src/Administration/Resources/app/administration/eslint-rules/deprecation-rules/require-deprecation-guard.fixtures/guarded-component/index.js',
+        'src/Administration/Resources/app/administration/eslint-rules/deprecation-rules/no-manual-deprecation-notices.js',
     ]) {
         assert.equal(isIgnoredPath(path), true, path);
     }

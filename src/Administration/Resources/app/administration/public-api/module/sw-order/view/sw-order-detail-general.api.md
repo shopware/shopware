@@ -10,6 +10,67 @@ component sw-order-detail-general  public  js
   source src/module/sw-order/view/sw-order-detail-general/index.js
   template src/module/sw-order/view/sw-order-detail-general/sw-order-detail-general.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  swOrderDetailOnError
+  swOrderDetailOnRecalculateAndReload
+  swOrderDetailOnReloadEntityData
+  swOrderDetailOnSaveAndRecalculate
+  swOrderDetailOnSaveAndReload
+  swOrderDetailOnSaveEdits
+
+props
+  isSaveSuccessful?: boolean  default=false  [deprecated tag:v6.8.0]
+  orderId: string
+
+emits
+  error(...args: any[])
+  recalculate-and-reload(...args: any[])
+  reload-entity-data(...args: any[])
+  save-and-recalculate(...args: any[])
+  save-and-reload(...args: any[])
+  save-edits(...args: any[])
+
+data
+  shipmentShippingCosts: any
+  shippingCosts: any
+
+computed
+  currency: any
+  currencyFilter: any
+  delivery: any
+  deliveryDiscounts: any
+  displayRounded: any
+  hasMultipleShipments: any
+  isLoading: any  [deprecated tag:v6.8.0]
+  loading: any
+  order: any
+  orderTotal: any
+  shipments: any
+  shippingCostsDetail: any
+  sortedCalculatedTaxes: any
+  taxStatus: any
+  versionContext: any
+
+methods
+  discardLineItemEdit(): any
+  getShippingCostsDetail(shippingCosts: any): any
+  onSaveEdits(): any
+  onShipmentShippingChargeEdited(shipment: any): any
+  onShipmentShippingChargeUpdated(shipment: any, amount: any): any
+  onShippingChargeEdited(): any
+  onShippingChargeUpdated(amount: any): any
+  recalculateAndReload(): any
+  reloadEntityData(isSaved?: any = true): any
+  saveAndRecalculate(): any
+  saveAndReload(): any
+  showError(error: any): any
+  sortByTaxRate(price: any): any
+  updateLoading(loadingValue: any): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_order_detail_general
     sw_order_detail_general_info_card
@@ -25,4 +86,9 @@ blocks
             sw_order_detail_general_line_items_summary_amount_without_tax
             sw_order_detail_general_line_items_summary_shipping_cost
             sw_order_detail_general_line_items_summary_taxes  [after v-if]
+
+refs
+  editShippingCosts  -> sw-order-saveable-field  block=sw_order_detail_general_line_items_summary_shipping_cost
+  sw-order-line-item-grid  -> sw-order-line-items-grid  block=sw_order_detail_general_line_items_grid
+  swOrderGeneralInfo  -> sw-order-general-info  block=sw_order_detail_general_info
 ```

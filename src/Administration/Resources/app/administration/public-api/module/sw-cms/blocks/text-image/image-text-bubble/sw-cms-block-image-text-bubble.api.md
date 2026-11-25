@@ -11,6 +11,14 @@ component sw-cms-block-image-text-bubble  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-bubble/component/sw-cms-block-image-text-bubble.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center-image  {}  block=sw_cms_block_image_text_bubble  [private]
+  center-text  {}  block=sw_cms_block_image_text_bubble  [private]
+  left-image  {}  block=sw_cms_block_image_text_bubble  [private]
+  left-text  {}  block=sw_cms_block_image_text_bubble  [private]
+  right-image  {}  block=sw_cms_block_image_text_bubble  [private]
+  right-text  {}  block=sw_cms_block_image_text_bubble  [private]
+
 blocks
   sw_cms_block_image_text_bubble  [private]
 ```

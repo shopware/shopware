@@ -1,4 +1,21 @@
-# 6.7.17.0 (upcoming)
+# 6.7.18.0 (upcoming)
+
+## API
+
+### Store API media schema allows `null` where responses send it
+
+The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for the fields that the responses already send as `null`: `alt`, `title`, `config`, `customFields` and `updatedAt`, and for media without an uploaded file also `mimeType`, `fileExtension`, `fileName`, `path`, `uploadedAt`, `fileSize` and `metaData`.
+`MediaThumbnail` also allows `null` for `mediaThumbnailSizeId` and `path`.
+The responses are unchanged.
+If you generate types from the schema, regenerate them and handle `null` for these fields.
+
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
+# 6.7.17.0
 
 ## Critical Fixes
 
@@ -1886,6 +1903,16 @@ elasticsearch:
 ```
 
 Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
+
+# 6.7.16.2
+
+## Critical Fixes
+
+### Shopware can be installed with Composer again
+
+Twig 3.31.1 fixes security issues in the Twig sandbox, and Composer now refuses to install older Twig versions. Together with the Twig version cap in `shopware/conflicts` 0.6.3, no installable Twig version was left, so installing or updating Shopware 6.7.15.0 to 6.7.16.1 with Composer failed.
+
+Shopware now requires `shopware/conflicts` 0.6.4 and `twig/twig` ^3.31.1, so it can be installed and updated again.
 
 # 6.7.16.1
 

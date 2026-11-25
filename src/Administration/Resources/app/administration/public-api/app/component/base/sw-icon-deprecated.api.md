@@ -11,6 +11,28 @@ component sw-icon-deprecated  private  js  [private]
   template src/app/component/base/sw-icon-deprecated/sw-icon-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  color?: string  default=null  [private]
+  decorative?: boolean  default=false  [private]
+  large?: boolean  default=false  [private]
+  name: string  [private]
+  size?: string  default=null  [private]
+  small?: boolean  default=false  [private]
+
+data
+  iconSvgData: any  [private]
+
+computed
+  classes: any  [private]
+  iconName: any  [private]
+  styles: any  [private]
+
+methods
+  loadIconSvgData(variant: any, iconName: any, iconFullName: any): Promise<any>  [private]
+
 blocks
   sw_icon_deprecated  [private]
 ```

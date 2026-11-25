@@ -10,6 +10,25 @@ component sw-customer-detail-base  public  js
   source src/module/sw-customer/view/sw-customer-detail-base/index.js
   template src/module/sw-customer/view/sw-customer-detail-base/sw-customer-detail-base.html.twig
 
+inject
+  customFieldDataProviderService
+  repositoryFactory  [deprecated tag:v6.8.0]
+
+props
+  customer: object
+  customerEditMode: boolean  default=false
+  isLoading?: boolean  default=false
+
+data
+  customerCustomFieldSets: any
+
+computed
+  customFieldSetCriteria: any  [deprecated tag:v6.8.0]
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+
+methods
+  createdComponent(): any
+
 blocks
   sw_customer_detail_base
     sw_customer_detail_base_info_holder

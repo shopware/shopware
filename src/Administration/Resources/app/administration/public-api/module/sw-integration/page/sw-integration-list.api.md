@@ -10,10 +10,56 @@ component sw-integration-list  public  js
   source src/module/sw-integration/page/sw-integration-list/index.js
   template src/module/sw-integration/page/sw-integration-list/sw-integration-list.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  integrationService
+  repositoryFactory
+
+data
+  currentIntegration: any
+  integrations: any
+  isLoading: any
+  isModalLoading: any
+  mcpIntegration: any
+  pendingMcpAllowlist: any
+  showDeleteModal: any
+  showSecretAccessKey: any
+
+computed
+  integrationColumns: any
+  integrationCriteria: any
+  integrationRepository: any
+  mcpGrantedPrivileges: any
+  secretAccessKeyFieldTypeIsPassword: any
+  secretAccessKeyFieldTypeIsText: any
+
+methods
+  createIntegration(): any
+  createSavedErrorNotification(): any
+  createSavedSuccessNotification(): any
+  createdComponent(): any
+  getList(): Promise<any>
+  isAppIntegration(integration: any): any
+  onCloseDeleteModal(): any
+  onCloseDetailModal(): any
+  onCloseMcpModal(): any
+  onConfirmDelete(id: any): any
+  onCreateIntegration(): any
+  onGenerateKeys(): any
+  onSaveIntegration(): any
+  onSaveMcpAllowlist(): any
+  onShowDetailModal(integration: any): any
+  onShowMcpModal(integration: any): any
+  updateIntegration(integration: any): any
+
 blocks
   sw_integration_list
     sw_integration_list_content
-      sw_integration_list_introduction
+      sw_integration_list_introduction  [deprecated tag:v6.8.0]
       sw_integration_list_overview
         sw_integration_list_overview_inner
           sw_integration_list_detail_modal

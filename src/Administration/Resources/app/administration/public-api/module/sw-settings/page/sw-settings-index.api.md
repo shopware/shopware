@@ -10,6 +10,32 @@ component sw-settings-index  public  ts
   source src/module/sw-settings/page/sw-settings-index/index.ts
   template src/module/sw-settings/page/sw-settings-index/sw-settings-index.html.twig
 
+inject
+  acl
+  feature
+
+data
+  hideSettingRenameBanner: any  [deprecated tag:v6.8.0]
+  searchQuery: any
+
+computed
+  changeNotices: { key: string; deprecationVersion: string }[]
+  settingsGroups: any
+  visibleNewBadgeKeys: Set<string>
+  visibleNewBadges: WhatsNewItem[]
+
+methods
+  createdComponent(): any
+  getGroupLabel(settingsGroup: string): any
+  getLabel(settingsItem: SettingsItemHere): any
+  getNewBadge(settingsItem: SettingsItemHere): WhatsNewItem | null
+  getRouteConfig(settingsItem: SettingsItemHere): any
+  getUserConfig(): Promise<any>  [deprecated tag:v6.8.0]
+  hasPluginConfig(): any
+  itemIsQueried(label: string): any
+  onCloseSettingRenameBanner(): Promise<any>  [deprecated tag:v6.8.0]
+  showNewBadge(settingsItem: SettingsItemHere): boolean
+
 blocks
   sw_settings
     sw_settings_content

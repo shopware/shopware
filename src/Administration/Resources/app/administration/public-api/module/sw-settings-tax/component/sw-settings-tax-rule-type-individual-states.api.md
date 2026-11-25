@@ -10,6 +10,23 @@ component sw-settings-tax-rule-type-individual-states  public  js
   source src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states/index.js
   template src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states/sw-settings-tax-rule-type-individual-states.html.twig
 
+inject
+  repositoryFactory
+
+props
+  taxRule: object
+
+data
+  individualStates: any
+
+computed
+  exclusionCriteria: any
+  stateRepository: any
+
+methods
+  createdComponent(): any
+  onChange(collection: any): any
+
 blocks
   sw_settings_tax_rule_type_individual_states
 ```

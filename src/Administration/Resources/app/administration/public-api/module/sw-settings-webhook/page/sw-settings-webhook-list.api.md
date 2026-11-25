@@ -11,6 +11,68 @@ component sw-settings-webhook-list  private  ts  [private]
   template src/module/sw-settings-webhook/page/sw-settings-webhook-list/sw-settings-webhook-list.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  listing, notification  [private]
+
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+data
+  deliveriesWebhook: any  [private]
+  hasLoadError: any  [private]
+  integrationApps: any  [private]
+  isLoading: any  [private]
+  ownerFilter: any  [private]
+  roleNames: any  [private]
+  secretWebhook: any  [private]
+  sortBy: any  [private]
+  sortDirection: any  [private]
+  webhooks: any  [private]
+
+computed
+  aclRoleRepository: Repository<'acl_role'>  [private]
+  appRepository: Repository<'app'>  [private]
+  columns: any  [private]
+  isFiltered: boolean  [private]
+  ownerFilterOptions: { value: Owner; label: string }[]  [private]
+  showEmptyState: boolean  [private]
+  webhookCriteria: any  [private]
+  webhookRepository: Repository<'webhook'>  [private]
+
+methods
+  canChange(webhook: Entity<'webhook'>): boolean  [private]
+  canDelete(webhook: Entity<'webhook'>, allowDelete: boolean): boolean  [private]
+  canHaveOwnSecret(webhook: Entity<'webhook'>): boolean  [private]
+  closeDeliveries(): void  [private]
+  closeSecret(): void  [private]
+  deleteTooltip(webhook: Entity<'webhook'>, allowDelete: boolean): any  [private]
+  deleteTooltipMessage(webhook: Entity<'webhook'>): string  [private]
+  getList(): Promise<void>  [private]
+  inactiveTooltip(webhook: Entity<'webhook'>): any  [private]
+  isAppInactive(webhook: Entity<'webhook'>): boolean  [private]
+  isOwnedByCurrentUser(webhook: Entity<'webhook'>): boolean  [private]
+  isRoleDeleted(roleId: string): boolean  [private]
+  isSent(webhook: Entity<'webhook'>): boolean  [private]
+  limitedRoleIds(webhook: Entity<'webhook'>): string[]  [private]
+  loadIntegrationApps(webhooks: EntityCollection<'webhook'>): Promise<void>  [private]
+  loadRoleNames(webhooks: EntityCollection<'webhook'>): Promise<void>  [private]
+  onChangeOwnerFilter(owners: Owner[]): void  [private]
+  onDeleteFailed(): void  [private]
+  onInlineEditSave(promise: Promise<void>, webhook: Entity<'webhook'>): void  [private]
+  onListingSearched(webhooks: EntityCollection<'webhook'>): void  [private]
+  onUpdateRecords(webhooks: EntityCollection<'webhook'>): Promise<void>  [private]
+  openDeliveries(webhook: Entity<'webhook'>): void  [private]
+  openSecret(webhook: Entity<'webhook'>): void  [private]
+  ownerApp(webhook: Entity<'webhook'>): Entity<'app'> | null  [private]
+  ownerCondition(owner: Owner): any  [private]
+  ownerName(webhook: Entity<'webhook'>): string  [private]
+  ownerRoute(webhook: Entity<'webhook'>): RouteLocationRaw | null  [private]
+  ownerTypeLabel(webhook: Entity<'webhook'>): string  [private]
+  roleName(roleId: string): string  [private]
+  roleRoute(roleId: string): RouteLocationRaw | null  [private]
+  searchWebhooks(): Promise<EntityCollection<'webhook'> | null>  [private]
+
 blocks
   sw_settings_webhook_list  [private]
     sw_settings_webhook_list_content  [private]
@@ -24,4 +86,7 @@ blocks
       sw_settings_webhook_list_sidebar_filter  [private]
         sw_settings_webhook_list_sidebar_filter_owner  [private]
     sw_settings_webhook_list_smart_bar_header  [private]
+
+refs
+  listing  -> sw-entity-listing  block=sw_settings_webhook_list_grid  [private]
 ```

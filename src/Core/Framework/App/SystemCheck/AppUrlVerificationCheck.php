@@ -54,6 +54,11 @@ class AppUrlVerificationCheck extends BaseCheck
         return 'AppUrlVerification';
     }
 
+    public function tags(): array
+    {
+        return ['apps'];
+    }
+
     /**
      * Not part of the web and pre-rollout checks: verifying sends a request to APP_URL,
      * and before a rollout APP_URL may still point to the old installation.

@@ -74,6 +74,7 @@ class AppUrlVerificationCheckTest extends TestCase
         $check = new AppUrlVerificationCheck(static::createStub(AppUrlVerifier::class), appUrlCheckDisabled: false);
 
         static::assertSame(Category::EXTERNAL, $check->category());
+        static::assertSame(['apps'], $check->tags());
         static::assertTrue($check->allowedToRunIn(SystemCheckExecutionContext::CLI));
         static::assertTrue($check->allowedToRunIn(SystemCheckExecutionContext::RECURRENT));
         static::assertFalse($check->allowedToRunIn(SystemCheckExecutionContext::WEB));

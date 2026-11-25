@@ -42,6 +42,7 @@ class SystemCheckController
             $checks[] = [
                 'name' => $check->name(),
                 'category' => $check->category()->name,
+                'tags' => $check->tags(),
                 'result' => $stored === null ? null : [
                     'status' => $stored->result->status->name,
                     'healthy' => $stored->result->healthy,

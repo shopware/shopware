@@ -16,6 +16,16 @@ abstract class BaseCheck
 
     abstract public function name(): string;
 
+    /**
+     * Topics the check is about, for example "apps", so checks can be filtered by them.
+     *
+     * @return list<string>
+     */
+    public function tags(): array
+    {
+        return [];
+    }
+
     public function allowedToRunIn(SystemCheckExecutionContext $context): bool
     {
         return \in_array($context, $this->allowedSystemCheckExecutionContexts(), true);

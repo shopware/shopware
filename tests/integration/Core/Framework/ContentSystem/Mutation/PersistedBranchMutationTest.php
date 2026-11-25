@@ -109,7 +109,7 @@ class PersistedBranchMutationTest extends TestCase
         $layoutId = $this->createLayout(['a']);
         $branchId = Uuid::randomHex();
 
-        $this->expectExceptionObject(ContentSystemException::contentLayoutBranchNotFound($layoutId, $branchId));
+        $this->expectExceptionObject(ContentSystemException::contentLayoutDraftNotFound($layoutId, $branchId));
 
         $this->mutator->mutateBranch($layoutId, $branchId, Uuid::randomHex(), new RemoveElement('a'), $this->context);
     }

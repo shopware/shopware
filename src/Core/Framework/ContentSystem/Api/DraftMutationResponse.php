@@ -7,7 +7,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\BranchMutationResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The mutation response of a branch mutation, plus the revision it appended and the branch it moved.
+ * The mutation response of a draft mutation, plus the draft it moved; its `head` is the revision the mutation
+ * appended and the `expectedHead` of the next edit.
  *
  * @internal
  *
@@ -16,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
  * @see \Shopware\Tests\Integration\Core\Framework\ContentSystem\Api\ContentLayoutMutationControllerTest
  */
 #[Package('framework')]
-final readonly class BranchMutationResponse implements \JsonSerializable
+final readonly class DraftMutationResponse implements \JsonSerializable
 {
     private function __construct(
         private BranchMutationResult $result,
@@ -36,8 +37,7 @@ final readonly class BranchMutationResponse implements \JsonSerializable
     {
         return [
             ...$this->mutation->jsonSerialize(),
-            'revision' => LayoutRevisionNormalizer::revision($this->result->revision, [$this->result->branch->id], published: false),
-            'branch' => LayoutRevisionNormalizer::branch($this->result->branch),
+            'draft' => LayoutDraftNormalizer::draft($this->result->branch),
         ];
     }
 }

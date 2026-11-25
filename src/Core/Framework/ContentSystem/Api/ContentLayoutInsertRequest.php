@@ -22,7 +22,7 @@ final class ContentLayoutInsertRequest
         public readonly ?string $slot = null,
         public readonly ?int $index = null,
         public readonly ?string $bindingSpecificationId = null,
-        public readonly ?string $branchId = null,
+        public readonly ?string $draftId = null,
         public readonly ?string $expectedHead = null,
     ) {
     }

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutRevisionController;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
@@ -22,94 +21,104 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-class ContentLayoutRevisionControllerTest extends TestCase
+class ContentLayoutDraftControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
     private const BASE_URL = '/api/_action/content-system/layout/';
 
-    #[TestDox('a draft is created, saved, listed in the history and published through the routes')]
+    #[TestDox('a draft is created, edited through a mutation route, listed, read and published')]
     public function testDraftRoundTrip(): void
     {
         $layoutId = $this->createLayout();
 
-        $branch = $this->json('POST', $layoutId . '/branches', ['name' => 'My draft'])['branch'];
-        static::assertSame('My draft', $branch['name']);
+        $draft = $this->json('POST', $layoutId . '/create-draft', ['name' => 'My draft'])['draft'];
+        static::assertSame('My draft', $draft['name']);
 
-        $saved = $this->json('POST', $layoutId . '/branches/' . $branch['id'] . '/revisions', [
-            'layout' => [$this->element('draft-a'), $this->element('draft-b')],
-            'expectedHead' => $branch['head'],
+        $edited = $this->json('POST', $layoutId . '/remove-element', [
+            'elementId' => 'other',
+            'draftId' => $draft['id'],
+            'expectedHead' => $draft['head'],
         ]);
-        static::assertSame([$branch['id']], $saved['revision']['branches']);
-        static::assertCount(2, $saved['layout']);
+        static::assertSame($draft['id'], $edited['draft']['id']);
+        static::assertSame(['live'], array_column($edited['layout'], 'id'));
 
-        $detail = $this->json('GET', $layoutId . '/branches/' . $branch['id']);
-        static::assertSame($saved['revision']['id'], $detail['branch']['head']);
-        static::assertCount(2, $detail['layout']);
+        static::assertSame([$edited['draft']], $this->json('GET', $layoutId . '/drafts')['drafts']);
 
-        $history = $this->json('GET', $layoutId . '/revisions');
-        static::assertSame($saved['revision']['id'], $history['revisions'][0]['id']);
-        static::assertTrue($history['revisions'][1]['published']);
+        $detail = $this->json('GET', $layoutId . '/drafts/' . $draft['id']);
+        static::assertSame($edited['draft']['head'], $detail['draft']['head']);
+        static::assertSame(['live'], array_column($detail['layout'], 'id'));
+        static::assertSame(['live', 'other'], $this->liveIds($layoutId));
 
-        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish', [
-            'revisionId' => $saved['revision']['id'],
-            'deleteBranchId' => $branch['id'],
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
+            'draftId' => $draft['id'],
+            'expectedHead' => $edited['draft']['head'],
         ]);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
 
-        static::assertSame(['draft-a', 'draft-b'], $this->liveIds($layoutId));
-        static::assertSame([], $this->json('GET', $layoutId . '/branches')['branches']);
+        static::assertSame(['live'], $this->liveIds($layoutId));
+        static::assertSame([], $this->json('GET', $layoutId . '/drafts')['drafts']);
     }
 
-    #[TestDox('publishing against a live state the client has not seen answers 409 without writing')]
-    public function testPublishWithAStaleExpectedPublishedConflicts(): void
+    #[TestDox('a discarded draft is gone and the live layout is untouched')]
+    public function testDiscardDraft(): void
     {
         $layoutId = $this->createLayout();
-        $published = $this->json('GET', $layoutId . '/revisions')['published'];
-        $branch = $this->json('POST', $layoutId . '/branches', [])['branch'];
-        $saved = $this->json('POST', $layoutId . '/branches/' . $branch['id'] . '/revisions', [
-            'layout' => [$this->element('draft')],
-            'expectedHead' => $branch['head'],
+        $draft = $this->json('POST', $layoutId . '/create-draft')['draft'];
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/discard-draft', ['draftId' => $draft['id']]);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+
+        static::assertSame([], $this->json('GET', $layoutId . '/drafts')['drafts']);
+        static::assertSame(['live', 'other'], $this->liveIds($layoutId));
+    }
+
+    #[TestDox('publishing a head the client has not seen answers 409 without writing')]
+    public function testPublishWithAStaleHeadConflicts(): void
+    {
+        $layoutId = $this->createLayout();
+        $draft = $this->json('POST', $layoutId . '/create-draft')['draft'];
+        $this->json('POST', $layoutId . '/remove-element', [
+            'elementId' => 'other',
+            'draftId' => $draft['id'],
+            'expectedHead' => $draft['head'],
         ]);
 
-        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish', [
-            'revisionId' => $saved['revision']['id'],
-            'expectedPublished' => Uuid::randomHex(),
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
+            'draftId' => $draft['id'],
+            'expectedHead' => $draft['head'],
         ]);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_CONFLICT, $response->getStatusCode());
-        static::assertStringContainsString(ContentSystemException::LAYOUT_PUBLISH_CONFLICT, (string) $response->getContent());
-        static::assertSame(['live'], $this->liveIds($layoutId));
-        static::assertSame($published, $this->json('GET', $layoutId . '/revisions')['published']);
+        static::assertStringContainsString(ContentSystemException::LAYOUT_VERSION_CONFLICT, (string) $response->getContent());
+        static::assertSame(['live', 'other'], $this->liveIds($layoutId));
     }
 
-    #[TestDox('an unknown branch answers 404')]
-    public function testUnknownBranchIsNotFound(): void
+    #[TestDox('an unknown draft answers 404')]
+    public function testUnknownDraftIsNotFound(): void
     {
         $layoutId = $this->createLayout();
 
-        $this->getBrowser()->request('GET', self::BASE_URL . $layoutId . '/branches/' . Uuid::randomHex());
+        $this->getBrowser()->request('GET', self::BASE_URL . $layoutId . '/drafts/' . Uuid::randomHex());
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        static::assertStringContainsString(ContentSystemException::CONTENT_LAYOUT_BRANCH_NOT_FOUND, (string) $response->getContent());
+        static::assertStringContainsString(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, (string) $response->getContent());
     }
 
-    #[TestDox('saving a revision without the head token is a client error')]
-    public function testSaveWithoutExpectedHeadIsABadRequest(): void
+    #[TestDox('publishing without the head token is a client error')]
+    public function testPublishWithoutExpectedHeadIsABadRequest(): void
     {
         $layoutId = $this->createLayout();
-        $branch = $this->json('POST', $layoutId . '/branches')['branch'];
+        $draft = $this->json('POST', $layoutId . '/create-draft')['draft'];
 
-        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/branches/' . $branch['id'] . '/revisions', [
-            'layout' => [$this->element('draft-a')],
-        ]);
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', ['draftId' => $draft['id']]);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         static::assertStringContainsString(ContentSystemException::MISSING_REQUEST_FIELD, (string) $response->getContent());
-        static::assertSame($branch['head'], $this->json('GET', $layoutId . '/branches/' . $branch['id'])['branch']['head']);
+        static::assertSame(['live', 'other'], $this->liveIds($layoutId));
     }
 
     /**
@@ -133,10 +142,10 @@ class ContentLayoutRevisionControllerTest extends TestCase
 
         $this->repository()->create([[
             'id' => $id,
-            'name' => 'revision-' . $id,
+            'name' => 'draft-' . $id,
             'version' => '1.0.0',
             'rootSource' => 'category',
-            'layout' => [$this->element('live')],
+            'layout' => [$this->element('live'), $this->element('other')],
         ]], Context::createDefaultContext());
 
         return $id;

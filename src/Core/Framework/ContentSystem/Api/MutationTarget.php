@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * What a persisted mutation request writes to: the live layout, guarded by `expectedVersion` (its updatedAt), or a
- * draft branch, guarded by `expectedHead` (the branch head revision id).
+ * draft, guarded by `expectedHead` (the id of the draft's head revision).
  *
  * @internal
  */
@@ -15,15 +15,15 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class MutationTarget
 {
     private function __construct(
-        public ?string $branchId,
+        public ?string $draftId,
         public ?string $expectedVersion,
         public ?string $expectedHead,
     ) {
     }
 
-    public static function fromRequest(?string $branchId, ?string $expectedVersion, ?string $expectedHead): self
+    public static function fromRequest(?string $draftId, ?string $expectedVersion, ?string $expectedHead): self
     {
-        if ($branchId === null) {
+        if ($draftId === null) {
             if ($expectedHead !== null) {
                 throw ContentSystemException::unknownRequestField(['expectedHead']);
             }
@@ -39,15 +39,15 @@ final readonly class MutationTarget
             throw ContentSystemException::missingRequestField(['expectedHead']);
         }
 
-        return new self($branchId, null, $expectedHead);
+        return new self($draftId, null, $expectedHead);
     }
 
     /**
-     * @phpstan-assert-if-true !null $this->branchId
+     * @phpstan-assert-if-true !null $this->draftId
      * @phpstan-assert-if-true !null $this->expectedHead
      */
-    public function isBranch(): bool
+    public function isDraft(): bool
     {
-        return $this->branchId !== null;
+        return $this->draftId !== null;
     }
 }

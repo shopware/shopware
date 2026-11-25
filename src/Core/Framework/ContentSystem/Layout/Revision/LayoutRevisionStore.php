@@ -31,22 +31,22 @@ class LayoutRevisionStore
     }
 
     /**
-     * Locks the layout row for the caller's transaction. `current` is whether the `layout` column still holds
-     * what the last publish wrote to it; `null` when no layout has this id.
+     * The live revision and whether the `layout` column still holds its tree; `null` when no layout has this id.
+     * Revisions are encoded like the column, so the column holds the tree published to it byte for byte, and a
+     * different checksum means a write that bypassed publishing.
      *
      * @return array{revisionId: string|null, current: bool, createdAt: \DateTimeImmutable, checksum: string}|null
      */
-    public function lockPublication(string $layoutId): ?array
+    public function publication(string $layoutId): ?array
     {
         $row = $this->connection->fetchAssociative(
-            'SELECT LOWER(HEX(`publication`.`revision_id`)) AS `revision_id`,
-                    `publication`.`layout_checksum` = SHA2(`layout`.`layout`, 256) AS `current`,
+            'SELECT LOWER(HEX(`live`.`id`)) AS `revision_id`,
+                    SHA2(`live`.`layout`, 256) = SHA2(`layout`.`layout`, 256) AS `current`,
                     SHA2(`layout`.`layout`, 256) AS `checksum`,
                     `layout`.`created_at`
              FROM `content_layout` `layout`
-             LEFT JOIN `content_layout_publication` `publication` ON `publication`.`content_layout_id` = `layout`.`id`
-             WHERE `layout`.`id` = :id
-             FOR UPDATE',
+             LEFT JOIN `content_layout_revision` `live` ON `live`.`live_content_layout_id` = `layout`.`id`
+             WHERE `layout`.`id` = :id',
             ['id' => Uuid::fromHexToBytes($layoutId)],
         );
 
@@ -97,24 +97,24 @@ class LayoutRevisionStore
     }
 
     /**
-     * Points the layout at the revision and records the checksum of the `layout` column as it is now, so a
-     * later write that bypasses publishing is detected by {@see lockPublication()}.
+     * Moves the layout's live pointer onto the revision. `published_at` keeps the first time it went live.
      */
     public function markPublished(string $layoutId, string $revisionId, \DateTimeImmutable $publishedAt): void
     {
         $this->connection->executeStatement(
-            'UPDATE `content_layout_revision` SET `published_at` = COALESCE(`published_at`, :publishedAt) WHERE `id` = :revisionId',
-            [
-                'publishedAt' => $publishedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'revisionId' => Uuid::fromHexToBytes($revisionId),
-            ],
+            'UPDATE `content_layout_revision` SET `live_content_layout_id` = NULL WHERE `live_content_layout_id` = :layoutId',
+            ['layoutId' => Uuid::fromHexToBytes($layoutId)],
         );
 
         $this->connection->executeStatement(
-            'INSERT INTO `content_layout_publication` (`content_layout_id`, `revision_id`, `layout_checksum`)
-             SELECT `id`, :revisionId, SHA2(`layout`, 256) FROM `content_layout` WHERE `id` = :layoutId
-             ON DUPLICATE KEY UPDATE `revision_id` = VALUES(`revision_id`), `layout_checksum` = VALUES(`layout_checksum`)',
-            ['revisionId' => Uuid::fromHexToBytes($revisionId), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
+            'UPDATE `content_layout_revision`
+             SET `live_content_layout_id` = `content_layout_id`, `published_at` = COALESCE(`published_at`, :publishedAt)
+             WHERE `id` = :revisionId AND `content_layout_id` = :layoutId',
+            [
+                'publishedAt' => $publishedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'revisionId' => Uuid::fromHexToBytes($revisionId),
+                'layoutId' => Uuid::fromHexToBytes($layoutId),
+            ],
         );
     }
 

@@ -30,7 +30,7 @@ final class ContentLayoutUpdateElementPropertiesRequest
         #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
         #[Assert\Unique]
         public readonly array $removeKeys = [],
-        public readonly ?string $branchId = null,
+        public readonly ?string $draftId = null,
         public readonly ?string $expectedHead = null,
     ) {
     }

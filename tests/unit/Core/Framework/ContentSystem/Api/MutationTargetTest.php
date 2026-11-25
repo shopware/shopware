@@ -16,12 +16,12 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(MutationTarget::class)]
 class MutationTargetTest extends TestCase
 {
-    #[TestDox('without a branch the live layout is the target, guarded by the version token')]
-    public function testWithoutBranchTargetsTheLiveLayout(): void
+    #[TestDox('without a draft the live layout is the target, guarded by the version token')]
+    public function testWithoutDraftTargetsTheLiveLayout(): void
     {
         $target = MutationTarget::fromRequest(null, '2026-06-22T10:00:00.000+00:00', null);
 
-        static::assertFalse($target->isBranch());
+        static::assertFalse($target->isDraft());
         static::assertSame('2026-06-22T10:00:00.000+00:00', $target->expectedVersion);
     }
 
@@ -30,17 +30,17 @@ class MutationTargetTest extends TestCase
     {
         $target = MutationTarget::fromRequest(null, null, null);
 
-        static::assertFalse($target->isBranch());
+        static::assertFalse($target->isDraft());
         static::assertNull($target->expectedVersion);
     }
 
-    #[TestDox('a branch id makes the branch the target, guarded by the head token')]
-    public function testBranchIdTargetsTheBranch(): void
+    #[TestDox('a draft id makes the draft the target, guarded by the head token')]
+    public function testDraftIdTargetsTheDraft(): void
     {
-        $target = MutationTarget::fromRequest('branch', null, 'head');
+        $target = MutationTarget::fromRequest('draft', null, 'head');
 
-        static::assertTrue($target->isBranch());
-        static::assertSame('branch', $target->branchId);
+        static::assertTrue($target->isDraft());
+        static::assertSame('draft', $target->draftId);
         static::assertSame('head', $target->expectedHead);
     }
 
@@ -52,19 +52,19 @@ class MutationTargetTest extends TestCase
         MutationTarget::fromRequest(null, null, 'head');
     }
 
-    #[TestDox('a branch target refuses the version token')]
-    public function testBranchTargetRejectsTheVersionToken(): void
+    #[TestDox('a draft target refuses the version token')]
+    public function testDraftTargetRejectsTheVersionToken(): void
     {
         $this->expectExceptionObject(ContentSystemException::unknownRequestField(['expectedVersion']));
 
-        MutationTarget::fromRequest('branch', '2026-06-22T10:00:00.000+00:00', 'head');
+        MutationTarget::fromRequest('draft', '2026-06-22T10:00:00.000+00:00', 'head');
     }
 
-    #[TestDox('a branch target requires the head token')]
-    public function testBranchTargetRequiresTheHeadToken(): void
+    #[TestDox('a draft target requires the head token')]
+    public function testDraftTargetRequiresTheHeadToken(): void
     {
         $this->expectExceptionObject(ContentSystemException::missingRequestField(['expectedHead']));
 
-        MutationTarget::fromRequest('branch', null, null);
+        MutationTarget::fromRequest('draft', null, null);
     }
 }

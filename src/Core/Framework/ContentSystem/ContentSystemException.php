@@ -83,7 +83,7 @@ class ContentSystemException extends HttpException
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
-    public const CONTENT_LAYOUT_BRANCH_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_BRANCH_NOT_FOUND';
+    public const CONTENT_LAYOUT_DRAFT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_DRAFT_NOT_FOUND';
     public const CONTENT_LAYOUT_REVISION_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_REVISION_NOT_FOUND';
     public const LAYOUT_PUBLISH_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_PUBLISH_CONFLICT';
     public const PREVIEW_PAYLOAD_STORE_FAILED = 'CONTENT_SYSTEM__PREVIEW_PAYLOAD_STORE_FAILED';
@@ -1000,13 +1000,13 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function contentLayoutBranchNotFound(string $layoutId, string $branchId): self
+    public static function contentLayoutDraftNotFound(string $layoutId, string $draftId): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
-            self::CONTENT_LAYOUT_BRANCH_NOT_FOUND,
-            'Content layout "{{ layoutId }}" has no branch "{{ branchId }}".',
-            ['layoutId' => $layoutId, 'branchId' => $branchId]
+            self::CONTENT_LAYOUT_DRAFT_NOT_FOUND,
+            'Content layout "{{ layoutId }}" has no draft "{{ draftId }}".',
+            ['layoutId' => $layoutId, 'draftId' => $draftId]
         );
     }
 

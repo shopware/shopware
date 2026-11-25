@@ -1062,103 +1062,104 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertEquals($map, $stored->jsonSerialize());
     }
 
-    #[TestDox('a mutation naming a branch appends a revision to the branch and leaves the live layout alone')]
-    public function testBranchInsertAppendsARevision(): void
+    #[TestDox('a mutation naming a draft appends a revision to the draft and leaves the live layout alone')]
+    public function testDraftInsertAppendsARevision(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
         $branch = $this->revisions()->createBranch($layoutId);
 
         $body = $this->mutate('insert-element', $layoutId, [
-            'branchId' => $branch->id,
+            'draftId' => $branch->id,
             'type' => TestElementTypeLoader::RESOLVABLE,
             'expectedHead' => $branch->head,
         ]);
 
         static::assertCount(2, $body['layout']);
-        static::assertSame($branch->head, $body['revision']['parent']);
-        static::assertSame($body['revision']['id'], $body['branch']['head']);
+        static::assertSame($branch->id, $body['draft']['id']);
+        static::assertNotSame($branch->head, $body['draft']['head']);
+        static::assertArrayNotHasKey('revision', $body);
         static::assertCount(2, $this->revisions()->getBranch($layoutId, $branch->id)['layout']);
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
-    #[TestDox('a branch mutation against a stale head is a 409 and appends nothing')]
-    public function testBranchMutationWithStaleHeadIs409(): void
+    #[TestDox('a draft mutation against a stale head is a 409 and appends nothing')]
+    public function testDraftMutationWithStaleHeadIs409(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
         $branch = $this->revisions()->createBranch($layoutId);
-        $this->mutate('insert-element', $layoutId, ['branchId' => $branch->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $branch->head]);
+        $this->mutate('insert-element', $layoutId, ['draftId' => $branch->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $branch->head]);
 
-        $this->request('insert-element', $layoutId, ['branchId' => $branch->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $branch->head]);
+        $this->request('insert-element', $layoutId, ['draftId' => $branch->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $branch->head]);
 
         $this->assertErrorCode(Response::HTTP_CONFLICT, ContentSystemException::LAYOUT_VERSION_CONFLICT);
         static::assertCount(2, $this->revisions()->getBranch($layoutId, $branch->id)['layout']);
     }
 
-    #[TestDox('a mutation on an unknown branch is a 404')]
-    public function testBranchMutationOnUnknownBranchIs404(): void
+    #[TestDox('a mutation on an unknown draft is a 404')]
+    public function testDraftMutationOnUnknownDraftIs404(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
 
-        $this->request('remove-element', $layoutId, ['branchId' => $this->ids->get('missing-branch'), 'elementId' => 'block-a', 'expectedHead' => $this->ids->get('head')]);
+        $this->request('remove-element', $layoutId, ['draftId' => $this->ids->get('missing-draft'), 'elementId' => 'block-a', 'expectedHead' => $this->ids->get('head')]);
 
-        $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::CONTENT_LAYOUT_BRANCH_NOT_FOUND);
+        $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND);
     }
 
-    #[TestDox('a mutation naming a branch without the head token is a client error and appends nothing')]
-    public function testBranchMutationWithoutExpectedHeadIsABadRequest(): void
+    #[TestDox('a mutation naming a draft without the head token is a client error and appends nothing')]
+    public function testDraftMutationWithoutExpectedHeadIsABadRequest(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
         $branch = $this->revisions()->createBranch($layoutId);
 
-        $this->request('remove-element', $layoutId, ['branchId' => $branch->id, 'elementId' => 'block-a']);
+        $this->request('remove-element', $layoutId, ['draftId' => $branch->id, 'elementId' => 'block-a']);
 
         $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::MISSING_REQUEST_FIELD);
         static::assertSame($branch->head, $this->revisions()->getBranch($layoutId, $branch->id)['branch']->head);
     }
 
-    #[TestDox('a malformed branch id is a client error and writes nothing')]
-    public function testMalformedBranchIdIsABadRequest(): void
+    #[TestDox('a malformed draft id is a client error and writes nothing')]
+    public function testMalformedDraftIdIsABadRequest(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
 
-        $this->request('remove-element', $layoutId, ['branchId' => 'not-a-uuid', 'elementId' => 'block-a', 'expectedHead' => $this->ids->get('head')]);
+        $this->request('remove-element', $layoutId, ['draftId' => 'not-a-uuid', 'elementId' => 'block-a', 'expectedHead' => $this->ids->get('head')]);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
-    #[TestDox('translating on a branch keeps the translate ACL: a translator may translate a draft but not restructure it')]
-    public function testBranchTranslateKeepsTheTranslateAcl(): void
+    #[TestDox('translating on a draft keeps the translate ACL: a translator may translate a draft but not restructure it')]
+    public function testDraftTranslateKeepsTheTranslateAcl(): void
     {
         $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
         $branch = $this->revisions()->createBranch($layoutId);
         $this->actAs(['content_layout:read', 'content_layout:translate']);
 
         $body = $this->mutate('translate-element', $layoutId, [
-            'branchId' => $branch->id,
+            'draftId' => $branch->id,
             'elementId' => 'block-a',
             'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
             'expectedHead' => $branch->head,
         ]);
 
-        $this->request('remove-element', $layoutId, ['branchId' => $branch->id, 'elementId' => 'block-a', 'expectedHead' => $body['branch']['head']]);
+        $this->request('remove-element', $layoutId, ['draftId' => $branch->id, 'elementId' => 'block-a', 'expectedHead' => $body['draft']['head']]);
 
         $this->assertMissingPrivilege('content_layout:update');
     }
 
-    #[TestDox('a mutation naming a branch refuses the live version token, so a timestamp cannot be sent where a revision id is expected')]
-    public function testBranchMutationRejectsExpectedVersion(): void
+    #[TestDox('a mutation naming a draft refuses the live version token, so a timestamp cannot be sent where a revision id is expected')]
+    public function testDraftMutationRejectsExpectedVersion(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
         $branch = $this->revisions()->createBranch($layoutId);
 
-        $this->request('remove-element', $layoutId, ['branchId' => $branch->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHead' => $branch->head]);
+        $this->request('remove-element', $layoutId, ['draftId' => $branch->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHead' => $branch->head]);
 
         $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
     }
 
-    #[TestDox('a live mutation refuses the branch head token')]
+    #[TestDox('a live mutation refuses the draft head token')]
     public function testLiveMutationRejectsExpectedHead(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);

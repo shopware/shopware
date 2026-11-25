@@ -16,8 +16,8 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentInlineMappingParseController;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDraftController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMutationController;
-use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutRevisionController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
@@ -1023,7 +1023,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(LayoutRowLock::class),
             service(LayoutRevisionStore::class),
-            service(DraftLayoutDecoder::class),
             service(LayoutWriteBoundary::class),
             service(StoredTreeCodec::class),
             service(StoredTreeConstraints::class),
@@ -1034,8 +1033,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ClockInterface::class),
         ]);
 
-    // Layout Revision Actions (Admin API)
-    $services->set(ContentLayoutRevisionController::class)
+    // Layout Draft Actions (Admin API)
+    $services->set(ContentLayoutDraftController::class)
         ->public()
         ->args([
             service(LayoutRevisionService::class),

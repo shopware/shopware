@@ -19,9 +19,8 @@ use Shopware\Core\Migration\V6_7\Migration1793099454AddContentLayoutRevisionTabl
 class Migration1793099454AddContentLayoutRevisionTablesTest extends TestCase
 {
     private const TABLES = [
-        'content_layout_revision' => ['id', 'content_layout_id', 'parent_id', 'layout', 'created_by_id', 'published_at', 'created_at'],
+        'content_layout_revision' => ['id', 'content_layout_id', 'parent_id', 'layout', 'created_by_id', 'published_at', 'live_content_layout_id', 'created_at'],
         'content_layout_branch' => ['id', 'content_layout_id', 'name', 'base_revision_id', 'head_revision_id', 'live_revision_id', 'created_at', 'updated_at'],
-        'content_layout_publication' => ['content_layout_id', 'revision_id', 'layout_checksum'],
     ];
 
     private Connection $connection;
@@ -56,16 +55,18 @@ class Migration1793099454AddContentLayoutRevisionTablesTest extends TestCase
         }
     }
 
-    public function testUpdateDestructiveDropsTheSupersededJsonColumn(): void
+    public function testUpdateDestructiveDropsTheSupersededStorage(): void
     {
         if (!TableHelper::columnExists($this->connection, 'content_layout', 'revisions')) {
             $this->connection->executeStatement('ALTER TABLE `content_layout` ADD COLUMN `revisions` JSON NULL');
         }
+        $this->connection->executeStatement('CREATE TABLE IF NOT EXISTS `content_layout_publication` (`content_layout_id` BINARY(16) NOT NULL PRIMARY KEY)');
 
         $migration = new Migration1793099454AddContentLayoutRevisionTables();
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
         static::assertFalse(TableHelper::columnExists($this->connection, 'content_layout', 'revisions'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'content_layout_publication'));
     }
 }

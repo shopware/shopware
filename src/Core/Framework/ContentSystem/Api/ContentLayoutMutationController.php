@@ -34,7 +34,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
  * The persisted counterpart to {@see LayoutMutationController}. Each action writes the {@see MutationTarget} its
- * request names: the live layout, or a draft branch.
+ * request names: the live layout, or a draft.
  *
  * @internal
  *
@@ -231,14 +231,14 @@ class ContentLayoutMutationController
 
     private function respond(string $layoutId, MutationTarget $target, LayoutMutation $mutation, Context $context): JsonResponse
     {
-        if (!$target->isBranch()) {
+        if (!$target->isDraft()) {
             $result = $this->mutator->mutate($layoutId, $target->expectedVersion, $mutation, $context);
 
             return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
         }
 
-        $result = $this->mutator->mutateBranch($layoutId, $target->branchId, $target->expectedHead, $mutation, $context);
+        $result = $this->mutator->mutateBranch($layoutId, $target->draftId, $target->expectedHead, $mutation, $context);
 
-        return new JsonResponse(BranchMutationResponse::fromResult($result, $this->elementCodec));
+        return new JsonResponse(DraftMutationResponse::fromResult($result, $this->elementCodec));
     }
 }

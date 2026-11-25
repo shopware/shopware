@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Revision;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
@@ -17,7 +16,6 @@ use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -25,10 +23,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Drafts of a content layout are branches of its revision graph. Saving appends a revision to a branch,
- * publishing moves the published pointer and writes the revision's tree to the `layout` column through the
- * DAL, which runs the full write gate including resolvability. Every operation, reads included, runs under the
- * {@see LayoutRowLock} that persisted mutations take too, and first reconciles the published pointer with the
+ * Drafts of a content layout are branches of its revision graph. Every persisted edit appends a revision to a
+ * branch; publishing writes the branch head's tree to the `layout` column through the DAL, which runs the full
+ * write gate including resolvability, and moves the live pointer onto it. Every operation, reads included, runs
+ * under the {@see LayoutRowLock} that persisted mutations take too, and first reconciles the live pointer with the
  * `layout` column, see {@see reconcile()}; concurrent writers of one layout therefore serialize and the stale one
  * fails its head or version check.
  *
@@ -47,7 +45,6 @@ class LayoutRevisionService
     public function __construct(
         private readonly LayoutRowLock $rowLock,
         private readonly LayoutRevisionStore $store,
-        private readonly DraftLayoutDecoder $decoder,
         private readonly LayoutWriteBoundary $writeBoundary,
         private readonly StoredTreeCodec $treeCodec,
         private readonly StoredTreeConstraints $treeConstraints,
@@ -109,30 +106,8 @@ class LayoutRevisionService
     }
 
     /**
-     * The layout name is not versioned: a `$name` that differs from the layout's is written to the layout row.
-     *
-     * @param array<array-key, mixed> $layout
-     *
-     * @return array{revision: LayoutRevision, branch: LayoutBranch, layout: list<StoredElement>}
-     */
-    public function saveRevision(string $layoutId, string $branchId, array $layout, string $expectedHead, ?string $name, Context $context): array
-    {
-        $tree = $this->admit($layout);
-
-        return $this->locked($layoutId, function () use ($layoutId, $branchId, $tree, $expectedHead, $name, $context): array {
-            $saved = $this->append($layoutId, $branchId, $expectedHead, static fn (): array => $tree, $context);
-
-            if ($name !== null) {
-                $this->rename($layoutId, $name, $context);
-            }
-
-            return $saved;
-        });
-    }
-
-    /**
-     * Appends the tree `$derive` makes from the branch head, admitted like a saved tree. The head is checked before
-     * `$derive` runs, so a derivation never works on a head its caller has not seen.
+     * Appends the tree `$derive` makes from the branch head, admitted like a layout write without its resolvability
+     * step. The head is checked before `$derive` runs, so a derivation never works on a head its caller has not seen.
      *
      * @param \Closure(list<StoredElement>): StoredTree $derive
      *
@@ -144,38 +119,33 @@ class LayoutRevisionService
             $layoutId,
             $branchId,
             $expectedHead,
-            fn (array $head): array => $this->admitTree($derive($head)),
+            fn (array $head): array => $this->admit($derive($head)),
             $context,
         ));
     }
 
     /**
-     * Publishing never replaces a live state its caller has not seen. `$expectedPublished` is the published
-     * revision the caller last saw; a draft that is published and deleted in one go must also still be based on
-     * the live state it was opened from, or contain the current one. The DAL update and the pointer move share
-     * one transaction, so a tree the write gate refuses leaves the published pointer where it was.
+     * Publishes the head the caller last saw and removes the branch. Publishing never replaces a live state its
+     * caller has not seen: the branch must still be based on the live state it was opened from, or contain the
+     * current one. The DAL update and the pointer move share one transaction, so a tree the write gate refuses
+     * leaves the branch and the live pointer where they were.
      */
-    public function publish(string $layoutId, string $revisionId, ?string $deleteBranchId, ?string $expectedPublished, Context $context): void
+    public function publish(string $layoutId, string $branchId, string $expectedHead, Context $context): void
     {
-        $this->locked($layoutId, function (string $published) use ($layoutId, $revisionId, $deleteBranchId, $expectedPublished, $context): void {
-            if ($expectedPublished !== null && $expectedPublished !== $published) {
+        $this->locked($layoutId, function (string $published) use ($layoutId, $branchId, $expectedHead, $context): void {
+            $branch = $this->branch($layoutId, $branchId);
+
+            if ($branch->head !== $expectedHead) {
+                throw ContentSystemException::layoutVersionConflict($layoutId);
+            }
+
+            if ($branch->live !== $published && !$this->store->graph($layoutId, $published)->isAncestorOrSelf($published, $branch->head)) {
                 throw ContentSystemException::layoutPublishConflict($layoutId, $published);
             }
 
-            $tree = $this->tree($layoutId, $revisionId);
-
-            if ($deleteBranchId !== null) {
-                $branch = $this->branch($layoutId, $deleteBranchId);
-
-                if ($branch->live !== $published && !$this->store->graph($layoutId, $published)->isAncestorOrSelf($published, $revisionId)) {
-                    throw ContentSystemException::layoutPublishConflict($layoutId, $published);
-                }
-
-                $this->store->deleteBranch($layoutId, $deleteBranchId);
-            }
-
-            $this->contentLayoutRepository->update([['id' => $layoutId, 'layout' => $tree]], $context);
-            $this->store->markPublished($layoutId, $revisionId, $this->now());
+            $this->store->deleteBranch($layoutId, $branchId);
+            $this->contentLayoutRepository->update([['id' => $layoutId, 'layout' => $this->tree($layoutId, $branch->head)]], $context);
+            $this->store->markPublished($layoutId, $branch->head, $this->now());
         });
     }
 
@@ -216,22 +186,12 @@ class LayoutRevisionService
 
     /**
      * The layout write's well-formedness admission without its resolvability step, which only publishing
-     * enforces: decode, the write boundary, the stored-tree constraints plus the `NotBlank` the required
-     * layout field adds, and the gate's intrinsic errors.
-     *
-     * @param array<array-key, mixed> $layout
+     * enforces: the write boundary, the stored-tree constraints plus the `NotBlank` the required layout field
+     * adds, and the gate's intrinsic errors.
      *
      * @return list<StoredElement>
      */
-    private function admit(array $layout): array
-    {
-        return $this->admitTree(new StoredTree($this->decoder->decode($layout)));
-    }
-
-    /**
-     * @return list<StoredElement>
-     */
-    private function admitTree(StoredTree $tree): array
+    private function admit(StoredTree $tree): array
     {
         try {
             $tree = $this->writeBoundary->apply($tree);
@@ -252,17 +212,6 @@ class LayoutRevisionService
         return $tree->roots;
     }
 
-    private function rename(string $layoutId, string $name, Context $context): void
-    {
-        $current = $this->contentLayoutRepository->search(new Criteria([$layoutId]), $context)->getEntities()->first();
-
-        if ($current?->getName() === $name) {
-            return;
-        }
-
-        $this->contentLayoutRepository->update([['id' => $layoutId, 'name' => $name]], $context);
-    }
-
     /**
      * @template T
      *
@@ -276,14 +225,14 @@ class LayoutRevisionService
     }
 
     /**
-     * The `layout` column is also written outside publishing: persisted mutations, the Sync API, migrations. A
-     * column that no longer holds what the last publish wrote becomes the published revision, so a new draft
+     * The `layout` column is also written outside publishing: live persisted mutations, the Sync API, migrations. A
+     * column that no longer holds the live revision's tree becomes the live revision, so a new draft
      * starts from the live state and publishing a draft opened before that write fails instead of reverting it.
      * The revision id is derived from the content, so the column's state is one revision however often it is read.
      */
     private function reconcile(string $layoutId): string
     {
-        $publication = $this->store->lockPublication($layoutId) ?? throw ContentSystemException::contentLayoutNotFound($layoutId);
+        $publication = $this->store->publication($layoutId) ?? throw ContentSystemException::contentLayoutNotFound($layoutId);
 
         if ($publication['revisionId'] !== null && $publication['current']) {
             return $publication['revisionId'];
@@ -300,7 +249,7 @@ class LayoutRevisionService
 
     private function branch(string $layoutId, string $branchId): LayoutBranch
     {
-        return $this->store->branch($layoutId, $branchId) ?? throw ContentSystemException::contentLayoutBranchNotFound($layoutId, $branchId);
+        return $this->store->branch($layoutId, $branchId) ?? throw ContentSystemException::contentLayoutDraftNotFound($layoutId, $branchId);
     }
 
     /**

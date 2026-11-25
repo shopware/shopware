@@ -21,7 +21,7 @@ final class ContentLayoutMoveRequest
         public readonly ?string $newParentId = null,
         public readonly ?string $newSlot = null,
         public readonly ?int $index = null,
-        public readonly ?string $branchId = null,
+        public readonly ?string $draftId = null,
         public readonly ?string $expectedHead = null,
     ) {
     }

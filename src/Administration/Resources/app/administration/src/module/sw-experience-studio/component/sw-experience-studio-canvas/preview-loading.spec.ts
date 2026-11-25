@@ -13,6 +13,7 @@ async function createWrapper() {
         created: previewCreated,
     } as Component;
     const frames = [0, 1600, 3200].map((x, index) => ({
+        id: `layout-${index}`,
         layoutId: `layout-${index}`,
         x,
         y: 0,

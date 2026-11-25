@@ -11,6 +11,60 @@ component sw-experience-studio-preview  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-preview/sw-experience-studio-preview.html.twig  [private]
   visibility-source export  [private]
 
+props
+  entityId?: string  default=null  [private]
+  entityType?: string  default=null  [private]
+  languageId?: string  default=null  [private]
+  layout?: ContentLayoutEntity | null  default=null  [private]
+  salesChannelId?: string  default=null  [private]
+  viewport?: string  default='desktop'  [private]
+
+emits
+  select-element(...args: any[])  [private]
+
+data
+  activeFrame: any  [private]
+  debouncedLoadPreview: any  [private]
+  iframeAUrl: any  [private]
+  iframeBUrl: any  [private]
+  isPreviewLoading: any  [private]
+  latestRequestId: any  [private]
+  loadingFrame: any  [private]
+  pendingScrollElementId: any  [private]
+  pendingScrollPosition: any  [private]
+  previewLoadError: any  [private]
+  previewMessageHandler: any  [private]
+  scrollRequestSequence: any  [private]
+
+computed
+  hasAnyPreviewFrame: boolean  [private]
+  hasPreviewContext: boolean  [private]
+  showInitialLoader: boolean  [private]
+  showOutdatedPreviewError: boolean  [private]
+  viewportClass: string  [private]
+
+methods
+  assignLoadingFrame(url: string): void  [private]
+  captureActiveFrameScrollPosition(): PreviewScrollPosition | null  [private]
+  getActiveFrameElement(): HTMLIFrameElement | null  [private]
+  getActiveFrameOrigin(): string | null  [private]
+  getFrameClass(frame: 'a' | 'b'): string[]  [private]
+  getFrameOrigin(frame: 'a' | 'b'): string | null  [private]
+  getFrameUrl(frame: 'a' | 'b'): string | null  [private]
+  isTrustedPreviewMessage(event: MessageEvent): boolean  [private]
+  loadPreview(): Promise<void>  [private]
+  onPreviewFrameLoad(frame: 'a' | 'b'): Promise<void>  [private]
+  onRetryPreview(): void  [private]
+  requestActiveFrameScrollPosition(): Promise<PreviewScrollPosition | null>  [private]
+  resetPreviewFrames(): void  [private]
+  restoreFrameScrollPosition(frame: 'a' | 'b', scrollPosition: PreviewScrollPosition): Promise<void>  [private]
+  schedulePreviewReload(): void  [private]
+  scrollToElement(elementId: string): void  [private]
+
 blocks
   sw_experience_studio_preview  [private]
+
+refs
+  iframeA  -> iframe  block=sw_experience_studio_preview  [private]
+  iframeB  -> iframe  block=sw_experience_studio_preview  [private]
 ```

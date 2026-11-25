@@ -11,6 +11,25 @@ component sw-experience-studio-workspace-switcher  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-workspace-switcher/sw-experience-studio-workspace-switcher.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+
+emits
+  browse(...args: any[])  [private]
+  create(...args: any[])  [private]
+  select(...args: any[])  [private]
+
+computed
+  allowCreate: boolean  [private]
+  workspaceStore: ExperienceStudioWorkspaceStore  [private]
+
+methods
+  getCreatorName(...args: any[]): any  [private]
+  onOpenChange(open: boolean): void  [private]
+
 blocks
   sw_experience_studio_workspace_switcher  [private]
 ```

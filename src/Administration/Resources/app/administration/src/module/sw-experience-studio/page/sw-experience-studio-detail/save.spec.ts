@@ -29,6 +29,8 @@ function createEditor(elements: ContentElementNode[] = []) {
     return {
         layout,
         activeLayoutId: layout.id,
+        frames: [],
+        clearInvalidFrameSelections: methods.clearInvalidFrameSelections,
         allowSave: true,
         selectedElementId: elements[0]?.id ?? null,
         diagnostics: [] as ContentSystemViolation[],

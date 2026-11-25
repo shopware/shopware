@@ -11,6 +11,32 @@ component sw-experience-studio-media-collection-field  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-media-collection-field/sw-experience-studio-media-collection-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+  label?: string  default=null  [private]
+  value?: string[] | null  default=null  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+data
+  showMediaModal: any  [private]
+  uploadTag: any  [private]
+
+computed
+  entityMediaItems: MediaListItem[]  [private]
+  listEntity: { id: string; isLoading: boolean; getEntityName: () => string }  [private]
+  mediaIds: string[]  [private]
+
+methods
+  emitValue(ids: string[]): void  [private]
+  onCloseMediaModal(): void  [private]
+  onItemRemove(mediaItem: MediaListItem): void  [private]
+  onItemSort(dragData: MediaListItem, dropData: MediaListItem): void  [private]
+  onMediaSelectionChange(selection: Array<{ id: string }>): void  [private]
+  onOpenMediaModal(): void  [private]
+  onUploadFinish(arg0: { targetId: string }): void  [private]
+
 blocks
   sw_experience_studio_media_collection_field  [private]
     sw_experience_studio_media_collection_field_label  [private]

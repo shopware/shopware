@@ -32,7 +32,10 @@
         {% endblock %}
 
         {% block sw_experience_studio_sidebar_tree_node_label %}
-        <div class="sw-experience-studio-sidebar-tree-node__label">
+        <div
+            class="sw-experience-studio-sidebar-tree-node__label"
+            :title="typeLabel"
+        >
             <mt-icon
                 class="sw-experience-studio-sidebar-tree-node__type-icon"
                 :name="typeIcon"
@@ -141,6 +144,7 @@
                         v-for="(childElement, childIndex) in slot.elements"
                         :key="childElement.id"
                         :element="childElement"
+                        :language-id="languageId"
                         :selected-element-id="selectedElementId"
                         :depth="depth + 1"
                         :allow-drag-and-drop="allowDragAndDrop"

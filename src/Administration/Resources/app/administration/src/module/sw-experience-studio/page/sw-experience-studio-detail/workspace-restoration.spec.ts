@@ -9,6 +9,7 @@ function createRestore() {
     const configuration = createWorkspaceConfiguration();
     configuration.frames = [
         {
+            id: 'layout-a',
             layoutId: 'layout-a',
             x: 0,
             y: 0,
@@ -39,16 +40,38 @@ function createRestore() {
         layoutLoadCriteria: new Shopware.Data.Criteria(1, 25),
         restoreWorkspaceLayouts: methods.restoreWorkspaceLayouts,
         restoreFramePreviewEntity: methods.restoreFramePreviewEntity,
+        restoreWorkspacePreviewContext: methods.restoreWorkspacePreviewContext,
         restoreWorkspaceSalesChannel: methods.restoreWorkspaceSalesChannel,
+        loadPreviewLanguageContext: methods.loadPreviewLanguageContext,
+        applyPreviewLanguageContext: methods.applyPreviewLanguageContext,
+        previewLanguageContext: null,
         defaultSalesChannelCriteria: getStorefrontSalesChannelCriteria(1),
-        salesChannelRepository: { search: jest.fn().mockResolvedValue({ first: () => ({ id: 'channel' }) }) },
+        salesChannelRepository: {
+            search: jest.fn().mockResolvedValue({ first: () => ({ id: 'channel' }) }),
+            get: jest.fn((id: string) =>
+                Promise.resolve({
+                    id,
+                    languageId: Shopware.Defaults.systemLanguageId,
+                    languages: [{ id: Shopware.Defaults.systemLanguageId, parentId: null, active: true }],
+                }),
+            ),
+        },
         createOpenLayoutState: methods.createOpenLayoutState,
+        createPreviewFrame: methods.createPreviewFrame,
         serializeLayoutState: methods.serializeLayoutState,
         getLayoutRootSource: methods.getLayoutRootSource,
         resolvePreviewContext: (layout: { rootSource: string }) => ({ entityType: layout.rootSource }),
         resetWorkspaceEditor: jest.fn(),
-        activateLayout: jest.fn(),
-        openLayouts: [{ id: 'current-layout', previewEntityId: 'current-entity' }],
+        activateFrame: jest.fn(),
+        openLayouts: [{ id: 'current-layout' }],
+        frames: [
+            {
+                id: 'current-frame',
+                layoutId: 'current-layout',
+                previewEntityId: 'current-entity',
+                languageId: Shopware.Defaults.systemLanguageId,
+            },
+        ],
         workspaceCanvasConfiguration: current.configuration,
         previewSalesChannelId: 'current-channel',
         workspaceError: false,
@@ -66,6 +89,96 @@ function createRestore() {
 }
 
 describe('Experience Studio workspace preview reference restoration', () => {
+    it('replaces saved frame languages unavailable in the selected channel before opening the workspace', async () => {
+        const { editor, target } = createRestore();
+        const germanLanguageId = 'a'.repeat(32) as EntityKey<'language'>;
+        target.configuration.frames[0].languageId = 'unavailable';
+        editor.salesChannelRepository.get.mockResolvedValueOnce({
+            id: 'channel',
+            languageId: germanLanguageId,
+            languages: [{ id: germanLanguageId, parentId: null, active: true }],
+        });
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.frames[0].languageId).toBe(germanLanguageId);
+        expect(target.configuration.frames[0].languageId).toBe('unavailable');
+        expect(editor.createNotificationWarning).toHaveBeenCalledTimes(1);
+        expect(editor.createNotificationError).not.toHaveBeenCalled();
+    });
+
+    it.each(['unassigned', 'inactive'])(
+        'opens the workspace with a warning when its preview channel has %s languages',
+        async (state) => {
+            const { editor, target } = createRestore();
+            target.configuration.previewSalesChannelId = 'channel';
+            const configuration = Shopware.Utils.object.cloneDeep(target.configuration);
+            editor.salesChannelRepository.search.mockResolvedValueOnce({ length: 1, first: () => ({ id: 'channel' }) });
+            editor.salesChannelRepository.get.mockResolvedValueOnce({
+                id: 'channel',
+                languageId: Shopware.Defaults.systemLanguageId,
+                languages:
+                    state === 'unassigned'
+                        ? []
+                        : [{ id: Shopware.Defaults.systemLanguageId, parentId: null, active: false }],
+            });
+
+            await methods.openWorkspace.call(editor, target.id);
+
+            expect(editor.workspaceError).toBe(false);
+            expect(editor.workspaceStore.activate).toHaveBeenCalledWith(target);
+            expect(editor.frames).toEqual([
+                expect.objectContaining({ id: 'layout-a', layoutId: 'layout-a', previewEntityId: 'saved-entity' }),
+            ]);
+            expect(editor.previewSalesChannelId).toBeNull();
+            expect(editor.previewLanguageContext).toBeNull();
+            expect(editor.$router.replace).toHaveBeenCalledWith({
+                name: 'sw.experience.studio.workspace',
+                params: { workspaceId: target.id },
+            });
+            expect(target.configuration).toEqual(configuration);
+            expect(editor.createNotificationWarning).toHaveBeenCalledWith({
+                message: 'sw-experience-studio.workspace.manager.missingReferences',
+            });
+            expect(editor.createNotificationError).not.toHaveBeenCalled();
+        },
+    );
+
+    it('falls back to a default channel when the saved preview channel has no active language', async () => {
+        const { editor, target } = createRestore();
+        target.configuration.previewSalesChannelId = 'channel';
+        editor.salesChannelRepository.search
+            .mockResolvedValueOnce({ length: 1, first: () => ({ id: 'channel' }) })
+            .mockResolvedValueOnce({ length: 1, first: () => ({ id: 'fallback-channel' }) });
+        editor.salesChannelRepository.get.mockResolvedValueOnce({
+            id: 'channel',
+            languageId: Shopware.Defaults.systemLanguageId,
+            languages: [],
+        });
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.workspaceError).toBe(false);
+        expect(editor.previewSalesChannelId).toBe('fallback-channel');
+        expect(editor.previewLanguageContext).toEqual(expect.objectContaining({ salesChannelId: 'fallback-channel' }));
+        expect(editor.frames[0].languageId).toBe(Shopware.Defaults.systemLanguageId);
+        expect(editor.createNotificationWarning).toHaveBeenCalledWith({
+            message: 'sw-experience-studio.workspace.manager.missingReferences',
+        });
+    });
+
+    it('preserves the current workspace when the target channel language lookup fails', async () => {
+        const { editor, target, current } = createRestore();
+        const frames = editor.frames;
+        editor.salesChannelRepository.get.mockRejectedValueOnce(new Error('language lookup failed'));
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.workspaceStore.activeWorkspace).toBe(current);
+        expect(editor.frames).toBe(frames);
+        expect(editor.resetWorkspaceEditor).not.toHaveBeenCalled();
+        expect(editor.createNotificationError).toHaveBeenCalledTimes(1);
+    });
     it.each([
         'unavailable',
         'forbidden',
@@ -128,7 +241,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
             await methods.openWorkspace.call(editor, target.id);
 
             expect(editor.workspaceError).toBe(false);
-            expect(editor.openLayouts[0].previewEntityId).toBe(fallback);
+            expect(editor.frames[0].previewEntityId).toBe(fallback);
             expect(editor.workspaceStore.activate).toHaveBeenCalledWith(target);
             expect(editor.createNotificationWarning).toHaveBeenCalledWith({
                 message: 'sw-experience-studio.workspace.manager.missingReferences',
@@ -142,7 +255,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
 
         await methods.openWorkspace.call(editor, target.id);
 
-        expect(editor.openLayouts[0].previewEntityId).toBe('saved-entity');
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
         expect(entityRepository.search).not.toHaveBeenCalled();
         expect(editor.workspaceStore.activate).toHaveBeenCalledWith(target);
         expect(editor.createNotificationWarning).not.toHaveBeenCalled();
@@ -158,7 +271,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
         await methods.openWorkspace.call(editor, target.id);
 
         expect(editor.workspaceError).toBe(false);
-        expect(editor.openLayouts[0].previewEntityId).toBe('saved-entity');
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
         expect(editor.workspaceStore.activate).toHaveBeenCalledTimes(1);
         expect(target.configuration.frames[0].previewEntityId).toBe('saved-entity');
     });

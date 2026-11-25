@@ -1,4 +1,5 @@
 import type { ExperienceStudioWorkspaceStore } from '../../store/experience-studio-workspace.store';
+import { getWorkspaceCreatorName } from '../../util/workspace-creator.util';
 import template from './sw-experience-studio-workspace-switcher.html.twig';
 import './sw-experience-studio-workspace-switcher.scss';
 
@@ -24,6 +25,8 @@ export default Shopware.Component.wrapComponentConfig({
         void this.workspaceStore.load();
     },
     methods: {
+        getCreatorName: getWorkspaceCreatorName,
+
         onOpenChange(open: boolean): void {
             if (open) {
                 void this.workspaceStore.load();

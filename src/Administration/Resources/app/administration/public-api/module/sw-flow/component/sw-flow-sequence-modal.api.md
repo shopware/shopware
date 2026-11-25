@@ -11,6 +11,19 @@ component sw-flow-sequence-modal  private  js  [private]
   template src/module/sw-flow/component/sw-flow-sequence-modal/sw-flow-sequence-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  action?: string  default=null  [private]
+  modalName: string  [private]
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+methods
+  onClose(): any  [private]
+  processSuccess(data: any): any  [private]
+
 blocks
   sw_flow_sequence_modal  [private]
 ```

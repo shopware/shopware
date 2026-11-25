@@ -11,6 +11,32 @@ component sw-experience-studio-workspace-picker  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-workspace-picker/sw-experience-studio-workspace-picker.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+
+emits
+  close(...args: any[])  [private]
+  create(...args: any[])  [private]
+  delete(...args: any[])  [private]
+  rename(...args: any[])  [private]
+  select(...args: any[])  [private]
+
+data
+  page: any  [private]
+  term: any  [private]
+
+computed
+  allowCreate: boolean  [private]
+  allowDelete: boolean  [private]
+  allowEdit: boolean  [private]
+  workspaceStore: ExperienceStudioWorkspaceStore  [private]
+
+methods
+  getCreatorName(...args: any[]): any  [private]
+  onModalRootChange(isOpen: boolean): void  [private]
+  onPageChange(page: number): void  [private]
+  onSearch(term: string): void  [private]
+
 blocks
   sw_experience_studio_workspace_picker  [private]
 ```

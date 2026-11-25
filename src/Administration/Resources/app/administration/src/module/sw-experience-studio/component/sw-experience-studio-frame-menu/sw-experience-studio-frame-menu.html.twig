@@ -1,0 +1,54 @@
+{% block sw_experience_studio_frame_menu %}
+<div
+    class="sw-experience-studio-frame-menu"
+    role="group"
+    :aria-label="label"
+>
+    <div
+        v-if="$slots.default"
+        class="sw-experience-studio-frame-menu__settings"
+    >
+        <slot :popover-class="popoverClass"></slot>
+    </div>
+    <mt-button
+        v-tooltip="{ message: $t('sw-experience-studio.detail.translationSettings.openAction'), width: 'auto' }"
+        class="sw-experience-studio-frame-menu__translate"
+        variant="tertiary"
+        size="x-small"
+        square
+        :aria-label="$t('sw-experience-studio.detail.translationSettings.openAction')"
+        @pointerdown.stop
+        @click.stop="$emit('translate')"
+    >
+        <template #iconFront>
+            <mt-icon
+                name="regular-globe"
+                size="16px"
+                decorative
+            />
+        </template>
+    </mt-button>
+    <div
+        class="sw-experience-studio-frame-menu__divider"
+        aria-hidden="true"
+    ></div>
+    <mt-button
+        v-tooltip="{ message: $t('sw-experience-studio.detail.canvas.openAnotherPreview'), width: 'auto' }"
+        class="sw-experience-studio-frame-menu__open-another"
+        variant="tertiary"
+        size="x-small"
+        square
+        :aria-label="$t('sw-experience-studio.detail.canvas.openAnotherPreview')"
+        @pointerdown.stop
+        @click.stop="$emit('open-another')"
+    >
+        <template #iconFront>
+            <mt-icon
+                name="regular-plus"
+                size="16px"
+                decorative
+            />
+        </template>
+    </mt-button>
+</div>
+{% endblock %}

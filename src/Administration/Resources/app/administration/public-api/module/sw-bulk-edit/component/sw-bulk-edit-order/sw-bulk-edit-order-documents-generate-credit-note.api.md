@@ -10,6 +10,10 @@ component sw-bulk-edit-order-documents-generate-credit-note  public  js
   registered src/module/sw-bulk-edit/index.js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note/index.js
 
+computed
+  documentTypeTechnicalName: any
+  generateData: any
+
 blocks
   sw_bulk_edit_order_documents_generate_invoice  [inherited]
     sw_bulk_edit_order_documents_generate_invoice_datepicker  [inherited] [after v-if]

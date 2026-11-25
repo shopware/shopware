@@ -11,17 +11,46 @@ component sw-cms-el-config-cross-selling  private  js  [private]
   template src/module/sw-cms/elements/cross-selling/config/sw-cms-el-config-cross-selling.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+
+computed
+  boxLayoutOptions: any  [private]
+  displayModeOptions: any  [private]
+  isProductPageType: any  [private]
+  productCriteria: any  [private]
+  productRepository: any  [private]
+  productSelectContext: any  [private]
+  selectedProductCriteria: any  [private]
+  tabs: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  deleteProduct(): any  [private]
+  fetchProduct(productId: any): Promise<any>  [private]
+  onProductChange(productId: any): Promise<any>  [private]
+
 blocks
   sw_cms_element_cross_selling_config  [private]
     sw_cms_element_cross_selling_config_tabs  [private]
       sw_cms_element_cross_selling_config_content  [scope: active] [until v6.8.0] [private]
         sw_cms_element_cross_selling_config_content_products  [after v-if] [scope: active] [until v6.8.0] [private]
           sw_cms_element_cross_selling_config_content_products_select_result_item  [scope: active, isInherited] [until v6.8.0] [private]
-            sw_entity_single_select_variant_result_item  [scope: active, isInherited] [until v6.8.0] [private]
+            sw_entity_single_select_variant_result_item  [scope: active, isInherited] [until v6.8.0] [deprecated tag:v6.8.0] [private]
               sw_cms_element_cross_selling_config_content_products_select_result_item_inner  [scope: active, index, isInherited, item] [until v6.8.0] [private]
-                sw_entity_single_select_base_results_list_result_label  [scope: active, index, isInherited, item] [until v6.8.0] [private]
+                sw_entity_single_select_base_results_list_result_label  [scope: active, index, isInherited, item] [until v6.8.0] [deprecated tag:v6.8.0] [private]
           sw_cms_element_cross_selling_config_content_products_selection_label  [scope: active, isInherited] [until v6.8.0] [private]
-            sw_entity_single_select_variant_selected_item  [scope: active, isInherited] [until v6.8.0] [private]
+            sw_entity_single_select_variant_selected_item  [scope: active, isInherited] [until v6.8.0] [deprecated tag:v6.8.0] [private]
         sw_cms_element_cross_selling_config_content_warning_text  [scope: active] [until v6.8.0] [private]
       sw_cms_element_cross_selling_config_mt_content  [from v6.8.0] [private]
         sw_cms_element_cross_selling_config_mt_content_products  [after v-if] [from v6.8.0] [private]
@@ -45,4 +74,8 @@ blocks
 
 crossings
   v-if  sw_cms_element_cross_selling_config_content -> sw_cms_element_cross_selling_config_options  [until v6.8.0] [private]
+
+refs
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_cross_selling_config_content_products  [until v6.8.0] [private]
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_cross_selling_config_mt_content_products  [from v6.8.0] [private]
 ```

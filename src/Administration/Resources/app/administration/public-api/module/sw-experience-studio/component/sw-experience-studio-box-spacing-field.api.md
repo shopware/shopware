@@ -11,6 +11,29 @@ component sw-experience-studio-box-spacing-field  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-box-spacing-field/sw-experience-studio-box-spacing-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  compact?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  fieldKey?: string  default=''  [private]
+  helpText?: string  default=null  [private]
+  label?: string  default=''  [private]
+  modelValue?: string  default=''  [private]
+
+emits
+  update:modelValue(...args: any[])  [private]
+
+data
+  isLinked: any  [private]
+  lastEmittedValue: any  [private]
+  sides: any  [private]
+
+methods
+  emitValue(): void  [private]
+  getSideAriaLabel(side: BoxSpacingSide): string  [private]
+  getSideInputId(side: BoxSpacingSide): string  [private]
+  onLinkToggle(): void  [private]
+  onSideInput(side: BoxSpacingSide, rawValue: string): void  [private]
+
 blocks
   sw_experience_studio_box_spacing_field  [private]
 ```

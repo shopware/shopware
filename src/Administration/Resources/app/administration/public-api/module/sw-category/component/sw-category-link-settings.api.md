@@ -10,6 +10,39 @@ component sw-category-link-settings  public  js
   source src/module/sw-category/component/sw-category-link-settings/index.js
   template src/module/sw-category/component/sw-category-link-settings/sw-category-link-settings.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  category: object
+  isLoading?: boolean  default=false
+
+data
+  categoriesCollection: any
+  linkHasProtocol: any
+
+computed
+  allowedCategoryTypes: any
+  categoryCriteria: any
+  categoryLinkHelpText: any
+  categoryLinkPlaceholder: any
+  categoryRepository: any
+  entityValues: any
+  internalLinkCriteria: any
+  isExternal: any
+  isInternal: any
+  linkTypeValues: any
+  mainType: any
+  productCriteria: any
+
+methods
+  changeEntity(): any
+  createCategoryCollection(): any
+  createdComponent(): any
+  onSelectionAdd(item: any): any
+  onSelectionRemove(): any
+
 blocks
   sw_category_link_settings
     sw_category_detail_link_field  [after v-if]

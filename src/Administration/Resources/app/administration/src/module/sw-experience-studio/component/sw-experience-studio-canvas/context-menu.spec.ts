@@ -4,8 +4,26 @@ import type { Component } from 'vue';
 async function createWrapper(withLayouts = true, preview = '') {
     const frames = withLayouts
         ? [
-              { layoutId: 'left', x: -800, y: 0, width: 400, height: 300, viewport: 'desktop', previewEntityId: null },
-              { layoutId: 'right', x: 800, y: 0, width: 400, height: 300, viewport: 'desktop', previewEntityId: null },
+              {
+                  id: 'left',
+                  layoutId: 'left',
+                  x: -800,
+                  y: 0,
+                  width: 400,
+                  height: 300,
+                  viewport: 'desktop',
+                  previewEntityId: null,
+              },
+              {
+                  id: 'right',
+                  layoutId: 'right',
+                  x: 800,
+                  y: 0,
+                  width: 400,
+                  height: 300,
+                  viewport: 'desktop',
+                  previewEntityId: null,
+              },
           ]
         : [];
     const wrapper = mount((await wrapTestComponent('sw-experience-studio-canvas', { sync: true })) as Component, {
@@ -19,7 +37,7 @@ async function createWrapper(withLayouts = true, preview = '') {
                 selectedElementId: null,
                 viewport: 'desktop',
                 previewEntityId: null,
-                isActive: false,
+                isActive: frame.layoutId === 'left',
             })),
             workspaceConfiguration: {
                 frames,
@@ -77,6 +95,7 @@ describe('Experience Studio free canvas context menu', () => {
     it.each([
         '.sw-experience-studio-canvas__sidebar',
         '.sw-experience-studio-canvas__zoom-controls',
+        '.sw-experience-studio-canvas__frame-header',
         '.sw-experience-studio-canvas__frame-toolbar',
     ])('keeps the browser context menu outside the free background (%s)', async (selector) => {
         wrapper = await createWrapper();

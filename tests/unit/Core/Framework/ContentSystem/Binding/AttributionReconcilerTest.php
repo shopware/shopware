@@ -59,7 +59,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -81,7 +81,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -94,8 +94,8 @@ class AttributionReconcilerTest extends TestCase
      * @param array<string, string> $expectedAttributions
      */
     #[DataProvider('scopedConfigWiringProvider')]
-    #[TestDox('judges attribution against every root-source branch of a scoped binding config')]
-    public function testReconcilesAttributionAgainstEveryRootSourceBranchOfScopedConfig(array $elementConfig, array $expectedAttributions): void
+    #[TestDox('judges attribution only against the root-source branch of a scoped binding config: $_dataName')]
+    public function testReconcilesAttributionAgainstTheRootSourceBranchOfScopedConfig(?string $rootSource, array $elementConfig, array $expectedAttributions): void
     {
         $specification = $this->specification('spec-1', [
             'product' => new LoaderBinding('entity', [
@@ -111,7 +111,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], $rootSource);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -119,24 +119,24 @@ class AttributionReconcilerTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{array<string, mixed>, array<string, string>}>
+     * @return \Generator<string, array{string|null, array<string, mixed>, array<string, string>}>
      */
     public static function scopedConfigWiringProvider(): \Generator
     {
-        yield 'config equals the first branch' => [
-            ['entity' => 'media', 'property' => 'productId', 'type' => 'product'],
-            ['product' => 'spec-1'],
-        ];
+        $productConfig = ['entity' => 'media', 'property' => 'productId', 'type' => 'product'];
+        $categoryConfig = ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category'];
 
-        yield 'config equals the second branch' => [
-            ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category'],
-            ['product' => 'spec-1'],
-        ];
-
-        yield 'config mixes values from different branches' => [
+        yield 'product layout keeps the product branch' => ['product', $productConfig, ['product' => 'spec-1']];
+        yield 'category layout keeps the category branch' => ['category', $categoryConfig, ['product' => 'spec-1']];
+        yield 'product layout drops the category branch' => ['product', $categoryConfig, []];
+        yield 'category layout drops the product branch' => ['category', $productConfig, []];
+        yield 'product layout drops a config mixing both branches' => [
+            'product',
             ['entity' => 'media', 'property' => 'productId', 'type' => 'category'],
             [],
         ];
+        yield 'layout without a root source drops every branch' => [null, $productConfig, []];
+        yield 'layout whose root source has no entry drops every branch' => ['landing_page', $productConfig, []];
     }
 
     #[TestDox('recurses into slot children, dropping a nested element\'s stale attribution too')]
@@ -157,7 +157,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$parent]);
+            ->reconcile([$parent], null);
 
         $reconciledParent = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciledParent);
@@ -180,7 +180,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -198,7 +198,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler([], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -218,7 +218,7 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
@@ -245,15 +245,16 @@ class AttributionReconcilerTest extends TestCase
             ->build();
 
         $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+            ->reconcile([$element], null);
 
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
         static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
     }
 
-    #[TestDox('throws bindingSpecificationCanonicalizationFailed when the attributed binding\'s scoped config values name different root-source sets')]
-    public function testThrowsWhenScopedConfigNamesDifferentRootSourceSets(): void
+    #[TestDox('throws bindingSpecificationCanonicalizationFailed when the attributed binding\'s scoped config values name different root-source sets: $_dataName')]
+    #[DataProvider('mismatchedRootSourceSetsProvider')]
+    public function testThrowsWhenScopedConfigNamesDifferentRootSourceSets(?string $rootSource): void
     {
         $specification = $this->specification('spec-1', [
             'product' => new LoaderBinding('entity', [
@@ -274,7 +275,16 @@ class AttributionReconcilerTest extends TestCase
             'the scoped config values of key "product" name different root-source sets.',
         ));
 
-        $this->reconciler(['spec-1' => $specification], $this->provider())->reconcile([$element]);
+        $this->reconciler(['spec-1' => $specification], $this->provider())->reconcile([$element], $rootSource);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function mismatchedRootSourceSetsProvider(): iterable
+    {
+        yield 'root source both scoped values name' => ['product'];
+        yield 'no root source' => [null];
     }
 
     #[TestDox('rejects the write when the element wiring source has no registered config serializer, instead of dropping the attribution')]
@@ -306,7 +316,7 @@ class AttributionReconcilerTest extends TestCase
 
         $this->expectExceptionObject($expected);
 
-        $reconciler->reconcile([$element]);
+        $reconciler->reconcile([$element], null);
     }
 
     #[TestDox('rethrows a non-client-defect ContentSystemException instead of dropping the key')]
@@ -333,7 +343,7 @@ class AttributionReconcilerTest extends TestCase
 
         $this->expectExceptionObject($internalFault);
 
-        $reconciler->reconcile([$element]);
+        $reconciler->reconcile([$element], null);
     }
 
     /**

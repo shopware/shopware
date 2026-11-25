@@ -30,6 +30,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -181,6 +182,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $boundary,
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
 
         $this->expectExceptionObject($failure);
@@ -222,6 +224,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($seeder),
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
 
         try {
@@ -269,6 +272,49 @@ class StoredElementListFieldSerializerTest extends TestCase
         $tree = $memo->consume('content_layout', 'layout-1');
         static::assertNotNull($tree);
         static::assertSame('Hi', $tree->roots[0]->property('headline')?->asString());
+    }
+
+    /**
+     * @param list<array<string, mixed>> $earlierRows
+     * @param array<string, mixed> $row
+     */
+    #[TestDox('resolves the root source from the payload, then from an earlier row of the same write, then from the stored layout')]
+    #[DataProvider('rootSourceOrigins')]
+    public function testNormalizeResolvesTheRootSource(array $earlierRows, array $row, string $expected): void
+    {
+        $context = Context::createDefaultContext();
+        $parameters = $this->parametersFor($context);
+        $field = $this->createField();
+        $elements = ['elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
+
+        $reader = static::createStub(LayoutRootSourceReader::class);
+        $reader->method('read')->willReturn('category');
+
+        $serializer = $this->serializer($reader);
+
+        foreach ([...$earlierRows, $row] as $data) {
+            $serializer->normalize($field, ['id' => 'layout-1', ...$data, ...$elements], $parameters);
+        }
+
+        $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
+        static::assertInstanceOf(LayoutWriteContext::class, $memo);
+
+        foreach ($earlierRows as $_) {
+            $memo->consume('content_layout', 'layout-1');
+        }
+
+        static::assertSame($expected, $memo->consume('content_layout', 'layout-1')?->rootSource);
+    }
+
+    /**
+     * @return iterable<string, array{list<array<string, mixed>>, array<string, mixed>, string}>
+     */
+    public static function rootSourceOrigins(): iterable
+    {
+        yield 'payload' => [[], ['rootSource' => 'product'], 'product'];
+        yield 'earlier row of the same write' => [[['rootSource' => 'product']], [], 'product'];
+        yield 'payload over an earlier row of the same write' => [[['rootSource' => 'product']], ['rootSource' => 'landing_page'], 'landing_page'];
+        yield 'stored layout' => [[], [], 'category'];
     }
 
     #[TestDox('encodes a single StoredElement wrapped to a list as a JSON string')]
@@ -665,6 +711,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver()),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 
@@ -706,7 +753,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             ->getValidator();
     }
 
-    private function serializer(): StoredElementListFieldSerializer
+    private function serializer(?LayoutRootSourceReader $reader = null): StoredElementListFieldSerializer
     {
         $validator = $this->validator();
 
@@ -717,6 +764,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),
+            $reader ?? static::createStub(LayoutRootSourceReader::class),
         );
     }
 
@@ -736,6 +784,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 
@@ -754,6 +803,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary(new LayoutDefaultSeeder($registry, new StoredDefaultProvider())),
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 
@@ -820,6 +870,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $boundary,
             $this->treeConstraints(),
+            static::createStub(LayoutRootSourceReader::class),
         );
     }
 

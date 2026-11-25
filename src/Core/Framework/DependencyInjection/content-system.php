@@ -204,6 +204,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ViolationConstraintMapper::class),
             service(LayoutWriteBoundary::class),
             service(StoredTreeConstraints::class),
+            service(LayoutRootSourceReader::class),
         ])
         ->tag('shopware.field_serializer');
 
@@ -859,7 +860,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LayoutGate::class),
             service(ViolationConstraintMapper::class),
             service(RootSourceRegistry::class),
-            service(LayoutRootSourceReader::class),
             service(StoredMappingValidator::class),
         ])
         ->tag('kernel.event_subscriber');

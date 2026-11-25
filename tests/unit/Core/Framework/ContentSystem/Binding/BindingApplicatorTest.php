@@ -367,6 +367,23 @@ class BindingApplicatorTest extends TestCase
         yield 'fill-only apply of an unwired key with a root source the map does not name' => [$applyFillOnly, 'landing_page'];
     }
 
+    #[TestDox('wires a scoped config key collapsed to the root source entry')]
+    public function testWiresScopedConfigForRootSourceWithEntry(): void
+    {
+        $config = $this->config();
+        $serializers = $this->createMock(DataLoaderConfigSerializerProvider::class);
+        $serializers->expects($this->once())
+            ->method('decode')
+            ->with('breadcrumb', ['type' => 'product'])
+            ->willReturn($config);
+        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
+
+        $result = (new BindingApplicator($serializers, $this->imageRegistry()))
+            ->apply($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $element->id, 'product');
+
+        static::assertEquals(['breadcrumb' => new DataRequirement('breadcrumb', 'breadcrumb', $config)], $result->dataRequirements);
+    }
+
     private function scopedSpecification(): BindingSpecification
     {
         return new BindingSpecification(

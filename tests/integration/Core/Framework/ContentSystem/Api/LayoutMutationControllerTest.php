@@ -47,6 +47,35 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame([], $body['orphaned']);
     }
 
+    /**
+     * @param array<string, string> $expectedConfig
+     */
+    #[TestDox('wires the breadcrumb default binding collapsed to the $rootSource root source and attributes it')]
+    #[DataProvider('breadcrumbRootSources')]
+    public function testInsertWiresScopedBindingConfigForRootSourceWithEntry(string $rootSource, array $expectedConfig): void
+    {
+        $body = $this->mutate('insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Navigation:Breadcrumb',
+            'rootSource' => $rootSource,
+        ]);
+
+        $element = $body['layout'][0];
+        static::assertSame($expectedConfig, $element['dataRequirements']['breadcrumb']['config']);
+        static::assertSame(['breadcrumb' => 'core:Sw:Navigation:Breadcrumb'], $element['attributedSpecifications']);
+    }
+
+    /**
+     * The breadcrumb config encodes its `product` type as an absent key, because `product` is the loader's default.
+     *
+     * @return iterable<string, array{string, array<string, string>}>
+     */
+    public static function breadcrumbRootSources(): iterable
+    {
+        yield 'category' => ['category', ['property' => '{{categoryId}}', 'type' => 'category', 'referrerCategoryProperty' => '{{referrerCategoryId}}']];
+        yield 'product' => ['product', ['property' => '{{productId}}', 'referrerCategoryProperty' => '{{referrerCategoryId}}']];
+    }
+
     #[TestDox('removes an element and returns the trimmed layout')]
     public function testRemoveElement(): void
     {

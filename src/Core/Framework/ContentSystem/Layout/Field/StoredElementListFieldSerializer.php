@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -42,7 +43,8 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         private readonly StoredTreeCodec $treeCodec,
         private readonly ViolationConstraintMapper $violationMapper,
         private readonly LayoutWriteBoundary $writeBoundary,
-        private readonly StoredTreeConstraints $treeConstraints
+        private readonly StoredTreeConstraints $treeConstraints,
+        private readonly LayoutRootSourceReader $rootSourceReader,
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -89,8 +91,10 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::layoutWriteRejection($exception, $key, $value, $parameters->getPath());
         }
 
+        $rootSource = $this->rootSource($data, $parameters);
+
         try {
-            $tree = $this->writeBoundary->apply($tree);
+            $tree = $this->writeBoundary->apply(new StoredTree($tree->roots, $rootSource));
         } catch (ContentSystemException $exception) {
             if (!ContentSystemException::isClientDefect($exception)) {
                 throw $exception;
@@ -220,6 +224,27 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
+     * The root source of the layout this row writes: the payload's own value, else the root source of a row of the
+     * same layout written earlier in this write ({@see LayoutWriteContext::rootSource()}, newest remembered value
+     * wins), else the stored layout's.
+     * The reader receives no commands because the memo already answers for an earlier row of the same layout in
+     * this write, and the reader only has to serve the committed row.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function rootSource(array $data, WriteParameterBag $parameters): ?string
+    {
+        if (\is_string($data['rootSource'] ?? null)) {
+            return $data['rootSource'];
+        }
+
+        $id = $data['id'] ?? null;
+        $memoized = \is_string($id) ? $this->memo($parameters)->rootSource($parameters->getDefinition()->getEntityName(), $id) : null;
+
+        return $memoized ?? $this->rootSourceReader->read($id, [], $parameters->getContext()->getContext());
+    }
+
+    /**
      * The forest to store, from either payload shape the write path carries: elements the caller already built,
      * which are taken as they are, and raw element arrays, which the codec decodes. A payload mixing the two is
      * not a shape the write path produces, and decode rejects it rather than guessing per entry.
@@ -267,6 +292,11 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('id', 'string', get_debug_type($id));
         }
 
+        $this->memo($parameters)->remember($parameters->getDefinition()->getEntityName(), $id, $tree);
+    }
+
+    private function memo(WriteParameterBag $parameters): LayoutWriteContext
+    {
         $writeContext = $parameters->getContext();
         $context = $writeContext->getContext();
         $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
@@ -276,6 +306,6 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
         }
 
-        $memo->remember($parameters->getDefinition()->getEntityName(), $id, $tree);
+        return $memo;
     }
 }

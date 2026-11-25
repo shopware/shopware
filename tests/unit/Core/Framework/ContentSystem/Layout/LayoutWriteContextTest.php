@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -144,6 +145,83 @@ class LayoutWriteContextTest extends TestCase
 
         static::assertTrue($memo->ownedBy($write));
         static::assertFalse($memo->ownedBy($laterWrite));
+    }
+
+    /**
+     * @param list<array{string, string, string|null}> $remembered entity name, primary key and root source per remembered tree
+     */
+    #[DataProvider('rootSourceProvider')]
+    #[TestDox('peeks the root source of the trees remembered for a row: $_dataName')]
+    public function testRootSourceReturnsTheNewestNonNullRootSourceOfTheRow(array $remembered, string $entityName, string $primaryKey, ?string $expected): void
+    {
+        $memo = $this->memo();
+
+        foreach ($remembered as [$rememberedEntity, $rememberedKey, $rootSource]) {
+            $memo->remember($rememberedEntity, $rememberedKey, new StoredTree([], $rootSource));
+        }
+
+        static::assertSame($expected, $memo->rootSource($entityName, $primaryKey));
+    }
+
+    /**
+     * @return iterable<string, array{list<array{string, string, string|null}>, string, string, string|null}>
+     */
+    public static function rootSourceProvider(): iterable
+    {
+        yield 'null for a row nothing was remembered for' => [[], 'content_layout', 'layout-1', null];
+        yield 'newest non-null root source when two differ' => [
+            [['content_layout', 'layout-1', 'product'], ['content_layout', 'layout-1', 'category']],
+            'content_layout',
+            'layout-1',
+            'category',
+        ];
+        yield 'the same root source remembered twice' => [
+            [['content_layout', 'layout-1', 'product'], ['content_layout', 'layout-1', 'product']],
+            'content_layout',
+            'layout-1',
+            'product',
+        ];
+        yield 'skips a leading tree without a root source' => [
+            [['content_layout', 'layout-1', null], ['content_layout', 'layout-1', 'category']],
+            'content_layout',
+            'layout-1',
+            'category',
+        ];
+        yield 'a trailing tree without a root source does not hide an earlier one' => [
+            [['content_layout', 'layout-1', 'product'], ['content_layout', 'layout-1', null]],
+            'content_layout',
+            'layout-1',
+            'product',
+        ];
+        yield 'null when no remembered tree carries a root source' => [
+            [['content_layout', 'layout-1', null], ['content_layout', 'layout-1', null]],
+            'content_layout',
+            'layout-1',
+            null,
+        ];
+        yield 'matches an upper-case primary key against a lower-case one' => [
+            [['content_layout', 'AABBCCDD', 'product']],
+            'content_layout',
+            'aabbccdd',
+            'product',
+        ];
+        yield 'ignores a tree of another entity under the same primary key' => [
+            [['other_entity', 'shared-id', 'product']],
+            'content_layout',
+            'shared-id',
+            null,
+        ];
+    }
+
+    #[TestDox('reads the root source without consuming the tree it comes from')]
+    public function testRootSourceDoesNotConsume(): void
+    {
+        $tree = new StoredTree([], 'product');
+        $memo = $this->memo();
+        $memo->remember('content_layout', 'layout-1', $tree);
+
+        static::assertSame('product', $memo->rootSource('content_layout', 'layout-1'));
+        static::assertSame($tree, $memo->consume('content_layout', 'layout-1'));
     }
 
     private function memo(): LayoutWriteContext

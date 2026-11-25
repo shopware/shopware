@@ -9,13 +9,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('framework')]
 class ProductCategoryDenormalizer
 {
+    /**
+     * Longer id lists can turn the plan of a locking statement into a scan that locks other products' rows
+     */
+    private const BATCH_SIZE = 250;
+
     /**
      * @internal
      */
@@ -29,62 +33,166 @@ class ProductCategoryDenormalizer
     public function update(array $ids, Context $context): void
     {
         $ids = array_unique(\array_filter($ids));
-        $allIds = [];
 
         if ($ids === []) {
             return;
         }
 
-        $categories = $this->fetchMapping($ids, $context);
-
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
+
+        $productIds = $this->fetchProductIds($ids, $versionId);
+        if ($productIds === []) {
+            return;
+        }
+
+        // Other connections keep seeing the old tree until the commit. Locking the products before reading makes
+        // rewrites of one variant family wait for each other, so each one compares against the latest categories.
+        RetryableTransaction::retryable($this->connection, function () use ($ids, $productIds, $versionId, $context): void {
+            $this->lockProducts($productIds, $versionId);
+
+            $categories = $this->fetchMapping($ids, $context);
+            if ($categories === []) {
+                return;
+            }
+
+            $this->writeChanges($categories, $this->fetchStoredTree(array_keys($categories), $versionId), $versionId);
+        });
+    }
+
+    /**
+     * @param array<string, array<string, string|null>> $categories
+     * @param array<string, list<string>> $storedTree
+     */
+    private function writeChanges(array $categories, array $storedTree, string $versionId): void
+    {
         $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $inserts = [];
+        // products by their new tree, as all variants that inherit the categories get the same one
         $updates = [];
+        $deletes = [];
+        $inserts = [];
         foreach ($categories as $productId => $mapping) {
-            $productId = Uuid::fromHexToBytes($productId);
-            $allIds[] = $productId;
             $categoryIds = $this->mapCategories($mapping);
+            $storedIds = $storedTree[$productId] ?? [];
+            $productBytes = Uuid::fromHexToBytes($productId);
 
-            $json = null;
-            if ($categoryIds !== []) {
-                $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
+            if (!$this->isTreeUnchanged($mapping['category_tree'] ?? null, $categoryIds)) {
+                $updates[$categoryIds === [] ? '' : json_encode($categoryIds, \JSON_THROW_ON_ERROR)][] = $productBytes;
             }
 
-            $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
-
-            if ($categoryIds === []) {
-                continue;
+            $removed = array_values(array_diff($storedIds, $categoryIds));
+            if ($removed !== []) {
+                sort($removed);
+                $key = implode('|', $removed);
+                $deletes[$key] ??= ['categoryIds' => Uuid::fromHexToBytesList($removed), 'productIds' => []];
+                $deletes[$key]['productIds'][] = $productBytes;
             }
 
-            foreach ($categoryIds as $id) {
+            foreach (array_diff($categoryIds, $storedIds) as $categoryId) {
                 $inserts[] = [
-                    'product_id' => $productId,
+                    'product_id' => $productBytes,
                     'product_version_id' => $versionId,
-                    'category_id' => Uuid::fromHexToBytes($id),
+                    'category_id' => Uuid::fromHexToBytes($categoryId),
                     'category_version_id' => $liveVersionId,
                 ];
             }
         }
 
-        // One transaction: until the new rows are inserted, other connections would see these products without
-        // categories, and e.g. ProductStreamUpdater::updateProducts() would drop them from category based streams
-        RetryableTransaction::retryable($this->connection, function () use ($allIds, $versionId, $updates, $inserts): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_category_tree WHERE `product_id` IN (:ids) AND `product_version_id` = :version',
-                ['ids' => $allIds, 'version' => $versionId],
+        foreach ($updates as $tree => $productIds) {
+            foreach (array_chunk($productIds, self::BATCH_SIZE) as $chunk) {
+                $this->connection->executeStatement(
+                    'UPDATE product SET category_tree = :tree WHERE id IN (:ids) AND version_id = :version',
+                    ['tree' => $tree === '' ? null : $tree, 'ids' => $chunk, 'version' => $versionId],
+                    ['ids' => ArrayParameterType::BINARY]
+                );
+            }
+        }
+
+        foreach ($deletes as $delete) {
+            foreach (array_chunk($delete['productIds'], self::BATCH_SIZE) as $chunk) {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_category_tree WHERE product_id IN (:ids) AND product_version_id = :version AND category_id IN (:categoryIds)',
+                    ['ids' => $chunk, 'version' => $versionId, 'categoryIds' => $delete['categoryIds']],
+                    ['ids' => ArrayParameterType::BINARY, 'categoryIds' => ArrayParameterType::BINARY]
+                );
+            }
+        }
+
+        $this->insertTree($inserts);
+    }
+
+    /**
+     * @param list<string> $categoryIds
+     */
+    private function isTreeUnchanged(?string $storedTree, array $categoryIds): bool
+    {
+        $stored = $storedTree === null ? [] : json_decode($storedTree, true);
+        if (!\is_array($stored)) {
+            return false;
+        }
+
+        sort($stored);
+        sort($categoryIds);
+
+        return $stored === $categoryIds;
+    }
+
+    /**
+     * @param array<int, string> $ids
+     *
+     * @return list<string>
+     */
+    private function fetchProductIds(array $ids, string $versionId): array
+    {
+        /** @var list<string> $productIds */
+        $productIds = $this->connection->fetchFirstColumn(
+            'SELECT id FROM product WHERE (id IN (:ids) OR parent_id IN (:ids)) AND categories IN (:ids) AND version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return $productIds;
+    }
+
+    /**
+     * Sorted like in ProductStreamUpdater, so the two never wait for each other in a circle.
+     *
+     * @param list<string> $productIds
+     */
+    private function lockProducts(array $productIds, string $versionId): void
+    {
+        sort($productIds);
+
+        foreach (array_chunk($productIds, self::BATCH_SIZE) as $chunk) {
+            $this->connection->fetchFirstColumn(
+                'SELECT id FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY id FOR UPDATE',
+                ['ids' => $chunk, 'version' => $versionId],
                 ['ids' => ArrayParameterType::BINARY]
             );
+        }
+    }
 
-            $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
+    /**
+     * @param list<string> $productIds
+     *
+     * @return array<string, list<string>>
+     */
+    private function fetchStoredTree(array $productIds, string $versionId): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_id)) AS product_id, LOWER(HEX(category_id)) AS category_id
+             FROM product_category_tree
+             WHERE product_id IN (:ids) AND product_version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($productIds), 'version' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
 
-            foreach ($updates as $update) {
-                StatementHelper::executeStatement($query, $update);
-            }
+        $tree = [];
+        foreach ($rows as $row) {
+            $tree[(string) $row['product_id']][] = (string) $row['category_id'];
+        }
 
-            $this->insertTree($inserts);
-        });
+        return $tree;
     }
 
     /**
@@ -106,7 +214,7 @@ class ProductCategoryDenormalizer
     /**
      * @param array<int, string> $ids
      *
-     * @return array<string, array<string, string>>
+     * @return array<string, array<string, string|null>>
      */
     private function fetchMapping(array $ids, Context $context): array
     {
@@ -115,6 +223,7 @@ class ProductCategoryDenormalizer
             'LOWER(HEX(product.id)) as product_id',
             'GROUP_CONCAT(category.path SEPARATOR \'\') as paths',
             'GROUP_CONCAT(LOWER(HEX(category.id)) SEPARATOR \'|\') as ids',
+            'product.category_tree',
         );
         $query->from('product');
         $query->leftJoin(
@@ -152,7 +261,7 @@ class ProductCategoryDenormalizer
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array<string, array<string, string>> $unique */
+        /** @var array<string, array<string, string|null>> $unique */
         $unique = FetchModeHelper::groupUnique($rows);
 
         return $unique;
@@ -161,7 +270,7 @@ class ProductCategoryDenormalizer
     /**
      * @param array<string, string|null> $mapping
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     private function mapCategories(array $mapping): array
     {

@@ -6,7 +6,7 @@ The module overview is in [../README.md](../README.md).
 - [pipeline-steps.md](pipeline-steps.md) - The order `ContentPipeline::load()` runs its steps in, and the orderings inside preparation that must hold
 - [layout-write-gates.md](layout-write-gates.md) - What a `content_layout` write passes through before the DAL admits it, and what a delete is refused by
 - [layout-mutation.md](layout-mutation.md) - The two structural-edit runners and what they guarantee about content
-- [workspaces.md](workspaces.md) - Shared layout drafts and independently configured preview frames in Experience Studio workspaces
+- [workspaces.md](workspaces.md) - Stored canvas setup and preview frame entries of Experience Studio workspaces
 - [binding-specifications.md](binding-specifications.md) - What one binding specification declares, and the two modes it is applied in
 - [element-styles.md](element-styles.md) - The universal style options and where an element's `style` is stored, validated and served
 - [introspection-endpoints.md](introspection-endpoints.md) - The registries, compiler passes, and `/api/_info/` endpoints that publish the module's own shape

@@ -206,6 +206,25 @@ describe('frame layout translation panel', () => {
         expect(view.editor.canUndo).toBe(false);
     });
 
+    it('renders no preview channel and keeps settings read-only while a new channel context loads', async () => {
+        view = await createWrapper();
+        await openTranslations('english-frame');
+        const previews = () => view.wrapper.findAll('.test-preview');
+        const titleInputs = () => view.wrapper.findAll('input[aria-label="Title"]');
+        expect(previews().every((preview) => preview.attributes('data-sales-channel-id') === 'channel')).toBe(true);
+        expect(titleInputs().some((input) => input.attributes('disabled') === undefined)).toBe(true);
+
+        await view.wrapper.setData({ previewLanguageContext: { salesChannelId: 'previous-channel' } });
+
+        expect(previews().every((preview) => preview.attributes('data-sales-channel-id') === undefined)).toBe(true);
+        expect(titleInputs().every((input) => input.attributes('disabled') !== undefined)).toBe(true);
+        await view.wrapper.setData({ settingsPanelMode: 'element' });
+        expect(view.wrapper.get('sw-experience-studio-element-settings-stub').attributes('allow-edit')).toBe('false');
+
+        await view.wrapper.setData({ previewLanguageContext: { salesChannelId: 'channel' } });
+        expect(view.wrapper.get('sw-experience-studio-element-settings-stub').attributes('allow-edit')).toBe('true');
+    });
+
     it('applies rich-text sizing when type metadata finishes loading after the panel opens', async () => {
         view = await createWrapper();
         const types = Shopware.Store.get('experienceStudioElementType' as never) as ExperienceStudioElementTypeStore;

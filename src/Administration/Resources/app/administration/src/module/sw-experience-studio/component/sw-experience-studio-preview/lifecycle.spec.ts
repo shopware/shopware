@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import type { Component } from 'vue';
 import debounce from 'lodash/debounce';
 
-const request = jest.fn<Promise<string>, []>();
+const request = jest.fn<Promise<string>, [Record<string, unknown>]>();
 
 function deferred<T>() {
     let resolve!: (value: T) => void;
@@ -117,6 +117,34 @@ describe('Experience Studio preview request lifecycle', () => {
         expect(request).toHaveBeenCalledTimes(2);
         expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ languageId: 'german-language' }));
         expect(assignLoadingFrame).toHaveBeenCalledWith('https://storefront.local/preview');
+    });
+
+    it('sends no language key when the preview has no language', async () => {
+        wrapper = await createWrapper();
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(request.mock.calls[0][0]).not.toHaveProperty('languageId');
+    });
+
+    it('ignores a response in flight when the preview entity is cleared', async () => {
+        const previous = deferred<string>();
+        request.mockReturnValueOnce(previous.promise);
+        const assignLoadingFrame = jest.fn();
+        wrapper = await createWrapper({ assignLoadingFrame });
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+        expect(request).toHaveBeenCalledTimes(1);
+
+        await wrapper.setProps({ entityId: null });
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+        previous.resolve('https://storefront.local/cleared-entity');
+        await flushPromises();
+
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(assignLoadingFrame).not.toHaveBeenCalled();
     });
 
     it('ignores a response when the preview unmounts while waiting for the scroll handshake', async () => {

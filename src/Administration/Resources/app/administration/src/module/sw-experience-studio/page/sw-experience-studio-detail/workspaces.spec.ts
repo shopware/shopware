@@ -88,7 +88,10 @@ describe('Experience Studio workspace transitions', () => {
             workspaceStore: { activeWorkspace: { id: 'workspace' }, schedule },
             $nextTick: jest.fn().mockResolvedValue(undefined),
             $refs: { experienceStudioCanvas: { getWorkspaceConfiguration: () => configuration } },
-            frames: [{ id: 'saved', layoutId: 'saved', viewport: 'custom', previewEntityId: 'preview' }],
+            frames: [
+                { id: 'saved', layoutId: 'saved', viewport: 'custom', previewEntityId: 'preview' },
+                { id: 'new', layoutId: 'new', viewport: 'custom', previewEntityId: null },
+            ],
             openLayouts: [
                 { id: 'saved', isNew: false },
                 { id: 'new', isNew: true },
@@ -179,6 +182,7 @@ describe('Experience Studio workspace transitions', () => {
             layoutLoadCriteria: new Shopware.Data.Criteria(1, 25),
             restoreWorkspaceLayouts: methods.restoreWorkspaceLayouts,
             restoreFramePreviewEntity: methods.restoreFramePreviewEntity,
+            restoreWorkspacePreviewContext: methods.restoreWorkspacePreviewContext,
             restoreWorkspaceSalesChannel: methods.restoreWorkspaceSalesChannel,
             loadPreviewLanguageContext: methods.loadPreviewLanguageContext,
             applyPreviewLanguageContext: methods.applyPreviewLanguageContext,

@@ -212,7 +212,6 @@ type ExperienceStudioDetailState = {
         defaultLanguageId: string;
         languageIds: string[];
         languageNames: Record<string, string>;
-        languageParents: Record<string, string | null>;
     } | null;
     previewLanguageRequestSequence: number;
     isLayoutPickerOpen: boolean;
@@ -392,16 +391,11 @@ export default Shopware.Component.wrapComponentConfig({
             return Object.fromEntries(
                 this.frames.map((frame) => {
                     const languageId = frame.languageId ?? anchorLanguageId();
-                    const name = this.previewLanguageContext?.languageNames[languageId];
-                    const parentId = this.previewLanguageContext?.languageParents[languageId];
                     return [
                         frame.id,
                         {
                             ...Shopware.Context.api,
                             languageId: languageId as EntityKey<'language'>,
-                            language: name
-                                ? { name, parentId: parentId ? (parentId as EntityKey<'language'>) : undefined }
-                                : null,
                         },
                     ] as const;
                 }),
@@ -819,10 +813,9 @@ export default Shopware.Component.wrapComponentConfig({
                 const workspace = await this.workspaceStore.get(id);
                 const configuration = copyWorkspaceConfiguration(workspace.configuration);
                 const { openLayouts, frames, missingReferences } = await this.restoreWorkspaceLayouts(configuration);
-                const { salesChannelId, missingReference: missingSalesChannel } = await this.restoreWorkspaceSalesChannel(
+                const { salesChannelId, languageContext, missingSalesChannel } = await this.restoreWorkspacePreviewContext(
                     configuration.previewSalesChannelId,
                 );
-                const languageContext = await this.loadPreviewLanguageContext(salesChannelId);
                 const missingLanguageContext = salesChannelId !== null && languageContext === null;
                 this.isRestoringWorkspace = true;
                 this.resetWorkspaceEditor();
@@ -927,9 +920,6 @@ export default Shopware.Component.wrapComponentConfig({
                 defaultLanguageId: defaultLanguage.id,
                 languageIds: languages.map((language) => language.id),
                 languageNames: Object.fromEntries(languages.map((language) => [language.id, language.name] as const)),
-                languageParents: Object.fromEntries(
-                    languages.map((language) => [language.id, language.parentId ?? null] as const),
-                ),
             };
         },
 
@@ -1022,6 +1012,34 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return missingReference;
+        },
+
+        /**
+         * A saved channel without an active language falls back to a default channel, like a deleted one.
+         */
+        async restoreWorkspacePreviewContext(savedSalesChannelId: string | null): Promise<{
+            salesChannelId: string | null;
+            languageContext: ExperienceStudioDetailState['previewLanguageContext'];
+            missingSalesChannel: boolean;
+        }> {
+            const restored = await this.restoreWorkspaceSalesChannel(savedSalesChannelId);
+            const languageContext = await this.loadPreviewLanguageContext(restored.salesChannelId);
+            if (!restored.salesChannelId || languageContext) {
+                return {
+                    salesChannelId: restored.salesChannelId,
+                    languageContext,
+                    missingSalesChannel: restored.missingReference,
+                };
+            }
+            const fallback = await this.restoreWorkspaceSalesChannel(null);
+            if (!fallback.salesChannelId || fallback.salesChannelId === restored.salesChannelId) {
+                return { salesChannelId: restored.salesChannelId, languageContext: null, missingSalesChannel: true };
+            }
+            return {
+                salesChannelId: fallback.salesChannelId,
+                languageContext: await this.loadPreviewLanguageContext(fallback.salesChannelId),
+                missingSalesChannel: true,
+            };
         },
 
         async restoreWorkspaceSalesChannel(savedSalesChannelId: string | null): Promise<{
@@ -1243,6 +1261,11 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        /**
+         * Undo history is kept per layout, not per language.
+         * Undo in a frame reverts the layout's last step in whatever language it changed,
+         * including edits made in another frame's language or in a frame that is already closed.
+         */
         onFrameUndo(frameId: string): void {
             const frame = this.frames.find((item) => item.id === frameId);
             if (!frame || !this.allowSave || !this.editorStore.canUndoLayout(frame.layoutId)) {
@@ -2290,7 +2313,9 @@ export default Shopware.Component.wrapComponentConfig({
 
         /**
          * Translatable edits store explicit values for the active frame's language and preserve other entries.
-         * Clearing text stores an empty string, which remains empty in the preview and Storefront.
+         * Clearing text stores an empty string, which remains empty in the preview and Storefront
+         * and replaces the text inherited from the parent or system language.
+         * Fields without an own entry for the active language show the same blank, and booleans show `false`.
          * Resetting a translation to inherited content is outside the current editing workflow.
          * Null is intentionally rejected because removing a language entry would restore rendering fallback.
          */
@@ -2713,6 +2738,10 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        /**
+         * Reverts the active layout's last step in whatever language it changed,
+         * as the undo history is kept per layout and spans every language of the layout.
+         */
         onUndo(): void {
             if (!this.layout || !this.canUndo) {
                 return;

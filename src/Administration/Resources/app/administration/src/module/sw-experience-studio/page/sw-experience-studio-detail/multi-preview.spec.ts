@@ -46,7 +46,6 @@ async function createWrapper(role: 'viewer' | 'editor' = 'editor') {
                     defaultLanguageId: Shopware.Defaults.systemLanguageId,
                     languageIds: [Shopware.Defaults.systemLanguageId, 'a'.repeat(32)],
                     languageNames: { [Shopware.Defaults.systemLanguageId]: 'English', ['a'.repeat(32)]: 'German' },
-                    languageParents: { ['a'.repeat(32)]: 'b'.repeat(32) },
                 },
                 openLayouts: [
                     {
@@ -146,7 +145,6 @@ describe('multiple previews of one layout', () => {
             view = await createWrapper(role);
             const systemLanguage = Shopware.Defaults.systemLanguageId;
             const germanLanguage = 'a'.repeat(32);
-            const parentLanguage = 'b'.repeat(32);
             const adminLanguage = Shopware.Context.api.languageId;
             await activateFrameToolbar();
             const languageSelector = () =>
@@ -163,12 +161,7 @@ describe('multiple previews of one layout', () => {
                         ComponentPublicInstance<{ context: apiContext }>
                     >('.test-entity-select[data-entity="product"]')
                     .props('context'),
-            ).toEqual(
-                expect.objectContaining({
-                    languageId: germanLanguage,
-                    language: { name: 'German', parentId: parentLanguage },
-                }),
-            );
+            ).toEqual(expect.objectContaining({ languageId: germanLanguage }));
             await view.wrapper.get('[data-frame-id="first-preview"] .test-preview').trigger('click');
             expect(view.wrapper.getComponent('sw-experience-studio-element-settings-stub').attributes('language-id')).toBe(
                 germanLanguage,

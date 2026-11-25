@@ -134,6 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
         'layout.layout': {
             handler() {
+                this.latestRequestId += 1;
                 this.schedulePreviewReload();
             },
             deep: true,
@@ -145,10 +146,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         entityType() {
+            this.latestRequestId += 1;
             this.schedulePreviewReload();
         },
 
         entityId() {
+            this.latestRequestId += 1;
             this.schedulePreviewReload();
         },
     },
@@ -289,9 +292,11 @@ export default Shopware.Component.wrapComponentConfig({
             this.activeFrame = frame;
             this.loadingFrame = null;
             this.pendingScrollPosition = null;
-            if (this.pendingScrollElementId) {
-                this.scrollToElement(this.pendingScrollElementId);
+            const pendingScrollElementId = this.pendingScrollElementId;
+            if (pendingScrollElementId) {
+                // scrollToElement() re-queues the id while a newer load runs, so it is cleared before the call.
                 this.pendingScrollElementId = null;
+                this.scrollToElement(pendingScrollElementId);
             }
         },
 
@@ -483,6 +488,7 @@ export default Shopware.Component.wrapComponentConfig({
             const serializedLayout = Array.isArray(layout?.layout) ? layout.layout : null;
 
             if (!serializedLayout || !salesChannelId || !entityType || !entityId) {
+                this.latestRequestId += 1;
                 this.resetPreviewFrames();
                 this.previewLoadError = null;
                 this.isPreviewLoading = false;

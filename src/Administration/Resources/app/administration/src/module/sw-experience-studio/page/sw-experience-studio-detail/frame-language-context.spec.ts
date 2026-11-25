@@ -35,7 +35,6 @@ async function createWrapper() {
                 defaultLanguageId: english,
                 languageIds: [english, german],
                 languageNames: names,
-                languageParents: { [english]: null, [german]: french },
             },
             frames: [english, german].map((languageId, index) => ({
                 id: index === 0 ? 'english-frame' : 'german-frame',
@@ -130,12 +129,8 @@ describe('frame language contexts', () => {
             expect.anything(),
             undefined,
         );
-        expect(entitySelector('english-frame').props('context')).toEqual(
-            expect.objectContaining({ languageId: english, language: { name: 'English', parentId: undefined } }),
-        );
-        expect(entitySelector('german-frame').props('context')).toEqual(
-            expect.objectContaining({ languageId: german, language: { name: 'German', parentId: french } }),
-        );
+        expect(entitySelector('english-frame').props('context')).toEqual(expect.objectContaining({ languageId: english }));
+        expect(entitySelector('german-frame').props('context')).toEqual(expect.objectContaining({ languageId: german }));
         expect(languageSelector('english-frame').props('modelValue')).toBe(english);
         expect(view.createRepository).not.toHaveBeenCalledWith('language');
         expect(Shopware.Context.api.languageId).toBe(german);

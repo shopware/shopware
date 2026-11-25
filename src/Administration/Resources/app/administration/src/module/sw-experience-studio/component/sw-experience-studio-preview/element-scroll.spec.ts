@@ -99,6 +99,21 @@ describe('preview component root scrolling', () => {
         expect(preview.pendingScrollElementId).toBeNull();
     });
 
+    it('keeps the focused component queued when a newer preview load runs after the frame loads', async () => {
+        const { preview, frameWindows } = createPreview();
+        preview.isPreviewLoading = true;
+        preview.scrollToElement('text');
+        preview.loadingFrame = 'b';
+
+        await methods.onPreviewFrameLoad.call(preview, 'b');
+
+        expect(frameWindows.b.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({ elementId: 'text' }),
+            'https://storefront.local',
+        );
+        expect(preview.pendingScrollElementId).toBe('text');
+    });
+
     it('does not send a command without a known preview origin', () => {
         const { preview, frameWindows } = createPreview();
         preview.getActiveFrameOrigin.mockReturnValue(null);

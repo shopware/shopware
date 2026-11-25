@@ -105,6 +105,10 @@ Why: Output limits do not bound parsing, and a fallback cache context would lose
 invalidate pages using the affected mapping feature without invalidating unrelated layouts. Custom-field metadata
 therefore uses a shared dependency only for renders attempting custom-field mappings; ordinary core mappings do not.
 
+Decided against: Batch parsing in the inline-mapping parse endpoint.
+The 256 KiB cap bounds one text, so a batch of texts would need its own cap on aggregate tokens and response size,
+while one text per request keeps the existing cap the only bound.
+
 In code:
 
 - `InlineMappingExpansionBudgetTest` and `ContentPipelineTest` pin the shared limits and failure behavior.

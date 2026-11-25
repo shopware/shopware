@@ -12,7 +12,6 @@ function languageContext(salesChannelId: string, languageId: string) {
         defaultLanguageId: languageId,
         languageIds: [languageId],
         languageNames: { [languageId]: languageId },
-        languageParents: { [languageId]: null } as Record<string, string | null>,
     };
 }
 
@@ -65,7 +64,6 @@ describe('preview languages in the selected sales channel', () => {
             defaultLanguageId: 'german',
             languageIds: ['french', 'german'],
             languageNames: { french: 'French', german: 'German' },
-            languageParents: { french: null, german: 'parent' },
         });
         expect(get).toHaveBeenCalledWith('selected', Shopware.Context.api, expect.anything());
     });
@@ -91,7 +89,6 @@ describe('preview languages in the selected sales channel', () => {
         const context = {
             ...languageContext('next-channel', 'german'),
             languageIds: ['german', 'french'],
-            languageParents: { german: 'parent', french: null },
         };
 
         expect(methods.applyPreviewLanguageContext.call(editor, context, frames)).toBe(true);
@@ -100,7 +97,6 @@ describe('preview languages in the selected sales channel', () => {
             { id: 'unavailable', languageId: 'german' },
             { id: 'legacy', languageId: 'german' },
         ]);
-        expect(editor.previewLanguageContext.languageParents.german).toBe('parent');
     });
 
     it('ignores a delayed language response for a previously selected sales channel', async () => {
@@ -123,6 +119,31 @@ describe('preview languages in the selected sales channel', () => {
         expect(editor.previewLanguageContext.salesChannelId).toBe('latest-channel');
         expect(editor.frames[0].languageId).toBe('french');
         expect(editor.scheduleWorkspaceSetup).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores a delayed language response after switching to another channel and back', async () => {
+        const editor = createEditor();
+        let finish!: (value: ReturnType<typeof languageContext>) => void;
+        editor.loadPreviewLanguageContext.mockImplementationOnce(
+            () =>
+                new Promise((resolve) => {
+                    finish = resolve;
+                }),
+        );
+        const first = methods.refreshPreviewLanguages.call(editor);
+        editor.previewSalesChannelId = 'latest-channel';
+        editor.loadPreviewLanguageContext.mockResolvedValueOnce(languageContext('latest-channel', 'french'));
+        await methods.refreshPreviewLanguages.call(editor);
+        editor.previewSalesChannelId = 'next-channel';
+        editor.loadPreviewLanguageContext.mockResolvedValueOnce(languageContext('next-channel', 'german'));
+        await methods.refreshPreviewLanguages.call(editor);
+
+        finish(languageContext('next-channel', 'spanish'));
+        await first;
+
+        expect(editor.previewLanguageContext.defaultLanguageId).toBe('german');
+        expect(editor.frames[0].languageId).toBe('german');
+        expect(editor.scheduleWorkspaceSetup).toHaveBeenCalledTimes(2);
     });
 
     it('defaults legacy frames without reporting a missing reference when the system language is unassigned', () => {
@@ -170,6 +191,57 @@ describe('preview languages in the selected sales channel', () => {
         );
 
         expect(frame).toEqual(expect.objectContaining({ languageId: 'german' }));
+    });
+
+    it('starts newly opened frames in the system language while another channel context is loaded', () => {
+        const frame = methods.createPreviewFrame.call(
+            {
+                previewSalesChannelId: 'channel',
+                previewLanguageContext: languageContext('previous-channel', 'german'),
+            },
+            'layout',
+            'frame',
+        );
+
+        expect(frame).toEqual(expect.objectContaining({ languageId: Shopware.Defaults.systemLanguageId }));
+    });
+
+    it('creates a preview frame in the channel default language when a layout that is not open yet is opened', async () => {
+        const layout = { id: 'layout' };
+        const editor = {
+            ...createEditor(),
+            previewSalesChannelId: 'channel',
+            previewLanguageContext: languageContext('channel', 'german'),
+            frames: [] as Array<Record<string, unknown>>,
+            openLayouts: [] as Array<{ id: string }>,
+            isLayoutPickerOpen: true,
+            layoutLoadCriteria: {},
+            layoutRepository: { get: jest.fn().mockResolvedValue(layout) },
+            createOpenLayoutState: (item: { id: string }) => ({ id: item.id }),
+            createPreviewFrame: methods.createPreviewFrame,
+            activateLayout: jest.fn(),
+            applyPreviewContextDefaults: jest.fn(),
+            loadDefaultPreviewEntity: jest.fn().mockResolvedValue(undefined),
+            syncActiveLayoutState: jest.fn(),
+            diagnoseLayout: jest.fn(),
+            $nextTick: () => Promise.resolve(),
+            $refs: {},
+        };
+
+        await methods.openLayoutById.call(editor, 'layout');
+
+        expect(editor.openLayouts).toEqual([{ id: 'layout' }]);
+        expect(editor.frames).toEqual([expect.objectContaining({ layoutId: 'layout', languageId: 'german' })]);
+        expect(editor.activateLayout).toHaveBeenCalledWith('layout');
+    });
+
+    it('reloads the preview languages when the current sales channel is selected again', () => {
+        const editor = { previewSalesChannelId: 'channel', refreshPreviewLanguages: jest.fn() };
+
+        methods.onPreviewSalesChannelChange.call(editor, 'channel');
+
+        expect(editor.refreshPreviewLanguages).toHaveBeenCalledTimes(1);
+        expect(editor.previewSalesChannelId).toBe('channel');
     });
 
     it.each(['unsupported', 'loading'])(

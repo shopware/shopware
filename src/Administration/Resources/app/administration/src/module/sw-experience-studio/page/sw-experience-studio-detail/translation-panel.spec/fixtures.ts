@@ -88,7 +88,6 @@ export async function createWrapper(role: 'editor' | 'viewer' = 'editor') {
                     defaultLanguageId: english,
                     languageIds: [english, german],
                     languageNames: { [english]: 'English', [german]: 'German' },
-                    languageParents: {},
                 },
                 frames: [english, german].map((languageId, index) => ({
                     id: index === 0 ? 'english-frame' : 'german-frame',
@@ -145,14 +144,14 @@ export async function createWrapper(role: 'editor' | 'viewer' = 'editor') {
                         template: '<div class="test-entity-select" :data-entity="entity" />',
                     },
                     'sw-experience-studio-preview': defineComponent({
-                        props: ['layout', 'languageId'],
+                        props: ['layout', 'languageId', 'salesChannelId'],
                         data: () => ({ scrollTarget: null as string | null }),
                         methods: {
                             scrollToElement(elementId: string) {
                                 this.scrollTarget = elementId;
                             },
                         },
-                        template: `<div class="test-preview" :data-scroll-target="scrollTarget">
+                        template: `<div class="test-preview" :data-scroll-target="scrollTarget" :data-sales-channel-id="salesChannelId">
                         <span class="test-preview-title">{{ layout.layout[0].properties.title[languageId] }}</span>
                         <button class="test-select-element" @click="$emit('select-element', 'first-text')">Select element</button>
                         <button class="test-clear-selection" @click="$emit('select-element', null)">Clear selection</button>

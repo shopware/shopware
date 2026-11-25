@@ -40,6 +40,7 @@ function createRestore() {
         layoutLoadCriteria: new Shopware.Data.Criteria(1, 25),
         restoreWorkspaceLayouts: methods.restoreWorkspaceLayouts,
         restoreFramePreviewEntity: methods.restoreFramePreviewEntity,
+        restoreWorkspacePreviewContext: methods.restoreWorkspacePreviewContext,
         restoreWorkspaceSalesChannel: methods.restoreWorkspaceSalesChannel,
         loadPreviewLanguageContext: methods.loadPreviewLanguageContext,
         applyPreviewLanguageContext: methods.applyPreviewLanguageContext,
@@ -142,6 +143,29 @@ describe('Experience Studio workspace preview reference restoration', () => {
             expect(editor.createNotificationError).not.toHaveBeenCalled();
         },
     );
+
+    it('falls back to a default channel when the saved preview channel has no active language', async () => {
+        const { editor, target } = createRestore();
+        target.configuration.previewSalesChannelId = 'channel';
+        editor.salesChannelRepository.search
+            .mockResolvedValueOnce({ length: 1, first: () => ({ id: 'channel' }) })
+            .mockResolvedValueOnce({ length: 1, first: () => ({ id: 'fallback-channel' }) });
+        editor.salesChannelRepository.get.mockResolvedValueOnce({
+            id: 'channel',
+            languageId: Shopware.Defaults.systemLanguageId,
+            languages: [],
+        });
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.workspaceError).toBe(false);
+        expect(editor.previewSalesChannelId).toBe('fallback-channel');
+        expect(editor.previewLanguageContext).toEqual(expect.objectContaining({ salesChannelId: 'fallback-channel' }));
+        expect(editor.frames[0].languageId).toBe(Shopware.Defaults.systemLanguageId);
+        expect(editor.createNotificationWarning).toHaveBeenCalledWith({
+            message: 'sw-experience-studio.workspace.manager.missingReferences',
+        });
+    });
 
     it('preserves the current workspace when the target channel language lookup fails', async () => {
         const { editor, target, current } = createRestore();

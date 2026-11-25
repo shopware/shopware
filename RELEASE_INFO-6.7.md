@@ -16,6 +16,8 @@ An extension that copies them into its own `Required` field needs the flag there
 {{ order.orderCustomer.displayName }}
 ```
 
+The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it
@@ -393,8 +395,6 @@ Media loaded without the `mediaType` field keep their thumbnail URLs, as the typ
 The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
 
 Only codes from these lists are saved, and they are case-sensitive. Any other value fails the write with the error code `UNIT__INVALID_UNECE_CODE` on `/uneceCode`. An empty value is stored as `null`.
-
-The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
 
 ### Duplicate document number errors name the document type
 

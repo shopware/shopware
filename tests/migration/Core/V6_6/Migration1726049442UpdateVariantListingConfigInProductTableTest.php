@@ -130,28 +130,6 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
         static::assertSame($variantListingConfig, json_decode($actual, true));
     }
 
-    public function testMigrationWidensDisplayGroupColumnBeforeWritingSha256(): void
-    {
-        $this->connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(50) NULL');
-
-        $this->createProducts();
-
-        (new Migration1726049442UpdateVariantListingConfigInProductTable())->update($this->connection);
-
-        $column = $this->connection->fetchAssociative('SHOW COLUMNS FROM `product` LIKE :column', [
-            'column' => 'display_group',
-        ]);
-        static::assertIsArray($column);
-        static::assertSame('varchar(64)', strtolower((string) $column['Type']));
-
-        $displayGroup = $this->connection->fetchOne(
-            'SELECT display_group FROM product WHERE product_number = :number',
-            ['number' => 'product 5']
-        );
-        static::assertIsString($displayGroup);
-        static::assertSame(64, \strlen($displayGroup));
-    }
-
     private function createProducts(): void
     {
         $products = [

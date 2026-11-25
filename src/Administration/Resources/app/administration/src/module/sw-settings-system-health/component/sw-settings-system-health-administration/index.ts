@@ -22,7 +22,9 @@ export default Shopware.Component.wrapComponentConfig({
 
         summary(): string | null {
             if (this.missingBundles.length > 0) {
-                return this.$t('sw-settings-system-health.administration.missing', { bundles: this.missingBundles.join(', ') });
+                return this.$t('sw-settings-system-health.administration.missing', {
+                    bundles: this.missingBundles.join(', '),
+                });
             }
 
             return this.extra.indexPageJsBundlesFound === 0

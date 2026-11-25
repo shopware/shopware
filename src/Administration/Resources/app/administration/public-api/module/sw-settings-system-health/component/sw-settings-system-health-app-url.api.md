@@ -11,15 +11,13 @@ component sw-settings-system-health-app-url  private  ts  [private]
   template src/module/sw-settings-system-health/component/sw-settings-system-health-app-url/sw-settings-system-health-app-url.html.twig  [private]
   visibility-source export  [private]
 
-props
-  check: SystemHealthCheck  [private]
-
 computed
-  appUrl: string | null  [private]
-  info: string | null  [private]
-  statusCode: number | null  [private]
   summary: string | null  [private]
 
 blocks
   sw_settings_system_health_app_url  [private]
+
+notes
+  unresolved options setup  [private]
+  unresolved props checkViewProps  [private]
 ```

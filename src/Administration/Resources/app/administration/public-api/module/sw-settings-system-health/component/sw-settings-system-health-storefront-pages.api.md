@@ -11,13 +11,14 @@ component sw-settings-system-health-storefront-pages  private  ts  [private]
   template src/module/sw-settings-system-health/component/sw-settings-system-health-storefront-pages/sw-settings-system-health-storefront-pages.html.twig  [private]
   visibility-source export  [private]
 
-props
-  check: SystemHealthCheck  [private]
-
 computed
-  pages: PageResult[]  [private]
+  pages: Array<{ storefrontUrl: string; responseCode: number; responseTime: number; errorMessage: string | null }>  [private]
   summary: string  [private]
 
 blocks
   sw_settings_system_health_storefront_pages  [private]
+
+notes
+  unresolved options setup  [private]
+  unresolved props checkViewProps  [private]
 ```

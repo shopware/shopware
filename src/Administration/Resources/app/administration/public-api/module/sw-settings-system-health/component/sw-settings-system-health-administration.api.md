@@ -11,15 +11,15 @@ component sw-settings-system-health-administration  private  ts  [private]
   template src/module/sw-settings-system-health/component/sw-settings-system-health-administration/sw-settings-system-health-administration.html.twig  [private]
   visibility-source export  [private]
 
-props
-  check: SystemHealthCheck  [private]
-
 computed
-  durationMs: number | null  [private]
-  error: string | null  [private]
+  missingBundles: string[]  [private]
   summary: string | null  [private]
   url: string  [private]
 
 blocks
   sw_settings_system_health_administration  [private]
+
+notes
+  unresolved options setup  [private]
+  unresolved props checkViewProps  [private]
 ```

@@ -1,15 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Controller;
+namespace Shopware\Core\Framework\SystemCheck\Api;
 
-use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Shopware\Core\Framework\SystemCheck\SystemCheckException;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,8 +18,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Package('framework')]
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
-class SystemHealthController extends AbstractController
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
+class SystemCheckController
 {
     /**
      * @param iterable<BaseCheck> $checks
@@ -32,7 +31,7 @@ class SystemHealthController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_admin/system-health', name: 'api.admin.system-health', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:system_health']], methods: ['GET'])]
+    #[Route(path: '/api/_info/system-check/results', name: 'api.info.system-check.results', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:system_health']], methods: ['GET'])]
     public function list(): JsonResponse
     {
         $results = $this->resultStorage->all();
@@ -57,13 +56,13 @@ class SystemHealthController extends AbstractController
         return new JsonResponse(['checks' => $checks]);
     }
 
-    #[Route(path: '/api/_admin/system-health/run', name: 'api.admin.system-health.run', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:system_health']], methods: ['POST'])]
+    #[Route(path: '/api/_action/system-check/run', name: 'api.action.system-check.run', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:system_health']], methods: ['POST'])]
     public function run(Request $request): Response
     {
         $name = $request->query->has('check') ? $request->query->getString('check') : null;
 
         if ($name !== null && !$this->exists($name)) {
-            throw RoutingException::invalidRequestParameter('check');
+            throw SystemCheckException::unknownCheck($name);
         }
 
         $this->systemChecker->queueCheck($name);

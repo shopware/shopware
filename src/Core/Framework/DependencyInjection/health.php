@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\SystemCheck\Api\SystemCheckController;
 use Shopware\Core\Framework\SystemCheck\Command\SystemCheckCommand;
 use Shopware\Core\Framework\SystemCheck\Message\RunSystemChecksHandler;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
@@ -33,6 +34,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.system_check'),
             service(SystemCheckResultStorage::class),
             service('messenger.default_bus'),
+        ]);
+
+    $services->set(SystemCheckController::class)
+        ->public()
+        ->args([
+            tagged_iterator('shopware.system_check'),
+            service(SystemCheckResultStorage::class),
+            service(SystemChecker::class),
         ]);
 
     $services->set(RunSystemChecksHandler::class)

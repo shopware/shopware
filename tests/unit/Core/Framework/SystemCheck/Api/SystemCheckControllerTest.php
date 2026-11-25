@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Administration\Controller;
+namespace Shopware\Tests\Unit\Core\Framework\SystemCheck\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Controller\SystemHealthController;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\SystemCheck\Api\SystemCheckController;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\StoredResult;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Shopware\Core\Framework\SystemCheck\SystemCheckException;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,12 +22,12 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(SystemHealthController::class)]
-class SystemHealthControllerTest extends TestCase
+#[CoversClass(SystemCheckController::class)]
+class SystemCheckControllerTest extends TestCase
 {
     private SystemChecker&MockObject $systemChecker;
 
-    private SystemHealthController $controller;
+    private SystemCheckController $controller;
 
     protected function setUp(): void
     {
@@ -40,7 +40,7 @@ class SystemHealthControllerTest extends TestCase
         $storage->method('all')->willReturn(['AppUrlVerification' => $storedResult]);
 
         $this->systemChecker = $this->createMock(SystemChecker::class);
-        $this->controller = new SystemHealthController(
+        $this->controller = new SystemCheckController(
             [$this->check('AppUrlVerification', Category::EXTERNAL), $this->check('LocalesReadiness', Category::FEATURE)],
             $storage,
             $this->systemChecker,
@@ -84,7 +84,7 @@ class SystemHealthControllerTest extends TestCase
     public function testRejectsAnUnknownCheck(): void
     {
         $this->systemChecker->expects($this->never())->method('queueCheck');
-        $this->expectExceptionObject(RoutingException::invalidRequestParameter('check'));
+        $this->expectExceptionObject(SystemCheckException::unknownCheck('Unknown'));
 
         $this->controller->run(new Request(['check' => 'Unknown']));
     }

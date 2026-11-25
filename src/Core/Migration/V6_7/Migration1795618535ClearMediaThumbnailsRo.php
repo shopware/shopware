@@ -23,10 +23,6 @@ class Migration1795618535ClearMediaThumbnailsRo extends MigrationStep
 
     public function update(Connection $connection): void
     {
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
         if (!$this->columnExists($connection, 'media', 'thumbnails_ro')) {
             return;
         }

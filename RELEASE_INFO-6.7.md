@@ -9,8 +9,8 @@ The `MediaIndexer` service and its `media.indexer` CLI name are deprecated and p
 Extensions that need additional thumbnail fields or thumbnail-loaded subscribers should request the explicit association.
 `MediaIndexerEvent` is deprecated and is no longer dispatched. Subscribe to `media.written`, `media.deleted` or `ThumbnailGeneratedEvent` depending on the change you need to observe.
 
-The 6.7 destructive migrations clear the cached values in `media.thumbnails_ro` in batches.
-Run them after all storefront, API, and worker instances have switched to the projected thumbnails.
+The regular 6.7 migration clears cached values in `media.thumbnails_ro` in batches.
+During a rolling deployment, instances still running the previous version can return empty thumbnail collections for cleared rows, and old media indexer workers can repopulate the cache.
 On large media catalogs, allow time for the database writes and subsequent InnoDB purge.
 
 ### Moving a category re-indexes its products

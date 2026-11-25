@@ -39,7 +39,7 @@ class Migration1795594799RemoveMediaThumbnailsRoTest extends TestCase
         $migration = new Migration1795594799RemoveMediaThumbnailsRo();
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
-        (new Migration1795618535ClearMediaThumbnailsRo())->updateDestructive($this->connection);
+        (new Migration1795618535ClearMediaThumbnailsRo())->update($this->connection);
 
         static::assertFalse(TableHelper::columnExists($this->connection, 'media', 'thumbnails_ro'));
     }

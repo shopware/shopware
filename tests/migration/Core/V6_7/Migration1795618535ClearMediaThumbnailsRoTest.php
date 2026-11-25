@@ -18,7 +18,7 @@ use Shopware\Core\Migration\V6_7\Migration1795618535ClearMediaThumbnailsRo;
 #[CoversClass(Migration1795618535ClearMediaThumbnailsRo::class)]
 class Migration1795618535ClearMediaThumbnailsRoTest extends TestCase
 {
-    public function testCleanupOnlyRunsInTheDestructivePhaseAndKeepsMediaRows(): void
+    public function testUpdateClearsThumbnailBlobsAndKeepsMediaRows(): void
     {
         $connection = KernelLifecycleManager::getConnection();
         $hasColumn = TableHelper::columnExists($connection, 'media', 'thumbnails_ro');
@@ -41,11 +41,10 @@ class Migration1795618535ClearMediaThumbnailsRoTest extends TestCase
             $queue->execute();
 
             $migration = new Migration1795618535ClearMediaThumbnailsRo();
-            $migration->update($connection);
             static::assertSame(1001, (int) $connection->fetchOne('SELECT COUNT(thumbnails_ro) FROM media WHERE file_name = ?', [$fileName]));
 
-            $migration->updateDestructive($connection);
-            $migration->updateDestructive($connection);
+            $migration->update($connection);
+            $migration->update($connection);
             static::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(thumbnails_ro) FROM media WHERE file_name = ?', [$fileName]));
             static::assertSame(1002, (int) $connection->fetchOne('SELECT COUNT(*) FROM media WHERE file_name = ?', [$fileName]));
         } finally {

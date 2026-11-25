@@ -1,5 +1,14 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### `AbstractProductStreamBuilder` can be autowired
+
+`Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` is now a service alias for `ProductStreamBuilder`.
+Type-hint it instead of the deprecated `ProductStreamBuilderInterface`, which is removed in 6.8 together with `buildFilters()`.
+Call `enrichCriteria()` instead of `buildFilters()`.
+The `frosh/shopware-rector` rules migrate both automatically.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

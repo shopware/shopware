@@ -72,6 +72,36 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         static::assertTrue($response['success']);
     }
 
+    /**
+     * @param array<string, string> $payload
+     */
+    #[DataProvider('blankEmailProvider')]
+    public function testResetWithBlankEmailIsRejected(array $payload): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/recovery-password',
+                $payload + ['storefrontUrl' => 'http://localhost']
+            );
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/email', $response['errors'][0]['source']['pointer']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function blankEmailProvider(): iterable
+    {
+        yield 'missing email' => [[]];
+        yield 'empty email' => [['email' => '']];
+    }
+
     public function testResetWithInvalidUrl(): void
     {
         $this->browser

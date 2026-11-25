@@ -21,6 +21,7 @@ export default {
         'systemConfigApiService',
         'customerValidationService',
         'companyAccountNameFieldsService',
+        'customFieldDataProviderService',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -33,6 +34,7 @@ export default {
             customerNumberPreview: '',
             isSaveSuccessful: false,
             isLoading: false,
+            customerCustomFieldSets: null,
         };
     },
 
@@ -101,6 +103,10 @@ export default {
         salutationFilter() {
             return Shopware.Filter.getByName('salutation');
         },
+
+        showCustomFieldSets() {
+            return !!this.customer && this.customerCustomFieldSets?.length > 0;
+        },
     },
 
     watch: {
@@ -159,6 +165,8 @@ export default {
         },
 
         async createdComponent() {
+            this.loadCustomFieldSets();
+
             const defaultSalutationId = await this.getDefaultSalutation();
 
             Shopware.Store.get('context').resetLanguageToDefault();
@@ -182,6 +190,12 @@ export default {
             this.address.salutationId = defaultSalutationId;
 
             await this.loadCompanyNamesRequired();
+        },
+
+        loadCustomFieldSets() {
+            return this.customFieldDataProviderService.getCustomFieldSets('customer').then((customFieldSets) => {
+                this.customerCustomFieldSets = customFieldSets;
+            });
         },
 
         saveFinish() {

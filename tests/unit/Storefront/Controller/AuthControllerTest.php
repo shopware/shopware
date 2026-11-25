@@ -92,6 +92,23 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(AccountLoginPageLoadedHook::class, $controller->recorder()->calledHook);
     }
 
+    public function testLoginPageKeepsRedirectTargetOfForwardedRequest(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        // A failed login forwards with the submitted form data in the request body
+        $request = new Request(request: [
+            'redirectTo' => 'frontend.account.order.single.page',
+            'redirectParameters' => '{"deepLinkCode":"abc"}',
+        ]);
+
+        $this->controller->loginPage($request, new RequestDataBag(), $context);
+
+        static::assertSame('frontend.account.order.single.page', $this->controller->recorder()->renderStorefrontParameters['redirectTo'] ?? null);
+        static::assertSame('{"deepLinkCode":"abc"}', $this->controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? null);
+    }
+
     public function testGuestLoginPageWithoutRedirectParametersRedirects(): void
     {
         $context = Generator::generateSalesChannelContext();
@@ -259,8 +276,8 @@ class AuthControllerTest extends TestCase
 
         static::assertSame('frontend.account.recover.page', $controller->recorder()->forwardToRoute);
 
-        /** @var ConstraintViolationException $formViolations */
         $formViolations = $controller->recorder()->forwardToRouteAttributes['formViolations'];
+        static::assertInstanceOf(ConstraintViolationException::class, $formViolations);
 
         static::assertSame('Caught 1 violation errors.', $formViolations->getMessage());
         static::assertSame('This value is not a valid email address.', $formViolations->getViolations()->get(1)->getMessage());

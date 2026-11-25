@@ -4,6 +4,8 @@
 
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import ProductStorefrontUrlApiService from './service/product-storefront-url.api.service';
+import ProductDocumentVariantService from './service/product-document-variant.service';
 
 const { Module } = Shopware;
 
@@ -17,6 +19,10 @@ Shopware.Component.register(
 Shopware.Component.register('sw-product-feature-set-form', () => import('./component/sw-product-feature-set-form'));
 Shopware.Component.register('sw-product-category-form', () => import('./component/sw-product-category-form'));
 Shopware.Component.register('sw-product-clone-modal', () => import('./component/sw-product-clone-modal'));
+Shopware.Component.register(
+    'sw-product-open-in-storefront-modal',
+    () => import('./component/sw-product-open-in-storefront-modal'),
+);
 Shopware.Component.register(
     'sw-product-modal-variant-generation',
     () => import('./component/sw-product-variants/sw-product-modal-variant-generation'),
@@ -38,6 +44,31 @@ Shopware.Component.extend(
 );
 Shopware.Component.register('sw-product-media-form', () => import('./component/sw-product-media-form'));
 Shopware.Component.register('sw-product-download-form', () => import('./component/sw-product-download-form'));
+Shopware.Component.register(
+    'sw-product-document-empty-state',
+    () => import('./component/sw-product-document-form/sw-product-document-empty-state'),
+);
+Shopware.Component.register(
+    'sw-product-document-language-hint',
+    () => import('./component/sw-product-document-form/sw-product-document-language-hint'),
+);
+Shopware.Component.register(
+    'sw-product-document-add-button',
+    () => import('./component/sw-product-document-form/sw-product-document-add-button'),
+);
+Shopware.Component.register('sw-product-document-form', () => import('./component/sw-product-document-form'));
+Shopware.Component.register(
+    'sw-product-document-download',
+    () => import('./component/sw-product-document-form/sw-product-document-download'),
+);
+Shopware.Component.register(
+    'sw-product-document-edit-modal',
+    () => import('./component/sw-product-document-form/sw-product-document-edit-modal'),
+);
+Shopware.Component.register(
+    'sw-product-document-remove-modal',
+    () => import('./component/sw-product-document-form/sw-product-document-remove-modal'),
+);
 Shopware.Component.register('sw-product-visibility-detail', () => import('./component/sw-product-visibility-detail'));
 Shopware.Component.register(
     'sw-product-restriction-selection',
@@ -112,6 +143,19 @@ Shopware.Component.register('sw-product-detail-cross-selling', () => import('./v
 Shopware.Component.register('sw-product-detail-reviews', () => import('./view/sw-product-detail-reviews'));
 Shopware.Component.register('sw-product-list', () => import('./page/sw-product-list'));
 Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
+Shopware.Service().register('productDocumentVariantService', () => {
+    return new ProductDocumentVariantService(
+        Shopware.Service().get('repositoryFactory'),
+        Shopware.Service().get('syncService'),
+    );
+});
+Shopware.Service().register('productStorefrontUrlApiService', () => {
+    return new ProductStorefrontUrlApiService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service().get('loginService'),
+        Shopware.Service().get('repositoryFactory'),
+    );
+});
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
@@ -44,7 +43,6 @@ class AdapterExceptionTest extends TestCase
 
     public function testUnexpectedTwigExpression(): void
     {
-        /** @var AbstractExpression&MockObject $expression */
         $expression = static::createStub(AbstractExpression::class);
         $type = $expression::class;
 
@@ -123,6 +121,16 @@ class AdapterExceptionTest extends TestCase
         static::assertSame(AdapterException::INVALID_CACHE_POLICY_CONFIGURATION, $exception->getErrorCode());
         static::assertSame('Used cache policy configuration is invalid: missing required parameter test', $exception->getMessage());
         static::assertSame(['error' => 'missing required parameter test'], $exception->getParameters());
+    }
+
+    public function testTwigMethodCallNotAllowed(): void
+    {
+        $exception = AdapterException::twigMethodCallNotAllowed('Shopware\Core\Framework\Context', 'setRuleIds');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(AdapterException::TWIG_METHOD_CALL_NOT_ALLOWED, $exception->getErrorCode());
+        static::assertSame('Calling "Shopware\Core\Framework\Context::setRuleIds()" from a template is not allowed', $exception->getMessage());
+        static::assertSame(['class' => 'Shopware\Core\Framework\Context', 'method' => 'setRuleIds'], $exception->getParameters());
     }
 
     public function testCacheCleanerLocked(): void

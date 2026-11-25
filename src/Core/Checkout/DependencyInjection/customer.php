@@ -284,7 +284,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('customer_group.repository'),
             service('seo_url.repository'),
-            service('language.repository'),
             service(SeoUrlPersister::class),
             service('slugify'),
         ])
@@ -699,6 +698,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomerLanguageSalesChannelSubscriber::class)
         ->args([
             service('sales_channel.repository'),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

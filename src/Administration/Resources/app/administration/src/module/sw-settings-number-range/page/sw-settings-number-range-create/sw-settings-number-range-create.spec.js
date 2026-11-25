@@ -33,9 +33,10 @@ async function createWrapper(
         create: (context, id) => createNumberRange(id),
         get: (id) => Promise.resolve(createNumberRange(id)),
         save: () => Promise.resolve(),
-        search: () =>
+        searchIds: () =>
             Promise.resolve({
                 total: 1,
+                data: ['product-number-range-id'],
             }),
     };
 
@@ -224,7 +225,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
             create: jest.fn((context, id) => createNumberRange(id)),
             get: jest.fn((id) => Promise.resolve(createNumberRange(id))),
             save: jest.fn(() => Promise.resolve()),
-            search: jest.fn(() => Promise.resolve({ total: 1 })),
+            searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['product-number-range-id'] })),
         };
 
         const getNumberRangePatternCollisions = jest.fn(() =>

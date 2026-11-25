@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Checkout\Customer\Api\ConvertGuestController;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
@@ -464,6 +465,80 @@ class RateLimiterTest extends TestCase
         }
     }
 
+    public function testRateLimitUserRecoveryByClientWithRotatingEmails(): void
+    {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
+            $this->browser->request(
+                'POST',
+                '/api/_action/user/user-recovery',
+                ['email' => 'admin' . $i . '@example.com'],
+                [],
+                ['REMOTE_ADDR' => '10.0.0.1']
+            );
+
+            $this->assertRecoveryResponse($i >= self::TEST_THROTTLE_LIMIT);
+        }
+    }
+
+    public function testRateLimitUserRecoveryByUserWithRotatingIps(): void
+    {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
+            $this->browser->request(
+                'POST',
+                '/api/_action/user/user-recovery',
+                ['email' => 'admin@example.com'],
+                [],
+                ['REMOTE_ADDR' => '10.0.0.' . $i]
+            );
+
+            $this->assertRecoveryResponse($i >= self::TEST_THROTTLE_LIMIT);
+        }
+    }
+
+    public function testRateLimitRecoveryMailByClientWithRotatingEmails(): void
+    {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
+            $this->browser->request(
+                'POST',
+                '/store-api/account/recovery-password',
+                ['email' => 'user' . $i . '@example.com', 'storefrontUrl' => 'http://localhost'],
+                [],
+                ['REMOTE_ADDR' => '10.0.0.1']
+            );
+
+            $this->assertRecoveryResponse($i >= self::TEST_THROTTLE_LIMIT);
+        }
+    }
+
+    public function testRateLimitRecoveryMailByUserWithRotatingIps(): void
+    {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
+            $this->browser->request(
+                'POST',
+                '/store-api/account/recovery-password',
+                ['email' => 'user@example.com', 'storefrontUrl' => 'http://localhost'],
+                [],
+                ['REMOTE_ADDR' => '10.0.0.' . $i]
+            );
+
+            $this->assertRecoveryResponse($i >= self::TEST_THROTTLE_LIMIT);
+        }
+    }
+
+    public function testAdminGuestConversionIsNotLimitedByClient(): void
+    {
+        static::getContainer()->get('request_stack')->push(new Request(server: ['REMOTE_ADDR' => '10.0.0.1']));
+        $controller = static::getContainer()->get(ConvertGuestController::class);
+
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
+            $customerId = $this->createCustomer('guest' . $i . '@example.com', guest: true);
+
+            $response = $controller->convert(new Request(), $this->context, $customerId);
+
+            static::assertSame(204, $response->getStatusCode());
+        }
+    }
+
     public function testResetRateLimtitUserRecovery(): void
     {
         $recoveryService = static::createStub(UserRecoveryService::class);
@@ -600,6 +675,24 @@ class RateLimiterTest extends TestCase
         $this->getContainer()->get('newsletter_recipient.repository')->upsert($newsletterRecipients, $this->context);
     }
 
+    private function assertRecoveryResponse(bool $rateLimited): void
+    {
+        $response = $this->browser->getResponse();
+
+        if (!$rateLimited) {
+            static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+            return;
+        }
+
+        static::assertSame(429, $response->getStatusCode());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($content);
+        static::assertArrayHasKey('errors', $content);
+        static::assertSame('FRAMEWORK__RATE_LIMIT_EXCEEDED', $content['errors'][0]['code']);
+    }
+
     private function addProductToCart(KernelBrowser $browser, string $productId): void
     {
         $browser->request(
@@ -637,7 +730,12 @@ class RateLimiterTest extends TestCase
             RateLimiter::OAUTH_USER,
             RateLimiter::OAUTH_CLIENT,
             RateLimiter::CONTACT_FORM,
+            RateLimiter::RESET_PASSWORD,
+            RateLimiter::RESET_PASSWORD_USER,
+            RateLimiter::RESET_PASSWORD_CLIENT,
             RateLimiter::USER_RECOVERY,
+            RateLimiter::USER_RECOVERY_USER,
+            RateLimiter::USER_RECOVERY_CLIENT,
             RateLimiter::NEWSLETTER_FORM,
             RateLimiter::NEWSLETTER_UNSUBSCRIBE_FORM,
         ];

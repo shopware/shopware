@@ -89,7 +89,7 @@ test.describe('Newsletter recipient promotion', () => {
                 const customer =
                     customerType === 'Guest'
                         ? { ...DefaultSalesChannel.customer, id: IdProvider.getIdPair().uuid, email: guestCustomerEmail }
-                        : DefaultSalesChannel.customer;
+                        : await TestDataService.createCustomer();
 
                 if (customerType === 'Registered') {
                     await ShopCustomer.attemptsTo(Login(customer));

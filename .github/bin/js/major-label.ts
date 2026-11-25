@@ -16,8 +16,12 @@
  *
  * Pull requests into a release branch are not labelled: a backport or merge-back carries
  * changes whose trunk pull request already answers the question. Any other base counts,
- * because a stacked pull request is retargeted to trunk with an `edited` event that never
- * triggers this workflow.
+ * including a stacked pull request, and changing the base re-runs the detection: the diff
+ * against the new base is a different change.
+ *
+ * The labels follow the current diff. A label this workflow set goes again once no marker
+ * supports it, unless the diff could not be read in full. A label a person set stays, and
+ * one a person removed is never added back.
  *
  * Most work for the next major ships inside a `6.7.x` minor behind a flag that defaults to
  * off, so the milestone label — which records the version that ships a change — cannot
@@ -40,7 +44,7 @@ import {
     EXCLUDED_PATH_PREFIX,
     FEATURE_REGISTRY_PATH,
     type PullRequestDiffClient,
-    fetchDiff,
+    fetchPullRequestDiff,
     splitDiffByFile,
 } from './auto-label-major-tests.ts';
 
@@ -63,10 +67,22 @@ type PullRequestDetectionContext = {
     eventName: string;
     payload: {
         action: string;
+        changes?: { base?: unknown };
         pull_request: {
             base: { ref: string };
         };
     };
+};
+
+/** What one major label rests on, as `<path>: <marker> (<net change>)` or a path rule. */
+export type LabelEvidence = {
+    label: string;
+    reasons: string[];
+};
+
+export type LabelChanges = {
+    add: string[];
+    remove: string[];
 };
 
 type PullRequestContext = PullRequestDetectionContext & {
@@ -87,8 +103,11 @@ type PullRequestContext = PullRequestDetectionContext & {
 export type IssueEvent = {
     event: string;
     label?: { name: string };
-    actor?: { type?: string } | null;
+    actor?: { type?: string; login?: string } | null;
 };
+
+/** The identity `GITHUB_TOKEN` writes as, which is how this workflow adds its labels. */
+const WORKFLOW_ACTOR = 'github-actions[bot]';
 
 type ListEventsOptions = {
     owner: string;
@@ -106,6 +125,7 @@ type GitHubRestClient = PullRequestDiffClient & {
         issues: {
             listEvents(options: ListEventsOptions): Promise<{ data: IssueEvent[] }>;
             addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
+            removeLabel(options: { owner: string; repo: string; issue_number: number; name: string }): Promise<unknown>;
         };
     };
 };
@@ -194,7 +214,8 @@ export function isIgnoredPath(path: string): boolean {
         /\.(spec|test)\.[cm]?[jt]sx?$/.test(path) ||
         /\.(spec|test|fixtures?)\//.test(path) ||
         /\/Resources\/app\/(administration|storefront)\/test\//.test(path) ||
-        /\/Resources\/app\/administration\/(scripts|eslint-rules)\//.test(path) ||
+        // `eslint-rules/plugin-rules` ships to extension developers through the extension tooling.
+        /\/Resources\/app\/administration\/(scripts|eslint-rules(?!\/plugin-rules\/))\//.test(path) ||
         path.includes('/__tests__/') ||
         path.includes('/__fixtures__/') ||
         /\.md$/i.test(path)
@@ -287,6 +308,14 @@ function isInInternalDocblock(lines: string[], index: number): boolean {
 
 // `#[` opens a PHP attribute, not a comment.
 const COMMENT_LINE = /^\s*(\*|\/\/|\/\*|#(?!\[)|\{#|<!--)/;
+const CLOSED_LEADING_COMMENT = /^\s*(\/\*.*?\*\/|\{#.*?#\}|<!--.*?-->)/;
+
+/** A comment that closes on its own line hides nothing after it: `/* x *\/ if (…)` is code. */
+function isCommentLine(content: string): boolean {
+    const afterComment = content.replace(CLOSED_LEADING_COMMENT, '');
+
+    return afterComment === content ? COMMENT_LINE.test(content) : afterComment.trim() === '';
+}
 
 const DEPRECATION_CALL = /(?:triggerDeprecationOrThrow|deprecated\w*Message|silence|silent)\s*\(|\bdeprecated\s*:\s*\{/g;
 
@@ -308,8 +337,10 @@ function isDeprecationArgument(lines: string[], index: number, column: number): 
     return opener !== undefined && !/[(){};]/.test(text.slice(opener.index + opener[0].length));
 }
 
-function markerBalance(section: string, markers: LineMarker[]): Map<string, { kind: MarkerKind; delta: number }> {
-    const balance = new Map<string, { kind: MarkerKind; delta: number }>();
+type MarkerCount = { kind: MarkerKind; marker: string; delta: number };
+
+function markerBalance(section: string, markers: LineMarker[]): Map<string, MarkerCount> {
+    const balance = new Map<string, MarkerCount>();
     const lines = section.split('\n');
 
     lines.forEach((line, index) => {
@@ -317,7 +348,7 @@ function markerBalance(section: string, markers: LineMarker[]): Map<string, { ki
             return;
         }
 
-        const isComment = COMMENT_LINE.test(line.slice(1));
+        const isComment = isCommentLine(line.slice(1));
 
         markers.forEach(({ kind: markerKind, pattern }, markerIndex) => {
             for (const match of line.matchAll(pattern)) {
@@ -335,7 +366,7 @@ function markerBalance(section: string, markers: LineMarker[]): Map<string, { ki
                 // `V6_8_0_0` and `v6.8.0.0` are one flag, so switching the spelling changes nothing.
                 const marker = match[0].replace(/\bV(\d+)_(\d+)_(\d+)_(\d+)\b/, 'v$1.$2.$3.$4');
                 const key = `${kind}:${markerIndex}:${marker}`;
-                const entry = balance.get(key) ?? { kind, delta: 0 };
+                const entry = balance.get(key) ?? { kind, marker: match[0], delta: 0 };
                 entry.delta += line.startsWith('+') ? 1 : -1;
                 balance.set(key, entry);
             }
@@ -345,21 +376,27 @@ function markerBalance(section: string, markers: LineMarker[]): Map<string, { ki
     return balance;
 }
 
-export function evaluateMajorLabels(options: {
+type MajorLabelOptions = {
     diff: string;
     flags: FeatureFlag[];
     targetMajor: string;
     majorPaths: string[];
     /** The nearest in-flight major owns every signal that names no version. */
     isNextMajor: boolean;
-}): MajorLabels {
+};
+
+type MajorAssessment = { labels: MajorLabels; reasons: { behaviour: string[]; cleanup: string[] } };
+
+function assessMajorLabels(options: MajorLabelOptions): MajorAssessment {
     const { diff, flags, targetMajor, majorPaths, isNextMajor } = options;
     const allFiles = splitDiffByFile(diff);
     const files = allFiles.filter(({ path }) => path && !isIgnoredPath(path));
-    const touchesUpgradeGuide = allFiles.some(({ path }) => path === `UPGRADE-${targetMajor}.md`);
+    const upgradeGuide = `UPGRADE-${targetMajor}.md`;
+    const touchesUpgradeGuide = allFiles.some(({ path }) => path === upgradeGuide);
+    const reasons: MajorAssessment['reasons'] = { behaviour: [], cleanup: [] };
 
     if (files.length === 0 && !touchesUpgradeGuide) {
-        return { behaviour: false, cleanup: false };
+        return { labels: { behaviour: false, cleanup: false }, reasons };
     }
 
     const version = escapeRegExp(targetMajor);
@@ -370,7 +407,7 @@ export function evaluateMajorLabels(options: {
         .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag.name))
         .map((flag) => escapeRegExp(flag.name));
     const flagAlternatives = [versionFlag, ...relatedFlags].join('|');
-    const pathMatchers = isNextMajor ? majorPaths.map(globToRegExp) : [];
+    const pathMatchers = isNextMajor ? majorPaths.map((glob) => ({ glob, matcher: globToRegExp(glob) })) : [];
 
     // `(?!\d)` keeps v6.8.0 from matching a v6.8.01 that a future scheme might introduce
     const markers: LineMarker[] = [
@@ -384,30 +421,43 @@ export function evaluateMajorLabels(options: {
         { kind: 'cleanup', pattern: new RegExp(`tag:v${version}\\.0(?!\\d)`, 'g') },
     ];
 
-    const behaviourPath =
-        touchesUpgradeGuide ||
-        files.some(
-            ({ path }) =>
-                (isNextMajor && path === FEATURE_REGISTRY_PATH) || pathMatchers.some((matcher) => matcher.test(path)),
-        );
+    if (touchesUpgradeGuide) {
+        reasons.behaviour.push(`${upgradeGuide} changed`);
+    }
 
-    const labels: MajorLabels = { behaviour: behaviourPath, cleanup: false };
+    for (const { path } of files) {
+        if (isNextMajor && path === FEATURE_REGISTRY_PATH) {
+            reasons.behaviour.push(`${path}: feature registry changed`);
+        }
+        const owner = pathMatchers.find(({ matcher }) => matcher.test(path));
+        if (owner) {
+            reasons.behaviour.push(`${path}: matches ${owner.glob} in ${MAJOR_PATHS_PATH}`);
+        }
+    }
 
-    for (const { section } of files) {
-        for (const { kind, delta } of markerBalance(section, markers).values()) {
+    for (const { path, section } of files) {
+        for (const { kind, marker, delta } of markerBalance(section, markers).values()) {
             if (delta === 0) {
                 continue;
             }
 
+            const reason = `${path}: ${marker} (${delta > 0 ? '+' : ''}${delta})`;
             if (kind === 'behaviour' || (kind === 'stabilisation' && delta < 0)) {
-                labels.behaviour = true;
+                reasons.behaviour.push(reason);
             } else {
-                labels.cleanup = true;
+                reasons.cleanup.push(reason);
             }
         }
     }
 
-    return labels;
+    return {
+        labels: { behaviour: reasons.behaviour.length > 0, cleanup: reasons.cleanup.length > 0 },
+        reasons,
+    };
+}
+
+export function evaluateMajorLabels(options: MajorLabelOptions): MajorLabels {
+    return assessMajorLabels(options).labels;
 }
 
 export function labelNamesFor(targetMajor: string, labels: MajorLabels): string[] {
@@ -424,12 +474,30 @@ export function labelNamesFor(targetMajor: string, labels: MajorLabels): string[
     return names;
 }
 
-export function labelsForDiff(options: { diff: string; flags: FeatureFlag[]; majorPaths: string[] }): string[] {
+export function evidenceForDiff(options: { diff: string; flags: FeatureFlag[]; majorPaths: string[] }): LabelEvidence[] {
     const { diff, flags, majorPaths } = options;
 
-    return resolveInFlightMajors(flags).flatMap((targetMajor, index) =>
-        labelNamesFor(targetMajor, evaluateMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 })),
-    );
+    return resolveInFlightMajors(flags).flatMap((targetMajor, index) => {
+        const { reasons } = assessMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 });
+
+        return [
+            { label: `major/${targetMajor}`, reasons: reasons.behaviour },
+            { label: `major/${targetMajor}-cleanup`, reasons: reasons.cleanup },
+        ].filter((evidence) => evidence.reasons.length > 0);
+    });
+}
+
+export function labelsForDiff(options: { diff: string; flags: FeatureFlag[]; majorPaths: string[] }): string[] {
+    return evidenceForDiff(options).map(({ label }) => label);
+}
+
+const REASONS_LOGGED_PER_LABEL = 10;
+
+export function formatEvidence({ label, reasons }: LabelEvidence): string {
+    const shown = reasons.slice(0, REASONS_LOGGED_PER_LABEL);
+    const more = reasons.length - shown.length;
+
+    return [`${label}:`, ...shown.map((reason) => `  ${reason}`), ...(more > 0 ? [`  … and ${more} more`] : [])].join('\n');
 }
 
 /** `6.6.x`, `6.7.14.x`, and the exact-version branches a security release is prepared on. */
@@ -447,6 +515,11 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
         return false;
     }
 
+    // `edited` also fires for a new title or description, which leave the diff as it was.
+    if (context.payload.action === 'edited') {
+        return context.payload.changes?.base !== undefined;
+    }
+
     return [
         'opened',
         'reopened',
@@ -455,16 +528,37 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
     ].includes(context.payload.action);
 }
 
+function presentLabels(context: PullRequestContext): string[] {
+    return (context.payload.pull_request.labels ?? []).map((label) => label.name);
+}
+
 export function missingLabels(context: PullRequestContext, wanted: string[]): string[] {
-    const present = new Set((context.payload.pull_request.labels ?? []).map((label) => label.name));
+    const present = new Set(presentLabels(context));
 
     return wanted.filter((label) => !present.has(label));
 }
 
+/** The labels of the in-flight majors the pull request carries but the diff no longer earns. */
+export function unsupportedLabels(context: PullRequestContext, majors: string[], wanted: string[]): string[] {
+    const managed = new Set(majors.flatMap((major) => [`major/${major}`, `major/${major}-cleanup`]));
+
+    return presentLabels(context).filter((label) => managed.has(label) && !wanted.includes(label));
+}
+
+/** Only a label this workflow added is its to take back; the latest addition decides. */
+export function addedByWorkflow(labels: string[], events: IssueEvent[]): string[] {
+    return labels.filter((label) => {
+        const added = events.filter((event) => event.event === 'labeled' && event.label?.name === label).at(-1);
+
+        return added?.actor?.login === WORKFLOW_ACTOR;
+    });
+}
+
 /**
- * Labels are only ever added: whoever removed one has overruled the detection for good.
- * A bot never has: `srvaroa/labeler` rewrites the whole label set from a snapshot taken
- * before this workflow added its label, and that removal shows up as `github-actions[bot]`.
+ * Whoever removed a label has overruled the detection for good. A bot never has: this
+ * workflow takes back a label the diff stopped earning, and `srvaroa/labeler` rewrites the
+ * whole label set from a snapshot taken before this workflow added its label. Both removals
+ * show up as `github-actions[bot]`.
  */
 export function withoutRemovedLabels(labels: string[], events: IssueEvent[]): string[] {
     const removed = new Set(
@@ -474,16 +568,18 @@ export function withoutRemovedLabels(labels: string[], events: IssueEvent[]): st
     return labels.filter((label) => !removed.has(label));
 }
 
+const NO_CHANGES: LabelChanges = { add: [], remove: [] };
+
 export async function detectMajorLabels(
     { github, core, context }: { github: GitHubRestClient; core: CoreLogger; context: PullRequestContext },
     readFile: (path: string) => string,
-): Promise<string[]> {
+): Promise<LabelChanges> {
     if (!shouldDetect(context)) {
         core.info(
             `skipping major-label detection: ${context.eventName}/${context.payload.action} into ${context.payload.pull_request.base.ref} is not a trigger`,
         );
 
-        return [];
+        return NO_CHANGES;
     }
 
     // Base ref, never the PR head: a fork must not be able to edit the registry or the path
@@ -494,53 +590,73 @@ export async function detectMajorLabels(
     if (majors.length === 0) {
         core.info('no in-flight major in the registry, nothing to label');
 
-        return [];
+        return NO_CHANGES;
     }
 
-    const diff = await fetchDiff({ github, core, context });
+    const { diff, complete } = await fetchPullRequestDiff({ github, core, context });
     const majorPaths = parseMajorPaths(readFile(MAJOR_PATHS_PATH));
-    const wanted = labelsForDiff({ diff, flags, majorPaths });
+    const evidence = evidenceForDiff({ diff, flags, majorPaths });
+    const wanted = evidence.map(({ label }) => label);
     const missing = missingLabels(context, wanted);
+    const unsupported = complete ? unsupportedLabels(context, majors, wanted) : [];
 
     core.info(
         wanted.length === 0
             ? `no markers for ${majors.join(', ')} in the diff`
-            : `markers found: ${wanted.join(', ')}${missing.length === 0 ? ' (already applied)' : ''}`,
+            : ['markers found:', ...evidence.map(formatEvidence)].join('\n'),
     );
 
-    if (missing.length === 0) {
-        return [];
+    if (!complete && unsupportedLabels(context, majors, wanted).length > 0) {
+        core.info('the diff was not read in full, so existing major labels stay');
     }
 
-    // The payload only shows the labels as they are now, not which ones were taken off.
+    if (missing.length === 0 && unsupported.length === 0) {
+        return NO_CHANGES;
+    }
+
+    // The payload only shows the labels as they are now, not who added or removed them.
     const events = await github.paginate(github.rest.issues.listEvents, {
         owner: context.repo.owner,
         repo: context.repo.repo,
         issue_number: context.payload.pull_request.number,
         per_page: 100,
     });
-    const allowed = withoutRemovedLabels(missing, events);
-    const overruled = missing.filter((label) => !allowed.includes(label));
+    const add = withoutRemovedLabels(missing, events);
+    const remove = addedByWorkflow(unsupported, events);
+    const overruled = missing.filter((label) => !add.includes(label));
+    const keptManual = unsupported.filter((label) => !remove.includes(label));
 
     if (overruled.length > 0) {
         core.info(`not re-adding ${overruled.join(', ')}: removed from this pull request before`);
     }
+    if (keptManual.length > 0) {
+        core.info(`keeping ${keptManual.join(', ')}: added by a person, not by this workflow`);
+    }
+    if (remove.length > 0) {
+        core.info(`removing ${remove.join(', ')}: no marker in the diff supports it any more`);
+    }
 
-    return allowed;
+    return { add, remove };
 }
 
 export async function applyMajorLabels(
     { github, context }: { github: GitHubRestClient; context: PullRequestContext },
-    labels: string[],
+    { add, remove }: LabelChanges,
 ): Promise<void> {
-    if (labels.length === 0) {
-        return;
+    const issue = { owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number };
+
+    if (add.length > 0) {
+        await github.rest.issues.addLabels({ ...issue, labels: add });
     }
 
-    await github.rest.issues.addLabels({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: context.payload.pull_request.number,
-        labels,
-    });
+    for (const name of remove) {
+        try {
+            await github.rest.issues.removeLabel({ ...issue, name });
+        } catch (error) {
+            // Someone took it off between the payload and this call.
+            if ((error as { status?: number }).status !== 404) {
+                throw error;
+            }
+        }
+    }
 }

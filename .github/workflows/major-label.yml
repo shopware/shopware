@@ -14,6 +14,8 @@ on:
       - reopened
       - synchronize
       - ready_for_review
+      # Only a changed base counts; `shouldDetect` drops title and description edits.
+      - edited
 
 permissions:
   contents: read
@@ -22,6 +24,8 @@ permissions:
 jobs:
   label:
     name: Major label
+    # Saves a runner on title and description edits; `shouldDetect` holds the actual rule.
+    if: github.event.action != 'edited' || github.event.changes.base
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -47,8 +51,8 @@ jobs:
             const { readFileSync } = await import('node:fs')
             const { detectMajorLabels, applyMajorLabels } = await import('${{ github.workspace }}/.github/bin/js/major-label.ts')
             const readFile = (path) => readFileSync(`${{ github.workspace }}/${path}`, 'utf8')
-            const labels = await detectMajorLabels({ github, core, context }, readFile)
-            await applyMajorLabels({ github, context }, labels)
+            const changes = await detectMajorLabels({ github, core, context }, readFile)
+            await applyMajorLabels({ github, context }, changes)
       # Auto-apply major-test labels for feature-flag changes and acceptance spec changes, so the
       # matching integration-major or acceptance-major arm runs where it matters.
       # All further run conditions (action, existing labels) live in the module's `shouldDetect`.

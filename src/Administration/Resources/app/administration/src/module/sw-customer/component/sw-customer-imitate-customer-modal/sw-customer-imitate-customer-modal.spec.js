@@ -116,7 +116,7 @@ describe('module/sw-customer-imitate-customer-modal', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('.sw-modal__title').text()).toBe('sw-customer.imitateCustomerModal.modalTitle');
+        expect(wrapper.find('.mt-modal-stub h2').text()).toBe('sw-customer.imitateCustomerModal.modalTitle');
         expect(wrapper.find('.imitate-customer-modal-description').text()).toBe(
             'sw-customer.imitateCustomerModal.modalDescription',
         );

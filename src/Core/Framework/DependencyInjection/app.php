@@ -1117,7 +1117,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AppSystemCheck::class)
         ->args([
             service(Connection::class),
-            service('cache.app'),
             service(ClockInterface::class),
         ])
         ->tag('shopware.system_check');

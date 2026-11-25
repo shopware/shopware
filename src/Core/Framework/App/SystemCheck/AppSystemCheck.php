@@ -13,8 +13,6 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Reports per-app health from signals the shop already stores. A stepping stone until the webhook health
@@ -33,9 +31,6 @@ class AppSystemCheck extends BaseCheck
     final public const REASON_NO_APP_ACTIVITY = 'no_app_activity';
     final public const REASON_NO_SIGNAL = 'no_signal';
 
-    private const CACHE_KEY = 'app_system_health';
-    private const CACHE_TTL_SECONDS = 60;
-
     // a healthy registration confirm is in flight for seconds; unconfirmed secrets older than this are stuck
     private const STUCK_REGISTRATION_AFTER = '-5 minutes';
 
@@ -45,14 +40,13 @@ class AppSystemCheck extends BaseCheck
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly CacheInterface $cache,
         private readonly ClockInterface $clock,
     ) {
     }
 
     public function run(): Result
     {
-        $apps = $this->collect();
+        $apps = $this->evaluate();
         $status = self::worstStatus($apps);
 
         return new Result(
@@ -64,42 +58,7 @@ class AppSystemCheck extends BaseCheck
                 default => 'No app shows signs of failing communication',
             },
             healthy: $status !== Status::ERROR,
-            extra: ['apps' => array_values(array_map(static fn (AppHealth $app) => [
-                'name' => $app->name,
-                'status' => $app->status->name,
-                'reason' => $app->reason,
-                'lastStatusCode' => $app->lastStatusCode,
-                'lastAttemptAt' => $app->lastAttemptAt,
-                'lastAppActivityAt' => $app->lastAppActivityAt,
-            ], $apps))],
-        );
-    }
-
-    /**
-     * @return array<string, AppHealth> keyed by app id
-     */
-    public function collect(): array
-    {
-        return $this->cache->get(self::CACHE_KEY, function (ItemInterface $item): array {
-            $item->expiresAfter(self::CACHE_TTL_SECONDS);
-
-            return $this->evaluate();
-        });
-    }
-
-    /**
-     * @param array<string, AppHealth> $apps
-     */
-    public static function worstStatus(array $apps): Status
-    {
-        if ($apps === []) {
-            return Status::OK;
-        }
-
-        return array_reduce(
-            $apps,
-            static fn (Status $worst, AppHealth $app) => self::severity($app->status) > self::severity($worst) ? $app->status : $worst,
-            Status::SKIPPED,
+            extra: ['apps' => array_map(static fn (array $app) => ['status' => $app['status']->name] + $app, $apps)],
         );
     }
 
@@ -128,17 +87,16 @@ class AppSystemCheck extends BaseCheck
     }
 
     /**
-     * @return array<string, AppHealth>
+     * @return list<array{name: string, status: Status, reason: string|null, lastStatusCode: int|null}>
      */
     private function evaluate(): array
     {
-        $apps = $this->fetchApps();
         $webhooks = $this->fetchWebhookCounts();
         $retries = $this->fetchLatestRetries();
 
         return array_map(
             static fn (array $app) => self::toHealth($app, $webhooks[$app['id']] ?? [], $retries[$app['id']] ?? null),
-            array_column($apps, null, 'id'),
+            $this->fetchApps(),
         );
     }
 
@@ -146,11 +104,12 @@ class AppSystemCheck extends BaseCheck
      * @param array<string, mixed> $app
      * @param array<string, mixed> $webhooks
      * @param array<string, mixed>|null $retry
+     *
+     * @return array{name: string, status: Status, reason: string|null, lastStatusCode: int|null}
      */
-    private static function toHealth(array $app, array $webhooks, ?array $retry): AppHealth
+    private static function toHealth(array $app, array $webhooks, ?array $retry): array
     {
         $lastStatusCode = isset($retry['response_status_code']) ? (int) $retry['response_status_code'] : null;
-        $lastUsageAt = self::toIsoDate($app['last_usage_at'] ?? null);
 
         [$status, $reason] = match (true) {
             !$app['active'] => [Status::SKIPPED, self::REASON_INACTIVE],
@@ -159,18 +118,11 @@ class AppSystemCheck extends BaseCheck
             $retry !== null || (int) ($webhooks['failing'] ?? 0) > 0 => [Status::WARNING, self::REASON_DELIVERY_FAILING],
             (int) ($webhooks['suspended'] ?? 0) > 0 => [Status::WARNING, self::REASON_WEBHOOKS_SUSPENDED],
             (bool) $app['no_recent_activity'] => [Status::WARNING, self::REASON_NO_APP_ACTIVITY],
-            (int) ($webhooks['total'] ?? 0) === 0 && $lastUsageAt === null => [Status::UNKNOWN, self::REASON_NO_SIGNAL],
+            (int) ($webhooks['total'] ?? 0) === 0 && $app['last_usage_at'] === null => [Status::UNKNOWN, self::REASON_NO_SIGNAL],
             default => [Status::OK, null],
         };
 
-        return new AppHealth(
-            name: (string) $app['name'],
-            status: $status,
-            reason: $reason,
-            lastStatusCode: $lastStatusCode,
-            lastAttemptAt: self::toIsoDate($retry['last_attempt_at'] ?? null),
-            lastAppActivityAt: $lastUsageAt,
-        );
+        return ['name' => (string) $app['name'], 'status' => $status, 'reason' => $reason, 'lastStatusCode' => $lastStatusCode];
     }
 
     /**
@@ -220,7 +172,7 @@ class AppSystemCheck extends BaseCheck
     {
         // per app: the most recently attempted delivery that is still waiting for a retry, with its response status code
         return $this->connection->fetchAllAssociativeIndexed(
-            'SELECT latest.app_id, webhook_event_log.response_status_code, latest.last_attempt_at
+            'SELECT latest.app_id, webhook_event_log.response_status_code
              FROM (
                  SELECT LOWER(HEX(webhook.app_id)) AS app_id,
                         webhook_delivery.webhook_event_log_id,
@@ -243,15 +195,19 @@ class AppSystemCheck extends BaseCheck
     }
 
     /**
-     * The database stores UTC without an offset; the API returns RFC 3339 so clients do not read it as local time.
+     * @param list<array{name: string, status: Status, reason: string|null, lastStatusCode: int|null}> $apps
      */
-    private static function toIsoDate(mixed $value): ?string
+    private static function worstStatus(array $apps): Status
     {
-        if ($value === null) {
-            return null;
+        if ($apps === []) {
+            return Status::OK;
         }
 
-        return (new \DateTimeImmutable((string) $value, new \DateTimeZone('UTC')))->format(\DateTimeInterface::RFC3339_EXTENDED);
+        return array_reduce(
+            $apps,
+            static fn (Status $worst, array $app) => self::severity($app['status']) > self::severity($worst) ? $app['status'] : $worst,
+            Status::SKIPPED,
+        );
     }
 
     private static function severity(Status $status): int

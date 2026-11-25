@@ -10,11 +10,9 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
-use Shopware\Core\Framework\App\SystemCheck\AppHealth;
 use Shopware\Core\Framework\App\SystemCheck\AppSystemCheck;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
@@ -31,7 +29,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * Drives the real webhook producers with a mocked app server and reads the resulting state through AppSystemCheck.
@@ -61,9 +58,9 @@ class AppSystemCheckWebhookDeliveryTest extends TestCase
         $this->dispatchAndDrain(reworkActive: true, adminWorker: false);
 
         $health = $this->currentHealth();
-        static::assertSame(Status::ERROR, $health->status);
-        static::assertSame(AppSystemCheck::REASON_CREDENTIALS_REJECTED, $health->reason);
-        static::assertSame(401, $health->lastStatusCode);
+        static::assertSame('ERROR', $health['status']);
+        static::assertSame(AppSystemCheck::REASON_CREDENTIALS_REJECTED, $health['reason']);
+        static::assertSame(401, $health['lastStatusCode']);
     }
 
     public function testServerErrorUnderWebhooksReworkIsDeliveryFailing(): void
@@ -73,9 +70,9 @@ class AppSystemCheckWebhookDeliveryTest extends TestCase
         $this->dispatchAndDrain(reworkActive: true, adminWorker: false);
 
         $health = $this->currentHealth();
-        static::assertSame(Status::WARNING, $health->status);
-        static::assertSame(AppSystemCheck::REASON_DELIVERY_FAILING, $health->reason);
-        static::assertSame(500, $health->lastStatusCode);
+        static::assertSame('WARNING', $health['status']);
+        static::assertSame(AppSystemCheck::REASON_DELIVERY_FAILING, $health['reason']);
+        static::assertSame(500, $health['lastStatusCode']);
     }
 
     public function testSuccessfulDeliveryUnderWebhooksReworkIsOk(): void
@@ -85,8 +82,8 @@ class AppSystemCheckWebhookDeliveryTest extends TestCase
         $this->dispatchAndDrain(reworkActive: true, adminWorker: false);
 
         $health = $this->currentHealth();
-        static::assertSame(Status::OK, $health->status);
-        static::assertNull($health->reason);
+        static::assertSame('OK', $health['status']);
+        static::assertNull($health['reason']);
     }
 
     /**
@@ -101,8 +98,8 @@ class AppSystemCheckWebhookDeliveryTest extends TestCase
 
         static::assertSame(1, $this->getRequestCount());
         $health = $this->currentHealth();
-        static::assertSame(Status::OK, $health->status);
-        static::assertNull($health->reason);
+        static::assertSame('OK', $health['status']);
+        static::assertNull($health['reason']);
     }
 
     private function dispatchAndDrain(bool $reworkActive, bool $adminWorker): void
@@ -123,18 +120,21 @@ class AppSystemCheckWebhookDeliveryTest extends TestCase
             : Feature::withFeatureDisabled('WEBHOOKS_REWORK', $run);
     }
 
-    private function currentHealth(): AppHealth
+    /**
+     * @return array<string, mixed>
+     */
+    private function currentHealth(): array
     {
         $check = new AppSystemCheck(
             $this->connection,
-            new ArrayAdapter(),
             static::getContainer()->get(ClockInterface::class),
         );
 
-        $apps = $check->collect();
-        static::assertArrayHasKey($this->appId, $apps);
+        $name = $this->connection->fetchOne('SELECT name FROM app WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->appId)]);
+        $apps = array_column($check->run()->extra['apps'], null, 'name');
+        static::assertArrayHasKey($name, $apps);
 
-        return $apps[$this->appId];
+        return $apps[$name];
     }
 
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager

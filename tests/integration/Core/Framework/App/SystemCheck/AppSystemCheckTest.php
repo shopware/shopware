@@ -6,14 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\SystemCheck\AppHealth;
 use Shopware\Core\Framework\App\SystemCheck\AppSystemCheck;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\MockClock;
 
 /**
@@ -36,7 +34,6 @@ class AppSystemCheckTest extends TestCase
         $this->clock = new MockClock('2026-06-15 12:00:00');
         $this->check = new AppSystemCheck(
             $this->connection,
-            new ArrayAdapter(),
             $this->clock,
         );
     }
@@ -77,7 +74,7 @@ class AppSystemCheckTest extends TestCase
         $this->createRetryingDelivery($this->createWebhook($appId), $statusCode);
 
         $health = $this->assertHealth($appId, Status::ERROR, AppSystemCheck::REASON_CREDENTIALS_REJECTED);
-        static::assertSame($statusCode, $health->lastStatusCode);
+        static::assertSame($statusCode, $health['lastStatusCode']);
     }
 
     /**
@@ -105,7 +102,7 @@ class AppSystemCheckTest extends TestCase
         $this->createRetryingDelivery($webhookId, 500, lastAttemptAt: '-1 minute');
 
         $health = $this->assertHealth($appId, Status::WARNING, AppSystemCheck::REASON_DELIVERY_FAILING);
-        static::assertSame(500, $health->lastStatusCode);
+        static::assertSame(500, $health['lastStatusCode']);
     }
 
     public function testLatestRetryWithRejectedCredentialsDecidesOverOlderFailure(): void
@@ -116,7 +113,7 @@ class AppSystemCheckTest extends TestCase
         $this->createRetryingDelivery($webhookId, 401, lastAttemptAt: '-1 minute');
 
         $health = $this->assertHealth($appId, Status::ERROR, AppSystemCheck::REASON_CREDENTIALS_REJECTED);
-        static::assertSame(401, $health->lastStatusCode);
+        static::assertSame(401, $health['lastStatusCode']);
     }
 
     public function testRetryWithOtherStatusCodeIsDeliveryFailing(): void
@@ -125,7 +122,7 @@ class AppSystemCheckTest extends TestCase
         $this->createRetryingDelivery($this->createWebhook($appId), 500);
 
         $health = $this->assertHealth($appId, Status::WARNING, AppSystemCheck::REASON_DELIVERY_FAILING);
-        static::assertSame(500, $health->lastStatusCode);
+        static::assertSame(500, $health['lastStatusCode']);
     }
 
     public function testRetryWithoutResponseIsDeliveryFailing(): void
@@ -134,7 +131,7 @@ class AppSystemCheckTest extends TestCase
         $this->createRetryingDelivery($this->createWebhook($appId), null);
 
         $health = $this->assertHealth($appId, Status::WARNING, AppSystemCheck::REASON_DELIVERY_FAILING);
-        static::assertNull($health->lastStatusCode);
+        static::assertNull($health['lastStatusCode']);
     }
 
     public function testFirstAttemptNotYetRetriedIsNotCountedAsFailing(): void
@@ -166,8 +163,7 @@ class AppSystemCheckTest extends TestCase
         $appId = $this->createApp(lastUsageAt: '-8 days');
         $this->createWebhook($appId);
 
-        $health = $this->assertHealth($appId, Status::WARNING, AppSystemCheck::REASON_NO_APP_ACTIVITY);
-        static::assertSame('2026-06-07T12:00:00.000+00:00', $health->lastAppActivityAt);
+        $this->assertHealth($appId, Status::WARNING, AppSystemCheck::REASON_NO_APP_ACTIVITY);
     }
 
     public function testRecentIntegrationUsageIsOk(): void
@@ -255,32 +251,19 @@ class AppSystemCheckTest extends TestCase
         static::assertSame(['SKIPPED'], array_column($result->extra['apps'], 'status'));
     }
 
-    public function testSecondCollectWithinTtlReturnsCachedResult(): void
+    /**
+     * @return array<string, mixed>
+     */
+    private function assertHealth(string $appId, Status $status, ?string $reason): array
     {
-        $check = new AppSystemCheck(
-            $this->connection,
-            new ArrayAdapter(),
-            $this->clock,
-        );
-        $appId = $this->createApp(lastUsageAt: '-1 day');
+        $name = $this->connection->fetchOne('SELECT name FROM app WHERE id = :id', ['id' => Uuid::fromHexToBytes($appId)]);
+        $apps = array_column($this->check->run()->extra['apps'], null, 'name');
 
-        static::assertSame(Status::OK, $check->collect()[$appId]->status);
+        static::assertArrayHasKey($name, $apps);
+        static::assertSame($status->name, $apps[$name]['status']);
+        static::assertSame($reason, $apps[$name]['reason']);
 
-        $this->connection->executeStatement('UPDATE app SET active = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($appId)]);
-
-        static::assertSame(Status::OK, $check->collect()[$appId]->status);
-    }
-
-    private function assertHealth(string $appId, Status $status, ?string $reason): AppHealth
-    {
-        $apps = $this->check->collect();
-
-        static::assertArrayHasKey($appId, $apps);
-        $health = $apps[$appId];
-        static::assertSame($status, $health->status);
-        static::assertSame($reason, $health->reason);
-
-        return $health;
+        return $apps[$name];
     }
 
     private function createApp(

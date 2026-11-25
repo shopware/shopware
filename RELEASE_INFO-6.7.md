@@ -1,4 +1,44 @@
-# 6.7.17.0 (upcoming)
+# 6.7.18.0 (upcoming)
+
+## API
+
+### Store API media schema allows `null` where responses send it
+
+The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for the fields that the responses already send as `null`: `alt`, `title`, `config`, `customFields` and `updatedAt`, and for media without an uploaded file also `mimeType`, `fileExtension`, `fileName`, `path`, `uploadedAt`, `fileSize` and `metaData`.
+`MediaThumbnail` also allows `null` for `mediaThumbnailSizeId` and `path`.
+The responses are unchanged.
+If you generate types from the schema, regenerate them and handle `null` for these fields.
+
+### Legal guarantee notice text in the Store API
+
+`GET /store-api/legal-guarantee-notice` also returns `text`, the notice as HTML in the language of `svg`.
+The SVG is now `aria-hidden`, so headless frontends should render `text` as its text alternative.
+
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
+## Storefront
+
+### Paginated category listings are crawlable
+
+The default storefront `robots.txt` now contains `Allow: /*?p=` and `Disallow: /*?p=*&` alongside the existing rule `Disallow: /*?`, so search engines can crawl paginated category listings like `/category/?p=2`.
+The default rules still block sorted, filtered, and search pagination URLs such as `/category/?p=2&order=price-asc`, `/category/?p=2&properties=…`, and `/search?p=2&search=…`.
+Shops that want to keep pagination out of crawling can override the `robots_txt_content_default_rules` block.
+
+A category page only gets a paginated canonical like `/category/?p=2` when it shows a product listing on that page, other pages keep their clean canonical.
+From the second listing page on, the meta title ends with the page number, for example `Seasonal decoration – Page 2`.
+The format comes from the new snippet `general.pagination.metaPageSuffix`, set it to `%content%` to keep the title unchanged.
+
+### Text alternative for the legal guarantee notice
+
+The notice SVGs are now `aria-hidden`, and the notice link is described by the notice's text, visually hidden and rendered by the new Twig filter `sw_legal_guarantee_notice_text`.
+The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
+Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
+
+# 6.7.17.0
 
 ## Critical Fixes
 
@@ -1886,6 +1926,16 @@ elasticsearch:
 ```
 
 Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
+
+# 6.7.16.2
+
+## Critical Fixes
+
+### Shopware can be installed with Composer again
+
+Twig 3.31.1 fixes security issues in the Twig sandbox, and Composer now refuses to install older Twig versions. Together with the Twig version cap in `shopware/conflicts` 0.6.3, no installable Twig version was left, so installing or updating Shopware 6.7.15.0 to 6.7.16.1 with Composer failed.
+
+Shopware now requires `shopware/conflicts` 0.6.4 and `twig/twig` ^3.31.1, so it can be installed and updated again.
 
 # 6.7.16.1
 

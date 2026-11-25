@@ -10,10 +10,65 @@ component sw-settings-listing-option-criteria-grid  public  js
   source src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid/index.js
   template src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid/sw-settings-listing-option-criteria-grid.html.twig
 
+mixins
+  notification, sw-inline-snippet
+
+inject
+  repositoryFactory
+
+props
+  productSortingEntity: object
+
+emits
+  criteria-add(...args: any[])
+  criteria-delete(...args: any[])
+  inline-edit-cancel(...args: any[])
+  inline-edit-save(...args: any[])
+
+data
+  customFieldSetIDs: any  [deprecated tag:v6.8.0]
+  customFields: any
+  notSortableCustomFields: any
+  selectedCriteria: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  criteriaOptions: any
+  customFieldCriteria: any
+  customFieldRepository: any
+  customFieldSetRelationsRepository: any  [deprecated tag:v6.8.0]
+  customFieldSetRepository: any
+  customFieldsRelationsCriteria: any  [deprecated tag:v6.8.0]
+  orderOptions: any
+  productSortingEntityColumns: any
+  sortedProductSortingFields: any
+
+methods
+  changeCustomField(key: any, field: any): Promise<any>
+  createdComponent(): any
+  criteriaIsAlreadyUsed(criteriaName: any): any
+  customFieldCriteriaSingleSelect(customField: any): any
+  fetchCustomFieldSetIds(): Promise<any>  [deprecated tag:v6.8.0]
+  fetchCustomFields(): any
+  filterEmptyCustomFields(item: any): any
+  getCriteriaSnippetByFieldName(fieldName: any): any
+  getCriteriaTemplate(fieldName: any): any
+  getCustomFieldByName(technicalName: any): any
+  getCustomFieldLabelByCriteriaName(criteriaName: any): any
+  getCustomFieldName(customField: any): any
+  getOrderSnippet(order: any): any
+  getProductSortingFieldsByName(customField?: any = null): any
+  isItemACustomField(fieldName: any): any
+  onAddCriteria(fieldName: any): any
+  onCancelInlineEdit(item: any): any
+  onRemoveCriteria(item: any): any
+  onSaveInlineEdit(item: any): any
+  stripCustomFieldPath(fieldName: any): any
+
 blocks
   sw_settings_listing_option_criteria_card
     sw_settings_listing_option_criteria_card_empty_state  [after v-if]
-    sw_settings_listing_option_criteria_card_empty_state_icon
+    sw_settings_listing_option_criteria_card_empty_state_icon  [deprecated tag:v6.8.0]
     sw_settings_listing_option_criteria_card_grid
       sw_settings_listing_option_criteria_card_grid_column_actions
         sw_settings_listing_option_criteria_card_grid_column_actions_delete  [scope: item]
@@ -32,4 +87,8 @@ crossings
   v-if  sw_settings_listing_option_criteria_card_grid_column_field_custom_field -> sw_settings_listing_option_criteria_card_grid_column_field_custom_criteria
   v-if  sw_settings_listing_option_criteria_card_grid_column_field_select -> sw_settings_listing_option_criteria_card_grid_column_field_custom_field
   v-if  sw_settings_listing_option_criteria_card_grid_column_order_text -> sw_settings_listing_option_criteria_card_grid_column_order_select
+
+refs
+  customFieldSelection  -> sw-entity-single-select  block=sw_settings_listing_option_criteria_card_grid_column_field_select
+  dataGrid  -> sw-data-grid  block=sw_settings_listing_option_criteria_card_grid
 ```

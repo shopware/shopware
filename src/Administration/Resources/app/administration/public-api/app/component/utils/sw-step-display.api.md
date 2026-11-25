@@ -11,6 +11,27 @@ component sw-step-display  private  js  [private]
   template src/app/component/utils/sw-step-display/sw-step-display.html.twig  [private]
   visibility-source export  [private]
 
+provide
+  addStep: any  [private]
+
+props
+  initialItemVariants?: any[]  default=factory  [private]
+  itemIndex: number  [private]
+  itemVariant: string  [private]
+
+slots
+  default  {}  block=sw_step_display  [private]
+
+data
+  items: any  [private]
+
+methods
+  addStep(item: any): any  [private]
+  setItemActive(index: any, active: any): any  [private]
+  setItemVariant(item: any, variant: any): any  [private]
+  setItemVariants(itemVariants: any): any  [private]
+  setVariantForCurrentItem(variant: any): any  [private]
+
 blocks
   sw_step_display  [private]
     sw_step_display_slot  [private]

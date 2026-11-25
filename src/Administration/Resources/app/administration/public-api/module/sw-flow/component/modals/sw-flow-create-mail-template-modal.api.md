@@ -11,6 +11,43 @@ component sw-flow-create-mail-template-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal/sw-flow-create-mail-template-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification  [private]
+
+inject
+  entityMappingService  [private]
+  mailService  [private]
+  repositoryFactory  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  editorConfig: object  [private]
+    enableBasicAutocompletion: any  [private]
+  isLoading: any  [private]
+  mailTemplate: any  [private]
+  mailTemplateType: any  [private]
+
+computed
+  mailTemplateContentHtmlError: any  [private]
+  mailTemplateContentPlainError: any  [private]
+  mailTemplateCriteria: any  [private]
+  mailTemplateMailTemplateTypeIdError: any  [private]
+  mailTemplateRepository: any  [private]
+  mailTemplateSubjectError: any  [private]
+  mailTemplateTypeRepository: any  [private]
+  outerCompleterFunction: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getMailTemplate(): Promise<any>  [private]
+  getMailTemplateType(): Promise<any>  [private]
+  onAddMailTemplate(): Promise<any>  [private]
+  onChangeType(id: any): Promise<any>  [private]
+  onClose(): any  [private]
+
 blocks
   sw_flow_create_mail_template_modal  [private]
     sw_flow_create_mail_template_modal_content  [private]
@@ -24,4 +61,8 @@ blocks
     sw_flow_create_mail_template_modal_footer  [private]
       sw_flow_create_mail_template_modal_footer_cancel_button  [private]
       sw_flow_create_mail_template_modal_footer_save_button  [private]
+
+refs
+  htmlEditor  -> sw-code-editor  block=sw_flow_create_mail_template_modal_html_content  [private]
+  plainEditor  -> sw-code-editor  block=sw_flow_create_mail_template_modal_plain_content  [private]
 ```

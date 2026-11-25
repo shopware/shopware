@@ -10,6 +10,29 @@ component sw-settings-listing-visibility-detail  public  js
   source src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail/index.js
   template src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail/sw-settings-listing-visibility-detail.html.twig
 
+inject
+  repositoryFactory
+
+props
+  config: any[]
+  disabled?: boolean  default=false
+
+data
+  items: any
+  limit: any
+  page: any
+  total: any
+
+computed
+  salesChannelRepository: any
+  truncateFilter: any
+
+methods
+  changeVisibilityValue(event: any, item: any): any
+  createdComponent(): any
+  fetchSalesChannels(): Promise<any>
+  onPageChange(params: any): any
+
 blocks
   sw_product_visibility_detail
     sw_settings_listing_visibility_detail_columns

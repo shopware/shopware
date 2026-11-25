@@ -11,6 +11,22 @@ component sw-boolean-filter  private  js  [private]
   template src/app/component/filter/sw-boolean-filter/sw-boolean-filter.html.twig  [private]
   visibility-source export  [private]
 
+props
+  active: boolean  [private]
+  filter: object  [private]
+
+emits
+  filter-reset(...args: any[])  [private]
+  filter-update(...args: any[])  [private]
+
+computed
+  options: any  [private]
+  value: any  [private]
+
+methods
+  changeValue(newValue: any): any  [private]
+  resetFilter(): any  [private]
+
 blocks
   sw_boolean_filter  [private]
     sw_boolean_filter_content  [private]

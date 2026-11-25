@@ -10,6 +10,35 @@ component sw-product-variants-configurator-restrictions  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/sw-product-variants-configurator-restrictions.html.twig
 
+props
+  product: object
+  selectedGroups: any[]
+
+data
+  actualRestriction: any
+  groupsWithOptions: any
+  isLoading: any
+  restrictionModalIsOpen: any
+  term: any
+
+computed
+  actualRestrictionValueLength: any
+  filteredRestrictions: any
+  restrictionColumns: any
+
+methods
+  addEmptyRestriction(): any
+  addEmptyRestrictionCombination(): any
+  cancelAddRestriction(): any
+  deleteRestriction(deleteRestriction: any): any
+  deleteRestrictionCombination(deleteRestriction: any): any
+  editRestrictionCombination(restriction: any): any
+  filterEmptyValues(): any
+  getOptionsForGroupId(groupId: any): any
+  getRestrictionsWithNaming(restrictionId: any): any
+  mountedComponent(): any
+  saveAddRestriction(): any
+
 blocks
   sw_product_variants_configurator_restrictions
     sw_product_variants_configurator_restrictions_grid_wrapper
@@ -28,4 +57,7 @@ blocks
     sw_product_variants_configurator_restrictions_search
       sw_product_variants_configurator_restrictions_buttons
       sw_product_variants_configurator_restrictions_search_field
+
+refs
+  swDataGrid  -> sw-data-grid  block=sw_product_variants_configurator_restrictions_data_grid
 ```

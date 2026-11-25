@@ -63,7 +63,7 @@
                 v-model:rules="discount.discountRules"
                 class="sw-promotion-discount-component__select-discount-rules"
                 :local-mode="discount.isNew()"
-                :rule-filter="ruleFilter"
+                :rule-filter="ruleFilterDeprecated"
                 :label="$t('sw-promotion.detail.main.discounts.labelRules')"
                 :placeholder="$t('sw-promotion.detail.main.discounts.placeholder')"
                 :disabled="isEditingDisabled"

@@ -10,6 +10,13 @@ component sw-sales-channel-detail-hreflang  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang/sw-sales-channel-detail-hreflang.html.twig
 
+props
+  disabled?: boolean  default=false
+  salesChannel: any
+
+computed
+  domainCriteria: any
+
 blocks
   sw_sales_channel_detail_hreflang
     sw_sales_channel_detail_hreflang_content

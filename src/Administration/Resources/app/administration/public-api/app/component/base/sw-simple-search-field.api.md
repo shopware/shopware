@@ -11,6 +11,30 @@ component sw-simple-search-field  private  js  [private]
   template src/app/component/base/sw-simple-search-field/sw-simple-search-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  delay?: number  default=400  [private]
+  icon?: string  default='regular-search-s'  [private]
+  size?: string  default='default'  [private]
+  value?: string  default=null  [private]
+  variant?: string  default='default'  [private]
+
+emits
+  search-term-change(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  sw-simple-search-field-icon  {}  block=sw_simple_search_field_search_icon  [private]
+
+data
+  onSearchTermChanged: any  [private]
+
+computed
+  fieldClasses: any  [private]
+  placeholder: any  [private]
+
+methods
+  onInput(input: any): any  [private]
+
 blocks
   sw_simple_search_field  [private]
     sw_simple_search_field_input  [private]

@@ -57,6 +57,13 @@ If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the 
 
 # Changed Functionality
 
+## UUID cursors for entity indexing
+
+Indexing iterators switched from row offsets to hex UUID cursors for entities whose only primary key is `id` and which have no auto-increment field.
+The cursor returned by `IterableQuery::getOffset()` and carried by `EntityIndexingMessage`, `IterateEntityIndexerMessage` and `IndexerOffset` can contain a string as well as an integer.
+Update custom `EntityIndexer::iterate()` implementations and cursor consumers to accept `array{offset: int|string|null}|null` and pass the cursor through unchanged instead of casting or incrementing it.
+Update all indexing workers before starting new indexing runs.
+
 <details>
 
 ## Reorder form line item blocks removed
@@ -1757,6 +1764,11 @@ The component loads the product custom fields with the new `customFieldRepositor
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
 The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
+
+## Product indexing members removed from `sw-category-tree`
+
+The `syncProducts()` and `indexProducts()` methods and the `productRepository` computed property were removed from `sw-category-tree` without replacement.
+The server re-indexes the products of a moved category itself, so extensions should stop calling or overriding these members.
 
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 

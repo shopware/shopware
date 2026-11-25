@@ -113,13 +113,13 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $entities = array_diff($entities, $indexingBehavior->getSkipEntities());
         }
 
-        $indices = $this->createIndices($entities);
+        [$indices, $counts] = $this->createIndices($entities);
 
         foreach ($entities as $entityName) {
             $indexer = $indexers[$entityName];
             $iterator = $indexer->getIterator();
 
-            $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $iterator->fetchCount()));
+            $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $counts[$entityName] ?? $iterator->fetchCount()));
 
             while ($ids = $iterator->fetch()) {
                 $ids = array_values($ids);
@@ -318,12 +318,13 @@ class AdminSearchRegistry implements EventSubscriberInterface
      *
      * @throws Exception
      *
-     * @return array<string, string>
+     * @return array{array<string, string>, array<string, int>}
      */
     private function createIndices(array $entities): array
     {
         $indexTasks = [];
         $indices = [];
+        $counts = [];
         foreach ($entities as $entityName) {
             $indexer = $this->getIndexer($entityName);
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
@@ -337,18 +338,18 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
             $this->create($indexer, $index, $alias);
 
-            $iterator = $indexer->getIterator();
+            $counts[$entityName] = $indexer->getIterator()->fetchCount();
             $indexTasks[] = [
                 'id' => Uuid::randomBytes(),
                 '`entity`' => $indexer->getEntity(),
                 '`index`' => $index,
                 '`alias`' => $alias,
-                '`doc_count`' => $iterator->fetchCount(),
+                '`doc_count`' => $counts[$entityName],
             ];
         }
 
         if ($indices === []) {
-            return $indices;
+            return [$indices, $counts];
         }
 
         $this->connection->executeStatement(
@@ -361,7 +362,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $this->connection->insert('admin_elasticsearch_index_task', $task);
         }
 
-        return $indices;
+        return [$indices, $counts];
     }
 
     private function refreshIndices(): void

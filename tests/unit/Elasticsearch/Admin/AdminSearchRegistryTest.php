@@ -344,7 +344,7 @@ class AdminSearchRegistryTest extends TestCase
 
             return [];
         });
-        $query->method('fetchCount')->willReturn(2);
+        $query->expects($this->once())->method('fetchCount')->willReturn(2);
 
         $this->indexer->method('getIterator')->willReturn($query);
 

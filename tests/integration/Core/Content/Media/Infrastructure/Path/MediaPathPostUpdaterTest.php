@@ -55,7 +55,7 @@ class MediaPathPostUpdaterTest extends TestCase
         static::assertContains($ids->get('media-1'), $data);
         static::assertContains($ids->get('media-2'), $data);
         static::assertContains($ids->get('media-3'), $data);
-        static::assertGreaterThanOrEqual(3, $message->getOffset());
+        static::assertNotNull($message->getOffset());
     }
 
     public function testHandle(): void

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -32,7 +34,7 @@ class IteratorFactory
     }
 
     /**
-     * @param array{offset: int|null}|null $lastId
+     * @param array{offset: int|string|null}|null $lastId
      */
     public function createIterator(string|EntityDefinition $definition, ?array $lastId = null, int $limit = 50, ?string $versionId = null): IterableQuery
     {
@@ -82,6 +84,25 @@ class IteratorFactory
             if ($lastId !== null) {
                 $query->setParameter('lastId', $lastId['offset']);
             }
+
+            return new LastIdQuery($query);
+        }
+
+        $primaryKeys = $definition->getPrimaryKeys();
+        $primaryKey = $primaryKeys->first();
+        $offset = $lastId['offset'] ?? null;
+        // Jobs queued before UUID pagination must retain their numeric row offsets.
+        if ($primaryKeys->count() === 1 && $primaryKey instanceof IdField && $primaryKey->getStorageName() === 'id'
+            && !\is_int($offset) && (Feature::isActive('v6.8.0.0') || \is_string($offset))) {
+            $query->select($escaped . '.id', 'LOWER(HEX(' . $escaped . '.id)) as id');
+            $query->orderBy($escaped . '.id');
+            $predicate = $escaped . '.id > :lastId';
+            if ($offset === null) {
+                return new LastIdQuery($query, $predicate);
+            }
+
+            $query->andWhere($predicate);
+            $query->setParameter('lastId', Uuid::fromHexToBytes($offset), ParameterType::BINARY);
 
             return new LastIdQuery($query);
         }

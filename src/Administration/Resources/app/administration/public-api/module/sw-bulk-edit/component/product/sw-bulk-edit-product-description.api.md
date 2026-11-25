@@ -10,12 +10,20 @@ component sw-bulk-edit-product-description  public  js
   registered src/module/sw-bulk-edit/index.js
   source src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-description/index.js
 
+slots
+  label  {}  block=sw_text_editor_label
+
 blocks
   sw_text_editor  [inherited]
-    sw_text_editor_box  [inherited]
-      sw_text_editor_box_content  [inherited]
-      sw_text_editor_box_table_toolbar  [inherited]
+    sw_text_editor_box  [inherited] [after v-if]
+      sw_text_editor_box_content  [inherited] [after v-if]
+      sw_text_editor_box_table_toolbar  [inherited] [after v-if]
       sw_text_editor_box_toolbar  [inherited]
       sw_text_editor_box_word_count  [inherited]
     sw_text_editor_label  [inherited]
+
+refs
+  codeEditor  -> sw-code-editor  block=sw_text_editor_box_content
+  text-editor-toolbar  -> sw-text-editor-toolbar  block=sw_text_editor_box_toolbar
+  textEditor  -> div  block=sw_text_editor_box_content
 ```

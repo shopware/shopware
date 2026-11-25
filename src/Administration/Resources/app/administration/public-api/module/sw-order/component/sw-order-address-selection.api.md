@@ -10,9 +10,65 @@ component sw-order-address-selection  public  js
   source src/module/sw-order/component/sw-order-address-selection/index.js
   template src/module/sw-order/component/sw-order-address-selection/sw-order-address-selection.html.twig
 
+mixins
+  notification
+
+inject
+  customSnippetApiService
+  repositoryFactory
+
+props
+  address?: object  default=factory
+  addressId?: string  default=null
+  disabled?: boolean  default=false
+  label?: string  default=''
+  type?: string  default=''
+
+emits
+  change-address(...args: any[])
+
+data
+  currentAddress: any
+  customerAddressCustomFieldSets: any
+  orderAddressId: any
+  selectedAddressFormatting: any
+
+computed
+  addressOptions: any
+  addressRepository: any
+  customFieldSetCriteria: any
+  customFieldSetRepository: any
+  customer: any
+  customerCriteria: any  [deprecated tag:v6.8.0]
+  customerRepository: any
+  modalTitle: any
+  order: any
+  orderCustomer: any
+  orderRepository: any
+  selectedAddress: any
+  selectedAddressId: any
+  versionContext: any
+
+methods
+  addressLabel(address: any): any
+  clearAddressErrors(address: any): any
+  createNewCustomerAddress(): any
+  createPrefix(string: any, replace: any): any
+  createdComponent(): any
+  getCustomFieldSet(): Promise<any>
+  getCustomer(): any
+  isValidAddress(address: any): any
+  onAddressChange(customerAddressId: any, edited?: any = false): any
+  onChangeDefaultAddress(data: any): any
+  onCreateNewAddress(): any
+  onEditAddress(id: any): any
+  onSaveAddress(): Promise<any>
+  removeRequiredFieldError(address: any, field: any): any
+  renderSelectedAddress(): Promise<any>
+
 blocks
   sw_order_address_selection
-    sw_order_address_selection_entity_single_select
+    sw_order_address_selection_entity_single_select  [after v-if]
     sw_order_address_selection_modal
       sw_order_address_modal_actions
         sw_order_address_modal_action_close

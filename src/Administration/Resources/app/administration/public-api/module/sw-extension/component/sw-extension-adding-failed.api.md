@@ -11,11 +11,30 @@ component sw-extension-adding-failed  private  js  [private]
   template src/module/sw-extension/component/sw-extension-adding-failed/sw-extension-adding-failed.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  shopwareExtensionService  [private]
+
+props
+  detail?: string  default=null  [private]
+  documentationLink?: string  default=null  [private]
+  extensionName: string  [private]
+  title?: string  default=null  [private]
+
+emits
+  close(...args: any[])  [private]
+
+computed
+  extension: any  [private]
+  hasActiveRentLicense: any  [private]
+  headline: any  [private]
+  myExtensions: any  [private]
+  text: any  [private]
+
 blocks
   sw_extension_adding_failed  [private]
-    sw_extension_adding_failed_button_close  [private]
+    sw_extension_adding_failed_button_close  [after v-if] [private]
     sw_extension_adding_failed_headline  [private]
     sw_extension_adding_failed_icon  [private]
-    sw_extension_adding_failed_licence_cancellation  [private]
+    sw_extension_adding_failed_licence_cancellation  [after v-if] [private]
     sw_extension_adding_failed_notification  [private]
 ```

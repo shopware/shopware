@@ -11,13 +11,38 @@ component sw-extension-sdk-module  private  js  [private]
   template src/module/sw-extension-sdk/page/sw-extension-sdk-module/sw-extension-sdk-module.html.twig  [private]
   visibility-source export  [private]
 
+props
+  back?: string  default=null  [private]
+  id: string  [private]
+
+data
+  loadingTimeOut: any  [private]
+  timedOut: any  [private]
+
+computed
+  isLoading: any  [private]
+  module: any  [private]
+  showLanguageSwitch: any  [private]
+  showSearchBar: any  [private]
+  showSmartBar: any  [private]
+  smartBarButtons: any  [private]
+
+methods
+  onChangeLanguage(languageId: any): any  [private]
+
 blocks
   sw_extension_sdk_module  [private]
     sw_extension_sdk_module_content  [private]
-      sw_extension_sdk_module_content_error_state  [private]
+      sw_extension_sdk_module_content_error_state  [after v-if] [private]
       sw_extension_sdk_module_content_iframe_renderer  [private]
-      sw_extension_sdk_module_content_loader  [private]
+      sw_extension_sdk_module_content_loader  [after v-if] [private]
     sw_extension_sdk_module_header  [private]
     sw_extension_sdk_module_language_switch  [private]
     sw_extension_sdk_module_smart_bar_buttons  [private]
+
+crossings
+  v-if  sw_extension_sdk_module_content_iframe_renderer -> sw_extension_sdk_module_content_loader  [private]
+
+refs
+  iframeRenderer  -> sw-iframe-renderer  block=sw_extension_sdk_module_content_iframe_renderer  [private]
 ```

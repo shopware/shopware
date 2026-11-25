@@ -10,6 +10,108 @@ component sw-mail-template-detail  public  js
   source src/module/sw-mail-template/page/sw-mail-template-detail/index.js
   template src/module/sw-mail-template/page/sw-mail-template-detail/sw-mail-template-detail.html.twig
 
+mixins
+  placeholder, notification
+
+inject
+  acl
+  businessEventService
+  entityMappingService
+  feature
+  mailService
+  repositoryFactory
+
+data
+  availableVariables: any
+  editorConfig: object
+    enableBasicAutocompletion: any
+  entitySchema: any
+  fileAccept: any
+  isLoading: any
+  isSaveSuccessful: any
+  isTriggerEventSelectedByUser: any
+  mailPreview: any
+  mailTemplate: any
+  mailTemplateId: any
+  mailTemplateMedia: any
+  mailTemplateMediaSelected: any
+  mailTemplateType: any
+  selectedType: any
+  showLanguageNotAssignedToSalesChannelWarning: any
+  testMailSalesChannelId: any
+  testerMail: any
+  triggerEvent: any
+  triggerEvents: any
+  triggerEventsPromise: any
+
+computed
+  allowSave: any
+  flowRepository: any
+  hasTemplateData: any  [deprecated tag:v6.8.0]
+  identifier: any
+  isSendButtonDisabled: any
+  lacksEmailSendPermission: any
+  loadedAvailableVariables: any
+  mailTemplateContentHtmlError: any
+  mailTemplateContentPlainError: any
+  mailTemplateMailTemplateTypeIdError: any
+  mailTemplateMediaRepository: any
+  mailTemplateRepository: any
+  mailTemplateSubjectError: any
+  mailTemplateTypeRepository: any
+  mediaColumns: any
+  mediaRepository: any
+  outerCompleterFunction: any
+  previewAllowed: any
+  salesChannelRepository: any
+  showPreview: any
+  testMailRequirementsMet: any
+  tooltipSave: any
+
+methods
+  _checkIfMediaIsAlreadyUsed(mediaId: any): any
+  abortOnLanguageChange(): any
+  addVariables(variables: any): any
+  createMailTemplateMediaAssoc(mediaItem: any): any
+  createMediaCollection(): any
+  createdComponent(): any
+  getMailTemplateMedia(): any
+  getMailTemplateType(): Promise<any>
+  getMediaColumns(): any
+  getPreviewMailHeaderFooterParts(): Promise<any>
+  getTriggerEventNameTranslated(eventName: any): any
+  hasPreviewErrors(mailPreview?: any = this.mailPreview): any
+  isToManyAssociationVariable(variable: any): any
+  loadAvailableVariables(variable: any): any
+  loadEntityData(): any
+  loadInitialAvailableVariables(): any
+  loadTriggerEvents(): any
+  mailPreviewContent(): any  [deprecated tag:v6.8.0]
+  onAddItemToAttachment(mediaItem: any): any
+  onCancel(): any
+  onCancelShowPreview(): any
+  onChangeLanguage(languageId: any): any
+  onChangeType(id: any): Promise<any>
+  onClickShowPreview(): Promise<any>
+  onClickTestMailTemplate(): Promise<any>
+  onCopyVariable(variable: any): Promise<any>
+  onDeleteMedia(mailTemplateMediaId: any): any
+  onDeleteSelectedMedia(): any
+  onGetTreeItems(parent: any): any
+  onMediaDrop(media: any): any
+  onSave(): Promise<any>
+  onSelectionChanged(selection: any): any
+  onTriggerEventChange(eventName: any): any
+  openMediaSidebar(): any
+  preselectTriggerEvent(mailTemplateTypeId: any): Promise<any>
+  replaceContent(string: any): any  [deprecated tag:v6.8.0]
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  setMailPreview(): Promise<any>
+  setTriggerEvent(eventName: any): any
+  simulateMailPreview(): Promise<any>
+  successfulUpload(arg0: any): any
+
 blocks
   sw_mail_template_detail
     sw_mail_template_detail_actions
@@ -17,10 +119,10 @@ blocks
       sw_mail_template_detail_actions_save
     sw_mail_template_detail_content
       sw_mail_template_detail_attachments_info
-        sw_mail_template_detail_attachments_info_grid
-          sw_mail_template_detail_attachments_info_grid_actions
+        sw_mail_template_detail_attachments_info_grid  [after v-if]
+          sw_mail_template_detail_attachments_info_grid_actions  [scope: item]
           sw_mail_template_detail_attachments_info_grid_bulk
-          sw_mail_template_detail_attachments_info_grid_preview
+          sw_mail_template_detail_attachments_info_grid_preview  [scope: item]
         sw_mail_template_detail_attachments_info_upload
       sw_mail_template_detail_basic_info
         sw_mail_template_basic_form_description_field
@@ -28,8 +130,8 @@ blocks
       sw_mail_template_detail_content_language_info
       sw_mail_template_detail_mail_text_info
         sw_mail_template_detail_preview_modal
-          sw_mail_template_detail_preview_modal_footer  [until v6.8.0]
-            sw_mail_template_detail_preview_modal_footer_cancel  [until v6.8.0]
+          sw_mail_template_detail_preview_modal_footer  [after v-if] [until v6.8.0] [deprecated tag:v6.8.0]
+            sw_mail_template_detail_preview_modal_footer_cancel  [until v6.8.0] [deprecated tag:v6.8.0]
         sw_mail_template_mail_text_form_content_html_field
         sw_mail_template_mail_text_form_content_plain_field
       sw_mail_template_detail_options_info
@@ -40,17 +142,22 @@ blocks
     sw_mail_template_detail_sidebar
       sw_mail_template_detail_sidebar_inner
         sw_mail_template_detail_sidebar_inner_media
-          sw_mail_template_detail_sidebar_add_attachment
+          sw_mail_template_detail_sidebar_add_attachment  [scope: media]
         sw_mail_template_detail_sidebar_inner_preview
         sw_mail_template_detail_sidebar_inner_test_mail
           sw_mail_template_mail_text_form_test_mail_button
-          sw_mail_template_mail_text_form_test_mail_field
+          sw_mail_template_mail_text_form_test_mail_field  [after v-if]
           sw_mail_template_mail_text_form_test_sales_channel_field
         sw_mail_template_detail_sidebar_inner_variables
           sw_mail_template_available_variables_tree
             sw_mail_template_available_variables_tree_headline
             sw_mail_template_available_variables_tree_items
-              sw_mail_template_available_variables_tree_items_item
-                sw_mail_template_available_variables_tree_items_item_actions
-                sw_mail_template_available_variables_tree_items_item_grip
+              sw_mail_template_available_variables_tree_items_item  [scope: disableContextMenu, draggedItem, onChangeRoute, sortable, treeItems]
+                sw_mail_template_available_variables_tree_items_item_actions  [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
+                sw_mail_template_available_variables_tree_items_item_grip  [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
+
+refs
+  htmlEditor  -> sw-code-editor  block=sw_mail_template_mail_text_form_content_html_field
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_mail_template_detail_sidebar_inner_media
+  plainEditor  -> sw-code-editor  block=sw_mail_template_mail_text_form_content_plain_field
 ```

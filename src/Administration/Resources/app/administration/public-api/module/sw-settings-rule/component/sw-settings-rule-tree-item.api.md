@@ -12,6 +12,18 @@ component sw-settings-rule-tree-item  private  js  [private]
   template src/module/sw-settings-rule/component/sw-settings-rule-tree-item/sw-settings-rule-tree-item.html.twig  [private]
   visibility-source export  [private]
 
+props
+  association: string  [private]
+  hideActions?: boolean  default=false  [private]
+
+slots
+  actions  { add-element, add-sub-element, delete-element, is-disabled, item, on-change-route, on-duplicate, open-tree-item, tool-tip }  block=sw_tree_item_element_actions  [private]
+  content  { ...{ item, openTreeItem, getName } }  block=sw_tree_item_element_content  [private]
+  grip  {}  block=sw_tree_item_element_grip  [private]
+
+methods
+  hasItemAssociation(item: any): any  [private]
+
 blocks
   sw_tree_item  [inherited] [private]
     sw_tree_item_children_transition  [inherited] [private]
@@ -19,21 +31,29 @@ blocks
         sw_tree_item_children_items  [replaced] [private]
     sw_tree_item_element  [inherited] [private]
       sw_tree_item_element_actions  [keepsParent] [private]
-        sw_tree_items_actions_after  [inherited] [private]
-        sw_tree_items_actions_before  [inherited] [private]
-        sw_tree_items_actions_duplicate  [inherited] [private]
-        sw_tree_items_actions_group  [inherited] [private]
+        sw_tree_items_actions_after  [inherited] [after v-if] [private]
+        sw_tree_items_actions_before  [inherited] [after v-if] [private]
+        sw_tree_items_actions_duplicate  [inherited] [after v-if] [private]
+        sw_tree_items_actions_group  [inherited] [after v-if] [private]
           sw_tree_items_actions_delete  [inherited] [private]
           sw_tree_items_actions_edit  [inherited] [private]
-        sw_tree_items_actions_sub  [inherited] [private]
+        sw_tree_items_actions_sub  [inherited] [after v-if] [private]
         sw_tree_items_actions_without_position  [inherited] [private]
         sw_tree_items_active_state  [inherited] [private]
       sw_tree_item_element_content  [inherited] [private]
-        sw_tree_items_item_content_default  [inherited] [private]
+        sw_tree_items_item_content_default  [inherited] [after v-if] [private]
         sw_tree_items_item_content_edit  [inherited] [private]
       sw_tree_item_element_grip  [inherited] [private]
       sw_tree_item_element_leaf_icon  [inherited] [private]
       sw_tree_item_element_selection  [replaced] [private]
-      sw_tree_item_element_toggle  [inherited] [private]
+      sw_tree_item_element_toggle  [inherited] [after v-if] [private]
         sw_tree_item_element_toggle_icon  [inherited] [private]
+
+crossings
+  v-if  sw_tree_item_children_content -> sw_tree_item_children_transition  [private]
+  v-if  sw_tree_item_element_leaf_icon -> sw_tree_item_element_toggle  [private]
+  v-if  sw_tree_items_item_content_edit -> sw_tree_items_item_content_default  [private]
+
+refs
+  item  -> div  block=sw_tree_item_element_content  [private]
 ```

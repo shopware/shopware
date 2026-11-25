@@ -11,16 +11,28 @@ component sw-settings-listing-option-create  public  js
   source src/module/sw-settings-listing/page/sw-settings-listing-option-create/index.js
   template src/module/sw-settings-listing/page/sw-settings-listing-option-create/sw-settings-listing-option-create.html.twig
 
+computed
+  isNewProductSorting: any
+  smartBarHeading: any
+  urlKeyCriteria: any
+
+methods
+  createProductSortingEntity(): any
+  createdComponent(): any
+  onAddCriteria(fieldName: any): any
+  onConfirmDeleteCriteria(): any
+  onSave(): Promise<any>
+
 blocks
   sw_settings_listing_option_base  [inherited]
     sw_settings_listing_option_base_content  [inherited]
-      sw_settings_listing_option_base_smart_content  [inherited]
-        sw_settings_listing_option_base_content_criteria_grid  [inherited]
-          sw_settings_listing_option_base_smart_bar_actions_grid  [inherited]
-        sw_settings_listing_option_base_content_delete_modal  [inherited]
-          sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal  [inherited]
-        sw_settings_listing_option_base_content_general_info  [inherited]
-          sw_settings_listing_option_base_smart_content_general_info  [inherited]
+      sw_settings_listing_option_base_smart_content  [inherited] [deprecated tag:v6.8.0]
+        sw_settings_listing_option_base_content_criteria_grid  [inherited] [after v-if]
+          sw_settings_listing_option_base_smart_bar_actions_grid  [inherited] [after v-if] [deprecated tag:v6.8.0]
+        sw_settings_listing_option_base_content_delete_modal  [inherited] [after v-if]
+          sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal  [inherited] [after v-if] [deprecated tag:v6.8.0]
+        sw_settings_listing_option_base_content_general_info  [inherited] [after v-if]
+          sw_settings_listing_option_base_smart_content_general_info  [inherited] [after v-if] [deprecated tag:v6.8.0]
         sw_settings_listing_option_base_content_locked_info  [inherited]
     sw_settings_listing_option_base_language_switch  [replaced]
     sw_settings_listing_option_base_smart_bar_actions  [inherited]

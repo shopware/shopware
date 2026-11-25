@@ -11,10 +11,37 @@ component sw-data-grid-inline-edit  private  js  [private]
   template src/app/component/data-grid/sw-data-grid-inline-edit/sw-data-grid-inline-edit.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  column: object  default=factory  [private]
+  compact?: boolean  default=false  [private]
+  value: any  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+data
+  currentValue: any  [private]
+
+computed
+  classes: any  [private]
+  inputFieldSize: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  emitInput(): any  [private]
+
 blocks
   sw_data_grid_inline_edit  [private]
-    sw_data_grid_inline_edit_type_boolean  [private]
-    sw_data_grid_inline_edit_type_number  [private]
+    sw_data_grid_inline_edit_type_boolean  [after v-if] [private]
+    sw_data_grid_inline_edit_type_number  [after v-if] [private]
     sw_data_grid_inline_edit_type_string  [private]
-    sw_data_grid_inline_edit_type_unknown  [private]
+    sw_data_grid_inline_edit_type_unknown  [after v-if] [private]
+
+crossings
+  v-if  sw_data_grid_inline_edit_type_boolean -> sw_data_grid_inline_edit_type_unknown  [private]
+  v-if  sw_data_grid_inline_edit_type_number -> sw_data_grid_inline_edit_type_boolean  [private]
+  v-if  sw_data_grid_inline_edit_type_string -> sw_data_grid_inline_edit_type_number  [private]
 ```

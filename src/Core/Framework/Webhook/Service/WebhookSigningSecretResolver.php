@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
  * after it was created, so the secret stored on the message may be out of date. Reading the current
  * secret at send time keeps the signature valid for the receiving app.
  *
+ * A webhook without an app is signed with its own secret, if one is set. It is also read at send
+ * time, so it is never stored in the queued message.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -30,7 +33,7 @@ class WebhookSigningSecretResolver
     {
         $appId = $message->getAppId();
         if ($appId === null) {
-            return $message->getSecret();
+            return $this->webhookSecret($message->getWebhookId());
         }
 
         return $this->currentSecret($appId)
@@ -44,6 +47,16 @@ class WebhookSigningSecretResolver
         $secret = $this->connection->fetchOne(
             'SELECT `app_secret` FROM `app` WHERE `id` = :id',
             ['id' => Uuid::fromHexToBytes($appId)]
+        );
+
+        return \is_string($secret) ? $this->emptyToNull($secret) : null;
+    }
+
+    private function webhookSecret(string $webhookId): ?string
+    {
+        $secret = $this->connection->fetchOne(
+            'SELECT `secret` FROM `webhook` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)]
         );
 
         return \is_string($secret) ? $this->emptyToNull($secret) : null;

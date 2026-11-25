@@ -11,6 +11,20 @@ component sw-media-modal-renderer  private  ts  [private]
   template src/app/component/structure/sw-media-modal-renderer/sw-media-modal-renderer.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  extensionTabs: NonNullable<MediaModalConfig['tabs']>  [private]
+  mediaModal: MediaModalConfig | null  [private]
+  saveMediaModal: SaveMediaModalConfig | null  [private]
+
+methods
+  closeModal(): void  [private]
+  closeSaveModal(): void  [private]
+  getValueByPath(obj: unknown, path: string): unknown  [private]
+  onSaveMedia(params: { fileName: string; folderId: EntityKey<'media_folder'>; mediaId?: EntityKey<'media'> }): void  [private]
+  onSelectionChange(selection: EntityCollection<'media'>): void  [private]
+  setValueByPath(obj: unknown, path: string, value: unknown): void  [private]
+  transformObjectsByPaths(inputArray: Entity<'media'>[], keysToKeep: string[]): Array<Record<string, unknown>>  [private]
+
 blocks
   sw_media_modal_renderer  [private]
 ```

@@ -10,6 +10,9 @@ component sw-promotion-v2-wizard-description  public  js
   source src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description/index.js
   template src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description/sw-promotion-v2-wizard-description.html.twig
 
+slots
+  default  {}  block=sw_promotion_v2_wizard_description
+
 blocks
   sw_promotion_v2_wizard_description
     sw_promotion_v2_wizard_description_slot_default

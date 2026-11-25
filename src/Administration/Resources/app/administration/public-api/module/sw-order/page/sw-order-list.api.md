@@ -10,32 +10,86 @@ component sw-order-list  public  js
   source src/module/sw-order/page/sw-order-list/index.js
   template src/module/sw-order/page/sw-order-list/sw-order-list.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  feature
+  filterFactory
+  repositoryFactory
+  stateStyleDataProviderService
+
+data
+  activeFilterNumber: any
+  defaultFilters: any
+  filterCriteria: any
+  filterLoading: any  [deprecated tag:v6.8.0]
+  isLoading: any
+  orders: any
+  searchConfigEntity: any
+  showBulkEditModal: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  storeKey: any
+
+computed
+  adminEsEnable: any
+  assetFilter: any
+  currencyFilter: any
+  hasActiveSearchOrFilter: any
+  listFilterOptions: any
+  listFilters: any
+  orderColumns: any
+  orderCriteria: any
+  orderRepository: any
+  productCriteria: any
+  salesChannelCriteria: any
+
+methods
+  createdComponent(): any
+  disableDeletion(order: any): any
+  getList(): Promise<any>
+  getOrderColumns(): any
+  getStatusCriteria(value: any): any
+  getVariantFromDeliveryState(order: any): any
+  getVariantFromOrderState(order: any): any
+  getVariantFromPaymentState(order: any): any
+  onBulkEditItems(): Promise<any>
+  onChangeLanguage(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  onEdit(order: any): any
+  onInlineEditSave(order: any): any
+
 blocks
   sw_order_list
     sw_order_list_content
       sw_order_list_content_slot
         sw_order_list_empty_state
-        sw_order_list_grid
+        sw_order_list_grid  [after v-if]
           sw_order_list_bulk_edit_modal
-            sw_order_list_bulk_edit_modal_inner
-              sw_order_list_bulk_edit_grid_columns_amount
-              sw_order_list_bulk_edit_grid_columns_billing_address
-              sw_order_list_bulk_edit_grid_columns_customer_name
-              sw_order_list_bulk_edit_grid_columns_delivery_state
-              sw_order_list_bulk_edit_grid_columns_order_date
-              sw_order_list_bulk_edit_grid_columns_order_number
-                sw_order_list_bulk_edit_grid_label_manual_order
-                sw_order_list_bulk_edit_grid_order_number_link
-              sw_order_list_bulk_edit_grid_columns_state
-              sw_order_list_bulk_edit_grid_columns_transaction_state
+            sw_order_list_bulk_edit_modal_inner  [scope: selection]
+              sw_order_list_bulk_edit_grid_columns_amount  [scope: selection]
+              sw_order_list_bulk_edit_grid_columns_billing_address  [scope: selection]
+              sw_order_list_bulk_edit_grid_columns_customer_name  [scope: selection]
+              sw_order_list_bulk_edit_grid_columns_delivery_state  [scope: selection]
+              sw_order_list_bulk_edit_grid_columns_order_date  [scope: selection]
+              sw_order_list_bulk_edit_grid_columns_order_number  [scope: selection]
+                sw_order_list_bulk_edit_grid_label_manual_order  [scope: item, selection]
+                sw_order_list_bulk_edit_grid_order_number_link  [scope: item, selection]
+              sw_order_list_bulk_edit_grid_columns_state  [scope: selection]
+              sw_order_list_bulk_edit_grid_columns_transaction_state  [scope: selection]
           sw_order_list_bulk_selected_actions_content
             sw_order_list_bulk_selected_actions_content_bulk_edit
           sw_order_list_grid_action_modals
-            sw_order_list_delete_modal
-              sw_order_list_delete_modal_confirm_delete_text
-              sw_order_list_delete_modal_footer
-                sw_order_list_delete_modal_cancel
-                sw_order_list_delete_modal_confirm
+            sw_order_list_delete_modal  [scope: item]
+              sw_order_list_delete_modal_confirm_delete_text  [scope: item]
+              sw_order_list_delete_modal_footer  [scope: item]
+                sw_order_list_delete_modal_cancel  [scope: item]
+                sw_order_list_delete_modal_confirm  [scope: item]
           sw_order_list_grid_columns
             sw_order_list_grid_columns_amount
             sw_order_list_grid_columns_billing_address
@@ -44,13 +98,13 @@ blocks
             sw_order_list_grid_columns_delivery_state
             sw_order_list_grid_columns_order_date
             sw_order_list_grid_columns_order_number
-              sw_order_list_grid_label_manual_order
-              sw_order_list_grid_order_number_link
+              sw_order_list_grid_label_manual_order  [scope: item]
+              sw_order_list_grid_order_number_link  [scope: item]
             sw_order_list_grid_columns_state
             sw_order_list_grid_columns_transaction_state
           sw_order_list_grid_columns_actions
-            sw_order_list_grid_columns_actions_delete
-            sw_order_list_grid_columns_actions_view
+            sw_order_list_grid_columns_actions_delete  [scope: item]
+            sw_order_list_grid_columns_actions_view  [scope: item]
           sw_order_list_grid_pagination
       sw_order_list_sidebar
         sw_order_list_sidebar_filter
@@ -64,4 +118,15 @@ blocks
       sw_order_list_smart_bar_header_title
         sw_order_list_smart_bar_header_amount
         sw_order_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_order_list_empty_state -> sw_order_list_grid
+
+refs
+  bulkEditModal  -> sw-bulk-edit-modal  block=sw_order_list_bulk_edit_modal_inner
+  orderGrid  -> sw-data-grid  block=sw_order_list_grid
+
+notes
+  unresolved computed ...deprecatedComputed
+  unresolved methods ...deprecatedMethods
 ```

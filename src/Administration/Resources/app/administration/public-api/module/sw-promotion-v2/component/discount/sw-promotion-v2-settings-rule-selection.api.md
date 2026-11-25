@@ -10,6 +10,16 @@ component sw-promotion-v2-settings-rule-selection  public  js
   source src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/index.js
   template src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/sw-promotion-v2-settings-rule-selection.html.twig
 
+inject
+  acl
+
+props
+  discount: object
+
+computed
+  ruleCriteria: any  [deprecated tag:v6.8.0]
+  ruleCriteriaDeprecated: any  [deprecated tag:v6.8.0] [private]
+
 blocks
   sw_promotion_v2_settings_rule_selection
     sw_promotion_v2_settings_rule_selection_description

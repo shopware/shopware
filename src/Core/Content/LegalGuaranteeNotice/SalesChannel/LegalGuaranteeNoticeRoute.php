@@ -56,6 +56,7 @@ class LegalGuaranteeNoticeRoute extends AbstractLegalGuaranteeNoticeRoute
         return new LegalGuaranteeNoticeRouteResponse(
             $this->renderer->renderForLanguage($context->getLanguageId()),
             $this->renderer->linkForLanguage($context->getLanguageId()),
+            $this->renderer->renderTextForLanguage($context->getLanguageId()),
         );
     }
 }

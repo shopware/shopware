@@ -11,19 +11,45 @@ component sw-cms-el-config-form  private  js  [private]
   template src/module/sw-cms/elements/form/config/sw-cms-el-config-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  systemConfigApiService  [private]
+
+data
+  activeTab: any  [private]
+
+computed
+  formTypeOptions: any  [private]
+  getLastMailClass: any  [private]
+  requireConfigTab: any  [private]
+  tabs: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getShopMail(): Promise<any>  [private]
+  setShopMail(): Promise<any>  [private]
+  updateMailReceiver(value: any): Promise<any>  [private]
+  validateMail(): any  [private]
+
 blocks
   sw_cms_el_config_form  [private]
     sw_cms_el_config_form_mt_tabs  [from v6.8.0] [private]
-    sw_cms_el_config_form_tab_content  [until v6.8.0] [private]
-    sw_cms_el_form_config_content  [until v6.8.0] [private]
-      sw_cms_el_form_config_content_form_confirmation_text  [until v6.8.0] [private]
-      sw_cms_el_form_config_content_form_title  [until v6.8.0] [private]
-      sw_cms_el_form_config_content_form_type  [until v6.8.0] [private]
+    sw_cms_el_config_form_tab_content  [scope: active] [until v6.8.0] [private]
+    sw_cms_el_form_config_content  [scope: active] [until v6.8.0] [private]
+      sw_cms_el_form_config_content_form_confirmation_text  [scope: active] [until v6.8.0] [private]
+      sw_cms_el_form_config_content_form_title  [scope: active] [until v6.8.0] [private]
+      sw_cms_el_form_config_content_form_type  [scope: active] [until v6.8.0] [private]
     sw_cms_el_form_config_mt_content  [from v6.8.0] [private]
       sw_cms_el_form_config_mt_content_form_confirmation_text  [from v6.8.0] [private]
       sw_cms_el_form_config_mt_content_form_title  [from v6.8.0] [private]
       sw_cms_el_form_config_mt_content_form_type  [from v6.8.0] [private]
-    sw_cms_el_form_config_mt_options  [from v6.8.0] [private]
-    sw_cms_el_form_config_options  [until v6.8.0] [private]
-    sw_cms_el_form_config_tab_options  [until v6.8.0] [private]
+    sw_cms_el_form_config_mt_options  [after v-if] [from v6.8.0] [private]
+    sw_cms_el_form_config_options  [after v-if] [scope: active] [until v6.8.0] [private]
+    sw_cms_el_form_config_tab_options  [scope: active] [until v6.8.0] [private]
+
+crossings
+  v-if  sw_cms_el_form_config_content -> sw_cms_el_form_config_options  [until v6.8.0] [private]
 ```

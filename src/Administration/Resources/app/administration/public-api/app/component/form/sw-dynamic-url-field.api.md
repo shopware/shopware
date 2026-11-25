@@ -11,16 +11,58 @@ component sw-dynamic-url-field  private  ts  [private]
   template src/app/component/form/sw-dynamic-url-field/sw-dynamic-url-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  value?: string  default=''  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+data
+  categoryCollection: any  [private]
+  displayAsButton: any  [private]
+  isHTTPs: any  [private]
+  lastEmittedLink: any  [private]
+  linkCategory: any  [private]
+  linkTarget: any  [private]
+
+computed
+  categoryRepository: RepositoryType<'category'>  [private]
+  entityFilter: CriteriaType  [private]
+  linkCategoryOptions: any  [private]
+  seoUrlReplacePrefix: string  [private]
+
+methods
+  createdComponent(): void  [private]
+  getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollection<'category'>>  [private]
+  getEmptyCategoryCollection(): EntityCollection<'category'>  [private]
+  onSelectFieldChange(selectedLinkCategory: string): void  [private]
+  parseLink(link: string): Promise<{ type: LinkCategories; target: string }>  [private]
+  prepareLink(): string  [private]
+  removeCategorySelection(): void  [private]
+  removeLink(): void  [private]
+  replaceCategorySelection(category: { id: EntityKey<'category'> }): void  [private]
+
 blocks
   sw_dynamic_url_field  [private]
     sw_dynamic_url_field_button_remove  [private]
     sw_dynamic_url_field_content  [private]
       sw_dynamic_url_field_content_type  [private]
       sw_dynamic_url_field_content_type_inputs  [private]
-        sw_dynamic_url_field_content_type_inputs_category  [private]
-        sw_dynamic_url_field_content_type_inputs_detail  [private]
-        sw_dynamic_url_field_content_type_inputs_email  [private]
+        sw_dynamic_url_field_content_type_inputs_category  [after v-if] [private]
+        sw_dynamic_url_field_content_type_inputs_detail  [after v-if] [private]
+        sw_dynamic_url_field_content_type_inputs_email  [after v-if] [private]
         sw_dynamic_url_field_content_type_inputs_link  [private]
-        sw_dynamic_url_field_content_type_inputs_media  [private]
-        sw_dynamic_url_field_content_type_inputs_phone  [private]
+        sw_dynamic_url_field_content_type_inputs_media  [after v-if] [private]
+        sw_dynamic_url_field_content_type_inputs_phone  [after v-if] [private]
+
+crossings
+  v-if  sw_dynamic_url_field_content_type_inputs_category -> sw_dynamic_url_field_content_type_inputs_media  [private]
+  v-if  sw_dynamic_url_field_content_type_inputs_detail -> sw_dynamic_url_field_content_type_inputs_category  [private]
+  v-if  sw_dynamic_url_field_content_type_inputs_email -> sw_dynamic_url_field_content_type_inputs_detail  [private]
+  v-if  sw_dynamic_url_field_content_type_inputs_link -> sw_dynamic_url_field_content_type_inputs_phone  [private]
+  v-if  sw_dynamic_url_field_content_type_inputs_phone -> sw_dynamic_url_field_content_type_inputs_email  [private]
 ```

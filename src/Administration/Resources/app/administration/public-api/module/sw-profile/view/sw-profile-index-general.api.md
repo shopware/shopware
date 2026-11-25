@@ -10,6 +10,51 @@ component sw-profile-index-general  public  js
   source src/module/sw-profile/view/sw-profile-index-general/index.js
   template src/module/sw-profile/view/sw-profile-index-general/sw-profile-index-general.html.twig
 
+inject
+  acl
+  ssoSettingsService
+
+props
+  avatarMediaItem?: object  default=null
+  isDisabled: boolean
+  isUserLoading: boolean
+  languageId?: string  default=null
+  languages: any[]
+  newPassword?: string  default=null
+  newPasswordConfirm?: string  default=null
+  timezoneOptions: any[]
+  user: object
+  userModuleIconColors?: boolean  default=false
+  userRepository: object
+  userTheme?: string  default='system'
+
+emits
+  media-open(...args: any[])
+  media-remove(...args: any[])
+  media-upload(...args: any[])
+  new-password-change(...args: any[])
+  new-password-confirm-change(...args: any[])
+  user-module-icon-colors-change(...args: any[])
+  user-theme-change(...args: any[])
+
+data
+  showPasswordChangeCard: any
+
+computed
+  computedNewPassword: any
+  computedNewPasswordConfirm: any
+  computedUserModuleIconColors: any
+  computedUserTheme: any
+  localeOptions: any
+  moduleIconColorsOptions: any
+  userPasswordError: any
+
+methods
+  onDropMedia(media: any): any
+  onOpenMedia(): any
+  onRemoveMedia(): any
+  onUploadMedia(media: any): any
+
 blocks
   sw_profile_index_general
     sw_profile_index_general_information

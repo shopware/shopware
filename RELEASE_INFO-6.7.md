@@ -1,5 +1,14 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### `AbstractProductStreamBuilder` can be autowired
+
+`Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` is now a service alias for `ProductStreamBuilder`.
+Type-hint it instead of the deprecated `ProductStreamBuilderInterface`, which is removed in 6.8 together with `buildFilters()`.
+Call `enrichCriteria()` instead of `buildFilters()`.
+The `frosh/shopware-rector` rules migrate both automatically.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it
@@ -266,13 +275,6 @@ The per-customer redemption counter of promotions is deprecated and will be remo
 To find out how often a customer redeemed a promotion, count the customer's orders that contain a line item of the promotion, for example with the filters `orderCustomer.customerId` and `lineItems.promotionId` on the `order` repository.
 Set `PROMOTION_REDEMPTION_OPTIMIZATION=1` to switch to the 6.8 behavior already: the counter is no longer written and `ordersPerCustomerCount` is removed from the promotion entity.
 When `V6_8_0_0=1`, the flag activates unless explicitly disabled.
-
-### `AbstractProductStreamBuilder` can be autowired
-
-`Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` is now a service alias for `ProductStreamBuilder`.
-Type-hint it instead of the deprecated `ProductStreamBuilderInterface`, which is removed in 6.8 together with `buildFilters()`.
-Call `enrichCriteria()` instead of `buildFilters()`.
-The `frosh/shopware-rector` rules migrate both automatically.
 
 ### `NotFilter` negates a single filter
 

@@ -9,6 +9,12 @@ Before, `product.categoryTree` and `product.categoriesRo` kept the old parents, 
 Integrations that called `POST /api/_action/index-products` after moving a category no longer need to.
 The Administration category tree no longer sends these requests after a drag and drop.
 Its `syncProducts()` and `indexProducts()` methods and its `productRepository` computed property are deprecated and will be removed in 6.8.
+### Environment-specific bundle and plugin configuration
+
+Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.
+PHP configuration files also receive the current environment through `$container->env()`.
+Check existing environment-specific configuration that was previously ignored, including Monolog handler levels.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it
@@ -29,7 +35,22 @@ The SVG is now `aria-hidden`, so headless frontends should render `text` as its 
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+### App manifests can contain sections from newer Shopware versions
+
+A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
+Apps that need such a section should require that version in `<compatibility>`.
+
 ## Storefront
+
+### Paginated category listings are crawlable
+
+The default storefront `robots.txt` now contains `Allow: /*?p=` and `Disallow: /*?p=*&` alongside the existing rule `Disallow: /*?`, so search engines can crawl paginated category listings like `/category/?p=2`.
+The default rules still block sorted, filtered, and search pagination URLs such as `/category/?p=2&order=price-asc`, `/category/?p=2&properties=…`, and `/search?p=2&search=…`.
+Shops that want to keep pagination out of crawling can override the `robots_txt_content_default_rules` block.
+
+A category page only gets a paginated canonical like `/category/?p=2` when it shows a product listing on that page, other pages keep their clean canonical.
+From the second listing page on, the meta title ends with the page number, for example `Seasonal decoration – Page 2`.
+The format comes from the new snippet `general.pagination.metaPageSuffix`, set it to `%content%` to keep the title unchanged.
 
 ### Text alternative for the legal guarantee notice
 

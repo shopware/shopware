@@ -40,4 +40,7 @@ registry.register('AdministrationReadiness', {
         resolveRoute: 'sw.settings.cache.index',
     });
 });
-registry.register('LocalesReadiness', { resolveRoute: 'sw.settings.language.index' });
+registry.register('LocalesReadiness', {
+    component: 'sw-settings-system-health-locales',
+    resolveRoute: 'sw.settings.language.index',
+});

@@ -9,7 +9,6 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-s
         const check: SystemHealthCheck = {
             name: 'SalesChannelsReadiness',
             category: 'FEATURE',
-            tags: [],
             result: {
                 status: 'ERROR',
                 healthy: false,

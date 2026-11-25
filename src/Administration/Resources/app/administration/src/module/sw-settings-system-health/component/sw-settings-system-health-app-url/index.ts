@@ -1,9 +1,8 @@
 import template from './sw-settings-system-health-app-url.html.twig';
-import type { SystemHealthCheck } from '../../types';
-import { presentedSummary } from '../../presenters';
+import { checkViewProps, useCheckView } from '../../use-check-view';
 
 /**
- * The APP_URL check: its verification request.
+ * The APP_URL check: the verification request.
  *
  * @sw-package framework
  * @private
@@ -11,28 +10,15 @@ import { presentedSummary } from '../../presenters';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    props: {
-        check: {
-            type: Object as PropType<SystemHealthCheck>,
-            required: true,
-        },
-    },
+    props: checkViewProps,
+
+    setup: (props) => useCheckView(props),
 
     computed: {
         summary(): string | null {
-            return presentedSummary(this.check, this.$t.bind(this) as Parameters<typeof presentedSummary>[1]);
-        },
-
-        appUrl(): string | null {
-            return (this.check.result?.extra.appUrl as string | undefined) ?? null;
-        },
-
-        statusCode(): number | null {
-            return (this.check.result?.extra.statusCode as number | null | undefined) ?? null;
-        },
-
-        info(): string | null {
-            return (this.check.result?.extra.info as string | null | undefined) ?? null;
+            return this.status === 'WARNING' || this.status === 'ERROR'
+                ? this.$t(`sw-settings-system-health.app-url.${this.status}`, { appUrl: this.extra.appUrl })
+                : null;
         },
     },
 });

@@ -53,15 +53,6 @@
         "storefront-pages": {
             "summary": "{failed} of {total} pages did not load."
         },
-        "extra": {
-            "AppUrlVerification": {
-                "appUrl": "App URL",
-                "statusCode": "Response code"
-            },
-            "LocalesReadiness": {
-                "invalidLocales": "Invalid locale codes"
-            }
-        },
         "resolution": {
             "resolve": "Resolve",
             "LocalesReadiness": {
@@ -132,25 +123,24 @@
                 "ERROR": "APP_URL not reachable"
             }
         },
-        "presenter": {
-            "LocalesReadiness": {
-                "summary": "{count} locale code is not valid. | {count} locale codes are not valid."
-            },
-            "AdministrationReadiness": {
-                "missing": "Build files are missing for {bundles}.",
-                "noScripts": "The Administration page loaded without its scripts.",
-                "notLoading": "The Administration page did not load."
-            },
-            "AppUrlVerification": {
-                "WARNING": "APP_URL {appUrl} could not be verified. This is usually temporary.",
-                "ERROR": "APP_URL {appUrl} does not point to this shop or is blocked, so apps cannot be installed."
-            }
-        },
         "request": {
             "no-response": "No response",
             "duration": "{ms} ms",
             "ok": "OK",
             "failed": "Failed"
+        },
+        "app-url": {
+            "WARNING": "APP_URL {appUrl} could not be verified. This is usually temporary.",
+            "ERROR": "APP_URL {appUrl} does not point to this shop or is blocked, so apps cannot be installed."
+        },
+        "administration": {
+            "missing": "Build files are missing for {bundles}.",
+            "no-scripts": "The Administration page loaded without its scripts.",
+            "not-loading": "The Administration page did not load."
+        },
+        "locales": {
+            "summary": "{count} locale code is not valid. | {count} locale codes are not valid.",
+            "codes": "Invalid locale codes"
         }
     },
     "sw-privileges": {

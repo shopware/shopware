@@ -98,6 +98,14 @@ Shopware.Component.register(
 /**
  * @private
  */
+Shopware.Component.register(
+    'sw-settings-system-health-locales',
+    () => import('./component/sw-settings-system-health-locales'),
+);
+
+/**
+ * @private
+ */
 Shopware.Module.register('sw-settings-system-health', {
     type: 'core',
     name: 'system-health',

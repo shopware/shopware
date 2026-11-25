@@ -15345,6 +15345,14 @@
                 "sw_settings_system_health_index_smart_bar_header"
             ]
         },
+        "sw-settings-system-health-locales": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-locales",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_locales"
+            ]
+        },
         "sw-settings-system-health-request": {
             "file": "module/sw-settings-system-health/component/sw-settings-system-health-request",
             "visibility": "private",

@@ -53,15 +53,6 @@
         "storefront-pages": {
             "summary": "{failed} von {total} Seiten wurden nicht geladen."
         },
-        "extra": {
-            "AppUrlVerification": {
-                "appUrl": "App-URL",
-                "statusCode": "Antwortcode"
-            },
-            "LocalesReadiness": {
-                "invalidLocales": "Ungültige Locale-Codes"
-            }
-        },
         "resolution": {
             "resolve": "Klären",
             "LocalesReadiness": {
@@ -132,25 +123,24 @@
                 "ERROR": "APP_URL nicht erreichbar"
             }
         },
-        "presenter": {
-            "LocalesReadiness": {
-                "summary": "{count} Locale-Code ist ungültig. | {count} Locale-Codes sind ungültig."
-            },
-            "AdministrationReadiness": {
-                "missing": "Build-Dateien fehlen für {bundles}.",
-                "noScripts": "Die Administration hat ohne ihre Skripte geladen.",
-                "notLoading": "Die Administration wurde nicht geladen."
-            },
-            "AppUrlVerification": {
-                "WARNING": "APP_URL {appUrl} konnte nicht geprüft werden. Das ist meist vorübergehend.",
-                "ERROR": "APP_URL {appUrl} zeigt nicht auf diesen Shop oder ist blockiert, daher lassen sich keine Apps installieren."
-            }
-        },
         "request": {
             "no-response": "Keine Antwort",
             "duration": "{ms} ms",
             "ok": "OK",
             "failed": "Fehlgeschlagen"
+        },
+        "app-url": {
+            "WARNING": "APP_URL {appUrl} konnte nicht geprüft werden. Das ist meist vorübergehend.",
+            "ERROR": "APP_URL {appUrl} zeigt nicht auf diesen Shop oder ist blockiert, daher lassen sich keine Apps installieren."
+        },
+        "administration": {
+            "missing": "Build-Dateien fehlen für {bundles}.",
+            "no-scripts": "Die Administration hat ohne ihre Skripte geladen.",
+            "not-loading": "Die Administration wurde nicht geladen."
+        },
+        "locales": {
+            "summary": "{count} Locale-Code ist ungültig. | {count} Locale-Codes sind ungültig.",
+            "codes": "Ungültige Locale-Codes"
         }
     },
     "sw-privileges": {

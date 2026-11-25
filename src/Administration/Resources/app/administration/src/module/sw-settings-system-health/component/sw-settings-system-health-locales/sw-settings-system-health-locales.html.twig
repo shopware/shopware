@@ -1,0 +1,11 @@
+{% block sw_settings_system_health_locales %}
+<sw-settings-system-health-check-details
+    :check="check"
+    :summary="summary"
+>
+    <sw-settings-system-health-values
+        v-if="codes.length > 0"
+        :items="[{ key: 'codes', label: $t('sw-settings-system-health.locales.codes'), value: codes.join(', ') }]"
+    />
+</sw-settings-system-health-check-details>
+{% endblock %}

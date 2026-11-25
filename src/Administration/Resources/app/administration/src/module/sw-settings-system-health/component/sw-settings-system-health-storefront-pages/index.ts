@@ -1,12 +1,5 @@
 import template from './sw-settings-system-health-storefront-pages.html.twig';
-import type { SystemHealthCheck } from '../../types';
-
-type PageResult = {
-    storefrontUrl: string;
-    responseCode: number;
-    responseTime: number;
-    errorMessage: string | null;
-};
+import { checkViewProps, useCheckView } from '../../use-check-view';
 
 /**
  * The storefront readiness checks: one request per storefront page the check loaded.
@@ -17,19 +10,14 @@ type PageResult = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    props: {
-        check: {
-            type: Object as PropType<SystemHealthCheck>,
-            required: true,
-        },
-    },
+    props: checkViewProps,
+
+    setup: (props) => useCheckView(props),
 
     computed: {
         // the details hold one entry per requested page
-        pages(): PageResult[] {
-            return Object.values(this.check.result?.extra ?? {}).filter(
-                (value) => typeof value === 'object' && value !== null,
-            ) as PageResult[];
+        pages(): Array<{ storefrontUrl: string; responseCode: number; responseTime: number; errorMessage: string | null }> {
+            return Object.values(this.extra).filter((value) => typeof value === 'object' && value !== null) as never[];
         },
 
         summary(): string {

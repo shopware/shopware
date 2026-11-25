@@ -9,7 +9,6 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-a
         const check: SystemHealthCheck = {
             name: 'AdministrationReadiness',
             category: 'FEATURE',
-            tags: [],
             result: {
                 status: 'FAILURE',
                 healthy: false,
@@ -41,10 +40,10 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-a
             },
         });
 
-        expect(wrapper.find('.summary').text()).toBe('sw-settings-system-health.presenter.AdministrationReadiness.missing');
+        expect(wrapper.find('.summary').text()).toBe('sw-settings-system-health.administration.missing');
         expect(wrapper.find('.request').attributes()).toEqual(
             expect.objectContaining({
-                'data-error': 'sw-settings-system-health.presenter.AdministrationReadiness.missing',
+                'data-error': 'sw-settings-system-health.administration.missing',
                 'data-successful': 'false',
             }),
         );

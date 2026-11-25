@@ -9,7 +9,6 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-a
         const check: SystemHealthCheck = {
             name: 'AppUrlVerification',
             category: 'EXTERNAL',
-            tags: ['apps'],
             result: {
                 status: 'ERROR',
                 healthy: false,
@@ -41,7 +40,7 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-a
             },
         });
 
-        expect(wrapper.find('.summary').text()).toBe('sw-settings-system-health.presenter.AppUrlVerification.ERROR');
+        expect(wrapper.find('.summary').text()).toBe('sw-settings-system-health.app-url.ERROR');
         expect(wrapper.find('.request').attributes()).toEqual(
             expect.objectContaining({
                 'data-url': 'https://shop.example',

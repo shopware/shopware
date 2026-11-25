@@ -186,6 +186,7 @@ describe('Experience Studio workspace transitions', () => {
             restoreWorkspaceSalesChannel: methods.restoreWorkspaceSalesChannel,
             loadPreviewLanguageContext: methods.loadPreviewLanguageContext,
             applyPreviewLanguageContext: methods.applyPreviewLanguageContext,
+            ensureLayoutTypesLoaded: () => Promise.resolve(),
             layoutRepository: { search: jest.fn().mockResolvedValue(layouts) },
             createPreviewFrame: methods.createPreviewFrame,
             createOpenLayoutState: (layout: { id: string }) => ({ id: layout.id, layout, isNew: false }),

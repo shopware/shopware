@@ -16,11 +16,16 @@ function createEditor(params: Record<string, string> = {}) {
         loadElementTypes: jest.fn(),
         loadStyleOptions: jest.fn(),
         loadLayoutPresets: jest.fn(),
-        loadLayoutTypes: jest.fn(),
+        ensureLayoutTypesLoaded: component.methods.ensureLayoutTypesLoaded,
+        loadLayoutTypes: component.methods.loadLayoutTypes,
+        entityTypeService: () => ({ getEntityTypes: () => Promise.resolve(['product']) }),
+        availableLayoutTypes: [] as string[],
+        layoutTypesRequest: null as Promise<void> | null,
+        layoutTypeLoadError: null as string | null,
+        isLoadingLayoutTypes: false,
         loadMappingCandidates: jest.fn(),
         onHistoryKeydown: jest.fn(),
         pendingLinkedLayoutId: null as string | null,
-        layoutTypesRequest: null as Promise<void> | null,
         isWorkspacePickerOpen: false,
     };
 }
@@ -43,19 +48,18 @@ describe('Experience Studio workspace entry', () => {
         expect(editor.openWorkspace).not.toHaveBeenCalled();
     });
 
-    it('starts loading entity types before opening a workspace from the route', () => {
-        const editor = createEditor({ workspaceId: 'workspace-1' });
-        const layoutTypesRequest = new Promise<void>(() => undefined);
-        let layoutTypesRequestAtOpen: Promise<void> | null = null;
-        editor.loadLayoutTypes.mockReturnValue(layoutTypesRequest);
-        editor.openWorkspace.mockImplementation(() => {
-            layoutTypesRequestAtOpen = editor.layoutTypesRequest;
-        });
+    it('loads the entity types when the studio is entered', async () => {
+        const editor = createEditor();
+        component.created.call(editor);
+        await flushPromises();
 
+        expect(editor.availableLayoutTypes).toEqual(['product']);
+    });
+
+    it('opens a workspace directly when its ID is in the route', () => {
+        const editor = createEditor({ workspaceId: 'workspace-1' });
         component.created.call(editor);
 
-        expect(layoutTypesRequestAtOpen).toBe(layoutTypesRequest);
-        expect(editor.layoutTypesRequest).toBe(layoutTypesRequest);
         expect(editor.openWorkspace).toHaveBeenCalledWith('workspace-1');
         expect(editor.workspaceStore.activate).not.toHaveBeenCalled();
     });

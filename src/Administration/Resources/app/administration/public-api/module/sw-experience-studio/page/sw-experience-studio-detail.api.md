@@ -141,6 +141,7 @@ methods
   deactivateFrame(): void  [private]
   diagnoseLayout(targetLayout?: ContentLayoutEntity | null, options?: { showDiagnostics?: boolean } = {}): Promise<void>  [private]
   draftMutationService(): ContentSystemLayoutDraftMutationService  [private]
+  ensureLayoutTypesLoaded(): Promise<void>  [private]
   entityTypeService(): ContentSystemEntityTypeService  [private]
   executeStructuralDraftMutation(operation: DraftMutationOperation, operationPayload: Record<string, unknown>, resolveSelectedElementId: (response: ContentLayoutDraftMutationResponse) => string | null): Promise<void>  [private]
   executeWorkspaceAction(action: WorkspaceAction): Promise<void>  [private]

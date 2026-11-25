@@ -14,7 +14,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail custom-fi
             loadElementTypes: jest.fn(),
             loadStyleOptions: jest.fn(),
             loadLayoutPresets: jest.fn(),
-            loadLayoutTypes: jest.fn(),
+            ensureLayoutTypesLoaded: jest.fn(),
             onHistoryKeydown: jest.fn(),
             historyKeydownHandler: null,
         };

@@ -697,7 +697,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.onHistoryKeydown(event);
         };
         this.pendingLinkedLayoutId = (this.$route.params.id as string | undefined) ?? null;
-        this.layoutTypesRequest = this.loadLayoutTypes();
+        void this.ensureLayoutTypesLoaded();
         const workspaceId = this.$route.params.workspaceId as string | undefined;
         if (workspaceId) {
             void this.openWorkspace(workspaceId);
@@ -1937,6 +1937,14 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Service('contentSystemEntityTypeService') as ContentSystemEntityTypeService;
         },
 
+        ensureLayoutTypesLoaded(): Promise<void> {
+            if (this.layoutTypesRequest === null || this.layoutTypeLoadError !== null) {
+                this.layoutTypesRequest = this.loadLayoutTypes();
+            }
+
+            return this.layoutTypesRequest;
+        },
+
         async loadLayoutTypes(): Promise<void> {
             this.isLoadingLayoutTypes = true;
             this.layoutTypeLoadError = null;
@@ -1946,6 +1954,9 @@ export default Shopware.Component.wrapComponentConfig({
             } catch {
                 this.layoutTypeLoadError = 'Failed to load layout types.';
                 this.availableLayoutTypes = [];
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.toolbar.previewEntityTypesLoadError'),
+                });
             } finally {
                 this.isLoadingLayoutTypes = false;
             }

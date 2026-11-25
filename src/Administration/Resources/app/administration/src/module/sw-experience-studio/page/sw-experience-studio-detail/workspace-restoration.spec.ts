@@ -311,9 +311,8 @@ describe('Experience Studio workspace preview reference restoration', () => {
     });
 
     it('keeps a saved preview entity without a missing-reference warning when entity types failed to load', async () => {
-        const { editor, target, entityRepository } = createRestore();
-        editor.availableLayoutTypes = [];
-        editor.layoutTypeLoadError = 'Failed to load layout types.';
+        const { editor, target, entityRepository, entityTypeService } = createRestore();
+        entityTypeService.getEntityTypes.mockRejectedValue(new Error('Entity types unavailable'));
 
         await methods.openWorkspace.call(editor, target.id);
 
@@ -324,9 +323,8 @@ describe('Experience Studio workspace preview reference restoration', () => {
     });
 
     it('schedules the saved preview entity after the entity type request fails', async () => {
-        const { editor, target } = createRestore();
-        editor.availableLayoutTypes = [];
-        editor.layoutTypeLoadError = 'Failed to load layout types.';
+        const { editor, target, entityTypeService } = createRestore();
+        entityTypeService.getEntityTypes.mockRejectedValue(new Error('Entity types unavailable'));
         editor.activeFrameId = 'different-frame';
         editor.previewEntityId = null;
         const scheduledConfiguration: WorkspaceConfiguration = {
@@ -346,21 +344,82 @@ describe('Experience Studio workspace preview reference restoration', () => {
         );
     });
 
-    it('waits for the entity type request before loading the workspace', async () => {
+    it('schedules a cleared preview entity for a non-entity frame as empty', async () => {
         const { editor, target } = createRestore();
-        let resolveLayoutTypes: () => void;
-        editor.layoutTypesRequest = new Promise<void>((resolve) => {
-            resolveLayoutTypes = () => {
-                editor.availableLayoutTypes = ['product'];
-                resolve();
-            };
+        editor.layoutRepository.search.mockResolvedValue([
+            { id: 'layout-a', name: 'Sidebar', rootSource: 'swag-sidebar', layout: [] },
+        ]);
+        editor.activeFrameId = 'different-frame';
+        editor.previewEntityId = null;
+
+        await methods.openWorkspace.call(editor, target.id);
+        editor.workspaceStore.activeWorkspace = target;
+        await methods.scheduleWorkspaceSetup.call(editor);
+
+        expect(editor.workspaceStore.schedule).toHaveBeenCalledWith(
+            expect.objectContaining({
+                frames: [expect.objectContaining({ layoutId: 'layout-a', previewEntityId: null })],
+            }),
+        );
+    });
+
+    it('notifies the user when the entity type request fails', async () => {
+        const { editor, target, entityTypeService } = createRestore();
+        entityTypeService.getEntityTypes.mockRejectedValue(new Error('Entity types unavailable'));
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-experience-studio.detail.toolbar.previewEntityTypesLoadError',
         });
+    });
+
+    it('retries a failed entity type request when the next workspace opens', async () => {
+        const { editor, target, entityRepository, entityTypeService } = createRestore();
+        entityTypeService.getEntityTypes
+            .mockRejectedValueOnce(new Error('Entity types unavailable'))
+            .mockResolvedValueOnce(['product']);
+        entityRepository.searchIds.mockResolvedValue({ data: [] });
+        await methods.openWorkspace.call(editor, target.id);
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.frames[0].previewEntityId).toBe('default-entity');
+    });
+
+    it('fetches the workspace while the entity type request is pending', async () => {
+        const { editor, target, entityTypeService } = createRestore();
+        let resolveLayoutTypes: (types: string[]) => void;
+        entityTypeService.getEntityTypes.mockReturnValue(
+            new Promise<string[]>((resolve) => {
+                resolveLayoutTypes = resolve;
+            }),
+        );
 
         const open = methods.openWorkspace.call(editor, target.id);
-        await Promise.resolve();
-        expect(editor.workspaceStore.get).not.toHaveBeenCalled();
+        await flushPromises();
+        expect(editor.workspaceStore.get).toHaveBeenCalledWith(target.id);
 
-        resolveLayoutTypes!();
+        resolveLayoutTypes!(['product']);
+        await open;
+    });
+
+    it('restores no frame before the entity type request settles', async () => {
+        const { editor, target, entityTypeService } = createRestore();
+        const currentFrames = editor.frames;
+        let resolveLayoutTypes: (types: string[]) => void;
+        entityTypeService.getEntityTypes.mockReturnValue(
+            new Promise<string[]>((resolve) => {
+                resolveLayoutTypes = resolve;
+            }),
+        );
+
+        const open = methods.openWorkspace.call(editor, target.id);
+        await flushPromises();
+        expect(editor.frames).toBe(currentFrames);
+
+        resolveLayoutTypes!(['product']);
         await open;
 
         expect(editor.frames[0].previewEntityId).toBe('saved-entity');

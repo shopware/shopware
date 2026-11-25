@@ -35,12 +35,11 @@ export default class ExtensionErrorService {
     }
 
     _getNotification(error) {
-        return this.errorCodes[error.code]
-            ? this.errorCodes[error.code]
-            : {
-                  title: error.title || this.fallbackError.title,
-                  message: error.detail || this.fallbackError.detail,
-              };
+        return {
+            title: error.title || this.fallbackError.title,
+            message: error.detail?.replaceAll('\n', '<br>') || this.fallbackError.message,
+            ...this.errorCodes[error.code],
+        };
     }
 
     _translateRawNotification(notification, translator) {

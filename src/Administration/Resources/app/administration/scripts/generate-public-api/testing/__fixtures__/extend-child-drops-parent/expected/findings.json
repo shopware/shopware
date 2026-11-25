@@ -1,0 +1,14 @@
+[
+    {
+        "group": "Break",
+        "rule": "block_missing",
+        "element": "component:sw-example-tile/block:sw_example_card_title",
+        "states": [
+            "current",
+            "major"
+        ],
+        "explanation": "The block is gone, so plugin template overrides of sw_example_card_title render nothing.",
+        "fix": "pattern \"Removal\". Keep {% parent %} in sw_example_card_header, so sw-example-tile still inherits sw_example_card_title, or keep the block and mark it {# @deprecated tag:v6.8.0 - Will be removed. #}.",
+        "at": "src/app/component/base/sw-example-tile/sw-example-tile.html.twig:1"
+    }
+]

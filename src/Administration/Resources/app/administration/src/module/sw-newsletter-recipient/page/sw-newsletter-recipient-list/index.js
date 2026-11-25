@@ -12,7 +12,6 @@ const {
  *
  * @deprecated tag:v6.8.0 - Will be private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -34,6 +33,9 @@ export default {
             filterSidebarItem: null,
             languageFilters: [],
             languageFilterValue: [],
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, the sales channel filter loads its options itself
+             */
             salesChannelFilters: [],
             salesChannelFilterValue: [],
             statusFilterValue: [],
@@ -78,6 +80,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-newsletter-recipient-list.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 
@@ -115,7 +122,9 @@ export default {
             try {
                 const [languages, salesChannels, tags] = await Promise.all([
                     this.repositoryFactory.create('language').search(criteria, Shopware.Context.api),
-                    this.salesChannelRepository.search(criteria),
+                    Shopware.Feature.isActive('V6_8_0_0')
+                        ? Promise.resolve([])
+                        : this.salesChannelRepository.search(criteria),
                     this.tagRepository.search(criteria),
                 ]);
 
@@ -287,6 +296,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use dedicated "onTagSelectionChanged" function
          */
         handleTagFilter(filter) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-newsletter-recipient-list.handleTagFilter() is deprecated. Use the dedicated "onTagSelectionChanged" function instead.',
+            );
+
             if (filter.length === 0) {
                 delete this.internalFilters.tags;
                 return;
@@ -303,6 +317,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use dedicated "on___SelectionChanged" function
          */
         handleBooleanFilter(filter) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-newsletter-recipient-list.handleBooleanFilter() is deprecated. Use the dedicated "on___SelectionChanged" function instead.',
+            );
+
             if (!Array.isArray(this[filter.group])) {
                 this[filter.group] = [];
             }
@@ -329,6 +348,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use dedicated "on___SelectionChanged" function
          */
         async onChange(filter) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-newsletter-recipient-list.onChange() is deprecated. Use the dedicated "on___SelectionChanged" function instead.',
+            );
+
             if (filter === null) {
                 filter = [];
             }

@@ -38,34 +38,36 @@ class FingerprintGenerator
 
         foreach ($this->fingerprints as $fingerprint) {
             $storedStamp = $fingerprints[$fingerprint->getIdentifier()] ?? null;
+            // calculating a stamp can be expensive (e.g. reading all sales channel domains), so it is done once
+            $stamp = $fingerprint->getStamp();
 
             if ($fingerprint instanceof FingerprintCustomCompare) {
                 $score = $fingerprint->compare($storedStamp);
 
                 if ($score === 0) {
-                    $matchingFingerprints[$fingerprint->getIdentifier()] = FingerprintMatch::fromFingerprint($fingerprint);
+                    $matchingFingerprints[$fingerprint->getIdentifier()] = FingerprintMatch::fromFingerprint($fingerprint, $stamp);
                     continue;
                 }
 
                 $mismatchingFingerprints[$fingerprint->getIdentifier()] = new FingerprintMismatch(
                     $fingerprint->getIdentifier(),
                     $storedStamp,
-                    $fingerprint->getStamp(),
+                    $stamp,
                     $score,
                 );
 
                 continue;
             }
 
-            if ($storedStamp === $fingerprint->getStamp()) {
-                $matchingFingerprints[$fingerprint->getIdentifier()] = FingerprintMatch::fromFingerprint($fingerprint);
+            if ($storedStamp === $stamp) {
+                $matchingFingerprints[$fingerprint->getIdentifier()] = FingerprintMatch::fromFingerprint($fingerprint, $stamp);
                 continue;
             }
 
             $mismatchingFingerprints[$fingerprint->getIdentifier()] = new FingerprintMismatch(
                 $fingerprint->getIdentifier(),
                 $storedStamp,
-                $fingerprint->getStamp(),
+                $stamp,
                 $fingerprint->getScore(),
             );
         }

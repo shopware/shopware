@@ -217,6 +217,48 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     }
 
     /**
+     * Extensions whose entity name depends on constructor arguments (for example dynamically
+     * generated extensions) are instantiated with the plain arguments of their service
+     * definition; all other extensions keep the constructor-less instantiation.
+     *
+     * @param class-string $className
+     */
+    private function createExtension(string $className, Definition $definition): EntityExtension
+    {
+        $arguments = $definition->getArguments();
+
+        if ($arguments !== [] && $this->hasOnlyPlainArguments($arguments)) {
+            /** @var EntityExtension */
+            return new $className(...array_values($arguments));
+        }
+
+        /** @var EntityExtension */
+        return (new \ReflectionClass($className))->newInstanceWithoutConstructor();
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     */
+    private function hasOnlyPlainArguments(array $arguments): bool
+    {
+        foreach ($arguments as $argument) {
+            if (\is_array($argument)) {
+                if (!$this->hasOnlyPlainArguments($argument)) {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if ($argument !== null && !\is_scalar($argument)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @param array<string, array{entityName: string, fallBack?: string}> $baseEntityDefinitions
      * @param array<string, array{entityName: string, fallBack?: string}> $salesChannelDefinitions
      */
@@ -239,8 +281,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             /** @var class-string $className */
             $className = $definition->getClass() ?? $id;
 
-            /** @var EntityExtension $classObject */
-            $classObject = (new \ReflectionClass($className))->newInstanceWithoutConstructor();
+            $classObject = $this->createExtension($className, $definition);
 
             if (!\array_key_exists($classObject->getEntityName(), $entityNameMap)) {
                 throw DependencyInjectionException::definitionNotFound($classObject->getEntityName());

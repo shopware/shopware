@@ -11,6 +11,43 @@ component sw-settings-webhook-deliveries-modal  private  ts  [private]
   template src/module/sw-settings-webhook/component/sw-settings-webhook-deliveries-modal/sw-settings-webhook-deliveries-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  webhook: Entity<'webhook'>  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+  deliveries: any  [private]
+  hasLoadError: any  [private]
+  isOpen: any  [private]
+  selectedDelivery: any  [private]
+
+computed
+  activeContent: string | null  [private]
+  canSeeDeliveries: boolean  [private]
+  deliveryColumns: any  [private]
+  detailTabs: any  [private]
+  eventLogRepository: Repository<'webhook_event_log'>  [private]
+  hasNoDeliveries: boolean  [private]
+  noContentMessage: string  [private]
+
+methods
+  body(content: unknown): string  [private]
+  date(delivery: Entity<'webhook_event_log'>): Date | string  [private]
+  deliveryStatusLabel(status: string): string  [private]
+  deliveryStatusVariant(status: string): string  [private]
+  format(content: unknown): string  [private]
+  loadDeliveries(): Promise<void>  [private]
+  onModalRootChange(isOpen: boolean): void  [private]
+  openDelivery(delivery: Entity<'webhook_event_log'>, tab: string): void  [private]
+  preview(content: unknown): string  [private]
+
 blocks
   sw_settings_webhook_deliveries_modal  [private]
 ```

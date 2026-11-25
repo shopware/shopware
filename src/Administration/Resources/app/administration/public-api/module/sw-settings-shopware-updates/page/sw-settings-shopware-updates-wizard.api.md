@@ -11,6 +11,63 @@ component sw-settings-shopware-updates-wizard  private  ts  [private]
   template src/module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard/sw-settings-shopware-updates-wizard.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  updateService  [private]
+
+emits
+  update-started(...args: any[])  [private]
+  update-stopped(...args: any[])  [private]
+
+data
+  autoUpdateEnabled: any  [private]
+  checkedBackupCheckbox: any  [private]
+  chosenExtensionBehaviour: any  [private]
+  cliCommandCopied: any  [private]
+  cliCommandCopiedTimeout: any  [private]
+  clusterSetup: any  [private]
+  extensions: any  [private]
+  isLoading: any  [private]
+  licenseValid: any  [private]
+  progressbarValue: any  [private]
+  step: any  [private]
+  updateCheckFailed: any  [private]
+  updateInfo: object  [private]
+    changelog: any  [private]
+    version: any  [private]
+  updateModalShown: any  [private]
+  updateRunning: any  [private]
+  updaterIsRunning: any  [private]
+
+computed
+  changelogUrl: string  [private]
+  cliInstallUrl: string  [private]
+  cliUpgradeCommand: string  [private]
+  currentVersion: string  [private]
+  displayIncompatibleExtensionsWarning: any  [private]
+  displayUnknownExtensionsWarning: any  [private]
+  isUpdateAvailable: boolean  [private]
+  licenseCheckFailed: boolean  [private]
+  optionDeactivateAllTranslation: any  [private]
+  optionDeactivateIncompatibleTranslation: any  [private]
+  updateButtonTooltipMessage: string  [private]
+  updatePossible: any  [private]
+  updateStatusBadgeLabel: string  [private]
+  updateStatusBadgeVariant: 'attention' | 'positive' | 'critical'  [private]
+
+methods
+  _navigateTo(url: string): any  [private]
+  buildRecoveryUrl(): string  [private]
+  copyCliCommand(): Promise<any>  [private]
+  createdComponent(): Promise<any>  [private]
+  deactivateExtensions(offset: number): any  [private]
+  downloadRecovery(): any  [private]
+  redirectToPage(url: string): any  [private]
+  startUpdateProcess(): any  [private]
+  stopUpdateProcess(): any  [private]
+
 blocks
   sw_settings_shopware_updates_wizard  [private]
     sw_settings_shopware_updates_wizard_content  [private]

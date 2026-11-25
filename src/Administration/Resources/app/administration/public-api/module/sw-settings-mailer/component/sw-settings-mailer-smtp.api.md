@@ -10,6 +10,19 @@ component sw-settings-mailer-smtp  public  js
   source src/module/sw-settings-mailer/component/sw-settings-mailer-smtp/index.js
   template src/module/sw-settings-mailer/component/sw-settings-mailer-smtp/sw-settings-mailer-smtp.html.twig
 
+props
+  hostError?: object  default=null
+  mailerSettings: object
+  portError?: object  default=null
+
+emits
+  host-changed(...args: any[])
+  port-changed(...args: any[])
+
+computed
+  encryptionOptions: any
+  isOauth: any
+
 blocks
   sw_settings_mailer_smtp
     sw_settings_mailer_smtp_client_id  [after v-if]

@@ -2,6 +2,7 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -35,6 +36,7 @@ async function createWrapper(propOverrides = {}) {
                     },
                     'sw-select-rule-create': {
                         template: '<div class="sw-select-rule-create"></div>',
+                        props: ['ruleFilter'],
                     },
                     'sw-loader': {
                         template: '<div class="sw-loader"></div>',
@@ -298,5 +300,68 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
         await flushPromises();
 
         expect(wrapper.vm.discount.type).toBe('fixed');
+    });
+
+    describe('rule filter of the discount rule select', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-promotion-discount-component');
+        });
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the ruleFilter computed.
+        it.deprecated('v6.8.0.0')('passes ruleFilter to the rule select without reporting its deprecation', async () => {
+            global.activeAclRoles = ['promotion.editor'];
+
+            const wrapper = await createWrapper();
+            await wrapper
+                .find('.mt-switch input[aria-label="sw-promotion.detail.main.discounts.flagProductScopeLabel"]')
+                .setChecked(true);
+            await flushPromises();
+
+            expect(
+                wrapper
+                    .getComponent('.sw-promotion-discount-component__select-discount-rules')
+                    .props('ruleFilter')
+                    .hasAssociation('conditions'),
+            ).toBe(true);
+            expect(deprecations).not.toHaveTriggered('sw-promotion-discount-component.ruleFilter is deprecated');
+        });
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the ruleFilter computed.
+        it.deprecated('v6.8.0.0')('passes an override of ruleFilter to the rule select', async () => {
+            global.activeAclRoles = ['promotion.editor'];
+
+            const overriddenCriteria = new Shopware.Data.Criteria(1, 5);
+            Shopware.Component.override('sw-promotion-discount-component', {
+                computed: {
+                    ruleFilter() {
+                        return overriddenCriteria;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper();
+            await wrapper
+                .find('.mt-switch input[aria-label="sw-promotion.detail.main.discounts.flagProductScopeLabel"]')
+                .setChecked(true);
+            await flushPromises();
+
+            expect(wrapper.getComponent('.sw-promotion-discount-component__select-discount-rules').props('ruleFilter')).toBe(
+                overriddenCriteria,
+            );
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {
+            global.activeAclRoles = ['promotion.editor'];
+
+            const wrapper = await createWrapper();
+            await wrapper
+                .find('.mt-switch input[aria-label="sw-promotion.detail.main.discounts.flagProductScopeLabel"]')
+                .setChecked(true);
+            await flushPromises();
+
+            expect(
+                wrapper.getComponent('.sw-promotion-discount-component__select-discount-rules').props('ruleFilter'),
+            ).toBeUndefined();
+        });
     });
 });

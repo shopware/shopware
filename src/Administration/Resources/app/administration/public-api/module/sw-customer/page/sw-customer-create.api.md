@@ -10,6 +10,47 @@ component sw-customer-create  public  js
   source src/module/sw-customer/page/sw-customer-create/index.js
   template src/module/sw-customer/page/sw-customer-create/sw-customer-create.html.twig
 
+mixins
+  notification
+
+inject
+  customFieldDataProviderService
+  customerValidationService
+  numberRangeService
+  repositoryFactory
+  systemConfigApiService
+
+data
+  address: any
+  customer: any
+  customerCustomFieldSets: any
+  customerNumberPreview: any
+  isLoading: any
+  isSaveSuccessful: any
+
+computed
+  addressCompanyError: any
+  customerRepository: any
+  languageCriteria: any
+  languageId: any
+  languageRepository: any
+  salutationCriteria: any
+  salutationFilter: any
+  salutationRepository: any
+  showCustomFieldSets: any
+  validCompanyField: any
+
+methods
+  createErrorMessageForCompanyField(): any
+  createdComponent(): Promise<any>
+  getDefaultSalutation(): Promise<any>
+  loadCustomFieldSets(): Promise<any>
+  loadLanguage(salesChannelId: any): Promise<any>
+  onChangeSalesChannel(salesChannelId: any): any
+  onSave(): Promise<any>
+  saveFinish(): any
+  validateEmail(): Promise<any>
+
 blocks
   sw_customer_create
     sw_customer_create_actions

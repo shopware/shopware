@@ -10,6 +10,47 @@ component sw-order-create  public  ts
   source src/module/sw-order/page/sw-order-create/index.ts
   template src/module/sw-order/page/sw-order-create/sw-order-create.html.twig
 
+mixins
+  notification
+
+inject
+  feature
+  repositoryFactory
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+  orderId: any
+  orderTransaction: any
+  paymentMethodName: any
+  remindPaymentModalLoading: any
+  showInvalidCodeModal: any
+  showRemindPaymentModal: any
+
+computed
+  cart: Cart
+  customer: Entity<'customer'> | null
+  invalidPromotionCodes: PromotionCodeTag[]
+  isSaveOrderValid: boolean  [deprecated tag:v6.8.0]
+  orderCreateTabs: TabItem[]
+  orderValidateErrorMessage: string | null
+  paymentMethodRepository: Repository<'payment_method'>
+  showInitialModal: boolean
+
+methods
+  closeInvalidCodeModal(): any
+  createdComponent(): void
+  fetchPaymentMethodName(): Promise<void>
+  onCancelOrder(): any
+  onRemindCustomer(): any
+  onRemindPaymentModalClose(): any
+  onSaveOrder(): Promise<void>
+  openInvalidCodeModal(): any
+  redirectToOrderList(): void
+  removeInvalidCode(): any
+  saveFinish(): void
+  showError(error?: unknown = null): any
+
 blocks
   sw_order_create
     sw_order_create_content

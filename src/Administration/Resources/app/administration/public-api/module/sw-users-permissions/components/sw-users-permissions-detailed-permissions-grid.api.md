@@ -26,6 +26,7 @@ computed
 
 methods
   changePermissionForEntity(entity: any, role: any): any
+  coveredByGeneralTooltip(entity: any, role: any): any
   isEntityDisabled(entity: any, role: any): any
   isEntitySelected(entity: any, role: any): any
 

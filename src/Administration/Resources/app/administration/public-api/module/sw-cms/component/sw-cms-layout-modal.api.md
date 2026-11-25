@@ -11,6 +11,59 @@ component sw-cms-layout-modal  private  js  [private]
   template src/module/sw-cms/component/sw-cms-layout-modal/sw-cms-layout-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  listing  [private]
+
+inject
+  acl  [private]
+  cmsPageTypeService  [private]
+  repositoryFactory  [private]
+  systemConfigApiService  [private]
+
+props
+  cmsPageTypes?: any[]  default=factory  [private]
+  headline?: string  default=''  [private]
+  preSelection?: object  default=factory  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  modal-layout-select(...args: any[])  [private]
+
+data
+  defaultCategoryId: any  [private]
+  defaultProductId: any  [private]
+  disableRouteParams: any  [private]
+  isLoading: any  [private]
+  limit: any  [private]
+  listMode: any  [private]
+  pages: any  [private]
+  selectedPageObject: any  [private]
+  sortBy: any  [private]
+  sortDirection: any  [private]
+  term: any  [private]
+  total: any  [private]
+
+computed
+  cmsPageCriteria: any  [private]
+  columnConfig: any  [private]
+  dateFilter: any  [deprecated tag:v6.8.0] [private]
+  gridPreSelection: any  [deprecated tag:v6.8.0] [private]
+  pageRepository: any  [private]
+
+methods
+  closeModal(): any  [private]
+  createdComponent(): any  [private]
+  getDefaultLayouts(): Promise<any>  [private]
+  getList(): Promise<any>  [private]
+  getPageType(page: any): any  [private]
+  gridItemClasses(pageId: any, index: any): any  [private]
+  onSearch(value: any): any  [private]
+  onSelectPage(pageId: any): any  [private]
+  selectInGrid(column: any): any  [deprecated tag:v6.8.0] [private]
+  selectItem(page: any): any  [private]
+  selectLayout(): any  [private]
+  toggleListMode(): any  [private]
+
 blocks
   sw_cms_layout_modal  [private]
     sw_cms_layout_modal_content  [private]

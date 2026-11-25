@@ -11,6 +11,24 @@ component sw-internal-link  private  js  [private]
   template src/app/component/utils/sw-internal-link/sw-internal-link.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+  hideIcon?: boolean  default=false  [private]
+  icon?: string  default='regular-long-arrow-right'  [private]
+  inline?: boolean  default=false  [private]
+  routerLink?: object  default=undefined  [private]
+  target?: string  default=null  [private]
+
+emits
+  click(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_internal_link__slot  [private]
+
+computed
+  componentClasses: any  [private]
+  elementType: any  [private]
+
 blocks
   sw_internal_link  [private]
     sw_internal_link__icon  [private]

@@ -10,6 +10,62 @@ component sw-bulk-edit-save-modal-success  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/sw-bulk-edit-save-modal-success.html.twig
 
+mixins
+  notification
+
+inject
+  documentV2ApiService
+  feature
+  orderDocumentApiService  [deprecated tag:v6.9.0]
+  repositoryFactory
+
+emits
+  buttons-update(...args: any[])
+  title-set(...args: any[])
+
+data
+  document: object
+    credit_note: object
+      isDownloading: any
+    delivery_note: object
+      isDownloading: any
+    invoice: object
+      isDownloading: any
+    storno: object
+      isDownloading: any
+  latestDocuments: any
+  orderNumbers: any
+
+computed
+  description: any
+  documentGenerationFailedItems: any
+  documentGenerationResult: any
+  documentRepository: any
+  documentTypeLabels: any
+  downloadOrderDocuments: any
+  failedDocumentRows: any
+  hasDocumentGenerationErrors: any
+  hasFailedDocumentRows: any
+  hasSkippedDocuments: any
+  latestDocumentsCriteria: any
+  orderRepository: any
+  selectedDocumentTypes: any
+  selectedIds: any
+
+methods
+  createdComponent(): Promise<any>
+  downloadDocument(documentType: any): Promise<any>
+  downloadDocumentGenerationResult(): any
+  getDateTimeForFileName(date: any): any
+  getDocumentGenerationResultFileContent(): any
+  getDocumentGenerationResultFileName(): any
+  getDocumentTypeLabel(documentType: any): any
+  getLatestDocuments(): Promise<any>
+  loadFailedOrderNumbers(): Promise<any>
+  setTitle(): any
+  sortDocumentTypes(documentTypes: any): any
+  updateButtons(): any
+
 blocks
   sw_bulk_edit_save_modal_success
     sw_bulk_edit_save_modal_document_generation_errors

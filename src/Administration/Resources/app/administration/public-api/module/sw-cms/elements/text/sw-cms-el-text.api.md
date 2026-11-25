@@ -11,6 +11,30 @@ component sw-cms-el-text  private  js  [private]
   template src/module/sw-cms/elements/text/component/sw-cms-el-text.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  demoValue: any  [private]
+  editable: any  [private]
+
+computed
+  availableDataMappings: any  [private]
+  customTextEditorButtons: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  emitChanges(content: any): any  [private]
+  onBlur(content: any): any  [private]
+  onInput(content: any): any  [private]
+  updateDemoValue(): any  [private]
+
 blocks
   sw_cms_element_text  [private]
 ```

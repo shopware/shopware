@@ -8,4 +8,22 @@ Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.
 component sw-settings-cache-modal  public  js
   registered src/module/sw-settings-cache/index.js
   source src/module/sw-settings-cache/component/sw-settings-cache-modal/index.js
+
+mixins
+  notification
+
+inject
+  acl
+  cacheApiService
+
+data
+  open: any
+
+methods
+  beforeUnmountComponent(): any
+  clearCache(): any
+  closeModal(): any
+  createdComponent(): any
+  keydownEventListener(event: any): any
+  openModal(): any
 ```

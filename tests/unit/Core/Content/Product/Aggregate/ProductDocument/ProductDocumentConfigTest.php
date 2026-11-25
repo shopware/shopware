@@ -19,10 +19,10 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(ProductDocumentConfig::class)]
 class ProductDocumentConfigTest extends TestCase
 {
-    public function testFileTypesAreListedOnceAsThePublicMediaListNamesThem(): void
+    public function testFileTypesAreCleanedUp(): void
     {
         $context = Context::createDefaultContext();
-        $config = self::config(['docx', 'pdf', 'pdf', '']);
+        $config = self::config(['DOCX', ' .pdf', 'pdf', '']);
 
         static::assertSame(['pdf', 'docx'], $config->getAllowedExtensions($context));
     }
@@ -42,7 +42,7 @@ class ProductDocumentConfigTest extends TestCase
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(ProductDocumentAllowedExtensionsEvent::class, static function (ProductDocumentAllowedExtensionsEvent $event) use (&$events): void {
             $events[] = $event;
-            $event->setAllowedExtensions(['pdf', 'xlsx']);
+            $event->setAllowedExtensions(['pdf', '.XLSX']);
         });
 
         $config = self::config(['pdf', 'docx'], dispatcher: $dispatcher);

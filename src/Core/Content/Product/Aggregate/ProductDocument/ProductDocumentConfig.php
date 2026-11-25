@@ -36,7 +36,10 @@ readonly class ProductDocumentConfig
 
         return array_map(strval(...), array_values(array_intersect(
             $this->mediaFileExtensionListProvider->getAllowedExtensions(false, $context),
-            $event->getAllowedExtensions(),
+            array_map(
+                static fn (string|int $extension): string => mb_strtolower(ltrim(trim((string) $extension), '.')),
+                $event->getAllowedExtensions(),
+            ),
         )));
     }
 }

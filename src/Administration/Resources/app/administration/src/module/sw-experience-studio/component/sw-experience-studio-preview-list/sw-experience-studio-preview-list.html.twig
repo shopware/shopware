@@ -1,0 +1,47 @@
+{% block sw_experience_studio_preview_list %}
+<ul class="sw-experience-studio-preview-list">
+    <li
+        v-for="frame in layoutFrames"
+        :key="frame.id"
+        class="sw-experience-studio-preview-list__item"
+    >
+        <div
+            class="sw-experience-studio-preview-list__row"
+            :class="{ 'is--active': frame.isActive }"
+        >
+            <button
+                type="button"
+                class="sw-experience-studio-preview-list__select"
+                :aria-current="frame.isActive ? 'true' : undefined"
+                :aria-label="frame.ariaLabel ?? (frame.languageLabel || frame.label)"
+                :title="frame.ariaLabel ?? (frame.languageLabel || frame.label)"
+                @click.stop="$emit('select', frame.id)"
+            >
+                <mt-icon
+                    :name="viewportIcons[frame.viewport]"
+                    size="16px"
+                    decorative
+                />
+                <span class="sw-experience-studio-preview-list__name">{{ frame.languageLabel || frame.label }}</span>
+            </button>
+            <mt-button
+                class="sw-experience-studio-preview-list__close"
+                variant="tertiary"
+                size="x-small"
+                square
+                :aria-label="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? (frame.languageLabel || frame.label) })"
+                :title="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? (frame.languageLabel || frame.label) })"
+                @click.stop="$emit('close', frame.id)"
+            >
+                <template #iconFront>
+                    <mt-icon
+                        name="regular-times"
+                        size="16px"
+                        decorative
+                    />
+                </template>
+            </mt-button>
+        </div>
+    </li>
+</ul>
+{% endblock %}

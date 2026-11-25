@@ -29,7 +29,10 @@ Acceptance of a value for a declared property, a default's shape, the nesting bo
 
 Why: In an earlier design, diagnostics, the conformance validator and the mutation operations each kept a private match table for the same admission rule. With three tables, the module stores or drops a value that one table accepts and another rejects, depending on the path that the value takes.
 
-Exceptions: A `resolvedBy` storage key is undeclared, and `matchesStoredValueShape()` checks the values that a layout stores under that key. The codec and the constraint descriptor keep separate copies of the wiring rules, under the [rule that one change tightens both](drafts-and-gates.md#the-codec-and-the-constraint-descriptor-keep-separate-copies-of-the-wiring-rules-and-one-change-tightens-both).
+Exceptions: A `resolvedBy` storage key is undeclared, and `matchesStoredValueShape()` checks the values that a layout stores under that key.
+The codec and the constraint descriptor keep separate copies of the wiring rules, under the [rule that one change tightens both](drafts-and-gates.md#the-codec-and-the-constraint-descriptor-keep-separate-copies-of-the-wiring-rules-and-one-change-tightens-both).
+`DefaultBindingRootSources` keeps a copy of the scoped-resolution condition of `RootSourceConfigMap::collapse()` and of the fill-only key exclusion of `BindingApplicator::applyFillOnly()` to publish where a default binding resolves.
+It also copies the default selection of `AbstractLayoutMutation::resolveDefaultSpecification()`: the type's default specifications and the failure for more than one.
 
 In code:
 
@@ -37,6 +40,8 @@ In code:
 - `PropertyType::nonLanguageKeys()` owns the key rule of a language map, and `PropertyTypeConformanceValidator` and `AbstractLayoutMutation` both call it.
 - `StoredElementCodec::MAX_NESTING_DEPTH` owns the nesting bound.
 - `StoredTreeShapeConformanceTest` pins that the codec and the descriptor agree on `MAX_NESTING_DEPTH`.
+- `DefaultBindingRootSourcesAgreementTest` pins that `DefaultBindingRootSources` and the request path agree on where a default binding resolves, for the core element types and presets, which reach the scoped-resolution condition.
+  `DefaultBindingRootSourcesTest` pins the fill-only exclusion and the answer for more than one default against the copy only.
 - See [Layout/Field/README.md](../../Layout/Field/README.md).
 
 ## A present null and an absent key are different states

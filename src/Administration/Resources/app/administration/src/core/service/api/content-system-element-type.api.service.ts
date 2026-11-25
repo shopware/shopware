@@ -121,6 +121,11 @@ export interface ContentSystemElementTypeSpecification {
     properties: Record<string, ContentSystemElementTypeProperty>;
     slots: ContentSystemElementTypeSlot[];
     bindingSpecifications?: Record<string, ContentSystemElementTypeBindingSpecification>;
+    /**
+     * Root sources on which inserting the type without a named binding specification succeeds; `null` places no
+     * restriction, an empty array means the insert fails everywhere.
+     */
+    defaultBindingRootSources: string[] | null;
 }
 
 /**

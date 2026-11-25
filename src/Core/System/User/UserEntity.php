@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -72,6 +73,9 @@ class UserEntity extends Entity
 
     protected ?ImportExportLogCollection $importExportLogEntries = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryUser association was removed.
+     */
     protected ?UserRecoveryEntity $recoveryUser = null;
 
     /**
@@ -251,13 +255,23 @@ class UserEntity extends Entity
         $this->configs = $configs;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryUser association was removed.
+     */
     public function getRecoveryUser(): ?UserRecoveryEntity
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The recoveryUser association was removed.');
+
         return $this->recoveryUser;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryUser association was removed.
+     */
     public function setRecoveryUser(UserRecoveryEntity $recoveryUser): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The recoveryUser association was removed.');
+
         $this->recoveryUser = $recoveryUser;
     }
 

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Resolves content layout assignments and processes placeholders for entity-based rendering.
@@ -25,13 +24,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class EntityLayoutResolver
 {
-    /**
-     * @param list<string> $ignoredUrlParameters
-     */
-    public function __construct(private readonly array $ignoredUrlParameters)
-    {
-    }
-
     /**
      * Returns only the content layout ID without loading the full assignment or contentLayout association.
      *
@@ -54,19 +46,9 @@ class EntityLayoutResolver
         return $entity->getContentLayoutId();
     }
 
-    public function resolvePlaceholders(
-        string $entityIdField,
-        string $entityId,
-        Request $request
-    ): PlaceholderValues {
-        // A value excluded from the HTTP cache key must not influence the rendered content.
-        $parameters = array_diff_key($request->query->all(), array_flip($this->ignoredUrlParameters));
-        $scalarParameters = array_filter($parameters, '\is_scalar');
-
-        return PlaceholderValues::from(array_merge(
-            [$entityIdField => $entityId],
-            $scalarParameters
-        ));
+    public function resolvePlaceholders(string $entityIdField, string $entityId): PlaceholderValues
+    {
+        return PlaceholderValues::from([$entityIdField => $entityId]);
     }
 
     private function buildAssignmentCriteria(string $entityIdField, string $entityId, SalesChannelContext $context): Criteria

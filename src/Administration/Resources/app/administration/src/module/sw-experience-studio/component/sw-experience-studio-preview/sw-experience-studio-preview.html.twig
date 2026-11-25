@@ -34,27 +34,44 @@
                 :description="previewLoadError"
             />
 
-            <div
-                v-else
-                class="sw-experience-studio-preview__iframe-stack"
-            >
-                <iframe
-                    v-if="getFrameUrl('a')"
-                    ref="iframeA"
-                    :class="getFrameClass('a')"
-                    :src="getFrameUrl('a')"
-                    :title="$t('sw-experience-studio.detail.preview.title')"
-                    @load="onPreviewFrameLoad('a')"
-                ></iframe>
-                <iframe
-                    v-if="getFrameUrl('b')"
-                    ref="iframeB"
-                    :class="getFrameClass('b')"
-                    :src="getFrameUrl('b')"
-                    :title="$t('sw-experience-studio.detail.preview.title')"
-                    @load="onPreviewFrameLoad('b')"
-                ></iframe>
-            </div>
+            <template v-else>
+                <mt-banner
+                    v-if="showOutdatedPreviewError"
+                    class="sw-experience-studio-preview__outdated-banner"
+                    variant="critical"
+                    role="alert"
+                >
+                    <p>{{ $t('sw-experience-studio.detail.preview.errorUpdate') }}</p>
+                    <mt-button
+                        class="sw-experience-studio-preview__retry"
+                        size="small"
+                        variant="secondary"
+                        :is-loading="isPreviewLoading"
+                        @click="onRetryPreview"
+                    >
+                        {{ $t('sw-experience-studio.detail.preview.retry') }}
+                    </mt-button>
+                </mt-banner>
+
+                <div class="sw-experience-studio-preview__iframe-stack">
+                    <iframe
+                        v-if="getFrameUrl('a')"
+                        ref="iframeA"
+                        :class="getFrameClass('a')"
+                        :src="getFrameUrl('a')"
+                        :title="$t('sw-experience-studio.detail.preview.title')"
+                        @load="onPreviewFrameLoad('a')"
+                    ></iframe>
+                    <iframe
+                        v-if="getFrameUrl('b')"
+                        ref="iframeB"
+                        :class="getFrameClass('b')"
+                        :src="getFrameUrl('b')"
+                        :title="$t('sw-experience-studio.detail.preview.title')"
+                        @load="onPreviewFrameLoad('b')"
+                    ></iframe>
+                </div>
+            </template>
         </div>
     </div>
 </div>

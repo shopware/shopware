@@ -128,7 +128,6 @@ class EntityLayoutContextFactory
             placeholderValues: $this->layoutResolver->resolvePlaceholders(
                 $definition->getContentLayoutEntityIdField(),
                 $entityId,
-                $request,
             ),
         );
     }

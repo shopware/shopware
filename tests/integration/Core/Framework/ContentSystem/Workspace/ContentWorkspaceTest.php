@@ -55,6 +55,49 @@ class ContentWorkspaceTest extends TestCase
         ]], Context::createDefaultContext());
     }
 
+    public function testApiRejectsAFrameWithoutItsOwnIdentity(): void
+    {
+        $browser = $this->getBrowser(permissions: ['content_workspace:create']);
+        $browser->jsonRequest('POST', '/api/content-workspace', [
+            'name' => 'Missing frame ID',
+            'configuration' => [
+                'frames' => [[
+                    'layoutId' => Uuid::randomHex(), 'x' => 0, 'y' => 0, 'width' => 700, 'height' => 900,
+                    'viewport' => 'desktop', 'previewEntityId' => null,
+                ]],
+                'previewSalesChannelId' => null,
+                'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1],
+            ],
+        ]);
+
+        static::assertSame(400, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+    }
+
+    public function testWorkspaceRestoresIndependentFramesReferencingOneLayout(): void
+    {
+        $repository = $this->getContainer()->get('content_workspace.repository');
+        $context = Context::createDefaultContext();
+        $workspaceId = Uuid::randomHex();
+        $layoutId = Uuid::randomHex();
+        $configuration = [
+            'frames' => [
+                ['id' => Uuid::randomHex(), 'layoutId' => $layoutId, 'x' => 0, 'y' => 0, 'width' => 1480, 'height' => 900, 'viewport' => 'desktop', 'previewEntityId' => Uuid::randomHex()],
+                ['id' => Uuid::randomHex(), 'layoutId' => $layoutId, 'x' => 1000, 'y' => 100, 'width' => 375, 'height' => 700, 'viewport' => 'mobile', 'previewEntityId' => Uuid::randomHex()],
+            ],
+            'previewSalesChannelId' => null,
+            'canvas' => ['panX' => -120, 'panY' => 40, 'zoom' => 0.5],
+        ];
+
+        $repository->create([['id' => $workspaceId, 'name' => 'Responsive comparison', 'configuration' => $configuration]], $context);
+        $workspace = $repository->search(new Criteria([$workspaceId]), $context)->getEntities()->first();
+
+        static::assertInstanceOf(ContentWorkspaceEntity::class, $workspace);
+        static::assertJsonStringEqualsJsonString(
+            json_encode($configuration, \JSON_THROW_ON_ERROR),
+            json_encode($workspace->getConfiguration(), \JSON_THROW_ON_ERROR)
+        );
+    }
+
     public function testLimitedUsersCanShareWorkspacesAndCreatorDeletionPreservesThem(): void
     {
         $permissions = ['content_workspace:read', 'content_workspace:create', 'content_workspace:update', 'content_workspace:delete'];
@@ -200,7 +243,7 @@ class ContentWorkspaceTest extends TestCase
         $repository->create([[
             'id' => $workspaceId, 'name' => 'Workspace',
             'configuration' => [
-                'frames' => [['layoutId' => $layoutId, 'x' => 0, 'y' => 0, 'width' => 700, 'height' => 900, 'viewport' => 'custom', 'previewEntityId' => null]],
+                'frames' => [['id' => Uuid::randomHex(), 'layoutId' => $layoutId, 'x' => 0, 'y' => 0, 'width' => 700, 'height' => 900, 'viewport' => 'custom', 'previewEntityId' => null]],
                 'previewSalesChannelId' => null, 'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1],
             ],
         ]], $context);

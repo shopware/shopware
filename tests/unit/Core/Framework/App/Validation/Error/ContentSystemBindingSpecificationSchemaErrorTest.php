@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemBindingSpecificationSchemaError;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -25,8 +26,9 @@ class ContentSystemBindingSpecificationSchemaErrorTest extends TestCase
         );
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
+        static::assertSame(Severity::Fail, $error->getSeverity());
 
-        $exception = AppException::validationFailedFromError($error);
+        $exception = AppException::validationFailedFromErrors([$error]);
         static::assertSame(AppException::VALIDATION_FAILED, $exception->getErrorCode());
         static::assertSame($error->getMessage(), $exception->getMessage());
     }

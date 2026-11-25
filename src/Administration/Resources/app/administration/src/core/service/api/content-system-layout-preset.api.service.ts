@@ -21,6 +21,12 @@ export interface ContentSystemLayoutPreset {
     category: string | null;
     priority: number;
     payload: ContentElementNode[];
+    /**
+     * Root sources on which the default bindings applied to the preset's elements on insert all resolve; `null`
+     * places no restriction, an empty array means no root source satisfies them or an element's type has more than
+     * one default.
+     */
+    defaultBindingRootSources: string[] | null;
 }
 
 /**

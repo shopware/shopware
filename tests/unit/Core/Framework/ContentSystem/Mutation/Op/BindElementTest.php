@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
@@ -117,6 +119,35 @@ class BindElementTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Product', 'Sw:Other', 'el'));
         $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Other')]));
+    }
+
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('rejects a specification that scopes a wired key by root sources that do not include the tree root source, naming the bound element: $_dataName')]
+    public function testBindRejectsScopedWiringWithUnnamedRootSource(?string $rootSource): void
+    {
+        $specification = new BindingSpecification(
+            'spec-1',
+            'Sw:Product',
+            'Product binding',
+            ['product' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
+            [],
+            'core',
+        );
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['spec-1' => $specification]);
+        $bind = new BindElement($registry, 'spec-1', 'el', $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)));
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('spec-1', 'product', 'el', $rootSource));
+        $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Product')], $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'a root source outside the scope' => ['category'];
+        yield 'no root source' => [null];
     }
 
     #[TestDox('rejects an unknown binding specification id with a 400')]

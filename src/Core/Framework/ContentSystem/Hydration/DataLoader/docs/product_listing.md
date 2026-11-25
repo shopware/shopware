@@ -28,4 +28,5 @@ Config fields:
 
 After loading, access via element's `listing` property (the requirement key).
 
-Pagination, filters, and sorting are controlled via request parameters (query string), not config. See [Additional Parameters](../../../Adapter/docs/placeholders.md#additional-parameters) for details.
+Pagination, filters, and sorting are controlled via request parameters (query string), not config.
+The loader passes the request on to the listing route, so these parameters need no placeholder declaration.

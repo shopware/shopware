@@ -25,11 +25,14 @@
 
 - `GET /api/_info/content-system-mapping-candidates.json`: `content_layout:read`; candidate identity, effective type, cardinality, labels, and inline eligibility. [Mapping/README.md](../Mapping/README.md).
 
-The companion `POST /api/_action/content-system/inline-mapping/parse` returns server-owned token spans/canonical text and the client revision; it is not a catalogue lookup. [API reference](../Api/README.md#key-classes).
+`POST /api/_action/content-system/inline-mapping/parse` parses one text and returns server-owned token spans/canonical text with the caller's revision.
+It is not a catalogue lookup.
+See the [parser API reference](../Api/docs/inline-mapping-parse.md).
 
 ## What the endpoints derive from
 
 - Data loader type introspection: `ContentSystemDataLoaderMapResolver` assembles the source→capability map at runtime from each loader's `producibleTypes()` (memoized per kernel runtime). `ContentSystemDataLoaderCompilerPass` only validates at build time (dry-runs `AbstractContentDataLoader::extendsDescriptor()`, plus the `configSpecification()` dry-run under **Compiler Pass** above). Wildcard loaders (`entity`, `entity_collection`) override `producibleTypes()`/`resolveProducedType()` to enumerate the live registry, so plugin/app/custom entities appear on the next kernel boot without a container rebuild
 - `ContentSystemDataLoaderMap` lookups are subtype-aware (`is_a`): a source matches when its `producedType` is the class or a subclass
 - Entity type introspection: `ContentLayoutAssignableCompilerPass` introspects `content_system.entity_specification_source` tagged services for `AbstractContentLayoutAssignableDefinition` arguments
+- `defaultBindingRootSources` on the element-type and layout-preset endpoints comes from `Binding/DefaultBindingRootSources`: [Binding/docs/introspection.md](../Binding/docs/introspection.md)
 - Type-spec `properties` and the `storageSchema` fold: [Layout/Type/docs/introspection.md](../Layout/Type/docs/introspection.md)

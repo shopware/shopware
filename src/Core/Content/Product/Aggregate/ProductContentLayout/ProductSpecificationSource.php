@@ -89,6 +89,11 @@ class ProductSpecificationSource extends AbstractSpecificationSource
         return $this->contextFactory->providedRootContext($this->definition);
     }
 
+    public function placeholderQueryParameters(): array
+    {
+        return ['referrerCategoryId'];
+    }
+
     public function rootSource(): string
     {
         return $this->definition->getContentLayoutEntityType();

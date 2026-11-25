@@ -53,6 +53,17 @@ class ProductLayoutDataMappingTest extends TestCase
         $this->browser = $this->createSalesChannelBrowser();
     }
 
+    #[TestDox('keeps the product id from the path when a query parameter has the product id field name')]
+    public function testAQueryParameterCannotReplaceTheProductId(): void
+    {
+        $this->createProduct();
+        $element = $this->textElement(mappedTo: null);
+        $element['properties']['text'] = [Defaults::LANGUAGE_SYSTEM => '{{productId}}'];
+        $this->persistLayout($element);
+
+        static::assertSame($this->ids->get('product'), $this->servedProperties(['productId' => Uuid::randomHex()])['text'] ?? null);
+    }
+
     #[TestDox('serves the bound product name for an inline mapping token in the text property')]
     public function testAMappedTextPropertyServesTheProductValue(): void
     {
@@ -85,9 +96,10 @@ class ProductLayoutDataMappingTest extends TestCase
     {
         yield 'missing colon placeholder remains literal' => ['{{external:id}}', [], '{{external:id}}'];
         yield 'padded known root ID remains literal' => ['{{ productId }}', [], '{{ productId }}'];
-        yield 'valued colon placeholder resolves' => ['{{external:id}}', ['external:id' => 'Resolved'], 'Resolved'];
+        yield 'declared query placeholder resolves' => ['{{referrerCategoryId}}', ['referrerCategoryId' => 'Resolved'], 'Resolved'];
+        yield 'undeclared query placeholder remains literal' => ['{{external:id}}', ['external:id' => 'Resolved'], '{{external:id}}'];
         yield 'embedded missing placeholder remains literal' => ['Hello {{external:id}}', [], 'Hello {{external:id}}'];
-        yield 'inserted mapping-looking text is not expanded' => ['{{query}}', ['query' => '{{map:product.name}}'], '{{map:product.name}}'];
+        yield 'inserted mapping-looking text is not expanded' => ['{{referrerCategoryId}}', ['referrerCategoryId' => '{{map:product.name}}'], '{{map:product.name}}'];
         yield 'authored mapping cannot be overwritten by query values' => ['{{map:product.name}}', ['map:product.name' => 'Query value'], self::PRODUCT_NAME];
     }
 

@@ -98,10 +98,22 @@ export default Shopware.Component.wrapComponentConfig({
             type: Object as PropType<ContentSystemBreakpointFallbacks>,
             default: () => ({}),
         },
+        languageName: {
+            type: String,
+            default: '',
+        },
+        fieldIdPrefix: {
+            type: String,
+            default: '',
+        },
         allowEdit: {
             type: Boolean,
             required: false,
             default: false,
+        },
+        allowMapping: {
+            type: Boolean,
+            default: true,
         },
         selectedElementType: {
             type: Object,
@@ -300,7 +312,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canMapField(field: SettingsFieldDefinition): boolean {
-            return !this.isFieldMapped(field) && this.getMappingCandidatesForField(field).length > 0;
+            return this.allowMapping && !this.isFieldMapped(field) && this.getMappingCandidatesForField(field).length > 0;
         },
 
         getFieldViolation(field: SettingsFieldDefinition): ContentSystemViolation | null {
@@ -367,6 +379,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (
                 value === null &&
+                !property.translatable &&
                 (this.getControlType(property) === 'number' || this.getControlType(property) === 'responsive-number')
             ) {
                 return this.getResponsiveFallbackValue(property);
@@ -622,6 +635,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         getRadioPanelOptionId(key: string, optionValue: string): string {
             return `sw-experience-studio-radio-panel-${this.radioPanelDescriptionIdPrefix}-${encodeURIComponent(JSON.stringify([key, optionValue]))}`;
+        },
+
+        getFieldControlKey(key: string): string {
+            return this.fieldIdPrefix ? `${this.fieldIdPrefix}-${key}` : key;
         },
 
         getRadioPanelLabelTargetId(key: string, property: ContentSystemElementTypeProperty): string | undefined {

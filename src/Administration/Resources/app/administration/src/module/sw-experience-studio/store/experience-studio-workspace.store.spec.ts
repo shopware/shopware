@@ -18,6 +18,7 @@ describe('Experience Studio workspaces', () => {
         jest.useFakeTimers();
         store = Shopware.Store.get('experienceStudioWorkspace' as never) as ExperienceStudioWorkspaceStore;
         store.$reset();
+        jest.spyOn(Shopware.Service('acl'), 'can').mockImplementation((privilege) => privilege === 'user:read');
         save = jest.fn<Promise<void>, [ContentWorkspace, apiContext]>().mockResolvedValue(undefined);
         get = jest.fn((id: string) => Promise.resolve(workspace(id)));
         search = jest
@@ -37,17 +38,48 @@ describe('Experience Studio workspaces', () => {
         jest.useRealTimers();
     });
 
-    it('loads workspaces without requesting user or media associations', async () => {
+    it('loads creator information when the user already has permission to read users', async () => {
+        const item = {
+            ...workspace(),
+            createdBy: { firstName: 'Ada', lastName: 'Lovelace', username: 'ada' },
+        } as ContentWorkspace;
+        search.mockResolvedValueOnce(Object.assign([item], { total: 1 }));
         await store.load(2, ' Autumn ');
 
         expect(search).toHaveBeenCalledWith(
-            expect.objectContaining({ page: 2, limit: 25, term: 'Autumn', associations: [] }),
+            expect.objectContaining({ page: 2, limit: 25, term: 'Autumn' }),
             Shopware.Context.api,
         );
-        expect(store.workspaces).toEqual([workspace()]);
+        expect(search.mock.calls[0][0].parse()).toHaveProperty('associations.createdBy');
+        expect(search.mock.calls[0][0].parse()).not.toHaveProperty('associations.createdBy.associations.avatarMedia');
+        expect(store.workspaces).toEqual([item]);
         expect(store.total).toBe(1);
         expect(store.loadError).toBe(false);
     });
+
+    it('loads profile photos only when the user already has both user and media read permissions', async () => {
+        jest.spyOn(Shopware.Service('acl'), 'can').mockImplementation(
+            (privilege) => privilege === 'user:read' || privilege === 'media:read',
+        );
+        await store.load();
+
+        expect(search.mock.calls[0][0].parse()).toHaveProperty('associations.createdBy.associations.avatarMedia');
+    });
+
+    it.each([false, true])(
+        'keeps workspaces available without user access even when media read permission is %s',
+        async (mediaRead) => {
+            jest.spyOn(Shopware.Service('acl'), 'can').mockImplementation(
+                (privilege) => mediaRead && privilege === 'media:read',
+            );
+            await store.load();
+
+            expect(search.mock.calls[0][0].associations).toEqual([]);
+            expect(store.workspaces).toEqual([workspace()]);
+            expect(store.total).toBe(1);
+            expect(store.loadError).toBe(false);
+        },
+    );
 
     it('coalesces edits and sends a captured setup without layout content', async () => {
         const first = createWorkspaceConfiguration();

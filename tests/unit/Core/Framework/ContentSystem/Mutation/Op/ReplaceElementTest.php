@@ -43,6 +43,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\ScopedDefaultBindingFixture;
 
 /**
  * @internal
@@ -647,6 +648,33 @@ class ReplaceElementTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationDefaultAmbiguous('Sw:New', ['core:Sw:New', 'app1:Sw:New']));
         $replace->apply(new StoredTree([new StoredElement('el', 'Sw:Old')]));
+    }
+
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('rejects a new type whose default scopes a key by root sources that do not include the tree root source, naming the replaced element: $_dataName')]
+    public function testReplaceRejectsScopedDefaultWithUnnamedRootSource(?string $rootSource): void
+    {
+        $default = ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:New', 'New');
+        $replace = new ReplaceElement(
+            $this->registry(),
+            'el',
+            'Sw:New',
+            $this->bindingRegistry(['core:Sw:New' => $default]),
+            $this->unboundApplicator(),
+            mappingInspector: $this->mappingInspector($this->registry()),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:New', 'media', 'el', $rootSource));
+        $replace->apply(new StoredTree([new StoredElement('el', 'Sw:Old')], $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'a root source outside the scope' => ['category'];
+        yield 'no root source' => [null];
     }
 
     #[TestDox('rejects an unregistered new type with a 400')]

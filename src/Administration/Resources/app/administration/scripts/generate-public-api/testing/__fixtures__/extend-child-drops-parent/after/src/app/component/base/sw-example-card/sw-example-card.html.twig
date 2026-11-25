@@ -1,0 +1,19 @@
+{% block sw_example_card %}
+<article>
+    {% block sw_example_card_header %}
+    <header>
+        {% block sw_example_card_title %}
+        <h3>{{ title }}</h3>
+        {% endblock %}
+    </header>
+    {% endblock %}
+
+    {% block sw_example_card_content %}
+    <section>
+        {% block sw_example_card_text %}
+        <p>{{ text }}</p>
+        {% endblock %}
+    </section>
+    {% endblock %}
+</article>
+{% endblock %}

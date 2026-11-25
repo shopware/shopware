@@ -19,13 +19,14 @@
         "emptyDescription": "Create a layout to start editing.",
         "loadError": "The layout list could not be loaded.",
         "open": "Open layout",
-        "activate": "Go to layout",
         "deleteTitle": "Delete layout?",
         "deleteDescription": "Permanently delete “{name}”? Unsaved changes to this layout will be lost.",
         "deleteError": "The layout could not be deleted."
       },
       "layouts": {
         "title": "Layouts",
+        "expandPreviews": "Show previews of {name}",
+        "collapsePreviews": "Hide previews of {name}",
         "emptyTitle": "No layouts open",
         "emptyDescription": "Open an existing layout or create a new one to start editing.",
         "create": "Create",
@@ -44,6 +45,8 @@
         "manage": "Manage workspaces",
         "rename": "Rename workspace",
         "name": "Workspace name",
+        "createdBy": "Created by {name}",
+        "unknownCreator": "Unknown user",
         "empty": "No workspaces yet. Create one to start arranging layouts.",
         "loadError": "Workspaces could not be loaded.",
         "saveError": "The canvas setup could not be saved. Retry before switching workspaces.",
@@ -988,16 +991,21 @@
         "viewportTablet": "Tablet",
         "viewportDesktop": "Desktop",
         "previewEntity": "Entity",
+        "previewLanguage": "Language",
+        "previewLanguageLoadError": "The available languages for this preview sales channel could not be loaded.",
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
         "save": "Save layout"
       },
       "canvas": {
+        "previewLabel": "{name} · {viewport} · Preview {number}",
+        "previewActions": "Actions for {name}",
+        "openAnotherPreview": "Open another preview",
         "customViewport": "Custom",
         "viewportToolbar": "Preview viewport",
         "moveFrame": "Move preview frame. Use arrow keys to reposition.",
-        "closeFrame": "Close layout {name}",
+        "closeFrame": "Close preview {name}",
         "panelsToolbar": "Canvas panels",
         "structure": "Structure",
         "settings": "Settings",
@@ -1009,14 +1017,9 @@
         "zoomTo100": "Zoom to 100%",
         "resetZoom": "Reset zoom to 100%",
         "fit": "Zoom to fit",
-        "resizeNorth": "Resize preview frame from the top",
-        "resizeNorthEast": "Resize preview frame from the top right",
         "resizeEast": "Resize preview frame from the right",
-        "resizeSouthEast": "Resize preview frame from the bottom right",
         "resizeSouth": "Resize preview frame from the bottom",
-        "resizeSouthWest": "Resize preview frame from the bottom left",
-        "resizeWest": "Resize preview frame from the left",
-        "resizeNorthWest": "Resize preview frame from the top left"
+        "resizeWest": "Resize preview frame from the left"
       },
       "assignmentModal": {
         "title": "Layout assignments",
@@ -1052,7 +1055,15 @@
         "missingEntityContext": "This layout is not assigned to a product, category, or landing page yet.",
         "noElements": "The preview loaded, but no root elements were returned.",
         "emptySlot": "No elements in this slot.",
-        "errorLoad": "Preview could not be loaded."
+        "errorLoad": "Preview could not be loaded.",
+        "errorUpdate": "The preview could not be updated. It still shows an earlier version.",
+        "retry": "Retry"
+      },
+      "translationSettings": {
+        "title": "Translations",
+        "openAction": "Translate layout",
+        "showMore": "Show more fields",
+        "emptyState": "This layout has no translatable fields."
       },
       "elementSettings": {
         "title": "Element settings",
@@ -1066,6 +1077,7 @@
         "noEditableProperties": "This element does not provide editable primitive properties.",
         "noEditableStyleOptions": "No layout style options are available.",
         "panelGeneral": "General",
+        "editingLanguage": "Editing in {language}",
         "boxSpacingTop": "Top",
         "boxSpacingRight": "Right",
         "boxSpacingBottom": "Bottom",
@@ -1130,6 +1142,7 @@
         "targetNotFound": "The selected element is no longer available. Select an existing element before editing it.",
         "unknownElementType": "This element type is no longer available. Choose an available element type.",
         "invalidStructure": "This change is not valid for the current layout structure. Review the selected elements and their positions.",
+        "bindingRootSourceNotScoped": "This element is not available for this layout type. Choose a different element or preset.",
         "generic": "The layout edit could not be applied. Review your changes or contact your administrator."
       },
       "messageSaved": "Content layout saved successfully.",

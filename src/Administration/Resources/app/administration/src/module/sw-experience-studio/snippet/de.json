@@ -19,13 +19,14 @@
         "emptyDescription": "Erstelle ein Layout, um mit der Bearbeitung zu beginnen.",
         "loadError": "Die Layoutliste konnte nicht geladen werden.",
         "open": "Layout öffnen",
-        "activate": "Layout anzeigen",
         "deleteTitle": "Layout löschen?",
         "deleteDescription": "Möchtest Du „{name}“ dauerhaft löschen? Ungespeicherte Änderungen an diesem Layout gehen verloren.",
         "deleteError": "Das Layout konnte nicht gelöscht werden."
       },
       "layouts": {
         "title": "Layouts",
+        "expandPreviews": "Vorschauen von {name} anzeigen",
+        "collapsePreviews": "Vorschauen von {name} ausblenden",
         "emptyTitle": "Keine Layouts geöffnet",
         "emptyDescription": "Öffne ein vorhandenes Layout oder erstelle ein neues, um mit der Bearbeitung zu beginnen.",
         "create": "Erstellen",
@@ -44,6 +45,8 @@
         "manage": "Arbeitsbereiche verwalten",
         "rename": "Arbeitsbereich umbenennen",
         "name": "Name des Arbeitsbereichs",
+        "createdBy": "Erstellt von {name}",
+        "unknownCreator": "Unbekannter Benutzer",
         "empty": "Noch keine Arbeitsbereiche vorhanden. Erstelle einen, um Layouts anzuordnen.",
         "loadError": "Die Arbeitsbereiche konnten nicht geladen werden.",
         "saveError": "Die Canvas-Konfiguration konnte nicht gespeichert werden. Versuche es erneut, bevor Du den Arbeitsbereich wechselst.",
@@ -988,16 +991,21 @@
         "viewportTablet": "Tablet",
         "viewportDesktop": "Desktop",
         "previewEntity": "Entität",
+        "previewLanguage": "Sprache",
+        "previewLanguageLoadError": "Die verfügbaren Sprachen für diesen Vorschau-Verkaufskanal konnten nicht geladen werden.",
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
         "save": "Layout speichern"
       },
       "canvas": {
+        "previewLabel": "{name} · {viewport} · Vorschau {number}",
+        "previewActions": "Aktionen für {name}",
+        "openAnotherPreview": "Weitere Vorschau öffnen",
         "customViewport": "Benutzerdefiniert",
         "viewportToolbar": "Vorschau-Viewport",
         "moveFrame": "Vorschau verschieben. Mit den Pfeiltasten positionieren.",
-        "closeFrame": "Layout {name} schließen",
+        "closeFrame": "Vorschau {name} schließen",
         "panelsToolbar": "Canvas-Bereiche",
         "structure": "Struktur",
         "settings": "Einstellungen",
@@ -1009,14 +1017,9 @@
         "zoomTo100": "Auf 100 % zoomen",
         "resetZoom": "Zoom auf 100 % zurücksetzen",
         "fit": "Alle Layouts einpassen",
-        "resizeNorth": "Vorschau am oberen Rand skalieren",
-        "resizeNorthEast": "Vorschau an der oberen rechten Ecke skalieren",
         "resizeEast": "Vorschau am rechten Rand skalieren",
-        "resizeSouthEast": "Vorschau an der unteren rechten Ecke skalieren",
         "resizeSouth": "Vorschau am unteren Rand skalieren",
-        "resizeSouthWest": "Vorschau an der unteren linken Ecke skalieren",
-        "resizeWest": "Vorschau am linken Rand skalieren",
-        "resizeNorthWest": "Vorschau an der oberen linken Ecke skalieren"
+        "resizeWest": "Vorschau am linken Rand skalieren"
       },
       "assignmentModal": {
         "title": "Layout-Zuweisungen",
@@ -1052,7 +1055,15 @@
         "missingEntityContext": "Dieses Layout ist noch keinem Produkt, keiner Kategorie und keiner Landingpage zugewiesen.",
         "noElements": "Die Vorschau wurde geladen, aber es wurden keine Root-Elemente zurückgegeben.",
         "emptySlot": "Dieser Slot enthält keine Elemente.",
-        "errorLoad": "Die Vorschau konnte nicht geladen werden."
+        "errorLoad": "Die Vorschau konnte nicht geladen werden.",
+        "errorUpdate": "Die Vorschau konnte nicht aktualisiert werden. Sie zeigt noch einen älteren Stand.",
+        "retry": "Erneut versuchen"
+      },
+      "translationSettings": {
+        "title": "Übersetzungen",
+        "openAction": "Layout übersetzen",
+        "showMore": "Weitere Felder anzeigen",
+        "emptyState": "Dieses Layout hat keine übersetzbaren Felder."
       },
       "elementSettings": {
         "title": "Element-Einstellungen",
@@ -1066,6 +1077,7 @@
         "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften.",
         "noEditableStyleOptions": "Es sind keine Layout-Stiloptionen verfügbar.",
         "panelGeneral": "Allgemein",
+        "editingLanguage": "Bearbeitung auf {language}",
         "boxSpacingTop": "Oben",
         "boxSpacingRight": "Rechts",
         "boxSpacingBottom": "Unten",
@@ -1130,6 +1142,7 @@
         "targetNotFound": "Das gewählte Element ist nicht mehr verfügbar. Wähle ein vorhandenes Element, bevor Du es bearbeitest.",
         "unknownElementType": "Dieser Elementtyp ist nicht mehr verfügbar. Wähle einen verfügbaren Elementtyp.",
         "invalidStructure": "Diese Änderung ist für die aktuelle Layout-Struktur nicht gültig. Prüfe die gewählten Elemente und ihre Positionen.",
+        "bindingRootSourceNotScoped": "Dieses Element ist für diesen Layout-Typ nicht verfügbar. Wähle ein anderes Element oder eine andere Vorlage.",
         "generic": "Die Layout-Änderung konnte nicht angewendet werden. Prüfe Deine Änderungen oder wende Dich an Deine Administration."
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",

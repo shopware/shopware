@@ -154,7 +154,8 @@ class AttributionReconciler
 
     /**
      * The specification side of the honesty comparison: the binding's source plus its canonicalized encoded
-     * config, or null when the specification or its binding for $key no longer exists.
+     * config, or null when the specification or its binding for $key no longer exists. A binding whose scoped config
+     * values name different root-source sets has no enumerable configs and throws as an internal fault.
      *
      * Null is an answer, not a missing collaborator: an attribution names a specification the registry
      * assembles at runtime from element-type directories and active app rows, and no write gate checks that
@@ -186,10 +187,19 @@ class AttributionReconciler
             return $this->specWiringCache[$cacheKey] = null;
         }
 
+        $branches = RootSourceConfigMap::branches($binding->config);
+
+        if ($branches === null) {
+            throw ContentSystemException::bindingSpecificationCanonicalizationFailed(
+                $specificationId,
+                \sprintf('the scoped config values of key "%s" name different root-source sets.', $key),
+            );
+        }
+
         $source = $binding->loader;
         $encoded = [];
 
-        foreach (RootSourceConfigMap::branches($binding->config) as $branch) {
+        foreach ($branches as $branch) {
             $configObject = $this->configSerializerProvider->decode($source, $branch);
             $encoded[] = $this->configCanonicalizer->canonicalize($this->configSerializerProvider->encode($source, $configObject));
         }

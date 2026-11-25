@@ -8,12 +8,38 @@ describe('canvas workspace restoration', () => {
         wrapper?.unmount();
     });
 
+    it('shows each frame language and updates it when the language changes', async () => {
+        const frame = {
+            id: 'preview',
+            layout: { id: 'layout', name: 'Product page' },
+            languageLabel: 'English',
+            viewport: 'desktop',
+            previewEntityId: null,
+            isActive: true,
+        };
+        wrapper = shallowMount(await wrapTestComponent('sw-experience-studio-canvas', { sync: true }), {
+            props: { frames: [frame] },
+        });
+        await flushPromises();
+
+        expect(wrapper.get('.sw-experience-studio-canvas__frame-name').text()).toBe('Product page');
+        expect(wrapper.get('.sw-experience-studio-canvas__frame-language').text()).toBe('English');
+
+        await wrapper.setProps({ frames: [{ ...frame, languageLabel: 'German' }] });
+        expect(wrapper.get('.sw-experience-studio-canvas__frame-language').text()).toBe('German');
+        expect(wrapper.get('.sw-experience-studio-canvas__frame-language').attributes('title')).toBe('German');
+
+        await wrapper.setProps({ frames: [{ ...frame, languageLabel: '' }] });
+        expect(wrapper.find('.sw-experience-studio-canvas__frame-language').exists()).toBe(false);
+    });
+
     it.each([
         0,
         1,
     ])('shows opened pages by default when entering a workspace with %i frames', async (frameCount) => {
         const configuration = createWorkspaceConfiguration();
         configuration.frames = Array.from({ length: frameCount }, () => ({
+            id: 'layout-a',
             layoutId: 'layout-a',
             x: 0,
             y: 0,
@@ -31,7 +57,7 @@ describe('canvas workspace restoration', () => {
                 workspaceConfiguration: configuration,
                 frames: configuration.frames.map((frame) => ({
                     id: frame.layoutId,
-                    layout: { name: 'Layout' },
+                    layout: { id: 'layout-a', name: 'Layout' },
                     viewport: frame.viewport,
                     previewEntityId: null,
                     isActive: true,
@@ -64,7 +90,16 @@ describe('canvas workspace restoration', () => {
     it('keeps pointer resizing while resize handles no longer respond to arrow keys or appear in the tab order', async () => {
         const configuration = createWorkspaceConfiguration();
         configuration.frames = [
-            { layoutId: 'layout-a', x: 0, y: 0, width: 700, height: 500, viewport: 'custom', previewEntityId: null },
+            {
+                id: 'layout-a',
+                layoutId: 'layout-a',
+                x: 0,
+                y: 0,
+                width: 700,
+                height: 500,
+                viewport: 'custom',
+                previewEntityId: null,
+            },
         ];
         wrapper = shallowMount(await wrapTestComponent('sw-experience-studio-canvas', { sync: true }), {
             props: {
@@ -72,7 +107,7 @@ describe('canvas workspace restoration', () => {
                 frames: [
                     {
                         id: 'layout-a',
-                        layout: { name: 'Layout' },
+                        layout: { id: 'layout-a', name: 'Layout' },
                         viewport: 'custom',
                         previewEntityId: null,
                         isActive: true,
@@ -82,7 +117,7 @@ describe('canvas workspace restoration', () => {
         });
         await flushPromises();
         const frame = wrapper.get('[data-frame-id="layout-a"]');
-        const handle = frame.get('.sw-experience-studio-canvas__resize-handle.is--se');
+        const handle = frame.get('.sw-experience-studio-canvas__resize-handle.is--e');
         const initialStyle = frame.attributes('style');
         expect(handle.attributes('tabindex')).toBe('-1');
 
@@ -100,28 +135,32 @@ describe('canvas workspace restoration', () => {
         await flushPromises();
 
         expect(frame.attributes('style')).toContain('width: 740px');
-        expect(frame.attributes('style')).toContain('height: 520px');
+        expect(frame.attributes('style')).toContain('height: 500px');
         expect(wrapper.emitted('frame-viewport-change')).toContainEqual(['layout-a', 'custom']);
     });
 
-    it('restores exact frame geometry and camera without reading legacy positions or autosaving', async () => {
+    it('restores exact frame geometry and camera without autosaving', async () => {
         const configuration = createWorkspaceConfiguration();
         configuration.frames = [
-            { layoutId: 'layout-a', x: -120, y: 75, width: 641, height: 815, viewport: 'custom', previewEntityId: null },
+            {
+                id: 'layout-a',
+                layoutId: 'layout-a',
+                x: -120,
+                y: 75,
+                width: 641,
+                height: 815,
+                viewport: 'custom',
+                previewEntityId: null,
+            },
         ];
         configuration.canvas = { panX: 45, panY: -90, zoom: 0.75 };
-        localStorage.setItem(
-            'sw-experience-studio-canvas-position.user.layout-a',
-            JSON.stringify({ x: 999, y: 999, isManuallyPlaced: true }),
-        );
         wrapper = shallowMount(await wrapTestComponent('sw-experience-studio-canvas', { sync: true }), {
             props: {
                 workspaceConfiguration: configuration,
-                layoutId: 'layout-a',
                 frames: [
                     {
                         id: 'layout-a',
-                        layout: { name: 'Layout' },
+                        layout: { id: 'layout-a', name: 'Layout' },
                         viewport: 'custom',
                         previewEntityId: null,
                         isActive: true,
@@ -136,5 +175,47 @@ describe('canvas workspace restoration', () => {
             'translate3d(45px, -90px, 0) scale(0.75)',
         );
         expect(wrapper.emitted('configuration-change')).toBeUndefined();
+    });
+
+    it('places a new frame next to a frame whose fractional position rounds into the gap', async () => {
+        const configuration = createWorkspaceConfiguration();
+        configuration.frames = [
+            {
+                id: 'layout-a',
+                layoutId: 'layout-a',
+                x: 1544.0166560931532,
+                y: 13.271484375,
+                width: 1480,
+                height: 1118,
+                viewport: 'desktop',
+                previewEntityId: null,
+            },
+        ];
+        const existingFrame = {
+            id: 'layout-a',
+            layout: { name: 'Layout' },
+            viewport: 'desktop',
+            previewEntityId: null,
+            isActive: true,
+        };
+        wrapper = shallowMount(await wrapTestComponent('sw-experience-studio-canvas', { sync: true }), {
+            props: {
+                workspaceConfiguration: configuration,
+                frames: [existingFrame],
+            },
+        });
+        await flushPromises();
+
+        await wrapper.setProps({
+            frames: [
+                existingFrame,
+                { id: 'layout-b', layout: { name: 'New' }, viewport: 'desktop', previewEntityId: null, isActive: false },
+            ],
+        });
+        await flushPromises();
+
+        expect(wrapper.get('[data-frame-id="layout-b"]').attributes('style')).toContain(
+            'translate(3084.016656093153px, 13.271484375px)',
+        );
     });
 });

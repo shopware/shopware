@@ -4,6 +4,18 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
     const computed = (detailComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
 
+    const pluginImageTypes = [{ name: 'Plugin:Image', label: 'Image', labelSnippet: 'plugin.element' }];
+    const textTypes = [
+        {
+            name: 'Sw:Content:Text',
+            label: 'Text',
+            icon: 'i',
+            illustration: 'content-text',
+            category: 'content',
+            priority: 100,
+        },
+    ];
+
     it('localizes picker text while keeping element and preset identifiers', () => {
         const translations: Record<string, string> = {
             'plugin.element': 'Bild',
@@ -14,7 +26,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
             $te: (key: string) => key in translations,
             $t: (key: string) => translations[key],
             pendingAddElementPayload: { parentElementId: null, slotName: null },
-            getAvailableTypesForPayload: () => [{ name: 'Plugin:Image', label: 'Image', labelSnippet: 'plugin.element' }],
+            getAvailableTypesForPayload: () => pluginImageTypes,
+            getStructurallyAvailableTypesForPayload: () => pluginImageTypes,
             layoutPresetStore: {
                 allPresets: [
                     {
@@ -24,6 +37,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
                         description: 'A preset',
                         descriptionSnippet: 'plugin.description',
                         payload: [],
+                        defaultBindingRootSources: null,
                     },
                 ],
             },
@@ -41,6 +55,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
 
     it('allows any preset at the root but gates slot presets by their root component', () => {
         const allowed = new Set(['Sw:Content:Text']);
+        const unrestrictedContext = { isOfferedOnRootSource: methods.isOfferedOnRootSource };
         const rootPayload = { parentElementId: null, slotName: null, anchorElement: null };
         const slotPayload = { parentElementId: 'parent-1', slotName: 'content', anchorElement: null };
 
@@ -49,28 +64,104 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
             name: 'P',
             description: null,
             icon: null,
+            defaultBindingRootSources: null,
             payload: [{ id: 'x', component: 'Sw:Grid:Container' }],
         };
         const textPreset = { ...containerPreset, payload: [{ id: 'x', component: 'Sw:Content:Text' }] };
 
-        expect(methods.isPresetAllowedForPayload.call({}, containerPreset, rootPayload, allowed)).toBe(true);
-        expect(methods.isPresetAllowedForPayload.call({}, containerPreset, slotPayload, allowed)).toBe(false);
-        expect(methods.isPresetAllowedForPayload.call({}, textPreset, slotPayload, allowed)).toBe(true);
+        expect(methods.isPresetAllowedForPayload.call(unrestrictedContext, containerPreset, rootPayload, allowed)).toBe(
+            true,
+        );
+        expect(methods.isPresetAllowedForPayload.call(unrestrictedContext, containerPreset, slotPayload, allowed)).toBe(
+            false,
+        );
+        expect(methods.isPresetAllowedForPayload.call(unrestrictedContext, textPreset, slotPayload, allowed)).toBe(true);
+    });
+
+    describe('root source applicability of the default bindings', () => {
+        const rootPayload = { parentElementId: null, slotName: null, anchorElement: null };
+        const slotPayload = { parentElementId: 'parent-1', slotName: 'content', anchorElement: null };
+        const allowed = new Set(['Sw:Grid:Container']);
+        const restrictedPreset = {
+            id: 'Sw:ProductDetailPage',
+            name: 'Product detail page',
+            description: null,
+            icon: null,
+            defaultBindingRootSources: ['product', 'category'],
+            payload: [
+                {
+                    id: 'container',
+                    component: 'Sw:Grid:Container',
+                    slots: { content: [{ id: 'breadcrumb', component: 'Sw:Navigation:Breadcrumb' }] },
+                },
+            ],
+        };
+
+        function createContext(rootSource: string | null) {
+            return {
+                layout: rootSource === null ? null : { rootSource, layout: [] },
+                isOfferedOnRootSource: methods.isOfferedOnRootSource,
+                resolveMutationRootSource: methods.resolveMutationRootSource,
+                getLayoutRootSource: methods.getLayoutRootSource,
+            };
+        }
+
+        it.each([
+            [
+                'landing_page',
+                'root',
+                rootPayload,
+                false,
+            ],
+            [
+                'landing_page',
+                'slot',
+                slotPayload,
+                false,
+            ],
+            [
+                'category',
+                'root',
+                rootPayload,
+                true,
+            ],
+            [
+                'category',
+                'slot',
+                slotPayload,
+                true,
+            ],
+            [
+                null,
+                'root',
+                rootPayload,
+                false,
+            ],
+        ])(
+            'on a layout with root source %s, a restricted preset for a %s payload is allowed: %s',
+            (rootSource, _label, payload, expected) => {
+                expect(
+                    methods.isPresetAllowedForPayload.call(createContext(rootSource), restrictedPreset, payload, allowed),
+                ).toBe(expected);
+            },
+        );
+
+        it('rejects a preset with an empty list on a layout with a root source', () => {
+            expect(
+                methods.isPresetAllowedForPayload.call(
+                    createContext('category'),
+                    { ...restrictedPreset, defaultBindingRootSources: [] },
+                    rootPayload,
+                    allowed,
+                ),
+            ).toBe(false);
+        });
     });
 
     it('appends allowed presets to the picker elements and filters disallowed ones in slots', () => {
         const vm = {
             pendingAddElementPayload: { parentElementId: 'parent-1', slotName: 'content', anchorElement: null },
-            getAvailableTypesForPayload: () => [
-                {
-                    name: 'Sw:Content:Text',
-                    label: 'Text',
-                    icon: 'i',
-                    illustration: 'content-text',
-                    category: 'content',
-                    priority: 100,
-                },
-            ],
+            getStructurallyAvailableTypesForPayload: () => textTypes,
             layoutPresetStore: {
                 allPresets: [
                     {
@@ -81,6 +172,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
                         illustration: 'preset-media-and-text',
                         category: 'content',
                         priority: 200,
+                        defaultBindingRootSources: null,
                         payload: [{ id: 'a', component: 'Sw:Content:Text' }],
                     },
                     {
@@ -88,11 +180,14 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
                         name: 'Blocked',
                         description: null,
                         icon: null,
+                        defaultBindingRootSources: null,
                         payload: [{ id: 'b', component: 'Sw:Grid:Container' }],
                     },
                 ],
             },
+            getAvailableTypesForPayload: () => textTypes,
             isPresetAllowedForPayload: methods.isPresetAllowedForPayload,
+            isOfferedOnRootSource: methods.isOfferedOnRootSource,
         };
 
         const items = computed.availablePickerElements.call(vm) as Array<{ name: string; kind: string; id?: string }>;

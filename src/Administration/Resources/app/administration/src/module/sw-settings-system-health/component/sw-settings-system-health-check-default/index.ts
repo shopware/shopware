@@ -1,5 +1,5 @@
 import template from './sw-settings-system-health-check-default.html.twig';
-import type { SystemHealthCheck } from '../../types';
+import { checkViewProps, useCheckView } from '../../use-check-view';
 import type { SystemHealthValue } from '../sw-settings-system-health-values';
 import shortDate from '../../short-date';
 
@@ -7,7 +7,7 @@ import shortDate from '../../short-date';
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
 /**
- * The view of a check without its own component: its details as labeled values. A label comes from the snippet
+ * The view of a check without its own view: its details as labeled values. A label comes from the snippet
  * sw-settings-system-health.extra.<check>.<key>, a value from sw-settings-system-health.extra.<check>.values.<value>;
  * without a snippet the key is split into words and the value shown as it is.
  *
@@ -17,16 +17,13 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    props: {
-        check: {
-            type: Object as PropType<SystemHealthCheck>,
-            required: true,
-        },
-    },
+    props: checkViewProps,
+
+    setup: (props) => useCheckView(props),
 
     computed: {
         values(): SystemHealthValue[] {
-            return Object.entries(this.check.result?.extra ?? {})
+            return Object.entries(this.extra)
                 .filter(([, value]) => value !== null && value !== '')
                 .map(([key, value]) => ({ key, label: this.label(key), value: this.format(value) }));
         },

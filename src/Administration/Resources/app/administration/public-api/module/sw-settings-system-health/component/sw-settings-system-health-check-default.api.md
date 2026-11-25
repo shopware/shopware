@@ -11,9 +11,6 @@ component sw-settings-system-health-check-default  private  ts  [private]
   template src/module/sw-settings-system-health/component/sw-settings-system-health-check-default/sw-settings-system-health-check-default.html.twig  [private]
   visibility-source export  [private]
 
-props
-  check: SystemHealthCheck  [private]
-
 computed
   values: SystemHealthValue[]  [private]
 
@@ -23,4 +20,8 @@ methods
 
 blocks
   sw_settings_system_health_check_default  [private]
+
+notes
+  unresolved options setup  [private]
+  unresolved props checkViewProps  [private]
 ```

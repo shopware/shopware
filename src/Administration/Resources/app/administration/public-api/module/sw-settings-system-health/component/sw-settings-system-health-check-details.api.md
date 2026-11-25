@@ -16,6 +16,7 @@ inject
 
 props
   check: SystemHealthCheck  [private]
+  impact?: string  default=null  [private]
   summary?: string  default=null  [private]
 
 slots
@@ -25,7 +26,7 @@ slots
 computed
   actionLabel: string  [private]
   actionOnTop: boolean  [private]
-  impact: string  [private]
+  impactText: string  [private]
   resolveRoute: string | null  [private]
   showsResolution: boolean  [private]
   snippetPrefix: string  [private]

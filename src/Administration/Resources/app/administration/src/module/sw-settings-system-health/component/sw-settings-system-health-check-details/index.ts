@@ -27,6 +27,13 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+
+        // what to do, when it depends on the result; else the snippet sw-settings-system-health.resolution.<check>.impact
+        impact: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     computed: {
@@ -35,11 +42,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showsResolution(): boolean {
-            return needsAttention(this.check) && this.$te(`${this.snippetPrefix}.impact`);
+            return needsAttention(this.check) && (!!this.impact || this.$te(`${this.snippetPrefix}.impact`));
         },
 
-        impact(): string {
-            return this.$t(`${this.snippetPrefix}.impact`);
+        impactText(): string {
+            return this.impact ?? this.$t(`${this.snippetPrefix}.impact`);
         },
 
         resolveRoute(): string | null {

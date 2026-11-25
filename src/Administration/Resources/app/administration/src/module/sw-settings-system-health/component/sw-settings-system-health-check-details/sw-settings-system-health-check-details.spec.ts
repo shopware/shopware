@@ -13,14 +13,18 @@ function check(status: SystemHealthStatus): SystemHealthCheck {
     };
 }
 
-async function createWrapper(status: SystemHealthStatus, summary: string | null = 'Two locale codes are not valid.') {
+async function createWrapper(
+    status: SystemHealthStatus,
+    summary: string | null = 'Two locale codes are not valid.',
+    impact: string | null = null,
+) {
     const registry = new SystemHealthCheckRegistry();
     registry.register('LocalesReadiness', { resolveRoute: 'sw.settings.language.index' });
 
     const push = jest.fn();
 
     const wrapper = mount(await wrapTestComponent('sw-settings-system-health-check-details', { sync: true }), {
-        props: { check: check(status), summary },
+        props: { check: check(status), summary, impact },
         slots: { default: '<div class="evidence"></div>' },
         global: {
             provide: { systemHealthCheckRegistry: registry },
@@ -73,5 +77,11 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-c
 
         expect(sections).toHaveLength(2);
         expect(sections[0].find('.mt-button').exists()).toBe(true);
+    });
+
+    it('should take a what-to-do text that depends on the result', async () => {
+        const { wrapper } = await createWrapper('WARNING', null, 'These apps receive no data: Acme');
+
+        expect(wrapper.text()).toContain('These apps receive no data: Acme');
     });
 });

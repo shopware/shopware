@@ -147,6 +147,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         defaultFolderRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-detail.defaultFolderRepository is deprecated. Use mediaDefaultFolderService.getDefaultFolderId() instead.',
+            );
+
             return this.repositoryFactory.create('media_default_folder');
         },
 
@@ -355,6 +360,11 @@ export default {
          * @deprecated tag:v6.8.0 - Replaced by "resetRelatedStores" method
          */
         resetCmsPageState() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-detail.resetCmsPageState() is deprecated. Replaced by "resetRelatedStores" method.',
+            );
+
             this.cmsPageState.resetCmsPageState();
         },
 

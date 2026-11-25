@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 
 #[Package('framework')]
 class ElasticsearchHelper
@@ -37,7 +38,9 @@ class ElasticsearchHelper
         private readonly ElasticsearchRegistry $registry,
         private readonly CriteriaParser $parser,
         private readonly LoggerInterface $logger,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly int $termMaxWords,
+        private readonly ElasticsearchTokenizer $tokenizer,
     ) {
     }
 
@@ -161,7 +164,7 @@ class ElasticsearchHelper
             throw ElasticsearchException::unsupportedElasticsearchDefinition($definition->getEntityName());
         }
 
-        $query = $esDefinition->buildTermQuery($context, $criteria);
+        $query = $esDefinition->buildTermQuery($context, $this->limitTermWords($criteria));
 
         $search->addQuery($query);
 
@@ -270,5 +273,30 @@ class ElasticsearchHelper
         }
 
         return $this->systemConfigService->getFloat('core.search.minScore', $salesChannelId);
+    }
+
+    private function limitTermWords(Criteria $criteria): Criteria
+    {
+        $term = (string) $criteria->getTerm();
+        $words = preg_split('/\s+/u', $term, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_OFFSET_CAPTURE) ?: [];
+        $countedWords = [];
+        $end = 0;
+
+        foreach ($words as [$word, $offset]) {
+            foreach ($this->tokenizer->tokenize($word) as $token) {
+                $countedWords[$token] = true;
+            }
+
+            if (\count($countedWords) > $this->termMaxWords) {
+                $limited = clone $criteria;
+                $limited->setTerm(substr($term, 0, $end));
+
+                return $limited;
+            }
+
+            $end = $offset + \strlen($word);
+        }
+
+        return $criteria;
     }
 }

@@ -7,8 +7,10 @@ use Mcp\Capability\Registry\ReferenceHandlerInterface;
 use Mcp\Capability\Registry\ToolReference;
 use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\JsonRpc\Request;
+use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Server\RequestContext;
 use Mcp\Server\Session\SessionInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -19,7 +21,12 @@ use Shopware\Core\Framework\Log\Package;
  * Wraps the SDK's reference handler so every tool result, from core, plugins, bundles and apps, goes
  * through {@see McpToolResultRenderer}. A tool that returns a {@see McpToolResult} is rendered
  * directly; one that returns the legacy `{"success": …}` string is parsed first. Anything else, and
- * every prompt and resource, is passed through unchanged. Wired onto both MCP servers by
+ * every prompt and resource, is passed through unchanged.
+ *
+ * Every string result of a PHP tool is deprecated, the legacy envelope, whether built with
+ * McpToolResponse::success() and the other string helpers or by hand, as well as plain text, which
+ * McpToolResult::text() replaces. This is where the deprecation is reported. App tools keep the envelope
+ * as their response format and are not reported. Wired onto both MCP servers by
  * McpToolResultRendererCompilerPass.
  */
 #[Package('framework')]
@@ -43,15 +50,52 @@ class McpToolResultReferenceHandler implements ReferenceHandlerInterface
             return $result;
         }
 
+        // The call is echoed with a stored result, see McpToolResultRenderer.
+        $request = $arguments['_request'] ?? null;
+        $call = $request instanceof CallToolRequest ? $request : null;
+
+        $hasOutputSchema = $reference->tool->outputSchema !== null;
+
         if ($result instanceof McpToolResult) {
-            return $this->renderer->render($result, $this->protocolVersion($arguments));
+            return $this->renderer->render($result, $this->protocolVersion($arguments), call: $call, hasOutputSchema: $hasOutputSchema);
         }
 
         if (\is_string($result) && ($parsed = $this->parser->parse($result)) !== null) {
-            return $this->renderer->render($parsed, $this->protocolVersion($arguments), $result);
+            if ($this->isClassTool($reference)) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    \sprintf(
+                        'MCP tool "%s" returned the legacy {"success": …} JSON string, which is deprecated and will be removed in v6.8.0.0. Return a "%s" instead.',
+                        $reference->tool->name,
+                        McpToolResult::class,
+                    ),
+                );
+            }
+
+            return $this->renderer->render($parsed, $this->protocolVersion($arguments), $result, $call, $hasOutputSchema);
+        }
+
+        if (\is_string($result) && $this->isClassTool($reference)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                \sprintf(
+                    'MCP tool "%s" returned a string, which is deprecated and will be removed in v6.8.0.0. Return "%s::text()" for plain text instead.',
+                    $reference->tool->name,
+                    McpToolResult::class,
+                ),
+            );
         }
 
         return $result;
+    }
+
+    /**
+     * PHP tools, from core, plugins and bundles, are registered with their class and method. App tools are
+     * registered as a closure by AppMcpToolLoader, which forwards the call to the app's endpoint.
+     */
+    private function isClassTool(ToolReference $reference): bool
+    {
+        return !$reference->handler instanceof \Closure;
     }
 
     /**

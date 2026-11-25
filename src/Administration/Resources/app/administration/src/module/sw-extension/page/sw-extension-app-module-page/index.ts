@@ -1,4 +1,5 @@
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
+import useTheme from 'src/app/composables/use-theme';
 import template from './sw-extension-app-module-page.html.twig';
 import './sw-extension-app-module-page.scss';
 
@@ -174,10 +175,11 @@ export default Shopware.Component.wrapComponentConfig({
 
                 // The source already contains old query params remove them
                 const source = new URL(sourceString);
-                const sourceWithoutParams = source.origin + source.pathname;
+                const unsignedSource = new URL(source.origin + source.pathname);
+                unsignedSource.searchParams.append('color-scheme', useTheme().resolvedTheme.value);
 
                 this.extensionSdkService
-                    .signIframeSrc(this.appName, sourceWithoutParams)
+                    .signIframeSrc(this.appName, unsignedSource.toString())
                     .then((response) => {
                         const uri = (response as { uri?: string })?.uri;
 

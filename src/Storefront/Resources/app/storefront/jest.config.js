@@ -46,6 +46,8 @@ module.exports = {
         '!src/**/*.vite.js',
         '!src/scss/**',
         '!src/vendor/**',
+        // Vitest specs of the component system, covered by the vitest-storefront-components flag.
+        '!src/**/*.test.ts',
     ],
 
     // Fail testsuite if coverage is below given percentage

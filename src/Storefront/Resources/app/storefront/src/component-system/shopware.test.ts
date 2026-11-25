@@ -100,6 +100,41 @@ describe('Shopware runtime component lifecycle', () => {
         expect(Shopware.getComponentInstances('Sw:Lifecycle:Two')).toHaveLength(0);
     });
 
+    it('replaces every instance of a component with an instance of the new class on the same element', () => {
+        const componentName = 'Sw:Lifecycle:Replaced';
+        const first = document.createElement('div');
+        const second = document.createElement('div');
+        document.body.append(first, second);
+        Shopware.initializeComponentOnElement(componentName, LifecycleTestComponent, first);
+        Shopware.initializeComponentOnElement(componentName, LifecycleTestComponent, second);
+        const other = Shopware.initializeComponentOnElement('Sw:Lifecycle:Other', LifecycleTestComponent, first);
+
+        class ReplacedTestComponent extends LifecycleTestComponent {}
+
+        const instances = Shopware.replaceComponent(componentName, ReplacedTestComponent);
+
+        expect(LifecycleTestComponent.destroyCount).toBe(2);
+        expect(instances).toHaveLength(2);
+        expect(instances.every(instance => instance instanceof ReplacedTestComponent)).toBe(true);
+        expect(Shopware.getComponentInstanceByElement(componentName, first)).toBe(instances[0]);
+        expect(Shopware.getComponentInstanceByElement(componentName, second)).toBe(instances[1]);
+        expect(Shopware.getComponentInstances(componentName)).toEqual(instances);
+        expect(Shopware.getComponentInstanceByElement('Sw:Lifecycle:Other', first)).toBe(other);
+    });
+
+    it('drops the instances of detached elements and creates components of added elements with the new class', async () => {
+        const componentName = 'Sw:Lifecycle:ReplacedDetached';
+        const detached = document.createElement('div');
+        Shopware.initializeComponentOnElement(componentName, LifecycleTestComponent, detached);
+
+        class ReplacedTestComponent extends LifecycleTestComponent {}
+
+        expect(Shopware.replaceComponent(componentName, ReplacedTestComponent)).toEqual([]);
+        expect(LifecycleTestComponent.destroyCount).toBe(1);
+        expect(Shopware.getComponentInstances(componentName)).toHaveLength(0);
+        expect(await Shopware.getComponent(componentName)).toBe(ReplacedTestComponent);
+    });
+
     it('clears indexed lookups after node removal', () => {
         const componentName = 'Sw:Lifecycle:IndexedLookup';
         const node = document.createElement('div');

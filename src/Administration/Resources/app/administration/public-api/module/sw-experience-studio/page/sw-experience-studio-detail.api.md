@@ -47,6 +47,7 @@ data
   latestDiagnoseRequestId: any  [private]
   layout: any  [private]
   layoutTypeLoadError: any  [private]
+  layoutTypesRequest: any  [private]
   managedWorkspace: any  [private]
   mutationQueue: any  [private]
   openLayouts: any  [private]

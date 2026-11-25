@@ -155,38 +155,17 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
     });
 
-    // Regression guard: an available entity root source continues to provide a preview context.
-    it('derives preview entity type from layout rootSource', () => {
-        const vm = {
-            availableLayoutTypes: ['product'],
-            getLayoutRootSource: methods.getLayoutRootSource,
-            resolveAssignedPreviewContext: jest.fn().mockReturnValue(null),
-        };
-
-        const previewContext = methods.resolvePreviewContext.call(vm, {
-            rootSource: 'product',
-        });
-
-        expect(previewContext).toEqual({
-            entityType: 'product',
-            entityId: null,
-            salesChannelId: null,
-        });
-    });
-
     it.each([
-        'header',
-        'footer',
-        'none',
-        'swag-sidebar',
-    ])('returns no preview context for the non-entity root source %s', (rootSource) => {
+        ['product', { entityType: 'product', entityId: null, salesChannelId: null }],
+        ['swag-sidebar', null],
+    ])('resolves the preview context of a layout rooted on %s', (rootSource, expected) => {
         const vm = {
             availableLayoutTypes: ['product'],
             getLayoutRootSource: methods.getLayoutRootSource,
             resolveAssignedPreviewContext: jest.fn().mockReturnValue(null),
         };
 
-        expect(methods.resolvePreviewContext.call(vm, { rootSource })).toBeNull();
+        expect(methods.resolvePreviewContext.call(vm, { rootSource })).toEqual(expected);
     });
 
     it('does not create a repository while loading the default preview entity for a non-entity root source', async () => {

@@ -77,6 +77,8 @@ async function createWrapper(
                 conditionDataProviderService: {
                     getOperatorSet: () => [],
                     isExistenceOnlyEntity: (entity) => entity === 'product_document',
+                    hasEmptyOperators: () => false,
+                    isEmptyType: () => false,
                     allowedJsonAccessors: {
                         'json.test': {
                             value: 'json.test',

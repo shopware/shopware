@@ -1,5 +1,19 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### Percentage conditions of dynamic product groups use the price/list price ratio
+
+Since 6.7.10.0, `cheapestPrice.percentage` compares the ratio of the price to the list price instead of the discount, so "at least 10 % off" is `lte 90`.
+The update converts the conditions on this field that dynamic product groups saved before the shop ran 6.7.10.0, for example `{"gte": 10}` to `{"lte": 90}`, and assigns the products of these groups again in the background.
+Conditions created or edited since then, and upper bounds of 100 or more without a lower bound such as "less than 100", are kept, so check them in the Administration.
+Criteria in extensions, apps or Store API requests that filter or sort on `cheapestPrice.percentage` are not converted; change them the same way.
+
+Products without a list price have no ratio and match none of these comparisons.
+The condition "Percentage ratio price/list price" now offers "Is empty" to select them, and "Is not empty" to select the products that have a ratio.
+A condition "Is equal to 0" that was meant to select products without a list price is converted to "Is equal to 100" and no longer matches them; change it to "Is empty".
+Parent products with variants can be without a ratio of their own, so "Is empty" can match them as well.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

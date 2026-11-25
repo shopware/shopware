@@ -113,6 +113,9 @@ export default function conditionService() {
         },
     };
 
+    // fields that are empty for some products: a product without a list price has no price/list price ratio
+    const fieldsWithEmptyOperators = ['cheapestPrice.percentage'];
+
     const productFilterTypes = {
         equals: {
             identifier: 'equals',
@@ -207,6 +210,16 @@ export default function conditionService() {
         notEqualsAll: {
             identifier: 'notEqualsAll',
             label: 'sw-product-stream.filter.type.notEqualsAll',
+        },
+
+        // saved as an `equals` condition without a value, `isNotEmpty` wrapped in a `not` condition
+        isEmpty: {
+            identifier: 'isEmpty',
+            label: 'sw-product-stream.filter.type.isEmpty',
+        },
+        isNotEmpty: {
+            identifier: 'isNotEmpty',
+            label: 'sw-product-stream.filter.type.isNotEmpty',
         },
     };
 
@@ -307,6 +320,8 @@ export default function conditionService() {
         getPlaceholderData,
         getComponentByCondition,
         getOperatorSet,
+        hasEmptyOperators,
+        isEmptyType,
         negateOperator,
         getOperator,
         isNegatedType,
@@ -437,12 +452,26 @@ export default function conditionService() {
         return 'sw-product-stream-filter';
     }
 
-    function getOperatorSet(type) {
+    function getOperatorSet(type, field = null) {
         if (!utils.types.isString(type) || type === '') {
             return operatorSets.default;
         }
 
-        return operatorSets[type] || operatorSets.default;
+        const operatorSet = operatorSets[type] || operatorSets.default;
+
+        if (!hasEmptyOperators(field)) {
+            return operatorSet;
+        }
+
+        return [...operatorSet, productFilterTypes.isEmpty, productFilterTypes.isNotEmpty];
+    }
+
+    function hasEmptyOperators(field) {
+        return fieldsWithEmptyOperators.includes(field);
+    }
+
+    function isEmptyType(type) {
+        return [productFilterTypes.isEmpty.identifier, productFilterTypes.isNotEmpty.identifier].includes(type);
     }
 
     function getOperator(type) {

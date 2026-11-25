@@ -52,7 +52,12 @@ async function createWrapper({ labelProperty, entity = 'product_manufacturer' }:
         global: {
             provide: {
                 repositoryFactory: { create: () => repository },
-                conditionDataProviderService: { getOperatorSet: () => [], allowedJsonAccessors: {} },
+                conditionDataProviderService: {
+                    getOperatorSet: () => [],
+                    hasEmptyOperators: () => false,
+                    isEmptyType: () => false,
+                    allowedJsonAccessors: {},
+                },
                 productCustomFields: {
                     location: {
                         type: 'select',

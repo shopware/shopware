@@ -46,7 +46,7 @@ class EntitySyncToolTest extends TestCase
         $syncService->expects($this->once())
             ->method('sync')
             ->willReturnCallback(static function (array $operations, Context $context): SyncResult {
-                // executeWithDryRun() keeps flows from firing during the preview.
+                // executeWithDryRunResult() keeps flows from firing during the preview.
                 static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
                 static::assertSame(Context::CRUD_API_SCOPE, $context->getScope());
 

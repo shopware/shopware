@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
@@ -33,14 +34,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * The Admin API sync endpoint (`POST /api/_action/sync`) as an MCP tool: several upsert and delete
  * operations, on one or several entities, written by `SyncService` in one call.
- *
- * Builds its `McpToolResult` directly. Once the `*Result()` helpers of `McpToolResponse` exist
- * (#21306), they replace the private helpers here.
  */
 #[Package('framework')]
 #[McpTool(
     name: 'shopware-entity-sync',
     title: 'Entity Sync',
+    annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false),
     description: 'Bulk write: run many upsert and delete operations, on one or several entities, in a single call, the same way as the Admin API sync endpoint. Use this, NOT shopware-entity-upsert or shopware-entity-delete, for imports and bulk changes (prices or stock of many products, many records at once), and when creates, updates and deletes on different entities belong to one change, e.g. replacing the categories of many products. For one or a few records of one entity, shopware-entity-upsert and shopware-entity-delete are simpler. Always use dryRun=true (default) first: it runs every operation, reports what would be written, deleted or not found, and changes nothing. Then call again with dryRun=false. Many-to-many links are removed by a delete on the mapping entity, e.g. "product_category" with payload [{"productId":"...","categoryId":"..."}].'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]
@@ -121,35 +120,7 @@ class EntitySyncTool extends McpToolResponse
             return $sync();
         }
 
-        return $this->dryRun($context, $sync);
-    }
-
-    /**
-     * Runs the operation through executeWithDryRun(), the dry-run mechanism of every write tool, and keeps
-     * its McpToolResult. executeWithDryRun() reports a throwable of the operation and a failed rollback
-     * as the legacy error string, which becomes a failure here.
-     *
-     * @param \Closure(): McpToolResult $operation
-     */
-    private function dryRun(Context $context, \Closure $operation): McpToolResult
-    {
-        $result = null;
-        $error = $this->executeWithDryRun($this->connection, $context, static function () use ($operation, &$result): string {
-            $result = $operation();
-
-            return '';
-        });
-
-        if ($error === '' && $result instanceof McpToolResult) {
-            return $result;
-        }
-
-        $decoded = json_decode($error, true);
-
-        return McpToolResult::failure(
-            \is_array($decoded) && \is_string($decoded['error'] ?? null) ? $decoded['error'] : $error,
-            \is_array($decoded) && \is_string($decoded['code'] ?? null) ? $decoded['code'] : McpToolError::TOOL_ERROR,
-        );
+        return $this->executeWithDryRunResult($this->connection, $context, $sync);
     }
 
     /**

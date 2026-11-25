@@ -369,7 +369,7 @@ App tools from `mcp.xml` carry no annotations yet.
 `SyncService` runs the operations in one call, in the `CRUD_API_SCOPE` the endpoint uses, so a failing operation writes nothing.
 Its description tells the model to use it instead of `shopware-entity-upsert` and `shopware-entity-delete` for imports and bulk changes, and when writes on several entities belong to one change.
 
-- **Dry run.** `dryRun` defaults to `true` and runs through `executeWithDryRun()` like every other write tool: everything is written in a transaction that is rolled back, so the result names what would be written, deleted or not found, and validation and DAL privilege errors show up inline.
+- **Dry run.** `dryRun` defaults to `true` and runs through `executeWithDryRunResult()` like every other write tool: everything is written in a transaction that is rolled back, so the result names what would be written, deleted or not found, and validation and DAL privilege errors show up inline.
 - **Privileges.** Before anything is written, every operation is checked: a record with `id` needs `<entity>:update`, one without needs `<entity>:create`, a delete needs `<entity>:delete`.
   All missing privileges are reported in one `Missing privilege:` error.
   The DAL's ACL check still runs on every write command, so a nested association write (e.g. new categories inside a product) is denied by the DAL and reported the same way.
@@ -387,9 +387,6 @@ Its description tells the model to use it instead of `shopware-entity-upsert` an
   5,000 products take about 10 s and 85 MB, 20,000 products (5 MB of arguments) about 75 s and 330 to 380 MB.
   The model's output limit caps a call long before that, and `max_execution_time` and `memory_limit` of the PHP process are the server's limits.
 - **Not exposed.** The `indexing-skip` and `indexing-only` headers are left out until a use case needs them.
-
-The tool builds its `McpToolResult` directly, because the base class has no `*Result()` helpers yet.
-Once #21306 adds them, they replace the private helpers of `EntitySyncTool`.
 
 ### Removing many-to-many links
 

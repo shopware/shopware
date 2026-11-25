@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
@@ -85,7 +86,7 @@ class ContentLayoutRevisionController
             $layoutId,
             $branchId,
             $data->all('layout'),
-            $this->string($data, 'expectedHead') ?? '',
+            $this->string($data, 'expectedHead') ?? throw ContentSystemException::missingRequestField(['expectedHead']),
             $this->string($data, 'name'),
             $context,
         );
@@ -140,8 +141,8 @@ class ContentLayoutRevisionController
     }
 
     /**
-     * A missing or non-string value reads as absent. Where the service needs one — `expectedHead`, `revisionId` —
-     * the empty string it gets instead matches no head and no revision, so the request fails as a 409 or a 404.
+     * A missing or non-string value reads as absent. A missing `revisionId` reaches the service as the empty string,
+     * which matches no revision, so the request fails as a 404.
      */
     private function string(RequestDataBag $data, string $key): ?string
     {

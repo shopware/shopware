@@ -63,7 +63,7 @@ values.
 
 `mutateBranch()` applies the mutation to the head of a draft branch instead of the live tree.
 It checks the declared write privilege first, exactly like `mutate()`.
-`expectedHead` is the branch head revision id the caller last saw; a stale or missing head is `layoutVersionConflict`, 409.
+`expectedHead` is the branch head revision id the caller last saw; a stale head is `layoutVersionConflict`, 409.
 `Layout/Revision/LayoutRevisionService::appendRevision()` checks the head under the layout row lock and hands the head tree to the mutation.
 The mutation runs through `MutationPipeline::run()`, consumer mirroring included, against the layout's `root_source` and its resolved root context.
 The result is admitted like a saved draft, well-formedness only, and appended as one revision whose parent is the old head.

@@ -94,6 +94,7 @@ class ContentSystemException extends HttpException
     public const ROOT_SOURCE_ASSIGNMENT_MISMATCH = 'CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH';
     public const DEFAULT_CONTENT_LAYOUT_DELETION = 'CONTENT_SYSTEM__DEFAULT_CONTENT_LAYOUT_DELETION';
     public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
+    public const MISSING_REQUEST_FIELD = 'CONTENT_SYSTEM__MISSING_REQUEST_FIELD';
     public const UNSUPPORTED_STYLE_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_STYLE_VALUE_TYPE';
     public const STYLE_OPTION_DUPLICATE = 'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE';
     public const STYLE_OPTION_LOAD_FAILED = 'CONTENT_SYSTEM__STYLE_OPTION_LOAD_FAILED';
@@ -1072,6 +1073,19 @@ class ContentSystemException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::UNKNOWN_REQUEST_FIELD,
             'The request contains unknown field(s): {{ fields }}. This endpoint rejects fields it does not declare.',
+            ['fields' => implode(', ', $fields)]
+        );
+    }
+
+    /**
+     * @param list<string> $fields
+     */
+    public static function missingRequestField(array $fields): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_FIELD,
+            'The request is missing the field(s): {{ fields }}.',
             ['fields' => implode(', ', $fields)]
         );
     }

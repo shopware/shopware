@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UpdateElementPropertiesNotEmpty]
 final class ContentLayoutUpdateElementPropertiesRequest
 {
+    use TargetsMutation;
+
     /**
      * @param array<array-key, mixed> $values
      * @param list<string> $removeKeys

@@ -88,19 +88,6 @@ class PersistedBranchMutationTest extends TestCase
         );
     }
 
-    #[TestDox('a missing head is a version conflict, not a server error')]
-    public function testNullHeadConflicts(): void
-    {
-        $layoutId = $this->createLayout(['a']);
-        $branch = $this->revisions->createBranch($layoutId);
-
-        $this->assertFailsWithoutAppending(
-            $layoutId,
-            ContentSystemException::LAYOUT_VERSION_CONFLICT,
-            fn () => $this->mutator->mutateBranch($layoutId, $branch->id, null, new RemoveElement('a'), $this->context),
-        );
-    }
-
     #[TestDox('an operation that rejects the edit appends nothing and leaves the head where it was')]
     public function testRejectedOperationAppendsNothing(): void
     {

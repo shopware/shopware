@@ -73,13 +73,9 @@ class PersistedLayoutMutator
      * not written. The branch runs the draft pipeline, consumer mirroring included, and is admitted like a saved
      * draft, so only publishing enforces resolvability.
      */
-    public function mutateBranch(string $layoutId, string $branchId, ?string $expectedHead, LayoutMutation $mutation, Context $context): BranchMutationResult
+    public function mutateBranch(string $layoutId, string $branchId, string $expectedHead, LayoutMutation $mutation, Context $context): BranchMutationResult
     {
         $this->checkWritePrivilege($mutation, $context);
-
-        if ($expectedHead === null) {
-            throw ContentSystemException::layoutVersionConflict($layoutId);
-        }
 
         $result = null;
         $appended = $this->revisions->appendRevision(

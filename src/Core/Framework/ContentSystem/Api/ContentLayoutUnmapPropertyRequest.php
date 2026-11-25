@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ContentLayoutUnmapPropertyRequest
 {
+    use TargetsMutation;
+
     public function __construct(
         public readonly string $elementId,
         public readonly string $propertyKey,

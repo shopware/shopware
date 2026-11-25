@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ContentLayoutInsertRequest
 {
+    use TargetsMutation;
+
     public function __construct(
         public readonly string $type,
         public readonly ?string $expectedVersion,

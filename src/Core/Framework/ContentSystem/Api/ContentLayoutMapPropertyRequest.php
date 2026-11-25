@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ContentLayoutMapPropertyRequest
 {
+    use TargetsMutation;
+
     /**
      * @param array<string, mixed> $source
      */

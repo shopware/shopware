@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutRevisionController;
@@ -23,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ContentLayoutRevisionController::class)]
 class ContentLayoutRevisionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -96,6 +94,22 @@ class ContentLayoutRevisionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         static::assertStringContainsString(ContentSystemException::CONTENT_LAYOUT_BRANCH_NOT_FOUND, (string) $response->getContent());
+    }
+
+    #[TestDox('saving a revision without the head token is a client error')]
+    public function testSaveWithoutExpectedHeadIsABadRequest(): void
+    {
+        $layoutId = $this->createLayout();
+        $branch = $this->json('POST', $layoutId . '/branches')['branch'];
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/branches/' . $branch['id'] . '/revisions', [
+            'layout' => [$this->element('draft-a')],
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString(ContentSystemException::MISSING_REQUEST_FIELD, (string) $response->getContent());
+        static::assertSame($branch['head'], $this->json('GET', $layoutId . '/branches/' . $branch['id'])['branch']['head']);
     }
 
     /**

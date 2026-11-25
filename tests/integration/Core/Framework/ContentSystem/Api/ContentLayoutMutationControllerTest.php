@@ -1104,6 +1104,18 @@ class ContentLayoutMutationControllerTest extends TestCase
         $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::CONTENT_LAYOUT_BRANCH_NOT_FOUND);
     }
 
+    #[TestDox('a mutation naming a branch without the head token is a client error and appends nothing')]
+    public function testBranchMutationWithoutExpectedHeadIsABadRequest(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $branch = $this->revisions()->createBranch($layoutId);
+
+        $this->request('remove-element', $layoutId, ['branchId' => $branch->id, 'elementId' => 'block-a']);
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::MISSING_REQUEST_FIELD);
+        static::assertSame($branch->head, $this->revisions()->getBranch($layoutId, $branch->id)['branch']->head);
+    }
+
     #[TestDox('a malformed branch id is a client error and writes nothing')]
     public function testMalformedBranchIdIsABadRequest(): void
     {

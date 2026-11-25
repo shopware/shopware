@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Package('framework')]
 final class ContentLayoutTranslateElementRequest
 {
+    use TargetsMutation;
+
     /**
      * @param array<array-key, mixed> $values
      */

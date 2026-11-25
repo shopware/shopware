@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ContentLayoutRemoveRequest
 {
+    use TargetsMutation;
+
     public function __construct(
         public readonly string $elementId,
         public readonly ?string $expectedVersion,

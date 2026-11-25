@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
@@ -34,9 +33,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
- * The persisted counterpart to {@see LayoutMutationController}. Without `branchId` an action writes the live
- * layout, guarded by `expectedVersion` (the layout's updatedAt); with `branchId` it appends a revision to that
- * draft branch, guarded by `expectedHead` (the branch head revision id). Each target rejects the other's token.
+ * The persisted counterpart to {@see LayoutMutationController}. Each action writes the {@see MutationTarget} its
+ * request names: the live layout, or a draft branch.
  *
  * @internal
  *
@@ -70,7 +68,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new InsertElement($this->registry, $payload->type, $this->bindingRegistry, $this->bindingApplicator, bindingSpecificationId: $payload->bindingSpecificationId, parentElementId: $payload->parentElementId, index: $payload->index, slot: $payload->slot);
 
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/remove-element', name: 'api.action.content_system.layout.persisted_remove_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -80,7 +78,7 @@ class ContentLayoutMutationController
         ContentLayoutRemoveRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, new RemoveElement($payload->elementId), $context);
+        return $this->respond($layoutId, $payload->target(), new RemoveElement($payload->elementId), $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/move-element', name: 'api.action.content_system.layout.persisted_move_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -92,7 +90,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new MoveElement($payload->elementId, $payload->newParentId, $payload->newSlot, $payload->index);
 
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/replace-element', name: 'api.action.content_system.layout.persisted_replace_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -104,9 +102,7 @@ class ContentLayoutMutationController
     ): Response {
         return $this->respond(
             $layoutId,
-            $payload->branchId,
-            $payload->expectedVersion,
-            $payload->expectedHead,
+            $payload->target(),
             new ReplaceElement(
                 $this->registry,
                 $payload->elementId,
@@ -126,7 +122,7 @@ class ContentLayoutMutationController
         ContentLayoutDuplicateRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, new DuplicateElement($payload->elementId, $payload->index), $context);
+        return $this->respond($layoutId, $payload->target(), new DuplicateElement($payload->elementId, $payload->index), $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/wrap-elements', name: 'api.action.content_system.layout.persisted_wrap_elements', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -138,7 +134,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new WrapElements($this->registry, $payload->elementIds, $payload->containerType, $payload->slot);
 
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/unwrap-element', name: 'api.action.content_system.layout.persisted_unwrap_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -148,7 +144,7 @@ class ContentLayoutMutationController
         ContentLayoutUnwrapRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, new UnwrapElement($payload->containerElementId), $context);
+        return $this->respond($layoutId, $payload->target(), new UnwrapElement($payload->containerElementId), $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/attach-element', name: 'api.action.content_system.layout.persisted_attach_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -160,7 +156,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new AttachElement($this->registry, $this->decoder->decodeOne($payload->element), $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot, $payload->index);
 
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/bind-element', name: 'api.action.content_system.layout.persisted_bind_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -172,7 +168,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new BindElement($this->bindingRegistry, $payload->bindingSpecificationId, $payload->elementId, $this->bindingApplicator);
 
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/update-element-properties', name: 'api.action.content_system.layout.persisted_update_element_properties', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -184,7 +180,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new UpdateElementProperties($this->registry, $payload->elementId, $payload->values, $payload->removeKeys);
 
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/translate-element', name: 'api.action.content_system.layout.persisted_translate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read', 'content_layout:translate']], methods: [Request::METHOD_POST])]
@@ -196,7 +192,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new TranslateElement($this->registry, $payload->elementId, $payload->values);
 
-        return $this->respond($layoutId, $payload->branchId, $payload->expectedVersion, $payload->expectedHead, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/map-property', name: 'api.action.content_system.layout.persisted_map_property', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -208,9 +204,7 @@ class ContentLayoutMutationController
     ): Response {
         return $this->respond(
             $layoutId,
-            $payload->branchId,
-            $payload->expectedVersion,
-            $payload->expectedHead,
+            $payload->target(),
             $this->propertyMappingMutations->map(
                 $payload->elementId,
                 $payload->propertyKey,
@@ -229,36 +223,22 @@ class ContentLayoutMutationController
     ): Response {
         return $this->respond(
             $layoutId,
-            $payload->branchId,
-            $payload->expectedVersion,
-            $payload->expectedHead,
+            $payload->target(),
             $this->propertyMappingMutations->unmap($payload->elementId, $payload->propertyKey),
             $context,
         );
     }
 
-    private function respond(string $layoutId, ?string $branchId, ?string $expectedVersion, ?string $expectedHead, LayoutMutation $mutation, Context $context): JsonResponse
+    private function respond(string $layoutId, MutationTarget $target, LayoutMutation $mutation, Context $context): JsonResponse
     {
-        if ($branchId === null) {
-            if ($expectedHead !== null) {
-                throw ContentSystemException::unknownRequestField(['expectedHead']);
-            }
-
-            $result = $this->mutator->mutate($layoutId, $expectedVersion, $mutation, $context);
+        if (!$target->isBranch()) {
+            $result = $this->mutator->mutate($layoutId, $target->expectedVersion, $mutation, $context);
 
             return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
         }
 
-        if ($expectedVersion !== null) {
-            throw ContentSystemException::unknownRequestField(['expectedVersion']);
-        }
+        $result = $this->mutator->mutateBranch($layoutId, $target->branchId, $target->expectedHead, $mutation, $context);
 
-        $result = $this->mutator->mutateBranch($layoutId, $branchId, $expectedHead, $mutation, $context);
-
-        return new JsonResponse([
-            ...MutationResponse::fromResult($result->mutation, $this->elementCodec)->jsonSerialize(),
-            'revision' => LayoutRevisionNormalizer::revision($result->revision, [$result->branch->id], false),
-            'branch' => LayoutRevisionNormalizer::branch($result->branch),
-        ]);
+        return new JsonResponse(BranchMutationResponse::fromResult($result, $this->elementCodec));
     }
 }

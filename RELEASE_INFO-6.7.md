@@ -2,6 +2,11 @@
 
 ## Core
 
+### Import updates existing one-to-one associations without their id
+
+The import now updates the existing entity of a one-to-one association whose foreign key lives on the associated entity, for example `order.orderCustomer` or an entity extension referencing `product_id`, when the CSV contains the parent's id but leaves out the associated entity's id or leaves its column empty.
+Before, it tried to create a second associated entity and the row failed.
+
 ### Moving a category re-indexes its products
 
 Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.
@@ -830,10 +835,6 @@ For extensions that already build positions holding part of a line item, this ch
 The update changes the default tax rules of Czechia, Estonia, Finland, Lithuania, Romania and Slovakia to the current VAT rates, and adds a 5% rule for "Reduced rate 2" in Slovakia and Slovenia.
 Only rules of the default tax groups that still have their original rate and were never edited are changed.
 Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
-### Import updates existing one-to-one associations without their id
-
-The import now updates the existing entity of a one-to-one association whose foreign key lives on the associated entity, for example `order.orderCustomer` or an entity extension referencing `product_id`, when the CSV contains the parent's id but leaves out the associated entity's id or leaves its column empty.
-Before, it tried to create a second associated entity and the row failed.
 
 ## API
 

@@ -1,0 +1,17 @@
+@property --sw-product-sorting-min-width {
+    syntax: '*';
+    inherits: false;
+}
+
+// form-select is width: 100%, which stretches across a block-level flex row. Size it to its content
+// instead so the actions row stays compact.
+.sw-product-sorting {
+    --sw-product-sorting-min-width: 10.625rem;
+    width: auto;
+    max-width: 100%;
+    min-width: var(--sw-product-sorting-min-width);
+    flex: 0 0 auto;
+    color: var(--bs-body-color);
+    border: 0 none;
+    align-self: start;
+}

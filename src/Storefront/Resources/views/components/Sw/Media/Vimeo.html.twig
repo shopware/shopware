@@ -1,0 +1,78 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    videoId = null,
+    videoTitle = null,
+    previewMedia = null,
+    autoplay = false,
+    loop = false,
+    showControls = true,
+    doNotTrack = false,
+    needsConfirmation = false,
+    showByline = true,
+    showTitle = true,
+    showPortrait = true,
+    color = null,
+%}
+
+{# Accept a bare video id or a full Vimeo URL (vimeo.com/… or player.vimeo.com/video/…) and normalize to the id #}
+{% set resolvedVideoId = videoId %}
+{% if resolvedVideoId is not empty %}
+    {% if '/video/' in resolvedVideoId %}
+        {% set resolvedVideoId = resolvedVideoId|split('/video/')|last %}
+    {% elseif 'vimeo.com/' in resolvedVideoId %}
+        {% set resolvedVideoId = resolvedVideoId|split('vimeo.com/')|last %}
+    {% endif %}
+    {# strip any query string or fragment, then take the id (last path segment) #}
+    {% set resolvedVideoId = resolvedVideoId|split('?')|first|split('#')|first|split('/')|last %}
+{% endif %}
+
+{% set locale = app.request.locale|default('en-GB') %}
+
+{# initialize with default values #}
+{% set queryParams = {
+    dnt: doNotTrack ? 'true' : 'false',
+    loop: loop ? 'true' : 'false',
+    keyboard: 'false',
+    texttrack: locale,
+    fullscreen: 'true',
+} %}
+
+{% if color is not null %}
+    {% set queryParams = queryParams|merge({ color: color|replace({'#': ''}) }) %}
+{% endif %}
+
+{% if autoplay %}
+    {% set queryParams = queryParams|merge({ autoplay: 'true', muted: 'true' }) %}
+{% endif %}
+
+{% if not showByline %}
+    {% set queryParams = queryParams|merge({ byline: 'false' }) %}
+{% endif %}
+
+{% if not showTitle %}
+    {% set queryParams = queryParams|merge({ title: 'false' }) %}
+{% endif %}
+
+{% if not showPortrait %}
+    {% set queryParams = queryParams|merge({ portrait: 'false' }) %}
+{% endif %}
+
+{% if not showControls %}
+    {% set queryParams = queryParams|merge({ controls: 'false' }) %}
+{% endif %}
+
+{% set videoUrl = resolvedVideoId is not empty ? 'https://player.vimeo.com/video/' ~ resolvedVideoId ~ '?' ~ (queryParams|url_encode) : null %}
+
+<twig:Sw:Media:EmbedVideo
+    {{ ...attributes }}
+    :videoUrl="videoUrl"
+    :videoTitle="videoTitle"
+    :previewMedia="previewMedia"
+    :needsConfirmation="needsConfirmation"
+    cookieName="vimeo-video"
+    platform="Vimeo"
+    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+></twig:Sw:Media:EmbedVideo>

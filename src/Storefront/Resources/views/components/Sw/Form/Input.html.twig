@@ -1,0 +1,101 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name,
+    id = "#{name}-#{random()}",
+    type = 'text',
+    label = null,
+    value = null,
+    description = null,
+    validationRules = null,
+    violationPath = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    formViolations = formViolations|default(null),
+    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+%}
+
+{% set feedbackId = "#{id}-feedback" %}
+{% set descriptionId = "#{id}-description" %}
+{% set describedBy = description is not empty ? "#{descriptionId} #{feedbackId}" : feedbackId %}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-input sw-form-field',
+}) %}
+
+{% set inputCVA = cva({
+    base: 'sw-form-input__control sw-form-field__control form-control',
+    variants: {
+        type: {
+            color: 'form-control-color',
+        },
+        isInvalid: {
+            true: 'is-invalid',
+            false: null,
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({}),
+    'data-violation-path': violationPath is not null ? violationPath : false,
+} %}
+
+{% set inputAttributeDefaults = {
+    class: inputCVA.apply({ type, isInvalid }),
+    type: type,
+    id: id,
+    name: name,
+    'aria-describedby': describedBy,
+    'aria-required': required ? 'true' : false,
+    'aria-invalid': isInvalid ? 'true' : false,
+    'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
+    value: value is not null ? value : false,
+} %}
+
+{% set controlAttributes = attributes.without('class', 'style').defaults(attributes.nested('control')) %}
+
+{% if label is not empty %}
+    {% set controlAttributes = controlAttributes.without('aria-label') %}
+{% endif %}
+
+{% if type == 'hidden' %}
+    <input {{ attributes.defaults({ class: 'sw-form-input', type: type, id: id, name: name, value: value is not null ? value : false }) }}>
+{% else %}
+
+<div {{ attributes.only('class', 'style').defaults(attributeDefaults) }}>
+    {% block label %}
+        <twig:Sw:Form:Field:Label
+            :fieldId="id"
+            :label="label"
+            :required="required"
+        />
+    {% endblock %}
+
+    {% block control %}
+        <input {{ controlAttributes.defaults(inputAttributeDefaults) }}>
+    {% endblock %}
+
+    {% block description %}
+        <twig:Sw:Form:Field:Description
+            :id="descriptionId"
+            :description="description"
+        />
+    {% endblock %}
+
+    {% block feedback %}
+        <twig:Sw:Form:Field:Feedback
+            :id="feedbackId"
+            :violationPath="violationPath"
+            :formViolations="formViolations"
+            :hasViolations="isInvalid"
+        />
+    {% endblock %}
+</div>
+
+{% endif %}

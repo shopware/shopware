@@ -1,0 +1,33 @@
+meta:
+  label: "Inline Media Image"
+  description: "Fixture image type shipping an inline binding on its own type."
+  icon: "regular-image"
+  category: "content"
+  copilot:
+    summary: "Fixture image element."
+    hints:
+      - "Requires a media entity."
+
+properties:
+  mediaId:
+    type: string
+    title: "Media ID"
+    description: "Stored media id used for entity loading."
+    adminUI:
+      component: "media-field"
+
+  media:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: true
+    title: "Media"
+    description: "Hydrated media entity resolved from mediaId."
+
+bindings:
+  inline-media-binding:
+    label: "From media library"
+    resolves:
+      media:
+        loader: entity
+        config:
+          entity: media
+          property: mediaId

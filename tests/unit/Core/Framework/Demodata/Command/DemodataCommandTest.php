@@ -13,6 +13,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFoot
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -52,6 +53,7 @@ class DemodataCommandTest extends TestCase
         PromotionDefinition::class,
         OrderDefinition::class,
         ProductReviewDefinition::class,
+        ProductContentLayoutDefinition::class,
         UserDefinition::class,
         FlowDefinition::class,
         CustomFieldSetDefinition::class,

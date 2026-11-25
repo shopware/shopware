@@ -1,0 +1,435 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Integration\Storefront\ContentSystem;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+class ContentSystemPreviewControllerTest extends TestCase
+{
+    use EnvTestBehaviour;
+    use IntegrationTestBehaviour;
+    use StorefrontControllerTestBehaviour;
+
+    private const PREVIEW_CACHE_KEY_PREFIX = 'content-system.preview.';
+
+    /**
+     * A host that differs from `APP_URL`, so the frame-ancestor fallback can only come from the request itself.
+     */
+    private const REQUEST_HOST = 'preview-origin.test';
+
+    /**
+     * Tokens minted through {@see storePreviewRequest()}. The payload store writes through the cache pool,
+     * which sits outside the transaction `IntegrationTestBehaviour` rolls back, so an envelope outlives its
+     * test unless it is dropped here.
+     *
+     * @var list<string>
+     */
+    private array $storedPreviewTokens = [];
+
+    protected function tearDown(): void
+    {
+        $cache = static::getContainer()->get('cache.content_system_preview');
+
+        foreach ($this->storedPreviewTokens as $token) {
+            $cache->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
+        }
+
+        parent::tearDown();
+    }
+
+    #[TestDox('answers 404 for a token that addresses no stored envelope')]
+    public function testUnknownTokenIsNotFound(): void
+    {
+        $response = $this->request('GET', 'content-system/preview/no-such-token', []);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testPreviewCanBeOpenedByANewDevelopmentKernel(): void
+    {
+        $payload = new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: $this->createProduct(),
+            salesChannelId: $this->getSalesChannelId(),
+        );
+        $request = Request::create($_SERVER['APP_URL'] . '/api/_action/content-system/preview/entity/url', Request::METHOD_POST);
+        $this->setEnvVars(['APP_ENV' => 'dev', 'SHOPWARE_CACHE_ID' => 'preview-cache-regression']);
+        $kernel = KernelLifecycleManager::createKernel(cacheId: 'preview-cache-regression');
+
+        try {
+            $kernel->boot();
+            $response = $kernel->getContainer()->get(ContentPreviewController::class)->previewUrl($payload, $request, Context::createDefaultContext());
+            $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+            $url = $data['url'];
+            $kernel->shutdown();
+
+            $kernel = KernelLifecycleManager::createKernel(cacheId: 'preview-cache-regression');
+            $response = $kernel->handle(Request::create($url));
+
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+            static::assertMatchesRegularExpression('/data-page-id="[0-9a-f]{32}"/', (string) $response->getContent());
+        } finally {
+            if (isset($url)) {
+                $kernel->getContainer()->get('cache.global_clearer')->getPool('cache.content_system_preview')
+                    ->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . basename($url));
+            }
+            $kernel->shutdown();
+        }
+    }
+
+    #[TestDox('answers 500 for a stored envelope that does not decode into a preview request')]
+    public function testUndecodableStoredEnvelopeIsServerError(): void
+    {
+        $token = Uuid::randomHex();
+        $cache = static::getContainer()->get('cache.content_system_preview');
+        $item = $cache->getItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
+        // An envelope with no entityType: only a validated envelope is ever written, so a malformed hit is
+        // server-side state, not a defect in this caller's request.
+        $item->set(['layout' => [], 'salesChannelId' => $this->getSalesChannelId()]);
+        $cache->save($item);
+
+        try {
+            $response = $this->request('GET', 'content-system/preview/' . $token, []);
+
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        } finally {
+            $cache->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
+        }
+    }
+
+    /**
+     * A status assertion alone proves nothing here: `strict_variables` is false, so a page or element member
+     * the Twig components stop resolving yields null, the element loop coerces to empty, and the preview
+     * renders a blank page with HTTP 200. The layout is therefore nested and styled so that one render
+     * exercises every member the components read off the two types: `page.id` and `page.elements` on the
+     * page, and `id`, `component`, `properties`, `slots` and `style.values` on the elements.
+     */
+    #[TestDox('renders a nested styled draft layout, resolving every page and element member the components read')]
+    public function testValidStoredEnvelopeRenders(): void
+    {
+        $productId = $this->createProduct();
+        $containerId = Uuid::randomHex();
+        $textId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
+        $buyButtonId = Uuid::randomHex();
+
+        $token = $this->storePreviewRequest(new ContentPreviewRequest(
+            layout: [[
+                'id' => $containerId,
+                'component' => 'Sw:Grid:Container',
+                'properties' => [],
+                'style' => ['col-span' => ['md' => 6]],
+                'slots' => ['content' => [[
+                    'id' => $textId,
+                    'component' => 'Sw:Content:Text',
+                    'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => '<p>Preview body</p>']],
+                ], [
+                    'id' => $manufacturerId,
+                    'component' => 'Sw:Product:Manufacturer',
+                    'properties' => [],
+                ], [
+                    'id' => $buyButtonId,
+                    'component' => 'Sw:Product:BuyButton',
+                    'properties' => [],
+                    'acceptsContext' => ['product' => ['type' => 'single', 'required' => false, 'scope' => 'root']],
+                ]]],
+            ]],
+            entityType: 'product',
+            entityId: $productId,
+            salesChannelId: $this->getSalesChannelId(),
+        ));
+
+        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+
+        // An unresolved `page.id` renders as a bare valueless `data-page-id`, so the `="…"` is the assertion.
+        static::assertMatchesRegularExpression(
+            '/data-page-id="[0-9a-f]{32}"/',
+            $content,
+            'The preview layout id must resolve onto the page wrapper.'
+        );
+        // `strict_variables` is false, so a Twig member that stops resolving yields null instead of throwing,
+        // and the content region renders empty with the page chrome still producing a non-empty HTTP 200 body.
+        // Asserting this concrete element id is what actually catches a blank content region; a non-empty body
+        // check would not, because the surrounding page chrome renders regardless.
+        // `page.elements` and the root element's `id`.
+        static::assertStringContainsString('data-element-id="' . $containerId . '"', $content);
+        // `element.style.values`, which resolves through a getter because the property is private.
+        static::assertStringContainsString('col-span-md-6', $content);
+        // `element.slots`, carried into the container component and read back by the Slot component.
+        static::assertStringContainsString('data-element-id="' . $textId . '"', $content);
+        // `element.component` picked the Text component and `element.properties` fed it.
+        static::assertStringContainsString('Preview body', $content);
+        // The shared element renderer marks preview components without making the manufacturer component
+        // depend on the request global itself.
+        static::assertStringContainsString('data-element-id="' . $manufacturerId . '"', $content);
+        static::assertStringContainsString('Manufacturer not available', $content);
+        // The buy button stores no properties; its form can only name the product if its root-scope consumer
+        // received the page's product.
+        static::assertStringContainsString('data-element-id="' . $buyButtonId . '"', $content);
+        static::assertStringContainsString('name="lineItems[' . $productId . '][id]"', $content);
+    }
+
+    /**
+     * The envelope's `languageId` is what `ContentPreviewPageBuilder::build()` hands the context service, so it
+     * decides the language chain reduction runs against — the layout translation as well as the entity data
+     * language.
+     *
+     * The map carries three entries and the requested one sits in the middle, so the requested copy can only
+     * be reached by walking the chain: a selection that took the map's first entry would serve the anchor, and
+     * one that took its last would serve the unreachable entry. Draft maps travel through the payload store
+     * rather than a JSON column, so the authored order really is the order reduction sees.
+     */
+    #[TestDox('serves the layout translation the preview request languageId names')]
+    public function testPreviewLanguageIdSelectsTheLayoutTranslation(): void
+    {
+        $productId = $this->createProduct();
+        $languageId = $this->createSalesChannelLanguage();
+        $textId = Uuid::randomHex();
+
+        $token = $this->storePreviewRequest(new ContentPreviewRequest(
+            layout: [[
+                'id' => $textId,
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => [
+                    Defaults::LANGUAGE_SYSTEM => '<p>Anchor copy</p>',
+                    $languageId => '<p>Requested language copy</p>',
+                    // A language id no `language` row carries, so it is on no chain and reachable by nothing.
+                    Uuid::randomHex() => '<p>Unreachable copy</p>',
+                ]],
+            ]],
+            entityType: 'product',
+            entityId: $productId,
+            salesChannelId: $this->getSalesChannelId(),
+            languageId: $languageId,
+        ));
+
+        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        // The element really rendered, so the copy assertions below are about which entry was picked rather
+        // than about a blank content region.
+        static::assertStringContainsString('data-element-id="' . $textId . '"', $content);
+        static::assertStringContainsString('Requested language copy', $content);
+        static::assertStringNotContainsString('Anchor copy', $content);
+        static::assertStringNotContainsString('Unreachable copy', $content);
+    }
+
+    #[TestDox('renders a draft layout without elements as a page with an empty content region')]
+    public function testEmptyStoredEnvelopeRenders(): void
+    {
+        $token = $this->storePreviewRequest(new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: $this->createProduct(),
+            salesChannelId: $this->getSalesChannelId(),
+        ));
+
+        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertMatchesRegularExpression('/data-page-id="[0-9a-f]{32}"/', $content);
+        static::assertStringNotContainsString('data-element-id=', $content);
+    }
+
+    #[TestDox('allows framing by the referer origin including its port')]
+    public function testRefererWithPortIsTheFrameAncestor(): void
+    {
+        $response = $this->renderPreview(['HTTP_REFERER' => 'https://admin.example.test:8443/admin#/sw/content']);
+
+        static::assertSame(
+            'frame-ancestors \'self\' https://admin.example.test:8443;',
+            $response->headers->get('Content-Security-Policy')
+        );
+    }
+
+    #[TestDox('allows framing by the referer origin without a port')]
+    public function testRefererWithoutPortIsTheFrameAncestor(): void
+    {
+        $response = $this->renderPreview(['HTTP_REFERER' => 'https://admin.example.test/admin#/sw/content']);
+
+        static::assertSame(
+            'frame-ancestors \'self\' https://admin.example.test;',
+            $response->headers->get('Content-Security-Policy')
+        );
+    }
+
+    #[TestDox('allows framing by the request origin when no referer is sent')]
+    public function testMissingRefererFallsBackToTheRequestOrigin(): void
+    {
+        $response = $this->renderPreviewOnHost(self::REQUEST_HOST, []);
+
+        static::assertSame(
+            'frame-ancestors \'self\' http://' . self::REQUEST_HOST . ';',
+            $response->headers->get('Content-Security-Policy')
+        );
+    }
+
+    #[TestDox('allows framing by the request origin when the referer is not a URL')]
+    public function testUnparsableRefererFallsBackToTheRequestOrigin(): void
+    {
+        $response = $this->renderPreviewOnHost(self::REQUEST_HOST, ['HTTP_REFERER' => 'not a url']);
+
+        static::assertSame(
+            'frame-ancestors \'self\' http://' . self::REQUEST_HOST . ';',
+            $response->headers->get('Content-Security-Policy')
+        );
+    }
+
+    #[TestDox('sends a non-enforcing frame options header so the frame-ancestors policy decides')]
+    public function testFrameOptionsHeaderIsNonEnforcing(): void
+    {
+        $response = $this->renderPreview([]);
+
+        static::assertSame('ALLOWALL', $response->headers->get(PlatformRequest::HEADER_FRAME_OPTIONS));
+    }
+
+    /**
+     * Renders a stored preview with the given server parameters, passed for this request only.
+     *
+     * @param array<string, string> $server
+     */
+    private function renderPreview(array $server): Response
+    {
+        $response = $this->request('GET', 'content-system/preview/' . $this->storeEmptyPreview(), [], server: $server);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        return $response;
+    }
+
+    /**
+     * Renders a stored preview requested at `http://<host>`. `request()` always prefixes `APP_URL`, and
+     * `Request::create()` lets the URI host override a `HTTP_HOST` server parameter, so a host that differs from
+     * `APP_URL` has to be part of the URI the browser requests. The storefront answers 400 for a host no sales
+     * channel domain carries, so the preview's sales channel gets a domain for it first.
+     *
+     * @param array<string, string> $server
+     */
+    private function renderPreviewOnHost(string $host, array $server): Response
+    {
+        static::getContainer()->get('sales_channel_domain.repository')->create([[
+            'salesChannelId' => $this->getSalesChannelId(),
+            'url' => 'http://' . $host,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'currencyId' => Defaults::CURRENCY,
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+        ]], Context::createDefaultContext());
+
+        $browser = KernelLifecycleManager::createBrowser(static::getKernel());
+        $browser->request('GET', 'http://' . $host . '/content-system/preview/' . $this->storeEmptyPreview(), [], [], $server);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        return $response;
+    }
+
+    private function storeEmptyPreview(): string
+    {
+        return $this->storePreviewRequest(new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: $this->createProduct(),
+            salesChannelId: $this->getSalesChannelId(),
+        ));
+    }
+
+    /**
+     * Mints a token and records it for {@see tearDown()} to drop.
+     */
+    private function storePreviewRequest(ContentPreviewRequest $request): string
+    {
+        $token = static::getContainer()->get(ContentPreviewPayloadStore::class)->store($request);
+        $this->storedPreviewTokens[] = $token;
+
+        return $token;
+    }
+
+    /**
+     * A child of the system language, added to the sales channel the preview renders against: the context
+     * factory refuses a language outside `sales_channel_language` before any content code runs. The
+     * many-to-many write adds the mapping row rather than replacing the existing languages.
+     */
+    private function createSalesChannelLanguage(): string
+    {
+        $languageId = Uuid::randomHex();
+        $localeId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        static::getContainer()->get('language.repository')->create([[
+            'id' => $languageId,
+            'name' => 'Preview language',
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+            'active' => true,
+            'locale' => [
+                'id' => $localeId,
+                'name' => 'Preview language',
+                'territory' => 'Preview territory',
+                // The language and region subtags must be real ISO codes; only the trailing subtag is free.
+                'code' => 'de-CH-preview',
+            ],
+            'translationCodeId' => $localeId,
+        ]], $context);
+
+        static::getContainer()->get('sales_channel.repository')->update([[
+            'id' => $this->getSalesChannelId(),
+            'languages' => [['id' => $languageId]],
+        ]], $context);
+
+        return $languageId;
+    }
+
+    private function createProduct(): string
+    {
+        $id = Uuid::randomHex();
+
+        $salesChannelIds = static::getContainer()->get(Connection::class)
+            ->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+
+        static::getContainer()->get('product.repository')->create([[
+            'id' => $id,
+            'productNumber' => $id,
+            'stock' => 5,
+            'name' => 'Preview product',
+            'isCloseout' => true,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
+            'visibilities' => array_map(
+                static fn (string $salesChannelId): array => [
+                    'salesChannelId' => $salesChannelId,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+                $salesChannelIds,
+            ),
+        ]], Context::createDefaultContext());
+
+        return $id;
+    }
+}

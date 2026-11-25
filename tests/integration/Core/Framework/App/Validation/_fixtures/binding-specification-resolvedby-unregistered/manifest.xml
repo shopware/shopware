@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>binding-specification-resolvedby-unregistered</name>
+        <label>Binding Specification ResolvedBy Unregistered Test</label>
+        <description>Fixture app for the ContentSystemBindingSpecificationAppValidator integration test: a resolvedBy reference whose FQCN no registered entity produces, with no authored bindings section.</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+</manifest>

@@ -75,6 +75,7 @@ When a task matches a skill, open `.agents/skills/<name>/SKILL.md` and follow it
 - `shopware-pr-hygiene` — PR templates, conventional titles, review follow-up commits.
 - `shopware-php-code` — PHP architecture, API schema, migrations, deprecations, BC-sensitive code.
 - `shopware-admin-js` — Administration JavaScript, TypeScript, Vue, ACL, Jest.
+- `shopware-experience-studio-icons` — Experience Studio SVG illustrations, shared visual style, YAML illustration declarations, and Meteor fallbacks.
 - `shopware-phpunit-tests` — PHPUnit test structure, fixtures, feature flags, coverage, data providers.
 
 Skills can have an optional unattended twin via [GitHub Agentic Workflows](https://github.com/githubnext/gh-aw) at `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`. Editing or compiling these workflows requires the `gh aw` CLI extension; the current pin lives in [`.github/aw/README.md`](.github/aw/README.md) → "Pinning".

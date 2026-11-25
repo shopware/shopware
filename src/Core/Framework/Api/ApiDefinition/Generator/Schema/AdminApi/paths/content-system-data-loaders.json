@@ -1,0 +1,104 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Data Loaders",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-data-loaders.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system data loaders",
+                "description": "Get the data loader sources, their declared config keys, and the types they can produce.",
+                "operationId": "content-system-data-loaders",
+                "responses": {
+                    "200": {
+                        "description": "Returns each data loader source's config key specification and its producible types.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["sources"],
+                                    "properties": {
+                                        "sources": {
+                                            "type": "object",
+                                            "description": "Map of data loader source name to its config keys and provided types.",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "required": ["configKeys", "types"],
+                                                "properties": {
+                                                    "configKeys": {
+                                                        "type": "array",
+                                                        "description": "The source's declared config keys, in declaration order. Empty for a config-less loader.",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "required": ["name", "kind", "type", "required"],
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "description": "The config key name."
+                                                                },
+                                                                "kind": {
+                                                                    "type": "string",
+                                                                    "enum": ["literal", "propertyReference", "entityName"],
+                                                                    "description": "What the stored value names: `literal` is an opaque value interpreted only by the loader, `propertyReference` names an element property whose stored value feeds the loader, `entityName` names a registered DAL entity."
+                                                                },
+                                                                "type": {
+                                                                    "type": "string",
+                                                                    "description": "The declared value type: `string`, `integer`, `number`, `boolean`, `list<string>`, or `map`."
+                                                                },
+                                                                "required": {
+                                                                    "type": "boolean",
+                                                                    "description": "Whether the key has no default and the loader cannot produce without it."
+                                                                },
+                                                                "default": {
+                                                                    "description": "The key's default value. Present only when the key declares a default; a declared default may itself be null, distinct from a key declaring no default at all, where this member is absent entirely."
+                                                                },
+                                                                "adminUI": {
+                                                                    "type": "object",
+                                                                    "description": "Optional rendering hint, the same shape as an element-type property's adminUI. Omitted when the key declares none.",
+                                                                    "additionalProperties": true
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "types": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "required": ["producedType", "configTemplate", "genericParameters"],
+                                                            "properties": {
+                                                                "producedType": {
+                                                                    "type": "string",
+                                                                    "description": "Fully qualified class name of the produced type (sales-channel class where applicable)."
+                                                                },
+                                                                "configTemplate": {
+                                                                    "type": "object",
+                                                                    "description": "Inferable config to produce this type, e.g. {\"entity\": \"product\"}. An empty template is serialized as [].",
+                                                                    "additionalProperties": true
+                                                                },
+                                                                "genericParameters": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "description": "Generic type parameters, for schema display only."
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,42 @@
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// A bare <legend> defaults to an oversized font; match the other field labels.
+.sw-form-star-rating__legend {
+    font-size: inherit;
+}
+
+.sw-form-star-rating__input {
+    display: flex;
+    align-items: center;
+}
+
+.sw-form-star-rating__star {
+    margin-right: 10px;
+    margin-bottom: 0;
+    cursor: pointer;
+
+    &:has(.sw-form-star-rating__radio:focus-visible) {
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+
+    .sw-icon {
+        color: var(--bs-gray-200);
+    }
+
+    &.is-active .sw-icon {
+        color: var(--icon-review-color);
+    }
+}
+
+.sw-form-star-rating__text {
+    margin-left: var(--spacer-sm);
+    margin-bottom: 0;
+}
+
+@include media-breakpoint-up(md) {
+    .sw-form-star-rating__star {
+        margin-right: 5px;
+    }
+}

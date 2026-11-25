@@ -51,6 +51,7 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Template\TemplateLoader;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
@@ -91,6 +92,7 @@ use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator;
 use Shopware\Storefront\Framework\Routing\CanonicalLinkListener;
 use Shopware\Storefront\Framework\Routing\ClearSiteDataListener;
+use Shopware\Storefront\Framework\Routing\ContentSystemPreviewToolbarSubscriber;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
@@ -479,6 +481,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LandingPageRoute::class),
             service('event_dispatcher'),
             service(SeoUrlPlaceholderHandlerInterface::class),
+            service(AbstractContentRoute::class),
         ]);
 
     $services->set(MenuOffcanvasPageletLoader::class)
@@ -913,4 +916,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(StorybookRouteScopeAllowList::class)
         ->tag('shopware.route_scope_whitelist');
+
+    $services->set(ContentSystemPreviewToolbarSubscriber::class)
+        ->tag('kernel.event_subscriber');
 };

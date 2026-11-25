@@ -1,0 +1,915 @@
+import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
+import {
+    anchorLanguageId,
+    editingLanguageChain,
+    getAdminUiHelpText,
+    getAdminUiProps,
+    getElementPropertyStorageKey,
+    getInitialPropertyValue,
+    getPropertyControlType,
+    isPropertyVisible,
+    resolveTranslatableEntry,
+    resolveTranslatableFieldValue,
+    withLanguageEntry,
+} from './element-settings.util';
+
+const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+const FRENCH_LANGUAGE_ID = 'c3d4e5f60718293a4b5c6d7e8f90a1b2';
+const ITALIAN_LANGUAGE_ID = 'd4e5f60718293a4b5c6d7e8f90a1b2c3';
+const LANGUAGE_CHAIN = [
+    FRENCH_LANGUAGE_ID,
+    GERMAN_LANGUAGE_ID,
+    ANCHOR_LANGUAGE_ID,
+];
+
+describe('module/sw-experience-studio/util/element-settings.util', () => {
+    const stringProperty: ContentSystemElementTypeProperty = {
+        type: 'string',
+        contextTypes: ['single'],
+        translatable: false,
+        enum: null,
+        default: null,
+        required: false,
+        mappable: false,
+        inlineMappable: false,
+        defaultMapping: null,
+        title: 'Headline',
+        description: 'Headline text',
+        adminUI: null,
+    };
+
+    it('uses the resolvedBy storage key from the default entity binding', () => {
+        expect(
+            getElementPropertyStorageKey(
+                {
+                    bindingSpecifications: {
+                        'core:Sw:Media:Image': {
+                            default: true,
+                            resolves: {
+                                media: {
+                                    loader: 'entity',
+                                    config: {
+                                        entity: 'media',
+                                        property: 'mediaId',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                'media',
+            ),
+        ).toBe('mediaId');
+    });
+
+    it('keeps the declared key for properties without a resolvedBy entity binding', () => {
+        expect(
+            getElementPropertyStorageKey(
+                {
+                    bindingSpecifications: {
+                        'core:Sw:Content:Text': {
+                            default: true,
+                            resolves: {},
+                        },
+                    },
+                },
+                'text',
+            ),
+        ).toBe('text');
+    });
+
+    it('maps boolean properties to switch controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'boolean',
+            }),
+        ).toBe('switch');
+    });
+
+    it('maps number and integer properties to number controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'number',
+            }),
+        ).toBe('number');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'integer',
+            }),
+        ).toBe('number');
+    });
+
+    it('maps enum string properties to select controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                enum: [
+                    'left',
+                    'center',
+                    'right',
+                ],
+            }),
+        ).toBe('select');
+    });
+
+    it('maps adminUI select properties to select controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'mt-select',
+                },
+            }),
+        ).toBe('select');
+    });
+
+    it('maps adminUI color properties to color controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'color',
+                },
+            }),
+        ).toBe('color');
+    });
+
+    it('maps adminUI radio panel properties to radio panel controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'radio-panel',
+                },
+            }),
+        ).toBe('radio-panel');
+    });
+
+    it('maps adminUI responsive number properties to responsive number controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: [
+                    'integer',
+                    'object',
+                ],
+                adminUI: {
+                    component: 'responsive-number',
+                },
+            }),
+        ).toBe('responsive-number');
+    });
+
+    it('maps adminUI slider properties to slider controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'integer',
+                adminUI: {
+                    component: 'slider',
+                },
+            }),
+        ).toBe('slider');
+    });
+
+    it('maps style option adminUI components to controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'integer',
+                adminUI: {
+                    component: 'number',
+                },
+            }),
+        ).toBe('number');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'boolean',
+                adminUI: {
+                    component: 'switch',
+                },
+            }),
+        ).toBe('switch');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'text',
+                },
+            }),
+        ).toBe('text');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'box-spacing',
+                },
+            }),
+        ).toBe('box-spacing');
+    });
+
+    it('maps entity select properties to entity controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+                adminUI: {
+                    component: 'entity-single-select',
+                    entity: 'media',
+                },
+            }),
+        ).toBe('entity');
+    });
+
+    it('maps entity multi select properties to entity multi controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'entity-multi',
+                    entity: 'property_group',
+                },
+            }),
+        ).toBe('entity-multi');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Product\\ProductCollection',
+                adminUI: {
+                    component: 'sw-entity-multi-id-select',
+                    entity: 'product',
+                },
+            }),
+        ).toBe('entity-multi');
+    });
+
+    it('maps media field properties to media controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+                adminUI: {
+                    component: 'media-field',
+                },
+            }),
+        ).toBe('media');
+    });
+
+    it('maps text editor properties to richtext controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'mt-text-editor',
+                },
+            }),
+        ).toBe('richtext');
+    });
+
+    it('extracts adminUI props when provided', () => {
+        expect(
+            getAdminUiProps({
+                ...stringProperty,
+                adminUI: {
+                    component: 'mt-text-field',
+                    props: {
+                        placeholder: 'Example',
+                    },
+                },
+            }),
+        ).toEqual({
+            placeholder: 'Example',
+        });
+    });
+
+    it('returns empty adminUI props when missing', () => {
+        expect(getAdminUiProps(stringProperty)).toEqual({});
+    });
+
+    it('defaults number fields to integer steps', () => {
+        expect(
+            getAdminUiProps({
+                ...stringProperty,
+                type: 'integer',
+                adminUI: {
+                    component: 'number',
+                },
+            }),
+        ).toEqual({
+            digits: 0,
+            step: 1,
+        });
+    });
+
+    it('keeps declared number field step and digits', () => {
+        expect(
+            getAdminUiProps({
+                ...stringProperty,
+                type: 'number',
+                adminUI: {
+                    component: 'number',
+                    props: {
+                        min: 0,
+                        digits: 2,
+                        step: 0.01,
+                    },
+                },
+            }),
+        ).toEqual({
+            min: 0,
+            digits: 2,
+            step: 0.01,
+        });
+    });
+
+    it('returns adminUI help text when provided', () => {
+        expect(
+            getAdminUiHelpText({
+                ...stringProperty,
+                adminUI: {
+                    component: 'mt-text-field',
+                    helpText: 'sw-experience-studio.elements.grid.columns.helpText',
+                },
+            }),
+        ).toBe('sw-experience-studio.elements.grid.columns.helpText');
+    });
+
+    it('returns null when adminUI help text is missing', () => {
+        expect(getAdminUiHelpText(stringProperty)).toBeNull();
+    });
+
+    it('maps plain string properties to text controls', () => {
+        expect(getPropertyControlType(stringProperty)).toBe('text');
+    });
+
+    it('returns null for non-primitive property types', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Product\\SalesChannel\\SalesChannelProductEntity',
+            }),
+        ).toBeNull();
+    });
+
+    it('uses current value before defaults', () => {
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    default: 'Default',
+                },
+                'Explicit',
+            ),
+        ).toBe('Explicit');
+    });
+
+    it('falls back to schema default when current value is missing', () => {
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    default: 'Default',
+                },
+                undefined,
+            ),
+        ).toBe('Default');
+    });
+
+    it('returns sensible primitive fallbacks when no value exists', () => {
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    type: 'boolean',
+                    default: null,
+                },
+                undefined,
+            ),
+        ).toBe(false);
+
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    type: 'string',
+                    default: null,
+                },
+                undefined,
+            ),
+        ).toBe('');
+
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    type: 'number',
+                    default: null,
+                },
+                undefined,
+            ),
+        ).toBeNull();
+    });
+
+    it('supports visibleWhen equals and notEquals operators', () => {
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'mode',
+                            equals: 'explicit',
+                        },
+                    },
+                },
+                { mode: 'explicit' },
+            ),
+        ).toBe(true);
+
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'mode',
+                            notEquals: 'explicit',
+                        },
+                    },
+                },
+                { mode: 'auto-fit' },
+            ),
+        ).toBe(true);
+    });
+
+    it('supports visibleWhen in and notIn operators', () => {
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'mode',
+                            in: [
+                                'auto-fit',
+                                'auto-fill',
+                            ],
+                        },
+                    },
+                },
+                { mode: 'auto-fill' },
+            ),
+        ).toBe(true);
+
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'mode',
+                            notIn: [
+                                'explicit',
+                                'max-content',
+                            ],
+                        },
+                    },
+                },
+                { mode: 'auto-fit' },
+            ),
+        ).toBe(true);
+    });
+
+    it('supports visibleWhen isEmpty and isNotEmpty operators', () => {
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'headline',
+                            isEmpty: true,
+                        },
+                    },
+                },
+                { headline: '' },
+            ),
+        ).toBe(true);
+
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'headline',
+                            isNotEmpty: true,
+                        },
+                    },
+                },
+                { headline: 'Shopware' },
+            ),
+        ).toBe(true);
+    });
+
+    it('applies AND semantics when visibleWhen is an array', () => {
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: [
+                            {
+                                field: 'mode',
+                                equals: 'explicit',
+                            },
+                            {
+                                field: 'headline',
+                                isNotEmpty: true,
+                            },
+                        ],
+                    },
+                },
+                {
+                    mode: 'explicit',
+                    headline: 'Visible',
+                },
+            ),
+        ).toBe(true);
+
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: [
+                            {
+                                field: 'mode',
+                                equals: 'explicit',
+                            },
+                            {
+                                field: 'headline',
+                                isNotEmpty: true,
+                            },
+                        ],
+                    },
+                },
+                {
+                    mode: 'explicit',
+                    headline: '',
+                },
+            ),
+        ).toBe(false);
+    });
+
+    it('is fail-safe for malformed visibleWhen conditions', () => {
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'mode',
+                            unknownOperator: 'explicit',
+                        },
+                    },
+                } as ContentSystemElementTypeProperty,
+                { mode: 'explicit' },
+            ),
+        ).toBe(true);
+
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'mode',
+                            equals: 'explicit',
+                            in: ['explicit'],
+                        },
+                    },
+                },
+                { mode: 'explicit' },
+            ),
+        ).toBe(true);
+    });
+
+    it('handles missing fields without crashing', () => {
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'missingField',
+                            equals: 'explicit',
+                        },
+                    },
+                },
+                { mode: 'explicit' },
+            ),
+        ).toBe(false);
+
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'missingField',
+                            isEmpty: true,
+                        },
+                    },
+                },
+                { mode: 'explicit' },
+            ),
+        ).toBe(true);
+    });
+
+    it('returns the entry of the chain head', () => {
+        expect(
+            resolveTranslatableEntry(
+                {
+                    [FRENCH_LANGUAGE_ID]: 'Bonjour',
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe('Bonjour');
+    });
+
+    it('returns the earliest chain language entry instead of a later one', () => {
+        expect(
+            resolveTranslatableEntry(
+                {
+                    // the later chain language is written first, so a map-key-order lookup would answer with the anchor entry
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe('Hallo');
+    });
+
+    it('returns undefined when no chain language carries an entry', () => {
+        expect(resolveTranslatableEntry({ [ITALIAN_LANGUAGE_ID]: 'Ciao' }, LANGUAGE_CHAIN)).toBeUndefined();
+    });
+
+    it('returns undefined for an undefined value', () => {
+        expect(resolveTranslatableEntry(undefined, LANGUAGE_CHAIN)).toBeUndefined();
+    });
+
+    it('shows the entry of a present language map on a translatable string property', () => {
+        expect(resolveTranslatableFieldValue(stringProperty, { [ANCHOR_LANGUAGE_ID]: 'Hello' }, LANGUAGE_CHAIN)).toBe(
+            'Hello',
+        );
+    });
+
+    it('shows an empty string for a present language map without a chain entry on a string property, not the default', () => {
+        expect(
+            resolveTranslatableFieldValue(
+                { ...stringProperty, default: 'Default' },
+                { [ITALIAN_LANGUAGE_ID]: 'Ciao' },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe('');
+    });
+
+    it('leaves an absent key undefined so the declared default applies', () => {
+        expect(
+            resolveTranslatableFieldValue({ ...stringProperty, default: 'Default' }, undefined, LANGUAGE_CHAIN),
+        ).toBeUndefined();
+    });
+
+    it('leaves a present language map without a chain entry undefined on a non-string property', () => {
+        expect(
+            resolveTranslatableFieldValue(
+                { ...stringProperty, type: 'integer', default: 3 },
+                { [ITALIAN_LANGUAGE_ID]: 2 },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBeUndefined();
+    });
+
+    it.each([
+        [
+            'boolean',
+            false,
+            true,
+        ],
+        [
+            'number',
+            3,
+            12,
+        ],
+    ])('returns the earliest chain language %s entry', (_label, earlierEntry, laterEntry) => {
+        expect(
+            resolveTranslatableEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: laterEntry,
+                    [GERMAN_LANGUAGE_ID]: earlierEntry,
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe(earlierEntry);
+    });
+
+    it('resolves a map mixing string and boolean entries per language', () => {
+        const value = {
+            [ANCHOR_LANGUAGE_ID]: true,
+            [GERMAN_LANGUAGE_ID]: 'ja',
+        };
+
+        expect(resolveTranslatableEntry(value, LANGUAGE_CHAIN)).toBe('ja');
+        expect(resolveTranslatableEntry(value, [ANCHOR_LANGUAGE_ID])).toBe(true);
+    });
+
+    it.each([
+        [
+            'a null entry',
+            null,
+        ],
+        [
+            'an object entry',
+            { value: 'Hello' },
+        ],
+        [
+            'an array entry',
+            ['Hello'],
+        ],
+    ])('throws when the language map carries %s', (_label, entry) => {
+        expect(() =>
+            resolveTranslatableEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: entry,
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toThrow(/must be undefined or a non-empty language map of primitive values/);
+    });
+
+    it('exposes the anchor language id as the language a write targets', () => {
+        expect(anchorLanguageId()).toBe(ANCHOR_LANGUAGE_ID);
+    });
+
+    it('builds the editing language chain from the anchor language', () => {
+        expect(editingLanguageChain()).toEqual([ANCHOR_LANGUAGE_ID]);
+    });
+
+    it.each([
+        [
+            'a bare string',
+            'Hello',
+        ],
+        [
+            'a list',
+            ['Hello'],
+        ],
+    ])('throws when resolving %s instead of a language map', (_label, value) => {
+        expect(() => resolveTranslatableEntry(value, LANGUAGE_CHAIN)).toThrow(
+            /must be undefined or a non-empty language map of primitive values/,
+        );
+    });
+
+    it('sets the entry of the given language and keeps every other entry', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [FRENCH_LANGUAGE_ID]: 'Bonjour',
+                },
+                GERMAN_LANGUAGE_ID,
+                'Hallo',
+            ),
+        ).toEqual({
+            [ANCHOR_LANGUAGE_ID]: 'Hello',
+            [FRENCH_LANGUAGE_ID]: 'Bonjour',
+            [GERMAN_LANGUAGE_ID]: 'Hallo',
+        });
+    });
+
+    it('writes the anchor entry into a language map that has none and keeps every other entry', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                    [FRENCH_LANGUAGE_ID]: 'Bonjour',
+                },
+                ANCHOR_LANGUAGE_ID,
+                'Hello',
+            ),
+        ).toEqual({
+            [GERMAN_LANGUAGE_ID]: 'Hallo',
+            [FRENCH_LANGUAGE_ID]: 'Bonjour',
+            [ANCHOR_LANGUAGE_ID]: 'Hello',
+        });
+    });
+
+    it('removes the entry of the given language when the entry is null', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                },
+                GERMAN_LANGUAGE_ID,
+                null,
+            ),
+        ).toEqual({ [ANCHOR_LANGUAGE_ID]: 'Hello' });
+    });
+
+    it.each([
+        [
+            'boolean',
+            false,
+        ],
+        [
+            'number',
+            0,
+        ],
+    ])('sets a %s entry of the given language and keeps every other entry', (_label, entry) => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: true,
+                    [FRENCH_LANGUAGE_ID]: 'oui',
+                },
+                GERMAN_LANGUAGE_ID,
+                entry,
+            ),
+        ).toEqual({
+            [ANCHOR_LANGUAGE_ID]: true,
+            [FRENCH_LANGUAGE_ID]: 'oui',
+            [GERMAN_LANGUAGE_ID]: entry,
+        });
+    });
+
+    it('removes a boolean entry of the given language when the entry is null', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: true,
+                    [GERMAN_LANGUAGE_ID]: false,
+                },
+                GERMAN_LANGUAGE_ID,
+                null,
+            ),
+        ).toEqual({ [ANCHOR_LANGUAGE_ID]: true });
+    });
+
+    it('throws when writing over a language map carrying a null entry', () => {
+        expect(() =>
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: null,
+                },
+                ANCHOR_LANGUAGE_ID,
+                'Hello again',
+            ),
+        ).toThrow(/must be undefined or a non-empty language map of primitive values/);
+    });
+
+    it('writes a single-entry language map over an undefined current value', () => {
+        expect(withLanguageEntry(undefined, ANCHOR_LANGUAGE_ID, 'Hello again')).toEqual({
+            [ANCHOR_LANGUAGE_ID]: 'Hello again',
+        });
+    });
+
+    it.each([
+        [
+            'a bare string',
+            'Hello',
+        ],
+        [
+            'a list',
+            ['Hello'],
+        ],
+        [
+            'null',
+            null,
+        ],
+    ])('throws when writing over %s instead of a language map', (_label, current) => {
+        expect(() => withLanguageEntry(current, ANCHOR_LANGUAGE_ID, 'Hello again')).toThrow(
+            /must be undefined or a non-empty language map of primitive values/,
+        );
+    });
+
+    it('throws when the anchor language entry is removed', () => {
+        expect(() => withLanguageEntry({ [ANCHOR_LANGUAGE_ID]: 'Hello' }, ANCHOR_LANGUAGE_ID, null)).toThrow(
+            /anchor language entry of a translatable property cannot be removed/,
+        );
+    });
+});

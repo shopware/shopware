@@ -1,0 +1,107 @@
+{% block sw_experience_studio_toolbar %}
+<div class="sw-experience-studio-toolbar">
+    {% block sw_experience_studio_toolbar_left %}
+    <div class="sw-experience-studio-toolbar__left">
+        <slot name="workspace-switcher"></slot>
+    </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_toolbar_right %}
+    <div class="sw-experience-studio-toolbar__right">
+        {% block sw_experience_studio_toolbar_sales_channel_select %}
+        <div class="sw-experience-studio-toolbar__sales-channel-field">
+            <label class="sw-experience-studio-toolbar__field-label">
+                {{ $t('sw-experience-studio.detail.toolbar.previewSalesChannel') }}
+            </label>
+
+            <sw-entity-single-select
+                class="sw-experience-studio-toolbar__sales-channel-select"
+                entity="sales_channel"
+                size="small"
+                :value="previewSalesChannelId"
+                :criteria="salesChannelCriteria"
+                :placeholder="$t('sw-experience-studio.detail.toolbar.previewSalesChannelPlaceholder')"
+                :show-clearable-button="false"
+                :disabled="isLoading || undefined"
+                @update:value="onPreviewSalesChannelChange"
+            />
+        </div>
+        {% endblock %}
+
+        <mt-floating-ui
+            :is-opened="isReviewOpen"
+            :floating-ui-options="{ placement: 'bottom-end' }"
+            :offset="8"
+            @close="isReviewOpen = false"
+        >
+            <template #trigger>
+                <mt-button
+                    ref="reviewTrigger"
+                    class="sw-experience-studio-toolbar__review-trigger"
+                    variant="secondary"
+                    size="small"
+                    :disabled="reviewActionsDisabled || changedLayouts.length === 0"
+                    :is-loading="isSavingAll"
+                    aria-haspopup="dialog"
+                    :aria-expanded="isReviewOpen"
+                    @click="toggleReview"
+                >
+                    {{ $t('sw-experience-studio.detail.toolbar.reviewChanges') }}
+                    <span
+                        v-if="changedLayouts.length"
+                        class="sw-experience-studio-toolbar__change-count"
+                    >{{ changedLayouts.length }}</span>
+                </mt-button>
+            </template>
+
+            <template #default>
+                <div
+                    ref="reviewPanel"
+                    class="sw-experience-studio-toolbar__review-panel"
+                    role="dialog"
+                    tabindex="-1"
+                    :aria-label="$t('sw-experience-studio.detail.toolbar.reviewChanges')"
+                >
+                    <ul class="sw-experience-studio-toolbar__changed-layouts">
+                        <li
+                            v-for="changedLayout in changedLayouts"
+                            :key="changedLayout.id"
+                            class="sw-experience-studio-toolbar__changed-layout"
+                        >
+                            <span
+                                class="sw-experience-studio-toolbar__change-dot"
+                                aria-hidden="true"
+                            ></span>
+                            <span
+                                class="sw-experience-studio-toolbar__changed-layout-name"
+                                :title="changedLayout.name"
+                            >{{ changedLayout.name }}</span>
+                            <mt-button
+                                variant="secondary"
+                                size="x-small"
+                                :disabled="reviewActionsDisabled"
+                                :aria-label="$t('sw-experience-studio.detail.toolbar.discardLayout', { name: changedLayout.name })"
+                                @click="$emit('discard-layout', changedLayout.id)"
+                            >
+                                {{ $t('global.default.discard') }}
+                            </mt-button>
+                        </li>
+                    </ul>
+                    <div class="sw-experience-studio-toolbar__review-footer">
+                        <mt-button
+                            variant="primary"
+                            size="small"
+                            :disabled="reviewActionsDisabled"
+                            :is-loading="isSavingAll || isLoading"
+                            @click="onSave"
+                        >
+                            {{ $t('sw-experience-studio.workspace.saveAll') }}
+                        </mt-button>
+                    </div>
+                </div>
+            </template>
+        </mt-floating-ui>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

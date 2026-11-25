@@ -1,0 +1,38 @@
+.sw-flyout {
+    --sw-flyout-border-color: var(--bs-gray-300);
+    --sw-flyout-border-width: 1px ;
+    --sw-flyout-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+    --sw-flyout-z-index: 1000;
+    left: 0;
+    right: 0;
+    min-height: 120px;
+    border-bottom: var(--sw-flyout-border-width) solid var(--sw-flyout-border-color);
+    box-shadow: var(--sw-flyout-shadow);
+    pointer-events: none;
+    z-index: var(--sw-flyout-z-index);
+
+    // Flyout animation
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s ease-in-out;
+}
+
+.sw-flyout__show-all {
+    .sw-icon {
+        color: currentColor;
+    }
+}
+
+.sw-flyout__categories-container {
+    transition: all 0.25s ease-in-out;
+    transform: translateY(-16px);
+    opacity: 0;
+}
+
+.sw-flyout__backdrop {
+    --bs-backdrop-zindex: 999;
+    opacity: 0;
+    pointer-events: none;
+    top: initial;
+    transition: all 0.25s ease-in-out;
+}

@@ -1,0 +1,61 @@
+/**
+ * @sw-package framework
+ */
+
+import type { HttpClient } from 'src/core/factory/http-client.types';
+import type { ContentElementNode } from '../content-element.types';
+import type { LoginService } from '../login.service';
+import ApiService from '../api.service';
+
+/**
+ * @private
+ */
+export interface ContentSystemLayoutPreset {
+    id: string;
+    name: string;
+    nameSnippet?: string;
+    description: string | null;
+    descriptionSnippet?: string;
+    icon: string | null;
+    illustration: string | null;
+    category: string | null;
+    priority: number;
+    payload: ContentElementNode[];
+    /**
+     * Root sources on which the default bindings applied to the preset's elements on insert all resolve; `null`
+     * places no restriction, an empty array means no root source satisfies them or an element's type has more than
+     * one default.
+     */
+    defaultBindingRootSources: string[] | null;
+}
+
+/**
+ * @private
+ */
+interface ContentSystemLayoutPresetResponse {
+    presets: ContentSystemLayoutPreset[];
+}
+
+class ContentSystemLayoutPresetApiService extends ApiService {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system-layout-presets') {
+        super(httpClient, loginService, apiEndpoint);
+        this.name = 'contentSystemLayoutPresetService';
+    }
+
+    getPresets(): Promise<ContentSystemLayoutPreset[]> {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get<ContentSystemLayoutPresetResponse>('/_info/content-system-layout-presets.json', {
+                headers,
+            })
+            .then((response) => {
+                const payload = ApiService.handleResponse<ContentSystemLayoutPresetResponse>(response);
+
+                return Array.isArray(payload.presets) ? payload.presets : [];
+            });
+    }
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default ContentSystemLayoutPresetApiService;

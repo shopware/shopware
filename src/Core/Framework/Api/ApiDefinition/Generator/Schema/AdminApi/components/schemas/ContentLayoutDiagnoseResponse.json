@@ -1,0 +1,62 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentLayoutDiagnoseResponse": {
+                "title": "Content layout diagnose response",
+                "type": "object",
+                "description": "The response returned by the resolve-and-diagnose route: the per-element property resolutions plus the well-formedness / resolvability report for the supplied draft layout. Never persisted, never cached.",
+                "required": ["resolutions", "diagnostics"],
+                "properties": {
+                    "resolutions": {
+                        "allOf": [
+                            { "$ref": "#/components/schemas/ContentLayoutResolutions" }
+                        ],
+                        "description": "Per-element property resolutions for the whole tree. Encodes as `{}` when empty.",
+                        "readOnly": true
+                    },
+                    "diagnostics": {
+                        "allOf": [
+                            { "$ref": "#/components/schemas/ContentLayoutDiagnosticsReport" }
+                        ],
+                        "description": "The well-formedness / resolvability report. With no source bound (neither `entityType` nor `section`), only intrinsic well-formedness is evaluated and `resolvable` is not meaningful.",
+                        "readOnly": true
+                    }
+                },
+                "example": {
+                    "resolutions": {
+                        "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": [
+                            {
+                                "key": "media",
+                                "kind": "reference",
+                                "required": false,
+                                "type": null,
+                                "default": null,
+                                "fqcn": "Shopware\\Core\\Content\\Media\\MediaEntity",
+                                "resolved": null,
+                                "candidates": []
+                            }
+                        ]
+                    },
+                    "diagnostics": {
+                        "wellFormed": true,
+                        "resolvable": true,
+                        "violations": [
+                            {
+                                "code": "unresolved_optional",
+                                "scope": "binding",
+                                "severity": "warning",
+                                "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                "key": "media",
+                                "message": "Optional property \"media\" has no source.",
+                                "candidates": []
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

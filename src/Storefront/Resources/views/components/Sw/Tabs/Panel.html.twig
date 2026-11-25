@@ -1,0 +1,67 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    slots = [],
+    variant = 'tabs',
+    alignment = 'start',
+%}
+
+{% set tabs = slots.tabs|default([]) %}
+{% set activeTabId = tabs is not empty ? (tabs|first).id : null %}
+
+{% set panelCVA = cva({
+    base: 'sw-tabs',
+    variants: {
+        variant: {
+            tabs: 'is--tabs',
+            pills: 'is--pills',
+            underline: 'is--underline',
+        },
+    },
+}) %}
+
+{% set navCVA = cva({
+    base: 'sw-tabs__nav nav',
+    variants: {
+        variant: {
+            tabs: 'nav-tabs',
+            pills: 'nav-pills',
+            underline: 'nav-underline',
+        },
+        alignment: {
+            center: 'justify-content-center',
+            end: 'justify-content-end',
+            fill: 'nav-fill',
+            justified: 'nav-justified',
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: panelCVA.apply({ variant }),
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <ul {{ attributes.nested('nav').defaults({
+        class: navCVA.apply({ variant, alignment }),
+        role: 'tablist',
+    }) }}>
+        {% block nav_items %}
+            {% for tab in tabs %}
+                <twig:Sw:Tabs:NavItem
+                    :tabId="tab.id"
+                    :title="tab.properties.title ?? ''"
+                    :active="tab.id == activeTabId"
+                />
+            {% endfor %}
+        {% endblock %}
+    </ul>
+
+    <div {{ attributes.nested('content').defaults({ class: 'sw-tabs__content tab-content' }) }}>
+        {% block content %}
+            <twig:Slot name="tabs"></twig:Slot>
+        {% endblock %}
+    </div>
+</div>

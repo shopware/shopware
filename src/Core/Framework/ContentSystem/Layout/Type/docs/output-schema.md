@@ -1,0 +1,34 @@
+# Type Spec as Output Schema
+
+The type specification's `properties` describe what a **hydrated** element looks like in the API response, not what is stored in the database.
+
+A type property with a FQCN type (e.g., `SalesChannelProductEntity`) is not stored in the database as a property value. It appears in the element's `properties` map only after hydration, when a data loader or context provider fills it.
+
+A type property with a primitive type (e.g., `string`, `boolean`) is stored in the database as a static property value set at design time.
+
+Both end up in the same `properties` map after hydration. The type spec does not distinguish between them because an API client (storefront, admin, headless client) sees a single `properties` map.
+
+## Key-Based Linkage
+
+The property key is the connecting identifier across all systems:
+
+- Type spec: `properties.product` — "this element has a property called `product`"
+- Element storage: `dataRequirements.product` — "load `product` via this data loader"
+- Element storage: `acceptsContext.product`: "receive `product` from a parent, or from the layout's root context under `scope: root`"
+- Render step: `RenderedElementFactory` writes the resolved loader value onto the rendered element under key `product`
+- API output: `properties.product` — serialized SalesChannelProductEntity
+
+The type spec declares WHAT properties exist and their types. The element instance declares HOW each non-primitive property gets its value (via `dataRequirements` or `acceptsContext`).
+
+**Alias and path variations:** The direct key match is the common case. Two exceptions:
+- Context consumers may use `propertyAlias` to store received data under a different key than the consumer key (e.g., `acceptsContext.product` with `propertyAlias: "item"` stores data under `properties.item`).
+- Path-based consumers (e.g., `acceptsContext: product.cover`) receive a resolved sub-property from the `product` context they match, the parent's or the root context's, stored under the consumer key or its property alias.
+
+## Type-to-Loader Bridge
+
+`ContentSystemDataLoaderMap` connects type spec FQCNs to data loader capabilities:
+
+- Forward: given a loader source (e.g., `"entity"`), what types can it produce?
+- Reverse: given a FQCN (e.g., `SalesChannelProductEntity`), which loaders can produce it?
+
+`ContentSystemDataLoaderMapResolver` assembles and memoizes this bridge lazily on its first runtime lookup. `ContentSystemDataLoaderCompilerPass` builds no map and only validates each tagged loader at compile time (failure conditions in [DataLoader](../../../Hydration/DataLoader/README.md#build-time-validation)). Currently consumed by the Schema API endpoint, designed to also serve future layout validation.

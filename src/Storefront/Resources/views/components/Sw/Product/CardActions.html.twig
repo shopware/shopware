@@ -1,0 +1,34 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    product,
+    addToCartExtraFormData = {},
+    horizontal = false,
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-product-card-actions' ~ (not horizontal ? ' d-grid' : ''),
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
+    {% set displayFrom = product.calculatedPrices.count > 1 %}
+    {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}
+
+    <twig:Slot name="top"></twig:Slot>
+
+    {% if displayBuyButton and config('core.listing.allowBuyInListing') %}
+        <twig:Sw:Product:BuyButton :product="product" :extraFormData="addToCartExtraFormData" />
+    {% else %}
+        <a href="{{ seoUrl('frontend.detail.page', {productId: product.id}) }}"
+           class="btn btn-light btn-detail">
+            {% block component_product_box_action_detail_label %}
+                {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
+            {% endblock %}
+        </a>
+    {% endif %}
+
+    <twig:Slot name="bottom"></twig:Slot>
+</div>

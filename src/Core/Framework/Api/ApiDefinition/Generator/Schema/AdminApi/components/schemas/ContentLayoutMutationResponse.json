@@ -1,0 +1,116 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentLayoutMutationResponse": {
+                "title": "Content layout mutation response",
+                "type": "object",
+                "description": "The response returned by every draft and persisted layout mutation route: the re-resolved layout plus a diagnostics report and the bookkeeping of what the edit detached or dropped. Nothing an edit detaches or drops is silently lost: detached subtrees come back in `orphaned` (re-placeable with an `attach-element` call), wiring keys the edit could not keep come back in `droppedWiring`, and static property values the target type cannot hold come back in `droppedProperties`.",
+                "required": [
+                    "layout",
+                    "resolutions",
+                    "diagnostics",
+                    "affectedElementIds",
+                    "orphaned",
+                    "droppedWiring",
+                    "droppedProperties"
+                ],
+                "properties": {
+                    "layout": {
+                        "type": "array",
+                        "description": "The full edited element tree (one or more roots), serialized the same way a stored layout is.",
+                        "items": {
+                            "$ref": "#/components/schemas/StoredContentElement"
+                        },
+                        "readOnly": true
+                    },
+                    "resolutions": {
+                        "allOf": [
+                            { "$ref": "#/components/schemas/ContentLayoutResolutions" }
+                        ],
+                        "description": "Per-element property resolutions, restricted to the affected elements. Encodes as `{}` when empty.",
+                        "readOnly": true
+                    },
+                    "diagnostics": {
+                        "allOf": [
+                            { "$ref": "#/components/schemas/ContentLayoutDiagnosticsReport" }
+                        ],
+                        "description": "The well-formedness / resolvability report for the edited tree. The authoritative correctness output.",
+                        "readOnly": true
+                    },
+                    "affectedElementIds": {
+                        "type": "array",
+                        "description": "Ids of the elements whose resolution may have changed (a highlight hint for the editor; `diagnostics` is the authority). Includes the freshly minted ids of any inserted, duplicated, or attached elements.",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true,
+                        "example": ["0188fa1b2c3d4e5f6a7b8c9d0e1f2a40"]
+                    },
+                    "orphaned": {
+                        "type": "array",
+                        "description": "Subtrees the edit detached (for example a `replace` dropping the children of a slot the new type does not have), serialized as elements so they can be re-placed with an `attach-element` call.",
+                        "items": {
+                            "$ref": "#/components/schemas/StoredContentElement"
+                        },
+                        "readOnly": true
+                    },
+                    "droppedWiring": {
+                        "type": "array",
+                        "description": "Wiring keys the edit could not keep (for example a `replace` to a type without that reference property), so the caller can re-wire.",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "droppedProperties": {
+                        "type": "object",
+                        "description": "Static property values the edit could not carry to the new type (key absent, or a value the type rejects), keyed by property key so the caller can re-apply them. Encodes as `{}` when empty.",
+                        "additionalProperties": true,
+                        "readOnly": true
+                    }
+                },
+                "example": {
+                    "layout": [
+                        {
+                            "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
+                            "component": "shopware/text",
+                            "properties": { "content": "Hello world" }
+                        }
+                    ],
+                    "resolutions": {
+                        "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b": [
+                            {
+                                "key": "content",
+                                "kind": "primitive",
+                                "required": true,
+                                "type": "string",
+                                "default": null,
+                                "fqcn": null,
+                                "resolved": null,
+                                "candidates": []
+                            }
+                        ]
+                    },
+                    "diagnostics": {
+                        "wellFormed": true,
+                        "resolvable": true,
+                        "violations": []
+                    },
+                    "affectedElementIds": ["0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"],
+                    "orphaned": [
+                        {
+                            "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41",
+                            "component": "shopware/product-heading",
+                            "properties": { "tag": "h2" }
+                        }
+                    ],
+                    "droppedWiring": ["product"],
+                    "droppedProperties": { "subtitle": "Old subtitle text" }
+                }
+            }
+        }
+    }
+}

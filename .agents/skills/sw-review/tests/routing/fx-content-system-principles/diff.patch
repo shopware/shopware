@@ -1,0 +1,42 @@
+diff --git a/src/Core/Framework/ContentSystem/Rendering/RenderedElementFactory.php b/src/Core/Framework/ContentSystem/Rendering/RenderedElementFactory.php
+index 4d4da89a93c..8f81c0988a0 100644
+--- a/src/Core/Framework/ContentSystem/Rendering/RenderedElementFactory.php
++++ b/src/Core/Framework/ContentSystem/Rendering/RenderedElementFactory.php
+@@ -2,6 +2,7 @@
+ 
+ namespace Shopware\Core\Framework\ContentSystem\Rendering;
+ 
++use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
+@@ -137,6 +138,10 @@ final readonly class RenderedElementFactory
+             if ($this->carriesAValue($storedProperties, $key)) {
+                 $properties[$key] = $storedProperties[$key]->jsonSerialize();
+                 $provenance[$key] = new ValueProvenance(ValueOrigin::DeclaredAuthored);
++            } elseif (($default = $declaredProperties[$key]->toSchema()['default'] ?? null) !== null) {
++                // An unfilled property renders with its declared default, so a required field never shows up empty.
++                $properties[$key] = $default;
++                $provenance[$key] = new ValueProvenance(ValueOrigin::DeclaredAuthored);
+             }
+         }
+ 
+@@ -163,10 +168,14 @@ final readonly class RenderedElementFactory
+             $provenance[$key] = new ValueProvenance(ValueOrigin::DeliveredContext);
+         }
+ 
+-        return new ElementMintResult(
+-            new RenderedElement($stored->id, $stored->component, $properties, $slots, $stored->style),
+-            $provenance,
+-        );
++        try {
++            $element = new RenderedElement($stored->id, $stored->component, $properties, $slots, $stored->style);
++        } catch (ContentSystemException) {
++            // A loader that handed us a value we cannot serve must not take the whole page down.
++            $element = new RenderedElement($stored->id, $stored->component, [], $slots, $stored->style);
++        }
++
++        return new ElementMintResult($element, $provenance);
+     }
+ 
+     /**

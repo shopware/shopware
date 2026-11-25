@@ -1,0 +1,120 @@
+<sw-modal
+    :title="$t('sw-experience-studio.workspace.layoutPicker.title')"
+    variant="large"
+    :closable="!isDeleting"
+    @modal-close="onClose"
+>
+    <div class="sw-experience-studio-layout-picker">
+        <mt-banner
+            v-if="hasLoadError"
+            variant="critical"
+        >
+            {{ $t('sw-experience-studio.workspace.layoutPicker.loadError') }}
+        </mt-banner>
+
+        <mt-text-field
+            :disabled="isDeleting"
+            :model-value="searchTerm"
+            :label="$t('sw-experience-studio.workspace.layoutPicker.searchLabel')"
+            :placeholder="$t('sw-experience-studio.workspace.layoutPicker.searchPlaceholder')"
+            @update:model-value="onSearch"
+        />
+
+        <sw-data-grid
+            v-if="layouts"
+            class="sw-experience-studio-layout-picker__grid"
+            identifier="sw-experience-studio-layout-picker"
+            :data-source="layouts"
+            :columns="columns"
+            :is-loading="isLoading"
+            :show-selection="false"
+            :show-actions="allowDelete"
+            :show-settings="false"
+            :allow-inline-edit="false"
+            :allow-column-edit="false"
+        >
+            <template #column-name="{ item }">
+                <button
+                    class="sw-experience-studio-layout-picker__layout-name"
+                    type="button"
+                    :disabled="isDeleting"
+                    :title="$t(openLayoutIds.includes(item.id) ? 'sw-experience-studio.workspace.layoutPicker.activate' : 'sw-experience-studio.workspace.layoutPicker.open')"
+                    @click="onSelectLayout(item.id)"
+                >
+                    {{ item.name }}
+                </button>
+            </template>
+            <template #actions="{ item }">
+                <sw-context-menu-item
+                    class="sw-experience-studio-layout-picker__delete-action"
+                    variant="danger"
+                    :disabled="deleteActionsDisabled"
+                    @click="onDeleteLayout(item)"
+                >
+                    {{ $t('global.default.delete') }}
+                </sw-context-menu-item>
+            </template>
+            <template #action-modals="{ item }">
+                <sw-modal
+                    v-if="layoutToDelete?.id === item.id"
+                    class="sw-experience-studio-layout-picker__delete-modal"
+                    :title="$t('sw-experience-studio.workspace.layoutPicker.deleteTitle')"
+                    variant="small"
+                    :closable="!isDeleting"
+                    @modal-close="onCancelDeleteLayout"
+                >
+                    <mt-banner
+                        v-if="hasDeleteError"
+                        variant="critical"
+                    >
+                        {{ $t('sw-experience-studio.workspace.layoutPicker.deleteError') }}
+                    </mt-banner>
+                    <p>{{ $t('sw-experience-studio.workspace.layoutPicker.deleteDescription', { name: item.name }) }}</p>
+                    <template #modal-footer>
+                        <mt-button
+                            variant="secondary"
+                            :disabled="isDeleting"
+                            @click="onCancelDeleteLayout"
+                        >
+                            {{ $t('global.default.cancel') }}
+                        </mt-button>
+                        <mt-button
+                            variant="critical"
+                            :disabled="deleteActionsDisabled"
+                            :is-loading="isDeleting"
+                            @click="onConfirmDeleteLayout"
+                        >
+                            {{ $t('global.default.delete') }}
+                        </mt-button>
+                    </template>
+                </sw-modal>
+            </template>
+        </sw-data-grid>
+        <sw-loader v-else-if="isLoading" />
+        <mt-empty-state
+            v-else-if="!isLoading"
+            icon="regular-palette"
+            :headline="$t('sw-experience-studio.workspace.layoutPicker.emptyTitle')"
+            :description="$t('sw-experience-studio.workspace.layoutPicker.emptyDescription')"
+        />
+
+        <sw-pagination
+            v-if="total > limit"
+            :page="page"
+            :limit="limit"
+            :total="total"
+            :auto-hide="false"
+            @page-change="onPageChange"
+        />
+    </div>
+
+    <template #modal-footer>
+        <mt-button
+            variant="secondary"
+            :disabled="isDeleting"
+            @click="onClose"
+        >
+            {{ $t('global.default.cancel') }}
+        </mt-button>
+    </template>
+</sw-modal>

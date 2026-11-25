@@ -1,0 +1,32 @@
+meta:
+  label: "Delivery information"
+  labelSnippet: "sw-experience-studio.elements.product-delivery.label"
+  description: "Displays free shipping, the preorder release date, the available delivery time or the restock time for the current product."
+  icon: "regular-truck"
+  illustration: "product-delivery"
+  category: "commerce"
+  copilot:
+    summary: "Free shipping and delivery status for the current product."
+    hints:
+      - "Use on a product detail page; the product is resolved from the current product-page context."
+      - "Shows free shipping when the product is marked as shipping-free."
+      - "Shows the release date instead of the delivery time when the release date is in the future."
+      - "Shows the delivery time when the product is available and a delivery time is assigned."
+      - "Shows the restock time when the product is out of stock, is not a clearance sale and has a restock time and delivery time."
+      - "Renders nothing when none of these states applies."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: false
+    title: "Product"
+    titleSnippet: "sw-experience-studio.elements.product-delivery.product.title"
+    description: "Hydrated product that provides the shipping and delivery data; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page. When no delivery state applies, the component renders nothing."
+    resolvedBy: productId
+    mappable: true
+    defaultMapping:
+      type: root
+      id: product
+    adminUI:
+      component: "entity-single-select"
+      entity: "product"

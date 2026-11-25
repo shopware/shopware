@@ -1,0 +1,49 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Validation;
+
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+
+/**
+ * @internal only for use by the content-system element types
+ */
+#[Package('framework')]
+final class TranslatableTypeValidator extends ConstraintValidator
+{
+    public function validate(mixed $value, Constraint $constraint): void
+    {
+        if (!$constraint instanceof TranslatableType) {
+            throw new UnexpectedTypeException($constraint, TranslatableType::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
+        }
+
+        if (!$value instanceof PropertySpecificationDto) {
+            throw new UnexpectedTypeException($value, PropertySpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
+        }
+
+        // A lone primitive only: a union carrying a single primitive member still declares a union, and the stored
+        // language map judges its entries against one declared primitive.
+        $lonePrimitive = \in_array($value->type, PropertyType::PRIMITIVE_TYPES, true);
+
+        if ($value->translatable && !$lonePrimitive) {
+            $this->context->buildViolation($constraint->message)
+                ->atPath('translatable')
+                ->addViolation();
+        }
+
+        // The nested members are validated through the cascade on `properties`, so this check sees each member
+        // exactly once, from its direct parent. A top-level property has no parent specification, so it is not
+        // subject to it.
+        foreach ($value->properties ?? [] as $key => $member) {
+            if ($member->translatable) {
+                $this->context->buildViolation($constraint->nestedMessage)
+                    ->atPath(\sprintf('properties[%s].translatable', $key))
+                    ->addViolation();
+            }
+        }
+    }
+}

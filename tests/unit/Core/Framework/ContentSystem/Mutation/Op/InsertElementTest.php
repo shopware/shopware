@@ -1,0 +1,663 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\ScopedDefaultBindingFixture;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(InsertElement::class)]
+class InsertElementTest extends TestCase
+{
+    #[TestDox('appends a fresh element of the type to the root with a server-minted id, no seeded style, and no wiring when the type has no default specification')]
+    public function testInsertAppendsFreshRootElement(): void
+    {
+        $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
+
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply($tree);
+
+        static::assertCount(2, $result->roots);
+        static::assertSame('existing', $result->roots[0]->id);
+        static::assertSame('Sw:Card', $result->roots[1]->component);
+        static::assertTrue(Uuid::isValid($result->roots[1]->id));
+        static::assertTrue($result->roots[1]->style->isEmpty());
+        static::assertSame([], $result->roots[1]->dataRequirements);
+        static::assertSame([], $result->roots[1]->attributedSpecifications);
+    }
+
+    #[TestDox('reports the minted id as the whole affected set and the whole created set')]
+    public function testInsertReportsMintedIdInBothChangeSets(): void
+    {
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply(new StoredTree([new StoredElement('existing', 'Sw:Block')]));
+
+        static::assertSame([$result->roots[1]->id], $insert->affected());
+        static::assertSame([$result->roots[1]->id], $insert->created());
+        static::assertSame($insert->created(), $insert->freshlyScaffolded());
+    }
+
+    #[TestDox('splices the new element into a parent slot at the given index, leaving the parent\'s other fields intact')]
+    public function testInsertIntoParentSlotAtIndex(): void
+    {
+        $style = new ElementStyle(['padding' => ['md' => '1rem']]);
+        $parent = new StoredElement('parent', 'Sw:Block', [], ['title' => StoredValue::ofString('Section')], [
+            'content' => [new StoredElement('a', 'Sw:Block'), new StoredElement('b', 'Sw:Block')],
+        ], new ContextDefinitions([], []), $style);
+
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent', slot: 'content', index: 1);
+        $result = $insert->apply(new StoredTree([$parent]));
+
+        $children = $result->roots[0]->slots['content'];
+        static::assertSame(['a', 'Sw:Card', 'b'], [$children[0]->id, $children[1]->component, $children[2]->id]);
+        static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
+    }
+
+    #[TestDox('prepends to the root when index zero is given without a parent')]
+    public function testInsertAtRootIndexZero(): void
+    {
+        $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
+
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), index: 0);
+        $result = $insert->apply($tree);
+
+        static::assertSame('Sw:Card', $result->roots[0]->component);
+        static::assertSame('existing', $result->roots[1]->id);
+    }
+
+    #[TestDox('seeds top-level primitive properties that declare a default')]
+    public function testInsertSeedsPrimitiveDefaultsOnly(): void
+    {
+        $spec = $this->spec('Sw:Card', [
+            'headline' => $this->primitive('string', 'Hello'),
+            'count' => $this->primitive('integer', null),
+            'product' => $this->reference(),
+        ]);
+
+        $insert = new InsertElement($this->registry(['Sw:Card' => $spec]), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertSame(['headline' => 'Hello'], $this->rawProperties($result->roots[0]));
+    }
+
+    #[TestDox('seeds nested object property defaults')]
+    public function testInsertSeedsNestedObjectDefaults(): void
+    {
+        $spec = $this->spec('Sw:Grid:Container', [
+            'padding' => new PropertySpecification(
+                'padding',
+                new PropertyType(
+                    ['string', 'object'],
+                    false,
+                    null,
+                    null,
+                    [
+                        'xs' => new PropertySpecification('xs', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
+                        'sm' => new PropertySpecification('sm', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
+                    ],
+                ),
+                false,
+                '',
+                '',
+                null,
+            ),
+        ]);
+
+        $insert = new InsertElement($this->registry(['Sw:Grid:Container' => $spec]), 'Sw:Grid:Container', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertSame(
+            ['padding' => ['xs' => '0 20px 0 20px', 'sm' => '0 20px 0 20px']],
+            $this->rawProperties($result->roots[0]),
+        );
+    }
+
+    #[TestDox('applies the binding specification onto the freshly scaffolded element with its wiring, seeded input default, and attribution')]
+    public function testInsertAppliesBindingWiringSeededDefaultAndAttribution(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $spec = new BindingSpecification(
+            'media-picker',
+            'Sw:Media:Image',
+            'Media picker',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
+            ['mediaId' => new BindingInput(true, 'seeded', false)],
+            'core',
+        );
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:media-picker' => $spec]),
+            $this->applicator($config),
+            'core:media-picker',
+        );
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->roots[0]->dataRequirements);
+        static::assertSame('seeded', $result->roots[0]->property('mediaId')?->jsonSerialize());
+        static::assertSame(['media' => 'core:media-picker'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('seeds a translatable input default under the anchor language key on a bound insert')]
+    public function testInsertSeedsTranslatableInputDefaultAsAnchorMap(): void
+    {
+        // The declared property carries no default of its own, so the anchor map can only come from the
+        // specification's input default going through the applicator's shape rule.
+        $typeRegistry = $this->registry([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')->primitive('text', 'string', translatable: true)->build(),
+        ]);
+        $spec = new BindingSpecification('text-seed', 'Sw:Content:Text', 'Text seed', [], ['text' => new BindingInput(true, 'Autumn sale', false)], 'core');
+
+        $insert = new InsertElement(
+            $typeRegistry,
+            'Sw:Content:Text',
+            $this->bindingRegistry(['core:text-seed' => $spec]),
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class), $typeRegistry),
+            'core:text-seed',
+        );
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Autumn sale'], $result->roots[0]->property('text')?->jsonSerialize());
+    }
+
+    #[TestDox('auto-applies the type default specification onto a fresh insert with no explicit bindingSpecificationId, attributed to its own qualified id')]
+    public function testInsertAutoAppliesTypeDefault(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $default = new BindingSpecification(
+            'Sw:Media:Image',
+            'Sw:Media:Image',
+            'Image',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
+            [],
+            'core',
+        );
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default]),
+            $this->applicator($config),
+        );
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->roots[0]->dataRequirements);
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('applies the explicit binding specification first, then fill-applies the type default, attributing the shared key to the explicit choice')]
+    public function testInsertExplicitBindingAppliesBeforeDefaultFill(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        // The default declares the shared key last, so only explicit-first yields the ['media', 'gallery'] order.
+        $default = new BindingSpecification(
+            'Sw:Media:Image',
+            'Sw:Media:Image',
+            'Image',
+            [
+                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'galleryIds']),
+                'media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId']),
+            ],
+            [],
+            'core',
+        );
+        $explicit = new BindingSpecification('gallery-pick', 'Sw:Media:Image', 'Gallery pick', ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'galleryPickId'])], [], 'core');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $explicit]),
+            $this->applicator($config),
+            'core:gallery-pick',
+        );
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('inserts with a named non-scoped specification when the default scopes a shared key by root sources that do not include the tree root source')]
+    public function testInsertNamedSpecificationWinsSharedKeyOverUnresolvableScopedDefault(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $default = ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Media:Image', 'Image');
+        $named = new BindingSpecification(
+            'gallery-pick',
+            'Sw:Media:Image',
+            'Gallery pick',
+            [
+                'media' => new LoaderBinding('entity', ['entity' => 'media']),
+                'cover' => new LoaderBinding('entity', ['entity' => 'media']),
+            ],
+            [],
+            'core',
+        );
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $named]),
+            $this->applicator($config),
+            'core:gallery-pick',
+        );
+        $result = $insert->apply(new StoredTree([], 'category'));
+
+        static::assertSame(['media', 'cover'], array_keys($result->roots[0]->dataRequirements));
+        static::assertSame(['media' => 'core:gallery-pick', 'cover' => 'core:gallery-pick'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('stores the named specification input default when the type default declares the same input with a default')]
+    public function testInsertNamedSpecificationInputDefaultWinsOverTypeDefaultInput(): void
+    {
+        $default = new BindingSpecification('Sw:Media:Image', 'Sw:Media:Image', 'Image', [], ['title' => new BindingInput(true, 'from-default', false)], 'core');
+        $named = new BindingSpecification('gallery-pick', 'Sw:Media:Image', 'Gallery pick', [], ['title' => new BindingInput(true, 'from-named', false)], 'core');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $named]),
+            $this->unboundApplicator(),
+            'core:gallery-pick',
+        );
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertSame('from-named', $result->roots[0]->property('title')?->jsonSerialize());
+    }
+
+    #[TestDox('keeps a default-only key under the default attribution while the shared key carries the named specification')]
+    public function testInsertDefaultOnlyKeyLandsWithDefaultAttributionUnderNamedSpecification(): void
+    {
+        $result = $this->insertWithProductScopedGalleryDefault()->apply(new StoredTree([], 'product'));
+
+        static::assertSame(['media', 'gallery'], array_keys($result->roots[0]->dataRequirements));
+        static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
+    }
+
+    /**
+     * The three default producers share one shape rule and keep no copy of it, so each is asserted against
+     * {@see PropertyType::storedDefault()} rather than against a literal: a producer that diverged from the
+     * rule would have to diverge from the rule's own output to pass. Driven through {@see InsertElement::apply()}
+     * scaffolding a fresh element of the declaring type, the same path a real insert takes.
+     */
+    #[DataProvider('seedingPropertyProvider')]
+    #[TestDox('emits the stored shape the property type defines from every default producer: $_dataName')]
+    public function testInsertScaffoldsPrimitiveDefaultsAgreeingWithTheStoredShapeRule(string $key, PropertyType $propertyType): void
+    {
+        $produced = $this->produceDefaults($key, $propertyType);
+
+        static::assertSame([$key => $propertyType->storedDefault()], $produced['provider']);
+        static::assertSame([$key => $propertyType->storedDefault()], $produced['seeder']);
+        static::assertSame([$key => $propertyType->storedDefault()], $produced['insert']);
+    }
+
+    /**
+     * @return iterable<string, array{string, PropertyType}>
+     */
+    public static function seedingPropertyProvider(): iterable
+    {
+        yield 'translatable string with a declared default' => [
+            'text',
+            new PropertyType('string', true, null, 'Willkommen'),
+        ];
+
+        yield 'non-translatable string with a declared default' => [
+            'mode',
+            new PropertyType('string', false, null, 'auto-fit'),
+        ];
+
+        yield 'non-translatable integer with a declared default' => [
+            'maxImageWidth',
+            new PropertyType('integer', false, null, 1360),
+        ];
+
+        // A false default is not an absent default, so a producer testing truthiness instead of identity fails.
+        yield 'non-translatable boolean with a false default' => [
+            'reverse',
+            new PropertyType('boolean', false, null, false),
+        ];
+    }
+
+    #[DataProvider('nonSeedingPropertyProvider')]
+    #[TestDox('emits no key from any default producer for a property that seeds nothing: $_dataName')]
+    public function testInsertScaffoldsNoKeyForAPropertyThatSeedsNothing(string $key, PropertyType $propertyType): void
+    {
+        $produced = $this->produceDefaults($key, $propertyType);
+
+        static::assertSame([], $produced['provider']);
+        static::assertSame([], $produced['seeder']);
+        static::assertSame([], $produced['insert']);
+    }
+
+    /**
+     * @return iterable<string, array{string, PropertyType}>
+     */
+    public static function nonSeedingPropertyProvider(): iterable
+    {
+        yield 'translatable string without a declared default' => [
+            'ariaLabel',
+            new PropertyType('string', true, null, null),
+        ];
+
+        yield 'non-translatable string without a declared default' => [
+            'alt',
+            new PropertyType('string', false, null, null),
+        ];
+
+        // A reference property carries a default the primitive gate must drop, so a producer that stopped
+        // consulting isPrimitive() fails here rather than only on a type declaring no reference property.
+        yield 'reference property carrying a default' => [
+            'product',
+            new PropertyType(SalesChannelProductEntity::class, false, null, 'ignored-default'),
+        ];
+    }
+
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('rejects a default-only scoped key whose root source is unnamed even when a named specification wires the other keys, naming the default and no element: $_dataName')]
+    public function testInsertNamedSpecificationStillRejectsDefaultOnlyScopedKeyWithUnnamedRootSource(?string $rootSource): void
+    {
+        $insert = $this->insertWithProductScopedGalleryDefault();
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'gallery', null, $rootSource));
+
+        $insert->apply(new StoredTree([], $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'a root source outside the scope' => ['category'];
+        yield 'no root source' => [null];
+    }
+
+    /**
+     * @param array<string, BindingSpecification> $specifications
+     */
+    #[DataProvider('unresolvableScopedSpecificationProvider')]
+    #[TestDox('rejects a specification whose scoped key has no entry for the tree root source, naming that specification and no element: $_dataName')]
+    public function testInsertRejectsSpecificationWhoseScopedKeyCannotResolve(array $specifications, ?string $bindingSpecificationId, string $expectedSpecificationId, string $expectedKey, ?string $rootSource): void
+    {
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry($specifications),
+            $this->unboundApplicator(),
+            $bindingSpecificationId,
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped($expectedSpecificationId, $expectedKey, null, $rootSource));
+
+        $insert->apply(new StoredTree([], $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, BindingSpecification>, ?string, string, string, ?string}>
+     */
+    public static function unresolvableScopedSpecificationProvider(): iterable
+    {
+        yield 'the type default when no bindingSpecificationId is given' => [
+            ['core:Sw:Media:Image' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Media:Image', 'Image')],
+            null,
+            'core:Sw:Media:Image',
+            'media',
+            'category',
+        ];
+
+        yield 'a named specification' => [
+            ['core:gallery-pick' => new BindingSpecification(
+                'gallery-pick',
+                'Sw:Media:Image',
+                'Gallery pick',
+                ['cover' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]])],
+                [],
+                'core',
+            )],
+            'core:gallery-pick',
+            'core:gallery-pick',
+            'cover',
+            'category',
+        ];
+
+        yield 'the type default when the tree has no root source' => [
+            ['core:Sw:Media:Image' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Media:Image', 'Image')],
+            null,
+            'core:Sw:Media:Image',
+            'media',
+            null,
+        ];
+    }
+
+    #[TestDox('rejects an unregistered type with a 400')]
+    public function testInsertUnknownTypeRejected(): void
+    {
+        $insert = new InsertElement($this->registry([]), 'Sw:Ghost', $this->bindingRegistry([]), $this->unboundApplicator());
+
+        $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
+        $insert->apply(new StoredTree([]));
+    }
+
+    #[TestDox('rejects a parented insert without a slot with a 400')]
+    public function testInsertParentWithoutSlotRejected(): void
+    {
+        $parent = new StoredElement('parent', 'Sw:Block');
+
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent');
+
+        $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
+        $insert->apply(new StoredTree([$parent]));
+    }
+
+    #[TestDox('rejects an insert into a missing parent with a 400')]
+    public function testInsertMissingParentRejected(): void
+    {
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'ghost', slot: 'content');
+
+        $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
+        $insert->apply(new StoredTree([new StoredElement('other', 'Sw:Block')]));
+    }
+
+    #[TestDox('rejects a type with more than one default specification with a 409 naming the colliding qualified ids')]
+    public function testInsertWithAmbiguousDefaultThrows(): void
+    {
+        $first = new BindingSpecification('Sw:Media:Image', 'Sw:Media:Image', 'Image', [], [], 'core');
+        $second = new BindingSpecification('Sw:Media:Image', 'Sw:Media:Image', 'Image', [], [], 'app1');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $first, 'app1:Sw:Media:Image' => $second]),
+            $this->unboundApplicator(),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationDefaultAmbiguous('Sw:Media:Image', ['core:Sw:Media:Image', 'app1:Sw:Media:Image']));
+        $insert->apply(new StoredTree([]));
+    }
+
+    #[TestDox('rejects an unknown bindingSpecificationId with a 400 before any tree change')]
+    public function testInsertUnknownBindingRejected(): void
+    {
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry([]),
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+            'core:ghost',
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationNotFound('core:ghost'));
+        $insert->apply(new StoredTree([new StoredElement('existing', 'Sw:Block')]));
+    }
+
+    #[TestDox('rejects a binding specification whose type does not match the inserted type with a 400 before any tree change')]
+    public function testInsertMismatchedBindingTypeRejected(): void
+    {
+        $spec = new BindingSpecification('media-picker', 'Sw:Other', 'label', ['media' => new LoaderBinding('entity', [])], [], 'core');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:media-picker' => $spec]),
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+            'core:media-picker',
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('core:media-picker', 'Sw:Other', 'Sw:Media:Image', null));
+        $insert->apply(new StoredTree([new StoredElement('existing', 'Sw:Block')]));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function rawProperties(StoredElement $element): array
+    {
+        return array_map(static fn (StoredValue $value): mixed => $value->jsonSerialize(), $element->properties());
+    }
+
+    /**
+     * The output of all three default producers for a one-property type, each unwrapped to raw PHP values so
+     * the three are directly comparable. `insert` goes through {@see InsertElement::apply()}'s scaffold path
+     * rather than calling the protected `storedDefaults()` directly, so no test subclasses the abstract
+     * mutation.
+     *
+     * @return array{provider: array<string, mixed>, seeder: array<string, mixed>, insert: array<string, mixed>}
+     */
+    private function produceDefaults(string $key, PropertyType $propertyType): array
+    {
+        $registry = $this->registry(['Sw:Block' => $this->spec('Sw:Block', [$key => new PropertySpecification('prop', $propertyType, false, '', '', null)])]);
+
+        $seeded = (new LayoutDefaultSeeder($registry, new StoredDefaultProvider()))
+            ->seed([StoredElementBuilder::create('Sw:Block', 'el')->build()]);
+
+        $insert = new InsertElement($registry, 'Sw:Block', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply(new StoredTree([]));
+
+        return [
+            'provider' => (new StoredDefaultProvider())->forType($registry, 'Sw:Block'),
+            'seeder' => $this->rawProperties($seeded[0]),
+            'insert' => $this->rawProperties($result->roots[0]),
+        ];
+    }
+
+    /**
+     * An insert of the named `gallery-pick` specification over a type default whose `gallery` key is scoped to the
+     * `product` root source only: it resolves under a `product` tree and has no entry under any other root source.
+     */
+    private function insertWithProductScopedGalleryDefault(): InsertElement
+    {
+        $default = new BindingSpecification(
+            'Sw:Media:Image',
+            'Sw:Media:Image',
+            'Image',
+            [
+                'media' => new LoaderBinding('entity', ['entity' => 'media']),
+                'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'mediaIds', 'associations' => [RootSourceConfigMap::MARKER => ['product' => ['thumbnails']]]]),
+            ],
+            [],
+            'core',
+        );
+        $named = new BindingSpecification('gallery-pick', 'Sw:Media:Image', 'Gallery pick', ['media' => new LoaderBinding('entity', ['entity' => 'media'])], [], 'core');
+
+        return new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $named]),
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+            'core:gallery-pick',
+        );
+    }
+
+    private function registryWith(string $type): AbstractContentSystemElementTypeRegistry
+    {
+        return $this->registry([$type => $this->spec($type, [])]);
+    }
+
+    /**
+     * @param array<string, BindingSpecification> $specs
+     */
+    private function bindingRegistry(array $specs): AbstractContentSystemBindingSpecificationRegistry
+    {
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn($specs);
+
+        return $registry;
+    }
+
+    private function applicator(AbstractContentDataLoaderConfig $config, ?AbstractContentSystemElementTypeRegistry $typeRegistry = null): BindingApplicator
+    {
+        $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $serializers->method('decode')->willReturn($config);
+
+        return new BindingApplicator($serializers, $typeRegistry ?? $this->registry([]));
+    }
+
+    private function unboundApplicator(): BindingApplicator
+    {
+        return new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry([]));
+    }
+
+    /**
+     * @param array<string, ContentSystemElementTypeSpecification> $specs
+     */
+    private function registry(array $specs): AbstractContentSystemElementTypeRegistry
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return $registry;
+    }
+
+    /**
+     * @param array<string, PropertySpecification> $properties
+     */
+    private function spec(string $name, array $properties): ContentSystemElementTypeSpecification
+    {
+        return new ContentSystemElementTypeSpecification($name, $name, '', null, null, new CopilotSpecification('', []), $properties, []);
+    }
+
+    private function primitive(string $type, string|int|float|bool|null $default): PropertySpecification
+    {
+        return new PropertySpecification('prop', new PropertyType($type, false, null, $default), false, '', '', null);
+    }
+
+    private function reference(): PropertySpecification
+    {
+        return new PropertySpecification('prop', new PropertyType('SomeEntity', false, null, null), false, '', '', null);
+    }
+}

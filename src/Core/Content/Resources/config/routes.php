@@ -29,4 +29,5 @@ return static function (RoutingConfigurator $routes): void {
     $routes->import('../../ProductExport/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Sitemap/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Flow/**/*Controller.php', 'attribute');
+    $routes->import('.', 'content_system');
 };

@@ -1,0 +1,93 @@
+{
+    "title": "Sw/Navigation/Tree",
+    "parameters": {
+        "server": {
+            "id": "Sw:Navigation:Tree"
+        },
+        "template": "<twig:Sw:Navigation:Tree :navigationTree=\"navigationTree\"></twig:Sw:Navigation:Tree>"
+    },
+    "argTypes": {
+        "navigationTree": {
+            "control": "object",
+            "description": "Navigation tree as Shopware\\Core\\Content\\Category\\Tree\\Tree or a list of TreeItem structs.",
+            "required": true,
+            "type": "Tree|TreeItem[]",
+            "table": {
+                "readonly": true
+            }
+        },
+        "navigationMaxDepth": {
+            "control": "number",
+            "description": "Number of tree levels that are rendered.",
+            "table": {
+                "defaultValue": {
+                    "summary": "salesChannel.navigationCategoryDepth"
+                }
+            }
+        },
+        "displayType": {
+            "control": "select",
+            "options": ["static", "collapse"],
+            "description": "Whether sub-levels are fixed as rendered, or get a toggle the shopper can open and close.",
+            "table": {
+                "defaultValue": {
+                    "summary": "static"
+                }
+            }
+        },
+        "expandAll": {
+            "control": "boolean",
+            "description": "Render all children instead of only the branch containing the active category. In collapse mode it sets which branches start open.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "activeId": {
+            "control": "text",
+            "description": "Category ID marked as the current page.",
+            "table": {
+                "defaultValue": {
+                    "summary": "shopware.navigation.id"
+                }
+            }
+        },
+        "activePath": {
+            "control": "object",
+            "description": "Ancestor category IDs of the active category.",
+            "table": {
+                "defaultValue": {
+                    "summary": "shopware.navigation.pathIdList"
+                }
+            }
+        },
+        "ariaLabel": {
+            "control": "text",
+            "description": "Accessible label of the nav landmark.",
+            "table": {
+                "defaultValue": {
+                    "summary": "general.categories"
+                }
+            }
+        }
+    },
+    "stories": [
+        {
+            "name": "Tree",
+            "args": {
+                "navigationTree": [],
+                "displayType": "static",
+                "expandAll": false
+            }
+        },
+        {
+            "name": "Collapse",
+            "args": {
+                "navigationTree": [],
+                "displayType": "collapse",
+                "expandAll": false
+            }
+        }
+    ]
+}

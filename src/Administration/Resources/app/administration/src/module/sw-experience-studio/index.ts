@@ -1,0 +1,205 @@
+import './store/experience-studio-workspace.store';
+import defaultSearchConfiguration from './default-search-configuration';
+
+import './acl';
+import './store/experience-studio-editor.store';
+import './store/experience-studio-element-type.store';
+import './store/experience-studio-mapping-candidate.store';
+import './store/experience-studio-style-option.store';
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register('sw-experience-studio-detail', () => import('./page/sw-experience-studio-detail'));
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register('sw-experience-studio-toolbar', () => import('./component/sw-experience-studio-toolbar'));
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-layout-picker',
+    () => import('./component/sw-experience-studio-layout-picker'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register('sw-experience-studio-canvas', () => import('./component/sw-experience-studio-canvas'));
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-sidebar-tree',
+    () => import('./component/sw-experience-studio-sidebar-tree'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-sidebar-tree-node',
+    () => import('./component/sw-experience-studio-sidebar-tree-node'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register('sw-experience-studio-preview', () => import('./component/sw-experience-studio-preview'));
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-element-settings',
+    () => import('./component/sw-experience-studio-element-settings'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-settings-fields',
+    () => import('./component/sw-experience-studio-settings-fields'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-box-spacing-field',
+    () => import('./component/sw-experience-studio-box-spacing-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-media-collection-field',
+    () => import('./component/sw-experience-studio-media-collection-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-element-picker',
+    () => import('./component/sw-experience-studio-element-picker'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-mapping-modal',
+    () => import('./component/sw-experience-studio-mapping-modal'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-inline-text-field',
+    () => import('./component/sw-experience-studio-inline-text-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-create-wizard',
+    () => import('./component/sw-experience-studio-create-wizard'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-assignment-modal',
+    () => import('./component/sw-experience-studio-assignment-modal'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-workspace-picker',
+    () => import('./component/sw-experience-studio-workspace-picker'),
+);
+
+/** @private @sw-package discovery */
+Shopware.Component.register(
+    'sw-experience-studio-workspace-switcher',
+    () => import('./component/sw-experience-studio-workspace-switcher'),
+);
+
+/** @private @sw-package discovery */
+Shopware.Module.register('sw-experience-studio', {
+    type: 'core',
+    name: 'experience-studio',
+    title: 'sw-experience-studio.general.mainMenuItemGeneral',
+    description: 'sw-experience-studio.general.descriptionTextModule',
+    color: 'var(--color-pink-500)',
+    icon: 'regular-palette',
+    favicon: 'icon-module-content.png',
+    entity: 'content_layout',
+
+    routes: {
+        index: {
+            component: 'sw-experience-studio-detail',
+            path: 'index',
+            meta: {
+                privilege: 'experience_studio.viewer',
+            },
+        },
+        workspace: {
+            component: 'sw-experience-studio-detail',
+            path: 'workspace/:workspaceId',
+            meta: { privilege: 'experience_studio.viewer' },
+        },
+        detail: {
+            component: 'sw-experience-studio-detail',
+            path: 'detail/:id',
+            meta: {
+                parentPath: 'sw.experience.studio.index',
+                privilege: 'experience_studio.viewer',
+            },
+        },
+    },
+
+    navigation: [
+        {
+            id: 'sw-experience-studio',
+            label: 'sw-experience-studio.general.mainMenuItemGeneral',
+            color: 'var(--color-pink-500)',
+            path: 'sw.experience.studio.index',
+            icon: 'regular-palette',
+            position: 5,
+            parent: 'sw-content',
+            privilege: 'experience_studio.viewer',
+        },
+    ],
+
+    defaultSearchConfiguration,
+});

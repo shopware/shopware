@@ -1,0 +1,170 @@
+@use "sass:color";
+@use "sass:map";
+@use "sass:math";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+
+/* Inherits, because the component sets this on the gallery root but it is consumed on the nav button inside it */
+@each $breakpoint, $value in $grid-breakpoints {
+    @property --sw-media-gallery-nav-button-display-#{$breakpoint} {
+        syntax: '*';
+        inherits: true;
+    }
+}
+
+.sw-media-gallery {
+    --sw-media-thumbnail-border-color: var(--bs-gray-300);
+    --sw-media-thumbnail-hover-border-color: var(--bs-primary);
+    /* Fallback value for fixed height mode */
+    --sw-media-gallery-max-height: 450px;
+    --sw-media-gallery-nav-button-display-xs: inline-flex;
+    --sw-media-gallery-nav-button-display-sm: inline-flex;
+    --sw-media-gallery-nav-button-display-md: none;
+    --sw-media-gallery-nav-button-display-lg: none;
+    --sw-media-gallery-nav-button-display-xl: none;
+    --sw-media-gallery-nav-button-display-xxl: none;
+
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    grid-gap: var(--spacer-sm);
+}
+
+.sw-media-gallery--thumbnail-nav-bottom {
+    grid-template-columns: 100%;
+    grid-template-rows: 1fr auto;
+
+    .sw-media-gallery__thumbnail-nav {
+        order: 2;
+    }
+}
+
+.sw-media-gallery__previews-wrapper {
+    min-height: 0;
+}
+
+.sw-media-gallery--display-mode-fixed-height {
+    .sw-media-gallery__previews {
+        max-height: var(--sw-media-gallery-max-height);
+    }
+
+    .sw-media-gallery__preview-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sw-media-gallery__preview {
+        max-height: 100%;
+    }
+}
+
+.sw-media-gallery--auto-columns {
+    grid-template-columns: auto;
+    --sw-media-gallery-nav-button-display-md: inline-flex;
+    --sw-media-gallery-nav-button-display-lg: inline-flex;
+    --sw-media-gallery-nav-button-display-xl: inline-flex;
+    --sw-media-gallery-nav-button-display-xxl: inline-flex;
+}
+
+.sw-media-gallery__previews-wrapper {
+    position: relative;
+}
+
+.sw-media-gallery__previews {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    min-width: 0;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.sw-media-gallery__preview-item {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+    position: relative;
+}
+
+button.sw-media-gallery__preview-item {
+    appearance: none;
+    margin: 0;
+    padding: 0;
+    border: 0 none;
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+
+    &:focus-visible {
+        outline: 2px solid var(--bs-primary);
+        outline-offset: -2px;
+    }
+}
+
+.sw-media-gallery__nav-button {
+    --bs-btn-border-color: var(--bs-gray-300);
+
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    transform: translateY(-50%);
+
+    &.is--backward {
+        left: 0;
+    }
+
+    &.is--forward {
+        right: 0;
+    }
+}
+
+/* Higher specificity than `.btn-icon` so the breakpoint visibility wins over icon-button display */
+@each $breakpoint, $value in $grid-breakpoints {
+    @include media-breakpoint-only($breakpoint) {
+        .sw-media-gallery__nav-button.sw-button {
+            display: var(--sw-media-gallery-nav-button-display-#{$breakpoint}, none);
+        }
+    }
+}
+
+.sw-media-gallery__preview-item-badge {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--bs-white);
+    font-weight: 600;
+    border-radius: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.sw-media-gallery__preview {
+    display: block;
+
+    &:has(canvas) {
+        cursor: all-scroll;
+    }
+}
+
+@include media-breakpoint-down(md) {
+    .sw-media-gallery__thumbnail-nav {
+        display: none;
+    }
+
+    .sw-media-gallery {
+        grid-template-columns: 100%;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .sw-media-gallery__preview-item-badge {
+        @include visually-hidden;
+    }
+}

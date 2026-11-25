@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter;
 
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
+use Shopware\Core\Framework\Adapter\Twig\Exception\TwigMethodCallNotAllowedException;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -32,6 +33,7 @@ class AdapterException extends HttpException
      */
     final public const CURRENCY_FILTER_ERROR = 'FRAMEWORK__CURRENCY_FILTER_ERROR';
     final public const SECURITY_FUNCTION_NOT_ALLOWED = 'FRAMEWORK__SECURITY_FUNCTION_NOT_ALLOWED';
+    final public const TWIG_METHOD_CALL_NOT_ALLOWED = 'FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED';
     final public const CACHE_COMPRESSION_ERROR = 'FRAMEWORK__CACHE_COMPRESSION_ERROR';
     final public const PCRE_FUNCTION_ERROR = 'FRAMEWORK__PCRE_FUNCTION_ERROR';
     final public const CACHE_DIRECTORY_ERROR = 'FRAMEWORK__CACHE_DIRECTORY_ERROR';
@@ -208,6 +210,16 @@ class AdapterException extends HttpException
             self::SECURITY_FUNCTION_NOT_ALLOWED,
             'Function "{{ function }}" is not allowed',
             ['function' => $function]
+        );
+    }
+
+    public static function twigMethodCallNotAllowed(string $class, string $method): TwigMethodCallNotAllowedException
+    {
+        return new TwigMethodCallNotAllowedException(
+            Response::HTTP_FORBIDDEN,
+            self::TWIG_METHOD_CALL_NOT_ALLOWED,
+            'Calling "{{ class }}::{{ method }}()" from a template is not allowed',
+            ['class' => $class, 'method' => $method]
         );
     }
 

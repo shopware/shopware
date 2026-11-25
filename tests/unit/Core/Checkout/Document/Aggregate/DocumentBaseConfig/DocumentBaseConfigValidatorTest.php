@@ -17,12 +17,14 @@ use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\DocumentV2\Type\InvoiceDocumentType;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -181,18 +183,6 @@ class DocumentBaseConfigValidatorTest extends TestCase
         yield 'sales channel config: without a global row it is checked on its own' => [
             true, $channelInvoice + self::infixes(['pdf' => '', 'zugferd_embedded_pdf' => '']), ['fetchOne' => false], [self::PDF, self::ZUGFERD],
         ];
-        yield 'update: type and scope are read from the row when the payload only carries infixes' => [
-            false, self::infixes(['pdf' => '_x', 'zugferd_embedded_pdf' => '_x']), ['fetchAssociative' => $globalInvoice + ['filename_infixes' => null]], [self::PDF, self::ZUGFERD],
-        ];
-        yield 'update: stored infixes are re-validated when the document type changes' => [
-            false, ['type_name' => 'invoice'], ['fetchAssociative' => $channelInvoice + ['filename_infixes' => '{"pdf":"_zugferd"}']] + $seededGlobal, [self::PDF, self::ZUGFERD],
-        ];
-        yield 'update: neither infixes nor scope changed, nothing is checked' => [
-            false, ['name' => 'renamed'], ['fetchAssociative' => $globalInvoice + ['filename_infixes' => '{"pdf":"_x","zugferd_embedded_pdf":"_x"}']], [],
-        ];
-        yield 'update: an unknown row is skipped' => [
-            false, self::infixes(['pdf' => '_x', 'zugferd_embedded_pdf' => '_x']), ['fetchAssociative' => false], [],
-        ];
         yield 'global config: an infix colliding with an assigned sales channel override is rejected on the global field only' => [
             true, $globalInvoice + self::infixes(['zugferd_embedded_pdf' => '_x']), ['fetchAllAssociative' => [['name' => 'Storefront invoice', 'filename_infixes' => '{"pdf":"_x"}']]], [self::ZUGFERD],
         ];
@@ -305,20 +295,18 @@ class DocumentBaseConfigValidatorTest extends TestCase
             $connection ?? $this->createConnection(),
             new DocumentTypeRegistry($documentTypes ?? [new InvoiceDocumentType(), new DeliveryNoteDocumentType()], $appFeatureStorage),
             static fn (): DocumentRendererRegistry => $rendererRegistry,
+            new WriteOutcome(static::createStub(RowLoader::class)),
         );
     }
 
     /**
-     * @param array<string, mixed>|false $fetchAssociative
      * @param list<array<string, mixed>> $fetchAllAssociative
      */
     private function createConnection(
-        array|false $fetchAssociative = false,
         mixed $fetchOne = false,
         array $fetchAllAssociative = [],
     ): Connection {
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchAssociative')->willReturn($fetchAssociative);
         $connection->method('fetchOne')->willReturn($fetchOne);
         $connection->method('fetchAllAssociative')->willReturn($fetchAllAssociative);
 

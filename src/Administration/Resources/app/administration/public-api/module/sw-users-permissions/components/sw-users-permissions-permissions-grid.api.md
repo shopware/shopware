@@ -10,26 +10,69 @@ component sw-users-permissions-permissions-grid  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid/sw-users-permissions-permissions-grid.html.twig
 
+inject
+  privileges
+
+props
+  disabled?: boolean  default=false
+  isLoading?: boolean  default=false
+  role?: object  default=null
+
+computed
+  parentOrder: any
+  parentSnippetKeys: any
+  parents: any
+  permissions: any
+  permissionsWithParents: any
+  roles: any
+  usedDependencies: any
+
+methods
+  addDependenciesForRole(identifier: any): any
+  addPermission(identifier: any): any
+  allPermissionsForKeySelected(permissionKey: any): any
+  allRolesLabel(): any
+  areAllChildrenRolesSelected(parentKey: any, roleKey: any): any
+  areAllChildrenWithAllRolesSelected(parentKey: any): any
+  areSomeChildrenRolesSelected(parentKey: any, roleKey: any, ignoreMissingPrivilege?: any = true): any
+  areSomeChildrenWithAllRolesSelected(parentKey: any): any
+  changeAllPermissionsForKey(permissionKey: any): any
+  changePermission(permissionKey: any, permissionRole: any): any
+  compareParents(a: any, b: any): any
+  entityAllTooltip(permissionKey: any): any
+  getPermissionsForParent(parentKey: any): any
+  isParentRoleDisabled(parentKey: any, roleKey: any): any
+  isPermissionDisabled(permissionKey: any, permissionRole: any): any
+  isPermissionSelected(permissionKey: any, permissionRole: any): any
+  parentAllTooltip(parentValue: any): any
+  parentLabel(parentValue: any): any
+  parentRoleHasChildRoles(parentKey: any, roleKey: any): any
+  parentRoleTooltip(parentValue: any, role: any): any
+  privilegeTooltip(permissionKey: any, permissionRole: any): any
+  removePermission(identifier: any): any
+  toggleAllChildrenWithAllRoles(parentKey: any): any
+  toggleAllChildrenWithRole(parentKey: any, roleKey: any): any
+
 blocks
   sw_users_permissions_permissions_grid
     sw_users_permissions_permissions_grid_header
       sw_users_permissions_permissions_grid_header_all_roles
         sw_users_permissions_permissions_grid_header_all_roles_name
       sw_users_permissions_permissions_grid_header_roles
-        sw_users_permissions_permissions_grid_header_roles_name
+        sw_users_permissions_permissions_grid_header_roles_name  [scope: role]
       sw_users_permissions_permissions_grid_header_title
         sw_users_permissions_permissions_grid_header_title_content
     sw_users_permissions_permissions_grid_permissions
-      sw_users_permissions_permissions_grid_parent_all_roles
-        sw_users_permissions_permissions_grid_parent_all_roles_field
-      sw_users_permissions_permissions_grid_parent_roles
-        sw_users_permissions_permissions_grid_parent_roles_field
-      sw_users_permissions_permissions_grid_parent_title
-        sw_users_permissions_permissions_grid_parent_title_content
-      sw_users_permissions_permissions_grid_permissions_all_roles
-        sw_users_permissions_permissions_grid_permissions_all_roles_field
-      sw_users_permissions_permissions_grid_permissions_roles
-        sw_users_permissions_permissions_grid_permissions_roles_field
-      sw_users_permissions_permissions_grid_permissions_title
-        sw_users_permissions_permissions_grid_permissions_title_content
+      sw_users_permissions_permissions_grid_parent_all_roles  [scope: permission]
+        sw_users_permissions_permissions_grid_parent_all_roles_field  [scope: permission]
+      sw_users_permissions_permissions_grid_parent_roles  [scope: permission]
+        sw_users_permissions_permissions_grid_parent_roles_field  [scope: permission, role]
+      sw_users_permissions_permissions_grid_parent_title  [scope: permission]
+        sw_users_permissions_permissions_grid_parent_title_content  [scope: permission]
+      sw_users_permissions_permissions_grid_permissions_all_roles  [scope: permission]
+        sw_users_permissions_permissions_grid_permissions_all_roles_field  [scope: permission]
+      sw_users_permissions_permissions_grid_permissions_roles  [scope: permission]
+        sw_users_permissions_permissions_grid_permissions_roles_field  [scope: permission, role]
+      sw_users_permissions_permissions_grid_permissions_title  [scope: permission]
+        sw_users_permissions_permissions_grid_permissions_title_content  [scope: permission]
 ```

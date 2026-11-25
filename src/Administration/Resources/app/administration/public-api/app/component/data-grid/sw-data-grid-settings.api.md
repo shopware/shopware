@@ -11,20 +11,55 @@ component sw-data-grid-settings  private  js  [private]
   template src/app/component/data-grid/sw-data-grid-settings/sw-data-grid-settings.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  translate-with-fallback  [private]
+
+props
+  columns: any[]  default=factory  [private]
+  compact: boolean  default=false  [private]
+  disabled: boolean  default=false  [private]
+  enablePreviews: boolean  default=false  [private]
+  previews: boolean  default=false  [private]
+
+emits
+  change-column-order(...args: any[])  [private]
+  change-column-visibility(...args: any[])  [private]
+  change-compact-mode(...args: any[])  [private]
+  change-preview-images(...args: any[])  [private]
+
+slots
+  additionalSettings  {}  block=sw_data_grid_settings_additional_settings  [private]
+
+data
+  currentColumns: any  [private]
+  currentCompact: any  [private]
+  currentPreviews: any  [private]
+
+computed
+  contextMenuClasses: any  [private]
+
+methods
+  getColumnLabel(column: any): any  [private]
+  onChangeColumnVisibility(value: any, index: any): any  [private]
+  onChangeCompactMode(value: any): any  [private]
+  onChangePreviews(value: any): any  [private]
+  onClickChangeColumnOrderDown(column: any): any  [private]
+  onClickChangeColumnOrderUp(column: any): any  [private]
+
 blocks
   sw_data_grid_settings  [private]
     sw_data_grid_settings_content  [private]
       sw_data_grid_settings_columns  [private]
         sw_data_grid_settings_column_element  [private]
-          sw_data_grid_settings_column_item_conrols  [private]
-            sw_data_grid_settings_column_control_down  [private]
-              sw_data_grid_settings_column_control_down_icon  [private]
-            sw_data_grid_settings_column_control_up  [private]
-              sw_data_grid_settings_column_control_up_icon  [private]
-          sw_data_grid_settings_column_visibility_checkbox  [private]
+          sw_data_grid_settings_column_item_conrols  [scope: column, index] [private]
+            sw_data_grid_settings_column_control_down  [scope: column, index] [private]
+              sw_data_grid_settings_column_control_down_icon  [scope: column, index] [private]
+            sw_data_grid_settings_column_control_up  [scope: column, index] [private]
+              sw_data_grid_settings_column_control_up_icon  [scope: column, index] [private]
+          sw_data_grid_settings_column_visibility_checkbox  [scope: column, index] [private]
       sw_data_grid_settings_devider  [private]
       sw_data_grid_settings_general  [private]
-        sw_data_grid_settings_additional_settings  [private]
+        sw_data_grid_settings_additional_settings  [after v-if] [private]
           sw_data_grid_settings_additional_settings_slot  [private]
         sw_data_grid_settings_compact_switch  [private]
         sw_data_grid_settings_preview_switch  [private]

@@ -11,6 +11,13 @@ component sw-skip-link  private  ts  [private]
   template src/app/component/structure/sw-skip-link/sw-skip-link.html.twig  [private]
   visibility-source export  [private]
 
+data
+  focussed: any  [private]
+
+methods
+  focusElement(): any  [private]
+  setFocus(focussed: boolean): any  [private]
+
 blocks
   sw_skip_link  [private]
 ```

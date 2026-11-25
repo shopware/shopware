@@ -11,6 +11,9 @@ component sw-cms-block-cross-selling  private  js  [private]
   template src/module/sw-cms/blocks/commerce/cross-selling/component/sw-cms-block-cross-selling.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_cross_selling  [private]
+
 blocks
   sw_cms_block_cross_selling  [private]
     sw_cms_block_cross_selling_slot_content  [private]

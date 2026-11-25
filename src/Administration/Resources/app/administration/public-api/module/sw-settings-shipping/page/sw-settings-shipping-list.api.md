@@ -10,27 +10,58 @@ component sw-settings-shipping-list  public  js
   source src/module/sw-settings-shipping/page/sw-settings-shipping-list/index.js
   template src/module/sw-settings-shipping/page/sw-settings-shipping-list/sw-settings-shipping-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  searchConfigEntity: any
+  shippingMethods: any
+  showDeleteModal: any
+  skeletonItemAmount: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  columns: any
+  listingCriteria: any
+  shippingCostTaxOptions: any
+  shippingRepository: any
+
+methods
+  getList(): Promise<any>
+  onChangeLanguage(languageId: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): any
+  onDelete(id: any): any
+  onInlineEditSave(item: any): Promise<any>
+  shippingTaxTypeLabel(taxName: any): any
+
 blocks
   sw_settings_shipping_index
     sw_settings_shipping_list_content
       sw_settings_shipping_list_empty_state
-      sw_settings_shipping_list_grid
+      sw_settings_shipping_list_grid  [after v-if]
         sw_setting_shipping_list_grid_columns
           sw_settings_shipping_list_grid_columns_actions
-            sw_settings_shipping_list_grid_columns_actions_delete
-            sw_settings_shipping_list_grid_columns_actions_edit
+            sw_settings_shipping_list_grid_columns_actions_delete  [scope: item]
+            sw_settings_shipping_list_grid_columns_actions_edit  [scope: item]
           sw_settings_shipping_list_grid_columns_active
-            sw_settings_shipping_list_grid_columns_active_content
-            sw_settings_shipping_list_grid_columns_active_inline_edit
+            sw_settings_shipping_list_grid_columns_active_content  [after v-if] [scope: isInlineEdit, item]
+            sw_settings_shipping_list_grid_columns_active_inline_edit  [scope: isInlineEdit, item]
           sw_settings_shipping_list_grid_columns_tax_type
-            sw_settings_shipping_list_grid_columns_tax_type_content
-            sw_settings_shipping_list_grid_columns_tax_type_inline_edit
+            sw_settings_shipping_list_grid_columns_tax_type_content  [after v-if] [scope: isInlineEdit, item]
+            sw_settings_shipping_list_grid_columns_tax_type_inline_edit  [scope: isInlineEdit, item]
         sw_settings_shipping_list_grid_action_modals
-          sw_settings_shipping_list_delete_modal
-            sw_settings_shipping_list_delete_modal_confirm_delete_text
-            sw_settings_shipping_list_delete_modal_footer
-              sw_settings_shipping_list_delete_modal_cancel
-              sw_settings_shipping_list_delete_modal_confirm
+          sw_settings_shipping_list_delete_modal  [scope: item]
+            sw_settings_shipping_list_delete_modal_confirm_delete_text  [scope: item]
+            sw_settings_shipping_list_delete_modal_footer  [scope: item]
+              sw_settings_shipping_list_delete_modal_cancel  [scope: item]
+              sw_settings_shipping_list_delete_modal_confirm  [scope: item]
     sw_settings_shipping_list_language_switch
     sw_settings_shipping_list_search_bar
     sw_settings_shipping_list_sidebar
@@ -41,4 +72,12 @@ blocks
       sw_settings_shipping_list_smart_bar_header_title
         sw_settings_shipping_list_smart_bar_header_amount
         sw_settings_shipping_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_settings_shipping_list_empty_state -> sw_settings_shipping_list_grid
+  v-if  sw_settings_shipping_list_grid_columns_active_inline_edit -> sw_settings_shipping_list_grid_columns_active_content
+  v-if  sw_settings_shipping_list_grid_columns_tax_type_inline_edit -> sw_settings_shipping_list_grid_columns_tax_type_content
+
+refs
+  swSettingsTaxGrid  -> sw-entity-listing  block=sw_settings_shipping_list_grid
 ```

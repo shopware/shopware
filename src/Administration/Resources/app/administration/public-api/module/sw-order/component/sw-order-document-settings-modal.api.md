@@ -10,10 +10,71 @@ component sw-order-document-settings-modal  public  js
   source src/module/sw-order/component/sw-order-document-settings-modal/index.js
   template src/module/sw-order/component/sw-order-document-settings-modal/sw-order-document-settings-modal.html.twig
 
+mixins
+  notification
+
+inject
+  numberRangeService
+  repositoryFactory
+
+props
+  currentDocumentType: object
+  isLoadingDocument: boolean
+  isLoadingPreview: boolean
+  order: object
+
+emits
+  document-create(...args: any[])
+  loading-document(...args: any[])
+  page-leave(...args: any[])
+  page-leave-confirm(...args: any[])
+  preview-show(...args: any[])
+
+data
+  documentConfig: object
+    custom: any
+    documentComment: any
+    documentDate: any
+    documentNumber: any
+  documentNumberPreview: any
+  features: object
+    fileAcceptTypes: any
+    uploadFileSizeLimit: any
+  selectedDocumentFile: any
+  showMediaModal: any
+  showModal: any
+  uploadDocument: any
+
+computed
+  documentNumber: any
+  documentNumberErrorMessage: any
+  documentPreconditionsFulfilled: any
+  htmlPreviewDisabled: any
+  invalidInput: any
+  mediaRepository: any
+  modalTitle: any
+
+methods
+  addAdditionalInformationToDocument(): any
+  callDocumentCreate(additionalAction: any, referencedDocumentId?: any = null): any
+  closeMediaModal(): any
+  createdComponent(): Promise<any>
+  onAddDocument(data: any): any
+  onAddMediaFromLibrary(media: any): Promise<any>
+  onCancel(): any
+  onConfirm(): any
+  onCreateDocument(additionalAction?: any = false): Promise<any>
+  onPreview(fileType?: any = 'pdf'): any
+  openMediaModal(): any
+  removeCustomDocument(): any
+  reserveDocumentNumber(isPreview: any): Promise<any>
+  successfulUploadFromUrl(res: any): any
+  validateFile(response: any): any
+
 blocks
   sw_order_document_settings_modal
-    sw_order_document_settings_modal_form_additional_content
-    sw_order_document_settings_modal_form_document_comment
+    sw_order_document_settings_modal_form_additional_content  [after v-if]
+    sw_order_document_settings_modal_form_document_comment  [after v-if]
     sw_order_document_settings_modal_form_document_footer
       sw_order_document_settings_modal_form_document_footer_cancel
       sw_order_document_settings_modal_form_document_footer_preview
@@ -29,5 +90,8 @@ blocks
     sw_order_document_settings_modal_form_first_row
       sw_order_document_settings_modal_form_document_date
       sw_order_document_settings_modal_form_document_number
-    sw_order_document_settings_modal_media_modal
+    sw_order_document_settings_modal_media_modal  [after v-if]
+
+refs
+  fileInput  -> sw-media-upload-v2  block=sw_order_document_settings_modal_form_file_upload_input
 ```

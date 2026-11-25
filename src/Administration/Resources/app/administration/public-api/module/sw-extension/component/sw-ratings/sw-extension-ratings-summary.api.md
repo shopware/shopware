@@ -11,6 +11,15 @@ component sw-extension-ratings-summary  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary/sw-extension-ratings-summary.html.twig  [private]
   visibility-source export  [private]
 
+props
+  summary: object  [private]
+
+data
+  maxRating: any  [private]
+
+computed
+  maxProgressValue: any  [private]
+
 blocks
   sw_extension_ratings_summary  [private]
     sw_extension_ratings_summary_grid  [private]
@@ -18,9 +27,9 @@ blocks
       sw_extension_ratings_summary_grid_label  [private]
       sw_extension_ratings_summary_grid_rating_progress_bars  [private]
         sw_extension_ratings_summary_grid_rating_progress_bars_count_rows  [private]
-          sw_extension_ratings_summary_grid_rating_progress_bars_count_rows_count  [private]
+          sw_extension_ratings_summary_grid_rating_progress_bars_count_rows_count  [scope: ratingGroup] [private]
         sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows  [private]
-          sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows_progress_bar  [private]
+          sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows_progress_bar  [scope: ratingGroup] [private]
       sw_extension_ratings_summary_grid_rating_rows  [private]
-        sw_extension_ratings_summary_grid_rating_rows_content  [private]
+        sw_extension_ratings_summary_grid_rating_rows_content  [scope: ratingGroup] [private]
 ```

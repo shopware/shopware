@@ -10,6 +10,30 @@ component sw-settings-salutation-list  public  js
   source src/module/sw-settings-salutation/page/sw-settings-salutation-list/index.js
   template src/module/sw-settings-salutation/page/sw-settings-salutation-list/sw-settings-salutation-list.html.twig
 
+mixins
+  listing, placeholder
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  limit: any
+  salutations: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  columns: any
+  salutationRepository: any
+  tooltipAdd: any
+
+methods
+  createdComponent(): any
+  getColumns(): any
+  getList(): any
+
 blocks
   sw_settings_salutation_list
     sw_settings_salutation_list_actions
@@ -18,12 +42,15 @@ blocks
       sw_settings_salutation_list_card_content
         sw_settings_salutation_list_grid
           sw_settings_salutation_list_grid_columns_position
-            sw_settings_salutation_list_grid_columns_position_display
-            sw_settings_salutation_list_grid_columns_position_inline_edit
+            sw_settings_salutation_list_grid_columns_position_display  [after v-if] [scope: compact, isInlineEdit, item]
+            sw_settings_salutation_list_grid_columns_position_inline_edit  [scope: compact, isInlineEdit, item]
     sw_settings_salutation_list_language_switch
     sw_settings_salutation_list_search_bar
     sw_settings_salutation_list_smart_bar_header
       sw_settings_salutation_list_smart_bar_header_title
         sw_settings_salutation_list_smart_bar_header_amount
         sw_settings_salutation_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_settings_salutation_list_grid_columns_position_inline_edit -> sw_settings_salutation_list_grid_columns_position_display
 ```

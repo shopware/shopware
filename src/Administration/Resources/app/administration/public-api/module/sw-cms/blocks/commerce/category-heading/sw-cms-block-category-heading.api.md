@@ -11,6 +11,9 @@ component sw-cms-block-category-heading  private  js  [private]
   template src/module/sw-cms/blocks/commerce/category-heading/component/sw-cms-block-category-heading.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_category_heading  [private]
+
 blocks
   sw_cms_block_category_heading  [private]
     sw_cms_block_category_heading_slot_content  [private]

@@ -11,6 +11,20 @@ component sw-button  private  js  [private]
   template src/app/component/base/sw-button/sw-button.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  routerLink?: object | string  default=null  [private]
+
+slots
+  default  {}  block=sw_button  [private]
+  default  {}  block=(root)  [private]
+
+methods
+  onClick(event: any): any  [private]
+
 blocks
-  sw_button  [private]
+  sw_button  [deprecated tag:v6.8.0] [private]
+
+crossings
+  v-if  sw_button -> (root)  [private]
 ```

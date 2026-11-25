@@ -19,5 +19,14 @@ class McpToolGroupTest extends TestCase
         $attribute = new McpToolGroup('catalogue');
 
         static::assertSame('catalogue', $attribute->group);
+        static::assertNull($attribute->description);
+    }
+
+    public function testStoresToolsetDescription(): void
+    {
+        $attribute = new McpToolGroup('catalogue', description: 'Browse and edit the catalogue.');
+
+        static::assertSame('catalogue', $attribute->group);
+        static::assertSame('Browse and edit the catalogue.', $attribute->description);
     }
 }

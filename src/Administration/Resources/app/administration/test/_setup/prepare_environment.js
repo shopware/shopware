@@ -12,6 +12,7 @@ import DeprecationPlugin from 'src/app/plugin/deprecation.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
 import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
+import SwSilenceDeprecations from 'src/app/component/utils/sw-silence-deprecations/index';
 import {
     MtActionMenu,
     MtActionMenuGroup,
@@ -67,19 +68,20 @@ import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
-import {
-    sendTimeoutExpired,
-    deprecationWarning,
-    deprecatedTabComponent,
-    deprecatedPopoverComponent,
-    unresolvedComponentWarning,
-} from '../_helper_/allowedErrors';
+import { sendTimeoutExpired, deprecationWarning, unresolvedComponentWarning } from '../_helper_/allowedErrors';
 import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
 import { getDefaultActiveFeatureFlags, setDefaultActiveFeatureFlags } from '../_helper_/defaultActiveFeatureFlags';
 import { endDeprecationLog, startDeprecationLog } from '../_helper_/deprecations';
+import registerFeatureFlags from '../_helper_/registerFeatureFlags';
 import CacheService from '../../src/app/service/cache.service';
+
+// An extension's Jest config may skip `setup-feature-flags.js`, and without registered flags every deprecation
+// guard reports a typo as a console error, which fails the test.
+if (Object.keys(FeatureMock.getAll()).length === 0) {
+    registerFeatureFlags(global.activeFeatureFlags);
+}
 
 setDefaultActiveFeatureFlags([...global.activeFeatureFlags]);
 
@@ -281,7 +283,8 @@ config.global.mocks = {
     $route: {
         params: {},
     },
-    $store: Shopware.State._store,
+    // The backing field, not the deprecated `State` facade, so the setup does not trip its guard.
+    $store: Shopware._state._store,
 };
 
 config.global.stubs = {
@@ -292,6 +295,8 @@ config.global.stubs = {
     // keeps them real under shallowMount, which stubs every child component.
     'sw-block': SwBlock,
     'sw-block-parent': SwBlockParent,
+    // Real as well: a stub would report the deprecations it silences around a deprecated component.
+    'sw-silence-deprecations': SwSilenceDeprecations,
     'sw-modal': {
         template: `
         <div class="sw-modal">
@@ -481,19 +486,6 @@ global.allowedErrors = [
             return msg.includes('[intlify] Fall back to translate');
         },
     },
-    {
-        method: 'warn',
-        msgCheck: (msg0, msg1) => {
-            if (typeof msg0 !== 'string') {
-                return false;
-            }
-
-            return (
-                msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
-                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use')
-            );
-        },
-    },
     /*
      * Duplicate registrations will happen, when the root index file of CMS components is imported.
      * This file has to be imported during tests, since it's usually also registering the same
@@ -512,21 +504,6 @@ global.allowedErrors = [
             );
         },
     },
-    /*
-     * sw-entity-listing "items" prop deprecation - only deprecated for next major v6.8.0
-     * Allow this warning during the transition period
-     */
-    {
-        method: 'warn',
-        msgCheck: (msg0) => {
-            if (typeof msg0 !== 'string') {
-                return false;
-            }
-
-            return msg0?.includes('[Deprecation] sw-entity-listing: The "items" prop is deprecated');
-        },
-    },
-
     {
         method: 'warn',
         msgCheck: (msg0, msg1) => {
@@ -557,8 +534,6 @@ global.allowedErrors = [
 
     sendTimeoutExpired,
     deprecationWarning,
-    deprecatedTabComponent,
-    deprecatedPopoverComponent,
     // Vue 3 test stubs may have empty templates which triggers this warning
     // This is expected in test environments when stubbing router components
     {

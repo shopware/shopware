@@ -131,6 +131,28 @@ class TranslationConfigLoaderTest extends TestCase
         static::assertSame('https://example.com/repo', $loader->load()->repositoryUrl->__toString());
     }
 
+    public function testLoadsTheArchiveManifestUrl(): void
+    {
+        static::assertSame(
+            'https://github.com/shopware/translations/releases/latest/download/manifest.json',
+            (string) $this->translationConfigLoader->load()->archiveManifestUrl,
+        );
+    }
+
+    public function testOverrideArchiveManifestUrl(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['archive_manifest_url' => 'https://example.com/manifest.json']);
+
+        static::assertSame('https://example.com/manifest.json', (string) $loader->load()->archiveManifestUrl);
+    }
+
+    public function testConfigWithoutArchiveManifestUrlHasNoArchive(): void
+    {
+        $this->translationConfigLoader->setConfigFileName('translation_without_archive.yaml');
+
+        static::assertNull($this->translationConfigLoader->load()->archiveManifestUrl);
+    }
+
     public function testOverrideMetadataUrl(): void
     {
         $loader = new TestableTranslationConfigLoader(new Filesystem(), ['metadata_url' => 'https://example.com/metadata.json']);

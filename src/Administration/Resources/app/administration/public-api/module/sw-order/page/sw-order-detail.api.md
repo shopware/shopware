@@ -10,6 +10,95 @@ component sw-order-detail  public  js
   source src/module/sw-order/page/sw-order-detail/index.js
   template src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  orderService
+  repositoryFactory
+
+provide
+  swOrderDetailAskAndSaveEdits: any
+  swOrderDetailHandleCartErrors: any
+  swOrderDetailOnCreatedByIdChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnEditingChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnError: any
+  swOrderDetailOnLoadingChange: any  [deprecated tag:v6.8.0]
+  swOrderDetailOnRecalculateAndReload: any
+  swOrderDetailOnReloadEntityData: any
+  swOrderDetailOnSaveAndRecalculate: any
+  swOrderDetailOnSaveAndReload: any
+  swOrderDetailOnSaveEdits: any
+
+props
+  orderId?: string  default=null
+
+data
+  askForSaveBeforehand: any
+  createdById: any  [deprecated tag:v6.8.0]
+  deliveryDiscountsToDelete: any
+  hasNewVersionId: any
+  hasOrderDeepEdit: any
+  isDisplayingLeavePageWarning: any
+  isEditing: any  [deprecated tag:v6.8.0]
+  missingProductLineItems: any
+  nextRoute: any
+  promotionsToDelete: any
+  versionOrderId: any
+  versionRequestId: any
+
+computed
+  automaticPromotions: any
+  convertedProductLineItems: any
+  deliveryDiscounts: any
+  editing: any
+  isLoading: any  [deprecated tag:v6.8.0]
+  isOrderEditing: any
+  isSaveSuccessful: any
+  loading: any
+  order: any
+  orderAddressIds: any
+  orderChanges: any
+  orderCriteria: any
+  orderDetailTabs: any
+  orderIdentifier: any
+  orderRepository: any
+  showTabs: any
+  showWarningTabStyle: any
+  versionContext: any
+
+methods
+  askAndSaveEdits(reason?: any = 'status'): Promise<any>
+  beforeDestroyComponent(useKeepalive?: any = false): any
+  convertMissingProductLineItems(): any
+  createNewVersionId(): any
+  createdComponent(): any
+  handleCartErrors(response: any): any
+  handleOrderAddressUpdate(addressMappings: any): Promise<any>
+  onAskAndSaveEditsCancel(): any
+  onAskAndSaveEditsConfirm(): Promise<any>
+  onCancelEditing(): Promise<any>
+  onChangeLanguage(): any  [deprecated tag:v6.8.0]
+  onError(error: any): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(): any
+  onPageHide(event: any): any
+  onRecalculateAndReload(): Promise<any>
+  onSaveAndRecalculate(): Promise<any>
+  onSaveAndReload(): any  [deprecated tag:v6.8.0]
+  onSaveEdits(): Promise<any>
+  onStartEditing(): any  [deprecated tag:v6.8.0]
+  onUpdateEditing(editingValue: any): any  [deprecated tag:v6.8.0]
+  onUpdateLoading(loadingValue: any): any  [deprecated tag:v6.8.0]
+  reloadEntityData(isSaved?: any = true): Promise<any>
+  saveAndReload(afterSaveFn?: any = null): Promise<any>
+  saveEditsFinish(): any
+  updateCreatedById(createdById: any): any  [deprecated tag:v6.8.0]
+  updateEditing(value: any): any
+  updateOrderAddresses(mappings: any): any
+
 blocks
   sw_order_detail
     sw_order_detail_actions
@@ -34,4 +123,7 @@ blocks
 
 crossings
   v-if  sw_order_detail_header_title -> sw_order_detail_header_title_new
+
+refs
+  baseComponent  -> router-view  block=sw_order_detail_content_view
 ```

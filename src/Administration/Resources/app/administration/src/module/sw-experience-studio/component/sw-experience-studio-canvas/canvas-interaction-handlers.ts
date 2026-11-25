@@ -1,6 +1,9 @@
 import type { ResizeDirection, GestureType, CanvasGesture, CanvasFrame } from './canvas.config';
 import {
     FRAME_FOCUS_INSET,
+    FRAME_TOOLBAR_SPACE,
+    FRAME_GAP,
+    DEFAULT_FRAME_HEIGHT,
     MIN_FRAME_WIDTH,
     MAX_FRAME_WIDTH,
     MIN_FRAME_HEIGHT,
@@ -11,7 +14,7 @@ import {
 
 type CanvasInteractionContext = {
     $refs: Record<string, unknown>;
-    $emit: (event: 'frame-viewport-change' | 'viewport-change', ...args: unknown[]) => void;
+    $emit: (event: 'frame-viewport-change', ...args: unknown[]) => void;
     $t: (key: string) => string;
     frames: CanvasFrame[];
     visibleFrames: CanvasFrame[];
@@ -33,7 +36,8 @@ type CanvasInteractionContext = {
     clampPosition: (value: number) => number;
     activateFrame: (id: string) => void;
     syncActiveFrameState: () => void;
-    saveCanvasPosition: (manuallyPlaced?: boolean) => void;
+    getAvailableFrameX: (state: { x: number; y: number; width: number; height: number }) => number;
+    saveCanvasPosition: () => void;
     startViewportTransition: () => void;
     startCanvasGesture: (event: PointerEvent, type: GestureType, direction?: ResizeDirection | null) => void;
     stopCanvasGesture: () => void;
@@ -43,6 +47,48 @@ type CanvasInteractionContext = {
 
 /** @private @sw-package discovery */
 export const canvasInteractionHandlers = {
+    getDefaultFrameHeight(this: CanvasInteractionContext): number {
+        const reservedHeight = 96 + FRAME_TOOLBAR_SPACE;
+        const availableHeight = this.getWorkspace()?.clientHeight ?? DEFAULT_FRAME_HEIGHT + reservedHeight;
+
+        return Math.max(MIN_FRAME_HEIGHT, Math.min(MAX_FRAME_HEIGHT, availableHeight - reservedHeight));
+    },
+
+    copyFrameState(this: CanvasInteractionContext, sourceFrameId: string, frameId: string): void {
+        this.syncActiveFrameState();
+        const source = this.frameStates[sourceFrameId];
+        if (!source) {
+            return;
+        }
+        const state = { ...source, x: source.x + source.width + FRAME_GAP };
+        state.x = this.getAvailableFrameX(state);
+        this.frameStates[frameId] = state;
+    },
+
+    getAvailableFrameX(
+        this: CanvasInteractionContext,
+        state: { x: number; y: number; width: number; height: number },
+    ): number {
+        let x = state.x;
+        let overlappingFrame: typeof state | undefined;
+        do {
+            overlappingFrame = Object.values(this.frameStates).find(
+                (other) =>
+                    Math.abs(x - other.x) < (state.width + other.width) / 2 + FRAME_GAP &&
+                    Math.abs(state.y - other.y) < (state.height + other.height) / 2 + FRAME_GAP,
+            );
+            if (overlappingFrame) {
+                const nextX = overlappingFrame.x + (overlappingFrame.width + state.width) / 2 + FRAME_GAP;
+                // Float rounding can leave the pushed frame a hair inside the gap, so it would never move on.
+                if (nextX <= x) {
+                    break;
+                }
+                x = nextX;
+            }
+        } while (overlappingFrame);
+        return x;
+    },
+
     onBackgroundPointerDown(this: CanvasInteractionContext, event: PointerEvent): void {
         const background = this.$refs.background as HTMLElement | undefined;
 
@@ -109,8 +155,6 @@ export const canvasInteractionHandlers = {
         if (frameId) {
             this.activateFrame(frameId);
             this.$emit('frame-viewport-change', frameId, 'custom');
-        } else {
-            this.$emit('viewport-change', 'custom');
         }
         this.startCanvasGesture(event, 'resize', direction);
     },
@@ -197,20 +241,17 @@ export const canvasInteractionHandlers = {
         let nextX = gesture.startFrameX;
         let nextY = gesture.startFrameY;
 
-        if (direction.includes('e')) {
+        if (direction === 'e') {
             nextWidth = this.clamp(gesture.startFrameWidth + deltaX, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
             nextX += (nextWidth - gesture.startFrameWidth) / 2;
-        } else if (direction.includes('w')) {
+        } else if (direction === 'w') {
             nextWidth = this.clamp(gesture.startFrameWidth - deltaX, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
             nextX -= (nextWidth - gesture.startFrameWidth) / 2;
         }
 
-        if (direction.includes('s')) {
+        if (direction === 's') {
             nextHeight = this.clamp(gesture.startFrameHeight + deltaY, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
             nextY += (nextHeight - gesture.startFrameHeight) / 2;
-        } else if (direction.includes('n')) {
-            nextHeight = this.clamp(gesture.startFrameHeight - deltaY, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
-            nextY -= (nextHeight - gesture.startFrameHeight) / 2;
         }
 
         this.frameWidth = nextWidth;
@@ -238,7 +279,7 @@ export const canvasInteractionHandlers = {
         }
 
         if (gesture?.type === 'move' || gesture?.type === 'resize') {
-            this.saveCanvasPosition(gesture.type === 'move');
+            this.saveCanvasPosition();
         }
 
         this.canvasPointerMoveHandler = null;
@@ -255,12 +296,12 @@ export const canvasInteractionHandlers = {
         }
 
         const availableWidth = Math.max(1, workspace.clientWidth - 96);
-        const availableHeight = Math.max(1, workspace.clientHeight - 96);
+        const availableHeight = Math.max(1, workspace.clientHeight - 96 - FRAME_TOOLBAR_SPACE);
         const zoom = Math.min(1, availableWidth / this.frameWidth, availableHeight / this.frameHeight);
 
         this.canvasZoom = this.clamp(zoom, MIN_CANVAS_ZOOM, MAX_CANVAS_ZOOM);
         this.canvasPanX = -this.frameX * this.canvasZoom;
-        this.canvasPanY = -this.frameY * this.canvasZoom;
+        this.canvasPanY = FRAME_TOOLBAR_SPACE / 2 - this.frameY * this.canvasZoom;
     },
 
     focusFrame(this: CanvasInteractionContext, layoutId: string): void {
@@ -275,7 +316,7 @@ export const canvasInteractionHandlers = {
         this.startViewportTransition();
         this.canvasZoom = 1;
         this.canvasPanX = FRAME_FOCUS_INSET + (state.width - workspace.clientWidth) / 2 - state.x;
-        this.canvasPanY = FRAME_FOCUS_INSET + (state.height - workspace.clientHeight) / 2 - state.y;
+        this.canvasPanY = FRAME_FOCUS_INSET + FRAME_TOOLBAR_SPACE + (state.height - workspace.clientHeight) / 2 - state.y;
     },
 
     fitCanvasToFrames(this: CanvasInteractionContext): void {
@@ -306,7 +347,7 @@ export const canvasInteractionHandlers = {
         const contentWidth = Math.max(1, maxX - minX);
         const contentHeight = Math.max(1, maxY - minY);
         const availableWidth = Math.max(1, workspace.clientWidth - 96);
-        const availableHeight = Math.max(1, workspace.clientHeight - 96);
+        const availableHeight = Math.max(1, workspace.clientHeight - 96 - FRAME_TOOLBAR_SPACE);
 
         this.startViewportTransition();
         this.canvasZoom = this.clamp(
@@ -315,14 +356,22 @@ export const canvasInteractionHandlers = {
             MAX_CANVAS_ZOOM,
         );
         this.canvasPanX = -((minX + maxX) / 2) * this.canvasZoom;
-        this.canvasPanY = -((minY + maxY) / 2) * this.canvasZoom;
+        this.canvasPanY = FRAME_TOOLBAR_SPACE / 2 - ((minY + maxY) / 2) * this.canvasZoom;
     },
 
     resetCanvasZoom(this: CanvasInteractionContext): void {
+        const workspace = this.frames.length ? this.getWorkspace() : null;
+        const verticalOffset = workspace
+            ? Math.max(
+                  FRAME_TOOLBAR_SPACE / 2,
+                  (this.frameHeight - workspace.clientHeight) / 2 + FRAME_TOOLBAR_SPACE + FRAME_FOCUS_INSET,
+              )
+            : 0;
+
         this.startViewportTransition();
         this.canvasZoom = 1;
         this.canvasPanX = -this.frameX;
-        this.canvasPanY = -this.frameY;
+        this.canvasPanY = verticalOffset - this.frameY;
     },
 
     changeCanvasZoom(this: CanvasInteractionContext, delta: number): void {
@@ -363,19 +412,14 @@ export const canvasInteractionHandlers = {
         event.preventDefault();
         this.frameX = this.clampPosition(nextX);
         this.frameY = this.clampPosition(nextY);
-        this.saveCanvasPosition(true);
+        this.saveCanvasPosition();
     },
 
     resizeHandleLabel(this: CanvasInteractionContext, direction: ResizeDirection): string {
         const labels: Record<ResizeDirection, string> = {
-            n: this.$t('sw-experience-studio.detail.canvas.resizeNorth'),
-            ne: this.$t('sw-experience-studio.detail.canvas.resizeNorthEast'),
-            e: this.$t('sw-experience-studio.detail.canvas.resizeEast'),
-            se: this.$t('sw-experience-studio.detail.canvas.resizeSouthEast'),
-            s: this.$t('sw-experience-studio.detail.canvas.resizeSouth'),
-            sw: this.$t('sw-experience-studio.detail.canvas.resizeSouthWest'),
             w: this.$t('sw-experience-studio.detail.canvas.resizeWest'),
-            nw: this.$t('sw-experience-studio.detail.canvas.resizeNorthWest'),
+            e: this.$t('sw-experience-studio.detail.canvas.resizeEast'),
+            s: this.$t('sw-experience-studio.detail.canvas.resizeSouth'),
         };
 
         return labels[direction];

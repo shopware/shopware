@@ -11,6 +11,28 @@ component sw-import-export-activity-log-info-modal  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-activity-log-info-modal/sw-import-export-activity-log-info-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  importExport  [private]
+
+props
+  logEntity?: object  default=factory  [private]
+
+emits
+  log-close(...args: any[])  [private]
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0] [private]
+  stateClass: any  [private]
+  typeText: any  [private]
+
+methods
+  calculateFileSize(size: any): any  [private]
+  getStateLabel(state: any): any  [private]
+  openDownload(id: any): Promise<any>  [private]
+
 blocks
   sw_import_export_activity_log_info_modal  [private]
     sw_import_export_activity_log_info_modal_description  [private]

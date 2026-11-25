@@ -11,6 +11,46 @@ component sw-app-actions  private  js  [private]
   template src/app/component/app/sw-app-actions/sw-app-actions.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  appActionButtonService  [private]
+  extensionSdkService  [private]
+  feature  [private]
+
+data
+  action: any  [private]
+  actions: any  [private]
+  iframeUrl: any  [private]
+  iframeUserConfig: any  [private]
+  isExpanded: any  [private]
+  isOpenConfirmModal: any  [private]
+  isOpenModal: any  [private]
+  isShowModalConfirm: any  [private]
+  matchedRoutes: any  [private]
+  size: any  [private]
+  title: any  [private]
+
+computed
+  areActionsAvailable: any  [private]
+  entity: any  [private]
+  extensionSdkButtons: any  [private]
+  params: any  [private]
+  view: any  [private]
+
+methods
+  _reloadPage(): any  [private]
+  getUserConfig(): Promise<any>  [private]
+  loadActions(): Promise<any>  [private]
+  onChangeCheckboxShow(): any  [private]
+  onCloseModal(): any  [private]
+  onCloseModalConfirm(): any  [private]
+  onConfirmClose(): Promise<any>  [private]
+  onOpenModalConfirm(): any  [private]
+  runAction(action: any): Promise<any>  [private]
+  saveConfig(value: any): any  [private]
+
 blocks
   sw_app_actions  [private]
     sw_app_action_modal  [private]
@@ -26,4 +66,7 @@ blocks
         sw_app_action_modal_confirm_footer_buttons  [private]
           sw_app_action_modal_confirm_footer_cancel  [private]
           sw_app_action_modal_confirm_footer_continue  [private]
+
+refs
+  innerFrame  -> iframe  block=sw_app_action_modal_iframe  [private]
 ```

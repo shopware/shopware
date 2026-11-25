@@ -11,6 +11,9 @@ component sw-ai-copilot-badge  private  ts  [private]
   template src/app/component/feedback/sw-ai-copilot-badge/sw-ai-copilot-badge.html.twig  [private]
   visibility-source export  [private]
 
+props
+  label?: boolean  default=true  [private]
+
 blocks
   sw_ai_copilot_badge  [private]
 ```

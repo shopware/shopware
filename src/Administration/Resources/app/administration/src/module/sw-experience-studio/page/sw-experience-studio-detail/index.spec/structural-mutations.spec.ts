@@ -20,7 +20,10 @@ describe('Experience Studio structural draft mutations', () => {
         const layout = { id: 'layout-1', layout: previousLayout };
         const vm = {
             layout,
-            openLayouts: [{ layout, selectedElementId: 'element-1' }],
+            openLayouts: [{ layout }],
+            frames: [],
+            clearInvalidFrameSelections: methods.clearInvalidFrameSelections,
+            syncActiveLayoutState: jest.fn(),
             resolveMutationRootSource: () => null,
             allowSave: true,
             mutationQueue: Promise.resolve(),
@@ -90,7 +93,10 @@ describe('Experience Studio structural draft mutations', () => {
         const layout = { id: 'layout-1', layout: initialLayout };
         const vm = {
             layout,
-            openLayouts: [{ layout, selectedElementId: 'element-1' }],
+            openLayouts: [{ layout }],
+            frames: [],
+            clearInvalidFrameSelections: methods.clearInvalidFrameSelections,
+            syncActiveLayoutState: jest.fn(),
             resolveMutationRootSource: () => null,
             allowSave: true,
             mutationQueue: Promise.resolve(),

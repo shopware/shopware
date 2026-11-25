@@ -15,7 +15,11 @@ describe('workspace picker', () => {
         const picker = mount(await wrapTestComponent('sw-experience-studio-workspace-picker', { sync: true }), {
             attachTo: document.body,
             global: {
+                mocks: {
+                    $t: (key: string, params?: { name: string }) => (params?.name ? `${key}: ${params.name}` : key),
+                },
                 stubs: {
+                    'sw-avatar': await wrapTestComponent('sw-avatar', { sync: true }),
                     'mt-modal': MtModal,
                     'mt-modal-root': MtModalRoot,
                 },
@@ -62,6 +66,43 @@ describe('workspace picker', () => {
         ).toHaveLength(2);
         await modal().findAll('.sw-experience-studio-workspace-picker__item')[1].trigger('click');
         expect(wrapper.emitted('select')).toEqual([['shared']]);
+    });
+
+    it('shows creator names in the workspace management overview', async () => {
+        store.workspaces[0].createdBy = { firstName: 'Ada', lastName: 'Lovelace', username: 'ada' } as Entity<'user'>;
+        store.workspaces[1].createdBy = { firstName: '', lastName: '', username: 'grace' } as Entity<'user'>;
+        wrapper = await createWrapper();
+
+        const creators = modal().findAll('.sw-experience-studio-workspace-picker__creator');
+        expect(creators[0].text()).toContain('Ada Lovelace');
+        expect(creators[1].text()).toContain('grace');
+        const avatar = creators[0].element.nextElementSibling!;
+        expect(avatar.classList.contains('sw-avatar__circle')).toBe(true);
+        expect(avatar.querySelector('.sw-avatar__initials')?.textContent?.trim()).toBe('AL');
+        expect(avatar.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('shows an available profile photo beside the creator', async () => {
+        store.workspaces[0].createdBy = {
+            firstName: 'Ada',
+            lastName: 'Lovelace',
+            avatarMedia: { url: 'https://example.com/avatar.png' },
+        } as Entity<'user'>;
+        wrapper = await createWrapper();
+
+        const avatar = modal().get('.sw-avatar');
+        expect(avatar.attributes('style')).toContain('https://example.com/avatar.png');
+        expect(avatar.find('.sw-avatar__initials').exists()).toBe(false);
+    });
+
+    it('shows a fallback for a deleted or unavailable creator', async () => {
+        store.workspaces[0].createdBy = undefined;
+        wrapper = await createWrapper();
+
+        expect(modal().get('.sw-experience-studio-workspace-picker__creator').text()).toContain(
+            'sw-experience-studio.workspace.manager.unknownCreator',
+        );
+        expect(modal().find('.sw-avatar [data-testid="mt-icon__regular-user"]').exists()).toBe(true);
     });
 
     it('lets viewers open workspaces without offering write actions', async () => {

@@ -11,6 +11,41 @@ component sw-experience-studio-sidebar-tree  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-sidebar-tree/sw-experience-studio-sidebar-tree.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+
+props
+  languageId?: string  default=factory  [private]
+  layout?: ContentLayoutEntity | null  default=null  [private]
+  selectedElementId?: string  default=null  [private]
+  showBackButton?: boolean  default=false  [private]
+  validateMoveTarget?: ((payload: MoveElementPayload) => boolean) | null  default=null  [private]
+
+emits
+  add-element(...args: any[])  [private]
+  back(...args: any[])  [private]
+  delete-element(...args: any[])  [private]
+  duplicate-element(...args: any[])  [private]
+  move-element(...args: any[])  [private]
+  select-element(...args: any[])  [private]
+
+computed
+  allowEdit: boolean  [private]
+  hasElements: boolean  [private]
+  layoutElements: ContentElementNode[]  [private]
+  panelTitle: string  [private]
+
+methods
+  onAddElement(payload: AddElementPayload): void  [private]
+  onAddRootElement(event: MouseEvent): void  [private]
+  onDeleteElement(elementId: string): void  [private]
+  onDuplicateElement(elementId: string): void  [private]
+  onMoveElement(payload: MoveElementPayload): void  [private]
+  onRootDrop(dragData: { elementId: string } | null, dropData: Omit<MoveElementPayload, 'elementId'> | null): void  [private]
+  onSelectElement(elementId: string): void  [private]
+  rootDropConfig(): any  [private]
+  validateMoveDrop(dragData: { elementId: string } | null, dropData: Omit<MoveElementPayload, 'elementId'> | null): boolean  [private]
+
 blocks
   sw_experience_studio_sidebar_tree  [private]
     sw_experience_studio_sidebar_tree_content  [private]

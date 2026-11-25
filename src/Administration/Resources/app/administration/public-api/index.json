@@ -5411,6 +5411,14 @@
                 "sw_experience_studio_element_settings"
             ]
         },
+        "sw-experience-studio-frame-menu": {
+            "file": "module/sw-experience-studio/component/sw-experience-studio-frame-menu",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_experience_studio_frame_menu"
+            ]
+        },
         "sw-experience-studio-inline-text-field": {
             "file": "module/sw-experience-studio/component/sw-experience-studio-inline-text-field",
             "visibility": "private",
@@ -5428,6 +5436,14 @@
             "visibility": "private",
             "extends": null,
             "blocks": []
+        },
+        "sw-experience-studio-layout-tree": {
+            "file": "module/sw-experience-studio/component/sw-experience-studio-layout-tree",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_experience_studio_layout_tree"
+            ]
         },
         "sw-experience-studio-mapping-modal": {
             "file": "module/sw-experience-studio/component/sw-experience-studio-mapping-modal",
@@ -5459,6 +5475,14 @@
             "extends": null,
             "blocks": [
                 "sw_experience_studio_preview"
+            ]
+        },
+        "sw-experience-studio-preview-list": {
+            "file": "module/sw-experience-studio/component/sw-experience-studio-preview-list",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_experience_studio_preview_list"
             ]
         },
         "sw-experience-studio-settings-fields": {
@@ -5504,6 +5528,14 @@
                 "sw_experience_studio_toolbar_left",
                 "sw_experience_studio_toolbar_right",
                 "sw_experience_studio_toolbar_sales_channel_select"
+            ]
+        },
+        "sw-experience-studio-translation-settings": {
+            "file": "module/sw-experience-studio/component/sw-experience-studio-translation-settings",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_experience_studio_translation_settings"
             ]
         },
         "sw-experience-studio-workspace-picker": {

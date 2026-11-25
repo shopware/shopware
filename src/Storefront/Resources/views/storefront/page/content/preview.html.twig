@@ -4,8 +4,8 @@
     {{ parent() }}
 
     {#
-        The preview bridge. It does three things — report which element the author clicked, outline the one under the
-        cursor, and hand its scroll position to the admin across a reload — and deliberately does NOT edit anything.
+        The preview bridge reports element selection, outlines hovered elements, preserves scroll position across
+        reloads, and scrolls to elements requested by the settings panel.
 
         Editing used to live here, as `contenteditable` plus a floating `execCommand` toolbar. It was removed because
         the preview shows RESOLVED output while storage holds the authored source: a text carrying a `{{ '{{' }}map:product.name{{ '}}' }}`
@@ -41,6 +41,26 @@
                 const payload = event.data;
 
                 if (!payload || payload.source !== 'sw-experience-studio-admin') {
+                    return;
+                }
+
+                if (payload.type === 'scroll-to-element' && typeof payload.elementId === 'string') {
+                    const componentRoot = Array.from(document.querySelectorAll('[' + ELEMENT_ID_ATTRIBUTE + ']'))
+                        .find(function (element) {
+                            return element.getAttribute(ELEMENT_ID_ATTRIBUTE) === payload.elementId;
+                        });
+
+                    if (componentRoot) {
+                        const rect = componentRoot.getBoundingClientRect();
+                        const offset = Math.max(0, (window.innerHeight - rect.height) / 2);
+
+                        window.scrollTo({
+                            top: Math.max(0, window.scrollY + rect.top - offset),
+                            left: window.scrollX,
+                            behavior: 'smooth',
+                        });
+                    }
+
                     return;
                 }
 

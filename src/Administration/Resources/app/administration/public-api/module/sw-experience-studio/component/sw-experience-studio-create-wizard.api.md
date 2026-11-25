@@ -11,6 +11,37 @@ component sw-experience-studio-create-wizard  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-create-wizard/sw-experience-studio-create-wizard.html.twig  [private]
   visibility-source export  [private]
 
+props
+  isLoadingTypes?: boolean  default=false  [private]
+  name?: string  default=''  [private]
+  selectedType?: string  default=null  [private]
+  typeLoadError?: string  default=null  [private]
+  typeOptions?: LayoutTypeOption[]  default=factory  [private]
+
+emits
+  cancel(...args: any[])  [private]
+  complete(...args: any[])  [private]
+  update:name(...args: any[])  [private]
+  update:selected-type(...args: any[])  [private]
+
+computed
+  createWizardDescriptionSnippet: string  [private]
+  createWizardStartSnippet: string  [private]
+  createWizardTitleSnippet: string  [private]
+  hasTypeLoadError: boolean  [private]
+  hasTypeOptions: boolean  [private]
+  isCompletable: boolean  [private]
+  trimmedName: string  [private]
+
+methods
+  getTypeIcon(option: LayoutTypeOption): string  [private]
+  getTypeOptionId(value: string): string  [private]
+  isSelectedType(value: string): boolean  [private]
+  onCancel(): void  [private]
+  onComplete(): void  [private]
+  onNameChange(value: string): void  [private]
+  onTypeChange(value: string | null): void  [private]
+
 blocks
   sw_experience_studio_create_wizard  [private]
 ```

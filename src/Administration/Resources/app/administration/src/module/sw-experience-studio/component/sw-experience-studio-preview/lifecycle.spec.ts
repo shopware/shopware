@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import type { Component } from 'vue';
 import debounce from 'lodash/debounce';
 
-const request = jest.fn<Promise<string>, []>();
+const request = jest.fn<Promise<string>, [Record<string, unknown>]>();
 
 function deferred<T>() {
     let resolve!: (value: T) => void;
@@ -94,6 +94,56 @@ describe('Experience Studio preview request lifecycle', () => {
         pending.resolve('https://storefront.local/late-preview');
         await flushPromises();
 
+        expect(assignLoadingFrame).not.toHaveBeenCalled();
+    });
+
+    it('reloads in the selected language and ignores the previous language response during the debounce', async () => {
+        const previous = deferred<string>();
+        request.mockReturnValueOnce(previous.promise);
+        const assignLoadingFrame = jest.fn();
+        wrapper = await createWrapper({ assignLoadingFrame });
+        await wrapper.setProps({ languageId: 'system-language' });
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+        expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ languageId: 'system-language' }));
+
+        await wrapper.setProps({ languageId: 'german-language' });
+        previous.resolve('https://storefront.local/old-language');
+        await flushPromises();
+        expect(assignLoadingFrame).not.toHaveBeenCalled();
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+
+        expect(request).toHaveBeenCalledTimes(2);
+        expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ languageId: 'german-language' }));
+        expect(assignLoadingFrame).toHaveBeenCalledWith('https://storefront.local/preview');
+    });
+
+    it('sends no language key when the preview has no language', async () => {
+        wrapper = await createWrapper();
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(request.mock.calls[0][0]).not.toHaveProperty('languageId');
+    });
+
+    it('ignores a response in flight when the preview entity is cleared', async () => {
+        const previous = deferred<string>();
+        request.mockReturnValueOnce(previous.promise);
+        const assignLoadingFrame = jest.fn();
+        wrapper = await createWrapper({ assignLoadingFrame });
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+        expect(request).toHaveBeenCalledTimes(1);
+
+        await wrapper.setProps({ entityId: null });
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+        previous.resolve('https://storefront.local/cleared-entity');
+        await flushPromises();
+
+        expect(request).toHaveBeenCalledTimes(1);
         expect(assignLoadingFrame).not.toHaveBeenCalled();
     });
 
@@ -198,5 +248,25 @@ describe('Experience Studio preview request lifecycle', () => {
         await flushPromises();
 
         expect(request).toHaveBeenCalledTimes(3);
+    });
+
+    it('ignores the old preview while the next channel language context is loading', async () => {
+        const previous = deferred<string>();
+        request.mockReturnValueOnce(previous.promise);
+        const assignLoadingFrame = jest.fn();
+        wrapper = await createWrapper({ assignLoadingFrame });
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+
+        await wrapper.setProps({ salesChannelId: null });
+        previous.resolve('https://storefront.local/old-channel');
+        await flushPromises();
+        expect(assignLoadingFrame).not.toHaveBeenCalled();
+
+        await wrapper.setProps({ salesChannelId: 'next-channel' });
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+        expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ salesChannelId: 'next-channel' }));
+        expect(assignLoadingFrame).toHaveBeenCalledWith('https://storefront.local/preview');
     });
 });

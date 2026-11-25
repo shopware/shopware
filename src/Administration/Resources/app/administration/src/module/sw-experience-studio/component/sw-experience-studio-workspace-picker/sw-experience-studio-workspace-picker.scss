@@ -40,8 +40,19 @@
         white-space: nowrap;
     }
 
+    &__creator {
+        max-width: 160px;
+        margin-left: auto;
+        overflow: hidden;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-2xs);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     &__actions,
-    &__item .mt-icon {
+    &__item .mt-icon,
+    &__item .sw-avatar {
         flex-shrink: 0;
     }
 }

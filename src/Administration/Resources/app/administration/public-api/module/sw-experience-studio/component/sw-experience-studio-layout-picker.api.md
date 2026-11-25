@@ -10,4 +10,46 @@ component sw-experience-studio-layout-picker  private  ts  [private]
   source src/module/sw-experience-studio/component/sw-experience-studio-layout-picker/index.ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-layout-picker/sw-experience-studio-layout-picker.html.twig  [private]
   visibility-source export  [private]
+
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  openLayoutIds?: string[]  default=factory  [private]
+
+emits
+  close(...args: any[])  [private]
+  delete(...args: any[])  [private]
+  select(...args: any[])  [private]
+
+data
+  hasDeleteError: any  [private]
+  hasLoadError: any  [private]
+  isDeleting: any  [private]
+  isLoading: any  [private]
+  layoutToDelete: any  [private]
+  layouts: any  [private]
+  limit: any  [private]
+  page: any  [private]
+  searchTerm: any  [private]
+  total: any  [private]
+
+computed
+  allowDelete: boolean  [private]
+  columns: LayoutPickerColumn[]  [private]
+  criteria: CriteriaType  [private]
+  deleteActionsDisabled: boolean  [private]
+  layoutRepository: Repository<'content_layout'>  [private]
+
+methods
+  loadLayouts(): Promise<void>  [private]
+  onCancelDeleteLayout(): void  [private]
+  onClose(): void  [private]
+  onConfirmDeleteLayout(): Promise<void>  [private]
+  onDeleteLayout(layout: Pick<Entity<'content_layout'>, 'id' | 'name'>): void  [private]
+  onPageChange(arg0: { page: number }): void  [private]
+  onSearch(value: string): void  [private]
+  onSelectLayout(layoutId: string): void  [private]
 ```

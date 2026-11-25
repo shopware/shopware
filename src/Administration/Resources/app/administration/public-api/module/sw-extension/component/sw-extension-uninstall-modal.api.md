@@ -11,6 +11,25 @@ component sw-extension-uninstall-modal  private  js  [private]
   template src/module/sw-extension/component/sw-extension-uninstall-modal/sw-extension-uninstall-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  extensionName: string  [private]
+  isLicensed: boolean  [private]
+  isLoading: boolean  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  uninstall-extension(...args: any[])  [private]
+
+data
+  removePluginData: any  [private]
+
+computed
+  title: any  [private]
+
+methods
+  emitClose(): any  [private]
+  emitUninstall(): any  [private]
+
 blocks
   sw_extension_uninstall_modal  [private]
     sw_extension_uninstall_modal_content  [private]

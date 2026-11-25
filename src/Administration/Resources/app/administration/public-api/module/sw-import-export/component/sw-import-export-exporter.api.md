@@ -11,6 +11,39 @@ component sw-import-export-exporter  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-exporter/sw-import-export-exporter.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+  importExport  [private]
+  repositoryFactory  [private]
+
+props
+  sourceEntity?: string  default=''  [private]
+
+emits
+  export-started(...args: any[])  [private]
+
+data
+  config: object  [private]
+    parameters: any  [private]
+  exportModalProfile: any  [private]
+  isLoading: any  [private]
+  selectedProfile: any  [private]
+  selectedProfileId: any  [private]
+
+computed
+  disableExporting: any  [private]
+  profileCriteria: any  [private]
+  showProductVariantsInfo: any  [private]
+
+methods
+  handleProgress(log: any): any  [private]
+  onProfileSelect(profileId: any, profile: any): any  [private]
+  onStartProcess(): any  [private]
+  setExportModalProfile(profileName: any): any  [private]
+
 blocks
   sw_import_export_exporter  [private]
     sw_import_export_exporter_header  [private]

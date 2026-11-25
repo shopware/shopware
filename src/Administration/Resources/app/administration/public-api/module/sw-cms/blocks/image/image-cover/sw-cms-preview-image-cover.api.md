@@ -11,6 +11,9 @@ component sw-cms-preview-image-cover  private  js  [private]
   template src/module/sw-cms/blocks/image/image-cover/preview/sw-cms-preview-image-cover.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_cover_preview  [private]
 ```

@@ -11,6 +11,25 @@ component sw-field-copyable  private  js  [private]
   template src/app/component/form/sw-field-copyable/sw-field-copyable.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+props
+  copyableText?: string  default=null  [private]
+  tooltip?: boolean  default=false  [private]
+
+data
+  wasCopied: any  [private]
+
+computed
+  tooltipText: any  [private]
+
+methods
+  copyToClipboard(): Promise<any>  [private]
+  notificationSuccess(): any  [private]
+  resetTooltipText(): any  [private]
+  tooltipSuccess(): any  [private]
+
 blocks
   sw_field_copyable  [private]
 ```

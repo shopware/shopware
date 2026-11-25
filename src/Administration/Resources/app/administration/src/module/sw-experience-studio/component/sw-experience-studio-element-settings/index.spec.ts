@@ -123,7 +123,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         },
     };
 
-    it('presents the anchor chain entry of a translatable property to the field controls', () => {
+    it('presents the system-language entry of a translatable property by default', () => {
         const values = computed.elementPropertyValues.call({
             selectedElement: {
                 properties: {
@@ -192,7 +192,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
     });
 
-    it('shows an empty string for a translatable string property whose language map has no anchor chain entry', () => {
+    it('shows an empty string for a translatable string property without a system-language entry', () => {
         const values = computed.elementPropertyValues.call({
             selectedElement: {
                 properties: {
@@ -207,7 +207,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         expect(values).toEqual({ text: '' });
     });
 
-    it('keeps a translatable number property without an anchor chain entry absent so the declared default applies', () => {
+    it('shows a translatable number property without a system-language entry as empty', () => {
         const values = computed.elementPropertyValues.call({
             selectedElement: {
                 properties: {
@@ -227,11 +227,10 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
             },
         });
 
-        expect(values).toEqual({});
-        expect(Object.prototype.hasOwnProperty.call(values, 'columns')).toBe(false);
+        expect(values).toEqual({ columns: null });
     });
 
-    it('leaves an unauthored translatable property absent so the declared default still applies', () => {
+    it('shows an unauthored translatable text property as blank without a default', () => {
         const values = computed.elementPropertyValues.call({
             selectedElement: {
                 properties: {},
@@ -239,11 +238,10 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
             selectedElementType: textType,
         });
 
-        expect(values).toEqual({});
-        expect(Object.prototype.hasOwnProperty.call(values, 'text')).toBe(false);
+        expect(values).toEqual({ text: '' });
     });
 
-    it('resolves a translatable property through the anchor chain when evaluating field visibility', () => {
+    it('uses the system-language entry by default when evaluating field visibility', () => {
         const fields = computed.elementFields.call({
             selectedElement: {
                 properties: {

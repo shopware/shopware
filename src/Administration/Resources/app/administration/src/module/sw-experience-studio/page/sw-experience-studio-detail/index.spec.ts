@@ -195,6 +195,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             availableLayoutTypes: ['product'],
             previewEntityId: null,
             layout: { id: 'layout-header', rootSource: 'header' },
+            frames: [{ id: 'frame-header', layoutId: 'layout-header', previewEntityId: null }],
+            activeFrameId: 'frame-header',
             workspaceStore: { activeWorkspace: { id: 'workspace' } },
             repositoryFactory,
             defaultPreviewEntityCriteria: {},
@@ -237,13 +239,15 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             layoutTypesRequest,
             availableLayoutTypes: [] as string[],
             openLayouts: [] as unknown[],
-            activeLayoutId: null,
+            frames: [] as unknown[],
             layout: null as typeof layout | null,
             isLoading: false,
             isLayoutPickerOpen: true,
             layoutRepository: { get: jest.fn().mockResolvedValue(layout) },
             layoutLoadCriteria: {},
             createOpenLayoutState: jest.fn().mockReturnValue({ id: layout.id, layout }),
+            createPreviewFrame: methods.createPreviewFrame,
+            previewLanguageContext: null,
             activateLayout: jest.fn(),
             applyPreviewContextDefaults: methods.applyPreviewContextDefaults,
             loadDefaultPreviewEntity: jest.fn().mockResolvedValue(undefined),
@@ -285,6 +289,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
     it('loads first preview entity when assignment does not provide one', async () => {
         const vm = {
+            activeFrameId: 'frame',
+            frames: [{ id: 'frame', previewEntityId: null }],
             previewEntityId: null,
             previewEntityType: 'category',
             repositoryFactory: {
@@ -406,7 +412,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
     });
 
-    it('rejects invalid move targets from subtree cycles', () => {
+    it.each(['parent', 'child', 'grandchild'])('rejects moving a subtree into its own %s element', (targetId) => {
         const vm = {
             layout: {
                 layout: [
@@ -418,23 +424,46 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
                                 {
                                     id: 'child',
                                     component: 'Sw:Content:Text',
+                                    slots: {
+                                        main: [{ id: 'grandchild', component: 'Sw:Content:Text' }],
+                                    },
                                 },
                             ],
                         },
                     },
                 ],
             },
-            isElementInSubtree: methods.isElementInSubtree,
         };
 
         expect(
             methods.validateMoveTarget.call(vm, {
                 elementId: 'parent',
-                newParentElementId: 'child',
+                newParentElementId: targetId,
                 newSlotName: 'main',
                 newIndex: 0,
             }),
         ).toBe(false);
+    });
+
+    it('allows moving an element into a separate subtree', () => {
+        const vm = {
+            layout: {
+                layout: [
+                    { id: 'source', component: 'Sw:Content:Text' },
+                    { id: 'target', component: 'Sw:Layout:Container', slots: { main: [] } },
+                ],
+            },
+            canInsertIntoSlot: () => true,
+        };
+
+        expect(
+            methods.validateMoveTarget.call(vm, {
+                elementId: 'source',
+                newParentElementId: 'target',
+                newSlotName: 'main',
+                newIndex: 0,
+            }),
+        ).toBe(true);
     });
 
     it('adjusts move index when reordering in same slot', () => {

@@ -16,6 +16,7 @@ export function createWorkspaceConfiguration(): WorkspaceConfiguration {
 export function copyWorkspaceConfiguration(configuration: WorkspaceConfiguration): WorkspaceConfiguration {
     return {
         frames: configuration.frames.map((frame) => ({
+            id: frame.id,
             layoutId: frame.layoutId,
             x: frame.x,
             y: frame.y,
@@ -23,6 +24,7 @@ export function copyWorkspaceConfiguration(configuration: WorkspaceConfiguration
             height: frame.height,
             viewport: frame.viewport,
             previewEntityId: frame.previewEntityId,
+            ...(frame.languageId ? { languageId: frame.languageId } : {}),
         })),
         previewSalesChannelId: configuration.previewSalesChannelId,
         canvas: { panX: configuration.canvas.panX, panY: configuration.canvas.panY, zoom: configuration.canvas.zoom },

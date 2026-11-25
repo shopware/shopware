@@ -45,6 +45,17 @@
                 >
                     <div class="sw-experience-studio-workspace-switcher__entry-content">
                         <span class="sw-experience-studio-workspace-switcher__name">{{ workspace.name }}</span>
+                        <span class="sw-experience-studio-workspace-switcher__creator">
+                            {{ $t('sw-experience-studio.workspace.manager.createdBy', { name: getCreatorName(workspace) || $t('sw-experience-studio.workspace.manager.unknownCreator') }) }}
+                        </span>
+                        <sw-avatar
+                            :image-url="workspace.createdBy?.avatarMedia?.url"
+                            :first-name="workspace.createdBy?.firstName"
+                            :last-name="workspace.createdBy?.lastName"
+                            :placeholder="!workspace.createdBy?.firstName && !workspace.createdBy?.lastName"
+                            size="20px"
+                            aria-hidden="true"
+                        />
                     </div>
                 </mt-action-menu-item>
             </mt-action-menu-group>

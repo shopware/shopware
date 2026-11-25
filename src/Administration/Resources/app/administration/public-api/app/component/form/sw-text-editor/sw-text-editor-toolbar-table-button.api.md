@@ -11,6 +11,40 @@ component sw-text-editor-toolbar-table-button  private  js  [private]
   template src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/sw-text-editor-toolbar-table-button.html.twig  [private]
   visibility-source export  [private]
 
+props
+  buttonConfig: object  [private]
+
+emits
+  mounted(...args: any[])  [private]
+  table-create(...args: any[])  [private]
+
+data
+  addTableHead: any  [private]
+  colMaxLimit: any  [private]
+  oldHorizontalDirection: any  [private]
+  oldVerticalDirection: any  [private]
+  rowMaxLimit: any  [private]
+  selectedCols: any  [private]
+  selectedRows: any  [private]
+  tableCols: any  [private]
+  tableMinCols: any  [private]
+  tableMinRows: any  [private]
+  tableRows: any  [private]
+
+methods
+  createHtmlTable(): any  [private]
+  emitTable(): any  [private]
+  loopTableCols(row: any, rowIndex: any): any  [private]
+  loopTableRows(tbody: any): any  [private]
+  mountedComponent(): any  [private]
+  onLastColMouseOut(event: any): any  [private]
+  onLastRowMouseOut(event: any): any  [private]
+  onMouseOut(event: any): any  [private]
+  onMouseOverColumn(event: any, data: any): any  [private]
+  setSelectedCols(cols: any): any  [private]
+  setSelectedRows(rows: any): any  [private]
+  setSelectedTableColsAndRows(): any  [private]
+
 blocks
   sw_text_editor_toolbar_table_button  [private]
     sw_text_editor_toolbar_table_button_table  [private]

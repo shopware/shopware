@@ -135,6 +135,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('storefront.theme.allowed_scss_values'),
             param('storefront.theme.validate_on_compile'),
             param('shopware.filesystem.theme.visibility'),
+            param('storefront.theme.dump_scss_variables'),
         ]);
 
     $services->set(ThemeLifecycleService::class)

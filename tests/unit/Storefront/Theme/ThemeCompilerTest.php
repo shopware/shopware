@@ -7,6 +7,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\UnableToWriteFile;
+use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
@@ -200,6 +201,24 @@ class ThemeCompilerTest extends TestCase
 
         static::assertSame($expected, $this->tempFilesystem->read('theme-variables.scss'));
         static::assertSame($expected, $this->tempFilesystem->read('theme-variables/themeId.scss'));
+    }
+
+    public function testDumpVariablesDoesNotWriteFilesWhenDisabled(): void
+    {
+        $themeConfig = new StorefrontPluginConfiguration('test');
+        $themeConfig->setThemeConfig([]);
+
+        $this->getThemeCompiler(dumpScssVariables: false)->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'themeId',
+            $themeConfig,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        static::assertFalse($this->tempFilesystem->fileExists('theme-variables.scss'));
+        static::assertFalse($this->tempFilesystem->fileExists('theme-variables/themeId.scss'));
     }
 
     public static function configForDumpVariables(): \Generator
@@ -922,6 +941,7 @@ PHP_EOL,
         ?ThemeFilesystemResolver $themeFilesystemResolver = null,
         ?LoggerInterface $logger = null,
         ?ScssPhpCompiler $scssPhpCompiler = null,
+        bool $dumpScssVariables = true,
     ): ThemeCompiler {
         return new ThemeCompiler(
             $this->filesystem,
@@ -938,7 +958,9 @@ PHP_EOL,
             $this->pathBuilder,
             $scssPhpCompiler ?? $this->scssPhpCompiler,
             [],
-            false
+            false,
+            Visibility::PUBLIC,
+            $dumpScssVariables,
         );
     }
 }

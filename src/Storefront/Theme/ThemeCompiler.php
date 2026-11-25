@@ -68,6 +68,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
         private readonly string $visibility = Visibility::PUBLIC,
+        private readonly bool $dumpScssVariables = true,
     ) {
         $this->packages = \is_array($packages) ? $packages : iterator_to_array($packages);
     }
@@ -759,8 +760,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             $this->getVariableDumpTemplate()
         );
 
-        $this->tempFilesystem->write('theme-variables.scss', $dump);
-        $this->tempFilesystem->write('theme-variables/' . $themeId . '.scss', $dump);
+        // The dumped files are only read by the Storefront hot mode (webpack), the compilation itself uses $dump directly
+        if ($this->dumpScssVariables) {
+            $this->tempFilesystem->write('theme-variables.scss', $dump);
+            $this->tempFilesystem->write('theme-variables/' . $themeId . '.scss', $dump);
+        }
 
         return $dump;
     }

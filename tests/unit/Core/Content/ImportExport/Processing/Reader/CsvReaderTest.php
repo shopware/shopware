@@ -197,6 +197,19 @@ class CsvReaderTest extends TestCase
         static::assertSame([['=1+1', '\'-2']], array_values($result));
     }
 
+    public function testTheEscapeParameterReadsFilesExportedByAnEarlierVersion(): void
+    {
+        $resource = fopen('php://temp', 'r+');
+        static::assertIsResource($resource);
+        fputcsv($resource, ['name', 'comment'], ';', '"', '\\');
+        fputcsv($resource, ['A\";=1+1;\"', '{"text":"say \"hi\""}'], ';', '"', '\\');
+        rewind($resource);
+
+        $result = $this->getAll((new CsvReader())->read(new Config([], ['escape' => '\\'], []), $resource, 0));
+
+        static::assertSame([['name' => 'A\";=1+1;\"', 'comment' => '{"text":"say \"hi\""}']], array_values($result));
+    }
+
     public static function eolProvider(): \Generator
     {
         yield 'windows' => ["\r\n"];

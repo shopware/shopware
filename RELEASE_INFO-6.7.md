@@ -16,7 +16,8 @@ An exported file therefore imports with its original values, and a value such as
 
 CSV exports and imports now quote values as defined in RFC 4180, like spreadsheet applications do: a backslash is a plain character, and every double quote in a value is doubled.
 Files exported by an earlier version that contain a backslash right before a double quote, for example a JSON custom field with a quote in its text, are read differently.
-Export such files again, or set the parameter `escape` to `\` in the `config` of the import profile or of the import request.
+Export such files again, or import them once with the parameter `escape` set to `\` in the `config` of the import request.
+Do not store the parameter in the profile config: exports no longer use an escape character, so a profile with this setting misreads its own new exports.
 
 ## API
 

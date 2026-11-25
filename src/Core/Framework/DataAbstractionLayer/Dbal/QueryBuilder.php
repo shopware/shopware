@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class QueryBuilder extends DBALQueryBuilder
 {
-    final public const JSON_ARRAY_AGGREGATION = 'json_array_aggregation';
-
     /**
      * @var array<string, string>
      */

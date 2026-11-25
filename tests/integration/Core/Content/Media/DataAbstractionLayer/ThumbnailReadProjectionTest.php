@@ -41,7 +41,7 @@ class ThumbnailReadProjectionTest extends TestCase
             'height' => 100,
             'created_at' => $created,
         ]);
-        $caption = str_repeat('x', 350000);
+        $caption = 'Front view of the "Café" grinder';
         $connection->insert('media_thumbnail', [
             'custom_fields' => json_encode(['caption' => $caption], \JSON_THROW_ON_ERROR),
             'media_thumbnail_size_id' => $sizeId,
@@ -66,7 +66,10 @@ class ThumbnailReadProjectionTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $explicit = $repository->search($criteria, $context)->first();
         static::assertInstanceOf(MediaEntity::class, $explicit);
-        static::assertSame($thumbnail->getUrl(), $explicit->getThumbnails()?->get($thumbnailId)?->getUrl());
+        $explicitThumbnail = $explicit->getThumbnails()?->get($thumbnailId);
+        static::assertNotNull($explicitThumbnail);
+        static::assertSame($caption, $explicitThumbnail->getCustomFieldsValue('caption'));
+        static::assertSame($thumbnail->getUrl(), $explicitThumbnail->getUrl());
         static::assertNull($explicit->getThumbnailsRo());
 
         $criteria->getAssociation('thumbnails')->addFilter(new EqualsFilter('width', 400));

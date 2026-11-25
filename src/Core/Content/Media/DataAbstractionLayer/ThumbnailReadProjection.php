@@ -32,7 +32,6 @@ class ThumbnailReadProjection implements Projection
         $parent = EntityDefinitionQueryHelper::escape($root);
         $alias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName());
 
-        $query->addState(QueryBuilder::JSON_ARRAY_AGGREGATION);
         $query->addSelect(<<<SQL
             COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT(
                 'id', LOWER(HEX(t.id)), 'mediaId', LOWER(HEX(t.media_id)),

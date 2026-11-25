@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
@@ -433,15 +432,6 @@ class EntityReader implements EntityReaderInterface
 
         if ($criteria->getTitle()) {
             $query->setTitle($criteria->getTitle() . '::read');
-        }
-
-        if ($query->hasState(QueryBuilder::JSON_ARRAY_AGGREGATION) && $this->connection->getDatabasePlatform() instanceof MariaDBPlatform) {
-            // MariaDB applies group_concat_max_len to JSON_ARRAYAGG and can silently truncate a collection.
-            return $this->connection->fetchAllAssociative(
-                'SET STATEMENT group_concat_max_len=4294967295 FOR ' . $query->getSQL(),
-                $query->getParameters(),
-                $query->getParameterTypes(),
-            );
         }
 
         return $query->executeQuery()->fetchAllAssociative();

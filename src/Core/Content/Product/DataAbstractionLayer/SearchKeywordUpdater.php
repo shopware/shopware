@@ -207,7 +207,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function insertKeywords(array $keywords): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, true);
+        $queue = new MultiInsertQueryQueue($this->connection, ignoreErrors: true);
         foreach ($keywords as $insert) {
             $queue->addInsert(ProductSearchKeywordDefinition::ENTITY_NAME, $insert);
         }
@@ -219,7 +219,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function insertDictionary(array $dictionary): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, true, true);
+        $queue = new MultiInsertQueryQueue($this->connection, ignoreErrors: true, useReplace: true);
 
         foreach ($dictionary as $insert) {
             $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);

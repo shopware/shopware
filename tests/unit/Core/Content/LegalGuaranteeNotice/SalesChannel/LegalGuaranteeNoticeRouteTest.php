@@ -53,9 +53,10 @@ class LegalGuaranteeNoticeRouteTest extends TestCase
 
         static::assertNull($response->getObject()->get('svg'));
         static::assertNull($response->getObject()->get('link'));
+        static::assertNull($response->getObject()->get('text'));
     }
 
-    public function testLoadRendersNoticeAndLinkWhenToggleIsEnabled(): void
+    public function testLoadRendersNoticeLinkAndTextWhenToggleIsEnabled(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -68,6 +69,10 @@ class LegalGuaranteeNoticeRouteTest extends TestCase
             ->method('linkForLanguage')
             ->with($context->getLanguageId())
             ->willReturn('https://europa.eu/youreurope/guarantees');
+        $renderer->expects($this->once())
+            ->method('renderTextForLanguage')
+            ->with($context->getLanguageId())
+            ->willReturn('<div lang="en"><p>notice</p></div>');
 
         $route = new LegalGuaranteeNoticeRoute(
             new StaticSystemConfigService(['core.cart.showLegalGuaranteeNotice' => true]),
@@ -79,6 +84,7 @@ class LegalGuaranteeNoticeRouteTest extends TestCase
 
         static::assertSame('<svg>notice</svg>', $response->getObject()->get('svg'));
         static::assertSame('https://europa.eu/youreurope/guarantees', $response->getObject()->get('link'));
+        static::assertSame('<div lang="en"><p>notice</p></div>', $response->getObject()->get('text'));
     }
 
     public function testLoadRespectsSalesChannelSpecificOverride(): void

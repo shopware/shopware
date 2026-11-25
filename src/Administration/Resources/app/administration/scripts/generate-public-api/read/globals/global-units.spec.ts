@@ -241,6 +241,29 @@ describe('scripts/generate-public-api/read/globals/global-units', () => {
             );
         });
 
+        it('does not take the private tag of a getter that a member names, because the member holds what it returns', () => {
+            const tree = shopwareTree(
+                '    public Store = Store.instance;',
+                {},
+                [
+                    'class Store {',
+                    '    /** @private */',
+                    '    static get instance(): Store { return Store.#instance; }',
+                    '    get(id: string) {}',
+                    '}',
+                ].join('\n'),
+            );
+
+            expect(sections(tree)).toEqual(['properties', '  Store: any']);
+            expect(outlines(tree)['Shopware.Store']).toEqual([
+                'global Shopware.Store  public  ts  instance',
+                '  registered src/core/shopware.ts',
+                '  source src/core/shopware.ts',
+                'methods',
+                '  get(id: string): any',
+            ]);
+        });
+
         it('keeps the object of a private class private, and with it the member that holds it', () => {
             const tree = shopwareTree(
                 '    public Application = application;',

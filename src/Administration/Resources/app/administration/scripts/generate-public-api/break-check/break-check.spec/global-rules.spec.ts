@@ -96,6 +96,19 @@ describe('scripts/generate-public-api/break-check/break-check global rules', () 
         ]);
     });
 
+    it('reports a removed method of an object that a private getter hands out as a break', () => {
+        const store = (methods: string) =>
+            shopwareTree(
+                '    public Store = Store.instance;',
+                {},
+                `class Store {\n    /** @private */\n    static get instance(): Store { return Store.#instance; }\n${methods}\n}`,
+            );
+
+        expect(summary(check(store('    get(id) {}\n    list() {}'), store('    list() {}')))).toEqual([
+            'Break  method_missing  global:Shopware.Store/method:get  current, major',
+        ]);
+    });
+
     it('allows the removal of a member that carried a released @deprecated marker', () => {
         const before = example('/** @deprecated tag:v6.7.0 - Use find instead. */\nload() {},\nfind() {}');
 

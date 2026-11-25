@@ -148,7 +148,8 @@ export function namedValue(
         return { value, common: own };
     }
 
-    const docs = declarationDocs(value.node, value.source);
+    // A getter stands for what it returns, so its own comments speak about reading the getter only.
+    const docs = ts.isGetAccessorDeclaration(value.node) ? [] : declarationDocs(value.node, value.source);
     const isDeclaredHere = ts.isIdentifier(expression) && value.source === reading.source;
 
     return {

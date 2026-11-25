@@ -10,6 +10,18 @@ component sw-settings-newsletter  public  js
   source src/module/sw-settings-newsletter/page/sw-settings-newsletter/index.js
   template src/module/sw-settings-newsletter/page/sw-settings-newsletter/sw-settings-newsletter.html.twig
 
+mixins
+  notification
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+
+methods
+  onLoadingChanged(loading: any): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_newsletter_index
     sw_settings_newsletter_content
@@ -21,4 +33,7 @@ blocks
       sw_settings_newsletter_smart_bar_header_title
         sw_settings_newsletter_smart_bar_header_amount
         sw_settings_newsletter_smart_bar_header_title_text
+
+refs
+  systemConfig  -> sw-system-config  block=sw_setting_newsletter_system_config
 ```

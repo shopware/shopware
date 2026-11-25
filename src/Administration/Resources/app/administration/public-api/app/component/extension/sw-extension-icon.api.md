@@ -11,6 +11,10 @@ component sw-extension-icon  private  ts  [private]
   template src/app/component/extension/sw-extension-icon/sw-extension-icon.html.twig  [private]
   visibility-source export  [private]
 
+props
+  alt?: string  default=''  [private]
+  src: string  [private]
+
 blocks
   sw_extension_icon  [private]
 ```

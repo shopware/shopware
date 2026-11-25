@@ -11,6 +11,23 @@ component sw-promotion-detail-discounts  private  js  [private]
   template src/module/sw-promotion-v2/view/sw-promotion-detail-discounts/sw-promotion-detail-discounts.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+data
+  deleteDiscountId: any  [deprecated tag:v6.8.0] [private]
+  repository: any  [deprecated tag:v6.8.0] [private]
+
+computed
+  discounts: any  [private]
+  isLoading: any  [private]
+  promotion: any  [private]
+
+methods
+  deleteDiscount(discount: any): any  [private]
+  onAddDiscount(): any  [private]
+
 blocks
   sw_promotion_detail_discounts  [private]
     sw_promotion_detail_discounts_card_add  [private]

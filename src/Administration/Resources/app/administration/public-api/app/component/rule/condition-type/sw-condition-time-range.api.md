@@ -11,6 +11,17 @@ component sw-condition-time-range  public  js
   source src/app/component/rule/condition-type/sw-condition-time-range/index.js
   template src/app/component/rule/condition-type/sw-condition-time-range/sw-condition-time-range.html.twig
 
+data
+  datepickerConfig: object
+    dateFormat: any
+    enableTime: any
+
+computed
+  fromTime: any
+  timezone: any
+  timezoneOptions: any
+  toTime: any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]

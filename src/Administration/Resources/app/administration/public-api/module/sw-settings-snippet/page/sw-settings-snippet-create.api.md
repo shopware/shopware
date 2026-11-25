@@ -10,6 +10,9 @@ component sw-settings-snippet-create  public  js
   registered src/module/sw-settings-snippet/index.js
   source src/module/sw-settings-snippet/page/sw-settings-snippet-create/index.js
 
+data
+  isCreate: any
+
 blocks
   sw_settings_snippet_detail  [inherited]
     sw_settings_snippet_detail_actions  [inherited]

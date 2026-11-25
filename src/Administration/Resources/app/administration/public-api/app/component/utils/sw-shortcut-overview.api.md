@@ -11,6 +11,31 @@ component sw-shortcut-overview  private  js  [private]
   template src/app/component/utils/sw-shortcut-overview/sw-shortcut-overview.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  shortcutService  [private]
+
+props
+  showModal?: boolean  default=false  [private]
+
+emits
+  shortcut-close(...args: any[])  [private]
+  shortcut-open(...args: any[])  [private]
+
+data
+  shortcutsDisabled: any  [private]
+  showShortcutOverviewModal: any  [private]
+
+computed
+  platform: any  [private]
+  platformShortcutSuffix: any  [private]
+  sections: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onCloseShortcutOverviewModal(): any  [private]
+  onOpenShortcutOverviewModal(): any  [private]
+  onToggleShortcutsDisabled(shortcutsDisabled: any): any  [private]
+
 blocks
   sw_shortcut_overview  [private]
     sw_shortcut_overview_modal  [private]

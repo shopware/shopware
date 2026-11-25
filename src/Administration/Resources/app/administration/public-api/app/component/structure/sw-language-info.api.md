@@ -11,6 +11,31 @@ component sw-language-info  private  js  [private]
   template src/app/component/structure/sw-language-info/sw-language-info.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  changeLanguageOnParentClick?: boolean  default=true  [private]
+  entityDescription?: string  default=''  [private]
+  isNewEntity?: boolean  default=false  [private]
+
+data
+  parentLanguage: object  [private]
+    name: any  [private]
+
+computed
+  infoParent: any  [private]
+  infoText: any  [private]
+  isDefaultLanguage: any  [private]
+  language: any  [private]
+  languageId: any  [private]
+  languageRepository: any  [private]
+  systemLanguageId: any  [private]
+
+methods
+  onClickParentLanguage(): any  [private]
+  refreshParentLanguage(): Promise<any>  [private]
+
 blocks
   sw_language_info  [private]
     sw_language_info_text  [private]

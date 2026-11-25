@@ -10,6 +10,23 @@ component sw-bulk-edit-order-documents-download-documents  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/sw-bulk-edit-order-documents-download-documents.html.twig
 
+mixins
+  notification
+
+inject
+  documentV2Service
+  feature
+  repositoryFactory
+
+computed
+  documentTypeCriteria: any
+  documentTypeRepository: any
+  documentTypes: any
+
+methods
+  createdComponent(): Promise<any>
+  getDocumentTypes(): any
+
 blocks
   sw_bulk_edit_order_documents_download_documents
     sw_bulk_edit_order_documents_download_documents_content

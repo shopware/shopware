@@ -11,6 +11,18 @@ component sw-condition-date-range  public  js
   source src/app/component/rule/condition-type/sw-condition-date-range/index.js
   template src/app/component/rule/condition-type/sw-condition-date-range/sw-condition-date-range.html.twig
 
+computed
+  fromDate: any
+  isDateTime: any
+  selectValues: any
+  timezone: any
+  timezoneOptions: any
+  toDate: any
+  useTime: any
+
+methods
+  formatDate(date: any, timeModifier: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -24,7 +36,7 @@ blocks
         sw_condition_date_range_field_from_date
         sw_condition_date_range_field_timezone
         sw_condition_date_range_field_to_date
-          sw_condiiton_date_range_field_to_date
+          sw_condiiton_date_range_field_to_date  [deprecated tag:v6.8.0]
         sw_condition_date_range_field_use_time
     sw_condition_base_error  [inherited]
 ```

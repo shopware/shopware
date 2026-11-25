@@ -11,6 +11,57 @@ component sw-search-bar-item  private  js  [private]
   template src/app/component/structure/sw-search-bar-item/sw-search-bar-item.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  recentlySearchService  [private]
+  searchBarOnMouseOver  [private]
+  searchBarRegisterActiveItemIndexSelectHandler  [private]
+  searchBarRegisterKeyupEnterHandler  [private]
+  searchBarUnregisterActiveItemIndexSelectHandler  [private]
+  searchBarUnregisterKeyupEnterHandler  [private]
+  searchTypeService  [private]
+
+props
+  column: number  [private]
+  entityIconColor: string  [private]
+  entityIconName: string  [private]
+  index: number  [private]
+  item?: object  default=factory  [private]
+  searchTerm?: string  default=null  [private]
+  type: string  [private]
+
+emits
+  click-search-result(...args: any[])  [private]
+
+data
+  isActive: any  [private]
+
+computed
+  componentClasses: any  [private]
+  currentUser: any  [private]
+  customItemRoute: any  [private]
+  detailRoute: any  [private]
+  displayValue: any  [private]
+  iconColor: any  [private]
+  iconName: any  [private]
+  mediaNameFilter: any  [private]
+  moduleManifest: any  [private]
+  moduleName: any  [private]
+  productDisplayName: any  [private]
+  routeName: any  [private]
+  searchTypes: any  [private]
+  shortcut: any  [private]
+
+methods
+  checkActiveState(arg0: any): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  onClickSearchResult(entity: any, id: any, payload?: any = {}): any  [private]
+  onEnter(index: any, column: any): any  [private]
+  onMouseEnter(originalDomEvent: any): any  [private]
+  registerEvents(): any  [private]
+  removeEvents(): any  [private]
+
 blocks
   sw_search_bar_item  [private]
     sw_search_bar_item_category  [after v-if] [private]
@@ -54,4 +105,16 @@ crossings
   v-if  sw_search_bar_item_module -> sw_search_bar_item_custom_route  [private]
   v-if  sw_search_bar_item_order -> sw_search_bar_item_media  [private]
   v-if  sw_search_bar_item_product -> sw_search_bar_item_category  [private]
+
+refs
+  routerLink  -> router-link  block=sw_search_bar_item_category  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_cms_page  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_custom_route  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_customer  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_landing_page  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_media  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_module  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_order  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_other_entity  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_product  [private]
 ```

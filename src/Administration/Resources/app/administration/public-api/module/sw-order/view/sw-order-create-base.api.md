@@ -10,6 +10,81 @@ component sw-order-create-base  public  js
   source src/module/sw-order/view/sw-order-create-base/index.js
   template src/module/sw-order/view/sw-order-create-base/sw-order-create-base.html.twig
 
+mixins
+  notification
+
+emits
+  error(...args: any[])
+
+data
+  addAddressModalTitle: any
+  address: object
+    data: any
+  disabledAutoPromotionChecked: any
+  editAddressModalTitle: any
+  isLoading: any
+  isLoadingDetail: any
+  promotionError: any
+  showAddressModal: any
+  showPromotionModal: any
+
+computed
+  cart: any
+  cartAutomaticPromotionItems: any
+  cartDelivery: any
+  cartDeliveryDiscounts: any
+  cartErrors: any
+  cartLineItems: any
+  cartPrice: any
+  currency: any
+  currencyFilter: any
+  currencyRepository: any
+  customer: any
+  customerAddressCriteria: any
+  customerAddressRepository: any
+  customerRepository: any
+  defaultCriteria: any
+  disabledAutoPromotionVisibility: any
+  displayRounded: any
+  filteredCalculatedTaxes: any
+  hasLineItem: any
+  isCustomerActive: any
+  orderDate: any
+  orderTotal: any
+  promotionCodeLineItems: any
+  promotionCodeTags: any
+  salesChannelId: any
+  shippingCostsDetail: any
+  taxStatus: any
+
+methods
+  closeModal(): any
+  createCart(salesChannelId: any): Promise<any>
+  createdComponent(): any
+  enableAutomaticPromotions(): any
+  handlePromotionCodeTags(newValue: any, oldValue: any): any
+  loadCart(): Promise<any>
+  onClosePromotionModal(): any
+  onEditBillingAddress(): any
+  onEditShippingAddress(): any
+  onRemoveExistingCode(item: any): any
+  onRemoveItems(lineItemKeys: any): any
+  onSaveItem(item: any): any
+  onSavePromotionModal(): any
+  onSelectExistingCustomer(customerId: any): Promise<any>
+  onShippingChargeEdited(): any
+  onShippingChargeUpdated(amount: any): any
+  onSubmitCode(code: any): any
+  save(): any
+  setCurrency(customer: any): any
+  setCustomer(customer: any): any
+  setCustomerAddress(arg0: any): any
+  sortByTaxRate(price: any): any
+  switchAutomaticPromotions(visibility: any): any
+  updateCustomerContext(): Promise<any>
+  updateLoading(loadingValue: any): any
+  updatePromotionList(): any
+
 blocks
   sw_order_create
     sw_order_create_address_modal
@@ -31,4 +106,7 @@ blocks
       sw_order_create_details_footer
       sw_order_create_details_header
     sw_order_create_promotion_modal  [after v-if]
+
+refs
+  sw-order-line-item-grid-sales-channel  -> sw-order-line-items-grid-sales-channel  block=sw_order_create_base_line_items_grid
 ```

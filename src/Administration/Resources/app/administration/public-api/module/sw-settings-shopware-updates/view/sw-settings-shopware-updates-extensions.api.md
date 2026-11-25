@@ -11,6 +11,20 @@ component sw-settings-shopware-updates-extensions  private  ts  [private]
   template src/module/sw-settings-shopware-updates/view/sw-settings-shopware-updates-extensions/sw-shopware-updates-extensions.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  extensions?: any[]  default=factory  [private]
+  isLoading?: boolean  [private]
+
+computed
+  columns: any  [private]
+  hasExtensions: boolean  [private]
+
+methods
+  openMyExtensions(): any  [private]
+
 blocks
   sw_shopware_updates_extensions  [private]
     sw_shopware_updates_extensions_column_action  [private]

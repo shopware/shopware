@@ -10,4 +10,16 @@ component sw-settings-services-grant-permissions-modal  private  ts  [private]
   source src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal/index.ts  [private]
   template src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal/sw-settings-services-grant-permissions-modal.html.twig  [private]
   visibility-source export  [private]
+
+data
+  grantPermissionsBackground: any  [private]
+  isLoading: any  [private]
+
+computed
+  feedbackLink: any  [private]
+  showGrantPermissionsModal: any  [private]
+
+methods
+  grantPermissions(done: () => void): Promise<any>  [private]
+  prepareRevisions(isOpen: boolean): any  [private]
 ```

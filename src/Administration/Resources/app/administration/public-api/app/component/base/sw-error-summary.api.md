@@ -11,6 +11,11 @@ component sw-error-summary  private  ts  [private]
   template src/app/component/base/sw-error-summary/sw-error-summary.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  errorCount: number  [private]
+  errorEntries: Array<{ message: string; count: number }>  [private]
+  errors: { [key: string]: number }  [private]
+
 blocks
   sw_error_summary  [private]
 ```

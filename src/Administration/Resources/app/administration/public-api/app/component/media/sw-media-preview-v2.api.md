@@ -10,6 +10,73 @@ component sw-media-preview-v2  public  js
   source src/app/component/media/sw-media-preview-v2/index.js
   template src/app/component/media/sw-media-preview-v2/sw-media-preview-v2.html.twig
 
+inject
+  feature
+  repositoryFactory
+
+props
+  autoplay?: boolean  default=false
+  hideTooltip?: boolean  default=true
+  mediaIsPrivate?: boolean  default=false
+  showControls?: boolean  default=false
+  source: any
+  transparency?: boolean  default=true
+  useThumbnails?: boolean  default=true
+
+emits
+  click(...args: any[])
+  media-preview-play(...args: any[])
+
+data
+  dataUrl: any
+  imagePreviewFailed: any
+  trueSource: any
+  urlPreviewFailed: any
+  width: any
+
+computed
+  alt: any
+  assetFilter: any
+  canBeTransparent: any
+  hasVideoCover: any
+  isFile: any
+  isIcon: any
+  isPlayable: any
+  isRelativePath: any
+  isUrl: any
+  lockIsVisible: any
+  mediaName: any
+  mediaNameFilter: any
+  mediaPreviewClasses: any
+  mediaRepository: any
+  mimeType: any
+  mimeTypeGroup: any
+  placeholderIcon: any
+  placeholderIconPath: any
+  previewUrl: any
+  showUnsupportedFormatWarning: any
+  sourceSet: any
+  transparencyClass: any
+  videoCoverMedia: any
+  videoCoverPoster: any
+  videoPreloadValue: any
+
+methods
+  beforeUnmountedComponent(): any
+  buildSourceSet(media: any): any
+  createdComponent(): any
+  ensureVideoCoverMedia(): Promise<any>
+  fetchSourceIfNecessary(): Promise<any>
+  getCurrentMediaId(): any
+  getDataUrlFromFile(): Promise<any>
+  getVideoCoverMediaId(mediaEntity: any): any
+  mountedComponent(): any
+  onMediaLibraryItemUpdated(mediaId: any): any
+  onPlayClick(originalDomEvent: any): any
+  reloadMediaElement(): any
+  removeUrlPreview(): any
+  showEvent(): any
+
 blocks
   sw_media_preview_v2
     sw_media_preview_v2_file_types  [after v-if]
@@ -24,4 +91,8 @@ blocks
 
 crossings
   v-if  sw_media_preview_v2_no_media -> sw_media_preview_v2_file_types
+
+refs
+  mediaElement  -> audio  block=sw_media_preview_v2_file_type_audio
+  mediaElement  -> video  block=sw_media_preview_v2_file_type_video
 ```

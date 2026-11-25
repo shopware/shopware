@@ -10,6 +10,64 @@ component sw-settings-currency-detail  public  js
   source src/module/sw-settings-currency/page/sw-settings-currency-detail/index.js
   template src/module/sw-settings-currency/page/sw-settings-currency-detail/sw-settings-currency-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  feature
+  repositoryFactory
+
+props
+  currencyId?: string  default=null
+
+data
+  currency: any
+  currencyCountryLoading: any
+  currencyCountryRoundings: any
+  currentCurrencyCountry: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  searchTerm: any
+
+computed
+  currencyCountryColumns: any
+  currencyCountryRoundingCriteria: any
+  currencyCountryRoundingRepository: any
+  currencyDecimalPrecisionError: any
+  currencyFactorError: any
+  currencyIsDefaultError: any
+  currencyIsoCodeError: any
+  currencyNameError: any
+  currencyRepository: any
+  currencyShortNameError: any
+  currencySymbolError: any
+  emptyStateText: any
+  identifier: any
+  showCustomFields: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): Promise<any>
+  invalidateCurrencyCaches(): any
+  loadCurrencyCountryRoundings(): Promise<any>
+  loadCustomFieldSets(): any
+  loadEntityData(): Promise<any>
+  onAddCountry(): any
+  onCancel(): any
+  onCancelEditCountry(): any
+  onChangeCountrySearch(value: any): any
+  onChangeLanguage(): any
+  onClickEdit(item: any): any
+  onSave(): Promise<any>
+  onSaveCurrencyCountry(): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+
 blocks
   sw_settings_currency_detail
     sw_settings_currency_detail_actions

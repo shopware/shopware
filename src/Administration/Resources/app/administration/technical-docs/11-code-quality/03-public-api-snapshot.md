@@ -10,8 +10,8 @@ The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-marke
 ## Snapshot
 
 The snapshot is committed in `public-api/`.
-It lists every component that core registers, with the blocks of the template it renders and their nesting.
-A pull request that adds, renames, moves or removes a block therefore shows that change in its diff.
+It lists every component that core registers, with the members its options object declares and the blocks of the template it renders.
+A pull request that adds, renames, moves or removes a block, a prop or a method therefore shows that change in its diff.
 
 Regenerate it after such a change and commit the result:
 
@@ -19,7 +19,7 @@ Regenerate it after such a change and commit the result:
 composer admin:generate-public-api
 ```
 
-`scripts/generate-public-api/committed-snapshot.spec.ts` fails while the committed files differ from the sources.
+`scripts/generate-public-api/snapshot/committed-snapshot.spec.ts` fails while the committed files differ from the sources.
 When a block of the committed snapshot is gone from the templates, it reports that as a breaking change and names the block.
 Regenerating the snapshot makes both tests pass, because they compare files and judge no change.
 The break check judges a change, see "Break check".
@@ -110,7 +110,7 @@ The runtime applies overrides with the same index in the order they are register
 Unlike an extend template, each top-level block of an override is applied on its own, so a later block can replace one that an earlier block kept or added.
 
 Some blocks of an extend or override template never render: the runtime drops a block that replaces nothing, without a warning.
-Such a block is in no report, and `scripts/generate-public-api/extend-chain.spec/runtime.spec.ts` fails when a template declares one.
+Such a block is in no report, and `scripts/generate-public-api/read/template/extend-chain.spec/runtime.spec.ts` fails when a template declares one.
 The same spec registers every template with the runtime factory and compares the blocks of each component with the snapshot, their origin included.
 
 ### Block structure
@@ -147,11 +147,99 @@ crossings
 
 The structure is read from the template a component renders, after the merge along its extend chain.
 An inherited block has the context of its place in the parent, and a block the child adds has the context of the place it renders in.
-`scripts/generate-public-api/block-structure.spec/compiler.spec.ts` asks the Vue compiler the same questions about every block of the Administration and compares the answers.
+`scripts/generate-public-api/read/template/block-structure.spec/compiler.spec.ts` asks the Vue compiler the same questions about every block of the Administration and compares the answers.
 
 The generator also keeps the conditions of the chain a block follows, whether the content of the block continues that chain, and where each variable comes from, for example `v-for products` or `slot sw-data-grid#actions`.
 The break check compares them, see "Break check".
 The files do not contain them, so an edit to a condition changes no file.
+
+### Members
+
+The report lists what a plugin reaches besides the blocks: the members of the options object, and the slots and template refs of the template.
+CSS classes are no public API, so the report does not list them.
+
+```text
+mixins
+  notification, listing
+
+inject
+  acl
+  factory from repositoryFactory
+
+props
+  entity: string
+  value?: string  default='medium'
+
+emits
+  update:value(...args: any[])
+
+slots
+  footer  { item }  block=sw_example_card_footer
+
+data
+  pagination: object
+    page: any
+
+computed
+  hasTitle: any
+
+methods
+  onDeleteItem(item: any, itemIndex?: any): any  [bc-change ParameterRemoval v6.8.0 itemIndex]
+  onSave(): Promise<any>  [deprecated tag:v6.8.0]
+
+refs
+  grid  -> sw-data-grid  block=sw_example_card_grid
+  rows  -> sw-data-grid-row  list  block=sw_example_card_grid
+
+notes
+  unresolved computed ...mapPageErrors(errorConfig)
+```
+
+| Section | A line holds |
+|---|---|
+| `mixins` | The registered mixins on one line, in the order the component applies them |
+| `inject` | The local name, and the injected key when it differs |
+| `provide` | The provided key |
+| `props` | The name with `?` for an optional prop, its type, and its default as the source writes it, or `default=factory` |
+| `emits` | The event with the parameters of its validator, `...args: any[]` for the array form |
+| `slots` | The name, the props the slot passes, and the block around it |
+| `data` | The key, and the keys of a nested object literal indented below it |
+| `computed` | The name and the type its getter declares |
+| `methods` | The signature. A parameter with a default is optional and shows its default, a destructured one is named `arg<position>`, and a method that returns a promise returns `Promise<any>` |
+| `refs` | The ref, the tag it sits on, with `list` for a ref inside a `v-for`, and the block around it |
+| `notes` | What the generator could not read, see below |
+
+The sections stand in this order, with `blocks` and `crossings` between `methods` and `refs`.
+
+- A component lists its own members.
+  The members of its mixins and of the component it extends are in their units.
+- Only the syntax is read, so code inside a method changes nothing.
+  A JavaScript member is `any`.
+  A TypeScript member keeps the text of its annotation, and a prop the type argument of `PropType<...>`.
+- The prop constructors map to `string`, `number`, `boolean`, `object`, `any[]` and `(...args: any[]) => any`.
+  Any other constructor, such as `Criteria`, keeps its name, and `null` in a list of constructors is `null`.
+  A list of constructors is printed in code point order, so reordering it changes nothing.
+- A method returns a promise when it is `async`, declares a `Promise` return type, or every `return` hands back a promise the source builds: a `.then()`, `.catch()` or `.finally()` chain, a `Promise.*()` call or `new Promise()`.
+  A plain call such as `this.repository.save()` may return a promise too, but only the type checker knows, so it does not count.
+- The options object is found behind `wrapComponentConfig`, `defineComponent` and a `const` of the same file.
+- `mapPropertyErrors`, `mapCollectionPropertyErrors`, `mapState`, `mapGetters`, `mapWritableState`, `mapActions` and `mapMutations` add the members they list as literals.
+  A method keeps its parameters when a helper such as `debounce` wraps the function.
+- Slots and refs are read from the template after the merge along the extend chain, so an extend child lists what its parent renders too.
+  A slot or a ref in two blocks has one line per block, because a plugin replaces it when it overrides that block.
+- A marker in the comment directly above a member follows its line: `[deprecated tag:vX]`, `[bc-change <Kind> vX]` with the parameter it names, and `[private]`.
+  The comment can be a JSDoc comment or a `//` line.
+  A block shows its markers the same way, behind its context.
+
+A note says that a section may miss members, with the start of the source the generator could not read:
+
+| Note | Meaning |
+|---|---|
+| `unresolved <section> <source>` | A spread, a computed key or a name that is no literal in that section |
+| `unresolved options <source>` | A spread into the options object, a `setup` function, or a source without an options object, such as a native component |
+| `dynamic-ref <expression>`, `dynamic-slot <expression>` | A bound `:ref` or a `<slot :name>` |
+
+`scripts/generate-public-api/read/options/option-members.spec/runtime.spec.ts` loads every component of the Administration and compares the names with the options object at runtime.
+A section with a note may hold fewer names than the runtime, every other section has to hold the same.
 
 ### Flag states
 
@@ -171,16 +259,20 @@ A break behind the major flag would be invisible in a single state.
 Everything without `@private` is public.
 A component is private when the comment directly above its `export default`, or directly above its registration, has an `@private` tag.
 A private component stays in the snapshot, and its report marks every line `[private]`.
+A key inside a `@private` data object is private too.
 
 ### Not covered yet
 
 - A core `Component.override` adds no entry of its own, and the report does not say which blocks come from one.
 - A component that keeps its blocks in a `.vue` file cannot be extended, and cannot be overridden with a Twig template.
-- The other parts of a component, such as props, methods and slots, are missing.
-- The report does not show the `@deprecated` and `@bc-change` markers of a block, although the break check reads them.
+- A native component declares its members in `<script setup>`, which is not read yet.
+  Its report has the note `unresolved options` instead.
+- A mixin has no unit of its own, so a member that a mixin loses is not reported.
+- The members of a core `Component.override` are missing.
+- The keys of `data()` have no types.
 - The `.d.ts` contracts are not generated yet.
   They arrive together with the entry points `current.d.ts` and `major.d.ts`, so they can be type-checked from the start.
-  Until then, the fixture view `block-contract` is on the expected-fail list.
+  Until then, the fixture views `block-contract` and `member-contract` are on the expected-fail list.
 
 The generator stops with an error when it cannot read something:
 
@@ -237,6 +329,7 @@ onDeleteItem(item, itemIndex) {
 | `BlockMoved` | A block moves under another parent block | `parent` |
 | `ScopeVariableRemoval` | A block loses a template variable from a `v-for` or a slot | `variable` |
 | `PropBecomesRequired` | An optional prop becomes required | none |
+| `PropDefaultValueChange` | The default value of a prop changes | `default` |
 | `EmitPayloadChange` | The payload of an event changes | none |
 | `RouteParentChange` | A route moves under another parent route, or to the top level | `parent` |
 | `RegistryGroupChange` | A registry entry, for example a rule condition, moves to another group | `group` |
@@ -245,8 +338,8 @@ The first five kinds have the names of the PHP attributes in `src/Core/Framework
 Their keys are shorter than the PHP arguments, for example `parameter` for `parameterName` and `type` for `newType`.
 `BecomesPrivate` is what PHP calls `BecomesInternal`.
 The other kinds exist only in the Administration.
-The break check uses `BlockMoved` and `ScopeVariableRemoval` so far.
-The other kinds can still change until it uses them.
+The break check does not use `EmitPayloadChange`, `RouteParentChange` and `RegistryGroupChange` yet.
+They can still change until it uses them.
 
 `eslint-rules/deprecation-rules/utils/api-markers.ts` holds the grammar and the kinds.
 The ESLint rule `sw-deprecation-rules/valid-api-markers` uses it and reports, in `.js`, `.ts`, `.vue` and `.html.twig` files:
@@ -280,7 +373,7 @@ The generator rejects those for the committed snapshot, and the check leaves the
 
 ### Rules for blocks
 
-`block-rules.ts` holds one rule per kind of change.
+`break-check/rules/block-rules.ts` holds one rule per kind of change.
 A rule compares the blocks of one component in one flag state, and its text says what an override of the block notices.
 
 | Rule | Group | Reported when | An override notices |
@@ -310,6 +403,56 @@ A rule compares the blocks of one component in one flag state, and its text says
 - Only components that both commits register are compared, in the flag states both register them in.
   A component that comes or goes is not reported yet, and neither is a component that becomes `@private`.
 
+### Rules for members
+
+`break-check/rules/member-rules.ts` builds one rule per kind of member for a member that is gone and one for a new member, from the table of kinds in `model/members.ts`.
+The rules below those are about what only one kind has.
+
+| Rule | Group | Reported when | A plugin notices |
+|---|---|---|---|
+| `<kind>_missing` | Break | A mixin, injection, provided value, prop, event, slot, data key, computed property, method or template ref is gone | Its override reads `undefined`, or `$super` throws |
+| `<kind>_added` | Addition | A new member, except a ref | Nothing, plugins can rely on it from now on |
+| `prop_now_required` | Break | An optional prop became required | Templates that do not pass it fail prop validation |
+| `param_missing` | Break | A method lost a parameter | Overrides that read the parameter get `undefined`, and the parameters behind it receive the wrong values |
+| `param_now_required` | Break | A new parameter without a default behind the existing ones, or a parameter that lost its default | Calls with the old arguments leave it `undefined` |
+| `param_added` | Addition | A new optional or rest parameter behind the existing ones | `$super` calls with explicit arguments do not pass it on |
+| `method_signature_changed` | Break | A method starts or stops returning a promise, its parameters changed their order, or a new parameter stands in front of an existing one | The return value is a Promise, or values arrive in the wrong place |
+| `method_param_renamed` | Info | A parameter has another name at the same position | Nothing |
+| `ref_target_changed` | Break | A ref sits on another tag, or moved into or out of a `v-for` | Methods it calls on the ref are gone |
+| `type_changed` | Break | The declared type of a prop changed | Values it passes may no longer fit |
+| `return_type_changed` | Break | The declared type of a computed property or the return type of a method changed | Code that uses the value may no longer fit |
+| `type_widened` | Info | An untyped member got a type, a typed one lost it, or a prop got a `PropType` on the constructors it had | Nothing |
+| `prop_default_changed` | Break | An optional prop lost its default, or its default value changed | Templates that do not pass it get `undefined` or another value |
+| `param_default_changed` | Break | An optional parameter lost its default, or its default value changed | Calls that do not pass it get `undefined` or another value |
+| `visibility_became_private` | Break | A member of the options object became `@private` | Its code may change in any release |
+| `deprecation_added`, `bc_change_added` | Info | A member got a new marker | Nothing yet, the upgrade notes should name it |
+
+- Parameters are matched by name, and a destructured one by its pattern, because a caller passes them by position.
+  A finding names a destructured parameter by its pattern too, for example `method:load/param:{id}`, which a marker writes as `parameter:{id}`.
+  A parameter that keeps its name but stands at another position receives the value meant for another one.
+  A parameter with a new name at the same position is a rename, and calls pass it the same value.
+  A method that is no function in the source, such as an imported one, has no parameters to compare.
+- `type_changed` and `return_type_changed` compare the text of the declaration.
+  Whether another type still fits needs the type checker, so every other text fails the check until a reviewer has checked it.
+  A method with two declared return types is compared by `return_type_changed` only, also when one of them is a `Promise`.
+- A `PropType` on the constructors a prop had is `type_widened`, because Vue checks a value against the same constructors as before.
+  Another constructor or another `PropType` is `type_changed`.
+- The defaults compare the text of the value, also when it names a `const` of the same file.
+  A factory has no value to compare, so only a factory that goes away is reported.
+- A nested data key follows its object.
+  An object that comes or goes is reported once, without its keys, and a key that goes away is announced by a marker on an object around it too.
+- An extend child is compared with the members it inherits along its extend chain.
+  An override that the child drops is no change, and a member that the parent loses is reported once, on the parent.
+  A method that only returns `this.$super()` of itself also returns a promise when the method it overrides does.
+  A data key of the child replaces the whole object it inherits under that key.
+- A removed member with exactly one new member of the same kind that differs in the name only gets a `Possible rename`.
+- A removed member has no line in the head commit.
+  The finding points to the option that held it, and for a slot or a ref to the closest block around it that is left.
+- The id of a member is `<kind>:<name>`, with the kinds `mixin`, `inject`, `provide`, `prop`, `emit`, `slot`, `data`, `computed`, `method` and `ref`.
+  A nested data key is named by its path, `data:pagination.limit`, and a parameter below its method, `method:onDeleteItem/param:itemIndex`.
+- The arguments of an event and the props of a slot are not compared yet.
+- The break check does not validate markers yet: a `@bc-change` that names a parameter the method does not have is reported as `bc_change_added`.
+
 ### Groups
 
 The rule of a finding names the change, and its group says what the change counts as.
@@ -318,17 +461,25 @@ The rule of a finding names the change, and its group says what the change count
 |---|---|
 | `Break` | An unannounced break. Only this group fails the check |
 | `Addition` | New public API |
-| `Allowed` | A change that a marker on the block announced |
-| `Private` | A change to a component that is `@private` in the base commit |
+| `Allowed` | A change that a marker on the block or the member announced |
+| `Private` | A change to a component that is `@private` in the base commit, or to a `@private` member of a public component |
 | `Info` | A change that a reviewer may want to look at |
 
-A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag:
+A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag, or in the comment directly above the member:
 
 | Marker | Announces | Rule of the finding |
 |---|---|---|
-| `@deprecated tag:vX.Y.Z` | `block_missing` | `deprecated_removal` |
+| `@deprecated tag:vX.Y.Z` | `block_missing`, `<kind>_missing` | `deprecated_removal` |
+| `@deprecated tag:vX.Y.Z` on a block, for the blocks inside it and for a slot or a ref inside it in every place | `block_missing`, `slot_missing`, `ref_missing` | `deprecated_removal` |
 | `@bc-change BlockMoved` with the new `parent` | `block_moved_parent` | `announced_change` |
 | `@bc-change ScopeVariableRemoval` with the `variable` | `block_scope_missing` | `announced_change` |
+| `@bc-change ParameterRemoval` with the `parameter`, on the method | `param_missing` | `announced_change` |
+| `@bc-change NewRequiredParameter` with the `parameter`, on the method | `param_now_required` | `announced_change` |
+| `@bc-change PropBecomesRequired`, on the prop | `prop_now_required` | `announced_change` |
+| `@bc-change PropDefaultValueChange` with the new `default` without spaces, `undefined` for a removed one, on the prop | `prop_default_changed` | `announced_change` |
+| `@bc-change ParameterDefaultValueChange` with the `parameter` and the new `default`, on the method | `param_default_changed` | `announced_change` |
+| `@bc-change BecomesPrivate`, on the member | `visibility_became_private` | `announced_change` |
+| `@bc-change ReturnTypeNarrowing` or `ReturnTypeWidening` with the new `type` without spaces, on the method or computed property | `return_type_changed` | `announced_change` |
 
 The marker counts from the version it names on.
 A change that happens in the major state only counts as announced when the marker names that major, also when the marker comes with the same pull request.
@@ -344,7 +495,7 @@ An accepted break, which a file in the repository would allow, does not exist ye
 
 ### Summary
 
-`classifyChanges` in `break-check.ts` returns the findings as data, and `formatFindings` in `findings.ts` prints them as the summary of the break check.
+`classifyChanges` in `break-check/break-check.ts` returns the findings as data, and `printFindings` in `break-check/print-findings.ts` prints them as the summary of the break check.
 A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename, the extend children it also affects and the location in the head commit.
 
 ```text
@@ -369,7 +520,7 @@ The kind of the element below the owner, `block` in this example, decides which 
 
 ## Fixtures
 
-Each folder in `scripts/generate-public-api/__fixtures__/` is one case: a small source tree before and after a change, and the output expected for it.
+Each folder in `scripts/generate-public-api/testing/__fixtures__/` is one case: a small source tree before and after a change, and the output expected for it.
 
 | Path | Content |
 |---|---|
@@ -384,7 +535,7 @@ The script part of a component stays empty unless the case covers it, even where
 This keeps the expected snapshot of a case free of unit kinds that are designed later.
 
 The `expected/` folders are written by hand and are the specification the generator is built against.
-`fixtures.spec.ts` checks that `formatFindings` prints `findings.json` as `findings.txt`, so the two files cannot drift apart.
+`testing/fixtures.spec.ts` checks that `printFindings` prints `findings.json` as `findings.txt`, so the two files cannot drift apart.
 The expected snapshots hold whole files with every unit kind, while the generator covers one kind at a time.
 `fixtures.spec.ts` therefore compares each case several times:
 
@@ -404,7 +555,18 @@ The blocks have four unit kinds, because they are built in four steps:
 The other markers of a block line, such as `[after v-if]` and `[scope: item]`, belong to `block-structure`, and the other facets of `Block<>` to `block-contract`.
 The comparison moves them out of the block tree into a section `block-context` and a member `blockContext`, which exist only in the comparison.
 
-`expected-failures.ts` lists what cannot pass yet, in two lists:
+The members have three unit kinds:
+
+| Unit kind | Compares |
+|---|---|
+| `component-members` | The sections `inject`, `props`, `emits`, `slots`, `data`, `computed`, `methods` and `refs` in the reports |
+| `member-contract` | The members of a component besides its blocks in the `.d.ts` contracts |
+| `member-findings` | The findings on props, computed properties, methods and refs |
+
+A unit kind can only list a part that some case expects.
+No case has mixins, provided values or notes, so `read/options/option-members.spec/snapshot.spec.ts` covers those sections.
+
+`testing/expected-failures.ts` lists what cannot pass yet, in two lists:
 
 - `views` names a unit kind, or `complete`, that no case passes yet.
 - `comparisons` names single comparisons such as `block-moved/block-findings`, for a view that other cases pass already.
@@ -415,10 +577,10 @@ So is a section, member, key or element kind of a unit kind that occurs in no ex
 
 To build the next part:
 
-1. Add its fixture cases, and its unit kind to `UNIT_KINDS` in `fixture-runner.ts` when it is a new one.
-   A new unit kind goes into `views` of `expected-failures.ts`.
-2. Implement it behind `generateSnapshot` in `snapshot.ts` and `classifyChanges` in `break-check.ts`.
-   The generator reads the sources into the model of `model.ts`, and the printers turn the model into files, so a new part adds to the model and to each printer.
+1. Add its fixture cases, and its unit kind to `UNIT_KINDS` in `testing/fixture-runner.ts` when it is a new one.
+   A new unit kind goes into `views` of `testing/expected-failures.ts`.
+2. Implement it behind `generateSnapshot` in `snapshot/snapshot.ts` and `classifyChanges` in `break-check/break-check.ts`.
+   `read/build-model.ts` reads the sources into the model of `model/model.ts`, and the printers turn the model into files, so a new part adds to the model and to each printer.
 3. Once some cases pass the kind, remove it from `views` and list the cases that still fail in `comparisons`.
    The part is done when its entries are gone.
 4. Run `composer admin:generate-public-api` and commit the changed files in `public-api/`.

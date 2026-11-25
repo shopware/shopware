@@ -11,6 +11,12 @@ component sw-price-rule-modal  public  js
   source src/module/sw-settings-shipping/component/sw-price-rule-modal/index.js
   template src/module/sw-settings-shipping/component/sw-price-rule-modal/sw-price-rule-modal.html.twig
 
+computed
+  modalTitle: any
+
+methods
+  createdComponent(): any
+
 blocks
   sw_rule_modal  [inherited]
     sw_rule_modal_basic_info  [inherited]

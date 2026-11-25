@@ -10,8 +10,42 @@ component sw-order-select-document-type-modal  public  js
   source src/module/sw-order/component/sw-order-select-document-type-modal/index.js
   template src/module/sw-order/component/sw-order-select-document-type-modal/sw-order-select-document-type-modal.html.twig
 
+inject
+  repositoryFactory
+
+props
+  order: object
+  value?: object  default=null
+
+emits
+  modal-close(...args: any[])
+  update:value(...args: any[])
+
+data
+  documentType: any
+  documentTypeCollection: any
+  documentTypes: any
+  invoiceExists: any
+  isLoading: any
+  showZugferd: any
+
+computed
+  creditItems: any
+  documentCriteria: any
+  documentRepository: any
+  documentTypeCriteria: any
+  documentTypeRepository: any
+  filteredDocumentTypes: any
+
+methods
+  addHelpTextToOption(option: any, documentType: any): any
+  createdComponent(): any
+  documentTypeAvailable(documentType: any): any
+  onChangeShowZugferd(): any
+  onRadioFieldChange(): any
+
 blocks
-  sw_order_select_document_type_modal
+  sw_order_select_document_type_modal  [deprecated tag:v6.9.0]
     sw_order_select_document_type_modal_document_types
     sw_order_select_document_type_modal_footer_action_cancel
     sw_order_select_document_type_modal_footer_action_create

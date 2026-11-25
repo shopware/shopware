@@ -12,6 +12,12 @@ component sw-extension-rating-modal  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal/sw-extension-rating-modal.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  modal-close(...args: any[])  [private]
+
+methods
+  emitClose(): any  [private]
+
 blocks
   sw_extension_review_creation  [replaced] [private]
     sw_extension_rating_modal_slot_default  [private]

@@ -132,6 +132,24 @@ The format comes from the new snippet `general.pagination.metaPageSuffix`, set i
 The notice SVGs are now `aria-hidden`, and the notice link is described by the notice's text, visually hidden and rendered by the new Twig filter `sw_legal_guarantee_notice_text`.
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
+## Administration
+
+### Modules can claim media default folders
+
+A module manifest can now list additional `media_default_folder.entity` values in `mediaDefaultFolderEntities`.
+The media manager shows those default folders with the module's icon and color.
+A folder whose entity equals the module's `entity` still matches without being listed.
+
+```js
+Shopware.Module.register('swag-example', {
+    entity: 'swag_example',
+    mediaDefaultFolderEntities: ['swag_example_attachment'],
+    // ...
+});
+```
+
+The Product module now claims the `product_document` and `product_download` folders.
+If two modules claim the same folder, the first registered module wins and a warning is logged.
 
 # 6.7.17.0
 

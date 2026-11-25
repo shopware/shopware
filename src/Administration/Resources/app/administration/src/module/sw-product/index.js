@@ -170,6 +170,10 @@ Module.register('sw-product', {
     icon: 'regular-products',
     favicon: 'icon-module-products.svg',
     entity: 'product',
+    mediaDefaultFolderEntities: [
+        'product_document',
+        'product_download',
+    ],
 
     routes: {
         index: {

@@ -308,6 +308,102 @@ describe('core/factory/module.factory.js', () => {
         expect(typeof module).toBe('undefined');
     });
 
+    describe('getModuleByMediaDefaultFolderEntity', () => {
+        const routes = {
+            index: {
+                path: 'index',
+                component: 'sw-foo-bar-index',
+            },
+        };
+
+        function getModuleByMediaDefaultFolderEntity(entity) {
+            return Application.getContainer('factory').module.getModuleByMediaDefaultFolderEntity(entity);
+        }
+
+        it('should return the module that declares the media default folder entity', () => {
+            const registeredModule = register('sw-foo', {
+                entity: 'foo',
+                mediaDefaultFolderEntities: ['foo_document'],
+                routes,
+            });
+
+            expect(getModuleByMediaDefaultFolderEntity('foo_document')).toEqual(registeredModule);
+        });
+
+        it('should fall back to the module with the same entity name', () => {
+            const registeredModule = register('sw-foo', {
+                entity: 'foo',
+                routes,
+            });
+
+            expect(getModuleByMediaDefaultFolderEntity('foo')).toEqual(registeredModule);
+        });
+
+        it('should prefer a declaring module over a module with the same entity name', () => {
+            register('sw-bar', {
+                entity: 'bar',
+                routes,
+            });
+            const declaringModule = register('sw-foo', {
+                entity: 'foo',
+                mediaDefaultFolderEntities: ['bar'],
+                routes,
+            });
+
+            expect(getModuleByMediaDefaultFolderEntity('bar')).toEqual(declaringModule);
+        });
+
+        it('should return undefined when no module owns the media default folder entity', () => {
+            register('sw-foo', {
+                entity: 'foo',
+                mediaDefaultFolderEntities: ['foo_document'],
+                routes,
+            });
+
+            expect(getModuleByMediaDefaultFolderEntity('unknown')).toBeUndefined();
+        });
+
+        it('should keep the first module and warn when a media default folder entity is claimed twice', () => {
+            const spy = jest.fn();
+            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
+            const firstModule = register('sw-foo', {
+                entity: 'foo',
+                mediaDefaultFolderEntities: ['shared_folder'],
+                routes,
+            });
+            register('sw-bar', {
+                entity: 'bar',
+                mediaDefaultFolderEntities: ['shared_folder'],
+                routes,
+            });
+
+            expect(getModuleByMediaDefaultFolderEntity('shared_folder')).toEqual(firstModule);
+            expect(spy).toHaveBeenCalledWith(
+                '[ModuleFactory]',
+                expect.stringContaining('"shared_folder" is already claimed by module "sw-foo"'),
+            );
+        });
+
+        it('should warn and ignore mediaDefaultFolderEntities when it is not an array', () => {
+            const spy = jest.fn();
+            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
+            register('sw-foo', {
+                entity: 'foo',
+                mediaDefaultFolderEntities: 'foo_document',
+                routes,
+            });
+
+            expect(getModuleByMediaDefaultFolderEntity('foo_document')).toBeUndefined();
+            expect(spy).toHaveBeenCalledWith(
+                '[ModuleFactory]',
+                expect.stringContaining('"mediaDefaultFolderEntities" has to be an array'),
+                'foo_document',
+            );
+        });
+    });
+
     // @deprecated tag:v6.8.0 - The test will be removed with the module `snippets` property.
     it.deprecated('v6.8.0.0')('warns that the snippets property is deprecated', () => {
         const spy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});

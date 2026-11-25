@@ -119,11 +119,7 @@ export default {
                 return;
             }
 
-            const module =
-                this.moduleFactory.getModuleByEntityName(defaultFolder.entity) ??
-                (defaultFolder.entity === 'product_document'
-                    ? this.moduleFactory.getModuleByEntityName('product')
-                    : undefined);
+            const module = this.moduleFactory.getModuleByMediaDefaultFolderEntity(defaultFolder.entity);
 
             if (!module) {
                 warn('Missing module for default folder entity', defaultFolder.entity);

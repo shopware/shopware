@@ -18,6 +18,7 @@ export default {
     registerModule,
     getModuleRegistry,
     getModuleByEntityName,
+    getModuleByMediaDefaultFolderEntity,
     getModuleSnippets,
     getModuleByKey,
 };
@@ -105,6 +106,12 @@ export interface ModuleManifest {
     };
     entity?: string;
     entityDisplayProperty?: string;
+    /**
+     * Additional `media_default_folder.entity` values whose folders belong to this module.
+     * Folders listed here use the module's icon and color in the media manager.
+     * A folder whose entity equals the module's `entity` does not need to be listed.
+     */
+    mediaDefaultFolderEntities?: string[];
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Snippets are loaded from the `snippet` folders by the initial snippets request.
      */
@@ -284,6 +291,28 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             module.routes,
         );
         return false;
+    }
+
+    if (module.mediaDefaultFolderEntities !== undefined) {
+        if (!types.isArray(module.mediaDefaultFolderEntities)) {
+            warn(
+                'ModuleFactory',
+                `Module "${moduleId}": "mediaDefaultFolderEntities" has to be an array of entity names.`,
+                module.mediaDefaultFolderEntities,
+            );
+            delete module.mediaDefaultFolderEntities;
+        } else {
+            module.mediaDefaultFolderEntities.forEach((entity) => {
+                const ownerId = findMediaDefaultFolderOwnerId(entity);
+
+                if (ownerId) {
+                    warn(
+                        'ModuleFactory',
+                        `Module "${moduleId}": the media default folder entity "${entity}" is already claimed by module "${ownerId}". The first registered module wins.`,
+                    );
+                }
+            });
+        }
     }
 
     const moduleDefinition: ModuleDefinition = {
@@ -476,6 +505,26 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
     return Array.from(modules.values()).find((value) => {
         return entityName === value.manifest.entity;
     });
+}
+
+/**
+ * Returns the module that owns the media default folder with the given entity.
+ * A module declared in `mediaDefaultFolderEntities` wins over a module whose `entity` matches.
+ */
+function getModuleByMediaDefaultFolderEntity(folderEntity: string): ModuleDefinition | undefined {
+    const ownerId = findMediaDefaultFolderOwnerId(folderEntity);
+
+    if (ownerId) {
+        return modules.get(ownerId);
+    }
+
+    return getModuleByEntityName(folderEntity);
+}
+
+function findMediaDefaultFolderOwnerId(folderEntity: string): string | undefined {
+    return Array.from(modules.entries()).find(([, { manifest }]) => {
+        return manifest.mediaDefaultFolderEntities?.includes(folderEntity);
+    })?.[0];
 }
 
 /**

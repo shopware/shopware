@@ -1,5 +1,14 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### `TestBootstrapper` no longer reinstalls the test database after unrelated errors
+
+`TestBootstrapper::bootstrap()` installs the test database only when the database or its `plugin` table does not exist.
+Before, any error during this check, for example a missing environment variable, was treated as a missing database, and the existing test database was dropped and installed again.
+Such errors are now thrown with the original exception as the previous exception.
+When an active plugin cannot be found, the `Could not find plugin` exception also contains the error of the failed kernel plugin lookup.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

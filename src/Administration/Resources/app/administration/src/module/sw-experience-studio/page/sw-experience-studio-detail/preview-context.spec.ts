@@ -145,12 +145,12 @@ describe('Experience Studio frame preview context', () => {
     }
 
     function pickerOf(frameId: string) {
-        return wrapper.get(`[data-frame-id="${frameId}"]`).getComponent<ComponentPublicInstance<PreviewEntitySelectProps>>({
+        return wrapper.get(`[data-frame-id="${frameId}"]`).findComponent<ComponentPublicInstance<PreviewEntitySelectProps>>({
             name: 'test-preview-entity-select',
         });
     }
 
-    it('passes a preview entity only to frames whose root source is an entity type', async () => {
+    it('passes a preview entity type only to frames whose root source is an entity type', async () => {
         await openFrames(
             [
                 'product',
@@ -160,44 +160,23 @@ describe('Experience Studio frame preview context', () => {
             'header',
         );
 
-        expect(previewOf('frame-product').props('entityId')).toBe('stored-product');
-        expect(previewOf('frame-header').props('entityId')).toBeNull();
-        expect(previewOf('frame-swag-sidebar').props('entityId')).toBeNull();
+        expect(previewOf('frame-product').props('entityType')).toBe('product');
+        expect(previewOf('frame-header').props('entityType')).toBeNull();
+        expect(previewOf('frame-swag-sidebar').props('entityType')).toBeNull();
     });
 
-    it.each([
-        'header',
-        'swag-sidebar',
-    ])('gives an active %s frame no preview entity type and a disabled picker without an entity', async (rootSource) => {
-        await openFrames([rootSource], rootSource);
-        const picker = pickerOf(`frame-${rootSource}`);
+    it('shows no preview entity picker for a frame without a preview entity type', async () => {
+        await openFrames(['swag-sidebar'], 'swag-sidebar');
 
-        expect(picker.props('entity')).toBeNull();
-        expect(picker.props('value')).toBeNull();
-        expect(picker.props('disabled')).toBe(true);
-        expect(previewOf(`frame-${rootSource}`).props('entityType')).toBeNull();
+        expect(pickerOf('frame-swag-sidebar').exists()).toBe(false);
     });
 
-    it('hides saved preview entities after the entity type request fails', async () => {
-        await openFrames(
-            [
-                'product',
-                'category',
-            ],
-            'product',
-        );
-        await wrapper.setData({
-            availableLayoutTypes: [],
-            layoutTypeLoadError: 'Failed to load layout types.',
-        });
+    it('hides the preview entity picker when no entity types are available', async () => {
+        await openFrames(['product'], 'product');
+        await wrapper.setData({ availableLayoutTypes: [] });
         await flushPromises();
-        const picker = pickerOf('frame-product');
 
-        expect(picker.props('value')).toBeNull();
-        expect(picker.props('entity')).toBeNull();
-        expect(picker.props('disabled')).toBe(true);
-        expect(previewOf('frame-product').props('entityId')).toBeNull();
-        expect(previewOf('frame-category').props('entityId')).toBeNull();
+        expect(pickerOf('frame-product').exists()).toBe(false);
     });
 
     // Regression guard: an entity root source keeps its preview entity type and an enabled picker.

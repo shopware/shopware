@@ -429,7 +429,6 @@ export default Shopware.Component.wrapComponentConfig({
                 const isActive = frame.id === this.activeFrameId;
                 const languageId = frame.languageId ?? anchorLanguageId();
                 const languageLabel = this.previewLanguageContext?.languageNames[languageId] ?? '';
-                const previewEntityId = isActive ? this.previewEntityId : frame.previewEntityId;
                 return [
                     {
                         id: frame.id,
@@ -439,7 +438,7 @@ export default Shopware.Component.wrapComponentConfig({
                         layout: document.layout,
                         selectedElementId: isActive ? this.selectedElementId : frame.selectedElementId,
                         viewport: isActive ? this.currentViewport : frame.viewport,
-                        previewEntityId: this.resolvePreviewContext(document.layout) ? previewEntityId : null,
+                        previewEntityId: isActive ? this.previewEntityId : frame.previewEntityId,
                         languageId,
                         isActive,
                     },

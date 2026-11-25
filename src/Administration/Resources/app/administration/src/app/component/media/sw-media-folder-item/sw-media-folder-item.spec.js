@@ -38,6 +38,7 @@ Array.from(modulesToCreate.keys()).forEach((moduleName) => {
 
 const ID_MAILTEMPLATE_FOLDER = '4006d6aa64ce409692ac2b952fa56ade';
 const ID_PRODUCTS_FOLDER = '0e6b005ca7a1440b8e87ac3d45ed5c9f';
+const ID_PRODUCT_DOCUMENTS_FOLDER = 'e026b4f162b84397a44a973563843d46';
 const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
 
 async function createWrapper(defaultFolderId, privileges = []) {
@@ -52,6 +53,11 @@ async function createWrapper(defaultFolderId, privileges = []) {
             }),
         get: (folderId) => {
             switch (folderId) {
+                case ID_PRODUCT_DOCUMENTS_FOLDER:
+                    return {
+                        entity: 'product_document',
+                        isNew: () => false,
+                    };
                 case ID_PRODUCTS_FOLDER:
                     return {
                         entity: 'product',
@@ -203,6 +209,16 @@ describe('components/media/sw-media-folder-item', () => {
 
         expect(wrapper.findComponent('svg.sw-media-folder-thumbnail').props('color')).toBe('#57D9A3');
         expect(wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner').props('color')).toBe('#57D9A3');
+    });
+
+    it('should use the product module icon and color for the product document folder', async () => {
+        useModuleIconColors().enabled.value = true;
+        const wrapper = await createWrapper(ID_PRODUCT_DOCUMENTS_FOLDER);
+        await flushPromises();
+
+        const innerIcon = wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner');
+        expect(innerIcon.props('name')).toBe('regular-products');
+        expect(innerIcon.props('color')).toBe('#57D9A3');
     });
 
     it('should keep the folder neutral for a module without a color when module colors are enabled', async () => {

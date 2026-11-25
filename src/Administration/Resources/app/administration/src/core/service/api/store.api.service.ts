@@ -90,4 +90,4 @@ export default class StoreApiService extends ApiService {
  * @private
  * @sw-package framework
  */
-export type { StoreApiService, UserInfo };
+export type { UserInfo };

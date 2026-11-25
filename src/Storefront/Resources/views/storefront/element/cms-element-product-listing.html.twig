@@ -17,7 +17,7 @@
         {% set dataUrl = path('frontend.cms.navigation.page', { navigationId: searchResult.currentFilters.navigationId }) %}
     {% endif %}
 
-    {% set sidebar = sectionType == 'sidebar' %}
+    {% set sidebar = (section.type ?? null) == 'sidebar' %}
     {% set params = { slots: slot.id, 'no-aggregations': 1 } %}
 
     {# only a category page lists the products of a category, a landing page is identified by its shopping experience element #}

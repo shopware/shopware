@@ -39,6 +39,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\Subscriber\OrderCustomerDisplayNameSubscriber;
+use Shopware\Core\Checkout\Order\Subscriber\OrderDeliveryPositionSubscriber;
 use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
 use Shopware\Core\Checkout\Order\Subscriber\OrderTransactionVersionMergeSubscriber;
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
@@ -246,6 +247,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(OrderCustomerDisplayNameSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderDeliveryPositionSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(OrderTransactionVersionMergeSubscriber::class)

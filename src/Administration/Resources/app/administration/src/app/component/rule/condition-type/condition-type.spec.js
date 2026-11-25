@@ -9,6 +9,7 @@ import ConditionDataProviderService from 'src/app/service/rule-condition.service
 import fs from 'fs';
 import path from 'path';
 import ruleConditionsConfig from './_mocks/ruleConditionsConfig.json';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';
 const conditionTypes = fs.readdirSync(path.join(adminPath, conditionTypesRootPath)).filter((conditionType) => {
@@ -156,6 +157,8 @@ describe('src/app/component/rule/condition-type/*.js', () => {
     });
 
     beforeEach(() => {
+        allowDeprecation('The component "sw-condition-line-item-in-category" is deprecated');
+        allowDeprecation('The component "sw-condition-line-item-purchase-price" is deprecated');
         Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 

@@ -29,7 +29,11 @@ New code has to pass without adding to it.
   A category that is new to the baseline only passes together with a change to `.fallowrc.json`.
 
 The baseline is not a list of code that is safe to delete.
-`@private` keeps its meaning, so every export without it is public API, and removing one follows the deprecation process.
+Every export without `@private` is potentially public API, with or without `@public`.
+Removing one follows the deprecation process.
+`@public` only tells Fallow that extensions use an export.
+An export with `@private` is only used by the Administration itself, so when Fallow reports it, it is dead code:
+remove the export, or only the `export` keyword when the file still uses the code.
 
 ## Exports that extensions import
 
@@ -40,7 +44,7 @@ Tag an export with `@public` so Fallow skips it:
   every export that Fallow reports gets `@public`.
 - In other files, only exports that extensions import from `src/` get it.
 - An export with `@private` never gets `@public`.
-  If Fallow reports it, it stays in the baseline.
+  If Fallow reports it, remove it instead of adding it to the baseline.
 
 ```ts
 /**

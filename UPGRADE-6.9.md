@@ -129,6 +129,13 @@ The legacy document services and components in the Administration were removed:
 
 # Storefront
 
+## Refactor of providing cookies
+
+The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
+Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
+The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
+Use `name` and `description` instead.
+
 ## Removed `seo:repair:link-category-takeover` command
 
 The `seo:repair:link-category-takeover` command has been removed.

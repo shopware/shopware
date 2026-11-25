@@ -37,7 +37,6 @@ class NavigationPageSeoUrlRouteTest extends TestCase
         $navigationPageSeoUrlRoute->prepareCriteria($criteria, $salesChannel);
 
         $filters = $criteria->getFilters();
-        /** @var MultiFilter $multiFilter */
         $multiFilter = $filters[0];
         static::assertInstanceOf(MultiFilter::class, $multiFilter);
         static::assertSame('AND', $multiFilter->getOperator());

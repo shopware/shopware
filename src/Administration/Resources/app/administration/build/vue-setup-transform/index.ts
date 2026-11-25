@@ -53,8 +53,15 @@ function withAuthorLocation(error: unknown, source: string, filename: string, bl
 
 /**
  * Converts a Shopware setup SFC into plain Vue-compatible code before Vue compiles it.
+ *
+ * `hotUpdates` is for output the dev server hot updates: each edit evaluates the module again, while
+ * components set up by the previous version stay mounted until the new one sets them up again.
  */
-function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): ShopwareSetupTransformResult | null {
+function transformShopwareSetupSfc(
+    source: string,
+    filename = 'anonymous.vue',
+    { hotUpdates = false }: { hotUpdates?: boolean } = {},
+): ShopwareSetupTransformResult | null {
     let block: ShopwareSetupBlock | null = null;
 
     try {
@@ -72,7 +79,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         const templateAnalysis =
             analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, analysis);
 
-        const edits = lowerShopwareSetupBlock(block, analysis, templateAnalysis);
+        const edits = lowerShopwareSetupBlock(block, analysis, templateAnalysis, { filename, hotUpdates });
         const transformed = applySourceEdits(source, filename, edits);
 
         return {

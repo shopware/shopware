@@ -21,13 +21,17 @@ the checklist for adding a new skill), see
 │   ├── sw-nightly.md        # gh aw SOURCE (edit this)
 │   ├── sw-nightly.lock.yml  # compiled — `gh aw compile` regenerates it
 │   ├── sw-review.md         # gh aw SOURCE (edit this)
-│   └── sw-review.lock.yml   # compiled — `gh aw compile` regenerates it
+│   ├── sw-review.lock.yml   # compiled — `gh aw compile` regenerates it
+│   ├── sw-docs-impact.md    # gh aw SOURCE (edit this)
+│   ├── sw-docs-impact.lock.yml # compiled — `gh aw compile` regenerates it
+│   └── sw-docs-impact-dispatch.yml # plain workflow: one sw-docs-impact run per merged PR of a trunk push
 └── aw/
     ├── README.md            # this file
     ├── sw-bugfixer-policy.md   # gh-aw-mode policy, runtime-imported by the workflow
     ├── sw-triage-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
     ├── sw-nightly-policy.md    # gh-aw-mode policy, runtime-imported by the workflow
     ├── sw-review-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
+    ├── sw-docs-impact-policy.md # gh-aw-mode policy, runtime-imported by the workflow
     ├── shared/
     │   ├── sw-bugfixer-policy.md # shared rubric, runtime-imported by the gh-aw fragment
     │   ├── sw-triage-policy.md   # AND referenced by the interactive skill (single source)
@@ -45,6 +49,7 @@ the checklist for adding a new skill), see
 | `sw-triage` | `workflow_dispatch` (input: `issue_number`), `/sw-triage` issue comment, `qi/sw-triage` issue label | `claude` / Sonnet tier | `triage-output.json` via `upload-artifact` |
 | `sw-nightly` | `workflow_dispatch` (input: `issue_number`), `/sw-nightly` issue comment, `qi/sw-nightly` issue label | `claude` / Sonnet tier | `nightly-triage-output.json` via `upload-artifact` |
 | `sw-review` | `qi/sw-review` label on same-repository PRs, `/sw-review` conversation comment by a member on any PR (the only trigger that works for fork PRs), `workflow_dispatch` (input: `pr_number`) | `claude` / Sonnet tier (security & architecture personas → Opus tier) | inline findings via `create-pull-request-review-comment` + summary via `submit-pull-request-review` |
+| `sw-docs-impact` | `workflow_dispatch` (inputs: `pr_number`, `dry_run` — on by default, writes the comment to the run summary instead of posting it). On a push to `trunk`, the plain workflow `sw-docs-impact-dispatch.yml` starts one run per merged pull request in the push (paths-ignore skips test/tooling/config-only pushes; commits typed `test`, `ci`, `chore`, `docs` or `refactor` are skipped; at most 20 per push), with `dry_run` on until the repository variable `SW_DOCS_IMPACT_POST` is `true` | `claude` / Sonnet tier | one neutral "docs candidate" comment and a `docs-candidate/end-user` or `docs-candidate/developer` label per audience on the merged PR, without mentions, via the `docs-candidate` safe-output job (`.github/bin/js/docs-impact.ts`); the agent checks a `shopware/docs` checkout and, through an octo-sts read token, a `shopware/enduser-docs-sbp-sync` checkout to decide add, adjust or remove |
 
 The concrete model version for each workflow lives in its own `engine.model` frontmatter (`.github/workflows/<name>.md`) — the single source of truth. This table and the notes below intentionally name tiers, not versioned IDs, so they don't drift when a model is bumped.
 

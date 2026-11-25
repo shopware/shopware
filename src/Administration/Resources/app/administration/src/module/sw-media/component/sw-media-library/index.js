@@ -1,6 +1,6 @@
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
-import { getReadableMediaUsageAssociations } from '../../helper/media-usage-areas';
+import { canReadMediaUsageArea, getReadableMediaUsageAssociations } from '../../helper/media-usage-areas';
 
 const { Mixin, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -226,6 +226,10 @@ export default {
                     criteria.getAssociation(path).setLimit(25);
                 });
             });
+
+            if (canReadMediaUsageArea(this.acl, 'products')) {
+                criteria.addAssociation('productDocumentTranslations');
+            }
 
             return criteria;
         },

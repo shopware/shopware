@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Result;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\HmacSigner;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -26,14 +27,17 @@ class McpToolResultPointerSigner
      */
     public const TTL_SECONDS = 3600;
 
+    private readonly HmacSigner $signer;
+
     /**
      * @internal
      */
     public function __construct(
         #[\SensitiveParameter]
-        private readonly string $secret,
-        private readonly ClockInterface $clock,
+        string $secret,
+        ClockInterface $clock,
     ) {
+        $this->signer = new HmacSigner($secret, $clock);
     }
 
     /**
@@ -41,12 +45,12 @@ class McpToolResultPointerSigner
      */
     public function sign(string $id, string $principal): McpToolResultPointer
     {
-        $now = $this->clock->now();
-        $expiry = (string) ($now->getTimestamp() + self::TTL_SECONDS);
+        $expiresAt = $this->signer->expiresAt(self::TTL_SECONDS);
+        $expiry = (string) $expiresAt->getTimestamp();
 
         return new McpToolResultPointer(
-            $id . '.' . $expiry . '.' . $this->signature($id, $expiry, $principal),
-            $now->setTimestamp((int) $expiry),
+            $id . '.' . $expiry . '.' . $this->signer->sign(self::signedData($id, $expiry, $principal)),
+            $expiresAt,
         );
     }
 
@@ -66,21 +70,19 @@ class McpToolResultPointerSigner
             return null;
         }
 
-        if (!hash_equals($this->signature($id, $expiry, $principal), $signature)) {
+        if (!$this->signer->verify(self::signedData($id, $expiry, $principal), $signature)) {
             return null;
         }
 
-        if ((int) $expiry < $this->clock->now()->getTimestamp()) {
+        if ($this->signer->isExpired((int) $expiry)) {
             return null;
         }
 
         return $id;
     }
 
-    private function signature(string $id, string $expiry, string $principal): string
+    private static function signedData(string $id, string $expiry, string $principal): string
     {
-        $mac = hash_hmac('sha256', 'mcp-tool-result|' . $id . '|' . $expiry . '|' . $principal, $this->secret, true);
-
-        return rtrim(strtr(base64_encode($mac), '+/', '-_'), '=');
+        return 'mcp-tool-result|' . $id . '|' . $expiry . '|' . $principal;
     }
 }

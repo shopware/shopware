@@ -32,6 +32,8 @@ const itemDeleteMock = (options = {}) => {
 const allUsageReads = [
     'product_media:read',
     'product:read',
+    'product_document:read',
+    'product_document_translation:read',
     'category:read',
     'landing_page:read',
     'product_manufacturer:read',
@@ -105,7 +107,9 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         register('sw-product', moduleMock);
         const productMediaMock = {
             id: '98hhh7gh31d2d23dj292hjd7b',
+            productId: 'product-media',
             product: {
+                id: 'product-media',
                 translated: { name: 'name test' },
             },
         };
@@ -150,7 +154,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
 
         register('sw-product', moduleMock);
         const productMediaMock = {
-            product: { translated: { name: 'product test' } },
+            productId: 'product-media',
+            product: { id: 'product-media', translated: { name: 'product test' } },
         };
 
         register('sw-category', moduleMock);
@@ -303,6 +308,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         global.activeAclRoles = [
             'product_media:read',
             'product:read',
+            'product_document:read',
+            'product_document_translation:read',
             'category:read',
         ];
 

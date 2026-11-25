@@ -10,6 +10,57 @@ component sw-manufacturer-detail  public  js
   source src/module/sw-manufacturer/page/sw-manufacturer-detail/index.js
   template src/module/sw-manufacturer/page/sw-manufacturer-detail/sw-manufacturer-detail.html.twig
 
+mixins
+  placeholder, notification, discard-detail-page-changes
+
+inject
+  acl
+  customFieldDataProviderService
+  feature
+  mediaDefaultFolderService
+  repositoryFactory
+
+props
+  manufacturerId?: string  default=null
+
+data
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  manufacturer: any
+  mediaDefaultFolderId: any
+  showMediaModal: any
+
+computed
+  customFieldSetCriteria: any  [deprecated tag:v6.8.0]
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+  identifier: any
+  manufacturerDescriptionError: any
+  manufacturerIsLoading: any
+  manufacturerLinkError: any
+  manufacturerNameError: any
+  manufacturerRepository: any
+  mediaRepository: any
+  mediaUploadTag: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  loadEntityData(): Promise<any>
+  onCancel(): any
+  onChangeLanguage(): any
+  onDropMedia(dragData: any): any
+  onMediaSelectionChange(arg0: any): any
+  onSave(): any
+  onUnlinkLogo(): any
+  openMediaSidebar(): any  [deprecated tag:v6.8.0]
+  saveOnLanguageChange(): any
+  setMediaFromSidebar(media: any): any  [deprecated tag:v6.8.0]
+  setMediaItem(arg0: any): any
+
 blocks
   sw_manufacturer_detail
     sw_manufacturer_detail_actions
@@ -25,5 +76,5 @@ blocks
       sw_manufacturer_detail_custom_field_sets
     sw_manufacturer_detail_header
     sw_manufacturer_detail_language_switch
-    sw_manufacturer_detail_sidebar
+    sw_manufacturer_detail_sidebar  [deprecated tag:v6.8.0]
 ```

@@ -10,6 +10,15 @@ component sw-settings-seo  public  js
   source src/module/sw-settings-seo/page/sw-settings-seo/index.js
   template src/module/sw-settings-seo/page/sw-settings-seo/sw-settings-seo.html.twig
 
+data
+  isLoading: any
+  salesChannelIsHeadless: any
+
+methods
+  onClickSave(): any
+  onLoadingChanged(loading: any): any
+  onSalesChannelChanged(salesChannelIsHeadless: any): any
+
 blocks
   sw_settings_seo
     sw_settings_seo_content
@@ -21,4 +30,8 @@ blocks
     sw_settings_seo_smart_bar_header
       sw_settings_seo_smart_bar_header_title
         sw_settings_seo_smart_bar_header_title_text
+
+refs
+  seoUrlTemplateCard  -> sw-seo-url-template-card  block=sw_settings_seo_content_inner_seo_url_template
+  systemConfig  -> sw-system-config  block=sw_settings_seo_content_inner_redirect
 ```

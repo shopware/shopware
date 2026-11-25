@@ -11,6 +11,9 @@ component sw-cms-block-product-slider  private  js  [private]
   template src/module/sw-cms/blocks/commerce/product-slider/component/sw-cms-block-product-slider.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  productSlider  {}  block=sw_cms_block_product_slider  [private]
+
 blocks
   sw_cms_block_product_slider  [private]
 ```

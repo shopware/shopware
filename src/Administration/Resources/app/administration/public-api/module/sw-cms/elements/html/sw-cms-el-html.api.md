@@ -11,6 +11,19 @@ component sw-cms-el-html  private  js  [private]
   template src/module/sw-cms/elements/html/component/sw-cms-el-html.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+data
+  editorConfig: object  [private]
+    cursorStyle: any  [private]
+    highlightActiveLine: any  [private]
+    highlightGutterLine: any  [private]
+    showFoldWidgets: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_el_html  [private]
 ```

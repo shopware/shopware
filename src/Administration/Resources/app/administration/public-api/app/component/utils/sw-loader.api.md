@@ -11,10 +11,26 @@ component sw-loader  private  js  [private]
   template src/app/component/utils/sw-loader/sw-loader.html.twig  [private]
   visibility-source export  [private]
 
+props
+  modelValue?: string  default=null  [private]
+  value?: string  default=null  [private]
+
+slots
+  default  {}  block=sw_loader  [private]
+
+computed
+  useMeteorComponent: any  [private]
+
+methods
+  getSlots(): any  [private]
+
 blocks
   sw_loader  [private]
   sw_loader_deprecated  [after v-if] [private]
 
 crossings
   v-if  sw_loader -> sw_loader_deprecated  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

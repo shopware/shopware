@@ -11,6 +11,13 @@ component sw-cms-visibility-toggle  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-visibility-toggle/sw-cms-visibility-toggle.html.twig  [private]
   visibility-source export  [private]
 
+props
+  isCollapsed: boolean  [private]
+  text: string  [private]
+
+emits
+  toggle(...args: any[])  [private]
+
 blocks
   sw_cms_visibility_toggle  [private]
 ```

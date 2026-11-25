@@ -10,6 +10,30 @@ component sw-media-folder-info  public  js
   source src/module/sw-media/component/sidebar/sw-media-folder-info/index.js
   template src/module/sw-media/component/sidebar/sw-media-folder-info/sw-media-folder-info.html.twig
 
+mixins
+  media-sidebar-modal-mixin
+
+inject
+  acl
+  repositoryFactory
+
+props
+  editable?: boolean  default=false
+  mediaFolder: object
+
+emits
+  media-folder-renamed(...args: any[])
+
+computed
+  createdAt: any
+  mediaFolderNameError: any
+  mediaFolderRepository: any
+  nameItemClasses: any
+
+methods
+  onChangeFolderName(newName: any): Promise<any>
+  quickActionClasses(disabled: any): any
+
 blocks
   sw_media_folder_info
     sw_media_folder_info_dissolve_modal  [after v-if]
@@ -25,4 +49,7 @@ blocks
         sw_media_quickinfo_folder_quickactions_dissolve
         sw_media_quickinfo_folder_quickactions_move
         sw_media_quickinfo_folder_quickactions_settings
+
+refs
+  inlineEditFieldName  -> sw-confirm-field  block=sw_media_quickinfo_folder_metadata_content_base
 ```

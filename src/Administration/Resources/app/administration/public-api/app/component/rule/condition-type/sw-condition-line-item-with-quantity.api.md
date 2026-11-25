@@ -11,6 +11,18 @@ component sw-condition-line-item-with-quantity  public  js
   source src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/index.js
   template src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/sw-condition-line-item-with-quantity.html.twig
 
+inject
+  repositoryFactory
+
+data
+  initialProduct: any
+
+computed
+  id: any
+  operators: any
+  productRepository: any
+  quantity: any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]

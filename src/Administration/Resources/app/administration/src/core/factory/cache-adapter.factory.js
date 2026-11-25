@@ -40,6 +40,16 @@ const flushCacheUrls = [
     '/_info/config-me',
 ];
 
+const readOnlyPostPaths = [
+    /^search(-ids)?\//,
+    /^_info\//,
+    /^_admin\/(es-)?search$/,
+    /^_admin\/product-stream-preview\//,
+    /^_admin\/check-customer-email-valid$/,
+    /^_action\/calculate-prices?$/,
+    /^_action\/user\/check-(email|username)-unique$/,
+];
+
 // the timeout at which the response in the cache gets cleared
 const requestCacheTimeout = 1500;
 
@@ -114,10 +124,10 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
 
 function changesData(method, requestPath) {
     if (method === 'post') {
-        return !/^(_|search(-ids)?(\/|$))/.test(requestPath);
+        return !readOnlyPostPaths.some((pattern) => pattern.test(requestPath));
     }
 
-    return ['delete', 'patch'].includes(method);
+    return !!method && method !== 'get';
 }
 
 /**

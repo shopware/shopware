@@ -31,6 +31,11 @@ class DocumentApiService extends ApiService {
         additionalHeaders = {},
         file = null,
     ) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            'documentService.createDocument() is deprecated. Removed with document generation v1; use documentV2ApiService instead.',
+        );
+
         let route = `_action/order/document/${documentTypeName}/create`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
@@ -86,6 +91,11 @@ class DocumentApiService extends ApiService {
     }
 
     getDocumentPreview(orderId, orderDeepLink, documentTypeName, params, additionalParams = {}) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            'documentService.getDocumentPreview() is deprecated. Removed with document generation v1; use documentV2ApiService instead.',
+        );
+
         const config = JSON.stringify(params);
 
         return this.httpClient
@@ -103,6 +113,11 @@ class DocumentApiService extends ApiService {
     }
 
     getDocument(documentId, documentDeepLink, context, download = false, fileType = 'pdf') {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            'documentService.getDocument() is deprecated. Removed with document generation v1; use documentV2ApiService instead.',
+        );
+
         return this.httpClient.get(
             `/_action/document/${documentId}/${documentDeepLink}?fileType=${fileType}${download ? '&download=1' : ''}`,
             {
@@ -113,10 +128,20 @@ class DocumentApiService extends ApiService {
     }
 
     createDocumentEvent(action, payload) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            'documentService.createDocumentEvent() is deprecated. Removed with document generation v1; use documentV2ApiService instead.',
+        );
+
         return { action, payload };
     }
 
     setListener(callback) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            'documentService.setListener() is deprecated. Removed with document generation v1; use documentV2ApiService instead.',
+        );
+
         this.$listener = callback;
     }
 }

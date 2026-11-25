@@ -359,6 +359,8 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         await mountSsoOnly(navigateToSpy);
 
         expect(navigateToSpy).toHaveBeenCalledWith('https://sso.test');
+        expect(sessionStorage.getItem('sw-sso-session')).toBe('true');
+        expect(sessionStorage.getItem('sw-sso-restore-previous-route')).toBe('true');
     });
 
     it('should show the logout reason instead of redirecting a shop without password login', async () => {

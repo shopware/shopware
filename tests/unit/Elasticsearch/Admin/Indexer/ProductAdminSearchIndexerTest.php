@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -132,10 +134,30 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertIsArray($document['media']);
         static::assertCount(1, $document['media']);
         static::assertSame('aabb11223344556677889900aabbccdd', $document['media'][0]['id']);
+        static::assertSame([
+            ['id' => 'c1c2c3c4c5c6c7c8c9c0c1c2c3c4c5c6', '_count' => 1],
+            ['id' => 'd1d2d3d4d5d6d7d8d9d0d1d2d3d4d5d6', '_count' => 1],
+        ], $document['documents']);
         static::assertIsArray($document['price']);
         static::assertArrayHasKey('c_b7d2554b0ce847cd82f3ac9bd1c0dfca', $document['price']);
         static::assertSame(100.0, $document['price']['c_b7d2554b0ce847cd82f3ac9bd1c0dfca']['gross']);
         static::assertSame(84.03, $document['price']['c_b7d2554b0ce847cd82f3ac9bd1c0dfca']['net']);
+    }
+
+    public function testFetchingAProductWithoutDocuments(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            $this->getConnection(['documentsId' => null]),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $id = '809c1844f4734243b6aa04aba860cd45';
+        $documents = $indexer->fetch([$id]);
+
+        static::assertSame([], $documents[$id]['documents'] ?? null);
     }
 
     public function testGetUpdatedIds(): void
@@ -161,6 +183,192 @@ class ProductAdminSearchIndexerTest extends TestCase
         );
 
         static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testMappingSupportsTheDocumentsFilter(): void
+    {
+        $mapping = $this->searchIndexer->mapping([]);
+
+        static::assertSame('nested', $mapping['properties']['documents']['type'] ?? null);
+        static::assertContains('documents.id', $this->searchIndexer->getSupportedSearchFields());
+    }
+
+    public function testGetUpdatedIdsContainsTheProductsOfAddedDocuments(): void
+    {
+        $productId = Uuid::randomHex();
+        $otherProductId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, [
+                    'id' => $documentId,
+                    'versionId' => Defaults::LIVE_VERSION,
+                    'productId' => $productId,
+                    'productVersionId' => Defaults::LIVE_VERSION,
+                ], 'product_document', EntityWriteResult::OPERATION_INSERT),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($otherProductId, ['id' => $otherProductId, 'versionId' => Defaults::LIVE_VERSION], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsContainsTheProductsOfDeletedDocuments(): void
+    {
+        $productId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, ['id' => $documentId, 'versionId' => Defaults::LIVE_VERSION], 'product_document', EntityWriteResult::OPERATION_DELETE),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsContainsTheVariantsOfProductsWithChangedDocuments(): void
+    {
+        $productId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([$variantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, [
+                    'id' => $documentId,
+                    'versionId' => Defaults::LIVE_VERSION,
+                    'productId' => $productId,
+                    'productVersionId' => Defaults::LIVE_VERSION,
+                ], 'product_document', EntityWriteResult::OPERATION_INSERT),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId, $variantId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsLeavesTheVariantsOfLargeFamiliesToTheQueuedInheritanceUpdate(): void
+    {
+        $productId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+        $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, ProductIndexer::UPDATE_IDS_CHUNK_SIZE - 1));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn($variantIds);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, [
+                    'id' => $documentId,
+                    'versionId' => Defaults::LIVE_VERSION,
+                    'productId' => $productId,
+                    'productVersionId' => Defaults::LIVE_VERSION,
+                ], 'product_document', EntityWriteResult::OPERATION_INSERT),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsCountsVariantsWithOwnDocumentsOnceForTheFamilySize(): void
+    {
+        $productId = Uuid::randomHex();
+        $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, 35));
+        $variantsWithDocuments = \array_slice($variantIds, 0, 15);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn($variantIds);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $documentResults = [];
+        $productResults = [];
+        foreach ([$productId, ...$variantsWithDocuments] as $ownerId) {
+            $documentId = Uuid::randomHex();
+            $documentResults[] = new EntityWriteResult($documentId, [
+                'id' => $documentId,
+                'versionId' => Defaults::LIVE_VERSION,
+                'productId' => $ownerId,
+                'productVersionId' => Defaults::LIVE_VERSION,
+            ], 'product_document', EntityWriteResult::OPERATION_INSERT);
+            $productResults[] = new EntityWriteResult($ownerId, [], 'product', EntityWriteResult::OPERATION_UPDATE);
+        }
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', $documentResults, Context::createDefaultContext()),
+            new EntityWrittenEvent('product', $productResults, Context::createDefaultContext()),
+        ]);
+
+        $updatedIds = $indexer->getUpdatedIds($event);
+
+        static::assertCount(36, $updatedIds);
+        static::assertEqualsCanonicalizing([$productId, ...$variantIds], $updatedIds);
+    }
+
+    public function testGetUpdatedIdsIgnoresDocumentUpdates(): void
+    {
+        $productId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, ['id' => $documentId, 'versionId' => Defaults::LIVE_VERSION, 'position' => 2], 'product_document', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([], $indexer->getUpdatedIds($event));
     }
 
     public function testGlobalCriteria(): void
@@ -248,14 +456,25 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame(["test\n"], array_column($textQueries, 'query'));
     }
 
-    private function getConnection(): Connection
+    /**
+     * @param list<EntityWrittenEvent<string>> $events
+     */
+    private function createWrittenEvent(array $events): EntityWrittenContainerEvent
+    {
+        return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection($events), []);
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    private function getConnection(array $overrides = []): Connection
     {
         $connection = static::createStub(Connection::class);
 
         $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(
             [
-                [
+                array_merge([
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     'name' => 'Product',
                     'translatedNames' => json_encode([
@@ -288,11 +507,13 @@ class ProductAdminSearchIndexerTest extends TestCase
                     'manufacturerId' => 'aabbccdd11223344556677889900aabb',
                     'categoryIds' => null,
                     'mediaId' => 'aabb11223344556677889900aabbccdd',
+                    'documentsId' => '809c1844f4734243b6aa04aba860cd45',
+                    'documentIds' => 'c1c2c3c4c5c6c7c8c9c0c1c2c3c4c5c6 d1d2d3d4d5d6d7d8d9d0d1d2d3d4d5d6',
                     'visibilities' => null,
                     'createdAt' => '2024-01-01 00:00:00.000',
                     'updatedAt' => null,
                     'releaseDate' => null,
-                ],
+                ], $overrides),
             ],
         );
 

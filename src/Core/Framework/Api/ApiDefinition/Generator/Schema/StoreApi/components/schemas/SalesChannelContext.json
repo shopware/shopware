@@ -70,6 +70,17 @@
                             }
                         ]
                     },
+                    "prospectiveCustomer": {
+                        "description": "Only set without a customer, after the visitor has sent a `shippingAddress`.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ProspectiveCustomer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "paymentMethod": {
                         "$ref": "#/components/schemas/PaymentMethod"
                     },

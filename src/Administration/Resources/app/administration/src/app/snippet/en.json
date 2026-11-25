@@ -88,6 +88,9 @@
         "saveError": "The appearance could not be changed"
       }
     },
+    "sw-extension-floating-section": {
+      "label": "Content from extensions"
+    },
     "theme": {
       "names": {
         "light": "Light",
@@ -858,6 +861,10 @@
           "any": "At least one",
           "all": "All"
         },
+        "deliveryCondition": {
+          "cart": "Whole cart",
+          "delivery": "This delivery"
+        },
         "AddAndCondition": "Add AND condition",
         "AddOrCondition": "Add OR condition",
         "AddSubCondition": "Add subconditions",
@@ -1261,7 +1268,8 @@
       }
     },
     "sw-page": {
-      "backButton": "Go back"
+      "backButton": "Go back",
+      "backButtonTo": "Back to {title}"
     }
   },
   "sw-text-editor-toolbar": {

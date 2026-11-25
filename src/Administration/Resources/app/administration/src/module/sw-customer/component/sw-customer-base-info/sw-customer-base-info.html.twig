@@ -292,6 +292,7 @@
         {% endblock %}
 
         {% block sw_customer_base_metadata_birthday %}
+        {# Birthdays are calendar dates; UTC prevents user timezones from changing the day. #}
         <sw-description-list>
             {% block sw_customer_base_metadata_birthday_label %}
             <dt class="sw-customer-base-info__label">
@@ -305,7 +306,7 @@
                 class="sw-customer-base__label-birthday"
             >
                 <template v-if="customer.birthday">
-                    {{ dateFilter(customer.birthday, { month: '2-digit', day: '2-digit', hour: undefined, minute: undefined }) }}
+                    {{ dateFilter(customer.birthday, { timeZone: 'UTC', month: '2-digit', day: '2-digit', hour: undefined, minute: undefined }) }}
                 </template>
                 <template v-else>
                     {{ $t('sw-customer.baseInfo.emptyTextBirthday') }}
@@ -320,6 +321,7 @@
                     name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"
+                    time-zone="UTC"
                     hide-hint
                     :placeholder="$t('sw-datepicker.date.placeholder')"
                 />

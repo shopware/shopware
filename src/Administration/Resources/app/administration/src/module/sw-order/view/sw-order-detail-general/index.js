@@ -1,12 +1,13 @@
 import template from './sw-order-detail-general.html.twig';
 import './sw-order-detail-general.scss';
+import { getDeliveryDiscounts, getShipments } from '../../order-delivery.helper';
 
 /**
  * @sw-package checkout
  */
 
 const { Utils, Mixin, Store } = Shopware;
-const { format, array } = Utils;
+const { format } = Utils;
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -66,18 +67,30 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement.',
+            },
         },
     },
 
     data() {
         return {
             shippingCosts: null,
+            shipmentShippingCosts: {},
         };
     },
 
     computed: {
         /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-general.isLoading is deprecated. Use loading.order instead.',
+            );
+
+            return Store.get('swOrderDetail').isLoading;
+        },
 
         loading: () => Store.get('swOrderDetail').loading,
 
@@ -93,31 +106,20 @@ export default {
             return this.order.primaryOrderDelivery;
         },
 
-        deliveryDiscounts() {
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return array.slice(this.order.deliveries, 1) || [];
-            }
+        shipments() {
+            return getShipments(this.order);
+        },
 
-            return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
+        hasMultipleShipments() {
+            return this.shipments.length > 1;
+        },
+
+        deliveryDiscounts() {
+            return getDeliveryDiscounts(this.order);
         },
 
         shippingCostsDetail() {
-            const calcTaxes = this.sortByTaxRate(cloneDeep(this.order.shippingCosts.calculatedTaxes));
-            const formattedTaxes = `${calcTaxes
-                .map(
-                    (calcTax) =>
-                        `${this.$t(
-                            'sw-order.detailBase.shippingCostsTax',
-                            {
-                                taxRate: calcTax.taxRate,
-                                tax: format.currency(calcTax.tax, this.order.currency.isoCode),
-                            },
-                            0,
-                        )}`,
-                )
-                .join('<br>')}`;
-
-            return `${this.$t('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
+            return this.getShippingCostsDetail(this.order.shippingCosts);
         },
 
         sortedCalculatedTaxes() {
@@ -159,10 +161,45 @@ export default {
             });
         },
 
+        getShippingCostsDetail(shippingCosts) {
+            const calcTaxes = this.sortByTaxRate(cloneDeep(shippingCosts.calculatedTaxes));
+            const formattedTaxes = `${calcTaxes
+                .map(
+                    (calcTax) =>
+                        `${this.$t(
+                            'sw-order.detailBase.shippingCostsTax',
+                            {
+                                taxRate: calcTax.taxRate,
+                                tax: format.currency(calcTax.tax, this.order.currency.isoCode),
+                            },
+                            0,
+                        )}`,
+                )
+                .join('<br>')}`;
+
+            return `${this.$t('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
+        },
+
         onShippingChargeEdited() {
             if (this.shippingCosts >= 0) {
                 this.delivery.shippingCosts.unitPrice = this.shippingCosts;
                 this.delivery.shippingCosts.totalPrice = this.shippingCosts;
+            }
+
+            this.saveAndRecalculate();
+        },
+
+        onShipmentShippingChargeUpdated(shipment, amount) {
+            this.shipmentShippingCosts[shipment.id] = amount;
+        },
+
+        onShipmentShippingChargeEdited(shipment) {
+            const amount = this.shipmentShippingCosts[shipment.id];
+            delete this.shipmentShippingCosts[shipment.id];
+
+            if (typeof amount === 'number' && amount >= 0) {
+                shipment.shippingCosts.unitPrice = amount;
+                shipment.shippingCosts.totalPrice = amount;
             }
 
             this.saveAndRecalculate();
@@ -200,6 +237,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-general.updateLoading() is deprecated. Will be removed without replacement.',
+            );
+
             Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 

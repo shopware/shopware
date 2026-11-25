@@ -13,7 +13,6 @@ type WindowEvents = Pick<Window, 'addEventListener' | 'removeEventListener'>;
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- private, see the docblock
 export interface SsoReauthBrowser {
     openWindow: OpenWindow;
     windowEvents: WindowEvents;

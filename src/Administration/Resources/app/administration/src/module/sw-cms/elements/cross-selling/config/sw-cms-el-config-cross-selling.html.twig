@@ -94,6 +94,7 @@
                 <template #default="{ isInherited }">
                     <mt-select
                         v-model="element.config.boxLayout.value"
+                        :hide-clearable-button="true"
                         :options="boxLayoutOptions"
                         :disabled="isInherited"
                     />
@@ -110,6 +111,7 @@
                 <template #default="{ isInherited }">
                     <mt-select
                         v-model="element.config.displayMode.value"
+                        :hide-clearable-button="true"
                         :options="displayModeOptions"
                         :disabled="isInherited"
                     />
@@ -158,7 +160,10 @@
         {% endblock %}
     </template>
 
-    <template v-else>
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
         <sw-tabs
             position-identifier="sw-cms-element-cross-selling"
             class="sw-cms-el-config-cross-selling__tabs"
@@ -277,6 +282,7 @@
                         <template #default="{ isInherited }">
                             <mt-select
                                 v-model="element.config.boxLayout.value"
+                                :hide-clearable-button="true"
                                 :options="boxLayoutOptions"
                                 :disabled="isInherited"
                             />
@@ -293,6 +299,7 @@
                         <template #default="{ isInherited }">
                             <mt-select
                                 v-model="element.config.displayMode.value"
+                                :hide-clearable-button="true"
                                 :options="displayModeOptions"
                                 :disabled="isInherited"
                             />
@@ -341,7 +348,7 @@
                 {% endblock %}
             </template>
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 </div>
 {% endblock %}

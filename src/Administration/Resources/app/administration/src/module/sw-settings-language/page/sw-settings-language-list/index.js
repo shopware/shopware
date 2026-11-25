@@ -205,6 +205,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         registerFilterSidebarItem(sidebarItem) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-language-list.registerFilterSidebarItem() is deprecated. Will be removed without replacement.',
+            );
+
             this.filterSidebarItem = sidebarItem;
         },
 
@@ -212,6 +217,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         openFilterSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-language-list.openFilterSidebar() is deprecated. Will be removed without replacement.',
+            );
+
             if (!this.filterSidebarItem?.openContent) {
                 return;
             }
@@ -321,15 +331,17 @@ export default {
             this.showAddLanguageModal = false;
 
             const criteria = new Criteria(1, 1);
-            criteria.addAssociation('locale');
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('locale.code', locale));
 
-            const language = (await this.languageRepository.search(criteria)).first();
+            const {
+                data: [languageId],
+            } = await this.languageRepository.searchIds(criteria);
 
-            if (language) {
+            if (languageId) {
                 this.$router.push({
                     name: 'sw.settings.language.detail',
-                    params: { id: language.id },
+                    params: { id: languageId },
                     query: { languageCreated: 'true' },
                 });
 

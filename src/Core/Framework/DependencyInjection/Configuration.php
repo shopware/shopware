@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
@@ -63,6 +64,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createProductDocumentsSection())
                 ->append($this->createMcpSection())
                 ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
@@ -1065,6 +1067,29 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createProductDocumentsSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('product_documents'))->getRootNode();
+        $rootNode
+            ->info('Settings for product documents, such as manuals or datasheets. They are checked when a document is saved.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_extensions')
+                    ->info('File types a document can have. A list in your own configuration replaces the core list. Only types in shopware.filesystem.allowed_extensions are used, because a document file must be public.')
+                    ->performNoDeepMerging()
+                    ->prototype('scalar')->end()
+                ->end()
+                ->scalarNode('max_file_size')
+                    ->info('Largest file of a document, in bytes or with a unit, for example 20M. Default: 20M. Cannot be set from an environment variable.')
+                    ->defaultValue(20 * 1024 * 1024)
+                    ->validate()->always()->then(static fn ($value) => MemorySizeCalculator::convertToBytes((string) $value))->end()
+                    ->validate()->ifTrue(static fn (int $value) => $value < 1)->thenInvalid('The largest file of a document must be at least 1 byte, %s given.')->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createHtmlSanitizerSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('html_sanitizer');
@@ -1604,6 +1629,23 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->arrayNode('mappings')
+                        ->useAttributeAsKey('name')
+                        // keys are free-form identifiers (route names, FQCN prefixes, ...): the default key
+                        // normalization would rewrite `store-api.*` to `store_api.*` and break the lookup
+                        ->normalizeKeys(false)
+                        ->arrayPrototype()
+                            ->useAttributeAsKey('key')
+                            ->normalizeKeys(false)
+                            ->scalarPrototype()
+                                // a YAML `cache: 1` would otherwise only fail at runtime, inside the instrumented code path
+                                ->validate()
+                                    ->ifTrue(static fn ($value): bool => !\is_string($value))
+                                    ->thenInvalid('Telemetry label mapping values must be strings, %s given.')
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
                     ->arrayNode('definitions')
                         ->useAttributeAsKey('name')
                         ->arrayPrototype()
@@ -1623,24 +1665,38 @@ class Configuration implements ConfigurationInterface
                                     ->useAttributeAsKey('label_name')
                                     ->arrayPrototype()
                                         ->validate()
+                                            // the only invalid shape is an empty declaration; cross-source combinations
+                                            // should never fail the build, so third-party config cannot break a shop on a core
+                                            // update that changes how a label is served (see the ADR)
                                             ->ifTrue(static function (array $label): bool {
-                                                $hasAllowedValues = isset($label['allowed_values']) && $label['allowed_values'] !== [];
-                                                $hasPolicy = isset($label['policy']);
+                                                $hasValues = ($label['allowed_values'] ?? []) !== [] || ($label['add_allowed_values'] ?? []) !== [];
 
-                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasAllowedValues) {
-                                                    return true;
-                                                }
-                                                if (!$hasAllowedValues && !$hasPolicy) {
-                                                    return true;
-                                                }
-
-                                                return false;
+                                                return !$hasValues && !isset($label['policy']);
                                             })
-                                            ->thenInvalid('Each label must have either "allowed_values" or "policy: open", but not both. Missing both is also invalid.')
+                                            ->thenInvalid('Each label must declare values ("allowed_values" and/or "add_allowed_values") or a "policy".')
+                                        ->end()
+                                        ->validate()
+                                            // fold to the effective state: a present `allowed_values` is the complete,
+                                            // final list and locks the label - all `add_allowed_values` contributions
+                                            // are discarded; otherwise the deduplicated contributions are the list.
+                                            // The fold is policy-agnostic; on a `policy: open` label the folded values
+                                            // are inert at runtime and only visible in debug:config
+                                            ->always(static function (array $label): array {
+                                                if (($label['allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = [];
+                                                } elseif (($label['add_allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = array_values(array_unique($label['add_allowed_values']));
+                                                }
+
+                                                return $label;
+                                            })
                                         ->end()
                                         ->children()
                                             ->arrayNode('allowed_values')
                                                 ->performNoDeepMerging()
+                                                ->scalarPrototype()->end()
+                                            ->end()
+                                            ->arrayNode('add_allowed_values')
                                                 ->scalarPrototype()->end()
                                             ->end()
                                             ->enumNode('policy')
@@ -1720,6 +1776,25 @@ class Configuration implements ConfigurationInterface
                     ->info('Restrict which MCP tools are exposed. Empty array means all tools are allowed.')
                     ->scalarPrototype()->end()
                     ->defaultValue([])
+                ->end()
+                ->arrayNode('allowed_origins')
+                    ->info('Additional Origin values accepted by the MCP endpoints, on top of the shop\'s own origins. An entry is an exact origin (https://chat.example), an origin with any port (http://localhost:*) or * for any origin. Accepts %env(csv:MCP_ALLOWED_ORIGINS)%.')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+                ->arrayNode('protocol_era')
+                    ->info('MCP protocol revisions each endpoint serves. "legacy" serves the handshake revisions up to 2025-11-25. "auto" also serves the stateless 2026-07-28 revision, and the client picks.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->enumNode('admin')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                        ->enumNode('store_api')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                    ->end()
                 ->end()
                 ->integerNode('app_tool_timeout')
                     ->info('Timeout in seconds for app webhook MCP tool calls.')
@@ -1815,6 +1890,10 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('repository_url')->defaultNull()->end()
                 ->scalarNode('metadata_url')->defaultNull()->end()
+                ->scalarNode('archive_manifest_url')
+                    ->info('Manifest of the archive with all translations. When set, `translation:download` and `translation:install --all` download all locales as one archive.')
+                    ->defaultNull()
+                ->end()
                 ->scalarNode('community_translations_url')->defaultNull()->end()
                 ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
                 ->integerNode('completeness_threshold')->defaultNull()->end()

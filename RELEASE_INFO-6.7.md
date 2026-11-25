@@ -10,6 +10,13 @@ Keywords from the search configuration with a ranking of 0 never added to the sc
 Keyword rankings of 0 or below that a custom keyword analyzer writes no longer affect the search result.
 If the search configuration of the language has a field with a negative ranking, the search works as before.
 
+### Moving a category re-indexes its products
+
+Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.
+Before, `product.categoryTree` and `product.categoriesRo` kept the old parents, so listings and "line item in category" rules were wrong until the products were re-indexed.
+Integrations that called `POST /api/_action/index-products` after moving a category no longer need to.
+The Administration category tree no longer sends these requests after a drag and drop.
+Its `syncProducts()` and `indexProducts()` methods and its `productRepository` computed property are deprecated and will be removed in 6.8.
 ### Environment-specific bundle and plugin configuration
 
 Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.

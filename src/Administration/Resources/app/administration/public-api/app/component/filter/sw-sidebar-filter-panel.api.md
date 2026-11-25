@@ -11,8 +11,28 @@ component sw-sidebar-filter-panel  private  js  [private]
   template src/app/component/filter/sw-sidebar-filter-panel/sw-sidebar-filter-panel.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  parentRegisterSidebarItem from registerSidebarItem  [private]
+
+provide
+  registerSidebarItem: any  [private]
+
+props
+  activeFilterNumber: number  [private]
+
+data
+  filterSidebarItem: any  [private]
+
+methods
+  openFilterPanel(): any  [private]
+  registerSidebarItem(sidebarItem: any): any  [private]
+  resetAll(): any  [private]
+
 blocks
   sw_sidebar_filter_panel  [private]
     sw_sidebar_filter_panel_content  [private]
     sw_sidebar_filter_panel_headline  [private]
+
+refs
+  filterPanel  -> sw-filter-panel  block=sw_sidebar_filter_panel_content  [private]
 ```

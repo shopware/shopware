@@ -10,6 +10,18 @@ component sw-settings-listing-delete-modal  public  js
   source src/module/sw-settings-listing/component/sw-settings-listing-delete-modal/index.js
   template src/module/sw-settings-listing/component/sw-settings-listing-delete-modal/sw-settings-listing-delete-modal.html.twig
 
+props
+  description: string
+  title: string
+
+emits
+  cancel(...args: any[])
+  delete(...args: any[])
+
+methods
+  emitCancel(): any
+  emitDelete(): any
+
 blocks
   sw_settings_listing_delete_modal
     sw_settings_listing_delete_modal_body_description

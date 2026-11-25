@@ -1,0 +1,4 @@
+{
+    "description": "Method parameter removed after a @bc-change marker announced it",
+    "majorFlags": ["v6.9.0.0"]
+}

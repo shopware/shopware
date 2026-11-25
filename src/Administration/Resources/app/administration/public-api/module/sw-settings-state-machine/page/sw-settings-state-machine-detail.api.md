@@ -10,6 +10,36 @@ component sw-settings-state-machine-detail  public  js
   source src/module/sw-settings-state-machine/page/sw-settings-state-machine-detail/index.js
   template src/module/sw-settings-state-machine/page/sw-settings-state-machine-detail/sw-settings-state-machine-detail.html.twig
 
+mixins
+  notification, placeholder, discard-detail-page-changes
+
+inject
+  acl
+  repositoryFactory
+
+props
+  stateMachineId: string
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+  stateMachine: any
+
+computed
+  allowSave: any
+  identifier: any
+  stateMachineNameError: any
+  stateMachineRepository: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  createdComponent(): any
+  loadStateMachine(): Promise<any>
+  onCancel(): any
+  onChangeLanguage(): any
+  onSave(): Promise<any>
+
 blocks
   sw_settings_state_machine_detail
     sw_settings_state_machine_detail_content
@@ -25,4 +55,7 @@ blocks
 
 crossings
   v-if  sw_settings_state_machine_detail_content_card -> sw_settings_state_machine_detail_content
+
+refs
+  stateMachineStateList  -> sw-settings-state-machine-state-list  block=sw_settings_state_machine_detail_content_list
 ```

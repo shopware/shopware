@@ -11,6 +11,50 @@ component sw-import-export-edit-profile-modal  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-edit-profile-modal/sw-import-export-edit-profile-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+  importExportProfileMapping  [private]
+  importExportUpdateByMapping  [private]
+  repositoryFactory  [private]
+
+props
+  profile?: object  default=factory  [private]
+  show?: boolean  default=factory  [private]
+
+emits
+  profile-close(...args: any[])  [private]
+  profile-save(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+  duplicateMappings: any  [private]
+  missingRequiredFields: any  [private]
+  systemRequiredFields: any  [private]
+
+computed
+  isNew: any  [private]
+  modalTitle: any  [private]
+  profileDelimiterError: any  [private]
+  profileEnclosureError: any  [private]
+  profileNameError: any  [private]
+  profileRepository: any  [private]
+  profileSourceEntityError: any  [private]
+  profileTabs: any  [private]
+  profileTypeError: any  [private]
+  saveLabelSnippet: any  [private]
+  showValidationError: any  [private]
+
+methods
+  checkValidation(parentProfile: any): any  [private]
+  getParentProfileSelected(): Promise<any>  [private]
+  loadSystemRequiredFieldsForEntity(entityName: any): any  [private]
+  resetViolations(): any  [private]
+  saveProfile(): any  [private]
+  updateMapping(newProfile: any): any  [private]
+
 blocks
   sw_import_export_edit_profile_modal  [private]
     sw_import_export_edit_profile_modal_alert  [private]

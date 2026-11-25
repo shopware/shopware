@@ -10,6 +10,39 @@ component sw-order-customer-address-select  public  ts
   source src/module/sw-order/component/sw-order-customer-address-select/index.ts
   template src/module/sw-order/component/sw-order-customer-address-select/sw-order-customer-address-select.html.twig
 
+inject
+  repositoryFactory
+
+props
+  customer: Entity<'customer'>
+  disabled?: boolean  default=false
+  sameAddressLabel?: string  default=''
+  sameAddressValue: string
+  value: string
+
+emits
+  update:value(...args: any[])
+
+data
+  addressSearchTerm: any
+  customerAddresses: any
+  isLoading: any
+
+computed
+  addressCriteria: CriteriaType
+  addressId: string
+  addressRepository: Repository<'customer_address'>
+  isSameAddress: boolean
+
+methods
+  createdComponent(): void
+  getCustomerAddress(address: Entity<'customer_address'>): string
+  getCustomerAddresses(): Promise<void>
+  getDisplayedCustomerAddresses(addresses: EntityCollection<'customer_address'>): Entity<'customer_address'>[]
+  getSelectionLabel(item: Entity<'customer_address'>): string
+  searchAddress(searchTerm: string): Promise<void>
+  searchAddressResults(): any
+
 blocks
   sw_order_customer_address_select
 ```

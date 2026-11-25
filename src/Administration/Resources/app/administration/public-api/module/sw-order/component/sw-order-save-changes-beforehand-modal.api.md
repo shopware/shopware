@@ -10,6 +10,17 @@ component sw-order-save-changes-beforehand-modal  public  js
   source src/module/sw-order/component/sw-order-save-changes-beforehand-modal/index.js
   template src/module/sw-order/component/sw-order-save-changes-beforehand-modal/sw-order-save-changes-beforehand-modal.html.twig
 
+emits
+  cancel(...args: any[])
+  confirm(...args: any[])
+
+slots
+  default  {}  block=sw_order_save_changes_beforehand_modal_content
+
+methods
+  onCancel(): any
+  onConfirm(): any
+
 blocks
   sw_order_save_changes_beforehand_modal
     sw_order_save_changes_beforehand_modal_actions

@@ -11,6 +11,15 @@ component sw-condition-script  public  js
   source src/app/component/rule/condition-type/sw-condition-script/index.js
   template src/app/component/rule/condition-type/sw-condition-script/sw-condition-script.html.twig
 
+computed
+  conditionClasses: any
+  config: any
+  values: any
+
+methods
+  getBind(field: any): any
+  updateFieldValue(fieldName: any, value: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]

@@ -10,6 +10,57 @@ component sw-custom-field-list  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-list/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-custom-field-list.html.twig
 
+mixins
+  sw-inline-snippet, notification
+
+inject
+  acl
+  repositoryFactory
+
+provide
+  SwCustomFieldListIsCustomFieldNameUnique: any
+
+props
+  set: object
+
+emits
+  loading-changed(...args: any[])
+
+data
+  currentCustomField: any
+  customFields: any
+  deleteButtonDisabled: any
+  deleteCustomField: any
+  disableRouteParams: any
+  isLoading: any
+  limit: any
+  page: any
+  term: any
+  total: any
+
+computed
+  customFieldRepository: any
+  globalCustomFieldRepository: any
+
+methods
+  createdComponent(): any
+  isCustomFieldNameUnique(customField: any): Promise<any>
+  loadCustomFields(): Promise<any>
+  onAddCustomField(): any
+  onCancelCustomField(): any
+  onCancelDeleteCustomField(): any
+  onCustomFieldDelete(customField: any): any
+  onCustomFieldEdit(customField: any): any
+  onDeleteCustomField(): Promise<any>
+  onDeleteCustomFields(): any
+  onInlineEditCancel(customField: any): any
+  onInlineEditFinish(item: any): any
+  onPageChange(event: any): any
+  onSaveCustomField(field?: any = this.currentCustomField): Promise<any>
+  onSearchTermChange(): any
+  removeEmptyProperties(config: any): any
+  selectionChanged(selection: any): any
+
 blocks
   sw_custom_field_list
     sw_custom_field_list_custom_field_delete  [after v-if]
@@ -38,4 +89,7 @@ blocks
 crossings
   v-if  sw_custom_field_list_grid -> sw_custom_field_list_empty_state
   v-if  sw_custom_field_list_grid_column_actions_reset_delete -> sw_custom_field_list_grid_column_actions_delete
+
+refs
+  grid  -> sw-grid  block=sw_custom_field_list_grid
 ```

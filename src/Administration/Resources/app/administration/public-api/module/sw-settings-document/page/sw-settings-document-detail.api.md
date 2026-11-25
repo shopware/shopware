@@ -10,6 +10,80 @@ component sw-settings-document-detail  public  js
   source src/module/sw-settings-document/page/sw-settings-document-detail/index.js
   template src/module/sw-settings-document/page/sw-settings-document-detail/sw-settings-document-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  documentV2Service
+  feature
+  repositoryFactory
+
+props
+  documentConfigId?: string  default=null
+
+data
+  alreadyAssignedSalesChannelIdsToType: any
+  availableDocumentTypes: any
+  customFieldSets: any
+  documentConfig: object
+    config: object
+  documentConfigSalesChannelOptionsCollection: any
+  documentConfigSalesChannels: any
+  isLoading: any
+  isSaveSuccessful: any  [deprecated tag:v6.8.0]
+  isShowCountriesSelect: any  [deprecated tag:v6.8.0]
+  isShowDisplayNoteDelivery: any
+  isShowDivergentDeliveryAddress: any
+  paymentDueDateIsValid: any
+  salesChannels: any
+  selectedType: any  [deprecated tag:v6.8.0]
+  showCompanySettingsMovedBanner: any
+  typeIsLoading: any
+
+computed
+  companyFormFields: any
+  countryRepository: any  [deprecated tag:v6.8.0]
+  documentBaseConfigCriteria: any
+  documentBaseConfigRepository: any
+  documentBaseConfigSalesChannelRepository: any  [deprecated tag:v6.8.0]
+  documentConfigDocumentTypeIdError: any
+  documentConfigNameError: any
+  documentCriteria: any
+  documentTypeRepository: any  [deprecated tag:v6.8.0]
+  fileTypesSelected: any
+  formatLabels: any
+  generalDisplayFields: any
+  generalFormFields: any
+  getPaymentDueDateError: any
+  identifier: any
+  salesChannelRepository: any
+  showCompanyForm: any
+  showCustomFields: any
+  supportedFormats: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  createSalesChannelSelectOptions(): any
+  createdComponent(): Promise<any>
+  filenameInfixError(format: any): any
+  hideCompanySettingsMovedBanner(): any
+  loadAvailableDocumentTypes(): Promise<any>
+  loadAvailableSalesChannel(): Promise<any>  [deprecated tag:v6.8.0]
+  loadCustomFieldSets(): Promise<any>
+  loadEntityData(): Promise<any>
+  onAddDocumentType(typeId: any): any
+  onCancel(): Promise<any>
+  onChangeCompanyLogo(media: any): any
+  onChangeSalesChannel(): any
+  onChangeType(documentType: any): Promise<any>
+  onCompanyLogoUploadFinish(arg0: any): any
+  onRemoveDocumentType(typeId: any): any
+  onSave(): Promise<any>
+  showOption(item: any): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_settings_document_detail
     sw_settings_document_detail_actions
@@ -45,4 +119,7 @@ blocks
 
 crossings
   v-if  sw_settings_document_detail_content_form_field_renderer_multi_select -> sw_settings_document_detail_content_form_field_renderer
+
+notes
+  unresolved data ...DOCUMENT_CONFIG_DEFAULTS
 ```

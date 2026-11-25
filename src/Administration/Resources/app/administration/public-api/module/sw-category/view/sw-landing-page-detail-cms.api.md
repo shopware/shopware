@@ -10,6 +10,13 @@ component sw-landing-page-detail-cms  public  js
   source src/module/sw-category/view/sw-landing-page-detail-cms/index.js
   template src/module/sw-category/view/sw-landing-page-detail-cms/sw-landing-page-detail-cms.html.twig
 
+props
+  isLoading: boolean
+
+computed
+  cmsPage: any
+  landingPage: any
+
 blocks
   sw_landing_page_detail_cms
     sw_landing_page_detail_cms_form

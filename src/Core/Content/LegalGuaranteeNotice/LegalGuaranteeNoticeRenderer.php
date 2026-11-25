@@ -14,6 +14,11 @@ class LegalGuaranteeNoticeRenderer
 {
     private const TEMPLATE = '@Content/legal-guarantee-notice/%s.svg';
 
+    /**
+     * Text alternative of the SVG with the same locale, taken from the European Commission's PDF version of the notice.
+     */
+    private const TEXT_TEMPLATE = '@Content/legal-guarantee-notice/%s.html';
+
     private const DEFAULT_LOCALE = 'en';
 
     private const LINK_BASE_URL = 'https://europa.eu/youreurope/';
@@ -59,6 +64,11 @@ class LegalGuaranteeNoticeRenderer
     public function renderForLanguage(string $languageId): string
     {
         return $this->twig->render(\sprintf(self::TEMPLATE, $this->resolveLocale($languageId)));
+    }
+
+    public function renderTextForLanguage(string $languageId): string
+    {
+        return $this->twig->render(\sprintf(self::TEXT_TEMPLATE, $this->resolveLocale($languageId)));
     }
 
     public function linkForLanguage(string $languageId): string

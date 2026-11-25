@@ -10,6 +10,22 @@ component sw-settings-document-list  public  js
   source src/module/sw-settings-document/page/sw-settings-document-list/index.js
   template src/module/sw-settings-document/page/sw-settings-document-list/sw-settings-document-list.html.twig
 
+mixins
+  sw-settings-list
+
+inject
+  acl
+
+data
+  entityName: any
+  sortBy: any  [deprecated tag:v6.8.0]
+
+computed
+  collapseButtonClass: any  [deprecated tag:v6.8.0]
+  expandButtonClass: any  [deprecated tag:v6.8.0]
+  filters: any
+  listingCriteria: any
+
 blocks
   sw_settings_list
     sw_settings_document_index

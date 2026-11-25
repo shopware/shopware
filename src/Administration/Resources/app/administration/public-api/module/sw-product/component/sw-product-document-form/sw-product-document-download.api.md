@@ -11,6 +11,17 @@ component sw-product-document-download  private  ts  [private]
   template src/module/sw-product/component/sw-product-document-form/sw-product-document-download/sw-product-document-download.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  mediaService  [private]
+
+props
+  media?: Entity<'media'>  default=null  [private]
+
+methods
+  downloadDocument(): Promise<void>  [private]
+  triggerDownload(url: string, fileName?: string): void  [private]
+
 blocks
   sw_product_document_download  [private]
 ```

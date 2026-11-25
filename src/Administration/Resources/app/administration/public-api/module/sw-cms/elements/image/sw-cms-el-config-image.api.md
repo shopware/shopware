@@ -11,6 +11,43 @@ component sw-cms-el-config-image  private  js  [private]
   template src/module/sw-cms/elements/image/config/sw-cms-el-config-image.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  initialFolderId: any  [private]
+  mediaModalIsOpen: any  [private]
+
+computed
+  assetFilter: any  [private]
+  displayModeOptions: any  [private]
+  horizontalAlignOptions: any  [private]
+  mediaRepository: any  [private]
+  previewSource: any  [private]
+  uploadTag: any  [private]
+  verticalAlignOptions: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  emitUpdate(): any  [private]
+  formatMinHeight(value: any): any  [private]
+  isUnitlessNumber(value: any): any  [private]
+  onChangeDisplayMode(value: any): any  [private]
+  onChangeIsDecorative(value: any): any  [private]
+  onChangeMinHeight(value: any): any  [private]
+  onCloseModal(): any  [private]
+  onImageRemove(): any  [private]
+  onImageUpload(arg0: any): Promise<any>  [private]
+  onOpenMediaModal(): any  [private]
+  onSelectionChanges(mediaEntity: any): any  [private]
+  updateElementData(media?: any = null): any  [private]
+
 blocks
   sw_cms_element_image_config  [private]
     sw_cms_element_image_config_display_mode  [private]

@@ -22,6 +22,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -169,6 +170,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             'override-variant' => Uuid::randomHex(),
             'override-parent' => Uuid::randomHex(),
             'manufacturer' => Uuid::randomHex(),
+            'content-layout' => Uuid::randomHex(),
         ];
 
         // every lookup is answered by the table it reads
@@ -185,6 +187,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             'FROM product_translation_media_usage' => [$ids['override-variant']],
             'FROM product WHERE id IN' => [$ids['override-parent']],
             'FROM product_manufacturer WHERE media_id' => [$ids['manufacturer']],
+            'FROM content_layout_media_usage' => [$ids['content-layout']],
         ];
 
         $this->connection->expects($this->once())->method('fetchAllAssociative')->willReturn([['product_id' => $ids['product'], 'variant_id' => null]]);
@@ -217,6 +220,9 @@ class CacheInvalidationSubscriberTest extends TestCase
             LandingPageRoute::buildName($ids['landing-page']),
             EntityCacheKeyGenerator::buildProductTag($ids['override-parent']),
             EntityCacheKeyGenerator::buildManufacturerTag($ids['manufacturer']),
+            ContentSection::MAIN->buildLayoutTag($ids['content-layout']),
+            ContentSection::HEADER->buildLayoutTag($ids['content-layout']),
+            ContentSection::FOOTER->buildLayoutTag($ids['content-layout']),
         ] as $tag) {
             static::assertContains($tag, $tags);
         }

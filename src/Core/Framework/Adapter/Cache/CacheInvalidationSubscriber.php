@@ -35,6 +35,7 @@ use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -573,6 +574,7 @@ class CacheInvalidationSubscriber
             ...array_map(LandingPageRoute::buildName(...), $this->getLandingPageIdsBySlotConfigOverride($mediaIds)),
             ...array_map(EntityCacheKeyGenerator::buildProductTag(...), $this->getProductIdsBySlotConfigOverride($mediaIds)),
             ...array_map(EntityCacheKeyGenerator::buildManufacturerTag(...), $this->getManufacturerIdsByMedia($mediaIds)),
+            ...$this->getContentLayoutTags($mediaIds),
         ]));
     }
 
@@ -667,6 +669,32 @@ class CacheInvalidationSubscriber
     private function getManufacturerIdsByMedia(array $mediaIds): array
     {
         return $this->fetchIdsByMedia('SELECT LOWER(HEX(id)) FROM product_manufacturer WHERE media_id IN (:ids) AND version_id = :version', $mediaIds);
+    }
+
+    /**
+     * The media of content layouts, mapped by the content layout media usage indexer.
+     * A layout rendered in the header or footer of a page carries the tag of its section only.
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getContentLayoutTags(array $mediaIds): array
+    {
+        $layoutIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(content_layout_id)) FROM content_layout_media_usage WHERE media_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($mediaIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $tags = [];
+        foreach ($layoutIds as $layoutId) {
+            foreach (ContentSection::cases() as $section) {
+                $tags[] = $section->buildLayoutTag($layoutId);
+            }
+        }
+
+        return $tags;
     }
 
     /**

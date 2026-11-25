@@ -36,6 +36,12 @@ the Storefront hands those two to the subscriber through the container parameter
 
 `MappedMediaCacheInvalidator` invalidates the corresponding per-media tags for media and media-translation writes/deletions, including direct translation operations identified by their composite primary keys. It also listens to `MediaIndexerEvent` for index-time updates. DAL handling works when remote thumbnails skip indexing and does not depend on the cache-rework flags. It uses the normal immediate/delayed invalidation policy. A render records the tag of a media only when its layout maps that media, so this invalidator evicts no page that does not map it.
 
+Media stored in a layout are found through the usage table instead of a tag per media.
+`MediaUsage/ContentLayoutMediaUsageIndexer` reads every data requirement of the `entity` or `entity_collection` loader for the `media` entity and maps the id, or ids, stored under its `property` to the layout.
+It runs on every write of the layout tree and on a full reindex.
+On a media replace, `Framework/Adapter/Cache/CacheInvalidationSubscriber::invalidateMedia()` looks up the layouts and invalidates their tags of all three sections, because a layout rendered in a header or footer only carries the tag of its section.
+Mapped media are no stored ids, they keep their per-media tag.
+
 Custom-field mapping metadata uses a separate dependency: `content-system-custom-field-mapping-metadata`. The provider attaches it only when a render attempts a mapping under a supported root's `customFields` path, including an unavailable field. Whole-field and inline mappings share this policy. Literal mapping-looking text outside supported positions creates no dependency.
 
 Writes/deletes to custom-field definitions, sets, or set relations invalidate the tag, including relation deletions whose payload contains only an ID. This deliberately invalidates pages using any custom-field mapping when mapping metadata changes. Layouts with only normal core mappings receive no such dependency and remain cached. The provider owns path recognition; general rendering does not inspect custom-field names.

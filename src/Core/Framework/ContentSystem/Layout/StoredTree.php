@@ -80,6 +80,19 @@ final readonly class StoredTree
     }
 
     /**
+     * The ids of an entity every element of the tree stores, see {@see StoredElement::getEntityIds()}
+     *
+     * @return list<string>
+     */
+    public function getEntityIds(string $entity): array
+    {
+        return array_values(array_unique(array_merge(...array_map(
+            static fn (StoredElement $root): array => $root->getEntityIds($entity),
+            $this->roots
+        ))));
+    }
+
+    /**
      * Every element id in the forest, in depth-first order, including duplicates.
      *
      * @return list<string>

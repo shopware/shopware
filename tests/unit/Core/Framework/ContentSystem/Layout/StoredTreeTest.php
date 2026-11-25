@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -49,6 +51,20 @@ class StoredTreeTest extends TestCase
     }
 
     #[TestDox('find returns a root element by id')]
+    public function testEntityIdsAreCollectedFromEveryRootOnce(): void
+    {
+        $sharedId = Uuid::randomHex();
+        $otherId = Uuid::randomHex();
+
+        $tree = new StoredTree([
+            $this->image('first', $sharedId),
+            $this->image('second', $otherId),
+            $this->image('third', $sharedId),
+        ]);
+
+        static::assertSame([$sharedId, $otherId], $tree->getEntityIds('media'));
+    }
+
     public function testFindReturnsARootElement(): void
     {
         $tree = $this->tree();
@@ -365,5 +381,15 @@ class StoredTreeTest extends TestCase
     private function serialize(StoredTree $tree): array
     {
         return array_map(static fn (StoredElement $root): array => $root->jsonSerialize(), $tree->roots);
+    }
+
+    private function image(string $id, string $mediaId): StoredElement
+    {
+        return new StoredElement(
+            $id,
+            'Sw:Media:Image',
+            ['media' => new DataRequirement('media', 'entity', new EntityLoaderConfig('media', 'mediaId', []))],
+            ['mediaId' => StoredValue::ofString($mediaId)],
+        );
     }
 }

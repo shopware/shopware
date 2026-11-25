@@ -132,6 +132,7 @@ class DefinitionValidator
         'category_translation_media_usage',
         'product_translation_media_usage',
         'landing_page_translation_media_usage',
+        'content_layout_media_usage',
         'webhook_delivery',
         'webhook_stream',
     ];

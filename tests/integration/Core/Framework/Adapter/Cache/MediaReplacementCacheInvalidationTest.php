@@ -13,6 +13,7 @@ use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
@@ -251,6 +252,37 @@ class MediaReplacementCacheInvalidationTest extends TestCase
         $tags = $this->replaceFileAndCollectInvalidatedTags($this->ids->get('media'));
 
         static::assertContains(LandingPageRoute::buildName($this->ids->get('landing-page')), $tags);
+    }
+
+    public function testInvalidatesContentLayoutOfImageElement(): void
+    {
+        static::getContainer()->get('content_layout.repository')->create([[
+            'id' => $this->ids->get('content-layout'),
+            'name' => 'media replacement',
+            'version' => '1.0.0',
+            'rootSource' => 'category',
+            'layout' => [[
+                'id' => 'container',
+                'component' => 'Sw:Grid:Container',
+                'properties' => [],
+                'slots' => [
+                    'content' => [[
+                        'id' => 'image',
+                        'component' => 'Sw:Media:Image',
+                        'properties' => ['mediaId' => $this->ids->get('media')],
+                        'dataRequirements' => [
+                            'media' => ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                        ],
+                    ]],
+                ],
+            ]],
+        ]], $this->context);
+
+        $tags = $this->replaceFileAndCollectInvalidatedTags($this->ids->get('media'));
+
+        foreach (ContentSection::cases() as $section) {
+            static::assertContains($section->buildLayoutTag($this->ids->get('content-layout')), $tags);
+        }
     }
 
     /**

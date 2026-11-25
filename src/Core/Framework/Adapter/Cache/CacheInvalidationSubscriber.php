@@ -398,14 +398,12 @@ class CacheInvalidationSubscriber
             $variantIds,
         );
 
+        $tags = $this->getMediaUsageTags(array_values($event->getIds()), $productIds);
+
         if (Feature::isActive('cache_rework')) {
-            $this->cacheInvalidator->invalidate(
-                array_map(ProductDetailRoute::buildName(...), $productIds)
-            );
+            $this->cacheInvalidator->invalidate([...array_map(ProductDetailRoute::buildName(...), $productIds), ...$tags]);
         } else {
-            $this->cacheInvalidator->invalidate(
-                array_map(CachedProductDetailRoute::buildName(...), $productIds)
-            );
+            $this->cacheInvalidator->invalidate([...array_map(CachedProductDetailRoute::buildName(...), $productIds), ...$tags]);
         }
     }
 
@@ -703,6 +701,149 @@ class CacheInvalidationSubscriber
              AND product_version_id = :version
              AND category_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * Returns the cache tags of the pages showing the media, besides the product detail pages of the product media.
+     * The media of slot configs are mapped to their layouts and owners by the media usage indexers.
+     *
+     * @param list<string> $mediaIds
+     * @param list<string> $productIds products and variants using the media as product media
+     *
+     * @return list<string>
+     */
+    private function getMediaUsageTags(array $mediaIds, array $productIds): array
+    {
+        $tags = [];
+
+        if ($productIds !== []) {
+            $tags = [
+                ...array_map(Feature::isActive('cache_rework') ? ProductListingRoute::buildName(...) : CachedProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds)),
+                ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $this->getStreamIds($productIds)),
+            ];
+        }
+
+        return array_values(array_unique([
+            ...$tags,
+            ...array_map(CategoryRoute::buildName(...), [
+                ...$this->getCategoryIdsByMedia($mediaIds),
+                ...$this->getCategoryIdsBySlotConfigOverride($mediaIds),
+            ]),
+            ...array_map(EntityCacheKeyGenerator::buildCmsTag(...), [
+                ...$this->getCmsPageIdsByMedia($mediaIds),
+                ...$this->getCmsPageIdsByBackground($mediaIds),
+            ]),
+            ...array_map(LandingPageRoute::buildName(...), $this->getLandingPageIdsBySlotConfigOverride($mediaIds)),
+            ...array_map(Feature::isActive('cache_rework') ? ProductDetailRoute::buildName(...) : CachedProductDetailRoute::buildName(...), $this->getProductIdsBySlotConfigOverride($mediaIds)),
+            ...array_map(EntityCacheKeyGenerator::buildManufacturerTag(...), $this->getManufacturerIdsByMedia($mediaIds)),
+        ]));
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCategoryIdsByMedia(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(id)) FROM category WHERE media_id IN (:ids) AND version_id = :version', $mediaIds);
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCategoryIdsBySlotConfigOverride(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(category_id)) FROM category_translation_media_usage WHERE media_id IN (:ids) AND category_version_id = :version', $mediaIds);
+    }
+
+    /**
+     * The media of CMS elements, mapped by the media usage indexer
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCmsPageIdsByMedia(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_page_id)) FROM cms_page_media_usage WHERE media_id IN (:ids) AND cms_page_version_id = :version', $mediaIds);
+    }
+
+    /**
+     * Section and block backgrounds, a block belongs to its layout by its section
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCmsPageIdsByBackground(array $mediaIds): array
+    {
+        $pageIds = $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_page_id)) FROM cms_section WHERE background_media_id IN (:ids) AND version_id = :version', $mediaIds);
+        $sectionIds = $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_section_id)) FROM cms_block WHERE background_media_id IN (:ids) AND version_id = :version', $mediaIds);
+        if ($sectionIds === []) {
+            return $pageIds;
+        }
+
+        return [
+            ...$pageIds,
+            ...$this->connection->fetchFirstColumn(
+                'SELECT LOWER(HEX(cms_page_id)) FROM cms_section WHERE id IN (:ids) AND version_id = :version',
+                ['ids' => Uuid::fromHexToBytesList($sectionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+                ['ids' => ArrayParameterType::BINARY]
+            ),
+        ];
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getLandingPageIdsBySlotConfigOverride(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(landing_page_id)) FROM landing_page_translation_media_usage WHERE media_id IN (:ids) AND landing_page_version_id = :version', $mediaIds);
+    }
+
+    /**
+     * The detail page of a variant is tagged with its parent
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return array<string>
+     */
+    private function getProductIdsBySlotConfigOverride(array $mediaIds): array
+    {
+        $ids = $this->fetchIdsByMedia('SELECT LOWER(HEX(product_id)) FROM product_translation_media_usage WHERE media_id IN (:ids) AND product_version_id = :version', $mediaIds);
+
+        return $ids === [] ? [] : $this->getParentIds($ids);
+    }
+
+    /**
+     * The detail pages of products are tagged with their manufacturer, whose logo they can show
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getManufacturerIdsByMedia(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(id)) FROM product_manufacturer WHERE media_id IN (:ids) AND version_id = :version', $mediaIds);
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function fetchIdsByMedia(string $sql, array $mediaIds): array
+    {
+        return $this->connection->fetchFirstColumn(
+            $sql,
+            ['ids' => Uuid::fromHexToBytesList($mediaIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
     }

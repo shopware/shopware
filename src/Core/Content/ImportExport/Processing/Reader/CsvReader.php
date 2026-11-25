@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\ImportExport\Util\FormulaEscaper;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -133,7 +134,7 @@ class CsvReader extends AbstractReader
     private function mapRecord(array $record): ?array
     {
         if (!$this->withHeader) {
-            return $record;
+            return array_map(FormulaEscaper::unescape(...), $record);
         }
 
         // get header and read next line
@@ -145,7 +146,7 @@ class CsvReader extends AbstractReader
 
         $assoc = [];
         foreach ($this->header as $idx => $key) {
-            $assoc[$key] = $record[$idx] ?? '';
+            $assoc[$key] = FormulaEscaper::unescape($record[$idx] ?? '');
         }
 
         return $assoc;

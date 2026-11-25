@@ -1,5 +1,16 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### CSV exports escape values that start a formula
+
+Values in CSV exports that start with `=`, `+`, `-`, `@`, a tab, a carriage return or a line feed, or with the full-width `＝`, `＋`, `－` or `＠`, now get a single quote (`'`) in front.
+Spreadsheet applications then show such a value as text instead of running it as a formula.
+This also applies to the file of invalid records that an import creates.
+The header row and plain numbers such as `-2` stay unchanged.
+A CSV import removes the quote in front of such a value again, so an exported file imports with its original values.
+Integrations that read exported files themselves see the quote.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it
@@ -586,14 +597,6 @@ Rows whose cells only contain `0` are imported instead of skipped.
 A `0` is no longer replaced by the mapping's default value and satisfies a required field.
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
-
-### CSV exports escape values that start a formula
-
-Values in CSV exports that start with `=`, `+`, `-`, `@`, a tab, a carriage return or a line feed, or with the full-width `＝`, `＋`, `－` or `＠`, now get a single quote (`'`) in front.
-Spreadsheet applications then show such a value as text instead of running it as a formula.
-This also applies to the file of invalid records that an import creates.
-The header row and plain numbers such as `-2` stay unchanged.
-Importing an exported file unchanged keeps the quote in these values.
 
 ### Rules match the address of a visitor without a customer
 

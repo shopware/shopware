@@ -315,7 +315,8 @@ function isInInternalDocblock(lines: string[], index: number): boolean {
 
 // `#[` opens a PHP attribute, not a comment.
 const COMMENT_LINE = /^\s*(\*|\/\/|\/\*|#(?!\[)|\{#|<!--)/;
-const CLOSED_LEADING_COMMENT = /^\s*(\/\*.*?\*\/|\{#.*?#\}|<!--.*?-->)/;
+// HTML also ends a comment at `--!>`.
+const CLOSED_LEADING_COMMENT = /^\s*(\/\*[\s\S]*?\*\/|\{#[\s\S]*?#\}|<!--[\s\S]*?--!?>)/;
 
 /** A comment that closes on its own line hides nothing after it: `/* x *\/ if (…)` is code. */
 function isCommentLine(content: string): boolean {

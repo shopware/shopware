@@ -290,6 +290,7 @@ test('code after a comment that closes on the same line still counts', () => {
         "+        /* x */ if (Feature::isActive('v6.8.0.0')) {",
         "+    {# old #}{% if feature('v6.8.0.0') %}",
         '+    <!-- old --><sw-flag v-if="feature(\'v6.8.0.0\')" />',
+        '+    <!-- old --!><sw-flag v-if="feature(\'v6.8.0.0\')" />',
     ]) {
         assert.deepEqual(evaluate('src/Core/Framework/Feature.php', line), { behaviour: true, cleanup: false }, line);
     }

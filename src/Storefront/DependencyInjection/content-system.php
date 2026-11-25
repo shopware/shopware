@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Storefront\ContentSystem\Extension\ContentLayoutExtension;
 use Shopware\Storefront\ContentSystem\Extension\SalesChannelDomainExtension;
 use Shopware\Storefront\ContentSystem\Extension\SalesChannelExtension;
@@ -81,6 +82,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(HeaderFooterAssignmentWriteValidator::class)
         ->args([
             service(LayoutRootSourceReader::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 };

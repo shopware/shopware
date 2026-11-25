@@ -23,16 +23,18 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystem
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,6 +50,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ContentLayoutWriteValidator::class)]
 class ContentLayoutWriteValidatorTest extends TestCase
 {
+    private const STORED_LAYOUT = '[{"id":"el-1","component":"Sw:Block"}]';
+
     private StaticDefinitionInstanceRegistry $registry;
 
     protected function setUp(): void
@@ -72,36 +76,85 @@ class ContentLayoutWriteValidatorTest extends TestCase
 
         $validator = $this->validator($gate, $registry);
 
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'none'])]);
+        $event = $this->event([$this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'none'])]);
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    #[TestDox('re-validates a layout-only edit against the committed root source read by the reader after gating its membership')]
-    public function testLayoutOnlyEditResolvesAgainstCommittedRootSource(): void
+    #[TestDox('resolves a layout-only edit against the stored root source of the write outcome')]
+    public function testLayoutOnlyEditResolvesAgainstStoredRootSource(): void
     {
-        $gate = static::createStub(LayoutGate::class);
+        $gate = $this->createMock(LayoutGate::class);
         $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
+        $gate->expects($this->once())->method('resolvability')
+            ->with(static::anything(), static::anything(), 'category')
+            ->willReturn(new DiagnosticsReport([]));
 
         $registry = static::createStub(RootSourceRegistry::class);
         $registry->method('knownRootSources')->willReturn(['category', 'none']);
         $registry->method('resolve')->willReturn([]);
 
-        $reader = static::createStub(LayoutRootSourceReader::class);
-        $reader->method('read')->willReturn('category');
+        $command = $this->layoutUpdate(['layout' => self::STORED_LAYOUT]);
+        $validator = $this->validator($gate, $registry, $this->storedRecord($command, 'category'));
 
-        $validator = $this->validator($gate, $registry, $reader);
-
-        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
+        $event = $this->event([$command]);
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    #[TestDox('bypasses every check and drains memo when skip flag is set')]
-    public function testSkipFlagBypassesValidationAndDrainsMemo(): void
+    /**
+     * The resulting tree is remembered first, so a lookup by anything other than the record's resulting layout
+     * value (the tree remembered last, say) gates the overwritten tree instead.
+     */
+    #[TestDox('gates a layout written twice in one batch once, on the tree behind its resulting layout value')]
+    public function testLayoutWrittenTwiceInOneBatchIsGatedOnTheTreeBehindItsResultingValue(): void
+    {
+        $id = Uuid::randomBytes();
+        $create = $this->layoutCreate(['layout' => '[{"id":"el-first"}]', 'root_source' => 'product'], $id);
+        $edit = $this->layoutUpdate(['layout' => '[{"id":"el-resulting"}]'], $id);
+        $resultingTree = new StoredTree([new StoredElement('el-resulting', 'Sw:Block')]);
+
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->expects($this->once())->method('resolvability')
+            ->with($resultingTree->roots, static::anything(), 'product')
+            ->willReturn(new DiagnosticsReport([new Violation(ViolationCode::UnresolvedRequired, 'el-resulting', 'target', 'unresolved')]));
+
+        $write = WriteContext::createFromContext(Context::createDefaultContext());
+        $memo = new LayoutWriteContext();
+        $memo->remember($write, '[{"id":"el-resulting"}]', $resultingTree);
+        $memo->remember($write, '[{"id":"el-first"}]', new StoredTree([new StoredElement('el-first', 'Sw:Block')]));
+        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
+
+        $event = new PreWriteValidationEvent($write, [$create, $edit]);
+        $this->validator($gate)->preValidate($event);
+
+        $exceptions = $event->getExceptions()->getExceptions();
+        static::assertCount(1, $exceptions);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
+        static::assertSame('/update', $exceptions[0]->getPath());
+    }
+
+    #[TestDox('skips resolvability for a layout-only edit whose root source the write outcome cannot resolve')]
+    public function testLayoutOnlyEditWithoutAnyRootSourceSkipsResolvability(): void
+    {
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->expects($this->never())->method('resolvability');
+
+        $command = $this->layoutUpdate(['layout' => self::STORED_LAYOUT]);
+        $validator = $this->validator($gate, null, $this->storedRecord($command, null));
+
+        $event = $this->event([$command]);
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestDox('bypasses every check when skip flag is set')]
+    public function testSkipFlagBypassesValidation(): void
     {
         $gate = $this->createMock(LayoutGate::class);
         $gate->expects($this->never())->method('wellFormedness');
@@ -113,7 +166,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
 
         $validator = $this->validator($gate, $registry);
 
-        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'bogus']);
+        $command = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'bogus']);
         $write = $this->writeWithMemoFor([$command]);
         $context = $write->getContext();
         $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
@@ -122,79 +175,56 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
-        static::assertTrue($this->memoOf($context)->isEmpty());
     }
 
-    #[TestDox('leaves nothing memoized behind after a validated write')]
-    public function testValidatedWriteEmptiesTheMemo(): void
+    /**
+     * The DAL dispatches the validation event again when it retries a write's transaction, without encoding the
+     * layout again, so the second dispatch must find the tree the first one judged.
+     */
+    #[TestDox('reaches the same verdict when the validation event of one write is dispatched again')]
+    public function testARepeatedValidationEventIsJudgedAgainOnTheSameTree(): void
     {
-        $validator = $this->validator();
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->expects($this->exactly(2))->method('resolvability')
+            ->willReturn(new DiagnosticsReport([new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'target', 'unresolved')]));
 
-        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
+        $validator = $this->validator($gate, $this->registryKnowing(['product']));
+
+        $command = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'product']);
         $write = $this->writeWithMemoFor([$command]);
 
         $validator->preValidate(new PreWriteValidationEvent($write, [$command]));
+        $write->resetExceptions();
 
-        static::assertTrue($this->memoOf($write->getContext())->isEmpty());
+        $retry = new PreWriteValidationEvent($write, [$command]);
+        $validator->preValidate($retry);
+
+        $violation = $this->onlyViolation($retry);
+        static::assertSame(ViolationCode::UnresolvedRequired->value, $violation->getCode());
     }
 
-    #[TestDox('refuses to gate a layout command against a memo an earlier write opened')]
-    public function testForeignOwnedMemoIsNotConsumed(): void
-    {
-        $validator = $this->validator();
-
-        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
-        $earlierWrite = $this->writeWithMemoFor([$command]);
-        $memo = $this->memoOf($earlierWrite->getContext());
-
-        $currentWrite = WriteContext::createFromContext($earlierWrite->getContext());
-
-        $this->expectExceptionObject(
-            ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, '/insert')
-        );
-
-        try {
-            $validator->preValidate(new PreWriteValidationEvent($currentWrite, [$command]));
-        } finally {
-            static::assertFalse($memo->isEmpty(), 'The earlier write\'s entry must survive untouched.');
-        }
-    }
-
-    #[TestDox('leaves a memo an earlier write opened alone on the skip path')]
-    public function testForeignOwnedMemoIsNotDrainedUnderTheSkipState(): void
-    {
-        $validator = $this->validator();
-
-        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
-        $earlierWrite = $this->writeWithMemoFor([$command]);
-        $context = $earlierWrite->getContext();
-        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
-
-        $validator->preValidate(new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]));
-
-        static::assertFalse($this->memoOf($context)->isEmpty());
-    }
-
-    #[TestDox('leaves the memo untouched for a command that writes neither the layout nor the root source')]
-    public function testCommandTouchingNeitherFieldConsumesNothing(): void
+    #[TestDox('does not gate the tree of a layout the batch creates and then deletes')]
+    public function testTreeWrittenBeforeTheRecordsDeleteIsNotGated(): void
     {
         $gate = $this->createMock(LayoutGate::class);
         $gate->expects($this->never())->method('wellFormedness');
 
-        $validator = $this->validator($gate);
+        $create = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'none']);
+        $delete = new DeleteCommand(
+            $this->registry->getByEntityName(ContentLayoutDefinition::ENTITY_NAME),
+            $create->getPrimaryKey(),
+            static::createStub(EntityExistence::class),
+        );
+        $write = $this->writeWithMemoFor([$create]);
 
-        $command = $this->layoutUpdate(['name' => 'renamed']);
-        $write = WriteContext::createFromContext(Context::createDefaultContext());
-        $memo = new LayoutWriteContext($write);
-        $memo->remember($command->getEntityName(), $command->getDecodedPrimaryKey()['id'], $this->tree());
-        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
+        $event = new PreWriteValidationEvent($write, [$create, $delete]);
+        $this->validator($gate)->preValidate($event);
 
-        $validator->preValidate(new PreWriteValidationEvent($write, [$command]));
-
-        static::assertFalse($memo->isEmpty());
+        static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    #[TestDox('runs the membership check only for a root-source-only command, consuming no memo entry')]
+    #[TestDox('runs the membership check only for a root-source-only command, looking up no memo entry')]
     public function testRootSourceOnlyCommandRunsMembershipOnly(): void
     {
         $gate = $this->createMock(LayoutGate::class);
@@ -204,11 +234,35 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator = $this->validator($gate, $this->registryKnowing(['product']));
 
         // No memo entry exists for this command; the gate must not look for one, or it would fail hard.
-        $command = $this->layoutCreate(['root_source' => 'product']);
-        $write = WriteContext::createFromContext(Context::createDefaultContext());
-        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, new LayoutWriteContext($write));
+        $event = $this->event([$this->layoutCreate(['root_source' => 'product'])]);
+        $validator->preValidate($event);
 
-        $event = new PreWriteValidationEvent($write, [$command]);
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestDox('rejects an unregistered root source on a root-source-only command with unknownRootSource and never reaches resolve')]
+    public function testRootSourceOnlyCommandWithUnregisteredRootSourceIsRejected(): void
+    {
+        $validator = $this->validatorRejectingBeforeResolvability();
+
+        $event = $this->event([$this->layoutCreate(['root_source' => 'bogus'])]);
+        $validator->preValidate($event);
+
+        $violation = $this->onlyViolation($event);
+        static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
+    }
+
+    #[TestDox('runs the membership check only for a root-source-only update of a stored layout, looking up no memo entry for the stored layout value')]
+    public function testRootSourceOnlyUpdateOfAStoredLayoutRunsMembershipOnly(): void
+    {
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->expects($this->never())->method('wellFormedness');
+        $gate->expects($this->never())->method('resolvability');
+
+        $command = $this->layoutUpdate(['root_source' => 'product']);
+        $validator = $this->validator($gate, $this->registryKnowing(['product']), $this->storedRecord($command, 'product', self::STORED_LAYOUT));
+
+        $event = $this->event([$command]);
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
@@ -228,7 +282,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
 
         $validator = $this->validator($gate, $registry);
 
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'product'])]);
+        $event = $this->event([$this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'product'])]);
         $validator->preValidate($event);
 
         $violation = $this->onlyViolation($event);
@@ -240,7 +294,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     {
         $validator = $this->validator();
 
-        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
+        $command = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'none']);
         $context = Context::createDefaultContext();
 
         $this->expectExceptionObject(
@@ -250,12 +304,46 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator->preValidate(new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]));
     }
 
+    #[TestDox('fails hard when the write memoized trees but none for the layout value the record ends up with')]
+    public function testResultingLayoutValueWithoutAMemoEntryFailsHard(): void
+    {
+        $validator = $this->validator();
+
+        $command = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'none']);
+        $write = WriteContext::createFromContext(Context::createDefaultContext());
+        $memo = new LayoutWriteContext();
+        $memo->remember($write, '[{"id":"el-other"}]', $this->tree());
+        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
+
+        $this->expectExceptionObject(
+            ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, '/insert')
+        );
+
+        $validator->preValidate(new PreWriteValidationEvent($write, [$command]));
+    }
+
+    #[TestDox('fails hard when only another write on the same context memoized a tree for the layout value')]
+    public function testEntryOfAnotherWriteOnTheSameContextCountsAsAbsent(): void
+    {
+        $validator = $this->validator();
+
+        $command = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'none']);
+        $otherWrite = $this->writeWithMemoFor([$command]);
+        $write = WriteContext::createFromContext($otherWrite->getContext());
+
+        $this->expectExceptionObject(
+            ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, '/insert')
+        );
+
+        $validator->preValidate(new PreWriteValidationEvent($write, [$command]));
+    }
+
     #[TestDox('rejects an unregistered root source on creation with unknownRootSource and never reaches resolve')]
     public function testUnknownRootSourceIsRejectedAndResolvabilitySkipped(): void
     {
         $validator = $this->validatorRejectingBeforeResolvability();
 
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'bogus'])]);
+        $event = $this->event([$this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'bogus'])]);
         $validator->preValidate($event);
 
         $violation = $this->onlyViolation($event);
@@ -268,7 +356,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     {
         $validator = $this->validatorRejectingBeforeResolvability();
 
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => $rootSource])]);
+        $event = $this->event([$this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => $rootSource])]);
         $validator->preValidate($event);
 
         $violation = $this->onlyViolation($event);
@@ -297,12 +385,10 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $registry->method('knownRootSources')->willReturn(['product', 'none']);
         $registry->expects($this->never())->method('resolve');
 
-        $reader = static::createStub(LayoutRootSourceReader::class);
-        $reader->method('read')->willReturn('category');
+        $command = $this->layoutUpdate(['layout' => self::STORED_LAYOUT]);
+        $validator = $this->validator($gate, $registry, $this->storedRecord($command, 'category'));
 
-        $validator = $this->validator($gate, $registry, $reader);
-
-        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
+        $event = $this->event([$command]);
         $validator->preValidate($event);
 
         $violation = $this->onlyViolation($event);
@@ -312,15 +398,29 @@ class ContentLayoutWriteValidatorTest extends TestCase
     private function validator(
         ?LayoutGate $gate = null,
         ?RootSourceRegistry $registry = null,
-        ?LayoutRootSourceReader $reader = null,
+        ?WriteOutcome $writeOutcome = null,
     ): ContentLayoutWriteValidator {
         return new ContentLayoutWriteValidator(
             $gate ?? $this->cleanGate(),
             new ViolationConstraintMapper(),
             $registry ?? $this->registryKnowing(['product', 'category', 'none']),
-            $reader ?? static::createStub(LayoutRootSourceReader::class),
+            $writeOutcome ?? new WriteOutcome(static::createStub(RowLoader::class)),
             $this->cleanMappingValidator(),
         );
+    }
+
+    /**
+     * A write outcome over a database that stores the command's layout record with the given root source and
+     * layout value.
+     */
+    private function storedRecord(WriteCommand $command, ?string $rootSource, ?string $layout = null): WriteOutcome
+    {
+        $rowLoader = static::createStub(RowLoader::class);
+        $rowLoader->method('load')->willReturn([
+            [...$command->getPrimaryKey(), ContentLayoutDefinition::ROOT_SOURCE_FIELD => $rootSource, ContentLayoutDefinition::LAYOUT_FIELD => $layout],
+        ]);
+
+        return new WriteOutcome($rowLoader);
     }
 
     /**
@@ -387,8 +487,8 @@ class ContentLayoutWriteValidatorTest extends TestCase
     }
 
     /**
-     * A write carrying what the layout field serializer would have left on its Context: one memoized tree per
-     * command that writes the layout column. The memo is owned by the returned WriteContext, so the event must
+     * A write carrying what the layout field serializer would have left on its Context: a memoized tree for
+     * each layout value the commands write. The entries belong to the returned WriteContext, so the event must
      * be built from this instance and not from a second one over the same Context.
      *
      * @param list<WriteCommand> $commands
@@ -396,27 +496,21 @@ class ContentLayoutWriteValidatorTest extends TestCase
     private function writeWithMemoFor(array $commands): WriteContext
     {
         $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
-        $memo = new LayoutWriteContext($writeContext);
+        $memo = new LayoutWriteContext();
 
         foreach ($commands as $command) {
-            if (!$command->hasField(ContentLayoutDefinition::LAYOUT_FIELD)) {
+            $encoded = $command->getPayload()[ContentLayoutDefinition::LAYOUT_FIELD] ?? null;
+
+            if (!\is_string($encoded)) {
                 continue;
             }
 
-            $memo->remember($command->getEntityName(), $command->getDecodedPrimaryKey()['id'], $this->tree());
+            $memo->remember($writeContext, $encoded, $this->tree());
         }
 
         $writeContext->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
 
         return $writeContext;
-    }
-
-    private function memoOf(Context $context): LayoutWriteContext
-    {
-        $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
-        static::assertInstanceOf(LayoutWriteContext::class, $memo);
-
-        return $memo;
     }
 
     private function tree(): StoredTree
@@ -427,9 +521,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
     /**
      * @param array<string, mixed> $payload
      */
-    private function layoutCreate(array $payload): InsertCommand
+    private function layoutCreate(array $payload, ?string $id = null): InsertCommand
     {
-        $id = Uuid::randomBytes();
+        $id ??= Uuid::randomBytes();
 
         return new InsertCommand(
             $this->registry->getByEntityName(ContentLayoutDefinition::ENTITY_NAME),
@@ -443,9 +537,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
     /**
      * @param array<string, mixed> $payload
      */
-    private function layoutUpdate(array $payload): UpdateCommand
+    private function layoutUpdate(array $payload, ?string $id = null): UpdateCommand
     {
-        $id = Uuid::randomBytes();
+        $id ??= Uuid::randomBytes();
 
         return new UpdateCommand(
             $this->registry->getByEntityName(ContentLayoutDefinition::ENTITY_NAME),

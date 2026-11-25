@@ -24,7 +24,7 @@ class CompanyAccountNameFieldsController
     #[Route(
         path: '/api/_action/customer/company-account-name-fields',
         name: 'api.action.customer.company-account-name-fields',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['customer:update']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['customer:read']],
         methods: ['GET']
     )]
     public function contactPersonRequired(Request $request): JsonResponse

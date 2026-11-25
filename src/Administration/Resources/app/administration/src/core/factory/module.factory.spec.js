@@ -308,7 +308,7 @@ describe('core/factory/module.factory.js', () => {
         expect(typeof module).toBe('undefined');
     });
 
-    describe('getModuleByMediaDefaultFolderEntity', () => {
+    describe('getModuleByChildEntity', () => {
         const routes = {
             index: {
                 path: 'index',
@@ -316,89 +316,76 @@ describe('core/factory/module.factory.js', () => {
             },
         };
 
-        function getModuleByMediaDefaultFolderEntity(entity) {
-            return Application.getContainer('factory').module.getModuleByMediaDefaultFolderEntity(entity);
+        function getModuleByChildEntity(entity) {
+            return Application.getContainer('factory').module.getModuleByChildEntity(entity);
         }
 
-        it('should return the module that declares the media default folder entity', () => {
+        it('should return the module that lists the child entity', () => {
             const registeredModule = register('sw-foo', {
                 entity: 'foo',
-                mediaDefaultFolderEntities: ['foo_document'],
+                childEntities: ['foo_document'],
                 routes,
             });
 
-            expect(getModuleByMediaDefaultFolderEntity('foo_document')).toEqual(registeredModule);
+            expect(getModuleByChildEntity('foo_document')).toEqual(registeredModule);
         });
 
-        it('should fall back to the module with the same entity name', () => {
-            const registeredModule = register('sw-foo', {
-                entity: 'foo',
-                routes,
-            });
-
-            expect(getModuleByMediaDefaultFolderEntity('foo')).toEqual(registeredModule);
-        });
-
-        it('should prefer a declaring module over a module with the same entity name', () => {
-            register('sw-bar', {
-                entity: 'bar',
-                routes,
-            });
-            const declaringModule = register('sw-foo', {
-                entity: 'foo',
-                mediaDefaultFolderEntities: ['bar'],
-                routes,
-            });
-
-            expect(getModuleByMediaDefaultFolderEntity('bar')).toEqual(declaringModule);
-        });
-
-        it('should return undefined when no module owns the media default folder entity', () => {
+        it('should not match the module by its own entity', () => {
             register('sw-foo', {
                 entity: 'foo',
-                mediaDefaultFolderEntities: ['foo_document'],
+                childEntities: ['foo_document'],
                 routes,
             });
 
-            expect(getModuleByMediaDefaultFolderEntity('unknown')).toBeUndefined();
+            expect(getModuleByChildEntity('foo')).toBeUndefined();
         });
 
-        it('should keep the first module and warn when a media default folder entity is claimed twice', () => {
+        it('should return undefined when no module lists the child entity', () => {
+            register('sw-foo', {
+                entity: 'foo',
+                childEntities: ['foo_document'],
+                routes,
+            });
+
+            expect(getModuleByChildEntity('unknown')).toBeUndefined();
+        });
+
+        it('should keep the first module and warn when a child entity is claimed twice', () => {
             const spy = jest.fn();
             jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
             const firstModule = register('sw-foo', {
                 entity: 'foo',
-                mediaDefaultFolderEntities: ['shared_folder'],
+                childEntities: ['shared_child'],
                 routes,
             });
             register('sw-bar', {
                 entity: 'bar',
-                mediaDefaultFolderEntities: ['shared_folder'],
+                childEntities: ['shared_child'],
                 routes,
             });
 
-            expect(getModuleByMediaDefaultFolderEntity('shared_folder')).toEqual(firstModule);
+            expect(getModuleByChildEntity('shared_child')).toEqual(firstModule);
             expect(spy).toHaveBeenCalledWith(
                 '[ModuleFactory]',
-                expect.stringContaining('"shared_folder" is already claimed by module "sw-foo"'),
+                expect.stringContaining('the child entity "shared_child" is already claimed by module "sw-foo"'),
             );
         });
 
-        it('should warn and ignore mediaDefaultFolderEntities when it is not an array', () => {
+        it('should warn and ignore childEntities when it is not an array', () => {
             const spy = jest.fn();
             jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
             register('sw-foo', {
                 entity: 'foo',
-                mediaDefaultFolderEntities: 'foo_document',
+                childEntities: 'foo_document',
                 routes,
             });
 
-            expect(getModuleByMediaDefaultFolderEntity('foo_document')).toBeUndefined();
+            expect(getModuleByChildEntity('foo_document')).toBeUndefined();
             expect(spy).toHaveBeenCalledWith(
                 '[ModuleFactory]',
-                expect.stringContaining('"mediaDefaultFolderEntities" has to be an array'),
+                expect.stringContaining('"childEntities" has to be an array'),
                 'foo_document',
             );
         });

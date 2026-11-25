@@ -13,7 +13,7 @@ modulesToCreate.set('sw-product', {
     icon: 'regular-products',
     color: '#57D9A3',
     entity: 'product',
-    mediaDefaultFolderEntities: ['product_document'],
+    childEntities: ['product_document'],
 });
 modulesToCreate.set('sw-mail-template', {
     icon: 'regular-cog',
@@ -28,7 +28,7 @@ Array.from(modulesToCreate.keys()).forEach((moduleName) => {
         icon: currentModuleValues.icon,
         color: currentModuleValues.color,
         entity: currentModuleValues.entity,
-        mediaDefaultFolderEntities: currentModuleValues.mediaDefaultFolderEntities,
+        childEntities: currentModuleValues.childEntities,
         routes: {
             index: {
                 components: {},
@@ -219,7 +219,7 @@ describe('components/media/sw-media-folder-item', () => {
         expect(wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner').props('color')).toBe('#57D9A3');
     });
 
-    it('should use the icon and color of the module that declares the default folder entity', async () => {
+    it('should use the icon and color of the module that lists the default folder entity as a child entity', async () => {
         useModuleIconColors().enabled.value = true;
         const warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
         const wrapper = await createWrapper(ID_PRODUCT_DOCUMENTS_FOLDER);
@@ -377,12 +377,25 @@ describe('components/media/sw-media-folder-item', () => {
         });
 
         wrapper.vm.mediaDefaultFolderRepository.get = jest.fn(() => Promise.resolve({}));
-        jest.spyOn(wrapper.vm.moduleFactory, 'getModuleByMediaDefaultFolderEntity').mockReturnValue({});
+        jest.spyOn(wrapper.vm.moduleFactory, 'getModuleByEntityName').mockReturnValue({});
 
         await wrapper.vm.getIconConfigFromFolder();
         await flushPromises();
 
         expect(wrapper.vm.mediaDefaultFolderRepository.get).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.moduleFactory.getModuleByMediaDefaultFolderEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.moduleFactory.getModuleByEntityName).toHaveBeenCalledTimes(1);
+    });
+
+    it('should prefer the module registered for the entity over a module listing it as a child entity', async () => {
+        const childEntitySpy = jest.spyOn(Shopware.Application.getContainer('factory').module, 'getModuleByChildEntity');
+        const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
+        await flushPromises();
+
+        expect(wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner').props('name')).toBe(
+            'regular-products',
+        );
+        expect(childEntitySpy).not.toHaveBeenCalled();
+
+        childEntitySpy.mockRestore();
     });
 });

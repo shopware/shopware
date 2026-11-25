@@ -134,22 +134,21 @@ The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoti
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 ## Administration
 
-### Modules can claim media default folders
+### Modules can declare child entities
 
-A module manifest can now list additional `media_default_folder.entity` values in `mediaDefaultFolderEntities`.
-The media manager shows those default folders with the module's icon and color.
-A folder whose entity equals the module's `entity` still matches without being listed.
+A module manifest can now list entities that belong to its `entity` and have no module of their own in `childEntities`.
+The media manager shows default folders of those child entities with the module's icon and color.
 
 ```js
 Shopware.Module.register('swag-example', {
     entity: 'swag_example',
-    mediaDefaultFolderEntities: ['swag_example_attachment'],
+    childEntities: ['swag_example_attachment'],
     // ...
 });
 ```
 
-The Product module now claims the `product_document` and `product_download` folders.
-If two modules claim the same folder, the first registered module wins and a warning is logged.
+The Product module now lists `product_document` and `product_download` as child entities.
+If two modules list the same child entity, the first registered module wins and a warning is logged.
 
 # 6.7.17.0
 

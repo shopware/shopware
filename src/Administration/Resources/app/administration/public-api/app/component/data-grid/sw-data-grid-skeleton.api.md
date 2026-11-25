@@ -11,16 +11,26 @@ component sw-data-grid-skeleton  private  js  [private]
   template src/app/component/data-grid/sw-data-grid-skeleton/sw-data-grid-skeleton.html.twig  [private]
   visibility-source export  [private]
 
+props
+  currentColumns: any[]  default=factory  [private]
+  hasResizeColumns: boolean  default=false  [private]
+  itemAmount?: number  default=7  [private]
+  showActions?: boolean  default=true  [private]
+  showSelection?: boolean  default=true  [private]
+
+methods
+  getRandomLength(): any  [private]
+
 blocks
   sw_data_grid_skeleton  [private]
     sw_data_grid_skeleton_row  [private]
-      sw_data_grid_skeleton_cell_actions  [private]
-        sw_data_grid_skeleton_cell_actions_content  [private]
-      sw_data_grid_skeleton_cell_selection  [private]
-        sw_data_grid_skeleton_cell_selection_content  [private]
-      sw_data_grid_skeleton_columns  [private]
-        sw_data_grid_skeleton_columns_content  [private]
-          sw_data_grid_skeleton_element  [private]
-      sw_data_grid_skeleton_spacer  [private]
-        sw_data_grid_skeleton_spacer_content  [private]
+      sw_data_grid_skeleton_cell_actions  [after v-if] [scope: item, itemIndex] [private]
+        sw_data_grid_skeleton_cell_actions_content  [scope: item, itemIndex] [private]
+      sw_data_grid_skeleton_cell_selection  [scope: item, itemIndex] [private]
+        sw_data_grid_skeleton_cell_selection_content  [scope: item, itemIndex] [private]
+      sw_data_grid_skeleton_columns  [after v-if] [scope: item, itemIndex] [private]
+        sw_data_grid_skeleton_columns_content  [scope: column, columnIndex, item, itemIndex] [private]
+          sw_data_grid_skeleton_element  [scope: column, columnIndex, item, itemIndex] [private]
+      sw_data_grid_skeleton_spacer  [scope: item, itemIndex] [private]
+        sw_data_grid_skeleton_spacer_content  [scope: item, itemIndex] [private]
 ```

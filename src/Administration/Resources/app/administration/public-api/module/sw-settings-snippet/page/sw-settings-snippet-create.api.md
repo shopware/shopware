@@ -9,4 +9,21 @@ component sw-settings-snippet-create  public  js
   extends sw-settings-snippet-detail
   registered src/module/sw-settings-snippet/index.js
   source src/module/sw-settings-snippet/page/sw-settings-snippet-create/index.js
+
+data
+  isCreate: any
+
+blocks
+  sw_settings_snippet_detail  [inherited]
+    sw_settings_snippet_detail_actions  [inherited]
+      sw_settings_snippet_detail_actions_abort  [inherited]
+      sw_settings_snippet_detail_actions_save  [inherited]
+    sw_settings_snippet_detail_content  [inherited]
+      sw_settings_snippet_set_detail_card  [inherited]
+        sw_settings_snippet_set_detail_card_information  [inherited]
+          sw_settings_snippet_set_detail_card_information_key  [inherited]
+        sw_settings_snippet_set_detail_card_snippets  [inherited]
+          sw_settings_snippet_set_detail_card_snippets_fields  [inherited]
+    sw_settings_snippet_detail_header  [inherited]
+    sw_settings_snippet_detail_smart_bar  [inherited]
 ```

@@ -11,11 +11,43 @@ component sw-product-deliverability-downloadable-form  private  js  [private]
   template src/module/sw-product/component/sw-product-deliverability-downloadable-form/sw-product-deliverability-downloadable-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+
+data
+  enteredOrderQuantity: any  [private]
+  enteredStock: any  [private]
+  showOrderQuantitySetting: any  [private]
+
+computed
+  isLimitedToOneUnit: any  [private]
+  parentProduct: any  [private]
+  product: any  [private]
+  productDeliveryTimeIdError: any  [private]
+  productIsCloseoutError: any  [private]
+  productMaxPurchaseError: any  [private]
+  productMinPurchaseError: any  [private]
+  productPurchaseStepsError: any  [private]
+  productStockError: any  [private]
+  showModeSetting: any  [private]
+  showStockSetting: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getInheritedValue(field: any): any  [private]
+  getOrderQuantity(): any  [private]
+  onOrderQuantitySwitchInput(enabled: any): any  [private]
+  onSwitchInput(enabled: any): any  [private]
+  setOrderQuantity(arg0: any): any  [private]
+
 blocks
   sw_product_deliverability_downloadable_form  [private]
     sw_product_deliverability_downloadable_form_available_stock_field  [private]
     sw_product_deliverability_downloadable_form_delivery_time_field  [private]
-    sw_product_deliverability_downloadable_form_is_closeout_field  [private]
+    sw_product_deliverability_downloadable_form_is_closeout_field  [after v-if] [private]
     sw_product_deliverability_downloadable_form_max_purchase_field  [private]
     sw_product_deliverability_downloadable_form_min_purchase_field  [private]
     sw_product_deliverability_downloadable_form_order_quantity_switch  [private]

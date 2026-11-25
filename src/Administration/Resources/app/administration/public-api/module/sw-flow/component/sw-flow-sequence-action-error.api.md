@@ -11,6 +11,18 @@ component sw-flow-sequence-action-error  private  js  [private]
   template src/module/sw-flow/component/sw-flow-sequence-action-error/sw-flow-sequence-action-error.html.twig  [private]
   visibility-source export  [private]
 
+props
+  sequence: object  [private]
+
+slots
+  content  {}  block=sw_flow_sequence_action_error  [private]
+
+computed
+  sequences: any  [private]
+
+methods
+  removeWarning(id: any): any  [private]
+
 blocks
   sw_flow_sequence_action_error  [private]
 ```

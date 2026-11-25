@@ -10,18 +10,52 @@ component sw-product-variants-delivery-listing  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/sw-product-variants-delivery-listing.html.twig
 
+props
+  product: object
+  selectedGroups: any[]
+
+slots
+  result-item  { ...{ item, index, isSelected } }  block=sw_product_variants_delivery_listing_config_single_main_variant_select
+  selection-label-property  { ...{ item } }  block=sw_product_variants_delivery_listing_config_single_main_variant_select
+
+data
+  searchTerm: any
+
+computed
+  context: any
+  listingMode: any
+  listingModeOptions: any
+  mainVariant: any
+  mainVariantModeOptions: any
+  selectedGroupsSorted: any
+  variantCriteria: any
+  variantMode: any
+
+methods
+  createdComponent(): any
+  isActiveGroupInListing(groupId: any): any
+  isActiveListingMode(mode: any): any
+  isDisabledListingMode(mode: any): any
+  isSelected(item: any): any
+  onChangeGroupListing(value: any, groupId: any): any
+  onSearchTermChange(value: any): any
+  onSelectCollapsed(): any
+  updateListingMode(value: any): any
+  updateMainVariant(value: any): any
+  updateVariantMode(value: any): any
+
 blocks
   sw_product_variants_delivery_listing
     sw_product_variants_delivery_listing_config
       sw_product_variants_delivery_listing_config_expanded
         sw_product_variants_delivery_listing_config_expanded_group_list
           sw_product_variants_delivery_listing_config_expanded_group_list_items
-            sw_product_variants_delivery_listing_config_expanded_group_list_item
+            sw_product_variants_delivery_listing_config_expanded_group_list_item  [scope: group]
       sw_product_variants_delivery_listing_config_single
         sw_product_variants_delivery_listing_config_single_main_variant_explanation
         sw_product_variants_delivery_listing_config_single_main_variant_label
         sw_product_variants_delivery_listing_config_single_main_variant_select
-          sw_product_variants_results_list_result_label
+          sw_product_variants_results_list_result_label  [scope: index, item]
         sw_product_variants_delivery_variant_mode_selection
     sw_product_variants_delivery_listing_mode
       sw_product_variants_delivery_listing_mode_selection

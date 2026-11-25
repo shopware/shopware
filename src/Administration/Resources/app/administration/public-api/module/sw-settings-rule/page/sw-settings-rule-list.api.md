@@ -11,16 +11,55 @@ component sw-settings-rule-list  private  js  [private]
   template src/module/sw-settings-rule/page/sw-settings-rule-list/sw-settings-rule-list.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  listing, notification  [private]
+
+inject
+  acl  [private]
+  filterFactory  [private]
+  filterService  [private]
+  repositoryFactory  [private]
+  ruleConditionDataProviderService  [private]
+
+data
+  activeFilterNumber: any  [private]
+  defaultFilters: any  [private]
+  filterCriteria: any  [private]
+  isLoading: any  [private]
+  rules: any  [private]
+  sortBy: any  [private]
+  storeKey: any  [private]
+
+computed
+  assignmentProperties: any  [private]
+  associationFilterOptions: any  [private]
+  conditionFilterOptions: any  [private]
+  dateFilter: any  [deprecated tag:v6.8.0] [private]
+  getRuleDefinition: any  [private]
+  groupFilterOptions: any  [private]
+  hasActiveSearchOrFilter: any  [private]
+  listCriteria: any  [private]
+  listFilters: any  [private]
+  ruleRepository: any  [private]
+
+methods
+  getList(): Promise<any>  [private]
+  getRuleColumns(): any  [private]
+  onChangeLanguage(languageId: any): any  [private]
+  onDuplicate(referenceRule: any): any  [private]
+  onInlineEditSave(promise: any, rule: any): Promise<any>  [private]
+  updateCriteria(criteria: any): any  [private]
+
 blocks
   sw_settings_list  [private]
     sw_settings_rule_index  [private]
       sw_settings_rule_list_content  [private]
         sw_settings_rule_list_content_card  [private]
-          sw_settings_rule_list_empty_message  [private]
+          sw_settings_rule_list_empty_message  [after v-if] [private]
           sw_settings_rule_list_grid  [private]
             sw_settings_rule_list_grid_column_tags  [private]
             sw_settings_rule_list_grid_columns_actions  [private]
-              sw_settings_rule_list_grid_columns_actions_duplicate  [private]
+              sw_settings_rule_list_grid_columns_actions_duplicate  [scope: item] [private]
         sw_settings_rule_list_sidebar  [private]
           sw_settings_rule_list_sidebar_filter  [private]
           sw_settings_rule_list_sidebar_refresh  [private]
@@ -31,4 +70,10 @@ blocks
         sw_settings_rule_list_smart_bar_header_title  [private]
           sw_settings_rule_list_smart_bar_header_title_amount  [private]
           sw_settings_rule_list_smart_bar_header_title_text  [private]
+
+crossings
+  v-if  sw_settings_rule_list_grid -> sw_settings_rule_list_empty_message  [private]
+
+refs
+  swRuleGrid  -> sw-entity-listing  block=sw_settings_rule_list_grid  [private]
 ```

@@ -5,22 +5,18 @@ namespace Shopware\Core\Framework\MessageQueue\Telemetry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 
 /**
- * Buckets a messenger message class into a small, bounded set of groups, so the large, plugin-extensible
- * set of message classes does not blow up the metric label cardinality.
+ * Resolves a messenger message FQCN to the `message_group` label value
+ * (see `metrics.mappings.message_group` in `telemetry.yaml`, extension and merge rules in
+ * `src/Core/Framework/Telemetry/README.md`).
  *
- * Owns its bounded output set (`other` as default), so the consuming metric label may use `policy: open`.
- * Known outputs: indexer, webhook, scheduled-task, mail, business, system, other.
+ * The core grouping stays in PHP: scheduled tasks ({@see ScheduledTask}) and DAL
+ * indexing ({@see EntityIndexingMessage}) resolve via `is_a()` so plugin subclasses group with it,
+ * {@see MessageGroupResolver::NAMESPACE_GROUPS} are matched by fragment - not expressible as prefix keys.
  *
- * The hardcoded maps are intentional (optimized for deletion). Once the groups are stable we can switch to a cleaner
- * approach, e.g. a telemetry-group attribute on the message class.
- *
- * Classification runs in order: the two structural families with a stable base class first — scheduled
- * tasks ({@see ScheduledTask}) and DAL indexing ({@see EntityIndexingMessage}), resolved via `is_a()` so
- * plugin subclasses group for free — then the {@see NAMESPACE_GROUPS} fragment map, else `other`. The
- * structural checks win, so such a message is grouped by them even when its namespace points at another
- * domain. Results are memoized per class name; workers are long-lived, so each class resolves once.
+ * Configuration entry still beats these rules.
  *
  * @internal
  *
@@ -31,6 +27,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 #[Package('framework')]
 class MessageGroupResolver
 {
+    final public const MAPPING = 'message_group';
+
     /**
      * Namespace fragment → group, first match wins (see class docblock for the classification logic and priority).
      *
@@ -66,17 +64,16 @@ class MessageGroupResolver
         'System\\UsageData\\' => 'system',
     ];
 
-    /**
-     * @var array<string, string>
-     */
-    private array $cache = [];
+    public function __construct(private readonly LabelMappingRegistry $mappings)
+    {
+    }
 
     public function resolve(string $messageClass): string
     {
-        return $this->cache[$messageClass] ??= $this->classify($messageClass);
+        return $this->mappings->resolve(self::MAPPING, $messageClass, $this->classify(...));
     }
 
-    private function classify(string $messageClass): string
+    private function classify(string $messageClass): ?string
     {
         if (is_a($messageClass, ScheduledTask::class, true)) {
             return 'scheduled-task';
@@ -92,6 +89,6 @@ class MessageGroupResolver
             }
         }
 
-        return 'other';
+        return null;
     }
 }

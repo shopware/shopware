@@ -11,6 +11,22 @@ component sw-tree-input-field  private  js  [private]
   template src/app/component/tree/sw-tree-input-field/sw-tree-input-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  currentValue?: string  [private]
+  disabled?: boolean  default=false  [private]
+
+emits
+  new-item-create(...args: any[])  [private]
+
+slots
+  content  {}  block=sw_tree_input_fieldelement_content  [private]
+
+computed
+  classes: any  [private]
+
+methods
+  createNewItem(itemName: any): any  [private]
+
 blocks
   sw_tree_input_field  [private]
     sw_tree_input_fieldelement  [private]

@@ -10,6 +10,25 @@ component sw-landing-page-detail-base  public  js
   source src/module/sw-category/view/sw-landing-page-detail-base/index.js
   template src/module/sw-category/view/sw-landing-page-detail-base/sw-landing-page-detail-base.html.twig
 
+mixins
+  placeholder
+
+inject
+  acl
+  repositoryFactory
+
+props
+  isLoading: boolean
+
+computed
+  cmsPage: any
+  customFieldSetsArray: any
+  isLayoutSet: any
+  landingPage: any
+  landingPageNameError: any
+  landingPageSalesChannelsError: any
+  landingPageUrlError: any
+
 blocks
   sw_landing_page_detail_base
     sw_landing_page_detail_base_attribute_sets
@@ -19,7 +38,7 @@ blocks
       sw_landing_page_detail_base_information_tags
       sw_landing_page_detail_base_seo_form_sales_channel
     sw_landing_page_detail_base_seo
-      sw_landing_page_detail_base_seo_form
+      sw_landing_page_detail_base_seo_form  [after v-if]
         sw_landing_page_detail_base_seo_form_keywords
         sw_landing_page_detail_base_seo_form_meta_description
         sw_landing_page_detail_base_seo_form_meta_title

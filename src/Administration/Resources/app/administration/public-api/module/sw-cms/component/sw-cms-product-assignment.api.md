@@ -12,8 +12,33 @@ component sw-cms-product-assignment  private  js  [private]
   template src/module/sw-cms/component/sw-cms-product-assignment/sw-cms-product-assignment.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  change(...args: any[])  [private]
+  paginate(...args: any[])  [private]
+
+slots
+  after-item-list  {}  block=sw_cms_product_assignment_results_list_after_content  [private]
+  before-item-list  {}  block=sw_cms_product_assignment_results_list_before_content  [private]
+  empty-state  {}  block=sw_cms_product_assignment_grid_footer_content  [private]
+  result-item  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey } }  block=sw_cms_product_assignment_results_list_result_content  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey } }  block=sw_cms_product_assignment_results_list_list_item_label  [private]
+  select  {}  block=sw_cms_product_assignment_select  [private]
+
+data
+  steps: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  initData(): any  [private]
+  onItemSelect(item: any): any  [private]
+  onSelectCollapsed(): any  [private]
+  paginateGrid(arg0?: any = this.gridCriteria): any  [private]
+  removeFromGrid(item: any): any  [private]
+  removeItem(item: any): Promise<any>  [private]
+  searchItems(): Promise<any>  [private]
+
 blocks
-  sw_entity_many_to_many_assignment_card  [private]
+  sw_entity_many_to_many_assignment_card  [replaced] [private]
     sw_cms_product_assignment_content  [private]
       sw_cms_product_assignment_select  [private]
         sw_cms_product_assignment_results_list  [private]
@@ -22,15 +47,23 @@ blocks
           sw_cms_product_assignment_results_list_before  [private]
             sw_cms_product_assignment_results_list_before_content  [private]
           sw_cms_product_assignment_results_list_result  [private]
-            sw_cms_product_assignment_results_list_result_content  [private]
-              sw_cms_product_assignment_results_list_list_item  [private]
-                sw_cms_product_assignment_results_list_list_item_label  [private]
-        sw_cms_product_assignment_search_field  [private]
+            sw_cms_product_assignment_results_list_result_content  [scope: index, item] [private]
+              sw_cms_product_assignment_results_list_list_item  [scope: index, item] [private]
+                sw_cms_product_assignment_results_list_list_item_label  [scope: index, item] [private]
+        sw_cms_product_assignment_search_field  [scope: collapse, disabled, error, expand, identification, size] [private]
     sw_cms_product_assignment_grid  [private]
       sw_cms_product_assignment_grid_column  [private]
-        sw_cms_product_assignment_grid_column_content  [private]
+        sw_cms_product_assignment_grid_column_content  [scope: column, columnProps] [private]
       sw_cms_product_assignment_grid_column_actions  [private]
-        sw_cms_product_assignment_grid_column_actions_content  [private]
+        sw_cms_product_assignment_grid_column_actions_content  [scope: item] [private]
       sw_cms_product_assignment_grid_footer  [private]
         sw_cms_product_assignment_grid_footer_content  [private]
+
+refs
+  searchInput  -> input  block=sw_cms_product_assignment_search_field  [private]
+  selectBase  -> sw-select-base  block=sw_cms_product_assignment_select  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_cms_product_assignment_results_list  [private]
+
+notes
+  dynamic-slot `column-${column.property}`  [private]
 ```

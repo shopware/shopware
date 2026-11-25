@@ -11,6 +11,15 @@ component sw-status  private  js  [private]
   template src/app/component/utils/sw-status/sw-status.html.twig  [private]
   visibility-source export  [private]
 
+props
+  color?: string  default='green'  [private]
+
+slots
+  default  {}  block=sw_status  [private]
+
+computed
+  statusClass: any  [private]
+
 blocks
   sw_status  [private]
 ```

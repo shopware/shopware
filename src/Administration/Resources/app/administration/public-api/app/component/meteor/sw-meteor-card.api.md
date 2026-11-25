@@ -11,15 +11,55 @@ component sw-meteor-card  private  js  [private]
   template src/app/component/meteor/sw-meteor-card/sw-meteor-card.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  defaultTab?: string  default=null  [private]
+  hero?: boolean  default=false  [private]
+  isLoading?: boolean  default=false  [private]
+  large?: boolean  default=false  [private]
+  title?: string  default=null  [private]
+
+slots
+  action  {}  block=sw_meteor_card_header_action_inner  [private]
+  default  { ...{ activeTab } }  block=sw_meteor_card_default_inner  [private]
+  footer  {}  block=sw_meteor_card_footer_inner  [private]
+  grid  { title }  block=sw_meteor_card_content  [private]
+  tabs  { ...{ activeTab } }  block=sw_meteor_card_tabs  [private]
+  title  {}  block=sw_meteor_card_title  [private]
+  toolbar  {}  block=sw_meteor_card_toolbar_inner  [private]
+
+data
+  activeTab: any  [private]
+
+computed
+  cardClasses: any  [private]
+  hasContent: any  [private]
+  hasDefaultSlot: any  [private]
+  hasHeader: any  [private]
+  hasTabs: any  [private]
+  hasToolbar: any  [private]
+  isToolbarLastHeaderElement: any  [private]
+  tabItems: any  [private]
+
+methods
+  createTabItem(item: any): any  [private]
+  createdComponent(): any  [private]
+  getTabItemDefaultSlotText(item: any): any  [private]
+  getTabItemsFromSlot(): any  [private]
+  isTabItem(item: any): any  [private]
+  setActiveTab(name: any): any  [private]
+
 blocks
   sw_meteor_card  [private]
-    sw_meteor_card_content  [private]
+    sw_meteor_card_content  [after v-if] [private]
       sw_meteor_card_content_wrapper  [private]
         sw_meteor_card_default_inner  [private]
           sw_meteor_card_slot_default  [private]
       sw_meteor_card_loader  [private]
       sw_meteor_card_slot_grid  [private]
-    sw_meteor_card_footer  [private]
+    sw_meteor_card_footer  [after v-if] [private]
       sw_meteor_card_footer_inner  [private]
         sw_meteor_card_slot_footer  [private]
     sw_meteor_card_header  [private]
@@ -28,9 +68,9 @@ blocks
           sw_meteor_card_header_action_inner  [private]
             sw_meteor_card_slot_header_action  [private]
         sw_meteor_card_title  [private]
-      sw_meteor_card_tabs  [private]
+      sw_meteor_card_tabs  [after v-if] [private]
         sw_meteor_card_mt_tabs  [from v6.8.0] [private]
-      sw_meteor_card_toolbar  [private]
+      sw_meteor_card_toolbar  [after v-if] [private]
         sw_meteor_card_toolbar_inner  [private]
           sw_meteor_card_slot_toolbar  [private]
 ```

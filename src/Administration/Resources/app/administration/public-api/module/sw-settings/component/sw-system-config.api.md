@@ -10,13 +10,89 @@ component sw-system-config  public  js
   source src/module/sw-settings/component/sw-system-config/index.js
   template src/module/sw-settings/component/sw-system-config/sw-system-config.html.twig
 
+mixins
+  notification, sw-inline-snippet
+
+inject
+  systemConfigApiService
+
+provide
+  swSystemConfigCurrentSalesChannelId: any
+
+props
+  domain: string
+  inherit?: boolean  default=true
+  salesChannelId?: string  default=null
+  salesChannelSwitchable?: boolean  default=false
+
+emits
+  config-changed(...args: any[])
+  loading-changed(...args: any[])
+
+slots
+  afterElements  { ...{ card, config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null, currentSalesChannelId } }  block=sw_system_config_content_card
+  beforeElements  { ...{ card, config: actualConfigData[currentSalesChannelId], currentSalesChannelId } }  block=sw_system_config_content_card
+  card-element  { ...{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card, currentSalesChannelId } }  block=sw_system_config_content_card
+  card-element-last  { ...{ currentSalesChannelId } }  block=sw_system_config_content_card
+  title  {}  block=sw_system_config_content_card
+
+data
+  activeTab: any
+  actualConfigData: any
+  config: any  [deprecated tag:v6.8.0]
+  currentSalesChannelId: any
+  hasCssFields: any
+  initialConfigData: any
+  isLoading: any
+  isSyncingFromConfig: any  [deprecated tag:v6.8.0]
+  isSyncingFromSchema: any  [deprecated tag:v6.8.0]
+  salesChannelModel: any
+  schema: any
+
+computed
+  defaultTabItem: any
+  isNotDefaultSalesChannel: any
+  showGlobalSection: any
+  showTabs: any
+  tabItems: any
+  typesWithMapInheritanceSupport: any
+
+methods
+  assignConfigIds(schema: any): any  [deprecated tag:v6.8.0]
+  configToSchema(config: any, previousSchema: any): any  [deprecated tag:v6.8.0]
+  createErrorNotification(errors: any): any
+  createdComponent(): Promise<any>
+  emitConfig(): any
+  getCacheRelevantFieldNames(): any
+  getChangedConfigData(): any
+  getElementBind(element: any, mapInheritance: any): any
+  getFieldError(fieldName: any): any
+  getInheritWrapperBind(element: any): any
+  getInheritedValue(element: any): any
+  getMeteorElementBind(element: any, mapInheritance: any): any
+  getMeteorElementEventsHandler(element: any, mapInheritance: any): any
+  getSchemaForDomain(): Promise<any>  [deprecated tag:v6.8.0]
+  getTabIndexByElementOverlap(card: any, elementNameToTabIndex: any): any  [deprecated tag:v6.8.0]
+  getTabName(tab: any): any
+  hasCacheRelevantChanges(changedConfigData: any): any
+  hasConfigChanges(configData: any): any
+  hasMapInheritanceSupport(element: any): any
+  isMeteorComponent(element: any): any
+  kebabCase(value: any): any
+  loadCurrentSalesChannelConfig(): Promise<any>
+  onSalesChannelChanged(salesChannelId: any): any
+  readAll(): any
+  readConfig(): Promise<any>
+  saveAll(): Promise<any>
+  schemaToConfig(schema: any): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_system_config
-    sw_system_config_content_tab
-      sw_system_config_content_card
-        sw_system_config_content_card_group
-          sw_system_config_content_card_field
-        sw_system_config_content_compile_notice
-    sw_system_config_content_tabs
+    sw_system_config_content_tab  [scope: tab, tabIndex]
+      sw_system_config_content_card  [scope: config, tab, tabIndex]
+        sw_system_config_content_card_group  [scope: card, config, element, index, tab, tabIndex]
+          sw_system_config_content_card_field  [scope: card, config, element, index, tab, tabIndex]
+        sw_system_config_content_compile_notice  [scope: card, config, index, tab, tabIndex]
+    sw_system_config_content_tabs  [after v-if]
     sw_system_config_global_compile_notice
 ```

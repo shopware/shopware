@@ -10,6 +10,26 @@ component sw-order-state-change-modal  public  js
   source src/module/sw-order/component/sw-order-state-change-modal/index.js
   template src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal.html.twig
 
+props
+  isLoading: boolean
+  order: object
+  technicalName: string
+
+emits
+  page-leave(...args: any[])
+  page-leave-confirm(...args: any[])
+
+data
+  showModal: any
+  userCanConfirm: any
+
+computed
+  modalTitle: any
+
+methods
+  onCancel(): any
+  onDocsConfirm(docIds: any, sendMail?: any = true, internalComment?: any = null): any
+
 blocks
   sw_order_state_change_modal
     sw_order_state_change_modal_attach_documents_component

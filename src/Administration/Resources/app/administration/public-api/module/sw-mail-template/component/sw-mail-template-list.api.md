@@ -10,12 +10,40 @@ component sw-mail-template-list  public  js
   source src/module/sw-mail-template/component/sw-mail-template-list/index.js
   template src/module/sw-mail-template/component/sw-mail-template-list/sw-mail-template-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+
+props
+  searchTerm?: string  default=''  [deprecated tag:v6.8.0]
+
+data
+  isLoading: any
+  mailTemplates: any
+  showDeleteModal: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  mailTemplateRepository: any
+  showListing: any
+  skeletonItemAmount: any
+
+methods
+  getList(): any
+  getListColumns(): any
+  onChangeLanguage(languageId: any): any
+  onDuplicate(id: any): any
+  updateRecords(result: any): any
+
 blocks
   sw_mail_template_list_grid
     sw_mail_template_list_grid_actions
-      sw_mail_template_list_grid_columns_actions_duplicate
+      sw_mail_template_list_grid_columns_actions_duplicate  [scope: item]
     sw_mail_template_list_grid_columns
     sw_mail_template_list_grid_empty_state
       sw_mail_template_list_grid_empty_state_button
-    sw_mail_template_list_grid_empty_state_icon
+    sw_mail_template_list_grid_empty_state_icon  [after v-if] [deprecated tag:v6.8.0]
 ```

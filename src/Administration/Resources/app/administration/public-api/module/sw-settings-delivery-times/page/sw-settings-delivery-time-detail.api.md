@@ -10,6 +10,43 @@ component sw-settings-delivery-time-detail  public  js
   source src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail/index.js
   template src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail/sw-settings-delivery-time-detail.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+data
+  customFieldSets: any
+  deliveryTime: any
+  isLoading: any
+  isSaveSuccessful: any
+
+computed
+  allowSave: any
+  deliveryTimeMaxError: any
+  deliveryTimeMinError: any
+  deliveryTimeNameError: any
+  deliveryTimeRepository: any
+  deliveryTimeUnitError: any
+  deliveryTimeUnits: any
+  displayName: any
+  invalidMinError: any
+  isInvalidMinField: any
+  showCustomFields: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  createdComponent(): any
+  loadCustomFieldSets(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onSave(): Promise<any>
+  saveFinish(): any
+
 blocks
   sw_settings_delivery_time_detail
     sw_settings_delivery_time_detail_content

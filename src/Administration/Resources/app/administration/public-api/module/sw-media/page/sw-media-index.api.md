@@ -10,6 +10,50 @@ component sw-media-index  public  js
   source src/module/sw-media/page/sw-media-index/index.js
   template src/module/sw-media/page/sw-media-index/sw-media-index.html.twig
 
+inject
+  acl
+  feature
+  mediaService
+  repositoryFactory
+
+props
+  fileAccept?: string  default='*/*'
+  routeFolderId?: string  default=null
+
+data
+  currentFolder: any
+  isLoading: any
+  parentFolder: any
+  pendingUploadsCount: any
+  selectedItems: any
+  term: any
+  uploadTag: any
+  uploads: any
+
+computed
+  assetFilter: any
+  mediaFolderRepository: any
+  mediaRepository: any
+  rootFolder: any
+
+methods
+  clearSelection(): any
+  createdComponent(): any
+  decrementPendingUploads(): any
+  destroyedComponent(): any
+  onChangeLanguage(): any
+  onItemsDeleted(ids: any): any
+  onMediaFoldersDissolved(ids: any): any
+  onMediaUnselect(arg0: any): any
+  onSearch(value: any): any
+  onUploadCanceled(arg0?: any = {}): any
+  onUploadFailed(arg0?: any = {}): any
+  onUploadFinished(arg0?: any = {}): any
+  onUploadsAdded(arg0?: any = {}): Promise<any>
+  reloadList(): any
+  updateFolder(): Promise<any>
+  updateRoute(newFolderId: any): any
+
 blocks
   sw_media_index
     sw_media_index_language_switch
@@ -25,4 +69,7 @@ blocks
         sw_media_index_smart_bar_heading
       sw_media_index_smart_bar_media_upload
     sw_media_list_search_bar
+
+refs
+  mediaLibrary  -> sw-media-library  block=sw_media_index_listing_grid
 ```

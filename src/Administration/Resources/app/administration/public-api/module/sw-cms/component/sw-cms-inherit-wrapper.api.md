@@ -10,4 +10,43 @@ component sw-cms-inherit-wrapper  private  ts  [private]
   source src/module/sw-cms/component/sw-cms-inherit-wrapper/index.ts  [private]
   template src/module/sw-cms/component/sw-cms-inherit-wrapper/sw-cms-inherit-wrapper.html.twig  [private]
   visibility-source export  [private]
+
+mixins
+  cms-state  [private]
+
+inject
+  cmsService  [private]
+
+props
+  element: RuntimeSlot & { translated: { config?: CmsSlotConfig; }; }  [private]
+  field: string  [private]
+  fieldPath?: string  default=factory  [private]
+  label?: string  [private]
+
+slots
+  default  { ...{ isInherited } }  block=(root)  [private]
+
+data
+  originValue: any  [private]
+  showModal: any  [private]
+
+computed
+  baseConfig: any  [private]
+  childConfig: any  [private]
+  cmsElements: any  [private]
+  fieldDefaultValue: any  [private]
+  fullPath: any  [private]
+  inheritedFieldConfig: any  [private]
+  isInherited: any  [private]
+  isSystemDefaultLanguage: any  [deprecated tag:v6.8.0] [private]
+  runtimeConfig: any  [private]
+  supportsInheritance: any  [private]
+
+methods
+  onInheritanceRemove(): any  [private]
+  onInheritanceRestore(): Promise<any>  [private]
+
+notes
+  unresolved emits EVENTS.REMOVE  [private]
+  unresolved emits EVENTS.RESTORE  [private]
 ```

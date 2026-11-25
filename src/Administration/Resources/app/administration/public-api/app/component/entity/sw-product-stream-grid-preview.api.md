@@ -11,16 +11,62 @@ component sw-product-stream-grid-preview  private  js  [private]
   template src/app/component/entity/sw-product-stream-grid-preview/sw-product-stream-grid-preview.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  productStreamPreviewService  [private]
+  repositoryFactory  [private]
+
+props
+  columns?: any[]  default=factory  [private]
+  criteria?: object  default=factory  [private]
+  displayAsGroup?: boolean  default=true  [private]
+  filters: any  [private]
+  showSelection?: boolean  default=false  [private]
+
+emits
+  selection-change(...args: any[])  [private]
+
+slots
+  additional-columns  {}  block=sw_product_stream_grid_preview_grid  [private]
+  empty-state  {}  block=sw_product_stream_grid_preview_empty_state  [private]
+
+data
+  isLoading: any  [private]
+  limit: any  [private]
+  page: any  [private]
+  products: any  [private]
+  searchTerm: any  [private]
+  systemCurrency: any  [private]
+  total: any  [private]
+
+computed
+  assetFilter: any  [private]
+  currencyFilter: any  [private]
+  defaultColumns: any  [private]
+  emptyStateMessage: any  [private]
+  productColumns: any  [private]
+  productRepository: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelRepository: any  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+  getPriceForDefaultCurrency(product: any): any  [private]
+  loadProducts(): Promise<any>  [private]
+  loadSystemDefaultCurrency(): any  [private]
+  onPageChange(arg0: any): any  [private]
+  onSearchTermChange(searchTerm: any): any  [private]
+  onSelectionChange(products: any): any  [private]
+
 blocks
   sw_product_stream_grid_preview_content  [private]
-    sw_product_stream_grid_preview_empty_state  [private]
+    sw_product_stream_grid_preview_empty_state  [after v-if] [private]
     sw_product_stream_grid_preview_grid  [private]
       sw_product_stream_grid_preview_grid_columns  [private]
-        sw_product_stream_grid_preview_grid_column_active  [private]
-        sw_product_stream_grid_preview_grid_column_manufacturer  [private]
-        sw_product_stream_grid_preview_grid_column_name  [private]
-        sw_product_stream_grid_preview_grid_column_price  [private]
-        sw_product_stream_grid_preview_grid_column_stock  [private]
+        sw_product_stream_grid_preview_grid_column_active  [scope: item] [private]
+        sw_product_stream_grid_preview_grid_column_manufacturer  [scope: column, item] [private]
+        sw_product_stream_grid_preview_grid_column_name  [scope: column, item] [private]
+        sw_product_stream_grid_preview_grid_column_price  [scope: item] [private]
+        sw_product_stream_grid_preview_grid_column_stock  [scope: item] [private]
       sw_product_stream_grid_preview_grid_pagination  [private]
     sw_product_stream_grid_preview_search_field_label  [private]
       sw_product_stream_grid_preview_search_field  [private]

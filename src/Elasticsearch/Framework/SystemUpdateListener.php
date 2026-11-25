@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
-use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -77,23 +76,13 @@ class SystemUpdateListener
             }
         }
 
-        $messagesToDispatch = [];
-        $offset = null;
-        while ($message = $this->indexer->iterate($offset, $entitiesToReindex)) {
-            $offset = $message->getOffset();
+        $messages = $this->indexer->iterateMessages($entitiesToReindex);
 
-            $messagesToDispatch[] = $message;
-        }
-
-        $lastMessage = end($messagesToDispatch);
-
-        if (!$lastMessage instanceof ElasticsearchIndexingMessage) {
+        if (!$messages->valid()) {
             return;
         }
 
-        $lastMessage->markAsLastMessage();
-
-        foreach ($messagesToDispatch as $message) {
+        foreach ($messages as $message) {
             $this->messageBus->dispatch($message);
         }
 

@@ -11,6 +11,19 @@ component sw-sso-error-index  private  js  [private]
   template src/module/sw-sso-error/page/index/sw-sso-error-index.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  loginService  [private]
+
+data
+  loginConfig: any  [private]
+  loginConfigLoaded: any  [private]
+
+computed
+  assetFilter: any  [private]
+  email: any  [private]
+  isLoading: any  [private]
+  url: any  [private]
+
 blocks
   sw_sso_error  [private]
 ```

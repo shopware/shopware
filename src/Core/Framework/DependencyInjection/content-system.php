@@ -1012,7 +1012,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredMappingInspector::class),
         ]);
 
-    // Layout revision graph (drafts as branches, publish moves the published pointer)
+    // Layout revision graph (drafts point into it, publishing moves the live pointer)
     $services->set(LayoutRevisionStore::class)
         ->args([
             service(Connection::class),

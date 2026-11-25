@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Applies one structural mutation to a stored content_layout, either to its live tree or to the head of one of
- * its draft branches; the persisted counterpart to {@see MutationPipeline}.
+ * its drafts; the persisted counterpart to {@see MutationPipeline}.
  *
  * @internal
  *
@@ -69,18 +69,18 @@ class PersistedLayoutMutator
     }
 
     /**
-     * Applies the mutation to the head of a draft branch and appends the result as one revision; the live layout is
-     * not written. The branch runs the draft pipeline, consumer mirroring included, and is admitted like a saved
-     * draft, so only publishing enforces resolvability.
+     * Applies the mutation to the head of a draft and appends the result as one revision; the live layout is not
+     * written. The mutation runs the draft pipeline, consumer mirroring included, and its result is admitted for
+     * well-formedness only, so only publishing enforces resolvability.
      */
-    public function mutateBranch(string $layoutId, string $branchId, string $expectedHead, LayoutMutation $mutation, Context $context): BranchMutationResult
+    public function mutateDraft(string $layoutId, string $draftId, string $expectedHead, LayoutMutation $mutation, Context $context): DraftMutationResult
     {
         $this->checkWritePrivilege($mutation, $context);
 
         $result = null;
         $appended = $this->revisions->appendRevision(
             $layoutId,
-            $branchId,
+            $draftId,
             $expectedHead,
             function (array $head) use ($layoutId, $mutation, $context, &$result): StoredTree {
                 $rootSource = $this->load($layoutId, $context)->getRootSource();
@@ -94,7 +94,7 @@ class PersistedLayoutMutator
 
         \assert($result instanceof MutationResult);
 
-        return new BranchMutationResult($result, $appended['revision'], $appended['branch']);
+        return new DraftMutationResult($result, $appended['revision'], $appended['draft']);
     }
 
     /**

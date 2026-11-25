@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final readonly class LayoutBranch
+final readonly class LayoutDraft
 {
     public function __construct(
         public string $id,

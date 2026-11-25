@@ -36,7 +36,9 @@ class LayoutRowLock
     {
         return $this->connection->transactional(function () use ($layoutId, $operation): mixed {
             $locked = $this->connection->fetchOne(
-                'SELECT 1 FROM `content_layout` WHERE `id` = :id FOR UPDATE',
+                <<<'SQL'
+                    SELECT 1 FROM `content_layout` WHERE `id` = :id FOR UPDATE
+                    SQL,
                 ['id' => Uuid::fromHexToBytes($layoutId)],
             );
 

@@ -44,7 +44,7 @@ class Migration1793099454AddContentLayoutRevisionTables extends MigrationStep
         ');
 
         $connection->executeStatement('
-            CREATE TABLE IF NOT EXISTS `content_layout_branch` (
+            CREATE TABLE IF NOT EXISTS `content_layout_draft` (
                 `id` BINARY(16) NOT NULL,
                 `content_layout_id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NOT NULL,
@@ -54,8 +54,8 @@ class Migration1793099454AddContentLayoutRevisionTables extends MigrationStep
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NOT NULL,
                 PRIMARY KEY (`id`),
-                KEY `fk.content_layout_branch.content_layout_id` (`content_layout_id`),
-                CONSTRAINT `fk.content_layout_branch.content_layout_id`
+                KEY `fk.content_layout_draft.content_layout_id` (`content_layout_id`),
+                CONSTRAINT `fk.content_layout_draft.content_layout_id`
                     FOREIGN KEY (`content_layout_id`) REFERENCES `content_layout` (`id`)
                     ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -64,8 +64,9 @@ class Migration1793099454AddContentLayoutRevisionTables extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // Storage of earlier drafts of this feature, which never shipped.
+        // Storage of earlier iterations of this feature, which never shipped.
         $this->dropColumnIfExists($connection, 'content_layout', 'revisions');
         $this->dropTableIfExists($connection, 'content_layout_publication');
+        $this->dropTableIfExists($connection, 'content_layout_branch');
     }
 }

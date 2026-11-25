@@ -1066,19 +1066,19 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftInsertAppendsARevision(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $branch = $this->revisions()->createBranch($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId);
 
         $body = $this->mutate('insert-element', $layoutId, [
-            'draftId' => $branch->id,
+            'draftId' => $draft->id,
             'type' => TestElementTypeLoader::RESOLVABLE,
-            'expectedHead' => $branch->head,
+            'expectedHead' => $draft->head,
         ]);
 
         static::assertCount(2, $body['layout']);
-        static::assertSame($branch->id, $body['draft']['id']);
-        static::assertNotSame($branch->head, $body['draft']['head']);
+        static::assertSame($draft->id, $body['draft']['id']);
+        static::assertNotSame($draft->head, $body['draft']['head']);
         static::assertArrayNotHasKey('revision', $body);
-        static::assertCount(2, $this->revisions()->getBranch($layoutId, $branch->id)['layout']);
+        static::assertCount(2, $this->revisions()->getDraft($layoutId, $draft->id)['layout']);
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
@@ -1086,13 +1086,13 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftMutationWithStaleHeadIs409(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $branch = $this->revisions()->createBranch($layoutId);
-        $this->mutate('insert-element', $layoutId, ['draftId' => $branch->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $branch->head]);
+        $draft = $this->revisions()->createDraft($layoutId);
+        $this->mutate('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $draft->head]);
 
-        $this->request('insert-element', $layoutId, ['draftId' => $branch->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $branch->head]);
+        $this->request('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $draft->head]);
 
         $this->assertErrorCode(Response::HTTP_CONFLICT, ContentSystemException::LAYOUT_VERSION_CONFLICT);
-        static::assertCount(2, $this->revisions()->getBranch($layoutId, $branch->id)['layout']);
+        static::assertCount(2, $this->revisions()->getDraft($layoutId, $draft->id)['layout']);
     }
 
     #[TestDox('a mutation on an unknown draft is a 404')]
@@ -1109,12 +1109,12 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftMutationWithoutExpectedHeadIsABadRequest(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $branch = $this->revisions()->createBranch($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId);
 
-        $this->request('remove-element', $layoutId, ['draftId' => $branch->id, 'elementId' => 'block-a']);
+        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a']);
 
         $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::MISSING_REQUEST_FIELD);
-        static::assertSame($branch->head, $this->revisions()->getBranch($layoutId, $branch->id)['branch']->head);
+        static::assertSame($draft->head, $this->revisions()->getDraft($layoutId, $draft->id)['draft']->head);
     }
 
     #[TestDox('a malformed draft id is a client error and writes nothing')]
@@ -1133,17 +1133,17 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftTranslateKeepsTheTranslateAcl(): void
     {
         $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
-        $branch = $this->revisions()->createBranch($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId);
         $this->actAs(['content_layout:read', 'content_layout:translate']);
 
         $body = $this->mutate('translate-element', $layoutId, [
-            'draftId' => $branch->id,
+            'draftId' => $draft->id,
             'elementId' => 'block-a',
             'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
-            'expectedHead' => $branch->head,
+            'expectedHead' => $draft->head,
         ]);
 
-        $this->request('remove-element', $layoutId, ['draftId' => $branch->id, 'elementId' => 'block-a', 'expectedHead' => $body['draft']['head']]);
+        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedHead' => $body['draft']['head']]);
 
         $this->assertMissingPrivilege('content_layout:update');
     }
@@ -1152,9 +1152,9 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftMutationRejectsExpectedVersion(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $branch = $this->revisions()->createBranch($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId);
 
-        $this->request('remove-element', $layoutId, ['draftId' => $branch->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHead' => $branch->head]);
+        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHead' => $draft->head]);
 
         $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
     }

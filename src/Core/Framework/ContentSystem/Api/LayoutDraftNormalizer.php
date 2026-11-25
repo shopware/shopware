@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutBranch;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutDraft;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,15 +20,15 @@ final class LayoutDraftNormalizer
     /**
      * @return array{id: string, name: string, base: string, head: string, createdAt: string, updatedAt: string}
      */
-    public static function draft(LayoutBranch $branch): array
+    public static function draft(LayoutDraft $draft): array
     {
         return [
-            'id' => $branch->id,
-            'name' => $branch->name,
-            'base' => $branch->base,
-            'head' => $branch->head,
-            'createdAt' => $branch->createdAt->format(\DATE_ATOM),
-            'updatedAt' => $branch->updatedAt->format(\DATE_ATOM),
+            'id' => $draft->id,
+            'name' => $draft->name,
+            'base' => $draft->base,
+            'head' => $draft->head,
+            'createdAt' => $draft->createdAt->format(\DATE_ATOM),
+            'updatedAt' => $draft->updatedAt->format(\DATE_ATOM),
         ];
     }
 }

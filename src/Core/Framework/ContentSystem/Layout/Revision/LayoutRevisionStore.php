@@ -40,13 +40,15 @@ class LayoutRevisionStore
     public function publication(string $layoutId): ?array
     {
         $row = $this->connection->fetchAssociative(
-            'SELECT LOWER(HEX(`live`.`id`)) AS `revision_id`,
+            <<<'SQL'
+                SELECT LOWER(HEX(`live`.`id`)) AS `revision_id`,
                     SHA2(`live`.`layout`, 256) = SHA2(`layout`.`layout`, 256) AS `current`,
                     SHA2(`layout`.`layout`, 256) AS `checksum`,
                     `layout`.`created_at`
-             FROM `content_layout` `layout`
-             LEFT JOIN `content_layout_revision` `live` ON `live`.`live_content_layout_id` = `layout`.`id`
-             WHERE `layout`.`id` = :id',
+                FROM `content_layout` `layout`
+                LEFT JOIN `content_layout_revision` `live` ON `live`.`live_content_layout_id` = `layout`.`id`
+                WHERE `layout`.`id` = :id
+                SQL,
             ['id' => Uuid::fromHexToBytes($layoutId)],
         );
 
@@ -69,9 +71,11 @@ class LayoutRevisionStore
     public function adoptLayoutColumn(string $layoutId, string $revisionId, ?string $parentId, \DateTimeImmutable $createdAt): void
     {
         $this->connection->executeStatement(
-            'INSERT INTO `content_layout_revision` (`id`, `content_layout_id`, `parent_id`, `layout`, `created_by_id`, `created_at`)
-             SELECT :revisionId, `id`, :parentId, `layout`, NULL, :createdAt FROM `content_layout` WHERE `id` = :layoutId
-             ON DUPLICATE KEY UPDATE `content_layout_revision`.`id` = `content_layout_revision`.`id`',
+            <<<'SQL'
+                INSERT INTO `content_layout_revision` (`id`, `content_layout_id`, `parent_id`, `layout`, `created_by_id`, `created_at`)
+                SELECT :revisionId, `id`, :parentId, `layout`, NULL, :createdAt FROM `content_layout` WHERE `id` = :layoutId
+                ON DUPLICATE KEY UPDATE `content_layout_revision`.`id` = `content_layout_revision`.`id`
+                SQL,
             [
                 'revisionId' => Uuid::fromHexToBytes($revisionId),
                 'parentId' => $parentId !== null ? Uuid::fromHexToBytes($parentId) : null,
@@ -102,14 +106,18 @@ class LayoutRevisionStore
     public function markPublished(string $layoutId, string $revisionId, \DateTimeImmutable $publishedAt): void
     {
         $this->connection->executeStatement(
-            'UPDATE `content_layout_revision` SET `live_content_layout_id` = NULL WHERE `live_content_layout_id` = :layoutId',
+            <<<'SQL'
+                UPDATE `content_layout_revision` SET `live_content_layout_id` = NULL WHERE `live_content_layout_id` = :layoutId
+                SQL,
             ['layoutId' => Uuid::fromHexToBytes($layoutId)],
         );
 
         $this->connection->executeStatement(
-            'UPDATE `content_layout_revision`
-             SET `live_content_layout_id` = `content_layout_id`, `published_at` = COALESCE(`published_at`, :publishedAt)
-             WHERE `id` = :revisionId AND `content_layout_id` = :layoutId',
+            <<<'SQL'
+                UPDATE `content_layout_revision`
+                SET `live_content_layout_id` = `content_layout_id`, `published_at` = COALESCE(`published_at`, :publishedAt)
+                WHERE `id` = :revisionId AND `content_layout_id` = :layoutId
+                SQL,
             [
                 'publishedAt' => $publishedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'revisionId' => Uuid::fromHexToBytes($revisionId),
@@ -122,8 +130,10 @@ class LayoutRevisionStore
     {
         $revisions = [];
         foreach ($this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(`id`)) AS `id`, LOWER(HEX(`parent_id`)) AS `parent_id`, LOWER(HEX(`created_by_id`)) AS `created_by_id`, `created_at`, `published_at`
-             FROM `content_layout_revision` WHERE `content_layout_id` = :layoutId',
+            <<<'SQL'
+                SELECT LOWER(HEX(`id`)) AS `id`, LOWER(HEX(`parent_id`)) AS `parent_id`, LOWER(HEX(`created_by_id`)) AS `created_by_id`, `created_at`, `published_at`
+                FROM `content_layout_revision` WHERE `content_layout_id` = :layoutId
+                SQL,
             ['layoutId' => Uuid::fromHexToBytes($layoutId)],
         ) as $row) {
             $id = (string) $row['id'];
@@ -136,12 +146,12 @@ class LayoutRevisionStore
             );
         }
 
-        $branches = [];
-        foreach ($this->fetchBranches('WHERE `content_layout_id` = :layoutId', ['layoutId' => Uuid::fromHexToBytes($layoutId)]) as $branch) {
-            $branches[$branch->id] = $branch;
+        $drafts = [];
+        foreach ($this->fetchDrafts('WHERE `content_layout_id` = :layoutId', ['layoutId' => Uuid::fromHexToBytes($layoutId)]) as $draft) {
+            $drafts[$draft->id] = $draft;
         }
 
-        return new RevisionGraph($revisions, $branches, $published);
+        return new RevisionGraph($revisions, $drafts, $published);
     }
 
     /**
@@ -150,7 +160,9 @@ class LayoutRevisionStore
     public function tree(string $layoutId, string $revisionId): ?array
     {
         $layout = $this->connection->fetchOne(
-            'SELECT `layout` FROM `content_layout_revision` WHERE `id` = :revisionId AND `content_layout_id` = :layoutId',
+            <<<'SQL'
+                SELECT `layout` FROM `content_layout_revision` WHERE `id` = :revisionId AND `content_layout_id` = :layoutId
+                SQL,
             ['revisionId' => Uuid::fromHexToBytes($revisionId), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
         );
 
@@ -161,38 +173,42 @@ class LayoutRevisionStore
         return $this->treeCodec->decode(Json::decodeToList((string) $layout))->roots;
     }
 
-    public function branch(string $layoutId, string $branchId): ?LayoutBranch
+    public function draft(string $layoutId, string $draftId): ?LayoutDraft
     {
-        return $this->fetchBranches(
-            'WHERE `id` = :branchId AND `content_layout_id` = :layoutId',
-            ['branchId' => Uuid::fromHexToBytes($branchId), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
+        return $this->fetchDrafts(
+            'WHERE `id` = :draftId AND `content_layout_id` = :layoutId',
+            ['draftId' => Uuid::fromHexToBytes($draftId), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
         )[0] ?? null;
     }
 
-    public function saveBranch(string $layoutId, LayoutBranch $branch): void
+    public function saveDraft(string $layoutId, LayoutDraft $draft): void
     {
         $this->connection->executeStatement(
-            'INSERT INTO `content_layout_branch` (`id`, `content_layout_id`, `name`, `base_revision_id`, `head_revision_id`, `live_revision_id`, `created_at`, `updated_at`)
-             VALUES (:id, :layoutId, :name, :base, :head, :live, :createdAt, :updatedAt)
-             ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `head_revision_id` = VALUES(`head_revision_id`), `updated_at` = VALUES(`updated_at`)',
+            <<<'SQL'
+                INSERT INTO `content_layout_draft` (`id`, `content_layout_id`, `name`, `base_revision_id`, `head_revision_id`, `live_revision_id`, `created_at`, `updated_at`)
+                VALUES (:id, :layoutId, :name, :base, :head, :live, :createdAt, :updatedAt)
+                ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `head_revision_id` = VALUES(`head_revision_id`), `updated_at` = VALUES(`updated_at`)
+                SQL,
             [
-                'id' => Uuid::fromHexToBytes($branch->id),
+                'id' => Uuid::fromHexToBytes($draft->id),
                 'layoutId' => Uuid::fromHexToBytes($layoutId),
-                'name' => $branch->name,
-                'base' => Uuid::fromHexToBytes($branch->base),
-                'head' => Uuid::fromHexToBytes($branch->head),
-                'live' => Uuid::fromHexToBytes($branch->live),
-                'createdAt' => $branch->createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'updatedAt' => $branch->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'name' => $draft->name,
+                'base' => Uuid::fromHexToBytes($draft->base),
+                'head' => Uuid::fromHexToBytes($draft->head),
+                'live' => Uuid::fromHexToBytes($draft->live),
+                'createdAt' => $draft->createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'updatedAt' => $draft->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
         );
     }
 
-    public function deleteBranch(string $layoutId, string $branchId): void
+    public function deleteDraft(string $layoutId, string $draftId): void
     {
         $this->connection->executeStatement(
-            'DELETE FROM `content_layout_branch` WHERE `id` = :branchId AND `content_layout_id` = :layoutId',
-            ['branchId' => Uuid::fromHexToBytes($branchId), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
+            <<<'SQL'
+                DELETE FROM `content_layout_draft` WHERE `id` = :draftId AND `content_layout_id` = :layoutId
+                SQL,
+            ['draftId' => Uuid::fromHexToBytes($draftId), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
         );
     }
 
@@ -206,7 +222,9 @@ class LayoutRevisionStore
         }
 
         $this->connection->executeStatement(
-            'DELETE FROM `content_layout_revision` WHERE `id` IN (:revisionIds) AND `content_layout_id` = :layoutId',
+            <<<'SQL'
+                DELETE FROM `content_layout_revision` WHERE `id` IN (:revisionIds) AND `content_layout_id` = :layoutId
+                SQL,
             ['revisionIds' => Uuid::fromHexToBytesList($revisionIds), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
             ['revisionIds' => ArrayParameterType::BINARY],
         );
@@ -215,18 +233,20 @@ class LayoutRevisionStore
     /**
      * @param array<string, string> $parameters
      *
-     * @return list<LayoutBranch>
+     * @return list<LayoutDraft>
      */
-    private function fetchBranches(string $where, array $parameters): array
+    private function fetchDrafts(string $where, array $parameters): array
     {
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(`id`)) AS `id`, `name`, LOWER(HEX(`base_revision_id`)) AS `base`, LOWER(HEX(`head_revision_id`)) AS `head`,
+            <<<'SQL'
+                SELECT LOWER(HEX(`id`)) AS `id`, `name`, LOWER(HEX(`base_revision_id`)) AS `base`, LOWER(HEX(`head_revision_id`)) AS `head`,
                     LOWER(HEX(`live_revision_id`)) AS `live`, `created_at`, `updated_at`
-             FROM `content_layout_branch` ' . $where,
+                FROM `content_layout_draft`
+                SQL . ' ' . $where,
             $parameters,
         );
 
-        return array_map(fn (array $row): LayoutBranch => new LayoutBranch(
+        return array_map(fn (array $row): LayoutDraft => new LayoutDraft(
             (string) $row['id'],
             (string) $row['name'],
             (string) $row['base'],

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Revision;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The metadata of a layout's revision history, without any tree: every revision points at its parent, branches
+ * The metadata of a layout's revision history, without any tree: every revision points at its parent, drafts
  * are movable pointers to a head revision, and `published` names the revision the layout column projects.
  *
  * @internal
@@ -15,11 +15,11 @@ final readonly class RevisionGraph
 {
     /**
      * @param array<string, LayoutRevision> $revisions keyed by revision id
-     * @param array<string, LayoutBranch> $branches keyed by branch id
+     * @param array<string, LayoutDraft> $drafts keyed by draft id
      */
     public function __construct(
         public array $revisions,
-        public array $branches,
+        public array $drafts,
         public string $published,
     ) {
     }
@@ -29,21 +29,21 @@ final readonly class RevisionGraph
         return $this->revisions[$id] ?? null;
     }
 
-    public function branch(string $id): ?LayoutBranch
+    public function draft(string $id): ?LayoutDraft
     {
-        return $this->branches[$id] ?? null;
+        return $this->drafts[$id] ?? null;
     }
 
     /**
      * @return list<string>
      */
-    public function branchIdsAt(string $revisionId): array
+    public function draftIdsAt(string $revisionId): array
     {
         $ids = [];
 
-        foreach ($this->branches as $branch) {
-            if ($branch->head === $revisionId) {
-                $ids[] = $branch->id;
+        foreach ($this->drafts as $draft) {
+            if ($draft->head === $revisionId) {
+                $ids[] = $draft->id;
             }
         }
 
@@ -62,7 +62,7 @@ final readonly class RevisionGraph
     }
 
     /**
-     * The revisions that no branch, no ever-published revision and the published one reach through their
+     * The revisions that no draft, no ever-published revision and the published one reach through their
      * parent chain. A rollback therefore never makes a newer live state prunable.
      *
      * @return list<string>
@@ -75,9 +75,9 @@ final readonly class RevisionGraph
                 $tips[] = $revision->id;
             }
         }
-        foreach ($this->branches as $branch) {
-            $tips[] = $branch->head;
-            $tips[] = $branch->live;
+        foreach ($this->drafts as $draft) {
+            $tips[] = $draft->head;
+            $tips[] = $draft->live;
         }
 
         $reachable = [];

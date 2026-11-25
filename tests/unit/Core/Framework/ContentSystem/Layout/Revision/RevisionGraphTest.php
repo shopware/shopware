@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Revision;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutBranch;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutDraft;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\RevisionGraph;
 use Shopware\Core\Framework\Log\Package;
@@ -33,7 +33,7 @@ class RevisionGraphTest extends TestCase
         static::assertFalse($graph->isAncestorOrSelf('root', 'unknown'));
     }
 
-    #[TestDox('unreachableIds keeps the chains of branch heads, of the live state a branch was opened from and of every ever-published revision')]
+    #[TestDox('unreachableIds keeps the chains of draft heads, of the live state a draft was opened from and of every ever-published revision')]
     public function testUnreachableIdsKeepsEveryTip(): void
     {
         $graph = $this->graph(
@@ -48,7 +48,7 @@ class RevisionGraphTest extends TestCase
                 $this->revision('orphan-2', 'orphan-1'),
             ],
             published: 'live',
-            branches: [$this->branch('draft', head: 'kept-2', live: 'opened-from')],
+            drafts: [$this->draft('draft', head: 'kept-2', live: 'opened-from')],
         );
 
         $unreachable = $graph->unreachableIds();
@@ -94,36 +94,36 @@ class RevisionGraphTest extends TestCase
         );
     }
 
-    #[TestDox('branchIdsAt lists the branches whose head is the revision')]
-    public function testBranchIdsAt(): void
+    #[TestDox('draftIdsAt lists the drafts whose head is the revision')]
+    public function testDraftIdsAt(): void
     {
         $graph = $this->graph(
             [$this->revision('root', null), $this->revision('a1', 'root')],
             published: 'root',
-            branches: [$this->branch('one', head: 'a1', live: 'root'), $this->branch('two', head: 'a1', live: 'root'), $this->branch('three', head: 'root', live: 'root')],
+            drafts: [$this->draft('one', head: 'a1', live: 'root'), $this->draft('two', head: 'a1', live: 'root'), $this->draft('three', head: 'root', live: 'root')],
         );
 
-        static::assertSame(['one', 'two'], $graph->branchIdsAt('a1'));
-        static::assertSame([], $graph->branchIdsAt('unknown'));
+        static::assertSame(['one', 'two'], $graph->draftIdsAt('a1'));
+        static::assertSame([], $graph->draftIdsAt('unknown'));
     }
 
     /**
      * @param list<LayoutRevision> $revisions
-     * @param list<LayoutBranch> $branches
+     * @param list<LayoutDraft> $drafts
      */
-    private function graph(array $revisions, string $published, array $branches = []): RevisionGraph
+    private function graph(array $revisions, string $published, array $drafts = []): RevisionGraph
     {
         $byId = [];
         foreach ($revisions as $revision) {
             $byId[$revision->id] = $revision;
         }
 
-        $branchesById = [];
-        foreach ($branches as $branch) {
-            $branchesById[$branch->id] = $branch;
+        $draftsById = [];
+        foreach ($drafts as $draft) {
+            $draftsById[$draft->id] = $draft;
         }
 
-        return new RevisionGraph($byId, $branchesById, $published);
+        return new RevisionGraph($byId, $draftsById, $published);
     }
 
     private function revision(string $id, ?string $parent, bool $published = false, string $at = '2026-10-27 10:00:00.000'): LayoutRevision
@@ -133,10 +133,10 @@ class RevisionGraphTest extends TestCase
         return new LayoutRevision($id, $parent, $createdAt, null, $published ? $createdAt : null);
     }
 
-    private function branch(string $id, string $head, string $live): LayoutBranch
+    private function draft(string $id, string $head, string $live): LayoutDraft
     {
         $now = new \DateTimeImmutable('2026-10-27 10:00:00.000');
 
-        return new LayoutBranch($id, $id, $head, $head, $live, $now, $now);
+        return new LayoutDraft($id, $id, $head, $head, $live, $now, $now);
     }
 }

@@ -237,7 +237,7 @@ class ContentLayoutMutationController
             return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
         }
 
-        $result = $this->mutator->mutateBranch($layoutId, $target->draftId, $target->expectedHead, $mutation, $context);
+        $result = $this->mutator->mutateDraft($layoutId, $target->draftId, $target->expectedHead, $mutation, $context);
 
         return new JsonResponse(DraftMutationResponse::fromResult($result, $this->elementCodec));
     }

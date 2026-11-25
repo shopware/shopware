@@ -59,17 +59,17 @@ Content the op detaches (`orphaned`), wiring it drops (`droppedWiring`), and sta
 (`droppedProperties`) come back in the `MutationResult`. The caller can then re-place orphans with `Op/AttachElement`, re-wire dropped keys, or re-apply dropped
 values.
 
-### Branch target
+### Draft target
 
-`mutateBranch()` applies the mutation to the head of a draft, a branch of the revision graph, instead of the live tree.
+`mutateDraft()` applies the mutation to the head of a draft, a named pointer into the revision graph, instead of the live tree.
 It checks the declared write privilege first, exactly like `mutate()`.
-`expectedHead` is the branch head revision id the caller last saw; a stale head is `layoutVersionConflict`, 409.
+`expectedHead` is the draft head revision id the caller last saw; a stale head is `layoutVersionConflict`, 409.
 `Layout/Revision/LayoutRevisionService::appendRevision()` checks the head under the layout row lock and hands the head tree to the mutation.
 The mutation runs through `MutationPipeline::run()`, consumer mirroring included, against the layout's `root_source` and its resolved root context.
 The result is admitted for well-formedness only and appended as one revision whose parent is the old head.
 The live `layout` column is not written; publishing is what enforces resolvability.
 A rejected operation or admission appends nothing and leaves the head where it was.
-`mutateBranch()` returns a `BranchMutationResult` with the pipeline's `MutationResult`, the new revision and the moved branch.
+`mutateDraft()` returns a `DraftMutationResult` with the pipeline's `MutationResult`, the new revision and the moved draft.
 
 ### Interim limitations
 

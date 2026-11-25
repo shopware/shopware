@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
-use Shopware\Core\Framework\ContentSystem\Mutation\BranchMutationResult;
+use Shopware\Core\Framework\ContentSystem\Mutation\DraftMutationResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,12 +20,12 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DraftMutationResponse implements \JsonSerializable
 {
     private function __construct(
-        private BranchMutationResult $result,
+        private DraftMutationResult $result,
         private MutationResponse $mutation,
     ) {
     }
 
-    public static function fromResult(BranchMutationResult $result, StoredElementCodec $elementCodec): self
+    public static function fromResult(DraftMutationResult $result, StoredElementCodec $elementCodec): self
     {
         return new self($result, MutationResponse::fromResult($result->mutation, $elementCodec));
     }
@@ -37,7 +37,7 @@ final readonly class DraftMutationResponse implements \JsonSerializable
     {
         return [
             ...$this->mutation->jsonSerialize(),
-            'draft' => LayoutDraftNormalizer::draft($this->result->branch),
+            'draft' => LayoutDraftNormalizer::draft($this->result->draft),
         ];
     }
 }

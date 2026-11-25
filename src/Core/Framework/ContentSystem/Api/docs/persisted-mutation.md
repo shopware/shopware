@@ -18,7 +18,7 @@ A fresh insert with a required `resolvedBy` reference and no compatible mapping 
 
 ## Drafts
 
-A draft is a branch of the layout's revision graph (`Layout/Revision/LayoutRevisionService`); a layout can have several at once.
+A draft is a named pointer into the layout's revision graph (`Layout/Revision/LayoutRevisionService`); a layout can have several at once.
 `Api/ContentLayoutDraftController` manages them; every draft response carries the draft as `{id, name, base, head, createdAt, updatedAt}`.
 
 | Route                                                    | Body                         | ACL                     | Response                  |
@@ -39,7 +39,7 @@ A missing `draftId` or `expectedHead` is a `400` `MISSING_REQUEST_FIELD`, an unk
 
 A body with `draftId` edits that draft instead of the live layout.
 The action applies the edit to the draft head and appends the result as one revision; the live layout is not written.
-It delegates to `PersistedLayoutMutator::mutateBranch()`, which runs the stateless draft pipeline, consumer mirroring included, and admits the tree for well-formedness only, so only publishing enforces resolvability ([Mutation/docs/runners.md](../../Mutation/docs/runners.md#branch-target)).
+It delegates to `PersistedLayoutMutator::mutateDraft()`, which runs the stateless draft pipeline, consumer mirroring included, and admits the tree for well-formedness only, so only publishing enforces resolvability ([Mutation/docs/runners.md](../../Mutation/docs/runners.md#draft-target)).
 The body carries `expectedHead`, the draft head revision id as last read, instead of `expectedVersion`.
 A stale `expectedHead` is a `409`, a missing one a `400` `MISSING_REQUEST_FIELD`, and nothing is appended in either case.
 The controller reads the three fields into an `Api/MutationTarget`, which rejects every other combination.

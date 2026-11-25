@@ -20,7 +20,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutRowLock;
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutBranch;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutDraft;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -318,8 +318,8 @@ class PersistedLayoutMutatorTest extends TestCase
         static::assertSame(['enter', 'rollback'], $events);
     }
 
-    #[TestDox('a branch mutation runs the draft pipeline on the head tree with the layouts root source and appends its result')]
-    public function testBranchMutationRunsThePipelineOnTheHead(): void
+    #[TestDox('a draft mutation runs the draft pipeline on the head tree with the layouts root source and appends its result')]
+    public function testDraftMutationRunsThePipelineOnTheHead(): void
     {
         $id = $this->ids->get('layout');
         $context = Context::createDefaultContext();
@@ -343,25 +343,25 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $now = new \DateTimeImmutable();
         $revision = new LayoutRevision('revision-2', 'revision-1', $now, null);
-        $branch = new LayoutBranch('branch', 'Draft', 'revision-0', 'revision-2', 'revision-0', $now, $now);
+        $draft = new LayoutDraft('draft', 'Draft', 'revision-0', 'revision-2', 'revision-0', $now, $now);
         $revisions = $this->createMock(LayoutRevisionService::class);
         $revisions->expects($this->once())->method('appendRevision')
-            ->with($id, 'branch', 'revision-1', static::anything(), static::identicalTo($context))
-            ->willReturnCallback(static function (string $layoutId, string $branchId, string $expectedHead, \Closure $derive) use ($head, $revision, $branch): array {
+            ->with($id, 'draft', 'revision-1', static::anything(), static::identicalTo($context))
+            ->willReturnCallback(static function (string $layoutId, string $draftId, string $expectedHead, \Closure $derive) use ($head, $revision, $draft): array {
                 $derived = $derive($head);
                 static::assertInstanceOf(StoredTree::class, $derived);
                 static::assertSame(['block-b'], array_map(static fn (StoredElement $e): string => $e->id, $derived->roots));
 
-                return ['revision' => $revision, 'branch' => $branch, 'layout' => $derived->roots];
+                return ['revision' => $revision, 'draft' => $draft, 'layout' => $derived->roots];
             });
 
         $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder(), $pipeline, $revisions);
 
-        $result = $mutator->mutateBranch($id, 'branch', 'revision-1', $mutation, $context);
+        $result = $mutator->mutateDraft($id, 'draft', 'revision-1', $mutation, $context);
 
         static::assertSame($pipelineResult, $result->mutation);
         static::assertSame($revision, $result->revision);
-        static::assertSame($branch, $result->branch);
+        static::assertSame($draft, $result->draft);
         static::assertSame([], $repository->updates);
     }
 

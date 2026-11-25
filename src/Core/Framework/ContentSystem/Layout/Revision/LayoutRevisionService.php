@@ -23,8 +23,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Drafts of a content layout are branches of its revision graph. Every persisted edit appends a revision to a
- * branch; publishing writes the branch head's tree to the `layout` column through the DAL, which runs the full
+ * Drafts of a content layout are named pointers into its revision graph. Every persisted edit appends a revision
+ * to a draft; publishing writes the draft head's tree to the `layout` column through the DAL, which runs the full
  * write gate including resolvability, and moves the live pointer onto it. Every operation, reads included, runs
  * under the {@see LayoutRowLock} that persisted mutations take too, and first reconciles the live pointer with the
  * `layout` column, see {@see reconcile()}; concurrent writers of one layout therefore serialize and the stale one
@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Package('framework')]
 class LayoutRevisionService
 {
-    private const DEFAULT_BRANCH_NAME = 'Draft';
+    private const DEFAULT_DRAFT_NAME = 'Draft';
 
     /**
      * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
@@ -57,28 +57,28 @@ class LayoutRevisionService
     }
 
     /**
-     * @return list<LayoutBranch>
+     * @return list<LayoutDraft>
      */
-    public function listBranches(string $layoutId): array
+    public function listDrafts(string $layoutId): array
     {
         return $this->locked($layoutId, function (string $published) use ($layoutId): array {
-            $branches = array_values($this->store->graph($layoutId, $published)->branches);
+            $drafts = array_values($this->store->graph($layoutId, $published)->drafts);
 
-            usort($branches, static fn (LayoutBranch $a, LayoutBranch $b): int => $b->updatedAt <=> $a->updatedAt);
+            usort($drafts, static fn (LayoutDraft $a, LayoutDraft $b): int => $b->updatedAt <=> $a->updatedAt);
 
-            return $branches;
+            return $drafts;
         });
     }
 
     /**
-     * @return array{branch: LayoutBranch, layout: list<StoredElement>}
+     * @return array{draft: LayoutDraft, layout: list<StoredElement>}
      */
-    public function getBranch(string $layoutId, string $branchId): array
+    public function getDraft(string $layoutId, string $draftId): array
     {
-        return $this->locked($layoutId, function () use ($layoutId, $branchId): array {
-            $branch = $this->branch($layoutId, $branchId);
+        return $this->locked($layoutId, function () use ($layoutId, $draftId): array {
+            $draft = $this->draft($layoutId, $draftId);
 
-            return ['branch' => $branch, 'layout' => $this->tree($layoutId, $branch->head)];
+            return ['draft' => $draft, 'layout' => $this->tree($layoutId, $draft->head)];
         });
     }
 
@@ -87,9 +87,9 @@ class LayoutRevisionService
         return $this->locked($layoutId, fn (string $published): RevisionGraph => $this->store->graph($layoutId, $published));
     }
 
-    public function createBranch(string $layoutId, ?string $name = null, ?string $fromRevisionId = null): LayoutBranch
+    public function createDraft(string $layoutId, ?string $name = null, ?string $fromRevisionId = null): LayoutDraft
     {
-        return $this->locked($layoutId, function (string $published) use ($layoutId, $name, $fromRevisionId): LayoutBranch {
+        return $this->locked($layoutId, function (string $published) use ($layoutId, $name, $fromRevisionId): LayoutDraft {
             $base = $fromRevisionId ?? $published;
 
             if ($this->store->graph($layoutId, $published)->revision($base) === null) {
@@ -97,27 +97,27 @@ class LayoutRevisionService
             }
 
             $now = $this->now();
-            $branch = new LayoutBranch(Uuid::randomHex(), $name ?? self::DEFAULT_BRANCH_NAME, $base, $base, $published, $now, $now);
+            $draft = new LayoutDraft(Uuid::randomHex(), $name ?? self::DEFAULT_DRAFT_NAME, $base, $base, $published, $now, $now);
 
-            $this->store->saveBranch($layoutId, $branch);
+            $this->store->saveDraft($layoutId, $draft);
 
-            return $branch;
+            return $draft;
         });
     }
 
     /**
-     * Appends the tree `$derive` makes from the branch head, admitted like a layout write without its resolvability
+     * Appends the tree `$derive` makes from the draft head, admitted like a layout write without its resolvability
      * step. The head is checked before `$derive` runs, so a derivation never works on a head its caller has not seen.
      *
      * @param \Closure(list<StoredElement>): StoredTree $derive
      *
-     * @return array{revision: LayoutRevision, branch: LayoutBranch, layout: list<StoredElement>}
+     * @return array{revision: LayoutRevision, draft: LayoutDraft, layout: list<StoredElement>}
      */
-    public function appendRevision(string $layoutId, string $branchId, string $expectedHead, \Closure $derive, Context $context): array
+    public function appendRevision(string $layoutId, string $draftId, string $expectedHead, \Closure $derive, Context $context): array
     {
         return $this->locked($layoutId, fn (): array => $this->append(
             $layoutId,
-            $branchId,
+            $draftId,
             $expectedHead,
             fn (array $head): array => $this->admit($derive($head)),
             $context,
@@ -125,35 +125,35 @@ class LayoutRevisionService
     }
 
     /**
-     * Publishes the head the caller last saw and removes the branch. Publishing never replaces a live state its
-     * caller has not seen: the branch must still be based on the live state it was opened from, or contain the
+     * Publishes the head the caller last saw and removes the draft. Publishing never replaces a live state its
+     * caller has not seen: the draft must still be based on the live state it was opened from, or contain the
      * current one. The DAL update and the pointer move share one transaction, so a tree the write gate refuses
-     * leaves the branch and the live pointer where they were.
+     * leaves the draft and the live pointer where they were.
      */
-    public function publish(string $layoutId, string $branchId, string $expectedHead, Context $context): void
+    public function publish(string $layoutId, string $draftId, string $expectedHead, Context $context): void
     {
-        $this->locked($layoutId, function (string $published) use ($layoutId, $branchId, $expectedHead, $context): void {
-            $branch = $this->branch($layoutId, $branchId);
+        $this->locked($layoutId, function (string $published) use ($layoutId, $draftId, $expectedHead, $context): void {
+            $draft = $this->draft($layoutId, $draftId);
 
-            if ($branch->head !== $expectedHead) {
+            if ($draft->head !== $expectedHead) {
                 throw ContentSystemException::layoutVersionConflict($layoutId);
             }
 
-            if ($branch->live !== $published && !$this->store->graph($layoutId, $published)->isAncestorOrSelf($published, $branch->head)) {
+            if ($draft->live !== $published && !$this->store->graph($layoutId, $published)->isAncestorOrSelf($published, $draft->head)) {
                 throw ContentSystemException::layoutPublishConflict($layoutId, $published);
             }
 
-            $this->store->deleteBranch($layoutId, $branchId);
-            $this->contentLayoutRepository->update([['id' => $layoutId, 'layout' => $this->tree($layoutId, $branch->head)]], $context);
-            $this->store->markPublished($layoutId, $branch->head, $this->now());
+            $this->store->deleteDraft($layoutId, $draftId);
+            $this->contentLayoutRepository->update([['id' => $layoutId, 'layout' => $this->tree($layoutId, $draft->head)]], $context);
+            $this->store->markPublished($layoutId, $draft->head, $this->now());
         });
     }
 
-    public function deleteBranch(string $layoutId, string $branchId): void
+    public function deleteDraft(string $layoutId, string $draftId): void
     {
-        $this->locked($layoutId, function (string $published) use ($layoutId, $branchId): void {
-            $this->branch($layoutId, $branchId);
-            $this->store->deleteBranch($layoutId, $branchId);
+        $this->locked($layoutId, function (string $published) use ($layoutId, $draftId): void {
+            $this->draft($layoutId, $draftId);
+            $this->store->deleteDraft($layoutId, $draftId);
 
             $this->store->deleteRevisions($layoutId, $this->store->graph($layoutId, $published)->unreachableIds());
         });
@@ -162,26 +162,26 @@ class LayoutRevisionService
     /**
      * @param \Closure(list<StoredElement>): list<StoredElement> $admitted
      *
-     * @return array{revision: LayoutRevision, branch: LayoutBranch, layout: list<StoredElement>}
+     * @return array{revision: LayoutRevision, draft: LayoutDraft, layout: list<StoredElement>}
      */
-    private function append(string $layoutId, string $branchId, string $expectedHead, \Closure $admitted, Context $context): array
+    private function append(string $layoutId, string $draftId, string $expectedHead, \Closure $admitted, Context $context): array
     {
-        $branch = $this->branch($layoutId, $branchId);
+        $draft = $this->draft($layoutId, $draftId);
 
-        if ($branch->head !== $expectedHead) {
+        if ($draft->head !== $expectedHead) {
             throw ContentSystemException::layoutVersionConflict($layoutId);
         }
 
-        $tree = $admitted($this->tree($layoutId, $branch->head));
+        $tree = $admitted($this->tree($layoutId, $draft->head));
 
         $now = $this->now();
-        $revision = new LayoutRevision(Uuid::randomHex(), $branch->head, $now, $this->userId($context));
-        $branch = $branch->withHead($revision->id, $now);
+        $revision = new LayoutRevision(Uuid::randomHex(), $draft->head, $now, $this->userId($context));
+        $draft = $draft->withHead($revision->id, $now);
 
         $this->store->insertRevision($layoutId, $revision, $tree);
-        $this->store->saveBranch($layoutId, $branch);
+        $this->store->saveDraft($layoutId, $draft);
 
-        return ['revision' => $revision, 'branch' => $branch, 'layout' => $tree];
+        return ['revision' => $revision, 'draft' => $draft, 'layout' => $tree];
     }
 
     /**
@@ -247,9 +247,9 @@ class LayoutRevisionService
         return $revisionId;
     }
 
-    private function branch(string $layoutId, string $branchId): LayoutBranch
+    private function draft(string $layoutId, string $draftId): LayoutDraft
     {
-        return $this->store->branch($layoutId, $branchId) ?? throw ContentSystemException::contentLayoutDraftNotFound($layoutId, $branchId);
+        return $this->store->draft($layoutId, $draftId) ?? throw ContentSystemException::contentLayoutDraftNotFound($layoutId, $draftId);
     }
 
     /**

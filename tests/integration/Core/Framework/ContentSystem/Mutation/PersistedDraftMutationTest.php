@@ -10,7 +10,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutBranch;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutDraft;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
@@ -27,7 +27,7 @@ use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
  * @internal
  */
 #[Package('framework')]
-class PersistedBranchMutationTest extends TestCase
+class PersistedDraftMutationTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -44,19 +44,19 @@ class PersistedBranchMutationTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    #[TestDox('a mutation on a branch appends one revision on the head and leaves the live layout alone')]
-    public function testMutationAppendsOneRevisionOnTheBranch(): void
+    #[TestDox('a mutation on a draft appends one revision on the head and leaves the live layout alone')]
+    public function testMutationAppendsOneRevisionOnTheDraft(): void
     {
         $layoutId = $this->createLayout(['a', 'b']);
-        $branch = $this->revisions->createBranch($layoutId);
+        $draft = $this->revisions->createDraft($layoutId);
         $revisionsBefore = \count($this->revisions->history($layoutId)->revisions);
 
-        $result = $this->mutator->mutateBranch($layoutId, $branch->id, $branch->head, new RemoveElement('a'), $this->context);
+        $result = $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('a'), $this->context);
 
-        static::assertSame($branch->head, $result->revision->parent);
-        static::assertSame($result->revision->id, $result->branch->head);
+        static::assertSame($draft->head, $result->revision->parent);
+        static::assertSame($result->revision->id, $result->draft->head);
         static::assertSame(['b'], $this->ids($result->mutation->layout->roots));
-        static::assertSame(['b'], $this->ids($this->revisions->getBranch($layoutId, $branch->id)['layout']));
+        static::assertSame(['b'], $this->ids($this->revisions->getDraft($layoutId, $draft->id)['layout']));
         static::assertCount($revisionsBefore + 1, $this->revisions->history($layoutId)->revisions);
         static::assertSame(['a', 'b'], $this->liveIds($layoutId));
     }
@@ -65,10 +65,10 @@ class PersistedBranchMutationTest extends TestCase
     public function testConsecutiveMutationsChainOnTheReturnedHead(): void
     {
         $layoutId = $this->createLayout(['a', 'b', 'c']);
-        $branch = $this->revisions->createBranch($layoutId);
+        $draft = $this->revisions->createDraft($layoutId);
 
-        $first = $this->mutator->mutateBranch($layoutId, $branch->id, $branch->head, new RemoveElement('a'), $this->context);
-        $second = $this->mutator->mutateBranch($layoutId, $branch->id, $first->branch->head, new RemoveElement('b'), $this->context);
+        $first = $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('a'), $this->context);
+        $second = $this->mutator->mutateDraft($layoutId, $draft->id, $first->draft->head, new RemoveElement('b'), $this->context);
 
         static::assertSame($first->revision->id, $second->revision->parent);
         static::assertSame(['c'], $this->ids($second->mutation->layout->roots));
@@ -78,13 +78,13 @@ class PersistedBranchMutationTest extends TestCase
     public function testStaleHeadConflicts(): void
     {
         $layoutId = $this->createLayout(['a', 'b']);
-        $branch = $this->revisions->createBranch($layoutId);
-        $this->mutator->mutateBranch($layoutId, $branch->id, $branch->head, new RemoveElement('a'), $this->context);
+        $draft = $this->revisions->createDraft($layoutId);
+        $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('a'), $this->context);
 
         $this->assertFailsWithoutAppending(
             $layoutId,
             ContentSystemException::LAYOUT_VERSION_CONFLICT,
-            fn () => $this->mutator->mutateBranch($layoutId, $branch->id, $branch->head, new RemoveElement('b'), $this->context),
+            fn () => $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('b'), $this->context),
         );
     }
 
@@ -92,33 +92,33 @@ class PersistedBranchMutationTest extends TestCase
     public function testRejectedOperationAppendsNothing(): void
     {
         $layoutId = $this->createLayout(['a']);
-        $branch = $this->revisions->createBranch($layoutId);
+        $draft = $this->revisions->createDraft($layoutId);
 
         $this->assertFailsWithoutAppending(
             $layoutId,
             ContentSystemException::MUTATION_TARGET_NOT_FOUND,
-            fn () => $this->mutator->mutateBranch($layoutId, $branch->id, $branch->head, new RemoveElement('unknown'), $this->context),
+            fn () => $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('unknown'), $this->context),
         );
 
-        static::assertSame($branch->head, $this->branch($layoutId, $branch->id)->head);
+        static::assertSame($draft->head, $this->draft($layoutId, $draft->id)->head);
     }
 
-    #[TestDox('an unknown branch is not found')]
-    public function testUnknownBranchIsNotFound(): void
+    #[TestDox('an unknown draft is not found')]
+    public function testUnknownDraftIsNotFound(): void
     {
         $layoutId = $this->createLayout(['a']);
-        $branchId = Uuid::randomHex();
+        $draftId = Uuid::randomHex();
 
-        $this->expectExceptionObject(ContentSystemException::contentLayoutDraftNotFound($layoutId, $branchId));
+        $this->expectExceptionObject(ContentSystemException::contentLayoutDraftNotFound($layoutId, $draftId));
 
-        $this->mutator->mutateBranch($layoutId, $branchId, Uuid::randomHex(), new RemoveElement('a'), $this->context);
+        $this->mutator->mutateDraft($layoutId, $draftId, Uuid::randomHex(), new RemoveElement('a'), $this->context);
     }
 
-    #[TestDox('a declared write privilege the caller lacks is a 403 before the branch is touched')]
+    #[TestDox('a declared write privilege the caller lacks is a 403 before the draft is touched')]
     public function testDeclaredWritePrivilegeIsRequired(): void
     {
         $layoutId = $this->createLayout(['a']);
-        $branch = $this->revisions->createBranch($layoutId);
+        $draft = $this->revisions->createDraft($layoutId);
         $mutation = $this->createMock(LayoutMutation::class);
         $mutation->method('writePrivilege')->willReturn('content_layout:translate');
         $mutation->expects($this->never())->method('apply');
@@ -128,7 +128,7 @@ class PersistedBranchMutationTest extends TestCase
         $revisionsBefore = \count($this->revisions->history($layoutId)->revisions);
 
         try {
-            $this->mutator->mutateBranch($layoutId, $branch->id, $branch->head, $mutation, Context::createDefaultContext($source));
+            $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, $mutation, Context::createDefaultContext($source));
             static::fail('Expected the missing translate privilege to be rejected.');
         } catch (MissingPrivilegeException $exception) {
             static::assertSame(ContentSystemException::missingPrivileges(['content_layout:translate'])->getMessage(), $exception->getMessage());
@@ -154,9 +154,9 @@ class PersistedBranchMutationTest extends TestCase
         static::assertCount($revisionsBefore, $this->revisions->history($layoutId)->revisions);
     }
 
-    private function branch(string $layoutId, string $branchId): LayoutBranch
+    private function draft(string $layoutId, string $draftId): LayoutDraft
     {
-        return $this->revisions->getBranch($layoutId, $branchId)['branch'];
+        return $this->revisions->getDraft($layoutId, $draftId)['draft'];
     }
 
     /**
@@ -168,7 +168,7 @@ class PersistedBranchMutationTest extends TestCase
 
         $this->repository()->create([[
             'id' => $id,
-            'name' => 'branch-mutation-' . $id,
+            'name' => 'draft-mutation-' . $id,
             'version' => '1.0.0',
             'rootSource' => 'category',
             'layout' => array_map(

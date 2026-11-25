@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutBranch;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutDraft;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -56,50 +56,50 @@ class LayoutRevisionServiceTest extends TestCase
     public function testPublishingADraft(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $branch = $this->service->createBranch($layoutId);
-        $saved = $this->save($layoutId, $branch->id, ['draft-a', 'draft-b'], $branch->head);
+        $draft = $this->service->createDraft($layoutId);
+        $saved = $this->save($layoutId, $draft->id, ['draft-a', 'draft-b'], $draft->head);
 
-        $this->service->publish($layoutId, $branch->id, $saved['branch']->head, $this->context);
+        $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
 
         $history = $this->service->history($layoutId);
         static::assertSame(['draft-a', 'draft-b'], $this->liveIds($layoutId));
         static::assertSame($saved['revision']->id, $history->published);
         static::assertCount(2, $history->revisions);
-        static::assertSame([], $this->service->listBranches($layoutId));
+        static::assertSame([], $this->service->listDrafts($layoutId));
     }
 
     #[TestDox('publishing a head the caller has not seen fails without writing and keeps the draft')]
     public function testPublishingAStaleHeadConflicts(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $branch = $this->service->createBranch($layoutId);
-        $this->save($layoutId, $branch->id, ['draft'], $branch->head);
+        $draft = $this->service->createDraft($layoutId);
+        $this->save($layoutId, $draft->id, ['draft'], $draft->head);
 
         $this->assertConflict(
             ContentSystemException::LAYOUT_VERSION_CONFLICT,
-            fn () => $this->service->publish($layoutId, $branch->id, $branch->head, $this->context),
+            fn () => $this->service->publish($layoutId, $draft->id, $draft->head, $this->context),
         );
         static::assertSame(['live-a'], $this->liveIds($layoutId));
-        static::assertCount(1, $this->service->listBranches($layoutId));
+        static::assertCount(1, $this->service->listDrafts($layoutId));
     }
 
     #[TestDox('publishing a draft fails without writing once another draft went live after it was opened')]
     public function testPublishingAStaleDraftConflicts(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $first = $this->service->createBranch($layoutId);
-        $second = $this->service->createBranch($layoutId);
+        $first = $this->service->createDraft($layoutId);
+        $second = $this->service->createDraft($layoutId);
         $firstSaved = $this->save($layoutId, $first->id, ['first'], $first->head);
         $secondSaved = $this->save($layoutId, $second->id, ['second'], $second->head);
 
-        $this->service->publish($layoutId, $second->id, $secondSaved['branch']->head, $this->context);
+        $this->service->publish($layoutId, $second->id, $secondSaved['draft']->head, $this->context);
 
         $this->assertConflict(
             ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
-            fn () => $this->service->publish($layoutId, $first->id, $firstSaved['branch']->head, $this->context),
+            fn () => $this->service->publish($layoutId, $first->id, $firstSaved['draft']->head, $this->context),
         );
         static::assertSame(['second'], $this->liveIds($layoutId));
-        static::assertCount(1, $this->service->listBranches($layoutId));
+        static::assertCount(1, $this->service->listDrafts($layoutId));
     }
 
     #[TestDox('a layout write that bypasses publishing becomes the live revision, so a draft opened before it cannot revert it')]
@@ -107,7 +107,7 @@ class LayoutRevisionServiceTest extends TestCase
     {
         $layoutId = $this->createLayout(['live-a']);
         $initial = $this->service->history($layoutId)->published;
-        $draft = $this->service->createBranch($layoutId);
+        $draft = $this->service->createDraft($layoutId);
         $saved = $this->save($layoutId, $draft->id, ['draft'], $draft->head);
 
         $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(['direct'])]], $this->context);
@@ -119,10 +119,10 @@ class LayoutRevisionServiceTest extends TestCase
 
         $this->assertConflict(
             ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
-            fn () => $this->service->publish($layoutId, $draft->id, $saved['branch']->head, $this->context),
+            fn () => $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context),
         );
         static::assertSame(['direct'], $this->liveIds($layoutId));
-        static::assertSame($history->published, $this->service->createBranch($layoutId)->base);
+        static::assertSame($history->published, $this->service->createDraft($layoutId)->base);
     }
 
     #[TestDox('a draft opened from an older revision rolls the layout back and the live pointer follows it')]
@@ -130,11 +130,11 @@ class LayoutRevisionServiceTest extends TestCase
     {
         $layoutId = $this->createLayout(['live-a']);
         $initial = $this->service->history($layoutId)->published;
-        $branch = $this->service->createBranch($layoutId);
-        $saved = $this->save($layoutId, $branch->id, ['newer'], $branch->head);
-        $this->service->publish($layoutId, $branch->id, $saved['branch']->head, $this->context);
+        $draft = $this->service->createDraft($layoutId);
+        $saved = $this->save($layoutId, $draft->id, ['newer'], $draft->head);
+        $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
 
-        $restore = $this->service->createBranch($layoutId, null, $initial);
+        $restore = $this->service->createDraft($layoutId, null, $initial);
         $this->service->publish($layoutId, $restore->id, $restore->head, $this->context);
 
         $history = $this->service->history($layoutId);
@@ -147,17 +147,17 @@ class LayoutRevisionServiceTest extends TestCase
     public function testDeletingADraftPrunesItsRevisions(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $published = $this->service->createBranch($layoutId);
+        $published = $this->service->createDraft($layoutId);
         $publishedSaved = $this->save($layoutId, $published->id, ['published'], $published->head);
-        $this->service->publish($layoutId, $published->id, $publishedSaved['branch']->head, $this->context);
+        $this->service->publish($layoutId, $published->id, $publishedSaved['draft']->head, $this->context);
 
-        $draft = $this->service->createBranch($layoutId);
+        $draft = $this->service->createDraft($layoutId);
         $first = $this->save($layoutId, $draft->id, ['one'], $draft->head);
-        $this->save($layoutId, $draft->id, ['two'], $first['branch']->head);
+        $this->save($layoutId, $draft->id, ['two'], $first['draft']->head);
 
         static::assertCount(4, $this->service->history($layoutId)->revisions);
 
-        $this->service->deleteBranch($layoutId, $draft->id);
+        $this->service->deleteDraft($layoutId, $draft->id);
 
         $history = $this->service->history($layoutId);
         static::assertCount(2, $history->revisions);
@@ -168,13 +168,13 @@ class LayoutRevisionServiceTest extends TestCase
     public function testRevisionsAreDeletedWithTheLayout(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $branch = $this->service->createBranch($layoutId);
-        $this->save($layoutId, $branch->id, ['draft'], $branch->head);
+        $draft = $this->service->createDraft($layoutId);
+        $this->save($layoutId, $draft->id, ['draft'], $draft->head);
 
         $this->repository()->delete([['id' => $layoutId]], $this->context);
 
         $connection = static::getContainer()->get(Connection::class);
-        foreach (['content_layout_revision', 'content_layout_branch'] as $table) {
+        foreach (['content_layout_revision', 'content_layout_draft'] as $table) {
             static::assertSame(0, (int) $connection->fetchOne(
                 'SELECT COUNT(*) FROM `' . $table . '` WHERE `content_layout_id` = :id',
                 ['id' => Uuid::fromHexToBytes($layoutId)],
@@ -182,18 +182,18 @@ class LayoutRevisionServiceTest extends TestCase
         }
     }
 
-    #[TestDox('appending a revision derives the new tree from the branch head and moves the head onto it')]
+    #[TestDox('appending a revision derives the new tree from the draft head and moves the head onto it')]
     public function testAppendRevisionDerivesFromTheHead(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $branch = $this->service->createBranch($layoutId);
-        $saved = $this->save($layoutId, $branch->id, ['draft-a'], $branch->head);
+        $draft = $this->service->createDraft($layoutId);
+        $saved = $this->save($layoutId, $draft->id, ['draft-a'], $draft->head);
         $seen = null;
 
         $appended = $this->service->appendRevision(
             $layoutId,
-            $branch->id,
-            $saved['branch']->head,
+            $draft->id,
+            $saved['draft']->head,
             function (array $head) use (&$seen): StoredTree {
                 $seen = array_map(static fn (StoredElement $element): string => $element->id, $head);
 
@@ -203,8 +203,8 @@ class LayoutRevisionServiceTest extends TestCase
         );
 
         static::assertSame(['draft-a'], $seen);
-        static::assertSame($saved['branch']->head, $appended['revision']->parent);
-        static::assertSame($appended['revision']->id, $appended['branch']->head);
+        static::assertSame($saved['draft']->head, $appended['revision']->parent);
+        static::assertSame($appended['revision']->id, $appended['draft']->head);
         static::assertSame(['draft-a', 'draft-b'], array_map(static fn (StoredElement $element): string => $element->id, $appended['layout']));
         static::assertSame(['live-a'], $this->liveIds($layoutId));
     }
@@ -213,15 +213,15 @@ class LayoutRevisionServiceTest extends TestCase
     public function testAppendRevisionWithStaleHeadNeverDerives(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $branch = $this->service->createBranch($layoutId);
-        $this->save($layoutId, $branch->id, ['draft-a'], $branch->head);
+        $draft = $this->service->createDraft($layoutId);
+        $this->save($layoutId, $draft->id, ['draft-a'], $draft->head);
 
         $this->assertConflict(
             ContentSystemException::LAYOUT_VERSION_CONFLICT,
             fn () => $this->service->appendRevision(
                 $layoutId,
-                $branch->id,
-                $branch->head,
+                $draft->id,
+                $draft->head,
                 static fn (): StoredTree => static::fail('A stale head must not reach the derivation.'),
                 $this->context,
             ),
@@ -232,13 +232,13 @@ class LayoutRevisionServiceTest extends TestCase
     public function testAppendRevisionAdmitsTheDerivedTree(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $branch = $this->service->createBranch($layoutId);
+        $draft = $this->service->createDraft($layoutId);
 
         try {
             $this->service->appendRevision(
                 $layoutId,
-                $branch->id,
-                $branch->head,
+                $draft->id,
+                $draft->head,
                 fn (): StoredTree => new StoredTree($this->storedTree(['twin', 'twin'])),
                 $this->context,
             );
@@ -247,19 +247,19 @@ class LayoutRevisionServiceTest extends TestCase
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
         }
 
-        static::assertSame($branch->head, $this->service->getBranch($layoutId, $branch->id)['branch']->head);
+        static::assertSame($draft->head, $this->service->getDraft($layoutId, $draft->id)['draft']->head);
     }
 
     /**
      * @param list<string> $elementIds
      *
-     * @return array{revision: LayoutRevision, branch: LayoutBranch, layout: list<StoredElement>}
+     * @return array{revision: LayoutRevision, draft: LayoutDraft, layout: list<StoredElement>}
      */
-    private function save(string $layoutId, string $branchId, array $elementIds, string $expectedHead): array
+    private function save(string $layoutId, string $draftId, array $elementIds, string $expectedHead): array
     {
         return $this->service->appendRevision(
             $layoutId,
-            $branchId,
+            $draftId,
             $expectedHead,
             fn (): StoredTree => new StoredTree($this->storedTree($elementIds)),
             $this->context,

@@ -485,8 +485,26 @@ SCRIPT_DIR=$BATS_TEST_DIRNAME
 
 bats_require_minimum_version 1.5.0
 
+# Creates a throwaway repository with the branch trunk and enters it; remove_repo deletes it.
+new_repo() {
+    REPO=$(mktemp -d)
+    git -C "$REPO" init -q -b trunk
+    git -C "$REPO" config user.name test
+    git -C "$REPO" config user.email test@example.com
+    git -C "$REPO" config commit.gpgsign false
+    cd "$REPO" || return 1
+}
+
+remove_repo() {
+    rm -rf "$REPO"
+}
+
 setup() {
-    load ../tests/helpers
+    load ../tests/helpers/put
+    load ../tests/helpers/commit-all
+    load ../tests/helpers/call-sites
+    load ../tests/helpers/story
+    load ../tests/helpers/run-json
     new_repo
 }
 

@@ -1,58 +1,7 @@
 # shellcheck shell=bash
 # SC2016: the single-quoted file contents are PHP source whose $ must stay literal.
-# SC2154: status, output and stderr are set by the bats run helper.
-# shellcheck disable=SC2016,SC2154
-# Builds throwaway repositories for the run.sh tests. Paths mirror the shipped data tables.
-
-RUN_SH="$BATS_TEST_DIRNAME/run.sh"
-
-new_repo() {
-    REPO=$(mktemp -d)
-    git -C "$REPO" init -q -b trunk
-    git -C "$REPO" config user.name test
-    git -C "$REPO" config user.email test@example.com
-    git -C "$REPO" config commit.gpgsign false
-    cd "$REPO" || return 1
-}
-
-remove_repo() {
-    rm -rf "$REPO"
-}
-
-# Writes $2 to the file $1, creating its directory.
-put() {
-    mkdir -p "$(dirname "$1")"
-    printf '%s\n' "$2" >"$1"
-}
-
-commit_all() {
-    git add -A
-    git commit -q -m "$1"
-}
-
-call_site() {
-    put "src/Core/Foo/$1.php" "<?php
-class $1
-{
-    public const LEGACY = 1;
-    public function run(\$value)
-    {
-        StillUsed::keep();
-        return OldThing::make(\$value);
-    }
-}"
-}
-
-migrated_call_site() {
-    put "src/Core/Foo/$1.php" "<?php
-class $1
-{
-    public function run(\$value)
-    {
-        return NewHelper::create(\$value);
-    }
-}"
-}
+# shellcheck disable=SC2016
+# Needs put, commit_all, call_site and migrated_call_site. Paths mirror the shipped data tables.
 
 # Writes composer.json with the twig/twig constraint $1 and the lint script $2.
 composer_with_twig() {
@@ -152,20 +101,4 @@ StillUsed::keep();'
         put src/Administration/Resources/app/administration/public-api/module/sw-branch/sw-b.api.md 'OldThing::make() branch snapshot'
         commit_all 'branch: own snapshot'
     fi
-}
-
-# Runs run.sh with the given arguments and a fresh output directory, and stores the JSON path in JSON.
-run_json() {
-    RUNS=$((${RUNS:-0} + 1))
-    run --separate-stderr "$RUN_SH" "$@" --out "$BATS_TEST_TMPDIR/out.$RUNS"
-    [ "$status" -eq 0 ] || {
-        printf 'run.sh failed with %s: %s\n' "$status" "$stderr" >&2
-        return 1
-    }
-    JSON=$output
-}
-
-# jq -r over the last JSON.
-q() {
-    jq -r "$1" "$JSON"
 }

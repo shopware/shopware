@@ -10,6 +10,32 @@ component sw-product-variants-price-field  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/sw-product-variants-price-field.html.twig
 
+props
+  currency: object
+  price: object
+  readonly?: boolean  default=false
+  taxRate?: string  default=null
+
+emits
+  change(...args: any[])
+  price-calculate(...args: any[])
+  price-gross-change(...args: any[])
+  price-lock-change(...args: any[])
+  price-net-change(...args: any[])
+
+computed
+  calculatePriceApiService: any
+
+methods
+  convertGrossToNet(value: any): any
+  convertNetToGross(value: any): any
+  onLockSwitch(): any
+  onPriceGrossChange(value: any): any
+  onPriceGrossChangeDebounce(value: any): any
+  onPriceNetChange(value: any): any
+  onPriceNetChangeDebounce(value: any): any
+  requestTaxValue(value: any, outputType: any): Promise<any>
+
 blocks
   sw_product_variants_price_field
     sw_product_variants_price_field_gross

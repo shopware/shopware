@@ -11,6 +11,79 @@ component sw-colorpicker-deprecated  private  js  [private]
   template src/app/component/form/sw-colorpicker-deprecated/sw-colorpicker.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-form-field, remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  alpha?: boolean  default=true  [private]
+  colorLabels?: boolean  default=true  [private]
+  colorOutput?: string  default='auto'  [private]
+  disabled?: boolean  default=false  [private]
+  readonly?: boolean  default=false  [private]
+  value?: string  default=''  [private]
+  zIndex?: null | number  default=null  [private]
+
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  label  {}  block=sw_colorpicker_contextual_field  [private]
+
+data
+  alphaValue: any  [private]
+  hueValue: any  [private]
+  isDragging: any  [private]
+  localValue: any  [private]
+  luminanceValue: any  [private]
+  saturationValue: any  [private]
+  userInput: any  [private]
+  visible: any  [private]
+
+computed
+  blueValue: any  [private]
+  colorValue: any  [private]
+  convertedValue: any  [private]
+  greenValue: any  [private]
+  hexValue: any  [private]
+  hslValue: any  [private]
+  integerAlpha: any  [private]
+  isColorValid: any  [private]
+  previewColorValue: any  [private]
+  redValue: any  [private]
+  rgbValue: any  [private]
+  selectorBackground: any  [private]
+  selectorPositionX: any  [private]
+  selectorPositionY: any  [private]
+  selectorStyles: any  [private]
+  sliderBackground: any  [private]
+
+methods
+  componentBeforeDestroy(): any  [private]
+  convertHEXtoHSL(previousHex: any): any  [private]
+  convertHSL(mode: any, color: any): any  [private]
+  convertHSLtoHEX(previousHue: any, previousSaturation: any, previousLuminance: any, previousAlpha: any): any  [private]
+  convertHSLtoRGB(previousHue: any, previousSaturation: any, previousLuminance: any, previousAlpha: any): any  [private]
+  convertRGBtoHSL(previousRed: any, previousGreen: any, previousBlue: any): any  [private]
+  debounceEmitColorValue(): any  [private]
+  moveSelector(event: any): any  [private]
+  onClickInput(): any  [private]
+  outsideClick(e: any): any  [private]
+  removeDragging(): any  [private]
+  removeOutsideClickEvent(): any  [private]
+  roundingFloat(num: any, digits?: any = 2): any  [private]
+  setDragging(event: any): any  [private]
+  setHslaValues(hue: any, saturation: any, luminance: any, alpha: any): any  [private]
+  setOutsideClickEvent(): any  [private]
+  setSingleRGBValue(newColorValue: any, type: any): any  [private]
+  splitHSLValues(hslString: any): any  [private]
+  splitRGBValues(rgbString: any): any  [private]
+  toggleColorPicker(): any  [private]
+
 blocks
   sw_colorpicker  [private]
     sw_colorpicker_contextual_field  [private]
@@ -29,4 +102,7 @@ blocks
         sw_colorpicker_preview  [private]
         sw_colorpicker_selection  [private]
           sw_colorpicker_selector  [private]
+
+refs
+  colorPicker  -> div  block=sw_colorpicker_selection  [private]
 ```

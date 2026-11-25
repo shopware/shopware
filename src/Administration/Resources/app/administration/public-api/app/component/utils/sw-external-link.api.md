@@ -11,6 +11,24 @@ component sw-external-link  private  js  [private]
   template src/app/component/utils/sw-external-link/sw-external-link.html.twig  [private]
   visibility-source export  [private]
 
+props
+  icon?: string  default='regular-external-link-s'  [private]
+  rel?: string  default='noopener'  [private]
+  small?: boolean  default=false  [private]
+
+emits
+  click(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_external_link  [private]
+
+computed
+  classes: any  [private]
+  iconSize: any  [private]
+
+methods
+  onClick(event: any): any  [private]
+
 blocks
   sw_external_link  [private]
 ```

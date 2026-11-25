@@ -11,6 +11,38 @@ component sw-extension-app-module-page  private  ts  [private]
   template src/module/sw-extension/page/sw-extension-app-module-page/sw-extension-app-module-page.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  extensionSdkService  [private]
+
+props
+  appName: string  [private]
+  moduleName?: string  default=null  [private]
+
+data
+  appLoaded: any  [private]
+  signedIframeSrc: any  [private]
+  timedOut: any  [private]
+  timedOutTimeout: any  [private]
+
+computed
+  appDefinition: AppModuleDefinition | null  [private]
+  appsLoaded: boolean  [private]
+  currentLocale: string | null  [private]
+  entryPoint: string | null  [private]
+  fallbackLocale: string | null  [private]
+  heading: string | null  [private]
+  loadedMessage: 'sw-app-loaded'  [private]
+  moduleDefinition: Partial<{ source: string; label: { [key: string]: string }; }> | null  [private]
+  origin: string | null  [private]
+  showSmartBar: boolean  [private]
+  suspend: boolean  [private]
+
+methods
+  createdComponent(): any  [private]
+  onContentLoaded(event: MessageEvent): void  [private]
+  translate(labels: { [key: string]: string }): string | null  [private]
+
 blocks
   sw_extension_app_module_page  [private]
 ```

@@ -11,6 +11,76 @@ component sw-multi-snippet-drag-and-drop  private  ts  [private]
   template src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop/sw-multi-snippet-drag-and-drop.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  dragConfig?: object  default=factory  [private]
+  dropConfig?: object  default=factory  [private]
+  externalDragPreview?: ExternalDragPreview | null  default=null  [private]
+  getLabelProperty?: (...args: any[]) => any  default=factory  [private]
+  isLoading?: boolean  default=false  [private]
+  isSnippetDragging?: boolean  default=false  [private]
+  linePosition: number  [private]
+  selectionDisablingMethod?: (...args: any[]) => any  default=factory  [private]
+  totalLines: number  [private]
+  value: Array<string[]>  [private]
+
+emits
+  add-new-line(...args: any[])  [private]
+  drag-enter(...args: any[])  [private]
+  drag-start(...args: any[])  [private]
+  drop-end(...args: any[])  [private]
+  open-snippet-modal(...args: any[])  [private]
+  position-move(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  input  {}  block=sw_multi_snippet_drag_and_drop  [private]
+  label-property  { ...{ item: snippet, index, getLabelProperty } }  block=sw_multi_snippet_drag_and_drop  [private]
+  selected-option  { ...{ snippet, defaultLabel: snippet, disabled, linePosition } }  block=sw_multi_snippet_drag_and_drop  [private]
+
+data
+  defaultConfig: object  [private]
+    delay: any  [private]
+    disabled: any  [private]
+    dragGroup: any  [private]
+    preventEvent: any  [private]
+    validDragCls: any  [private]
+  dragPreview: any  [private]
+  dropPreviewData: any  [private]
+  isDragging: any  [private]
+
+computed
+  activeDragPreview: DragPreview | null  [private]
+  dragPreviewSnippet: string[] | null  [private]
+  errorObject: null  [private]
+  hasDragPreview: boolean  [private]
+  isMaxLines: boolean  [private]
+  isMinLines: boolean  [private]
+  isSnippetDragActive: boolean  [private]
+  mergedDragConfig: DragConfig<DragItem>  [private]
+  mergedDropConfig: DragConfig  [private]
+
+methods
+  addNewLineAt(position: number): any  [private]
+  isDragPreviewSource(index: number): boolean  [private]
+  isSelectionDisabled(selection: $TSFixMe): boolean  [private]
+  moveToNewPosition(position?: any = null): any  [private]
+  onClickDismiss(index: number): any  [private]
+  onDelete(): any  [private]
+  onDragEnter(dragData: DragItem | null, dropData: DragItem | null): any  [private]
+  onDragStart(config: DragConfig<DragItem>, element: HTMLElement, dragElement: HTMLElement): void  [private]
+  onDrop(dragData: DragItem | null, dropData: DragItem | null): any  [private]
+  openModal(): any  [private]
+  shouldShowEmptyPlaceholder(): boolean  [private]
+  shouldShowPlaceholderAfter(index: number): boolean  [private]
+  shouldShowPlaceholderBefore(index: number): boolean  [private]
+
 blocks
   sw_multi_snippet_drag_and_drop  [private]
+
+refs
+  selectionList  -> ul  block=sw_multi_snippet_drag_and_drop  [private]
 ```

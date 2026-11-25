@@ -11,6 +11,25 @@ component sw-block-field  private  js  [private]
   template src/app/component/form/field-base/sw-block-field/sw-block-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  size?: string  default='default'  [private]
+
+slots
+  hint  {}  block=sw_block_field  [private]
+  label  {}  block=sw_block_field  [private]
+  sw-field-input  { ...{ identification, error, disabled, size, setFocusClass, removeFocusClass } }  block=sw_block_field  [private]
+
+data
+  hasFocus: any  [private]
+
+computed
+  swBlockFieldClasses: any  [private]
+  swBlockSize: any  [private]
+
+methods
+  removeFocusClass(): any  [private]
+  setFocusClass(): any  [private]
+
 blocks
   sw_block_field  [private]
 ```

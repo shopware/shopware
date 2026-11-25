@@ -10,6 +10,89 @@ component sw-profile-index  public  js
   source src/module/sw-profile/page/sw-profile-index/index.js
   template src/module/sw-profile/page/sw-profile-index/sw-profile-index.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  loginService
+  mediaDefaultFolderService
+  repositoryFactory
+  searchPreferencesService
+  searchRankingService
+  ssoSettingsService
+  userService
+  validationApiService
+
+data
+  avatarMediaItem: any
+  confirmPassword: any
+  confirmPasswordModal: any
+  imageSize: any
+  isLoading: any
+  isSaveSuccessful: any
+  isUserLoading: any
+  languages: any
+  mediaDefaultFolderId: any
+  newPassword: any
+  newPasswordConfirm: any
+  showMediaModal: any
+  timezoneOptions: any
+  uploadTag: any
+  user: object
+    email: any
+    username: any
+  userModuleIconColors: any
+  userThemeSelection: any
+
+computed
+  isDisabled: any
+  languageId: any
+  languageRepository: any
+  localeRepository: any
+  mediaRepository: any
+  minSearchTermLength: any
+  profileTabs: any
+  searchPreferences: any
+  userEmailError: any
+  userRepository: any
+  userSearchPreferences: any
+  userTheme: any
+  userTimeZoneError: any
+
+methods
+  beforeMountComponent(): any
+  checkEmail(): any  [deprecated tag:v6.8.0]
+  checkPassword(): any
+  createErrorMessage(errorMessage: any): any
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  getUserData(): Promise<any>
+  handleUserSaveError(error: any): any
+  loadLanguages(): Promise<any>
+  loadMediaItem(targetId: any): any
+  onChangeNewPassword(newPassword: any): any
+  onChangeNewPasswordConfirm(newPasswordConfirm: any): any
+  onChangeUserModuleIconColors(userModuleIconColors: any): any
+  onChangeUserTheme(userTheme: any): any
+  onCloseConfirmPasswordModal(): any
+  onDropMedia(mediaItem: any): any
+  onMediaSelectionChange(arg0: any): any
+  onSave(): any
+  onUnlinkAvatar(): any
+  onVerifyPasswordFinished(context: any): any
+  openMediaModal(): any
+  resetGeneralData(): any
+  saveFinish(): Promise<any>
+  saveMinSearchTermLength(): any
+  saveUser(context: any): any
+  saveUserModuleIconColors(): Promise<any>
+  saveUserSearchPreferences(): Promise<any>
+  saveUserTheme(): Promise<any>
+  setMediaItem(arg0: any): any
+  updateCurrentUser(): Promise<any>
+
 blocks
   sw_profile_index
     sw_profile_index_actions

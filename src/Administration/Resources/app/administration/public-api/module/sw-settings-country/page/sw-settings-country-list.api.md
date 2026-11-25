@@ -10,6 +10,35 @@ component sw-settings-country-list  public  js
   source src/module/sw-settings-country/page/sw-settings-country-list/index.js
   template src/module/sw-settings-country/page/sw-settings-country-list/sw-settings-country-list.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  repositoryFactory
+
+data
+  country: any
+  entityName: any
+  isLoading: any
+  naturalSorting: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  countryRepository: any
+  detailPageLinkText: any
+
+methods
+  getCountryColumns(): any
+  getList(): any
+  onChangeLanguage(languageId: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  onInlineEditSave(promise: any, country: any): any
+
 blocks
   sw_settings_list
     sw_settings_country_index
@@ -36,4 +65,7 @@ blocks
         sw_settings_country_list_smart_bar_header_title
           sw_settings_country_list_smart_bar_header_amount
           sw_settings_country_list_smart_bar_header_title_text
+
+refs
+  swSettingsCountryGrid  -> sw-entity-listing  block=sw_settings_country_list_grid_inner
 ```

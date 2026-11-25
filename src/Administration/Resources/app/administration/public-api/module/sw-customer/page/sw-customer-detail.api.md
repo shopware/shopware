@@ -10,6 +10,61 @@ component sw-customer-detail  public  js
   source src/module/sw-customer/page/sw-customer-detail/index.js
   template src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig
 
+mixins
+  notification, salutation, discard-detail-page-changes
+
+inject
+  acl
+  customerGroupRegistrationService
+  customerValidationService
+  feature
+  repositoryFactory
+
+provide
+  loadCustomer: any
+
+props
+  customerId: string
+
+data
+  customer: any
+  customerAddressCustomFieldSets: any
+  customerCustomFieldSets: any
+  errorEmailCustomer: any
+  isLoading: any
+  isSaveSuccessful: any
+
+computed
+  addressesRoute: any
+  customerDetailTabs: any
+  customerRepository: any
+  defaultCriteria: any
+  editMode: any
+  emailHasChanged: any
+  generalRoute: any
+  identifier: any
+  ordersRoute: any
+  salutationCriteria: any
+  salutationRepository: any
+  validCompanyField: any
+
+methods
+  abortOnLanguageChange(): any
+  acceptCustomerGroupRegistration(): any
+  createErrorMessageForCompanyField(): any
+  createdComponent(): Promise<any>
+  declineCustomerGroupRegistration(): any
+  getDefaultSalutation(): Promise<any>
+  loadCustomer(): Promise<any>
+  onAbortButtonClick(): Promise<any>
+  onActivateCustomerEditMode(): any
+  onChangeLanguage(languageId: any): any
+  onSave(): Promise<any>
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  validPassword(customer: any): Promise<any>
+  validateEmail(): Promise<any>
+
 blocks
   sw_customer_detail
     sw_customer_detail_actions
@@ -32,4 +87,7 @@ blocks
 
 crossings
   v-if  sw_customer_detail_actions_edit -> sw_customer_detail_actions
+
+notes
+  unresolved computed ...mapPageErrors(errorConfig)
 ```

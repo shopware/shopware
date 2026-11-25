@@ -11,6 +11,44 @@ component sw-flow-app-action-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-app-action-modal/sw-flow-app-action-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification  [private]
+
+inject
+  acl  [private]
+
+props
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  config: any  [private]
+  errors: any  [private]
+  fields: any  [private]
+
+computed
+  actionLabel: any  [private]
+  appBadge: any  [private]
+  currentLocale: any  [private]
+  headline: any  [private]
+  paragraph: any  [private]
+
+methods
+  buildConfig(): any  [private]
+  convertDefaultValue(type: any, value: any): any  [private]
+  createdComponent(): any  [private]
+  getConfig(field: any): any  [private]
+  getFields(): any  [private]
+  handleValid(field: any, val: any): any  [private]
+  helpText(field: any): any  [private]
+  isValid(): any  [private]
+  onChange(event: any, field: any): any  [private]
+  onClose(): any  [private]
+  onSave(): any  [private]
+
 blocks
   sw_flow_app_action_modal  [private]
     sw_flow_app_action_modal_content  [private]

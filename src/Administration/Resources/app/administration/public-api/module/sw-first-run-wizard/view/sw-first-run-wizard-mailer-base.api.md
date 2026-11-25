@@ -11,6 +11,9 @@ component sw-first-run-wizard-mailer-base  private  js  [private]
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-base/sw-first-run-wizard-mailer-base.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  filteredAttributes: any  [private]
+
 blocks
   sw_first_run_wizard_mailer_base  [private]
 ```

@@ -11,7 +11,13 @@ component sw-mail-template-view-templates  private  js  [private]
   template src/module/sw-mail-template/view/sw-mail-template-view-templates/sw-mail-template-view-templates.html.twig  [private]
   visibility-source export  [private]
 
+methods
+  getList(): any  [private]
+
 blocks
   sw_mail_template_view_templates  [private]
     sw_mail_template_view_templates_list  [private]
+
+refs
+  mailTemplateList  -> sw-mail-template-list  block=sw_mail_template_view_templates_list  [private]
 ```

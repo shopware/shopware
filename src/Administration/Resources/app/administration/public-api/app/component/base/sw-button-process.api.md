@@ -11,6 +11,22 @@ component sw-button-process  private  js  [private]
   template src/app/component/base/sw-button-process/sw-button-process.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  animationTimeout?: number  default=1250  [private]
+  processSuccess: boolean  [private]
+
+emits
+  update:processSuccess(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_button_process  [private]
+
+computed
+  contentVisibilityClass: any  [private]
+
 blocks
   sw_button_process  [private]
 ```

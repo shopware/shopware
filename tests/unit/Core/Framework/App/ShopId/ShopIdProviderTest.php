@@ -278,4 +278,42 @@ class ShopIdProviderTest extends TestCase
         static::assertCount(1, $eventDispatcher->getEvents());
         static::assertInstanceOf(ShopIdDeletedEvent::class, $eventDispatcher->getEvents()[0]);
     }
+
+    public function testComparesNothingWithoutAStoredShopIdV2(): void
+    {
+        $generator = $this->createMock(FingerprintGenerator::class);
+        $generator->expects($this->never())->method('matchFingerprints');
+
+        $provider = new ShopIdProvider(
+            static::createStub(SystemConfigService::class),
+            new CollectingEventDispatcher(),
+            static::createStub(Connection::class),
+            $generator,
+        );
+
+        static::assertNull($provider->compareFingerprints());
+    }
+
+    public function testComparesTheFingerprintsOfTheStoredShopIdWithoutChangingIt(): void
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn(ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://old.example'])->toArray());
+        $systemConfigService->expects($this->never())->method('set');
+
+        $comparison = new FingerprintComparisonResult(
+            [],
+            [AppUrl::IDENTIFIER => new FingerprintMismatch(AppUrl::IDENTIFIER, 'https://old.example', 'https://new.example', 100)],
+            75,
+        );
+
+        $generator = $this->createMock(FingerprintGenerator::class);
+        $generator->expects($this->once())
+            ->method('matchFingerprints')
+            ->with([AppUrl::IDENTIFIER => 'https://old.example'])
+            ->willReturn($comparison);
+
+        $provider = new ShopIdProvider($systemConfigService, new CollectingEventDispatcher(), static::createStub(Connection::class), $generator);
+
+        static::assertSame($comparison, $provider->compareFingerprints());
+    }
 }

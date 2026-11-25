@@ -24,10 +24,6 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
     const openLayouts = layouts.map((layout) => ({
         id: layout.id,
         layout,
-        selectedElementId: null,
-        viewport: 'desktop',
-        previewEntityId: null,
-        settingsWidth: 320,
         savedState: JSON.stringify({ name: layout.name, rootSource: layout.rootSource, layout: layout.layout }),
         isNew: layout.id === newLayoutId,
         isSaving: false,
@@ -61,7 +57,18 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
         } as Component,
         {
             attachTo: document.body,
-            data: () => ({ layout: layouts[0], activeLayoutId: 'about', openLayouts }),
+            data: () => ({
+                layout: layouts[0],
+                activeFrameId: 'about',
+                openLayouts,
+                frames: layouts.map((layout) => ({
+                    id: layout.id,
+                    layoutId: layout.id,
+                    selectedElementId: null,
+                    viewport: 'desktop',
+                    previewEntityId: null,
+                })),
+            }),
             global: {
                 provide: {
                     repositoryFactory: { create: () => ({ save, get }) },
@@ -72,7 +79,10 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
                     'sw-page': { template: '<div><slot name="content" /></div>' },
                     'sw-experience-studio-toolbar': toolbar,
                     'sw-experience-studio-workspace-switcher': true,
-                    'sw-experience-studio-canvas': { template: '<div />', methods: { closeSettingsPanel: jest.fn() } },
+                    'sw-experience-studio-canvas': {
+                        template: '<div />',
+                        methods: { closeSettingsPanel: jest.fn(), closePanel: jest.fn() },
+                    },
                     'sw-experience-studio-create-wizard': true,
                     'sw-experience-studio-element-picker': true,
                     'sw-experience-studio-workspace-picker': true,

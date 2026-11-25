@@ -19,9 +19,19 @@
     &__entry-content {
         display: grid;
         flex: 1;
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(0, auto) 20px;
         align-items: center;
+        gap: var(--scale-size-8);
         min-width: 0;
+    }
+
+    &__creator {
+        max-width: 160px;
+        overflow: hidden;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-2xs);
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     &__entry.is--active > .mt-icon {

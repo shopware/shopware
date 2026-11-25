@@ -111,6 +111,25 @@ In code:
 - `ElementLoweringTest` pins the caller-owned context; custom-field cache integration tests pin invalidation scope.
 - See [mapping limits](../../Mapping/README.md#stored-mappings-and-rendering) and [cache invalidation](../../Cache/README.md#invalidation).
 
+## The parse endpoint takes one text per request
+
+`POST /api/_action/content-system/inline-mapping/parse` accepts exactly one `text` and one `revision` and rejects unknown attributes.
+The 256 KiB authored-input cap applies to that text when it contains mapping syntax.
+Text without mapping syntax returns no tokens before the cap is checked.
+
+Why: The cap bounds the tokens and the response of one request only because a request holds one text.
+The Administration sends one request per field and limits how many run at once.
+
+Decided against: Batch parsing of several texts in one request.
+A batch would need its own cap on the aggregate tokens and the response size, which the per-text cap does not provide.
+
+In code:
+
+- `ContentInlineMappingParseRequest` declares the single `text` and `revision`.
+- The `unknown attributes are rejected` case of the integration `ContentInlineMappingParseControllerTest` pins the rejection of additional attributes.
+- `testRejectsOversizedTokenText()` and `testAcceptsLongPlainTextWithoutMappingSyntax()` pin that the cap applies only to text with mapping syntax.
+- See [inline mapping parser](../../Api/docs/inline-mapping-parse.md).
+
 ## Intentional overrides cannot skip source admission
 
 The public `AbstractContentSystemMappingCandidateRegistry` is the supported decoration target. Its final

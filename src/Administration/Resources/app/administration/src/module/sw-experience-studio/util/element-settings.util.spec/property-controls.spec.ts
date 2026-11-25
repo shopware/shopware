@@ -1,0 +1,391 @@
+import {
+    getAdminUiHelpText,
+    getAdminUiProps,
+    getElementPropertyStorageKey,
+    getInitialPropertyValue,
+    getPropertyControlType,
+} from '../element-settings.util';
+import { stringProperty } from './fixtures';
+
+describe('element settings property controls', () => {
+    it('uses the resolvedBy storage key from the default entity binding', () => {
+        expect(
+            getElementPropertyStorageKey(
+                {
+                    bindingSpecifications: {
+                        'core:Sw:Media:Image': {
+                            default: true,
+                            resolves: {
+                                media: {
+                                    loader: 'entity',
+                                    config: {
+                                        entity: 'media',
+                                        property: 'mediaId',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                'media',
+            ),
+        ).toBe('mediaId');
+    });
+
+    it('keeps the declared key for properties without a resolvedBy entity binding', () => {
+        expect(
+            getElementPropertyStorageKey(
+                {
+                    bindingSpecifications: {
+                        'core:Sw:Content:Text': {
+                            default: true,
+                            resolves: {},
+                        },
+                    },
+                },
+                'text',
+            ),
+        ).toBe('text');
+    });
+
+    it('maps boolean properties to switch controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'boolean',
+            }),
+        ).toBe('switch');
+    });
+
+    it('maps number and integer properties to number controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'number',
+            }),
+        ).toBe('number');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'integer',
+            }),
+        ).toBe('number');
+    });
+
+    it('maps enum string properties to select controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                enum: [
+                    'left',
+                    'center',
+                    'right',
+                ],
+            }),
+        ).toBe('select');
+    });
+
+    it('maps adminUI select properties to select controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'mt-select',
+                },
+            }),
+        ).toBe('select');
+    });
+
+    it('maps adminUI color properties to color controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'color',
+                },
+            }),
+        ).toBe('color');
+    });
+
+    it('maps adminUI radio panel properties to radio panel controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'radio-panel',
+                },
+            }),
+        ).toBe('radio-panel');
+    });
+
+    it('maps adminUI responsive number properties to responsive number controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: [
+                    'integer',
+                    'object',
+                ],
+                adminUI: {
+                    component: 'responsive-number',
+                },
+            }),
+        ).toBe('responsive-number');
+    });
+
+    it('maps adminUI slider properties to slider controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'integer',
+                adminUI: {
+                    component: 'slider',
+                },
+            }),
+        ).toBe('slider');
+    });
+
+    it('maps style option adminUI components to controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'integer',
+                adminUI: {
+                    component: 'number',
+                },
+            }),
+        ).toBe('number');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'boolean',
+                adminUI: {
+                    component: 'switch',
+                },
+            }),
+        ).toBe('switch');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'text',
+                },
+            }),
+        ).toBe('text');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'box-spacing',
+                },
+            }),
+        ).toBe('box-spacing');
+    });
+
+    it('maps entity select properties to entity controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+                adminUI: {
+                    component: 'entity-single-select',
+                    entity: 'media',
+                },
+            }),
+        ).toBe('entity');
+    });
+
+    it('maps entity multi select properties to entity multi controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'entity-multi',
+                    entity: 'property_group',
+                },
+            }),
+        ).toBe('entity-multi');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Product\\ProductCollection',
+                adminUI: {
+                    component: 'sw-entity-multi-id-select',
+                    entity: 'product',
+                },
+            }),
+        ).toBe('entity-multi');
+    });
+
+    it('maps media field properties to media controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+                adminUI: {
+                    component: 'media-field',
+                },
+            }),
+        ).toBe('media');
+    });
+
+    it('maps text editor properties to richtext controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'mt-text-editor',
+                },
+            }),
+        ).toBe('richtext');
+    });
+
+    it('extracts adminUI props when provided', () => {
+        expect(
+            getAdminUiProps({
+                ...stringProperty,
+                adminUI: {
+                    component: 'mt-text-field',
+                    props: {
+                        placeholder: 'Example',
+                    },
+                },
+            }),
+        ).toEqual({
+            placeholder: 'Example',
+        });
+    });
+
+    it('returns empty adminUI props when missing', () => {
+        expect(getAdminUiProps(stringProperty)).toEqual({});
+    });
+
+    it('defaults number fields to integer steps', () => {
+        expect(
+            getAdminUiProps({
+                ...stringProperty,
+                type: 'integer',
+                adminUI: {
+                    component: 'number',
+                },
+            }),
+        ).toEqual({
+            digits: 0,
+            step: 1,
+        });
+    });
+
+    it('keeps declared number field step and digits', () => {
+        expect(
+            getAdminUiProps({
+                ...stringProperty,
+                type: 'number',
+                adminUI: {
+                    component: 'number',
+                    props: {
+                        min: 0,
+                        digits: 2,
+                        step: 0.01,
+                    },
+                },
+            }),
+        ).toEqual({
+            min: 0,
+            digits: 2,
+            step: 0.01,
+        });
+    });
+
+    it('returns adminUI help text when provided', () => {
+        expect(
+            getAdminUiHelpText({
+                ...stringProperty,
+                adminUI: {
+                    component: 'mt-text-field',
+                    helpText: 'sw-experience-studio.elements.grid.columns.helpText',
+                },
+            }),
+        ).toBe('sw-experience-studio.elements.grid.columns.helpText');
+    });
+
+    it('returns null when adminUI help text is missing', () => {
+        expect(getAdminUiHelpText(stringProperty)).toBeNull();
+    });
+
+    it('maps plain string properties to text controls', () => {
+        expect(getPropertyControlType(stringProperty)).toBe('text');
+    });
+
+    it('returns null for non-primitive property types', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Product\\SalesChannel\\SalesChannelProductEntity',
+            }),
+        ).toBeNull();
+    });
+
+    it('uses current value before defaults', () => {
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    default: 'Default',
+                },
+                'Explicit',
+            ),
+        ).toBe('Explicit');
+    });
+
+    it('falls back to schema default when current value is missing', () => {
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    default: 'Default',
+                },
+                undefined,
+            ),
+        ).toBe('Default');
+    });
+
+    it('returns sensible primitive fallbacks when no value exists', () => {
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    type: 'boolean',
+                    default: null,
+                },
+                undefined,
+            ),
+        ).toBe(false);
+
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    type: 'string',
+                    default: null,
+                },
+                undefined,
+            ),
+        ).toBe('');
+
+        expect(
+            getInitialPropertyValue(
+                {
+                    ...stringProperty,
+                    type: 'number',
+                    default: null,
+                },
+                undefined,
+            ),
+        ).toBeNull();
+    });
+});

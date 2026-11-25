@@ -49,12 +49,11 @@ describe('src/module/sw-experience-studio/acl/index.ts', () => {
         expect(editor?.dependencies).toContain('experience_studio.viewer');
     });
 
-    it('registers exactly the permission entry and the additional permission entry', () => {
+    it('registers only the standard Experience Studio permissions', () => {
         const entries = privileges.getPrivilegesMappings().map(({ category, parent, key }) => ({ category, parent, key }));
 
         expect(entries).toEqual([
             { category: 'permissions', parent: 'content', key: 'experience_studio' },
-            { category: 'additional_permissions', parent: null, key: 'experience_studio' },
         ]);
     });
 
@@ -62,10 +61,7 @@ describe('src/module/sw-experience-studio/acl/index.ts', () => {
         expect(privileges.getPrivilegeRole('experience_studio.editor')?.privileges).toContain('content_layout:translate');
     });
 
-    it('registers a translator role holding only the translate privilege on top of the viewer', () => {
-        const translator = privileges.getPrivilegeRole('experience_studio.translator');
-
-        expect(translator?.privileges).toEqual(['content_layout:translate']);
-        expect(translator?.dependencies).toEqual(['experience_studio.viewer']);
+    it('does not expose a separate translator role', () => {
+        expect(privileges.existsPrivilege('experience_studio.translator')).toBe(false);
     });
 });

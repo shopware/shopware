@@ -101,5 +101,5 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - [preview.md](preview.md): preview as a second entry into the render path
 - [wire-contract.md](wire-contract.md): one paired codec and one rendered forest per format
 - [extension-surface.md](extension-surface.md): the bounded extension surface
-- [clients.md](clients.md): the administration type and the storefront's shared partial
+- [clients.md](clients.md): the administration type, translatable settings fields, and the storefront's shared partial
 - [translation.md](translation.md): language maps and their reduction on the server

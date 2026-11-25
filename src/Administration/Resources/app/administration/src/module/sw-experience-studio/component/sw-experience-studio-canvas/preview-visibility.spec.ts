@@ -17,9 +17,27 @@ const preview = defineComponent({
 
 async function createWrapper() {
     const frames = [
-        { layoutId: 'first', x: 0, y: 0, width: 500, height: 400, viewport: 'desktop', previewEntityId: null },
-        { layoutId: 'second', x: 1600, y: 0, width: 500, height: 400, viewport: 'desktop', previewEntityId: null },
-        { layoutId: 'third', x: 3200, y: 0, width: 500, height: 400, viewport: 'desktop', previewEntityId: null },
+        { id: 'first', layoutId: 'first', x: 0, y: 0, width: 500, height: 400, viewport: 'desktop', previewEntityId: null },
+        {
+            id: 'second',
+            layoutId: 'second',
+            x: 1600,
+            y: 0,
+            width: 500,
+            height: 400,
+            viewport: 'desktop',
+            previewEntityId: null,
+        },
+        {
+            id: 'third',
+            layoutId: 'third',
+            x: 3200,
+            y: 0,
+            width: 500,
+            height: 400,
+            viewport: 'desktop',
+            previewEntityId: null,
+        },
     ];
     const wrapper = mount((await wrapTestComponent('sw-experience-studio-canvas', { sync: true })) as Component, {
         props: {
@@ -88,11 +106,11 @@ describe('Experience Studio preview visibility during canvas dragging', () => {
         expect(wrapper.find('iframe[title="first"]').exists()).toBe(true);
 
         for (const frame of frames) {
-            expect(frame.get('.sw-experience-studio-canvas__frame-toolbar').text()).toContain(
+            expect(frame.get('.sw-experience-studio-canvas__frame-header').text()).toContain(
                 frame.attributes('data-frame-id'),
             );
             expect(frame.find('.sw-experience-studio-canvas__close-frame').exists()).toBe(true);
-            expect(frame.findAll('.sw-experience-studio-canvas__resize-handle')).toHaveLength(8);
+            expect(frame.findAll('.sw-experience-studio-canvas__resize-handle')).toHaveLength(3);
         }
 
         await wrapper.setData({ canvasPanX: -1600 });

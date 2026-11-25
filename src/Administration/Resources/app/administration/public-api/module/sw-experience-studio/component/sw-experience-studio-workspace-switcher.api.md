@@ -27,6 +27,7 @@ computed
   workspaceStore: ExperienceStudioWorkspaceStore  [private]
 
 methods
+  getCreatorName(...args: any[]): any  [private]
   onOpenChange(open: boolean): void  [private]
 
 blocks

@@ -89,6 +89,8 @@ describe('Experience Studio workspace entry', () => {
             layoutRepository: { create: jest.fn().mockReturnValue(layout) },
             openLayouts: [] as Array<{ id: string; isNew: boolean }>,
             createOpenLayoutState: component.methods.createOpenLayoutState,
+            createPreviewFrame: component.methods.createPreviewFrame,
+            frames: [],
             serializeLayoutState: component.methods.serializeLayoutState,
             getLayoutRootSource: (item: typeof layout) => item.rootSource,
             isCreateLayoutModalOpen: true,
@@ -128,25 +130,39 @@ describe('Experience Studio workspace entry', () => {
         expect(editor.layoutRepository.create).not.toHaveBeenCalled();
     });
 
-    it('keeps the picker open and closes settings when its last open layout is deleted', () => {
-        const editor = {
-            openLayouts: [{ id: 'deleted' }],
-            activeLayoutId: 'deleted',
-            layout: { id: 'deleted' },
-            selectedElementId: 'element',
-            isLayoutPickerOpen: true,
-            workspaceStore: { activeWorkspace: { id: 'workspace' } },
-            editorStore: { removeLayout: jest.fn() },
-            $refs: { experienceStudioCanvas: { closeSettingsPanel: jest.fn() } },
-        };
+    it.each([false, true])(
+        'clears the active layout after deleting its last frame (other layout remains: %s)',
+        (hasOtherLayout) => {
+            const editor = {
+                openLayouts: hasOtherLayout ? [{ id: 'deleted' }, { id: 'remaining' }] : [{ id: 'deleted' }],
+                frames: hasOtherLayout
+                    ? [
+                          { id: 'deleted-frame', layoutId: 'deleted' },
+                          { id: 'remaining-frame', layoutId: 'remaining' },
+                      ]
+                    : [{ id: 'deleted-frame', layoutId: 'deleted' }],
+                activeFrameId: 'deleted-frame',
+                activeLayoutId: 'deleted',
+                layout: { id: 'deleted' },
+                selectedElementId: 'element',
+                isLayoutPickerOpen: true,
+                workspaceStore: { activeWorkspace: { id: 'workspace' } },
+                editorStore: { activeLayoutId: 'deleted', removeLayout: jest.fn() },
+                deactivateFrame: component.methods.deactivateFrame,
+                $refs: { experienceStudioCanvas: { closePanel: jest.fn() } },
+            };
 
-        component.methods.removeOpenLayout.call(editor, 'deleted');
+            component.methods.removeOpenLayout.call(editor, 'deleted');
 
-        expect(editor.openLayouts).toEqual([]);
-        expect(editor.layout).toBeNull();
-        expect(editor.selectedElementId).toBeNull();
-        expect(editor.isLayoutPickerOpen).toBe(true);
-        expect(editor.editorStore.removeLayout).toHaveBeenCalledWith('deleted');
-        expect(editor.$refs.experienceStudioCanvas.closeSettingsPanel).toHaveBeenCalledTimes(1);
-    });
+            expect(editor.openLayouts).toEqual(hasOtherLayout ? [{ id: 'remaining' }] : []);
+            expect(editor.frames).toEqual(hasOtherLayout ? [{ id: 'remaining-frame', layoutId: 'remaining' }] : []);
+            expect(editor.activeFrameId).toBeNull();
+            expect(editor.layout).toBeNull();
+            expect(editor.selectedElementId).toBeNull();
+            expect(editor.isLayoutPickerOpen).toBe(true);
+            expect(editor.editorStore.activeLayoutId).toBeNull();
+            expect(editor.editorStore.removeLayout).toHaveBeenCalledWith('deleted');
+            expect(editor.$refs.experienceStudioCanvas.closePanel).toHaveBeenCalledTimes(1);
+        },
+    );
 });

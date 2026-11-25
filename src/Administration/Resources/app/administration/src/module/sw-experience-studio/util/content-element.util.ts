@@ -12,28 +12,48 @@ export interface ElementLocation {
 }
 
 /**
+ * Visits each element before its nested slots, preserving array and slot order.
+ * Returning false from the visitor stops the entire walk and makes this function return false.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function walkContentElements(
+    elements: ContentElementNode[],
+    visit: (element: ContentElementNode, elements: ContentElementNode[], index: number) => boolean | void,
+): boolean {
+    for (const [index, element] of elements.entries()) {
+        if (visit(element, elements, index) === false) {
+            return false;
+        }
+
+        for (const slotElements of Object.values(element.slots ?? {})) {
+            if (!walkContentElements(slotElements, visit)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
  * @private
  * @sw-package discovery
  */
 export function findElementLocation(layout: ContentElementNode[], elementId: string): ElementLocation | null {
-    const rootIndex = layout.findIndex((element) => element.id === elementId);
+    let location: ElementLocation | null = null;
 
-    if (rootIndex !== -1) {
-        return {
-            elements: layout,
-            index: rootIndex,
-        };
-    }
-
-    for (const element of layout) {
-        const location = findElementLocationInElement(element, elementId);
-
-        if (location !== null) {
-            return location;
+    walkContentElements(layout, (element, elements, index) => {
+        if (element.id !== elementId) {
+            return;
         }
-    }
 
-    return null;
+        location = { elements, index };
+        return false;
+    });
+
+    return location;
 }
 
 /**
@@ -105,29 +125,4 @@ export function updateElementStyleInLayout(
     }
 
     return true;
-}
-
-function findElementLocationInElement(parent: ContentElementNode, elementId: string): ElementLocation | null {
-    const slots = parent.slots ?? {};
-
-    for (const slotElements of Object.values(slots)) {
-        const index = slotElements.findIndex((element) => element.id === elementId);
-
-        if (index !== -1) {
-            return {
-                elements: slotElements,
-                index,
-            };
-        }
-
-        for (const child of slotElements) {
-            const location = findElementLocationInElement(child, elementId);
-
-            if (location !== null) {
-                return location;
-            }
-        }
-    }
-
-    return null;
 }

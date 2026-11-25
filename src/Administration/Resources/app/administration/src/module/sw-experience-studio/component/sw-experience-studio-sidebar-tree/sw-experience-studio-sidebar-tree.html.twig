@@ -49,6 +49,7 @@
                 v-for="(element, elementIndex) in layoutElements"
                 :key="element.id"
                 :element="element"
+                :language-id="languageId"
                 :selected-element-id="selectedElementId"
                 :allow-drag-and-drop="allowEdit"
                 :validate-move-target="validateMoveTarget"

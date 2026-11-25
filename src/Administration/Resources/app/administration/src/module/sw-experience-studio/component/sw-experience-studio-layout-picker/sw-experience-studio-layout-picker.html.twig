@@ -38,7 +38,7 @@
                     class="sw-experience-studio-layout-picker__layout-name"
                     type="button"
                     :disabled="isDeleting"
-                    :title="$t(openLayoutIds.includes(item.id) ? 'sw-experience-studio.workspace.layoutPicker.activate' : 'sw-experience-studio.workspace.layoutPicker.open')"
+                    :title="$t(openLayoutIds.includes(item.id) ? 'sw-experience-studio.detail.canvas.openAnotherPreview' : 'sw-experience-studio.workspace.layoutPicker.open')"
                     @click="onSelectLayout(item.id)"
                 >
                     {{ item.name }}

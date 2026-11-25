@@ -14,6 +14,7 @@ component sw-experience-studio-preview  private  ts  [private]
 props
   entityId?: string  default=null  [private]
   entityType?: string  default=null  [private]
+  languageId?: string  default=null  [private]
   layout?: ContentLayoutEntity | null  default=null  [private]
   salesChannelId?: string  default=null  [private]
   viewport?: string  default='desktop'  [private]
@@ -29,6 +30,7 @@ data
   isPreviewLoading: any  [private]
   latestRequestId: any  [private]
   loadingFrame: any  [private]
+  pendingScrollElementId: any  [private]
   pendingScrollPosition: any  [private]
   previewLoadError: any  [private]
   previewMessageHandler: any  [private]
@@ -57,6 +59,7 @@ methods
   resetPreviewFrames(): void  [private]
   restoreFrameScrollPosition(frame: 'a' | 'b', scrollPosition: PreviewScrollPosition): Promise<void>  [private]
   schedulePreviewReload(): void  [private]
+  scrollToElement(elementId: string): void  [private]
 
 blocks
   sw_experience_studio_preview  [private]

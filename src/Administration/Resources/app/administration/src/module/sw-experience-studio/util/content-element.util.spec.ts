@@ -1,10 +1,94 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import { findElementLocation, updateElementPropertiesInLayout, updateElementStyleInLayout } from './content-element.util';
+import {
+    findElementLocation,
+    updateElementPropertiesInLayout,
+    updateElementStyleInLayout,
+    walkContentElements,
+} from './content-element.util';
 
 const { cloneDeep } = Shopware.Utils.object;
 
 const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+
+describe('walking content elements', () => {
+    const children: ContentElementNode[] = [
+        {
+            id: 'child',
+            component: 'Plugin:Container',
+            slots: { content: [{ id: 'grandchild', component: 'content:text' }] },
+        },
+        { id: 'sibling', component: 'content:text' },
+    ];
+    const aside: ContentElementNode[] = [{ id: 'aside', component: 'content:text' }];
+    const layout: ContentElementNode[] = [
+        {
+            id: 'root',
+            component: 'Plugin:Container',
+            slots: { empty: [], content: children, aside },
+        },
+        { id: 'next-root', component: 'content:text' },
+    ];
+
+    it('visits roots and nested slots in order with their original locations', () => {
+        const original = cloneDeep(layout);
+        const visited: Array<{ element: ContentElementNode; elements: ContentElementNode[]; index: number }> = [];
+
+        const completed = walkContentElements(layout, (element, elements, index) => {
+            visited.push({ element, elements, index });
+        });
+
+        expect(completed).toBe(true);
+        expect(visited.map(({ element }) => element.id)).toEqual([
+            'root',
+            'child',
+            'grandchild',
+            'sibling',
+            'aside',
+            'next-root',
+        ]);
+        expect(visited[0].elements).toBe(layout);
+        expect(visited[1].elements).toBe(children);
+        expect(visited[2].elements).toBe(children[0].slots!.content);
+        expect(visited[4].elements).toBe(aside);
+        for (const { element, elements, index } of visited) {
+            expect(elements[index]).toBe(element);
+        }
+        expect(layout).toEqual(original);
+    });
+
+    it('stops the whole walk when a visitor returns false inside a nested slot', () => {
+        const visited: string[] = [];
+
+        const completed = walkContentElements(layout, (element) => {
+            visited.push(element.id);
+            if (element.id === 'grandchild') {
+                return false;
+            }
+        });
+
+        expect(completed).toBe(false);
+        expect(visited).toEqual(['root', 'child', 'grandchild']);
+    });
+
+    it('completes an empty layout without invoking the visitor', () => {
+        const visit = jest.fn();
+
+        expect(walkContentElements([], visit)).toBe(true);
+        expect(visit).not.toHaveBeenCalled();
+    });
+
+    it('finds deeply nested elements in their original array', () => {
+        const location = findElementLocation(layout, 'grandchild');
+
+        expect(location?.elements).toBe(children[0].slots!.content);
+        expect(location?.index).toBe(0);
+    });
+
+    it('returns null when no element matches across all roots and slots', () => {
+        expect(findElementLocation(layout, 'missing')).toBeNull();
+    });
+});
 
 describe('module/sw-experience-studio/util/content-element.util', () => {
     const rootElement: ContentElementNode = {

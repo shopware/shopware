@@ -1,10 +1,11 @@
-import type { Viewport, ViewportPreset, ResizeDirection, CanvasGesture, CanvasFrame } from './canvas.config';
+import { useElementSize } from '@vueuse/core';
+import { ref } from 'vue';
+import type { ViewportPreset, ResizeDirection, CanvasGesture, CanvasFrame } from './canvas.config';
 import {
     VIEWPORT_WIDTHS,
+    VIEWPORT_ICONS,
     FRAME_GAP,
     DEFAULT_FRAME_HEIGHT,
-    MIN_FRAME_HEIGHT,
-    MAX_FRAME_HEIGHT,
     MIN_CANVAS_ZOOM,
     MAX_CANVAS_ZOOM,
     POSITION_LIMIT,
@@ -12,13 +13,8 @@ import {
     VIEWPORT_TRANSITION_DURATION,
 } from './canvas.config';
 import { canvasInteractionHandlers, isCanvasFrameVisible } from './canvas-interaction-handlers';
+import { canvasPanelHandlers } from './canvas-panel-handlers';
 import type { WorkspaceConfiguration } from '../../types/workspace.types';
-import {
-    hasExperienceStudioCanvasPositionBeenManuallyPlaced,
-    loadExperienceStudioCanvasPosition,
-    saveExperienceStudioCanvasPosition,
-} from '../../util/canvas-position.util';
-import type { ExperienceStudioCanvasPosition } from '../../util/canvas-position.util';
 import template from './sw-experience-studio-canvas.html.twig';
 import './sw-experience-studio-canvas.scss';
 
@@ -43,25 +39,19 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             default: false,
         },
-        layoutId: {
-            type: String,
-            required: false,
-            default: '',
-        },
         layoutName: {
             type: String,
             required: false,
             default: '',
         },
-        viewport: {
-            type: String as PropType<Viewport>,
-            required: false,
-            default: 'desktop',
-        },
         settingsWidth: {
             type: Number,
             required: false,
             default: 320,
+        },
+        settingsTitle: {
+            type: String,
+            default: '',
         },
         settingsMaxWidth: {
             type: Number,
@@ -77,19 +67,29 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: [
         'configuration-change',
-        'viewport-change',
         'frame-activate',
         'frame-close',
+        'frame-open-another',
+        'frame-translate',
         'frame-viewport-change',
         'settings-resize-start',
         'settings-resize-keydown',
+        'settings-open',
         'settings-close',
         'open-layout',
         'create-layout',
     ],
 
+    setup() {
+        const workspace = ref<HTMLElement | null>(null);
+        const { width: workspaceWidth } = useElementSize(workspace, undefined, { box: 'border-box' });
+
+        return { workspace, workspaceWidth };
+    },
+
     data() {
         return {
+            viewportIcons: VIEWPORT_ICONS,
             contextMenuPosition: null as { x: number; y: number } | null,
             contextMenuBlurHandler: null as (() => void) | null,
             isHydratingWorkspace: true,
@@ -110,14 +110,9 @@ export default Shopware.Component.wrapComponentConfig({
             isViewportTransitioning: false,
             viewportTransitionTimer: null as number | null,
             resizeDirections: [
-                'n',
-                'ne',
-                'e',
-                'se',
-                's',
-                'sw',
                 'w',
-                'nw',
+                'e',
+                's',
             ] as ResizeDirection[],
             frameStates: {} as Record<string, { x: number; y: number; width: number; height: number }>,
         };
@@ -148,6 +143,7 @@ export default Shopware.Component.wrapComponentConfig({
         worldStyle(): Record<string, string> {
             return {
                 transform: `translate3d(${this.canvasPanX}px, ${this.canvasPanY}px, 0) scale(${this.canvasZoom})`,
+                '--canvas-controls-scale': `${1 / this.canvasZoom}`,
             };
         },
 
@@ -178,6 +174,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.frames.map((frame) => frame.id).join('|');
         },
 
+        selectedFrameId(): string {
+            return this.frames.find((frame) => frame.isActive)?.id ?? '';
+        },
+
         isDraggingCanvas(): boolean {
             return this.canvasGesture !== null;
         },
@@ -200,17 +200,9 @@ export default Shopware.Component.wrapComponentConfig({
             }
             this.emitConfiguration();
         },
-        layoutId(): void {
-            if (this.frameStates[this.layoutId]) {
-                this.activateFrame(this.layoutId, false);
-            } else {
-                this.restoreCanvasPosition();
-            }
-        },
-
-        viewport(viewport: Viewport): void {
-            if (viewport !== 'custom' && !this.workspaceConfiguration) {
-                this.applyViewportPreset(viewport);
+        selectedFrameId(frameId: string): void {
+            if (frameId) {
+                this.activateFrame(frameId, false);
             }
         },
     },
@@ -224,7 +216,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.workspaceConfiguration) {
                 this.frameStates = Object.fromEntries(
                     this.workspaceConfiguration.frames.map((frame) => [
-                        frame.layoutId,
+                        frame.id,
                         {
                             x: frame.x,
                             y: frame.y,
@@ -236,8 +228,6 @@ export default Shopware.Component.wrapComponentConfig({
                 this.canvasPanX = this.workspaceConfiguration.canvas.panX;
                 this.canvasPanY = this.workspaceConfiguration.canvas.panY;
                 this.canvasZoom = this.workspaceConfiguration.canvas.zoom;
-            } else {
-                this.restoreCanvasPosition();
             }
             this.initializeFrameStates();
             if (!this.workspaceConfiguration) {
@@ -264,6 +254,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         ...canvasInteractionHandlers,
+        ...canvasPanelHandlers,
 
         onCanvasContextMenu(event: MouseEvent): void {
             if (event.target !== this.$refs.background) {
@@ -289,10 +280,12 @@ export default Shopware.Component.wrapComponentConfig({
                 frames: this.frames
                     .filter((frame) => this.frameStates[frame.id])
                     .map((frame) => ({
-                        layoutId: frame.id,
+                        id: frame.id,
+                        layoutId: frame.layout.id,
                         ...this.frameStates[frame.id],
                         viewport: frame.viewport,
                         previewEntityId: frame.previewEntityId,
+                        ...(frame.languageId ? { languageId: frame.languageId } : {}),
                     })),
                 previewSalesChannelId: null,
                 canvas: { panX: this.canvasPanX, panY: this.canvasPanY, zoom: this.canvasZoom },
@@ -304,38 +297,14 @@ export default Shopware.Component.wrapComponentConfig({
             }
             this.$emit('configuration-change', this.getWorkspaceConfiguration());
         },
-        getCurrentUserId(): string | null {
-            const currentUser = Shopware.Store.get('session').currentUser as { id?: string } | null;
-
-            return currentUser?.id ?? null;
-        },
-
         getWorkspace(): HTMLElement | null {
             return (this.$refs.workspace as HTMLElement | undefined) ?? null;
-        },
-
-        getDefaultFrameHeight(): number {
-            const availableHeight = this.getWorkspace()?.clientHeight ?? DEFAULT_FRAME_HEIGHT + 96;
-
-            return Math.max(MIN_FRAME_HEIGHT, Math.min(MAX_FRAME_HEIGHT, availableHeight - 96));
-        },
-
-        restoreCanvasPosition(): void {
-            if (this.workspaceConfiguration) {
-                return;
-            }
-            const position: ExperienceStudioCanvasPosition | null = loadExperienceStudioCanvasPosition(
-                this.getCurrentUserId(),
-                this.layoutId,
-            );
-
-            this.frameX = position?.x ?? 0;
-            this.frameY = position?.y ?? 0;
         },
 
         initializeFrameStates(): void {
             if (this.frames.length === 0) {
                 this.activeFrameId = '';
+                this.frameStates = {};
 
                 return;
             }
@@ -349,21 +318,17 @@ export default Shopware.Component.wrapComponentConfig({
             if (activeFrame && this.activeFrameId !== activeFrame.id) {
                 this.activateFrame(activeFrame.id, false);
             }
+            const frameIds = new Set(this.frames.map((frame) => frame.id));
+            for (const id of Object.keys(this.frameStates)) {
+                if (!frameIds.has(id)) {
+                    delete this.frameStates[id];
+                }
+            }
         },
 
         createFrameState(frame: CanvasFrame): { x: number; y: number; width: number; height: number } {
-            const savedPosition = this.workspaceConfiguration
-                ? null
-                : loadExperienceStudioCanvasPosition(this.getCurrentUserId(), frame.id);
-            const position = savedPosition ?? { x: this.frameX, y: this.frameY };
             const width = VIEWPORT_WIDTHS[frame.viewport === 'custom' ? 'desktop' : frame.viewport];
-            const state = { ...position, width, height: this.getDefaultFrameHeight() };
-            const isManuallyPlaced =
-                !this.workspaceConfiguration &&
-                hasExperienceStudioCanvasPositionBeenManuallyPlaced(this.getCurrentUserId(), frame.id);
-            if (isManuallyPlaced) {
-                return { ...state, x: savedPosition?.x ?? 0, y: savedPosition?.y ?? 0 };
-            }
+            const state = { x: this.frameX, y: this.frameY, width, height: this.getDefaultFrameHeight() };
             const anchorFrameId = this.activeFrameId || this.frames.find((candidate) => candidate.isActive)?.id;
             const anchorState = (anchorFrameId && this.frameStates[anchorFrameId]) || Object.values(this.frameStates)[0];
             if (anchorState) {
@@ -374,27 +339,6 @@ export default Shopware.Component.wrapComponentConfig({
             return state;
         },
 
-        getAvailableFrameX(state: { x: number; y: number; width: number; height: number }): number {
-            let x = state.x;
-            let overlappingFrame: typeof state | undefined;
-            do {
-                overlappingFrame = Object.values(this.frameStates).find(
-                    (other) =>
-                        Math.abs(x - other.x) < (state.width + other.width) / 2 + FRAME_GAP &&
-                        Math.abs(state.y - other.y) < (state.height + other.height) / 2 + FRAME_GAP,
-                );
-                if (overlappingFrame) {
-                    const nextX = overlappingFrame.x + (overlappingFrame.width + state.width) / 2 + FRAME_GAP;
-                    // Float rounding can leave the pushed frame a hair inside the gap, so it would never move on.
-                    if (nextX <= x) {
-                        break;
-                    }
-                    x = nextX;
-                }
-            } while (overlappingFrame);
-            return x;
-        },
-
         frameStyleFor(frame: CanvasFrame): Record<string, string> {
             const state = this.frameStates[frame.id] ?? {
                 x: 0,
@@ -402,18 +346,23 @@ export default Shopware.Component.wrapComponentConfig({
                 width: VIEWPORT_WIDTHS[frame.viewport === 'custom' ? 'desktop' : frame.viewport],
                 height: this.getDefaultFrameHeight(),
             };
+            const workspaceWidth = this.workspaceWidth || this.getWorkspace()?.clientWidth || 0;
+            const toolbarCenter = workspaceWidth / 2 + this.canvasPanX + state.x * this.canvasZoom;
 
             return {
                 width: `${state.width}px`,
                 height: `${state.height}px`,
                 transform: `translate(-50%, -50%) translate(${state.x}px, ${state.y}px)`,
+                '--frame-toolbar-min-x': `${16 - toolbarCenter}px`,
+                '--frame-toolbar-max-x': `${workspaceWidth - 16 - toolbarCenter}px`,
+                '--frame-toolbar-max-width': `${Math.max(1, workspaceWidth - 32)}px`,
             };
         },
 
-        activateFrame(layoutId: string, emit = true): void {
-            if (this.activeFrameId === layoutId) {
+        activateFrame(frameId: string, emit = true): void {
+            if (this.activeFrameId === frameId) {
                 if (emit) {
-                    this.$emit('frame-activate', layoutId);
+                    this.$emit('frame-activate', frameId);
                 }
 
                 return;
@@ -428,14 +377,14 @@ export default Shopware.Component.wrapComponentConfig({
                 };
             }
 
-            const frame = this.frames.find((item) => item.id === layoutId);
+            const frame = this.frames.find((item) => item.id === frameId);
 
             if (!frame) {
                 return;
             }
 
-            this.activeFrameId = layoutId;
-            const state = this.frameStates[layoutId] ?? {
+            this.activeFrameId = frameId;
+            const state = this.frameStates[frameId] ?? {
                 x: 0,
                 y: 0,
                 width: VIEWPORT_WIDTHS[frame.viewport === 'custom' ? 'desktop' : frame.viewport],
@@ -447,31 +396,21 @@ export default Shopware.Component.wrapComponentConfig({
             this.frameHeight = state.height;
 
             if (emit) {
-                this.$emit('frame-activate', layoutId);
+                this.$emit('frame-activate', frameId);
             }
         },
 
-        saveCanvasPosition(isManuallyPlaced = false): void {
-            const layoutId = this.activeFrameId || this.layoutId;
-            this.frameStates[layoutId] = {
+        saveCanvasPosition(): void {
+            if (!this.activeFrameId) {
+                return;
+            }
+            this.frameStates[this.activeFrameId] = {
                 x: this.frameX,
                 y: this.frameY,
                 width: this.frameWidth,
                 height: this.frameHeight,
             };
             this.emitConfiguration();
-            if (this.workspaceConfiguration) {
-                return;
-            }
-            saveExperienceStudioCanvasPosition(
-                this.getCurrentUserId(),
-                layoutId,
-                {
-                    x: this.frameX,
-                    y: this.frameY,
-                },
-                isManuallyPlaced,
-            );
         },
 
         syncActiveFrameState(): void {
@@ -513,19 +452,11 @@ export default Shopware.Component.wrapComponentConfig({
             return clampedZoom;
         },
 
-        onViewportChange(viewport: ViewportPreset, layoutId?: string): void {
-            const targetLayoutId = layoutId ?? this.activeFrameId;
-
-            if (targetLayoutId) {
-                this.activateFrame(targetLayoutId, false);
-            }
-
+        onViewportChange(viewport: ViewportPreset, frameId: string): void {
+            this.activateFrame(frameId, false);
             this.startViewportTransition();
             this.applyViewportPreset(viewport);
-            this.$emit('frame-viewport-change', targetLayoutId, viewport);
-            if (!this.frames?.length) {
-                this.$emit('viewport-change', viewport);
-            }
+            this.$emit('frame-viewport-change', frameId, viewport);
         },
 
         startViewportTransition(): void {
@@ -544,35 +475,7 @@ export default Shopware.Component.wrapComponentConfig({
         applyViewportPreset(viewport: ViewportPreset): void {
             this.frameWidth = VIEWPORT_WIDTHS[viewport];
             this.frameHeight = this.getDefaultFrameHeight();
-            this.saveCanvasPosition?.();
-        },
-
-        openStructure(layoutId: string): void {
-            this.focusFrame(layoutId);
-            this.activePanel = 'structure';
-        },
-
-        openSettingsPanel(): void {
-            this.activePanel = 'structure';
-            this.isSettingsOpen = true;
-        },
-
-        closeStructurePanel(): void {
-            this.activePanel = 'layouts';
-        },
-
-        closeSettingsPanel(): void {
-            if (!this.isSettingsOpen) {
-                return;
-            }
-
-            this.isSettingsOpen = false;
-            this.$emit('settings-close');
-        },
-
-        closePanel(): void {
-            this.activePanel = 'layouts';
-            this.closeSettingsPanel();
+            this.saveCanvasPosition();
         },
     },
 });

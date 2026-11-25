@@ -19,6 +19,7 @@ props
   depth?: number  default=0  [private]
   element: ContentElementNode  [private]
   indexInParent?: number  default=null  [private]
+  languageId?: string  default=factory  [private]
   parentElementId?: string  default=null  [private]
   parentSlotName?: string  default=null  [private]
   selectedElementId?: string  default=null  [private]
@@ -43,6 +44,7 @@ computed
   label: string  [private]
   slotEntries: Array<{ name: string; elements: ContentElementNode[] }>  [private]
   typeIcon: string  [private]
+  typeLabel: string | undefined  [private]
 
 methods
   collectSubtreeIds(element: ContentElementNode): string[]  [private]

@@ -8,11 +8,10 @@
 import ts from 'typescript';
 import type { Member } from '../model/members';
 import type { Declarations, Located } from './declarations';
-import { functionOf, literalValue, namedValue, Reading, signatureOf } from './member-reading';
+import { elementValue, heldValue, namedValue, Reading, readLiteral, signatureOf, spreadLiteral } from './member-reading';
 import type { Common } from './member-reading';
-import { callOf, memberName, modifiersOf, namedClassElements, statementOf, withoutTypeSyntax } from './script-nodes';
+import { modifiersOf, namedClassElements, statementOf, withoutTypeSyntax } from './script-nodes';
 import type { FunctionNode, NamedClassElement } from './script-nodes';
-import { VALUE_CALLS } from './vue-values';
 
 type ObjectMember = Member<'method'> | Member<'property'>;
 
@@ -52,10 +51,9 @@ function declaredMember(element: ts.Node, name: string, reading: Reading): Objec
 
 /** A member that holds a value: a function is a method, also behind a helper, and every other value a property. */
 function valueMember(common: Common, value: Located, type: ts.TypeNode | undefined, reading: Reading): ObjectMember {
-    // A ref holds a value, also when a function computes it.
-    const fn = callOf(value.node, VALUE_CALLS) === undefined ? functionOf(value.node) : undefined;
+    const held = heldValue(value.node);
 
-    return fn === undefined ? property(common, type, reading) : method(common, fn, new Reading(value.source));
+    return held.is === 'function' ? method(common, held.fn, new Reading(value.source)) : property(common, type, reading);
 }
 
 /** A member of a name that occurs twice is the first one, or with `last` the one that replaces the others. */
@@ -227,24 +225,24 @@ function literalMember(
 ): ObjectMember {
     const declared = declaredMember(element, name, reading);
 
-    if (declared !== undefined || (!ts.isPropertyAssignment(element) && !ts.isShorthandPropertyAssignment(element))) {
-        return declared ?? property(reading.common(name, element), undefined, reading);
+    if (declared !== undefined) {
+        return declared;
     }
 
-    const { value, common } = literalValue(name, element, declarations, reading);
+    const { value, common } = elementValue(name, element, declarations, reading);
 
     return valueMember(common, value, undefined, reading);
 }
 
 /** The members of an object literal that another one spreads, `null` when it spreads something else. */
 function spreadMembers(spread: ts.SpreadAssignment, declarations: Declarations, reading: Reading): ObjectMember[] | null {
-    const { node, source } = declarations.valueOf(spread.expression, reading.source);
+    const literal = spreadLiteral(spread, declarations, reading);
 
-    if (!ts.isObjectLiteralExpression(node)) {
+    if (literal === null) {
         return null;
     }
 
-    const { members, notes } = objectMembers({ node, source }, declarations);
+    const { members, notes } = objectMembers(literal, declarations);
 
     reading.notes.push(...notes);
 
@@ -263,18 +261,13 @@ export function objectMembers(
     declarations: Declarations,
 ): ObjectMembers {
     const reading = new Reading(source);
-    const members = node.properties.flatMap((element) => {
-        const name = memberName(element);
-        const read = (): ObjectMember[] | null =>
-            name === null ? null : [literalMember(element, name, declarations, reading)];
-        const found = ts.isSpreadAssignment(element) ? spreadMembers(element, declarations, reading) : read();
-
-        if (found === null) {
-            reading.unresolved('members', element);
-        }
-
-        return found ?? [];
-    });
+    const members = readLiteral(
+        node,
+        'members',
+        reading,
+        (element, name) => [literalMember(element, name, declarations, reading)],
+        (spread) => spreadMembers(spread, declarations, reading),
+    );
 
     return { members: uniqueByName(members, 'last'), notes: reading.notes };
 }

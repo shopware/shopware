@@ -13,13 +13,41 @@ import type { SourceLine } from '../model/source-line';
  * The expression without what only the type checker sees: parentheses, `as`, `satisfies` and `!`.
  */
 export function withoutTypeSyntax(expression: ts.Expression): ts.Expression {
-    const isTypeSyntax =
-        ts.isParenthesizedExpression(expression) ||
-        ts.isAsExpression(expression) ||
-        ts.isSatisfiesExpression(expression) ||
-        ts.isNonNullExpression(expression);
+    return isTypeSyntax(expression) ? withoutTypeSyntax(expression.expression) : expression;
+}
 
-    return isTypeSyntax ? withoutTypeSyntax(expression.expression) : expression;
+type TypeSyntax = ts.ParenthesizedExpression | ts.AsExpression | ts.SatisfiesExpression | ts.NonNullExpression;
+
+function isTypeSyntax(node: ts.Node): node is TypeSyntax {
+    return (
+        ts.isParenthesizedExpression(node) ||
+        ts.isAsExpression(node) ||
+        ts.isSatisfiesExpression(node) ||
+        ts.isNonNullExpression(node)
+    );
+}
+
+// What these calls return has the members of what they get.
+const PASS_THROUGH_CALLS = [
+    'Object.freeze',
+    'markRaw',
+    'Vue.markRaw',
+    'reactive',
+    'shallowReactive',
+    'readonly',
+    'toRefs',
+];
+
+/**
+ * @private
+ *
+ * The value that a call hands back as it got it, as `Object.freeze(value)` does.
+ */
+export function passedThrough(node: ts.Node): ts.Expression | undefined {
+    const passes =
+        ts.isCallExpression(node) && node.arguments.length === 1 && PASS_THROUGH_CALLS.includes(node.expression.getText());
+
+    return passes ? node.arguments[0] : undefined;
 }
 
 function topLevelValue(name: string, source: ts.SourceFile): ts.Expression | undefined {
@@ -253,23 +281,59 @@ function defaultExportOf(statement: ts.Node, source: ts.SourceFile): ts.Statemen
           });
 }
 
+type Initialized = ts.VariableDeclaration | ts.PropertyAssignment | ts.PropertyDeclaration;
+
+function isInitialized(node: ts.Node): node is Initialized {
+    return ts.isVariableDeclaration(node) || ts.isPropertyAssignment(node) || ts.isPropertyDeclaration(node);
+}
+
+/** A variable, a member or a default export holds the node as its value, also behind type syntax or a call that passes it through. */
+function holdsAsValue(holder: ts.Node, node: ts.Node): boolean {
+    if (isTypeSyntax(holder) || passedThrough(holder) === node) {
+        return true;
+    }
+
+    return ts.isExportAssignment(holder) ? holder.expression === node : isInitialized(holder) && holder.initializer === node;
+}
+
+/**
+ * The declaration whose comment speaks for the node: the node itself when it is a statement or a member of an
+ * object or a class, and otherwise what holds the node as its value. A value inside any other expression has
+ * none, whatever stands above the statement around it: a list of exports says nothing about one of its names.
+ * Neither has what a getter hands out, because the comment of a getter is about reading the getter.
+ */
+function declarationOf(node: ts.Node): ts.Node | undefined {
+    if (ts.isGetAccessorDeclaration(node)) {
+        return undefined;
+    }
+
+    if (ts.isVariableDeclaration(node)) {
+        return statementOf(node);
+    }
+
+    if (ts.isStatement(node) || ts.isObjectLiteralElement(node) || ts.isClassElement(node)) {
+        return node;
+    }
+
+    return holdsAsValue(node.parent, node) ? declarationOf(node.parent) : undefined;
+}
+
 /**
  * @private
  *
- * The comments that speak for what the node declares or is the value of: the one directly above it when it is
- * a member of an object or a class, and otherwise the one above its statement and the one above the default
- * export of what that statement declares.
+ * The comments that speak for what the node declares or is the value of: the one directly above its
+ * declaration, and for a statement also the one above the default export of what it declares.
  */
 export function declarationDocs(node: ts.Node, source: ts.SourceFile): string[] {
-    if (ts.isObjectLiteralElement(node) || ts.isClassElement(node)) {
-        return [declarationDoc(node, source)];
+    const declaration = declarationOf(node);
+
+    if (declaration === undefined) {
+        return [];
     }
 
-    const statement = statementOf(node);
+    const speaking = ts.isStatement(declaration) ? [declaration, defaultExportOf(declaration, source)] : [declaration];
 
-    return [statement, defaultExportOf(statement, source)]
-        .filter((declared) => declared !== undefined)
-        .map((declared) => declarationDoc(declared, source));
+    return speaking.filter((declared) => declared !== undefined).map((declared) => declarationDoc(declared, source));
 }
 
 /**

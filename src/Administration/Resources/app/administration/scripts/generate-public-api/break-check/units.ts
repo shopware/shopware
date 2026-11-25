@@ -6,7 +6,7 @@
  */
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagState, FlagStates } from '../model/flag-states';
-import type { ComponentUnit, RegisteredUnit, Model } from '../model/model';
+import type { ComponentUnit, GlobalUnit, RegisteredUnit, Model } from '../model/model';
 import type { SourceLine } from '../model/source-line';
 import { withInheritedMembers } from './facts/member-facts';
 import { factsOf } from './facts/unit-facts';
@@ -19,12 +19,14 @@ export type UnitKind = 'component' | 'service' | 'store' | 'global';
 
 /**
  * What a kind says about one of its units. `parent` is the name of the unit it inherits its elements from,
- * which reports a change they share. `markers` and `at` are those of the unit as a whole, which only a unit
- * with a declaration of its own has.
+ * which reports a change they share. `heldBy` is the unit and its member that the unit comes and goes with, as
+ * `Shopware.Utils` holds `Shopware.Utils.string`. `markers` and `at` are those of the unit as a whole, which
+ * only a unit with a declaration of its own has.
  */
 interface UnitOfKind {
     name: string;
     parent: string | null;
+    heldBy: GlobalUnit['heldBy'];
     visibility: 'public' | 'private';
     states: FlagStates;
     markers: Marker[];
@@ -61,6 +63,7 @@ function components(model: Model): UnitOfKind[] {
     return model.components.map((unit) => ({
         name: unit.name,
         parent: unit.extends,
+        heldBy: null,
         visibility: unit.visibility,
         states: unit.states,
         markers: [],
@@ -69,29 +72,33 @@ function components(model: Model): UnitOfKind[] {
 }
 
 /** A unit that a script declares brings its own comment and line, and it inherits from no other unit. */
-function registered(units: RegisteredUnit[]): UnitOfKind[] {
-    return units.map((unit) => ({
+function scriptUnit(unit: RegisteredUnit): UnitOfKind {
+    return {
         name: unit.name,
         parent: null,
+        heldBy: null,
         visibility: unit.visibility,
         states: unit.states,
         markers: unit.markers,
         at: unit.at,
         facts: factsOf(unit),
-    }));
+    };
 }
 
 /**
  * @private
  *
- * The kinds of unit the break check compares. A new kind is one entry here.
+ * The kinds of unit the break check compares.
  */
 export const UNIT_KINDS: Record<UnitKind, UnitKindDefinition> = {
     component: { units: components, use: componentUse, reportedAsWhole: false },
-    service: { units: ({ services }) => registered(services), use: serviceUse, reportedAsWhole: true },
-    store: { units: ({ stores }) => registered(stores), use: storeUse, reportedAsWhole: true },
-    // An object below `Shopware` is a member of the object above it, which reports it when it comes or goes.
-    global: { units: ({ globals }) => registered(globals), use: globalUse, reportedAsWhole: false },
+    service: { units: ({ services }) => services.map(scriptUnit), use: serviceUse, reportedAsWhole: true },
+    store: { units: ({ stores }) => stores.map(scriptUnit), use: storeUse, reportedAsWhole: true },
+    global: {
+        units: ({ globals }) => globals.map((unit) => ({ ...scriptUnit(unit), heldBy: unit.heldBy })),
+        use: globalUse,
+        reportedAsWhole: true,
+    },
 };
 
 function unitId(kind: UnitKind, name: string): string {
@@ -111,6 +118,7 @@ export function checkedUnits(model: Model): Map<string, CheckedUnit> {
                 kind,
                 id: unitId(kind, unit.name),
                 parent: unit.parent === null ? null : unitId(kind, unit.parent),
+                heldBy: unit.heldBy && { ...unit.heldBy, unit: unitId(kind, unit.heldBy.unit) },
             }),
         ),
     );

@@ -322,11 +322,12 @@ actions
 - A state property has the type the source writes for it: an `as` on its value, or its member in the type that the state function returns or asserts its object to be.
   That type is read when it is a type literal, or an interface or type alias of the same file.
 - A getter has the return type it declares, and an action is printed like a method.
+  One that the options take from another place, as `actions: { load }` does for an imported `load`, is read from its declaration and carries the markers of that declaration.
 - A `setup` store is a function, which usually stands in a composable.
   `source` is the file of that function, and the store has what the function returns.
   A value built by `ref`, `shallowRef`, `reactive`, `shallowReactive` or `readonly` is state, one built by `computed` is a getter, a function is an action, and every other value is state.
   The type of such a value is the type argument of the call, as in `ref<string[]>([])`, or what the function inside `computed` declares to return.
-- The keys of a reactive object that a setup store spreads, as `...state` or `...toRefs(state)`, are state.
+- The keys of an object literal that a setup store spreads, as `...state` or `...toRefs(state)`, are state, also when another file declares the object.
 - An unreadable part is a line under `notes`: `unresolved state ...`, `unresolved getters ...`, `unresolved actions ...`, `unresolved members ...` for the object a setup store returns, and `unresolved store ...` for a definition the generator cannot follow.
   The Administration has none of these notes today.
 
@@ -392,17 +393,38 @@ Everything without `@private` is public.
 A component is private when the comment directly above its `export default`, or directly above its registration, has an `@private` tag.
 A private component stays in the snapshot, and its report marks every line `[private]`.
 A key inside a `@private` data object is private too.
-A service is private when the comment directly above its class, or above the factory function that returns it, has an `@private` tag.
-The comment above an `export default` of that class or function below it counts too.
+A service is private when the comment directly above its class, above the function that returns its object, or above the constant that holds that object has an `@private` tag.
+The comment above an `export default` of that class, function or constant below it counts too.
 A `@deprecated` or `@bc-change` marker in the same comment is the marker of the service.
 A store is private when the comment directly above the constant that holds it has an `@private` tag, as in `const exampleStore = Shopware.Store.register(...)`, or the comment above the `export default` of that constant.
 The tag on the exported type of a store says nothing about the store.
-An object of the `Shopware` object is private when the member that holds it is private, when an object above it is, or when the comment above its class or its declaration has an `@private` tag.
+An object of the `Shopware` object is private when the member that holds it is private, when an object above it is, or when one of the comments that make a service private has the tag.
 A member that holds a private object is private too.
+A comment speaks for a value when it stands directly above the declaration that holds the value: the class or the function itself, a `const`, a property of an object literal or a field of a class.
+The comment above the class or the object literal around such a member says nothing about the value, and neither does the comment above a list of exports such as `export { a, b }`.
+A getter hands out what it returns, so the comment above it is about reading the getter: `Shopware.Store` is public although `Store.instance` is `@private`.
 The report of a private object says where that comes from: `visibility-source export` is the comment of its own class or declaration, and `visibility-source parent` the object above it.
 A private class can make single members public with a `@public` tag in the comment of the member.
 The object is public then, and every member without the tag stays private.
 `Shopware.Application` is such an object: `getContainer`, `addServiceProvider` and `addServiceProviderDecorator` are public, because plugins cannot avoid them.
+`useContext` carries `@public` for the same reason, because it returns the object behind `Shopware.Context`.
+
+### Syntax only
+
+The generator parses every file with the TypeScript parser and builds no type-checked program.
+It follows a name itself: an import or a re-export inside `src/`, a `const`, a destructuring, `object.member`, and a function down to the object it returns.
+A run therefore takes about three seconds, and the break check reads a commit from git without a checkout and without installed packages.
+
+What only the type checker knows is missing from the snapshot:
+
+- A member without a written type is `any`.
+  In November 2026 that was 50% of the public properties, 54% of the return types and 69% of the parameters of the services, the stores and the `Shopware` object, where 77 of 136 services are JavaScript.
+- A value from a package is a property without a signature, so `Shopware.Utils.debounce` and `Shopware.Utils.object.cloneDeep` are `any`.
+- The type parameters of a method are not printed, so `get(id: Id): PiniaRootState[Id]` does not say what `Id` extends.
+- A type is compared as text, so a change inside a type that a signature only names goes unseen.
+
+For such a member the check notices that the name is gone and misses a changed signature.
+Whether the `.d.ts` contracts can be built from the syntax alone is open.
 
 ### Not covered yet
 
@@ -619,13 +641,15 @@ Every rule for the parameters, the result and the return type of a method also r
 A finding says how plugin code reaches the member, `Shopware.Service('<name>').<member>`, `Shopware.Store.get('<id>').<member>` or the path of the object such as `Shopware.Utils.string.<member>`, where a finding about a component names `$super`.
 `break-check/plugin-use.ts` holds these wordings.
 
-`break-check/unit-changes.ts` reports a service or a store as a whole:
+`break-check/unit-changes.ts` reports a service, a store or an object of the `Shopware` object as a whole:
 
 | Rule | Group | Reported when | A plugin notices |
 |---|---|---|---|
 | `service_missing`, `store_missing` | Break | A service or a store is gone, in both flag states or in one | `Shopware.Service('<name>')` returns `undefined`, and `Shopware.Store.get('<id>')` throws |
 | `service_added`, `store_added` | Addition | A new service or store | Nothing, plugins can rely on it from now on |
 | `visibility_became_private` | Break | A public service or store became `@private` | Its code may change in any release |
+| `global_missing` | Break | The object above still holds the member, but the snapshot can no longer read the object behind it | A change to a member of that object passes the check unnoticed |
+| `global_added` | Addition | The snapshot can read the object behind a member from now on | Nothing, plugins can rely on its members from now on |
 
 - A `@deprecated` marker on the unit announces its removal, and `@bc-change BecomesPrivate` announces `visibility_became_private`.
 - A service or a store that is private in the base commit, and a new private one, are listed as `Private`.
@@ -634,8 +658,10 @@ A finding says how plugin code reaches the member, `Shopware.Service('<name>').<
 - A service is compared with the members it inherits from its parent classes.
   A member that a parent class loses is reported on every service that inherits it.
 - A getter that becomes a state property, or the reverse, is a member that is gone and a new one.
-- An object of the `Shopware` object is never reported as a whole.
+- An object of the `Shopware` object comes, goes and becomes private with the member that holds it, and that member reports it.
   One that is gone is `property_missing` on the object above it, a new one is `property_added` there, and one that becomes private is `visibility_became_private` on the member that holds it.
+  The object is reported as a whole only when both commits have that member as public API.
+  That is the case when the snapshot can no longer read the object, for example after `string: Object.assign({}, { ... })`, so its members would drop out of the check.
   The members of an object are compared when both commits have the object.
 - A member of a private class that loses its `@public` tag is `visibility_became_private`.
 - The id of a unit is `service:<name>`, `store:<id>` or `global:<path>`, and a member stands below it, as in `service:acl/method:can`, `store:notification/action:createNotification` and `global:Shopware.Component/method:register`.

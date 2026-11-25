@@ -10,16 +10,15 @@ import { byCodePoint } from '../../helpers/code-point-order';
 import { BOTH_STATES } from '../../model/flag-states';
 import type { Member } from '../../model/members';
 import type { GlobalUnit } from '../../model/model';
-import type { SourceLine } from '../../model/source-line';
 import type { Declarations } from '../declarations';
-import { markersIn } from '../member-reading';
+import { distinctMarkers } from '../member-reading';
 import { instanceMembers, objectMembers, staticMembers } from '../object-members';
 import type { ObjectMembers } from '../object-members';
-import { registeredUnit } from '../registered-units';
-import type { RegisteredObject, UnitDoc } from '../registered-units';
+import { objectDoc, unitOf } from '../registered-units';
+import type { UnitDoc, UnitParts } from '../registered-units';
 import { memberOfObject, objectAt } from '../resolved-object';
 import type { ResolvedObject } from '../resolved-object';
-import { declarationDocs, docOf, isPrivateDoc, lineOf, memberName } from '../script-nodes';
+import { docOf, lineOf, memberName } from '../script-nodes';
 
 const SHOPWARE = 'Shopware';
 
@@ -74,10 +73,10 @@ function publicMembers({ declaration }: GlobalObject): Set<string> {
 /** A unit as its parent sees it: where the parent holds it, and what the parent says about it. */
 interface Place {
     path: string;
-    at: SourceLine;
     depth: number;
     isPrivate: boolean;
     markers: UnitDoc['markers'];
+    heldBy: GlobalUnit['heldBy'];
     /** The file that builds the `Shopware` object, whose report holds every unit. */
     builtIn: string;
 }
@@ -85,7 +84,7 @@ interface Place {
 /** What is public of an object: whether the unit is, and which of its members are hidden although it is. */
 interface Exposure {
     doc: UnitDoc;
-    privateThrough: RegisteredObject['privateThrough'];
+    privateThrough: UnitParts['privateThrough'];
     hides: (member: Member) => boolean;
 }
 
@@ -94,17 +93,16 @@ interface Exposure {
  * with `@public` members the object is public, and every other member stays private.
  */
 function exposureOf(place: Place, object: GlobalObject): Exposure {
-    const docs = declarationDocs(object.declaration.node, object.declaration.source);
+    const own = objectDoc(object);
     const exposed = publicMembers(object);
-    const isPrivateHolder = docs.some(isPrivateDoc);
 
     return {
         doc: {
-            isPrivate: place.isPrivate || (isPrivateHolder && exposed.size === 0),
-            markers: [...place.markers, ...docs.flatMap(markersIn)],
+            isPrivate: place.isPrivate || (own.isPrivate && exposed.size === 0),
+            markers: distinctMarkers([...place.markers, ...own.markers]),
         },
         privateThrough: place.isPrivate ? 'parent' : 'export',
-        hides: (member) => member.isPrivate || (isPrivateHolder && exposed.size > 0 && !exposed.has(member.name)),
+        hides: (member) => member.isPrivate || (own.isPrivate && exposed.size > 0 && !exposed.has(member.name)),
     };
 }
 
@@ -126,10 +124,10 @@ function childrenOf(
             const below: Place = {
                 ...place,
                 path: `${place.path}.${member.name}`,
-                at: member.at,
                 depth: place.depth + 1,
                 isPrivate: doc.isPrivate || hides(member),
                 markers: member.markers,
+                heldBy: { unit: place.path, kind: member.kind, name: member.name },
             };
 
             return child === undefined ? [] : [[member.name, unitsAt(below, child, declarations)]];
@@ -143,22 +141,25 @@ function unitsAt(place: Place, object: GlobalObject, declarations: Declarations)
     const exposure = exposureOf(place, object);
     const children = childrenOf(place, object, read.members, exposure, declarations);
     const holdsPrivate = ({ name }: Member): boolean => children.get(name)?.[0].visibility === 'private';
-    const unit = registeredUnit(
-        { name: place.path, registeredIn: place.builtIn, at: place.at, states: BOTH_STATES },
-        {
-            members: read.members.map((member) => ({
-                ...member,
-                isPrivate: exposure.hides(member) || holdsPrivate(member),
-            })),
-            notes: read.notes,
-            home: object.declaration,
-            doc: exposure.doc,
-            privateThrough: exposure.privateThrough,
-            reportedIn: place.builtIn,
-        },
-    );
+    const { node, source } = object.declaration;
+    const unit = unitOf({
+        name: place.path,
+        states: BOTH_STATES,
+        registeredIn: place.builtIn,
+        reportedIn: place.builtIn,
+        source: source.fileName,
+        at: lineOf(node, source),
+        members: read.members.map((member) => ({
+            ...member,
+            isPrivate: exposure.hides(member) || holdsPrivate(member),
+        })),
+        notes: read.notes,
+        doc: exposure.doc,
+        privateThrough: exposure.privateThrough,
+        sections: {},
+    });
 
-    return [{ ...unit, shape: object.kind }, ...[...children.values()].flat()];
+    return [{ ...unit, shape: object.kind, heldBy: place.heldBy }, ...[...children.values()].flat()];
 }
 
 /**
@@ -181,14 +182,13 @@ export function globalUnits(declarations: Declarations): GlobalUnit[] {
         );
     }
 
-    const { node, source } = object.declaration;
     const root: Place = {
         path: SHOPWARE,
-        at: lineOf(node, source),
         depth: 0,
         isPrivate: false,
         markers: [],
-        builtIn: source.fileName,
+        heldBy: null,
+        builtIn: object.declaration.source.fileName,
     };
 
     return unitsAt(root, object, declarations).sort((a, b) => byCodePoint(a.name, b.name));

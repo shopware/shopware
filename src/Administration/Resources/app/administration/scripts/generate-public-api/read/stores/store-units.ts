@@ -29,7 +29,12 @@ function storeObject(
     const { node, source } = definition;
 
     if (ts.isObjectLiteralExpression(node)) {
-        return { ...optionsMembers({ node, source }), style: 'options', home: definition, doc: unitDoc(holder) };
+        return {
+            ...optionsMembers({ node, source }, declarations),
+            style: 'options',
+            home: definition,
+            doc: unitDoc(holder),
+        };
     }
 
     if (isFunctionNode(node)) {
@@ -40,7 +45,7 @@ function storeObject(
 
     reading.unresolved('store', node);
 
-    return { members: [], notes: reading.notes, style: 'unknown', home: null, doc: unitDoc(holder) };
+    return { members: [], notes: reading.notes, sections: {}, style: 'unknown', home: null, doc: unitDoc(holder) };
 }
 
 /** A second registration of an id would replace the first, and the snapshot could list only one of them. */

@@ -7,7 +7,7 @@
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { Crossing, TemplateBlock } from './blocks';
 import type { FlagContext, FlagStates } from './flag-states';
-import type { UnitMembers } from './members';
+import type { MemberKind, UnitMembers } from './members';
 import type { SourceLine } from './source-line';
 
 /**
@@ -67,9 +67,10 @@ export type ComponentUnit = Registration &
  *
  * - `source`: the file that declares the object behind the name, which is the file of the registration when
  *   that could not be followed. `at` is the line of that declaration, where a finding about the unit points to.
- * - `file`: the path of the snapshot files of the unit below `public-api/`, without extension. It is that of
- *   `source`, so units of one kind that share a source share a report, or that of `registeredIn` for a unit
- *   of the `Shopware` object.
+ * - `reportedIn`: the source file whose report holds the unit. It is `source`, so units of one kind that share
+ *   a source share a report, or `registeredIn` for a unit of the `Shopware` object.
+ * - `file`: the path of the snapshot files of the unit below `public-api/`, without extension, which is that
+ *   of `reportedIn`.
  * - `visibilitySource`: where a private unit gets that from: `export` is the comment of its own declaration,
  *   and `parent` the object above it.
  * - `markers`: the `@deprecated` and `@bc-change` markers in the comment about the unit as a whole.
@@ -83,6 +84,7 @@ export type RegisteredUnit = UnitMembers & {
     registeredIn: string;
     source: string;
     at: SourceLine;
+    reportedIn: string;
     file: string;
     states: FlagStates;
 };
@@ -124,9 +126,11 @@ export type StoreUnit = RegisteredUnit & {
  *
  * - `shape`: `instance` for an instance of a class, `object` for an object literal, and `class` for a class
  *   that plugin code uses through its static members.
+ * - `heldBy`: the unit above it and the member of that unit that holds it, `null` for `Shopware` itself.
  */
 export type GlobalUnit = RegisteredUnit & {
     shape: 'instance' | 'object' | 'class';
+    heldBy: { unit: string; kind: MemberKind; name: string } | null;
 };
 
 /**

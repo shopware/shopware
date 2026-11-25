@@ -98,6 +98,27 @@ describe('scripts/generate-public-api/read/stores/store-units', () => {
             expect(sections(tree)).toEqual(['actions', '  load(): any']);
         });
 
+        it('follows a getter and an action to the file that declares them, with their markers', () => {
+            const tree = storeTree(
+                "{ id: 'example', getters: { total }, actions: { load } }",
+                {
+                    'src/app/store/example.actions.ts': [
+                        'export function total(): number { return 1; }',
+                        '/** @deprecated tag:v6.8.0 - Use find instead. */',
+                        'export function load(id: string): Promise<void> {}',
+                    ].join('\n'),
+                },
+                "import { load, total } from './example.actions';",
+            );
+
+            expect(sections(tree)).toEqual([
+                'getters',
+                '  total: number',
+                'actions',
+                '  load(id: string): Promise<void>  [deprecated tag:v6.8.0]',
+            ]);
+        });
+
         it('notes what it cannot read of an option', () => {
             const tree = optionsTree(
                 'state: createState, getters: { ...sharedGetters, total() {} }, actions: { [name]() {} }',
@@ -178,6 +199,29 @@ describe('scripts/generate-public-api/read/stores/store-units', () => {
                 '  app: any',
                 'actions',
                 '  load(): any',
+            ]);
+        });
+
+        it('lists the keys of an object literal of another file that the function spreads, as state', () => {
+            const tree = storeTree(
+                "'example', useExample",
+                {
+                    [COMPOSABLE]: [
+                        "import { shared } from './shared';",
+                        'export default function useExample() { return { ...shared, load() {} }; }',
+                    ].join('\n'),
+                    'src/app/composables/shared.ts': 'export const shared = { limit: 25, [key]: 1 };',
+                },
+                "import useExample from '../composables/use-example';",
+            );
+
+            expect(sections(tree, COMPOSABLE_REPORT)).toEqual([
+                'state',
+                '  limit: any',
+                'actions',
+                '  load(): any',
+                'notes',
+                '  unresolved members [key]: 1',
             ]);
         });
 

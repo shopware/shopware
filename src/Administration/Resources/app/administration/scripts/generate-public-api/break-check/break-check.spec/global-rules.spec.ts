@@ -66,6 +66,26 @@ describe('scripts/generate-public-api/break-check/break-check global rules', () 
         ]);
     });
 
+    it('reports an object that the snapshot can no longer read, although the object above it still holds it', () => {
+        const utils = (string: string) => shopwareTree(`    public Utils = { string: ${string}, createId() {} };`);
+        const readable = utils('{ camelCase() {}, md5() {} }');
+        const unreadable = utils('Object.assign({}, { camelCase() {} })');
+
+        expect(check(readable, unreadable)).toMatchObject([
+            {
+                group: 'Break',
+                rule: 'global_missing',
+                element: 'global:Shopware.Utils.string',
+                explanation:
+                    'The global is gone, so the snapshot no longer lists the members of Shopware.Utils.string, and plugin code that uses them can break unnoticed.',
+                at: 'src/core/shopware.ts:3',
+            },
+        ]);
+        expect(summary(check(unreadable, readable))).toEqual([
+            'Addition  global_added  global:Shopware.Utils.string  current, major',
+        ]);
+    });
+
     it('reports a new object as a new property of the object above it', () => {
         expect(summary(check(shopwareTree(''), example('load() {}')))).toEqual([
             'Addition  property_added  global:Shopware/property:Example  current, major',

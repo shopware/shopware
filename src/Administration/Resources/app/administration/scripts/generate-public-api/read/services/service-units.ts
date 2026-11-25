@@ -8,7 +8,7 @@ import { mergeStates } from '../../model/flag-states';
 import type { FlagContext } from '../../model/flag-states';
 import type { ServiceUnit } from '../../model/model';
 import type { SourceTree } from '../../source/source-tree';
-import { registeredUnit, unitDoc } from '../registered-units';
+import { objectDoc, registeredUnit } from '../registered-units';
 import type { RegisteredObject } from '../registered-units';
 import type { Declarations } from '../declarations';
 import { interfaceEntries } from '../global-interfaces';
@@ -35,35 +35,34 @@ function declaredAs(type: string | undefined): ServiceUnit['declared'] {
 
 const NO_MEMBERS = { members: [], notes: [] };
 
-function serviceObject(provided: ResolvedObject, declarations: Declarations): RegisteredObject {
+function membersOf(
+    provided: ResolvedObject,
+    declarations: Declarations,
+): Pick<RegisteredObject, 'members' | 'notes' | 'home'> {
     switch (provided.kind) {
         case 'instance':
-            return {
-                ...instanceMembers(provided.declaration, declarations),
-                home: provided.declaration,
-                doc: unitDoc(provided.declaration),
-            };
+            return { ...instanceMembers(provided.declaration, declarations), home: provided.declaration };
         case 'object':
-            return {
-                ...objectMembers(provided.declaration, declarations),
-                home: provided.declaration,
-                doc: unitDoc(provided.factory),
-            };
+            return { ...objectMembers(provided.declaration, declarations), home: provided.declaration };
         case 'class':
         case 'function':
-            return { ...NO_MEMBERS, home: provided.declaration, doc: unitDoc(provided.declaration) };
+            return { ...NO_MEMBERS, home: provided.declaration };
         case 'nothing':
-            return { ...NO_MEMBERS, home: null, doc: unitDoc(null) };
+            return { ...NO_MEMBERS, home: null };
         case 'unresolved': {
             const reading = new Reading(provided.expression.source);
 
             reading.unresolved('provider', provided.expression.node);
 
-            return { members: [], notes: reading.notes, home: null, doc: unitDoc(null) };
+            return { members: [], notes: reading.notes, home: null };
         }
         default:
             return provided satisfies never;
     }
+}
+
+function serviceObject(provided: ResolvedObject, declarations: Declarations): RegisteredObject {
+    return { ...membersOf(provided, declarations), sections: {}, doc: objectDoc(provided) };
 }
 
 /**

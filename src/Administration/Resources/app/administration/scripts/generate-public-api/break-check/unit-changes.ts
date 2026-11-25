@@ -7,6 +7,7 @@
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import { FLAG_STATES } from '../model/flag-states';
 import type { FlagContext, FlagState } from '../model/flag-states';
+import type { Member } from '../model/members';
 import type { SourceLine } from '../model/source-line';
 import { announcedBy } from './announcements';
 import type { MarkerSources } from './announcements';
@@ -24,16 +25,20 @@ import {
 import { UNIT_KINDS } from './units';
 import type { CheckedUnit } from './units';
 
-/** One unit at both commits. `base` or `head` is missing when the commit does not have the unit. */
+/**
+ * One unit at both commits. `base` or `head` is missing when the commit does not have the unit. `heldAt` is
+ * the line of the member that holds the unit at the head commit, for a unit that a member of another one holds.
+ */
 interface Comparison {
     base: CheckedUnit | undefined;
     head: CheckedUnit | undefined;
     flags: FlagContext;
+    heldAt: SourceLine | undefined;
 }
 
 /**
- * A change to a unit as a whole. `at` is its line at the head commit, which a unit that is gone does not have.
- * `announcement` names the marker on the unit that allows the change.
+ * A change to a unit as a whole. `at` is its line at the head commit. A unit that is gone has none, so it
+ * points to the member that still holds it. `announcement` names the marker on the unit that allows the change.
  */
 interface WholeChange {
     unit: CheckedUnit;
@@ -59,7 +64,7 @@ function useOf({ kind, name }: CheckedUnit): PluginUse {
     return UNIT_KINDS[kind].use(name);
 }
 
-function goneUnit({ base, head, flags }: Comparison): WholeChange[] {
+function goneUnit({ base, head, flags, heldAt }: Comparison): WholeChange[] {
     const states = statesWhere((state) => existsIn(base, state) && !existsIn(head, state));
 
     if (base === undefined || states.length === 0) {
@@ -76,6 +81,7 @@ function goneUnit({ base, head, flags }: Comparison): WholeChange[] {
                 explanation: `The ${base.kind} is gone${inMajorState(states)}, so ${useOf(base).withoutUnit}.`,
                 fix: removalFix(base.kind, flags),
             },
+            at: heldAt,
             announcement: {
                 rule: 'deprecated_removal',
                 markers: markersOf(base, head),
@@ -140,6 +146,31 @@ const WHOLE_CHANGES: readonly ((comparison: Comparison) => WholeChange[])[] = [
     unitBecamePrivate,
 ];
 
+type Units = ReadonlyMap<string, CheckedUnit>;
+
+/** The member that holds the unit in a commit, in every flag state that has it. */
+function holdingMembers({ heldBy }: CheckedUnit, units: Units): Member[] {
+    if (heldBy === null) {
+        return [];
+    }
+
+    const { kind, name } = heldBy;
+    const holder = units.get(heldBy.unit);
+
+    return FLAG_STATES.flatMap((state): Member[] => holder?.facts[state].members[kind].get(name) ?? []);
+}
+
+/**
+ * A unit that a member of another unit holds comes, goes and becomes private with that member, which reports
+ * it. A finding of its own is due when both commits have the member as public API: the snapshot can no longer
+ * read the object behind it, or it can now.
+ */
+function isLeftToHolder(unit: CheckedUnit, base: Units, head: Units): boolean {
+    const isPublicIn = (units: Units): boolean => holdingMembers(unit, units).some(({ isPrivate }) => !isPrivate);
+
+    return unit.heldBy !== null && !(isPublicIn(base) && isPublicIn(head));
+}
+
 /** A unit that was private at the base commit never was public API, and a new private one is none. */
 function isPrivateChange({ base, head }: Comparison): boolean {
     return (base ?? head)?.visibility === 'private';
@@ -164,19 +195,19 @@ function findingOf({ unit, states, judged, at, announcement }: WholeChange, comp
  * The findings about the units that one commit has and the other has not, or has as private API only, for
  * the kinds that report a unit as a whole.
  */
-export function unitFindings(
-    base: ReadonlyMap<string, CheckedUnit>,
-    head: ReadonlyMap<string, CheckedUnit>,
-    flags: FlagContext,
-): Finding[] {
-    const ids = new Set([...base.keys(), ...head.keys()]);
+export function unitFindings(base: Units, head: Units, flags: FlagContext): Finding[] {
+    return [...new Map([...base, ...head]).values()].flatMap((unit) => {
+        if (!UNIT_KINDS[unit.kind].reportedAsWhole || isLeftToHolder(unit, base, head)) {
+            return [];
+        }
 
-    return [...ids].flatMap((id) => {
-        const comparison: Comparison = { base: base.get(id), head: head.get(id), flags };
-        const kind = (comparison.base ?? comparison.head)?.kind;
+        const comparison: Comparison = {
+            base: base.get(unit.id),
+            head: head.get(unit.id),
+            flags,
+            heldAt: holdingMembers(unit, head).at(0)?.at,
+        };
 
-        return kind !== undefined && UNIT_KINDS[kind].reportedAsWhole
-            ? WHOLE_CHANGES.flatMap((change) => change(comparison)).map((change) => findingOf(change, comparison))
-            : [];
+        return WHOLE_CHANGES.flatMap((change) => change(comparison)).map((change) => findingOf(change, comparison));
     });
 }

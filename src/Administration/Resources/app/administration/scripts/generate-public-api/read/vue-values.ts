@@ -12,13 +12,3 @@ export const STATE_CALLS = [
 
 /** @private */
 export const GETTER_CALLS = ['computed'];
-
-/**
- * @private
- *
- * Every call that gives a value and no function, also when a function computes the value.
- */
-export const VALUE_CALLS = [
-    ...STATE_CALLS,
-    ...GETTER_CALLS,
-];

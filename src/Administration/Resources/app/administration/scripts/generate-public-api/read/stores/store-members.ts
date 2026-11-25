@@ -7,20 +7,22 @@
 import ts from 'typescript';
 import type { Member, UnitMembers } from '../../model/members';
 import type { Declarations, Located } from '../declarations';
-import { entriesOf, functionOf, literalValue, Reading, readOptions, signatureOf } from '../member-reading';
-import type { Common, OptionReader } from '../member-reading';
-import { callOf, isFunctionNode, memberName, returnedObject, returnedValues, withoutTypeSyntax } from '../script-nodes';
+import {
+    elementValue,
+    entriesOf,
+    functionOf,
+    heldValue,
+    Reading,
+    readLiteral,
+    readOptions,
+    signatureOf,
+    spreadLiteral,
+} from '../member-reading';
+import type { Common, Entry, OptionReader } from '../member-reading';
+import { isFunctionNode, memberName, returnedObject, returnedValues, withoutTypeSyntax } from '../script-nodes';
 import type { FunctionNode } from '../script-nodes';
-import { GETTER_CALLS, STATE_CALLS } from '../vue-values';
 
 type StoreMember = Member<'state'> | Member<'getter'> | Member<'action'>;
-
-/**
- * @private
- *
- * The members of a store with what could not be read of it, and for an options store the lines of its options.
- */
-export type StoreMembers = Pick<UnitMembers, 'members' | 'notes'> & Partial<Pick<UnitMembers, 'sections'>>;
 
 function withoutParentheses(expression: ts.Expression): ts.Expression {
     return ts.isParenthesizedExpression(expression) ? withoutParentheses(expression.expression) : expression;
@@ -91,58 +93,63 @@ function state(value: ts.Node, reading: Reading): StoreMember[] {
     }));
 }
 
-function getters(value: ts.Node, reading: Reading): StoreMember[] {
-    if (!ts.isObjectLiteralExpression(value)) {
-        reading.unresolved('getters', value);
+function getter(name: string, member: Entry['member'], declarations: Declarations, reading: Reading): StoreMember {
+    const { value, common } = elementValue(name, member, declarations, reading);
+    const type = isFunctionNode(value.node) ? value.node.type : undefined;
 
-        return [];
-    }
-
-    return entriesOf(value, 'getters', reading).map(({ name, member }) => {
-        const getter = reading.value(member);
-
-        return {
-            kind: 'getter',
-            ...reading.common(name, member),
-            type: reading.typeText(isFunctionNode(getter) ? getter.type : undefined),
-        };
-    });
+    return { kind: 'getter', ...common, type: new Reading(value.source).typeText(type) };
 }
 
-function actions(value: ts.Node, reading: Reading): StoreMember[] {
-    if (!ts.isObjectLiteralExpression(value)) {
-        reading.unresolved('actions', value);
+function action(name: string, member: Entry['member'], declarations: Declarations, reading: Reading): StoreMember {
+    const { value, common } = elementValue(name, member, declarations, reading);
 
-        return [];
-    }
+    return { kind: 'action', ...common, ...signatureOf(functionOf(value.node), name, new Reading(value.source)) };
+}
 
-    return entriesOf(value, 'actions', reading).map(({ name, member }) => ({
-        kind: 'action',
-        ...reading.common(name, member),
-        ...signatureOf(functionOf(reading.value(member)), name, reading),
-    }));
+/** Reads an option that holds one member per entry. The option is noted when it is no object literal. */
+function entryReader(
+    option: string,
+    kind: OptionReader['kind'],
+    read: typeof getter,
+    declarations: Declarations,
+): OptionReader {
+    return {
+        option,
+        kind,
+        read: (value, reading) => {
+            if (!ts.isObjectLiteralExpression(value)) {
+                reading.unresolved(option, value);
+
+                return [];
+            }
+
+            return entriesOf(value, option, reading).map(({ name, member }) => read(name, member, declarations, reading));
+        },
+    };
 }
 
 // Every other option of a store, such as `id`, holds no members.
-const OPTION_READERS: readonly OptionReader[] = [
-    { option: 'state', kind: 'state', read: state },
-    { option: 'getters', kind: 'getter', read: getters },
-    { option: 'actions', kind: 'action', read: actions },
-];
+function optionReaders(declarations: Declarations): readonly OptionReader[] {
+    return [
+        { option: 'state', kind: 'state', read: state },
+        entryReader('getters', 'getter', getter, declarations),
+        entryReader('actions', 'action', action, declarations),
+    ];
+}
 
 /**
  * @private
  *
  * The members of a store that is given by its options, `{ state, getters, actions }`.
  */
-export function optionsMembers({ node, source }: Located<ts.ObjectLiteralExpression>): StoreMembers {
+export function optionsMembers(
+    { node, source }: Located<ts.ObjectLiteralExpression>,
+    declarations: Declarations,
+): UnitMembers {
     const reading = new Reading(source);
 
-    return { ...readOptions(node, OPTION_READERS, reading), notes: reading.notes };
+    return { ...readOptions(node, optionReaders(declarations), reading), notes: reading.notes };
 }
-
-// What `STATE_CALLS` return is state, and what `GETTER_CALLS` return is a getter. A reactive object is followed
-// to the object it wraps, which is state like every other value.
 
 /** `T` of `ref<T>(...)`, or what the function inside `computed(...)` declares to return. */
 function builtType(call: ts.CallExpression): ts.TypeNode | undefined {
@@ -152,63 +159,65 @@ function builtType(call: ts.CallExpression): ts.TypeNode | undefined {
     return call.typeArguments?.[0] ?? (inner !== undefined && isFunctionNode(inner) ? inner.type : undefined);
 }
 
+const BUILT_KINDS = { computed: 'getter', ref: 'state' } as const;
+
 /** A value that a setup store returns: a getter, an action, or state for everything else. */
 function setupMember(common: Common, { node, source }: Located): StoreMember {
     const reading = new Reading(source);
-    const getter = callOf(node, GETTER_CALLS);
-    const built = getter ?? callOf(node, STATE_CALLS);
+    const held = heldValue(node);
 
-    if (built !== undefined) {
-        return { kind: getter === undefined ? 'state' : 'getter', ...common, type: reading.typeText(builtType(built)) };
+    switch (held.is) {
+        case 'computed':
+        case 'ref':
+            return { kind: BUILT_KINDS[held.is], ...common, type: reading.typeText(builtType(held.built)) };
+        case 'function':
+            return { kind: 'action', ...common, ...signatureOf(held.fn, common.name, reading) };
+        case 'value':
+            return { kind: 'state', ...common, type: null };
+        default:
+            return held satisfies never;
     }
-
-    const fn = functionOf(node);
-
-    return fn === undefined
-        ? { kind: 'state', ...common, type: null }
-        : { kind: 'action', ...common, ...signatureOf(fn, common.name, reading) };
 }
 
-/** A key of the object a setup store returns, `null` for one that holds no value the reader knows. */
+/** A key of the object a setup store returns, `null` for a setter, which holds no value. */
 function returnedMember(
     member: ts.ObjectLiteralElementLike,
     name: string,
     declarations: Declarations,
     reading: Reading,
 ): StoreMember | null {
-    if (ts.isMethodDeclaration(member)) {
-        return { kind: 'action', ...reading.common(name, member), ...signatureOf(member, name, reading) };
-    }
-
     if (ts.isGetAccessorDeclaration(member)) {
         return { kind: 'getter', ...reading.common(name, member), type: reading.typeText(member.type) };
     }
 
-    if (!ts.isPropertyAssignment(member) && !ts.isShorthandPropertyAssignment(member)) {
+    if (ts.isSetAccessorDeclaration(member)) {
         return null;
     }
 
-    const { value, common } = literalValue(name, member, declarations, reading);
+    const { value, common } = elementValue(name, member, declarations, reading);
 
     return setupMember(common, value);
 }
 
 /**
- * The keys of an object that a setup store spreads into what it returns, as `...state` or `...toRefs(state)`
- * for `const state = reactive({ ... })`. `null` for a spread of anything but an object literal of the same file.
+ * The keys of an object literal that a setup store spreads into what it returns, as `...state` or
+ * `...toRefs(state)` for `const state = reactive({ ... })`.
  */
 function spreadState(spread: ts.SpreadAssignment, declarations: Declarations, reading: Reading): StoreMember[] | null {
-    const { node, source } = declarations.valueOf(spread.expression, reading.source);
+    const literal = spreadLiteral(spread, declarations, reading);
 
-    if (!ts.isObjectLiteralExpression(node) || source !== reading.source) {
+    if (literal === null) {
         return null;
     }
 
-    return entriesOf(node, 'members', reading).map(({ name, member }) => ({
-        kind: 'state',
-        ...reading.common(name, member),
-        type: null,
-    }));
+    const spreadReading = new Reading(literal.source);
+    const members = entriesOf(literal.node, 'members', spreadReading).map(
+        ({ name, member }): StoreMember => ({ kind: 'state', ...spreadReading.common(name, member), type: null }),
+    );
+
+    reading.notes.push(...spreadReading.notes);
+
+    return members;
 }
 
 /**
@@ -217,31 +226,27 @@ function spreadState(spread: ts.SpreadAssignment, declarations: Declarations, re
  * The members of a store that a function sets up: what the object it returns holds. Everything else in that
  * object is noted.
  */
-export function setupMembers({ node, source }: Located<FunctionNode>, declarations: Declarations): StoreMembers {
+export function setupMembers({ node, source }: Located<FunctionNode>, declarations: Declarations): UnitMembers {
     const reading = new Reading(source);
     const returned = returnedObject(node);
 
     if (returned === null) {
         reading.unresolved('store', node);
 
-        return { members: [], notes: reading.notes };
+        return { members: [], notes: reading.notes, sections: {} };
     }
 
-    const members = returned.properties.flatMap((member): StoreMember[] => {
-        const name = memberName(member);
-        const read = (): StoreMember[] | null => {
-            const found = name === null ? null : returnedMember(member, name, declarations, reading);
+    const members = readLiteral(
+        returned,
+        'members',
+        reading,
+        (member, name) => {
+            const found = returnedMember(member, name, declarations, reading);
 
             return found && [found];
-        };
-        const found = ts.isSpreadAssignment(member) ? spreadState(member, declarations, reading) : read();
+        },
+        (spread) => spreadState(spread, declarations, reading),
+    );
 
-        if (found === null) {
-            reading.unresolved('members', member);
-        }
-
-        return found ?? [];
-    });
-
-    return { members, notes: reading.notes };
+    return { members, notes: reading.notes, sections: {} };
 }

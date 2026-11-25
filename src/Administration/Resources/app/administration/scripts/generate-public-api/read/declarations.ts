@@ -9,7 +9,7 @@
 import ts from 'typescript';
 import type { SourceTree } from '../source/source-tree';
 import { findModule, parseScript } from './modules';
-import { memberName, namedClassElements, withoutTypeSyntax } from './script-nodes';
+import { memberName, namedClassElements, passedThrough, withoutTypeSyntax } from './script-nodes';
 
 /**
  * @private
@@ -68,17 +68,6 @@ function classMemberNamed(
         .map(({ element }) => element)
         .find((element): element is ts.ClassElement => !ts.isParameter(element));
 }
-
-// What these calls return has the members of what they get.
-const PASS_THROUGH_CALLS = [
-    'Object.freeze',
-    'markRaw',
-    'Vue.markRaw',
-    'reactive',
-    'shallowReactive',
-    'readonly',
-    'toRefs',
-];
 
 /**
  * The names that the runtime puts on `window`, with the export that holds each one. A script uses them without
@@ -205,17 +194,13 @@ export class Declarations {
             return this.accessed(value, source, hops);
         }
 
-        if (ts.isCallExpression(value)) {
-            return this.passedThrough(value, source, hops);
+        const passed = passedThrough(value);
+
+        if (passed !== undefined) {
+            return this.valueOf(passed, source, hops + 1);
         }
 
         return ts.isIdentifier(value) ? this.named(value, source, hops) : undefined;
-    }
-
-    private passedThrough(call: ts.CallExpression, source: ts.SourceFile, hops: number): Located | undefined {
-        const passes = call.arguments.length === 1 && PASS_THROUGH_CALLS.includes(call.expression.getText(source));
-
-        return passes ? this.valueOf(call.arguments[0], source, hops + 1) : undefined;
     }
 
     /** What a name stands for: its declaration, the value of the variable it names, or the member a destructuring binds. */

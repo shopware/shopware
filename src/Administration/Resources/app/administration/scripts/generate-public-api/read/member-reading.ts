@@ -12,6 +12,7 @@ import { BOTH_STATES } from '../model/flag-states';
 import type { DeclaredKind, Member, Parameter, UnitMembers } from '../model/members';
 import type { Declarations, Located } from './declarations';
 import {
+    callOf,
     declarationDocs,
     docOf,
     isFunctionNode,
@@ -25,6 +26,7 @@ import {
     withoutTypeSyntax,
 } from './script-nodes';
 import type { FunctionNode } from './script-nodes';
+import { GETTER_CALLS, STATE_CALLS } from './vue-values';
 
 // Enough of an expression to find it in the source, without printing a whole function into the report.
 const NOTE_LENGTH = 80;
@@ -43,6 +45,25 @@ export type Common = Pick<Member, 'name' | 'at' | 'markers' | 'isPrivate' | 'sta
  */
 export function markersIn(doc: string): Marker[] {
     return parseMarkers(doc).flatMap((match): Marker[] => ('marker' in match ? [match.marker] : []));
+}
+
+/**
+ * @private
+ *
+ * The markers once each. Two ways to the same comment bring a marker twice: the member that holds an object,
+ * and the object itself.
+ */
+export function distinctMarkers(markers: Marker[]): Marker[] {
+    const known = new Set<string>();
+
+    return markers.filter((marker) => {
+        const key = JSON.stringify(marker);
+        const isNew = !known.has(key);
+
+        known.add(key);
+
+        return isNew;
+    });
 }
 
 /**
@@ -97,30 +118,57 @@ export interface Entry {
 /**
  * @private
  *
+ * What the members of an object literal give: `named` reads a member with a literal name, and `spread` what a
+ * spread brings in. A member that its reader answers with `null`, and every computed key, is noted.
+ */
+export function readLiteral<Found>(
+    object: ts.ObjectLiteralExpression,
+    section: string,
+    reading: Reading,
+    named: (member: ts.ObjectLiteralElementLike, name: string) => Found[] | null,
+    spread: (member: ts.SpreadAssignment) => Found[] | null = () => null,
+): Found[] {
+    return object.properties.flatMap((member) => {
+        const name = memberName(member);
+        const read = (): Found[] | null => (name === null ? null : named(member, name));
+        const found = ts.isSpreadAssignment(member) ? spread(member) : read();
+
+        if (found === null) {
+            reading.unresolved(section, member);
+        }
+
+        return found ?? [];
+    });
+}
+
+/**
+ * @private
+ *
  * The members of an object literal with a literal name. `spread` turns a spread into entries, for the helpers
- * whose names are known. Every other spread and every computed key is noted.
+ * whose names are known.
  */
 export function entriesOf(
     object: ts.ObjectLiteralExpression,
     section: string,
     reading: Reading,
-    spread: (member: ts.SpreadAssignment) => Entry[] | null = () => null,
+    spread?: (member: ts.SpreadAssignment) => Entry[] | null,
 ): Entry[] {
-    return object.properties.flatMap((member): Entry[] => {
-        const name = memberName(member);
+    return readLiteral(object, section, reading, (member, name) => [{ name, member }], spread);
+}
 
-        if (name !== null) {
-            return [{ name, member }];
-        }
+/**
+ * @private
+ *
+ * The object literal that a spread brings in, across files, `null` when it spreads something else.
+ */
+export function spreadLiteral(
+    spread: ts.SpreadAssignment,
+    declarations: Declarations,
+    reading: Reading,
+): Located<ts.ObjectLiteralExpression> | null {
+    const { node, source } = declarations.valueOf(spread.expression, reading.source);
 
-        const fromSpread = ts.isSpreadAssignment(member) ? spread(member) : null;
-
-        if (fromSpread === null) {
-            reading.unresolved(section, member);
-        }
-
-        return fromSpread ?? [];
-    });
+    return ts.isObjectLiteralExpression(node) ? { node, source } : null;
 }
 
 /**
@@ -148,8 +196,7 @@ export function namedValue(
         return { value, common: own };
     }
 
-    // A getter stands for what it returns, so its own comments speak about reading the getter only.
-    const docs = ts.isGetAccessorDeclaration(value.node) ? [] : declarationDocs(value.node, value.source);
+    const docs = declarationDocs(value.node, value.source);
     const isDeclaredHere = ts.isIdentifier(expression) && value.source === reading.source;
 
     return {
@@ -166,21 +213,22 @@ export function namedValue(
 /**
  * @private
  *
- * The same for `{ key: value }` and `{ key }` of an object literal.
+ * The same for a member of an object literal: what `{ key: value }` and `{ key }` hold, and for every other
+ * member the method or accessor itself.
  */
-export function literalValue(
+export function elementValue(
     name: string,
-    member: ts.PropertyAssignment | ts.ShorthandPropertyAssignment,
+    member: ts.ObjectLiteralElementLike,
     declarations: Declarations,
     reading: Reading,
 ): { value: Located; common: Common } {
-    return namedValue(
-        name,
-        member,
-        ts.isPropertyAssignment(member) ? member.initializer : member.name,
-        declarations,
-        reading,
-    );
+    if (ts.isPropertyAssignment(member)) {
+        return namedValue(name, member, member.initializer, declarations, reading);
+    }
+
+    return ts.isShorthandPropertyAssignment(member)
+        ? namedValue(name, member, member.name, declarations, reading)
+        : { value: { node: member, source: reading.source }, common: reading.common(name, member) };
 }
 
 /**
@@ -252,6 +300,31 @@ export function functionOf(value: ts.Node): FunctionNode | undefined {
     const [wrapped] = ts.isCallExpression(value) ? value.arguments : [];
 
     return wrapped !== undefined && isFunctionNode(wrapped) ? wrapped : undefined;
+}
+
+/**
+ * @private
+ *
+ * What a value is to code that reads it: what `computed` or a call such as `ref` builds, also when a function
+ * computes it, a function, or any other value.
+ */
+export type HeldValue =
+    | { is: 'computed' | 'ref'; built: ts.CallExpression }
+    | { is: 'function'; fn: FunctionNode }
+    | { is: 'value' };
+
+/** @private */
+export function heldValue(value: ts.Node): HeldValue {
+    const computed = callOf(value, GETTER_CALLS);
+    const built = computed ?? callOf(value, STATE_CALLS);
+
+    if (built !== undefined) {
+        return { is: computed === undefined ? 'ref' : 'computed', built };
+    }
+
+    const fn = functionOf(value);
+
+    return fn === undefined ? { is: 'value' } : { is: 'function', fn };
 }
 
 // The methods that chain on a promise and return a new one.

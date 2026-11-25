@@ -20,34 +20,7 @@ interface ReportKind<Unit extends RegisteredUnit> {
     plural: string;
     units: (model: Model) => Unit[];
     facets: (unit: Unit) => string[];
-    /** The source file a report is the report of. Units with the same snapshot file share it. */
-    reportOf: (unit: Unit) => string;
 }
-
-const SERVICE_REPORTS: ReportKind<ServiceUnit> = {
-    word: 'service',
-    plural: 'services',
-    units: ({ services }) => services,
-    facets: ({ declared, registration }) => [declared, registration],
-    reportOf: ({ source }) => source,
-};
-
-const STORE_REPORTS: ReportKind<StoreUnit> = {
-    word: 'store',
-    plural: 'stores',
-    units: ({ stores }) => stores,
-    facets: ({ declared, style }) => [declared, style],
-    reportOf: ({ source }) => source,
-};
-
-/** The units of the `Shopware` object stand in the report of the file that builds it, wherever each object is declared. */
-const GLOBAL_REPORTS: ReportKind<GlobalUnit> = {
-    word: 'global',
-    plural: 'globals',
-    units: ({ globals }) => globals,
-    facets: ({ shape }) => [shape],
-    reportOf: ({ registeredIn }) => registeredIn,
-};
 
 function header<Unit extends RegisteredUnit>({ word, facets }: ReportKind<Unit>, unit: Unit, flags: FlagContext): Line[] {
     return [
@@ -96,8 +69,40 @@ function reportsOf<Unit extends RegisteredUnit>(kind: ReportKind<Unit>, model: M
 
     kind.units(model).forEach((unit) => byFile.set(unit.file, [...(byFile.get(unit.file) ?? []), unit]));
 
-    return [...byFile].map(([file, units]) => [file, printReport(kind, kind.reportOf(units[0]), units, model.flags)]);
+    return [...byFile].map(([file, units]) => [file, printReport(kind, units[0].reportedIn, units, model.flags)]);
 }
+
+/** A kind of unit as the reports and the index list it, whatever its units hold besides. */
+interface Reported {
+    plural: string;
+    units: (model: Model) => RegisteredUnit[];
+    reports: (model: Model) => [string, string][];
+}
+
+function reported<Unit extends RegisteredUnit>(kind: ReportKind<Unit>): Reported {
+    return { plural: kind.plural, units: kind.units, reports: (model) => reportsOf(kind, model) };
+}
+
+const REPORTED: readonly Reported[] = [
+    reported<ServiceUnit>({
+        word: 'service',
+        plural: 'services',
+        units: ({ services }) => services,
+        facets: ({ declared, registration }) => [declared, registration],
+    }),
+    reported<StoreUnit>({
+        word: 'store',
+        plural: 'stores',
+        units: ({ stores }) => stores,
+        facets: ({ declared, style }) => [declared, style],
+    }),
+    reported<GlobalUnit>({
+        word: 'global',
+        plural: 'globals',
+        units: ({ globals }) => globals,
+        facets: ({ shape }) => [shape],
+    }),
+];
 
 /**
  * @private
@@ -105,7 +110,7 @@ function reportsOf<Unit extends RegisteredUnit>(kind: ReportKind<Unit>, model: M
  * The reports of every registered unit of the model by their snapshot file.
  */
 export function printRegisteredReports(model: Model): [string, string][] {
-    return [...reportsOf(SERVICE_REPORTS, model), ...reportsOf(STORE_REPORTS, model), ...reportsOf(GLOBAL_REPORTS, model)];
+    return REPORTED.flatMap(({ reports }) => reports(model));
 }
 
 /**
@@ -114,13 +119,10 @@ export function printRegisteredReports(model: Model): [string, string][] {
  * The entries of the registered units in `index.json`, by the plural of their kind.
  */
 export function registeredIndexEntries(model: Model): Record<string, Record<string, object>> {
-    const entriesOf = <Unit extends RegisteredUnit>({
-        plural,
-        units,
-    }: ReportKind<Unit>): [string, Record<string, object>] => [
-        plural,
-        Object.fromEntries(units(model).map(({ name, file, visibility }) => [name, { file, visibility }])),
-    ];
-
-    return Object.fromEntries([entriesOf(SERVICE_REPORTS), entriesOf(STORE_REPORTS), entriesOf(GLOBAL_REPORTS)]);
+    return Object.fromEntries(
+        REPORTED.map(({ plural, units }) => [
+            plural,
+            Object.fromEntries(units(model).map(({ name, file, visibility }) => [name, { file, visibility }])),
+        ]),
+    );
 }

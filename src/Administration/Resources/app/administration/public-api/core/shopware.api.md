@@ -351,7 +351,7 @@ global Shopware.Helper.OrderHelper  public  ts  object
   source src/core/shopware.ts
 
 properties
-  LineItemType: any  [private]
+  LineItemType: any
 
 global Shopware.Helper.PromotionHelper  public  ts  object
   registered src/core/shopware.ts

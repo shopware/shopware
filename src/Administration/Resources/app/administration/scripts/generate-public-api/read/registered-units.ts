@@ -17,6 +17,7 @@ import type { Declarations, Located } from './declarations';
 import { guardStates } from './flag-conditions';
 import { markersIn } from './member-reading';
 import { isScriptFile, scriptLanguage, withoutScriptExtension } from './modules';
+import type { ResolvedObject } from './resolved-object';
 import { collect, declarationDocs, isPrivateDoc, lineOf } from './script-nodes';
 import type { MethodCall } from './script-nodes';
 
@@ -102,11 +103,11 @@ export interface UnitDoc {
 /**
  * @private
  *
- * What the comments of a declaration say about the unit it holds: the comment directly above it, and the one
- * above its default export, where the sources often write it. `null` is a unit without a declaration of its own.
+ * What the comments of the declarations say about the unit they hold: the comment directly above each one, and
+ * the one above its default export, where the sources often write it. `null` is no declaration.
  */
-export function unitDoc(holder: Located | null): UnitDoc {
-    const docs = holder === null ? [] : declarationDocs(holder.node, holder.source);
+export function unitDoc(...holders: (Located | null)[]): UnitDoc {
+    const docs = holders.flatMap((holder) => (holder === null ? [] : declarationDocs(holder.node, holder.source)));
 
     return { isPrivate: docs.some(isPrivateDoc), markers: docs.flatMap(markersIn) };
 }
@@ -114,23 +115,34 @@ export function unitDoc(holder: Located | null): UnitDoc {
 /**
  * @private
  *
- * What a reader found behind a registration.
- *
- * - `home`: the class, object literal or function that holds the members, `null` when there is none to point to.
- * - `doc`: whether the unit is private, and its markers. `privateThrough` says where a private unit gets that
- *   from when it is not its own declaration.
- * - `sections`: the lines of the places that hold the members of a kind, where they differ from `home`.
- * - `reportedIn`: the source file whose report holds the unit, where that is not the file of `home`.
+ * What the comments say about an object, whatever kind of unit it is: those of its class, its function or its
+ * literal, and those of the function that returns the literal.
  */
-export interface RegisteredObject {
-    members: Member[];
-    notes: string[];
-    home: Located | null;
-    doc: UnitDoc;
-    privateThrough?: Exclude<RegisteredUnit['visibilitySource'], 'default'>;
-    sections?: UnitMembers['sections'];
-    reportedIn?: string;
+export function objectDoc(object: ResolvedObject): UnitDoc {
+    if (object.kind === 'nothing' || object.kind === 'unresolved') {
+        return unitDoc();
+    }
+
+    return object.kind === 'object' ? unitDoc(object.declaration, object.factory) : unitDoc(object.declaration);
 }
+
+/**
+ * @private
+ *
+ * What a unit is made of, wherever its reader found it.
+ *
+ * - `doc`: whether the unit is private, and its markers. `privateThrough` says where a private unit gets that from.
+ * - `sections`: the lines of the places that hold the members of a kind, where they differ from `at`.
+ */
+export type UnitParts = Pick<
+    RegisteredUnit,
+    'name' | 'states' | 'registeredIn' | 'reportedIn' | 'source' | 'at' | 'notes'
+> & {
+    members: Member[];
+    doc: UnitDoc;
+    privateThrough: Exclude<RegisteredUnit['visibilitySource'], 'default'>;
+    sections: UnitMembers['sections'];
+};
 
 /** `src/core/service/api/cache.api.service.js` gives `core/service/api/cache.api.service`. */
 function snapshotFile(source: string): string {
@@ -140,29 +152,46 @@ function snapshotFile(source: string): string {
 /**
  * @private
  *
- * The unit of a registration with the object behind it. An object without a home has the registration as its
- * source. The members exist in the flag states of the registration at most.
+ * The unit of its parts. The members exist in the flag states of the unit at most.
  */
-export function registeredUnit(
-    registration: Registered,
-    { members, notes, home, doc, privateThrough = 'export', sections, reportedIn }: RegisteredObject,
-): RegisteredUnit {
-    const source = home?.source.fileName ?? registration.registeredIn;
-    const at: SourceLine = home === null ? registration.at : lineOf(home.node, home.source);
-
+export function unitOf({ members, doc, privateThrough, sections, ...unit }: UnitParts): RegisteredUnit {
     return {
-        name: registration.name,
-        language: scriptLanguage(source),
+        ...unit,
+        language: scriptLanguage(unit.source),
         visibility: doc.isPrivate ? 'private' : 'public',
         visibilitySource: doc.isPrivate ? privateThrough : 'default',
         markers: doc.markers,
-        registeredIn: registration.registeredIn,
-        source,
-        at,
-        file: snapshotFile(reportedIn ?? source),
-        states: registration.states,
-        members: existingIn(registration.states, members),
-        notes,
-        sections: { ...Object.fromEntries(DECLARED_KINDS.map((kind) => [kind, at])), ...sections },
+        file: snapshotFile(unit.reportedIn),
+        members: existingIn(unit.states, members),
+        sections: { ...Object.fromEntries(DECLARED_KINDS.map((kind) => [kind, unit.at])), ...sections },
     };
+}
+
+/**
+ * @private
+ *
+ * What a reader found behind a registration. `home` is the class, object literal or function that holds the
+ * members, `null` when there is none to point to.
+ */
+export type RegisteredObject = Pick<UnitParts, 'members' | 'notes' | 'doc' | 'sections'> & { home: Located | null };
+
+/**
+ * @private
+ *
+ * The unit of a registration with the object behind it, in the report of its source. An object without a home
+ * has the registration as its source.
+ */
+export function registeredUnit(registration: Registered, { home, ...object }: RegisteredObject): RegisteredUnit {
+    const source = home?.source.fileName ?? registration.registeredIn;
+
+    return unitOf({
+        ...object,
+        name: registration.name,
+        states: registration.states,
+        registeredIn: registration.registeredIn,
+        reportedIn: source,
+        source,
+        at: home === null ? registration.at : lineOf(home.node, home.source),
+        privateThrough: 'export',
+    });
 }

@@ -13,6 +13,8 @@ const FACTORY = 'src/core/factory/example.factory.ts';
 
 const FACTORY_IMPORT = "import ExampleFactory from 'src/core/factory/example.factory';";
 
+const THING_IMPORT = "import { createThing } from 'src/core/factory/example.factory';";
+
 function files(tree: SourceTree): Record<string, string> {
     return snapshotOf(tree, OPTIONS).files;
 }
@@ -262,6 +264,94 @@ describe('scripts/generate-public-api/read/globals/global-units', () => {
                 'methods',
                 '  get(id: string): any',
             ]);
+        });
+
+        it('takes the private tag of the member that holds an object, and not the one of the class around that member', () => {
+            const store = (registry: string): SourceTree =>
+                shopwareTree('    public Store = Registry.store;', {}, `class Store { get(id: string) {} }\n${registry}`);
+
+            expect(sections(store('/** @private */\nclass Registry {\n    static store = new Store();\n}'))).toEqual([
+                'properties',
+                '  Store: any',
+            ]);
+            expect(sections(store('class Registry {\n    /** @private */\n    static store = new Store();\n}'))).toEqual([
+                'properties',
+                '  Store: any  [private]',
+            ]);
+        });
+
+        it('takes the private tag of a function from the member that declares it, however the member writes the function', () => {
+            const tree = shopwareTree(
+                '    public Example = { parse: helpers.parse, format: helpers.format, print: helpers.print };',
+                {},
+                [
+                    'const helpers = {',
+                    '    /** @private */',
+                    '    parse() {},',
+                    '    /** @private */',
+                    '    format: function () {},',
+                    '    /** @private */',
+                    '    print: () => {},',
+                    '};',
+                ].join('\n'),
+            );
+
+            expect(sections(tree, 'Shopware.Example')).toEqual([
+                'methods',
+                '  format(): any  [private]',
+                '  parse(): any  [private]',
+                '  print(): any  [private]',
+            ]);
+        });
+
+        it.each([
+            ['the function that returns it', '/** @private */\nexport function createThing() { return { run() {} }; }'],
+            [
+                'the constant that holds it',
+                '/** @private */\nconst thing = { run() {} };\nexport function createThing() { return thing; }',
+            ],
+        ])('takes the private tag of an object from %s, as a service of that object does', (_, factory) => {
+            const tree = shopwareTree(
+                '    public Thing = createThing();',
+                {
+                    [FACTORY]: factory,
+                    [MAIN]: `${THING_IMPORT}\nShopware.Application.addServiceProvider('thing', () => createThing());`,
+                },
+                THING_IMPORT,
+            );
+
+            expect(sections(tree)).toEqual(['properties', '  Thing: any  [private]']);
+            expect(outlines(tree)['Shopware.Thing'][0]).toBe('global Shopware.Thing  private  ts  object  [private]');
+            expect(JSON.parse(files(tree)['index.json'])).toMatchObject({
+                services: { thing: { visibility: 'private' } },
+            });
+        });
+
+        it('does not take the private tag above a list of exports, which says nothing about one of its names', () => {
+            const tree = shopwareTree(
+                '    public Example = { build, Kind };',
+                { [FACTORY]: 'function build() {}\nenum Kind { A }\n\n/** @private */\nexport { build, Kind };' },
+                "import { build, Kind } from 'src/core/factory/example.factory';",
+            );
+
+            expect(sections(tree, 'Shopware.Example')).toEqual([
+                'properties',
+                '  Kind: any',
+                'methods',
+                '  build(): any',
+            ]);
+        });
+
+        it('shows a marker once that the member and the object it holds both carry', () => {
+            const tree = shopwareTree(
+                '    public Example = { Helper };',
+                {},
+                '/** @deprecated tag:v6.8.0 - Use Utils instead. */\nconst Helper = { format() {} };',
+            );
+
+            expect(outlines(tree)['Shopware.Example.Helper'][0]).toBe(
+                'global Shopware.Example.Helper  public  ts  object  [deprecated tag:v6.8.0]',
+            );
         });
 
         it('keeps the object of a private class private, and with it the member that holds it', () => {

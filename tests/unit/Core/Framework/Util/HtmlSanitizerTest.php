@@ -21,6 +21,8 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticHtmlPurifierConfigProvider;
 #[CoversClass(HtmlSanitizer::class)]
 class HtmlSanitizerTest extends TestCase
 {
+    private const URI_OPTIONS = ['img' => ['src', 'alt']];
+
     /**
      * @var SetsArray
      */
@@ -173,6 +175,58 @@ class HtmlSanitizerTest extends TestCase
 
         static::assertSame($expected, $sanitizer->sanitize($input));
         static::assertSame($expected, $sanitizer->sanitize($expected), 'Sanitizing the output again, e.g. on render, must not change it');
+    }
+
+    #[TestDox('Keeps double-encoded entities in URI attributes as text, so they never complete a javascript: URI')]
+    #[DataProvider('doubleEncodedUriProvider')]
+    public function testKeepsDoubleEncodedEntitiesInUriAttributesAsText(string $input, string $repairedBefore68, string $expected): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        $this->assertSanitizesRepeatedlyTo($sanitizer, $input, $expected, self::URI_OPTIONS);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with the repair of double-encoded entities
+     */
+    #[TestDox('Without 6.8 behaviour, repairing double-encoded entities in URI attributes never completes a javascript: URI')]
+    #[DataProvider('doubleEncodedUriProvider')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRepairsDoubleEncodedEntitiesInUriAttributesWithoutJavascriptUri(string $input, string $expected, string $keptAsTextSince68): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        $this->assertSanitizesRepeatedlyTo($sanitizer, $input, $expected, self::URI_OPTIONS);
+    }
+
+    /**
+     * `&#38;` is not matched by the repair, so HTMLPurifier re-escapes it to `&amp;`, which the next pass collapses again.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed together with the repair of double-encoded entities
+     */
+    #[TestDox('Without 6.8 behaviour, each pass peels one encoding layer of "&#38;lt;" but the result stays escaped')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRepeatedRepairPeelsOneLayerButStaysEscaped(): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        $first = $sanitizer->sanitize('&#38;lt;script&#38;gt;alert(1)&#38;lt;/script&#38;gt;');
+        static::assertSame('&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;', $first);
+
+        $second = $sanitizer->sanitize($first);
+        static::assertSame('&lt;script&gt;alert(1)&lt;/script&gt;', $second);
+
+        static::assertSame($second, $sanitizer->sanitize($second));
+    }
+
+    #[TestDox('Sanitizing "&#38;lt;" repeatedly keeps it as the same escaped text')]
+    public function testRepeatedSanitizingKeepsNumericallyEncodedAmpersandAsText(): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        $expected = '&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;';
+
+        $this->assertSanitizesRepeatedlyTo($sanitizer, '&#38;lt;script&#38;gt;alert(1)&#38;lt;/script&#38;gt;', $expected);
     }
 
     #[TestDox('Strips markup while keeping a lone "<", entities and line endings verbatim')]
@@ -454,6 +508,77 @@ class HtmlSanitizerTest extends TestCase
             '<a href="#" title="&quot; onclick=&quot;alert(1)">Link</a>',
             '<a href="#" title="&amp;quot; onclick=&amp;quot;alert(1)">Link</a>',
         ];
+
+        yield 'double encoded HTML5-only entity is not decoded by HTMLPurifier and stays text' => [
+            'Ratio 1&amp;colon;2',
+            'Ratio 1&amp;colon;2',
+            'Ratio 1&amp;colon;2',
+        ];
+    }
+
+    /**
+     * Input, output before 6.8 (repaired), output since 6.8 (kept as text)
+     */
+    public static function doubleEncodedUriProvider(): \Generator
+    {
+        yield 'double encoded colon in a link' => [
+            '<a href="javascript&amp;colon;alert(1)">Link</a>',
+            '<a href="javascript&amp;colon;alert(1)">Link</a>',
+            '<a href="javascript&amp;colon;alert(1)">Link</a>',
+        ];
+
+        yield 'double encoded numeric colon in a link' => [
+            '<a href="javascript&amp;#58;alert(1)">Link</a>',
+            '<a>Link</a>',
+            '<a href="javascript&amp;#58;alert(1)">Link</a>',
+        ];
+
+        yield 'double encoded tab in a link' => [
+            '<a href="java&amp;Tab;script:alert(1)">Link</a>',
+            '<a href="java&amp;Tab;script%3Aalert(1)">Link</a>',
+            '<a href="java&amp;Tab;script%3Aalert(1)">Link</a>',
+        ];
+
+        yield 'double encoded newline in a link' => [
+            '<a href="java&amp;NewLine;script:alert(1)">Link</a>',
+            '<a href="java&amp;NewLine;script%3Aalert(1)">Link</a>',
+            '<a href="java&amp;NewLine;script%3Aalert(1)">Link</a>',
+        ];
+
+        yield 'double encoded tab in an image source' => [
+            '<img src="java&amp;Tab;script:alert(1)" alt="x">',
+            '<img src="java&amp;Tab;script%3Aalert(1)" alt="x" />',
+            '<img src="java&amp;Tab;script%3Aalert(1)" alt="x" />',
+        ];
+
+        yield 'double encoded numeric tab in an image source' => [
+            '<img src="java&amp;#9;script:alert(1)" alt="x">',
+            '<img src="java%20script%3Aalert(1)" alt="x" />',
+            '<img src="java&amp;#9;script:alert(1)" alt="x" />',
+        ];
+
+        yield 'double encoded numeric newline in an image source' => [
+            '<img src="java&amp;#10;script&amp;#58;alert(1)" alt="x">',
+            '<img src="java%20script%3Aalert(1)" alt="x" />',
+            '<img src="java&amp;#10;script&amp;%2358;alert(1)" alt="x" />',
+        ];
+    }
+
+    /**
+     * @param array<string, array<string>> $options
+     */
+    private function assertSanitizesRepeatedlyTo(HtmlSanitizer $sanitizer, string $input, string $expected, array $options = []): void
+    {
+        $output = $sanitizer->sanitize($input, $options);
+        static::assertSame($expected, $output);
+
+        for ($pass = 2; $pass <= 3; ++$pass) {
+            $output = $sanitizer->sanitize($output, $options);
+            static::assertSame($expected, $output, \sprintf('Sanitizing pass %d must not change the output', $pass));
+        }
+
+        $decoded = html_entity_decode($output, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        static::assertStringNotContainsStringIgnoringCase('javascript:', (string) preg_replace('/[\x00-\x20]+/', '', $decoded));
     }
 
     /**

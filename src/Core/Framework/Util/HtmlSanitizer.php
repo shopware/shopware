@@ -40,6 +40,11 @@ class HtmlSanitizer implements ResetInterface
     private readonly HtmlPurifierConfigProvider $configProvider;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, double-encoded input is no longer repaired
+     */
+    private readonly bool $repairDoubleEncodedEntities;
+
+    /**
      * @internal
      *
      * @param SetsArray $sets
@@ -55,6 +60,7 @@ class HtmlSanitizer implements ResetInterface
     ) {
         $this->cacheDir = (string) $cacheDir;
         $this->configProvider = $configProvider ?? new HtmlPurifierConfigProvider();
+        $this->repairDoubleEncodedEntities = !Feature::isActive('v6.8.0.0');
     }
 
     /**
@@ -69,7 +75,7 @@ class HtmlSanitizer implements ResetInterface
         /**
          * @deprecated tag:v6.8.0 - Double-encoded entities are no longer repaired, the sender has to send single-encoded HTML
          */
-        if (!Feature::isActive('v6.8.0.0')) {
+        if ($this->repairDoubleEncodedEntities) {
             $text = $this->collapseDoubleEncodedEntities($text);
         }
 

@@ -168,36 +168,17 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(methods.resolvePreviewContext.call(vm, { rootSource })).toEqual(expected);
     });
 
-    it('does not create a repository while loading the default preview entity for a non-entity root source', async () => {
+    it('does not load a default preview entity without a preview entity type', async () => {
         const repositoryFactory = { create: jest.fn() };
         const vm = {
-            availableLayoutTypes: ['product'],
             previewEntityId: null,
-            layout: { id: 'layout-header', rootSource: 'header' },
+            previewEntityType: null,
             frames: [{ id: 'frame-header', layoutId: 'layout-header', previewEntityId: null }],
             activeFrameId: 'frame-header',
             workspaceStore: { activeWorkspace: { id: 'workspace' } },
             repositoryFactory,
             defaultPreviewEntityCriteria: {},
-            getLayoutRootSource: methods.getLayoutRootSource,
-            getFirstAssociationEntry: methods.getFirstAssociationEntry,
-            resolveAssignedPreviewContext: methods.resolveAssignedPreviewContext,
-            resolvePreviewContext: methods.resolvePreviewContext,
         };
-        Object.defineProperties(vm, {
-            resolvedPreviewContext: {
-                get: () => methods.resolvePreviewContext.call(vm, vm.layout),
-            },
-            previewEntityType: {
-                get: () => {
-                    const previewContext = methods.resolvePreviewContext.call(vm, vm.layout) as {
-                        entityType: string;
-                    } | null;
-
-                    return previewContext?.entityType ?? null;
-                },
-            },
-        });
 
         await methods.loadDefaultPreviewEntity.call(vm);
 

@@ -48,8 +48,8 @@ class CookieProvider
 
         $cookieGroups->add($this->getCookieGroupRequiredEntries());
         $cookieGroups->add($this->getCookieGroupStatistical());
-        $cookieGroups->add($this->getCookieGroupComfortFeatures());
         $cookieGroups->add($this->getCookieGroupMarketing());
+        $cookieGroups->add($this->getCookieGroupComfortFeatures());
 
         $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $request, $salesChannelContext));
 

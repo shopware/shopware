@@ -55,20 +55,7 @@ class LegacyCookieProviderBridgePass implements CompilerPassInterface
     private function findLegacyProviders(ContainerBuilder $container): array
     {
         $legacyProviders = [];
-
-        foreach ($container->getDefinitions() as $id => $definition) {
-            $decorated = $definition->getDecoratedService();
-            if ($decorated === null || $decorated[0] !== CookieProviderInterface::class) {
-                continue;
-            }
-
-            $class = $definition->getClass() ?? $id;
-            if ($class === AppCookieProvider::class) {
-                continue;
-            }
-
-            $legacyProviders[$id] = $class;
-        }
+        $targets = [CookieProviderInterface::class => true];
 
         // Runs before the decoration is applied, so the id still points to the default provider unless an extension replaced it.
         // findDefinition() also resolves an alias an extension registered for the interface.
@@ -78,6 +65,31 @@ class LegacyCookieProviderBridgePass implements CompilerPassInterface
                 $legacyProviders[CookieProviderInterface::class] = $class;
             }
         }
+
+        do {
+            $found = false;
+
+            foreach ($container->getDefinitions() as $id => $definition) {
+                if (isset($targets[$id])) {
+                    continue;
+                }
+
+                $decorated = $definition->getDecoratedService();
+                if ($decorated === null || !isset($targets[$decorated[0]])) {
+                    continue;
+                }
+
+                $targets[$id] = true;
+                $found = true;
+
+                $class = $definition->getClass() ?? $id;
+                if ($class === AppCookieProvider::class) {
+                    continue;
+                }
+
+                $legacyProviders[$id] = $class;
+            }
+        } while ($found);
 
         return $legacyProviders;
     }

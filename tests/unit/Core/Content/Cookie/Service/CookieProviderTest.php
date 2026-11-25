@@ -150,4 +150,35 @@ class CookieProviderTest extends TestCase
         $testGroup = $cookieGroups->get('test');
         static::assertInstanceOf(CookieGroup::class, $testGroup);
     }
+
+    public function testDefaultCookieGroupOrder(): void
+    {
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(CookieGroupCollectEvent::class, static function (CookieGroupCollectEvent $event): void {
+            $event->cookieGroupCollection
+                ->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL)
+                ?->getEntries()
+                ?->add(new CookieEntry('statistical-cookie'));
+            $event->cookieGroupCollection
+                ->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING)
+                ?->getEntries()
+                ?->add(new CookieEntry('marketing-cookie'));
+        });
+
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        $cookieGroups = (new CookieProvider(
+            $eventDispatcher,
+            $translator,
+            static::createStub(ScriptExecutor::class),
+        ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
+
+        static::assertSame([
+            CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED,
+            CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL,
+            CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING,
+            CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES,
+        ], array_keys($cookieGroups->getElements()));
+    }
 }

@@ -84,6 +84,36 @@ class LegacyCookieProviderBridgePassTest extends TestCase
         static::assertTrue($container->hasDefinition(LegacyCookieProviderBridge::class));
     }
 
+    #[IgnoreDeprecations]
+    public function testDecoratorOfAppCookieProviderIsReportedAsDeprecation(): void
+    {
+        $container = $this->createContainer();
+        $container->register('extension.cookie_provider', 'Extension\CookieProvider')
+            ->setDecoratedService(AppCookieProvider::class);
+
+        $this->expectUserDeprecationMessageMatches('/The service "extension\.cookie_provider" \(Extension\\\\CookieProvider\) decorates or replaces/');
+
+        (new LegacyCookieProviderBridgePass())->process($container);
+
+        static::assertTrue($container->hasDefinition(LegacyCookieProviderBridge::class));
+    }
+
+    #[IgnoreDeprecations]
+    public function testTransitiveDecoratorRegisteredBeforeTargetIsReportedAsDeprecation(): void
+    {
+        $container = $this->createContainer();
+        $container->register('extension.outer_cookie_provider', 'Extension\OuterCookieProvider')
+            ->setDecoratedService('extension.inner_cookie_provider');
+        $container->register('extension.inner_cookie_provider', 'Extension\InnerCookieProvider')
+            ->setDecoratedService(AppCookieProvider::class);
+
+        $this->expectUserDeprecationMessageMatches('/The service "extension\.outer_cookie_provider" \(Extension\\\\OuterCookieProvider\) decorates or replaces/');
+
+        (new LegacyCookieProviderBridgePass())->process($container);
+
+        static::assertTrue($container->hasDefinition(LegacyCookieProviderBridge::class));
+    }
+
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();

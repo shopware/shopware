@@ -57,14 +57,14 @@ class SubscriptionValidatorTest extends TestCase
     {
         $refusals = $this->validator->validate(['hook' => 'unknown.event'], ['hook' => []], $this->subscriber, Context::createDefaultContext());
 
-        static::assertEquals(new SubscriptionRefusals(notHookable: ['hook']), $refusals);
+        static::assertEquals(new SubscriptionRefusals(notHookable: ['hook' => 'unknown.event']), $refusals);
     }
 
     public function testPolicyRefusalIsReported(): void
     {
         $refusals = $this->validator->validate(['hook' => 'order.written'], ['hook' => []], $this->subscriber, Context::createDefaultContext());
 
-        static::assertEquals(new SubscriptionRefusals(notPermitted: ['hook']), $refusals);
+        static::assertEquals(new SubscriptionRefusals(notPermitted: ['hook' => 'order.written']), $refusals);
     }
 
     public function testMissingPrivilegesAreReported(): void

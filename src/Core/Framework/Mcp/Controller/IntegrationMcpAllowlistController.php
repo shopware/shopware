@@ -48,12 +48,7 @@ class IntegrationMcpAllowlistController
     )]
     public function save(string $integrationId, Request $request, Context $context): Response
     {
-        $integration = $this->integrationRepository
-            ->search(new Criteria([$integrationId]), $context)
-            ->getEntities()
-            ->first();
-
-        if ($integration === null) {
+        if (!$this->integrationRepository->searchIds(new Criteria([$integrationId]), $context)->has($integrationId)) {
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 

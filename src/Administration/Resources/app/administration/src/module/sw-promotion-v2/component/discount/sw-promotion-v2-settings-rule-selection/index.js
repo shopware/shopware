@@ -23,7 +23,24 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
          */
         ruleCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-promotion-v2-settings-rule-selection.ruleCriteria is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.',
+            );
+
             return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC', false));
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - will be removed with `ruleCriteria`, the rule select then uses its default rule filter
+         */
+        ruleCriteriaDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return undefined;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.ruleCriteria);
         },
     },
 };

@@ -61,8 +61,3 @@ export default class ExtensionHelperService {
         };
     }
 }
-
-/**
- * @private
- */
-export type { ExtensionHelperService };

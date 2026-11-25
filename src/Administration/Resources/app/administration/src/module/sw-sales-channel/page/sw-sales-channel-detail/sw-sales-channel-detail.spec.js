@@ -5,6 +5,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();
@@ -12,6 +13,18 @@ const mockCreateRepository = jest.fn();
 const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
 const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
 const mockGetCustomFieldSets = jest.fn(() => Promise.resolve([]));
+
+/**
+ * The real system config API service, so the deprecated `getConfig()` still runs its guard, with each schema
+ * request answered by `mockGetSystemConfig`.
+ */
+function createSystemConfigApiService() {
+    const httpClient = {
+        get: async (url, { params }) => ({ data: await mockGetSystemConfig(params.domain) }),
+    };
+
+    return new SystemConfigApiService(httpClient, { getToken: () => 'token' });
+}
 
 const defaultSalesChannelResponse = {
     id: '1a2b3c4d',
@@ -146,11 +159,10 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
                 },
-                systemConfigApiService: {
-                    getConfig: mockGetSystemConfig,
+                systemConfigApiService: Object.assign(createSystemConfigApiService(), {
                     getValues: mockGetSystemConfigValues,
                     batchSave: () => Promise.resolve(),
-                },
+                }),
                 customFieldDataProviderService: {
                     getCustomFieldSets: mockGetCustomFieldSets,
                 },

@@ -9,6 +9,7 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-a
         const check: SystemHealthCheck = {
             name: 'AppUrlVerification',
             category: 'EXTERNAL',
+            tags: [],
             result: {
                 status: 'ERROR',
                 healthy: false,

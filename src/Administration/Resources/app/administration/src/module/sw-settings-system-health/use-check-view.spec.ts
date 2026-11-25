@@ -9,6 +9,7 @@ describe('module/sw-settings-system-health/use-check-view', () => {
             check: {
                 name: 'MyCheck',
                 category: 'FEATURE',
+                tags: [],
                 result: {
                     status: 'OK',
                     healthy: true,
@@ -24,7 +25,7 @@ describe('module/sw-settings-system-health/use-check-view', () => {
     });
 
     it('should give empty details for a check that never ran', () => {
-        const { extra, status } = useCheckView({ check: { name: 'MyCheck', category: 'FEATURE', result: null } });
+        const { extra, status } = useCheckView({ check: { name: 'MyCheck', category: 'FEATURE', tags: [], result: null } });
 
         expect(extra.value).toEqual({});
         expect(status.value).toBeNull();

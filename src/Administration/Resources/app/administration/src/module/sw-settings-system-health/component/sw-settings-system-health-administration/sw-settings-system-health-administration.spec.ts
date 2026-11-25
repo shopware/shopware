@@ -9,6 +9,7 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-a
         const check: SystemHealthCheck = {
             name: 'AdministrationReadiness',
             category: 'FEATURE',
+            tags: [],
             result: {
                 status: 'FAILURE',
                 healthy: false,

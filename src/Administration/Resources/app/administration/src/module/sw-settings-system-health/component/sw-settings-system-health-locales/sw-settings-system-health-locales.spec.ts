@@ -9,6 +9,7 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-l
         const check: SystemHealthCheck = {
             name: 'LocalesReadiness',
             category: 'SYSTEM',
+            tags: [],
             result: {
                 status: 'WARNING',
                 healthy: false,

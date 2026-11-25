@@ -10,10 +10,70 @@ component sw-order-state-history-card  public  js
   source src/module/sw-order/component/sw-order-state-history-card/index.js
   template src/module/sw-order/component/sw-order-state-history-card/sw-order-state-history-card.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  orderService
+  orderStateMachineService
+  repositoryFactory
+  stateMachineService
+  swOrderDetailAskAndSaveEdits
+
+props
+  isLoading?: boolean  default=false
+  order: object
+  title: string
+
+emits
+  options-change(...args: any[])
+  order-state-change(...args: any[])
+
+data
+  currentActionName: any
+  currentStateType: any
+  deliveryHistory: any
+  deliveryOptions: any
+  modalConfirmed: any
+  orderHistory: any
+  orderOptions: any
+  showModal: any
+  statesLoading: any
+  technicalName: any
+  transactionHistory: any
+  transactionOptions: any
+
+computed
+  delivery: any
+  mailTemplateRepository: any
+  stateMachineHistoryCriteria: any
+  stateMachineHistoryRepository: any
+  stateMachineStateRepository: any
+  transaction: any
+
+methods
+  buildStateHistory(entity: any, fetchedEntries: any): any
+  buildTransitionOptions(stateMachineName: any, allTransitions: any, possibleTransitions: any): any
+  createStateChangeErrorNotification(errorMessage: any): any
+  createdComponent(): any
+  fetchEntries(ids: any, allEntries: any): any
+  getAllStates(): any
+  getStateHistoryEntries(): Promise<any>
+  getTransitionOptions(): Promise<any>
+  loadHistory(): any
+  onCancelCreation(): any
+  onDeliveryStateSelected(actionName: any): Promise<any>
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any = true, internalComment?: any = null): any
+  onOrderStateSelected(actionName: any): Promise<any>
+  onTransactionStateSelected(actionName: any): Promise<any>
+  stateMachineStateCriteria(): any
+
 blocks
   sw_order_state_history_card
     sw_order_state_change_card_modal
-    sw_order_state_history_card_container
+    sw_order_state_history_card_container  [after v-if]
       sw_order_state_history_card_delivery
       sw_order_state_history_card_order
       sw_order_state_history_card_transaction

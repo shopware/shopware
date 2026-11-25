@@ -10,20 +10,67 @@ component sw-settings-search-searchable-content  public  js
   source src/module/sw-settings-search/component/sw-settings-search-searchable-content/index.js
   template src/module/sw-settings-search/component/sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  productSearchConfigs?: object  default=factory
+  searchConfigId: string
+
+emits
+  edit-change(...args: any[])
+
+data
+  defaultTab: any
+  fieldConfigs: any
+  isEnabledReset: any
+  isLoading: any
+  searchConfigFields: any
+  showExampleModal: any
+  tabNames: object
+    customTab: any
+    generalTab: any
+
+computed
+  getProductSearchFieldColumns: any
+  isListEmpty: any
+  productSearchFieldCriteria: any
+  productSearchFieldRepository: any
+  searchableContentTabs: any
+  storefrontEsEnable: any
+
+methods
+  createNewConfigItem(): any
+  deleteConfig(configFieldId: any): any
+  getConfigFieldDefault(fieldName: any): any
+  getProductSearchFieldsList(): any
+  loadData(): any
+  onAddNewConfig(): any
+  onChangeTab(tabContent: any): any
+  onCloseExampleModal(): any
+  onResetToDefault(): any
+  onShowExampleModal(): any
+  saveConfig(): any
+
 blocks
   sw_settings_search_searchable_content
     sw_settings_search_searchable_actions
       sw_settings_search_searchable_add_item
-      sw_settings_search_searchable_reset_default
-      sw_settings_search_searchable_show_example
-        sw_settings_search_searchable_show_example_link_element
-          sw_settings_search_searchable_show_example_link
+      sw_settings_search_searchable_reset_default  [after v-if]
+      sw_settings_search_searchable_show_example  [after v-if] [deprecated tag:v6.8.0]
+        sw_settings_search_searchable_show_example_link_element  [after v-if] [deprecated tag:v6.8.0]
+          sw_settings_search_searchable_show_example_link  [after v-if]
       sw_settings_search_searchable_show_example_modal
     sw_settings_search_searchable_content_tabs
-      sw_settings_search_searchable_content_general_tab_item  [until v6.8.0]
-      sw_settings_search_searchable_content_general_tab_title  [until v6.8.0]
+      sw_settings_search_searchable_content_general_tab_item  [scope: active] [until v6.8.0]
+      sw_settings_search_searchable_content_general_tab_title  [scope: active] [until v6.8.0]
       sw_settings_search_searchable_content_mt_content  [from v6.8.0]
-        sw_settings_search_searchable_content_mt_customfields_tab_item  [from v6.8.0]
+        sw_settings_search_searchable_content_mt_customfields_tab_item  [after v-if] [from v6.8.0]
         sw_settings_search_searchable_content_mt_general_tab_item  [from v6.8.0]
       sw_settings_search_searchable_content_mt_tabs  [from v6.8.0]
     sw_settings_search_searchable_content_title

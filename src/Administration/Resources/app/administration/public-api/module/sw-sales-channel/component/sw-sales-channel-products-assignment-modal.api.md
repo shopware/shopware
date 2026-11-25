@@ -10,6 +10,61 @@ component sw-sales-channel-products-assignment-modal  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/sw-sales-channel-products-assignment-modal.html.twig
 
+inject
+  feature
+
+props
+  isAssignProductLoading: boolean
+  salesChannel: object
+
+emits
+  modal-close(...args: any[])
+  products-add(...args: any[])
+
+data
+  activeTab: any
+  categoryContainerStyle: object
+    display: any
+    placeItems: any
+  categoryProducts: any
+  groupProducts: any
+  isProductLoading: any
+  productContainerStyle: object
+    display: any
+    placeItems: any
+  productGroupContainerStyle: object
+    display: any
+    placeItems: any
+  selections: object
+    categoryProducts: object
+      ids: any
+      total: any
+    groupProducts: object
+      ids: any
+      total: any
+    singleProducts: object
+      ids: any
+      total: any
+  singleProducts: any
+  tabContentHeight: any
+
+computed
+  localProducts: any
+  productAssignmentTabs: any
+  productCount: any
+  products: any
+  selection: any
+
+methods
+  getCategoryContainerStyle(): any
+  getProductContainerStyle(): any
+  getProductGroupContainerStyle(): any
+  mountedComponent(): any
+  onAddProducts(): any
+  onChangeSelection(products: any, type: any, selection?: any = null): any
+  onCloseModal(): any
+  setProductLoading(isProductLoading: any): any
+
 blocks
   sw_sales_channel_products_assignment_modal
     sw_sales_channel_products_assignment_modal_footer_cancel
@@ -20,10 +75,18 @@ blocks
         sw_sales_channel_products_assignment_modal_mt_tab_content_dynamic_product_groups  [from v6.8.0]
         sw_sales_channel_products_assignment_modal_mt_tab_content_single_products  [from v6.8.0]
       sw_sales_channel_products_assignment_modal_mt_tabs  [from v6.8.0]
-      sw_sales_channel_products_assignment_modal_tab_content_categories  [until v6.8.0]
-      sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups  [until v6.8.0]
-      sw_sales_channel_products_assignment_modal_tab_content_single_products  [until v6.8.0]
-      sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups  [until v6.8.0]
-      sw_sales_channel_products_assignment_modal_tabs_categories  [until v6.8.0]
-      sw_sales_channel_products_assignment_modal_tabs_single_products  [until v6.8.0]
+      sw_sales_channel_products_assignment_modal_tab_content_categories  [scope: active] [until v6.8.0]
+      sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups  [scope: active] [until v6.8.0]
+      sw_sales_channel_products_assignment_modal_tab_content_single_products  [scope: active] [until v6.8.0]
+      sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups  [scope: active] [until v6.8.0]
+      sw_sales_channel_products_assignment_modal_tabs_categories  [scope: active] [until v6.8.0]
+      sw_sales_channel_products_assignment_modal_tabs_single_products  [scope: active] [until v6.8.0]
+
+refs
+  category  -> sw-sales-channel-product-assignment-categories  block=sw_sales_channel_products_assignment_modal_mt_tab_content_categories  [from v6.8.0]
+  category  -> sw-sales-channel-product-assignment-categories  block=sw_sales_channel_products_assignment_modal_tab_content_categories  [until v6.8.0]
+  product  -> sw-sales-channel-products-assignment-single-products  block=sw_sales_channel_products_assignment_modal_mt_tab_content_single_products  [from v6.8.0]
+  product  -> sw-sales-channel-products-assignment-single-products  block=sw_sales_channel_products_assignment_modal_tab_content_single_products  [until v6.8.0]
+  productGroup  -> sw-sales-channel-products-assignment-dynamic-product-groups  block=sw_sales_channel_products_assignment_modal_mt_tab_content_dynamic_product_groups  [from v6.8.0]
+  productGroup  -> sw-sales-channel-products-assignment-dynamic-product-groups  block=sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups  [until v6.8.0]
 ```

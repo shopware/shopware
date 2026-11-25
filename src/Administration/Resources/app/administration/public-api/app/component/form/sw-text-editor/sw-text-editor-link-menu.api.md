@@ -11,6 +11,47 @@ component sw-text-editor-link-menu  private  ts  [private]
   template src/app/component/form/sw-text-editor/sw-text-editor-link-menu/sw-text-editor-link-menu.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  buttonConfig: object  [private]
+
+emits
+  button-click(...args: any[])  [private]
+  mounted(...args: any[])  [private]
+
+data
+  buttonVariant: any  [private]
+  buttonVariantList: any  [private]
+  categoryCollection: any  [private]
+  displayAsButton: any  [private]
+  isHTTPs: any  [private]
+  linkCategory: any  [private]
+  linkTarget: any  [private]
+  linkTitle: any  [private]
+  opensNewTab: any  [private]
+
+computed
+  categoryRepository: RepositoryType<'category'>  [private]
+  entityFilter: CriteriaType  [private]
+  linkCategoryOptions: any  [private]
+  seoUrlReplacePrefix: string  [private]
+
+methods
+  addProtocolToLink(link: string): string  [private]
+  createdComponent(): void  [private]
+  getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollection<'category'>>  [private]
+  getEmptyCategoryCollection(): EntityCollection<'category'>  [private]
+  mountedComponent(): void  [private]
+  onSelectFieldChange(category: LinkCategories): void  [private]
+  parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories; target: string }>  [private]
+  prepareLink(): string  [private]
+  removeCategorySelection(): void  [private]
+  removeLink(): void  [private]
+  replaceCategorySelection(category: { id: EntityKey<'category'> }): void  [private]
+  setLink(): void  [private]
+
 blocks
   sw_text_editor_toolbar_button_link_menu  [private]
     sw_text_editor_toolbar_button_link_menu_buttons  [private]
@@ -19,13 +60,20 @@ blocks
     sw_text_editor_toolbar_button_link_menu_content  [private]
       sw_text_editor_toolbar_button_link_menu_content_type  [private]
       sw_text_editor_toolbar_button_link_menu_content_type_button_type  [private]
-      sw_text_editor_toolbar_button_link_menu_content_type_display_as_button  [private]
+      sw_text_editor_toolbar_button_link_menu_content_type_display_as_button  [after v-if] [private]
       sw_text_editor_toolbar_button_link_menu_content_type_inputs  [private]
-        sw_text_editor_toolbar_button_link_menu_content_type_inputs_category  [private]
-        sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail  [private]
-        sw_text_editor_toolbar_button_link_menu_content_type_inputs_email  [private]
+        sw_text_editor_toolbar_button_link_menu_content_type_inputs_category  [after v-if] [private]
+        sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail  [after v-if] [private]
+        sw_text_editor_toolbar_button_link_menu_content_type_inputs_email  [after v-if] [private]
         sw_text_editor_toolbar_button_link_menu_content_type_inputs_link  [private]
-        sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone  [private]
-      sw_text_editor_toolbar_button_link_menu_content_type_inputs_media  [private]
-      sw_text_editor_toolbar_button_link_menu_content_type_opens_new_tab  [private]
+        sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone  [after v-if] [private]
+      sw_text_editor_toolbar_button_link_menu_content_type_inputs_media  [after v-if] [private]
+      sw_text_editor_toolbar_button_link_menu_content_type_opens_new_tab  [after v-if] [private]
+
+crossings
+  v-if  sw_text_editor_toolbar_button_link_menu_content_type_inputs_category -> sw_text_editor_toolbar_button_link_menu_content_type_inputs_media  [private]
+  v-if  sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail -> sw_text_editor_toolbar_button_link_menu_content_type_inputs_category  [private]
+  v-if  sw_text_editor_toolbar_button_link_menu_content_type_inputs_email -> sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail  [private]
+  v-if  sw_text_editor_toolbar_button_link_menu_content_type_inputs_link -> sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone  [private]
+  v-if  sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone -> sw_text_editor_toolbar_button_link_menu_content_type_inputs_email  [private]
 ```

@@ -68,7 +68,7 @@
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/promises": "^2.5",
         "guzzlehttp/psr7": "^2.4",
-        "horstoeko/zugferd": "^1.0.104",
+        "horstoeko/zugferd": "^1.0.116",
         "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.13.0",
         "league/flysystem-local": "^3.29.0",
@@ -94,7 +94,7 @@
         "ramsey/uuid": "^4.7",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.3",
+        "shopware/conflicts": "0.6.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.12",
@@ -157,7 +157,7 @@
         "symfony/yaml": "~7.4.23",
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
-        "twig/twig": "^3.29.0",
+        "twig/twig": "^3.31.1",
         "zircote/swagger-php": "^6.4"
     },
     "suggest": {

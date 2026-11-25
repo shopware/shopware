@@ -10,9 +10,28 @@ component sw-customer-default-addresses  public  js
   source src/module/sw-customer/component/sw-customer-default-addresses/index.js
   template src/module/sw-customer/component/sw-customer-default-addresses/sw-customer-default-addresses.html.twig
 
+inject
+  customSnippetApiService
+
+props
+  customer: object
+  customerEditMode?: boolean  default=false
+
+data
+  formattingBillingAddress: any
+  formattingShippingAddress: any
+
+computed
+  defaultBillingAddressLink: any
+  defaultShippingAddressLink: any
+
+methods
+  createdComponent(): any
+  renderFormattingAddress(): any
+
 blocks
   sw_customer_default_addresses
-    sw_customer_default_addresses_billing
+    sw_customer_default_addresses_billing  [after v-if]
       sw_customer_default_addresses_billing_postal
     sw_customer_default_addresses_shipping
       sw_customer_default_addresses_shipping_postal

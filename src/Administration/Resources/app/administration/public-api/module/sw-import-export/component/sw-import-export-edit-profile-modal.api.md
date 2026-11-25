@@ -11,11 +11,55 @@ component sw-import-export-edit-profile-modal  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-edit-profile-modal/sw-import-export-edit-profile-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+  importExportProfileMapping  [private]
+  importExportUpdateByMapping  [private]
+  repositoryFactory  [private]
+
+props
+  profile?: object  default=factory  [private]
+  show?: boolean  default=factory  [private]
+
+emits
+  profile-close(...args: any[])  [private]
+  profile-save(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+  duplicateMappings: any  [private]
+  missingRequiredFields: any  [private]
+  systemRequiredFields: any  [private]
+
+computed
+  isNew: any  [private]
+  modalTitle: any  [private]
+  profileDelimiterError: any  [private]
+  profileEnclosureError: any  [private]
+  profileNameError: any  [private]
+  profileRepository: any  [private]
+  profileSourceEntityError: any  [private]
+  profileTabs: any  [private]
+  profileTypeError: any  [private]
+  saveLabelSnippet: any  [private]
+  showValidationError: any  [private]
+
+methods
+  checkValidation(parentProfile: any): any  [private]
+  getParentProfileSelected(): Promise<any>  [private]
+  loadSystemRequiredFieldsForEntity(entityName: any): any  [private]
+  resetViolations(): any  [private]
+  saveProfile(): any  [private]
+  updateMapping(newProfile: any): any  [private]
+
 blocks
   sw_import_export_edit_profile_modal  [private]
     sw_import_export_edit_profile_modal_alert  [private]
     sw_import_export_edit_profile_modal_footer  [private]
-    sw_import_export_edit_profile_modal_tabs  [private]
+    sw_import_export_edit_profile_modal_tabs  [after v-if] [private]
       sw_import_export_edit_profile_modal_mt_tabs  [from v6.8.0] [private]
       sw_import_export_edit_profile_modal_mt_tabs_content  [from v6.8.0] [private]
         sw_import_export_edit_profile_modal_mt_tabs_advanced  [from v6.8.0] [private]
@@ -25,18 +69,18 @@ blocks
         sw_import_export_edit_profile_modal_mt_tabs_mappings  [from v6.8.0] [private]
           sw_import_export_edit_profile_modal_mt_tabs_mappings_mapping  [from v6.8.0] [private]
           sw_import_export_edit_profile_modal_mt_tabs_mappings_text  [from v6.8.0] [private]
-      sw_import_export_edit_profile_modal_tabs_advanced  [until v6.8.0] [private]
-        sw_import_export_edit_profile_modal_tabs_advanced_identifiers  [until v6.8.0] [private]
-        sw_import_export_edit_profile_modal_tabs_advanced_text  [until v6.8.0] [private]
-      sw_import_export_edit_profile_modal_tabs_field_advanced  [until v6.8.0] [private]
-      sw_import_export_edit_profile_modal_tabs_field_mappings  [until v6.8.0] [private]
-      sw_import_export_edit_profile_modal_tabs_general  [until v6.8.0] [private]
-      sw_import_export_edit_profile_modal_tabs_general_import_settings  [until v6.8.0] [private]
-      sw_import_export_edit_profile_modal_tabs_mappings  [until v6.8.0] [private]
-        sw_import_export_edit_profile_modal_tabs_mappings_mapping  [until v6.8.0] [private]
-        sw_import_export_edit_profile_modal_tabs_mappings_text  [until v6.8.0] [private]
-    sw_import_export_edit_profile_violation_modal  [private]
-      sw_import_export_edit_profile_violation_modal_footer  [private]
+      sw_import_export_edit_profile_modal_tabs_advanced  [scope: active] [until v6.8.0] [private]
+        sw_import_export_edit_profile_modal_tabs_advanced_identifiers  [scope: active] [until v6.8.0] [private]
+        sw_import_export_edit_profile_modal_tabs_advanced_text  [scope: active] [until v6.8.0] [private]
+      sw_import_export_edit_profile_modal_tabs_field_advanced  [scope: active] [until v6.8.0] [private]
+      sw_import_export_edit_profile_modal_tabs_field_mappings  [scope: active] [until v6.8.0] [private]
+      sw_import_export_edit_profile_modal_tabs_general  [scope: active] [until v6.8.0] [private]
+      sw_import_export_edit_profile_modal_tabs_general_import_settings  [scope: active] [until v6.8.0] [private]
+      sw_import_export_edit_profile_modal_tabs_mappings  [scope: active] [until v6.8.0] [private]
+        sw_import_export_edit_profile_modal_tabs_mappings_mapping  [scope: active] [until v6.8.0] [private]
+        sw_import_export_edit_profile_modal_tabs_mappings_text  [scope: active] [until v6.8.0] [private]
+    sw_import_export_edit_profile_violation_modal  [after v-if] [private]
+      sw_import_export_edit_profile_violation_modal_footer  [after v-if] [private]
       sw_import_export_edit_profile_violation_modal_message  [private]
       sw_import_export_edit_profile_violation_modal_required_fields  [private]
         sw_import_export_edit_profile_violation_modal_required_field  [private]

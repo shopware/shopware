@@ -11,8 +11,32 @@ component sw-sales-channel-create  public  js
   source src/module/sw-sales-channel/page/sw-sales-channel-create/index.js
   template src/module/sw-sales-channel/page/sw-sales-channel-create/sw-sales-channel-create.html.twig
 
+inject
+  systemConfigApiService
+
+computed
+  allowSaving: any
+
+methods
+  createEmptyMeasurementUnits(): any
+  createdComponent(): any
+  ensureDefaultLanguageInCollection(languageId: any): any
+  getMeasurementUnits(): any
+  onSave(): any
+  saveFinish(): any
+  setMeasurementUnits(): Promise<any>
+
 blocks
-  sw_sales_channel_detail_content_language_info
-  sw_sales_channel_detail_content_tabs
-  sw_sales_channel_detail_language_switch
+  sw_sales_channel_detail  [inherited]
+    sw_sales_channel_detail_actions  [inherited]
+      sw_sales_channel_detail_actions_save  [inherited]
+    sw_sales_channel_detail_content  [inherited]
+      sw_sales_channel_detail_agentic_commerce_deprecation_banner  [inherited]
+      sw_sales_channel_detail_content_language_info  [replaced]
+      sw_sales_channel_detail_content_tabs  [replaced] [after v-if]
+      sw_sales_channel_detail_content_view  [inherited] [after v-if]
+    sw_sales_channel_detail_header  [inherited]
+      sw_sales_channel_detail_header_headline  [inherited]
+    sw_sales_channel_detail_language_switch  [replaced]
+    sw_sales_channel_detail_sidebar  [inherited]
 ```

@@ -3080,21 +3080,7 @@
     }
   },
   "src/app/plugin/shortcut.plugin.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "complexity": {
-      "count": 1
-    },
     "filename-rules/not-match": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "src/app/plugin/shortcut.plugin.spec.js": {
-    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
@@ -4585,7 +4571,7 @@
       "count": 4
     },
     "@typescript-eslint/no-restricted-types": {
-      "count": 40
+      "count": 39
     },
     "max-lines": {
       "count": 1
@@ -9927,11 +9913,6 @@
       "count": 1
     },
     "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/sw-promotion-v2-cart-condition-form.spec.js": {
-    "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },

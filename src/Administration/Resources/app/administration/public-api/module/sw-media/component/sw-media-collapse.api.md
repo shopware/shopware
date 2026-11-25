@@ -11,8 +11,23 @@ component sw-media-collapse  public  js
   source src/module/sw-media/component/sw-media-collapse/index.js
   template src/module/sw-media/component/sw-media-collapse/sw-media-collapse.html.twig
 
+props
+  title: string
+
+slots
+  content  {}  block=sw_collapse_panel_content
+  header  { ...{ expanded } }  block=sw_collapse_panel_header
+
+computed
+  collapseButtonClass: any
+  expandButtonClass: any
+
 blocks
-  sw_collapse_panel_header_slot
-    sw_media_collapse_buttons
-    sw_media_collapse_title
+  sw_collapse_panel  [inherited]
+    sw_collapse_panel_content  [inherited]
+      sw_collapse_panel_content_slot  [inherited]
+    sw_collapse_panel_header  [inherited]
+      sw_collapse_panel_header_slot  [replaced]
+        sw_media_collapse_buttons
+        sw_media_collapse_title
 ```

@@ -11,6 +11,24 @@ component sw-generic-seo-general-card  private  ts  [private]
   template src/module/sw-custom-entity/component/sw-generic-seo-general-card/sw-generic-seo-general-card.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  seoMetaDescription?: string | null  default=''  [private]
+  seoMetaTitle?: string | null  default=''  [private]
+  seoUrl?: string | null  default=''  [private]
+
+emits
+  update:seo-meta-description(...args: any[])  [private]
+  update:seo-meta-title(...args: any[])  [private]
+  update:seo-url(...args: any[])  [private]
+
+methods
+  emitSeoMetaDescription(seoMetaDescription: string): any  [private]
+  emitSeoMetaTitle(seoMetaTitle: string): any  [private]
+  emitSeoUrl(seoUrl: string): any  [private]
+
 blocks
   sw_generic_seo_general_card  [private]
 ```

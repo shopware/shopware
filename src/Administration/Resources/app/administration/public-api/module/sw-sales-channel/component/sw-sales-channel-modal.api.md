@@ -10,14 +10,41 @@ component sw-sales-channel-modal  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-modal/sw-sales-channel-modal.html.twig
 
+inject
+  repositoryFactory
+
+emits
+  modal-close(...args: any[])
+
+data
+  detailType: any
+  productStreamsExist: any
+  productStreamsLoading: any
+
+computed
+  addChannelAction: any
+  modalTitle: any
+  productStreamRepository: any
+
+methods
+  createdComponent(): any
+  isProductComparisonSalesChannelType(salesChannelTypeId: any): any
+  onAddChannel(id: any): any
+  onCloseModal(): any
+  onGridOpenDetails(detailType: any): any
+  openRoute(route: any): any
+
 blocks
   sw_sales_channel_modal
-    sw_sales_channel_modal_detail
+    sw_sales_channel_modal_detail  [after v-if]
     sw_sales_channel_modal_footer
-      sw_sales_channel_modal_footer_actions
-        sw_sales_channel_modal_footer_cancel
+      sw_sales_channel_modal_footer_actions  [after v-if]
+        sw_sales_channel_modal_footer_cancel  [after v-if]
       sw_sales_channel_modal_footer_detail_actions
-        sw_sales_channel_modal_footer_add_channel
+        sw_sales_channel_modal_footer_add_channel  [after v-if]
         sw_sales_channel_modal_footer_back
     sw_sales_channel_modal_grid
+
+crossings
+  v-if  sw_sales_channel_modal_grid -> sw_sales_channel_modal_detail
 ```

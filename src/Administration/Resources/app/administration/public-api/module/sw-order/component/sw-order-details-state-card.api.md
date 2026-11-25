@@ -10,6 +10,64 @@ component sw-order-details-state-card  public  js
   source src/module/sw-order/component/sw-order-details-state-card/index.js
   template src/module/sw-order/component/sw-order-details-state-card/sw-order-details-state-card.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  orderStateMachineService
+  repositoryFactory
+  stateMachineService
+  stateStyleDataProviderService
+  swOrderDetailAskAndSaveEdits
+
+props
+  disabled?: boolean  default=false
+  entity: object
+  isLoading?: boolean  default=false
+  order: object
+  position?: string  default=''
+  stateLabel?: string  default=''
+  title?: string  default=''
+
+emits
+  save-edits(...args: any[])
+  show-status-history(...args: any[])
+
+slots
+  default  {}  block=sw_order_state_change_card_content
+
+data
+  currentActionName: any
+  lastStateChange: any
+  showStateChangeModal: any
+  stateChangeModalConfirmed: any
+  stateOptions: any
+  statesLoading: any
+
+computed
+  cardPosition: any
+  entityName: any
+  lastChangeAuthorLabel: any
+  stateMachineHistoryCriteria: any
+  stateMachineHistoryRepository: any
+  stateMachineStateCriteria: any
+  stateMachineStateRepository: any
+  stateName: any
+  stateSelectBackgroundStyle: any  [deprecated tag:v6.8.0]
+  stateTransitionMethod: any
+
+methods
+  buildTransitionOptions(allTransitions: any, possibleTransitions: any): any
+  createStateChangeErrorNotification(errorMessage: any): any
+  createdComponent(): any
+  getLastChange(): any
+  getTransitionOptions(): Promise<any>
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any = true, internalComment?: any = null): any
+  onShowStatusHistory(): any
+  onStateSelected(stateType: any, actionName: any): Promise<any>
+
 blocks
   sw_order_detail_state_card
     sw_order_detail_state_card_state

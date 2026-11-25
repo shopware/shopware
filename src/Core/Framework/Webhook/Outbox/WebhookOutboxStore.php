@@ -114,7 +114,7 @@ class WebhookOutboxStore
     public function fetchDue(string $partitionKey, array $statuses, int $budget): array
     {
         $sql = <<<'SQL'
-            SELECT d.id, d.webhook_event_log_id, d.execution_count, d.delivery_status,
+            SELECT d.id, d.webhook_event_log_id, d.execution_count, d.delivery_status, d.webhook_id,
                    el.serialized_webhook_message
             FROM webhook_delivery d
             JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
@@ -143,6 +143,7 @@ class WebhookOutboxStore
 
         return array_map(
             static fn (array $row) => new OutboxEntry(
+                webhookId: $row['webhook_id'] === null ? null : Uuid::fromBytesToHex($row['webhook_id']),
                 webhookEventId: Uuid::fromBytesToHex($row['webhook_event_log_id']),
                 sequence: (int) $row['id'],
                 executionCount: (int) $row['execution_count'],
@@ -221,12 +222,13 @@ class WebhookOutboxStore
 
         // Row was just updated inside the transaction; it must still exist here.
         $row = $this->connection->fetchAssociative(
-            'SELECT execution_count, id FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            'SELECT execution_count, id, webhook_id FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => $id]
         );
         \assert($row !== false);
 
         return new OutboxEntry(
+            webhookId: $row['webhook_id'] === null ? null : Uuid::fromBytesToHex($row['webhook_id']),
             webhookEventId: $eventLogId,
             sequence: (int) $row['id'],
             executionCount: (int) $row['execution_count'],
@@ -521,6 +523,7 @@ class WebhookOutboxStore
         );
 
         return new OutboxEntry(
+            webhookId: $webhookId === false ? null : Uuid::fromBytesToHex($webhookId),
             webhookEventId: $insert->webhookEventId,
             sequence: $sequence,
             executionCount: $executionCount,

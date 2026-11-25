@@ -11,6 +11,11 @@ component sw-cms-block-image-bubble-row  private  js  [private]
   template src/module/sw-cms/blocks/image/image-bubble-row/component/sw-cms-block-image-bubble-row.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center  {}  block=sw_cms_block_image_bubble_row  [private]
+  left  {}  block=sw_cms_block_image_bubble_row  [private]
+  right  {}  block=sw_cms_block_image_bubble_row  [private]
+
 blocks
   sw_cms_block_image_bubble_row  [private]
 ```

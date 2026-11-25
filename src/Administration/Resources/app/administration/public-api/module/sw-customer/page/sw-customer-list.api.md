@@ -10,35 +10,87 @@ component sw-customer-list  public  js
   source src/module/sw-customer/page/sw-customer-list/index.js
   template src/module/sw-customer/page/sw-customer-list/sw-customer-list.html.twig
 
+mixins
+  notification, salutation, listing
+
+inject
+  acl
+  filterFactory
+  repositoryFactory
+
+data
+  activeFilterNumber: any
+  availableAffiliateCodes: any  [deprecated tag:v6.8.0]
+  availableCampaignCodes: any  [deprecated tag:v6.8.0]
+  customers: any
+  defaultFilters: any
+  filterCriteria: any
+  filterLoading: any  [deprecated tag:v6.8.0]
+  isLoading: any
+  naturalSorting: any
+  searchConfigEntity: any
+  showBulkEditModal: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  storeKey: any
+
+computed
+  adminEsEnable: any
+  assetFilter: any
+  customerColumns: any
+  customerRepository: any
+  defaultCriteria: any
+  emailIdnFilter: any
+  filterSelectCriteria: any  [deprecated tag:v6.8.0]
+  hasActiveSearchOrFilter: any
+  listFilterOptions: any
+  listFilters: any
+
+methods
+  createdComponent(): Promise<any>  [deprecated tag:v6.8.0]
+  getCustomerColumns(): any
+  getList(): Promise<any>
+  loadFilterValues(): Promise<any>  [deprecated tag:v6.8.0]
+  onBulkEditItems(): Promise<any>
+  onBulkEditModalClose(): any
+  onBulkEditModalOpen(): any
+  onChangeLanguage(): Promise<any>
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  onInlineEditSave(promise: any, customer: any): any
+  updateCriteria(criteria: any): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_customer_list
     sw_customer_list_content
       sw_customer_list_empty_state
-      sw_customer_list_grid
+      sw_customer_list_grid  [after v-if]
         sw_customer_list_bulk_edit_modal
-          sw_customer_list_bulk_edit_grid_columns_group
-          sw_customer_list_bulk_edit_grid_columns_name
+          sw_customer_list_bulk_edit_grid_columns_group  [scope: selection]
+          sw_customer_list_bulk_edit_grid_columns_name  [scope: selection]
         sw_customer_list_grid_action_modals
-          sw_customer_list_delete_modal
-            sw_customer_list_delete_modal_confirm_delete_text
-            sw_customer_list_delete_modal_footer
-              sw_customer_list_delete_modal_cancel
-              sw_customer_list_delete_modal_confirm
+          sw_customer_list_delete_modal  [scope: item]
+            sw_customer_list_delete_modal_confirm_delete_text  [scope: item]
+            sw_customer_list_delete_modal_footer  [scope: item]
+              sw_customer_list_delete_modal_cancel  [scope: item]
+              sw_customer_list_delete_modal_confirm  [scope: item]
         sw_customer_list_grid_columns
           sw_customer_list_grid_columns_name
-            sw_customer_list_grid_columns_name_guest_label
-            sw_customer_list_grid_columns_name_link
-            sw_customer_list_grid_inline_edit_name
-              sw_customer_list_grid_inline_edit_first_name
-              sw_customer_list_grid_inline_edit_last_name
+            sw_customer_list_grid_columns_name_guest_label  [scope: compact, isInlineEdit, item]
+            sw_customer_list_grid_columns_name_link  [after v-if] [scope: compact, isInlineEdit, item]
+            sw_customer_list_grid_inline_edit_name  [scope: compact, isInlineEdit, item]
+              sw_customer_list_grid_inline_edit_first_name  [scope: compact, isInlineEdit, item]
+              sw_customer_list_grid_inline_edit_last_name  [scope: compact, isInlineEdit, item]
           sw_product_list_grid_columns_name_preview
         sw_customer_list_grid_columns_actions
-          sw_customer_list_grid_columns_actions_delete
-          sw_customer_list_grid_columns_actions_edit
-          sw_customer_list_grid_columns_actions_view
+          sw_customer_list_grid_columns_actions_delete  [scope: item]
+          sw_customer_list_grid_columns_actions_edit  [scope: item]
+          sw_customer_list_grid_columns_actions_view  [scope: item]
         sw_customer_list_grid_columns_active
-          sw_customer_list_grid_columns_active_content
-          sw_customer_list_grid_columns_active_inline_edit
+          sw_customer_list_grid_columns_active_content  [after v-if] [scope: isInlineEdit, item]
+          sw_customer_list_grid_columns_active_inline_edit  [scope: isInlineEdit, item]
         sw_customer_list_grid_columns_boundSalesChannel
         sw_customer_list_grid_columns_createdAt
         sw_customer_list_grid_columns_group
@@ -54,4 +106,13 @@ blocks
       sw_customer_list_smart_bar_header_title
         sw_customer_list_smart_bar_header_amount
         sw_customer_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_customer_list_empty_state -> sw_customer_list_grid
+  v-if  sw_customer_list_grid_columns_active_inline_edit -> sw_customer_list_grid_columns_active_content
+  v-if  sw_customer_list_grid_inline_edit_name -> sw_customer_list_grid_columns_name_link
+
+refs
+  bulkEditModal  -> sw-bulk-edit-modal  block=sw_customer_list_bulk_edit_modal
+  swCustomerGrid  -> sw-entity-listing  block=sw_customer_list_grid
 ```

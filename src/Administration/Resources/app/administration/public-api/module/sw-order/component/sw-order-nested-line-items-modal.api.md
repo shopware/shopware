@@ -10,9 +10,32 @@ component sw-order-nested-line-items-modal  public  js
   source src/module/sw-order/component/sw-order-nested-line-items-modal/index.js
   template src/module/sw-order/component/sw-order-nested-line-items-modal/sw-order-nested-line-items-modal.html.twig
 
+inject
+  repositoryFactory
+
+props
+  lineItem: object
+  order: object
+
+emits
+  modal-close(...args: any[])
+
+data
+  isLoading: any
+
+computed
+  lineItemRepository: any
+  modalTitle: any
+
+methods
+  createdComponent(): Promise<any>
+  enrichNestedLineItems(nestedLineItems: any, nestingLevel?: any = 1): Promise<any>
+  naturalSort(a: any, b: any): any
+  onCloseModal(): any
+
 blocks
   sw_order_nested_line_item_modal
-    sw_order_nested_line_item_modal_container
+    sw_order_nested_line_item_modal_container  [after v-if]
       sw_order_nested_line_item_modal_content
       sw_order_nested_line_item_modal_header_container
         sw_order_nested_line_item_modal_header_label
@@ -23,4 +46,7 @@ blocks
     sw_order_nested_line_item_modal_footer
       sw_order_nested_line_item_modal_footer_content
     sw_order_nested_line_item_modal_loader
+
+crossings
+  v-if  sw_order_nested_line_item_modal_loader -> sw_order_nested_line_item_modal_container
 ```

@@ -19,7 +19,7 @@
 
 {% set offcanvasId = 'filter-offcanvas-' ~ random() %}
 
-{# A breakpoint the setting leaves open keeps the default, so layouts stored before the setting existed render unchanged. #}
+{# Fallback breakpoints #}
 {% set offcanvasDefaults = { xs: true, sm: true, md: true, lg: false, xl: false, xxl: false } %}
 
 {# Bootstrap's responsive offcanvas switches at one breakpoint: the first one turned off, counting up from xs. #}

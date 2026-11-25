@@ -64,7 +64,7 @@ class ProductListingComponentTest extends TestCase
      * The type must declare exactly the slots the template renders: an undeclared slot offers no drop target
      * in Studio, and a declared slot the template does not render silently swallows whatever is placed into it.
      */
-    public function testDeclaresTheSlotsTheTemplateRenders(): void
+    public function testDeclaresTheFiltersPanelProductGridAndPaginationSlots(): void
     {
         $types = static::getContainer()->get(ContentSystemElementTypeRegistry::class);
         static::assertInstanceOf(AbstractContentSystemElementTypeRegistry::class, $types);

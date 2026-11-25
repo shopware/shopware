@@ -58,7 +58,7 @@ properties:
 
 slots:
   - name: filters-panel
-    description: "Filter panel shown next to the sorting actions above the product grid."
+    description: "Filter panel shown above the product grid, next to the sorting actions from the lg breakpoint and above them on smaller breakpoints."
   - name: product-grid
     description: "Container slot for product grid rendering."
   - name: pagination

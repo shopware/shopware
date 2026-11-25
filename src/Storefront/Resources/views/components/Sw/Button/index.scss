@@ -85,7 +85,7 @@
     --sw-btn-filter-icon-size: 0.8rem;
     font-weight: normal;
     position: relative;
-    padding-right: calc(calc(var(--sw-btn-filter-icon-size) * 2) + var(--bs-btn-padding-x));
+    padding-right: calc(var(--sw-btn-filter-icon-size) * 2 + var(--bs-btn-padding-x));
     text-align: left;
 
     .sw-icon {

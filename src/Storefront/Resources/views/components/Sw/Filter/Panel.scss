@@ -14,9 +14,9 @@
     gap: 0.5rem;
 }
 
-.sw-filter-panel__expand.btn-filter,
-.sw-filter-panel__offcanvas-toggle.btn-filter {
-    --sw-btn-filter-icon-size: 1.03125rem;
+.sw-filter-panel__expand,
+.sw-filter-panel__offcanvas-toggle {
+    --sw-btn-filter-icon-size: 1.1rem;
 }
 
 .sw-filter-panel__expand {
@@ -31,6 +31,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
+    gap: var(--spacer-xs);
 
     .sw-icon {
         position: static;

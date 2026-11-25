@@ -50,7 +50,7 @@ properties:
       - "object"
     title: "Show Filters in Off-Canvas"
     titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.title"
-    description: "Breakpoints on which the panel shows only a filter button that opens the filters in an off-canvas, instead of showing the filters directly. The off-canvas switches at one breakpoint: from the first breakpoint turned off, counting up from xs, the filters are shown directly on it and every larger breakpoint."
+    description: "Breakpoints on which the panel shows only a filter button that opens the filters in an off-canvas, instead of showing the filters directly. The off-canvas switches at one breakpoint: the filters are shown directly on the first breakpoint turned off, counting up from xs, and on every larger breakpoint."
     adminUI:
       component: "switch"
       breakpointAware: true

@@ -6,7 +6,7 @@
     gap: 0.5rem;
 
     &:has(> .sw-active-filter__item) {
-        margin-top: 1rem;
+        margin-top: var(--spacer-md);
     }
 }
 

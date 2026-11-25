@@ -37,6 +37,7 @@ class TemplateDeprecationsTest extends TestCase
     public function testReportsDeprecatedTemplateApis(array $templates, array $expected): void
     {
         $twig = new Environment(new ArrayLoader($templates));
+        $twig->addExtension(new PhpSyntaxExtension());
         $twig->addFunction(new TwigFunction('feature', static fn (string $flag): bool => false));
         $deprecations = new TemplateDeprecations($twig, array_keys($templates));
         $actual = [];
@@ -54,6 +55,96 @@ class TemplateDeprecationsTest extends TestCase
      */
     public static function cases(): iterable
     {
+        yield 'conditionally created deprecated binding retains its guard across an include and fallback' => [[
+            'caller.twig' => '{% if not feature(\'v6.8.0.0\') %}{## @deprecated tag:v6.8.0 - Removed. ##}{% set old = \'Old\' %}{% endif %}{% include \'child.twig\' %}',
+            'child.twig' => '{% set old = old ?? \'Default\' %}{{ old }}',
+        ], []];
+
+        yield 'conditionally created clean input retains its presence guard at both includes' => [[
+            'input.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: \'string\'} %}',
+            'caller.twig' => "{% if not feature('v6.8.0.0') %}{% set old = 'Old' %}{% endif %}\n{% include 'input.twig' %}\n{% include 'input.twig' %}",
+        ], []];
+
+        yield 'conditionally created deprecated input retains its presence guard at both includes' => [[
+            'input.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: \'string\'} %}',
+            'caller.twig' => "{% if not feature('v6.8.0.0') %}{## @deprecated tag:v6.8.0 - Removed. ##}{% set old = 'Old' %}{% endif %}\n{% include 'input.twig' %}\n{% include 'input.twig' %}",
+        ], []];
+
+        yield 'unguarded clean replacement still supplies a deprecated input' => [[
+            'input.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: \'string\'} %}',
+            'caller.twig' => "{% if not feature('v6.8.0.0') %}{% set old = 'Old' %}{% else %}{% set old = 'New' %}{% endif %}\n{% include 'input.twig' %}",
+        ], [
+            ['caller.twig', 2, 'Template input "old" is deprecated: tag:v6.8.0 - Removed. (declared in "input.twig").'],
+        ]];
+
+        yield 'unguarded occurrence of the same declaration is not hidden by a guarded path' => [[
+            'base.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: 'string'} %}{% if not feature('v6.8.0.0') %}{% set value = 'Legacy' %}{% else %}{% set value = 'Modern' %}{% endif %}\n{{ old }}",
+        ], [
+            ['base.twig', 2, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "base.twig").'],
+        ]];
+
+        yield 'active removal flag does not make a conditional binding compatible' => [[
+            'base.twig' => "{% if feature('v6.8.0.0') %}{## @deprecated tag:v6.8.0 - Removed. ##}{% set old = 'Old' %}{% endif %}\n{{ old }}",
+        ], [
+            ['base.twig', 2, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "base.twig").'],
+        ]];
+
+        yield 'input presence guard must match the target removal version' => [[
+            'input.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: \'string\'} %}',
+            'caller.twig' => "{% if not feature('v6.9.0.0') %}{% set old = 'Old' %}{% endif %}\n{% include 'input.twig' %}",
+        ], [
+            ['caller.twig', 2, 'Template input "old" is deprecated: tag:v6.8.0 - Removed. (declared in "input.twig").'],
+        ]];
+
+        yield 'modern replacement or guarded legacy input survive a terminating alternative' => [[
+            'base.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: 'array'} %}\n{% if modern ?? null %}{% set old = modern %}{% elseif not feature('v6.8.0.0') and (old ?? null) %}{% else %}{% return %}{% endif %}\n{% set last = old|last %}\n{% for item in old %}{{ item }}{% endfor %}",
+        ], []];
+
+        yield 'later ternary selects the correlated modern or guarded legacy branch' => [[
+            'base.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: 'array'} %}\n{% if feature('NEW_FLOW') %}{% if modern ?? null %}{% set old = modern %}{% elseif not feature('v6.8.0.0') and (old ?? null) %}{% else %}{% return %}{% endif %}{% else %}{% set legacy = [] %}{% endif %}\n{% for item in (feature('NEW_FLOW') ? old : legacy) %}{{ item }}{% endfor %}",
+        ], []];
+
+        yield 'an include preserves named feature facts and excludes contradictory callee branches' => [[
+            'child.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: 'array'} %}\n{% if feature('NEW_FLOW') %}{% if modern ?? null %}{% set old = modern %}{% elseif not feature('v6.8.0.0') and (old ?? null) %}{% else %}{% return %}{% endif %}{% else %}{% set legacy = [] %}{% endif %}\n{% for item in (feature('NEW_FLOW') ? old : legacy) %}{{ item }}{% endfor %}",
+            'caller.twig' => '{% if not feature(\'NEW_FLOW\') %}{% include \'child.twig\' only %}{% endif %}',
+        ], []];
+
+        yield 'a reachable unsafe branch is retained when a later ternary selects it' => [[
+            'base.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: 'array'} %}\n{% if feature('NEW_FLOW') %}{% if not feature('v6.8.0.0') %}{% set unused = true %}{% else %}{% return %}{% endif %}{% endif %}\n{{ feature('NEW_FLOW') ? [] : old }}",
+        ], [
+            ['base.twig', 3, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "base.twig").'],
+        ]];
+
+        yield 'nonterminating alternative keeps the unguarded input occurrence' => [[
+            'base.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: 'array'} %}\n{% if modern ?? null %}{% set old = modern %}{% elseif not feature('v6.8.0.0') and (old ?? null) %}{% else %}{% set unused = true %}{% endif %}\n{{ old|length }}",
+        ], [
+            ['base.twig', 3, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "base.twig").'],
+        ]];
+
+        yield 'returning from an included template does not terminate its caller' => [[
+            'child.twig' => '{% return %}',
+            'caller.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% set old = 'Old' %}{% include 'child.twig' %}\n{{ old }}",
+        ], [
+            ['caller.twig', 2, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "caller.twig").'],
+        ]];
+
+        yield 'all returning nested alternatives exclude the legacy input path' => [[
+            'base.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: 'array'} %}\n{% if modern ?? null %}{% set old = modern %}{% else %}{% if condition %}{% return %}{% else %}{% return %}{% endif %}{% endif %}\n{{ old|length }}",
+        ], []];
+
+        yield 'named creation guard does not prove compatibility of a later read' => [[
+            'base.twig' => "{% if not feature('SOME_FEATURE') %}{## @deprecated tag:v6.8.0 - Removed. ##}{% set old = 'Old' %}{% endif %}\n{{ old }}",
+        ], [
+            ['base.twig', 2, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "base.twig").'],
+        ]];
+
+        yield 'a conditional type declaration does not conditionally create the input value' => [[
+            'input.twig' => '{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: \'string\'} %}',
+            'caller.twig' => "{% if not feature('v6.8.0.0') %}{% types {old?: 'string'} %}{% endif %}\n{% include 'input.twig' %}",
+        ], [
+            ['caller.twig', 2, 'Template input "old" is deprecated: tag:v6.8.0 - Removed. (declared in "input.twig").'],
+        ]];
+
         yield 'documentation on a single set declaration deprecates its binding' => [[
             'base.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% set old = 'Old' %}\n{{ old }}",
         ], [

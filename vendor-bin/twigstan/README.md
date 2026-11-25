@@ -132,7 +132,11 @@ The Storefront loader registers the core Storefront template directory.
 
 Compatibility reads and deprecated input calls guarded by the matching inactive removal-version feature flag are accepted.
 This reuses Core's `FeatureFlagGuard` for direct boolean feature conditions, including `and`, `or` and `else` branches.
-Named flags and unrelated removal versions do not suppress findings.
+Named flags alone and unrelated removal versions do not suppress findings.
+Bindings retain the major flags proven inactive when they are created or forwarded, including through inherited contexts and includes.
+Branch merges retain a proof only when it holds on every path where that binding can reach the usage; terminating `return` branches do not contribute.
+Repeated literal feature checks and ternary arms select the matching binding alternatives.
+Input checks also track clean bindings, so an unguarded replacement passed under a deprecated input name still reports a diagnostic.
 A guard inside an overriding block does not suppress the deprecated override itself.
 These annotations and diagnostics do not remove blocks or change rendered output.
 

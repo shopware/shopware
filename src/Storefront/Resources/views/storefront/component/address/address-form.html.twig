@@ -48,7 +48,7 @@
         } %}
 
         {% set arrangement = config('core.loginRegistration.addressInputFieldArrangement') %}
-        {## @deprecated tag:v6.8.0 - Variable will be removed ##}
+        {# @deprecated tag:v6.8.0 - Variable will be removed #}
         {% set isOldArrangement = not feature('v6.8.0.0') and (arrangement === 'city-zip-state' or arrangement === 'zip-city-state') %}
 
         {# @deprecated tag:v6.8.0 - Only condition will be removed #}

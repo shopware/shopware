@@ -17,10 +17,12 @@
     {% else %}
         {% if category ?? null %}
             {% set breadcrumbCategories = sw_breadcrumb_full(category, context) %}
+            {% set activeId = category.id %}
             {## @deprecated tag:v6.8.0 - Variable `categoryId` will be replaced by `activeId` ##}
-            {% set categoryId = category.id %}
+            {% set categoryId = activeId %}
         {% elseif categoryId ?? null %}
             {% set breadcrumbCategories = sw_breadcrumb_full_by_id(categoryId, context) %}
+            {% set activeId = categoryId %}
         {% else %}
             {% return %}
         {% endif %}
@@ -28,8 +30,6 @@
         {% if breadcrumbCategories|length == 0 %}
             {% return %}
         {% endif %}
-
-        {% set activeId = categoryId %}
 
         {## @deprecated tag:v6.8.0 - Variable `breadcrumbKeys` will be removed, use `loop.last` instead ##}
         {% set breadcrumbKeys = breadcrumbCategories|keys %}
@@ -63,12 +63,12 @@
                             {## @deprecated tag:v6.8.0 - Variable `breadcrumbCategory` will be replaced by `breadcrumb`, which holds a `Breadcrumb` struct instead of a `CategoryEntity` ##}
                             {% set breadcrumbCategory = breadcrumb %}
                             {## @deprecated tag:v6.8.0 - Variable `key` will be replaced by `categoryId` ##}
-                            {% set key = breadcrumbCategory.id %}
-                            {% set type = breadcrumbCategory.type %}
-                            {% set name = breadcrumbCategory.translated.name %}
-                            {% set categoryUrl = breadcrumbCategory.seoUrl %}
-                            {% set shouldOpenInNewTab = breadcrumbCategory.shouldOpenInNewTab %}
-                            {% set isActive = key is same as(activeId) %}
+                            {% set key = breadcrumb.id %}
+                            {% set type = breadcrumb.type %}
+                            {% set name = breadcrumb.translated.name %}
+                            {% set categoryUrl = breadcrumb.seoUrl %}
+                            {% set shouldOpenInNewTab = breadcrumb.shouldOpenInNewTab %}
+                            {% set isActive = breadcrumb.id is same as(activeId) %}
                         {% endif %}
 
                         {% block layout_breadcrumb_list_item %}
@@ -113,7 +113,7 @@
                         {% if not feature('BREADCRUMB_REWORK') %}
                             {## @deprecated tag:v6.8.0 - Block will be removed, the separator has been moved to a CSS only solution - Extend the `layout_breadcrumb_list_item` block if needed ##}
                             {% block layout_breadcrumb_placeholder %}
-                                {% if key != breadcrumbKeys|last %}
+                                {% if not loop.last %}
                                     <div class="breadcrumb-placeholder" aria-hidden="true">
                                         {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
                                     </div>

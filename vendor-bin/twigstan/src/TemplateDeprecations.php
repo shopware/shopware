@@ -7,6 +7,7 @@ use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\FeatureFlagGuard;
+use Shopware\Core\Framework\Adapter\Twig\Node\ReturnNode;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
@@ -14,6 +15,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Node\BlockNode;
 use Twig\Node\BlockReferenceNode;
+use Twig\Node\BodyNode;
 use Twig\Node\EmbedNode;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\Binary\AndBinary;
@@ -22,6 +24,7 @@ use Twig\Node\Expression\BlockReferenceExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\FunctionExpression;
 use Twig\Node\Expression\ParentExpression;
+use Twig\Node\Expression\Ternary\ConditionalTernary;
 use Twig\Node\Expression\Test\TrueTest;
 use Twig\Node\Expression\Unary\NotUnary;
 use Twig\Node\Expression\Variable\ContextVariable;
@@ -31,6 +34,7 @@ use Twig\Node\IncludeNode;
 use Twig\Node\MacroNode;
 use Twig\Node\ModuleNode;
 use Twig\Node\Node;
+use Twig\Node\Nodes;
 use Twig\Node\SetNode;
 use Twig\Node\TypesNode;
 use Twig\Node\WithNode;
@@ -40,9 +44,11 @@ use Twig\Node\WithNode;
  *
  * @internal
  *
- * @phpstan-type Declaration array{message: string, template: string, line: int}
+ * @phpstan-type Proof array{inactive: list<string>, conditions: array<string, bool>}
+ * @phpstan-type Declaration array{message: string, template: string, line: int, proofs: list<Proof>}
  * @phpstan-type Diagnostic array{line: int, message: string, kind: string, name: string}
- * @phpstan-type Context array<string, array<string, Declaration>>
+ * @phpstan-type Binding array{declarations: array<string, Declaration>, proofs: list<Proof>}
+ * @phpstan-type Context array<string, Binding>
  * @phpstan-type Block array{template: string, node: BlockNode, module: ModuleNode}
  * @phpstan-type Blocks array<string, list<Block>>
  * @phpstan-type Frame array{blocks: Blocks, block: string|null, index: int, stack: list<string>, guards: list<array{Node, bool}>, module: ModuleNode}
@@ -66,6 +72,16 @@ final class TemplateDeprecations
      * @var array<string, bool>
      */
     private array $guardResults = [];
+
+    /**
+     * @var array<string, list<string>>
+     */
+    private array $inactiveResults = [];
+
+    /**
+     * @var array<string, list<Proof>>
+     */
+    private array $proofResults = [];
 
     /**
      * @param list<string> $templates
@@ -244,12 +260,16 @@ final class TemplateDeprecations
      */
     private function walk(Node $node, array &$context, string $owner, array $frame, bool $skipBlocks = false): void
     {
+        if ($this->proofs($frame['guards']) === []) {
+            return;
+        }
         if ($node instanceof TypesNode) {
             foreach ($node as $type) {
                 if (($declaration = $this->bindingDeclaration($type, $node, $owner)) !== null) {
-                    $context[$this->bindingName($type)] = [$this->declarationKey($declaration) => $declaration];
+                    $name = $this->bindingName($type);
+                    $context[$name] = $this->binding($declaration, $context[$name]['proofs'] ?? $this->proofs([]));
                 } else {
-                    $context[$this->bindingName($type)] ??= [];
+                    $context[$this->bindingName($type)] ??= $this->binding(null, $this->proofs([]));
                 }
             }
 
@@ -262,14 +282,14 @@ final class TemplateDeprecations
                     continue;
                 }
                 $declaration = $this->bindingDeclaration($target, $node, $owner);
-                $context[$this->bindingName($target)] = $declaration === null ? [] : [$this->declarationKey($declaration) => $declaration];
+                $context[$this->bindingName($target)] = $this->binding($declaration, $this->proofs($frame['guards']));
             }
 
             return;
         }
         if ($node instanceof ContextVariable) {
-            foreach ($context[$node->getAttribute('name')] ?? [] as $declaration) {
-                $this->report($owner, $node, 'Variable', $node->getAttribute('name'), $declaration, $frame['guards']);
+            foreach ($context[$node->getAttribute('name')]['declarations'] ?? [] as $declaration) {
+                $this->report($owner, $node, 'Variable', $node->getAttribute('name'), $declaration, $frame['guards'], $declaration['proofs']);
             }
 
             return;
@@ -280,23 +300,29 @@ final class TemplateDeprecations
             $tests = $node->getNode('tests');
             for ($i = 0; $i < \count($tests); $i += 2) {
                 $condition = $tests->getNode((string) $i);
-                $branch = $context;
-                $this->walk($condition, $branch, $owner, [...$frame, 'guards' => $guards]);
-                $this->walk($tests->getNode((string) ($i + 1)), $branch, $owner, [...$frame, 'guards' => [...$guards, [$condition, true]]], $skipBlocks);
-                $branches[] = $branch;
+                $branchGuards = [...$guards, [$condition, true]];
+                $branch = $this->inBranch($context, $branchGuards);
+                $this->walk($condition, $context, $owner, [...$frame, 'guards' => $guards]);
+                $body = $tests->getNode((string) ($i + 1));
+                $this->walk($body, $branch, $owner, [...$frame, 'guards' => $branchGuards], $skipBlocks);
+                if (!$this->terminates($body)) {
+                    $branches[] = $branch;
+                }
                 $guards[] = [$condition, false];
             }
             if ($node->hasNode('else')) {
-                $branch = $context;
+                $branch = $this->inBranch($context, $guards);
                 $this->walk($node->getNode('else'), $branch, $owner, [...$frame, 'guards' => $guards], $skipBlocks);
-                $branches[] = $branch;
+                if (!$this->terminates($node->getNode('else'))) {
+                    $branches[] = $branch;
+                }
             } else {
-                $branches[] = $context;
+                $branches[] = $this->inBranch($context, $guards);
             }
             $context = [];
             foreach ($branches as $branch) {
-                foreach ($branch as $name => $declarations) {
-                    $context[$name] = ($context[$name] ?? []) + $declarations;
+                foreach ($branch as $name => $binding) {
+                    $context[$name] = isset($context[$name]) ? $this->mergeBindings($context[$name], $binding) : $binding;
                 }
             }
 
@@ -308,17 +334,28 @@ final class TemplateDeprecations
 
             return;
         }
+        if ($node instanceof ConditionalTernary) {
+            $condition = $node->getNode('test');
+            $this->walk($condition, $context, $owner, $frame);
+            foreach (['left' => true, 'right' => false] as $side => $truthy) {
+                $guards = [...$frame['guards'], [$condition, $truthy]];
+                $branch = $this->inBranch($context, $guards);
+                $this->walk($node->getNode($side), $branch, $owner, [...$frame, 'guards' => $guards]);
+            }
+
+            return;
+        }
         if ($node instanceof ForNode) {
             $this->walk($node->getNode('seq'), $context, $owner, $frame);
             $local = $context;
             foreach (['key_target', 'value_target'] as $target) {
-                $local[$node->getNode($target)->getAttribute('name')] = [];
+                $local[$node->getNode($target)->getAttribute('name')] = $this->binding(null, $this->proofs($frame['guards']));
             }
-            $local['loop'] = [];
+            $local['loop'] = $this->binding(null, $this->proofs($frame['guards']));
             $this->walk($node->getNode('body'), $local, $owner, $frame);
-            foreach ($context as $name => $declarations) {
+            foreach ($context as $name => $binding) {
                 if (!\in_array($name, [$node->getNode('key_target')->getAttribute('name'), $node->getNode('value_target')->getAttribute('name'), 'loop'], true)) {
-                    $context[$name] += $local[$name] ?? [];
+                    $context[$name] = $this->mergeBindings($binding, $local[$name] ?? $binding);
                 }
             }
             if ($node->hasNode('else')) {
@@ -396,7 +433,7 @@ final class TemplateDeprecations
                 if ($variables instanceof ArrayExpression) {
                     foreach ($variables->getKeyValuePairs() as $pair) {
                         if (($name = $this->literal($pair['key'])) !== null) {
-                            $local[$name] = [];
+                            $local[$name] = $this->binding(null, $this->proofs($frame['guards']));
                         }
                     }
                 }
@@ -410,6 +447,9 @@ final class TemplateDeprecations
         }
         foreach ($node as $child) {
             $this->walk($child, $context, $owner, $frame, $skipBlocks);
+            if ($this->terminates($child)) {
+                break;
+            }
         }
     }
 
@@ -446,7 +486,7 @@ final class TemplateDeprecations
         if ($variables instanceof ArrayExpression) {
             foreach ($variables->getKeyValuePairs() as $pair) {
                 if (($key = $this->literal($pair['key'])) !== null) {
-                    $passed[$key] = [];
+                    $passed[$key] = $this->binding(null, $this->proofs($frame['guards']));
                 }
             }
         }
@@ -456,7 +496,7 @@ final class TemplateDeprecations
         }
         foreach ($inputs as $input => $declaration) {
             if (\array_key_exists($input, $passed)) {
-                $this->report($owner, $call, 'Template input', $input, $declaration, $frame['guards']);
+                $this->report($owner, $call, 'Template input', $input, $declaration, $frame['guards'], $passed[$input]['proofs']);
             }
         }
         $this->render($embedded ?? $name, $passed, $frame['stack'], $frame['guards']);
@@ -521,7 +561,7 @@ final class TemplateDeprecations
             return null;
         }
 
-        return ['message' => trim($match[1]), 'template' => $owner, 'line' => $node->getTemplateLine()];
+        return ['message' => trim($match[1]), 'template' => $owner, 'line' => $node->getTemplateLine(), 'proofs' => $this->proofs([])];
     }
 
     /**
@@ -532,12 +572,236 @@ final class TemplateDeprecations
         return $declaration['template'] . ':' . $declaration['line'];
     }
 
+    /**
+     * @param Declaration|null $declaration
+     * @param list<Proof> $proofs
+     *
+     * @return Binding
+     */
+    private function binding(?array $declaration, array $proofs): array
+    {
+        if ($declaration !== null) {
+            $declaration['proofs'] = $proofs;
+        }
+
+        return ['declarations' => $declaration === null ? [] : [$this->declarationKey($declaration) => $declaration], 'proofs' => $proofs];
+    }
+
+    /**
+     * @param Context $context
+     * @param list<array{Node, bool}> $guards
+     *
+     * @return Context
+     */
+    private function inBranch(array $context, array $guards): array
+    {
+        $proof = $this->proofs($guards)[0] ?? null;
+        if ($proof === null) {
+            return [];
+        }
+        if ($proof['inactive'] === [] && $proof['conditions'] === []) {
+            return $context;
+        }
+        foreach ($context as $name => $binding) {
+            $binding['proofs'] = $this->refineProofs($binding['proofs'], $proof);
+            foreach ($binding['declarations'] as $key => $declaration) {
+                $declaration['proofs'] = $this->refineProofs($declaration['proofs'], $proof);
+                $binding['declarations'][$key] = $declaration;
+            }
+            $context[$name] = $binding;
+        }
+
+        return $context;
+    }
+
+    /**
+     * @param Binding $left
+     * @param Binding $right
+     *
+     * @return Binding
+     */
+    private function mergeBindings(array $left, array $right): array
+    {
+        $left['proofs'] = $this->mergeProofs([...$left['proofs'], ...$right['proofs']]);
+        foreach ($right['declarations'] as $key => $declaration) {
+            if (isset($left['declarations'][$key])) {
+                $declaration['proofs'] = $this->mergeProofs([...$left['declarations'][$key]['proofs'], ...$declaration['proofs']]);
+            }
+            $left['declarations'][$key] = $declaration;
+        }
+
+        return $left;
+    }
+
+    /**
+     * @param list<Proof> $proofs
+     * @param Proof $guard
+     *
+     * @return list<Proof>
+     */
+    private function refineProofs(array $proofs, array $guard): array
+    {
+        $refined = [];
+        foreach ($proofs as $proof) {
+            foreach ($guard['conditions'] as $flag => $truthy) {
+                if (isset($proof['conditions'][$flag]) && $proof['conditions'][$flag] !== $truthy) {
+                    continue 2;
+                }
+            }
+            $refined[] = ['inactive' => array_values(array_unique([...$proof['inactive'], ...$guard['inactive']])), 'conditions' => $proof['conditions'] + $guard['conditions']];
+        }
+
+        return $this->mergeProofs($refined);
+    }
+
+    /**
+     * @param list<Proof> $proofs
+     *
+     * @return list<Proof>
+     */
+    private function mergeProofs(array $proofs): array
+    {
+        $merged = [];
+        foreach ($proofs as $proof) {
+            sort($proof['inactive']);
+            $key = implode(',', $proof['inactive']);
+            if (isset($merged[$key])) {
+                // Keep one conservative alternative per version proof, rather than multiplying template paths.
+                foreach ($merged[$key]['conditions'] as $flag => $truthy) {
+                    if (!isset($proof['conditions'][$flag]) || $proof['conditions'][$flag] !== $truthy) {
+                        unset($merged[$key]['conditions'][$flag]);
+                    }
+                }
+            } else {
+                $merged[$key] = $proof;
+            }
+        }
+
+        return array_values($merged);
+    }
+
+    /**
+     * @param list<array{Node, bool}> $guards
+     *
+     * @return list<Proof>
+     */
+    private function proofs(array $guards): array
+    {
+        $key = implode(',', array_map(static fn (array $guard): string => spl_object_id($guard[0]) . ':' . (int) $guard[1], $guards));
+        if (isset($this->proofResults[$key])) {
+            return $this->proofResults[$key];
+        }
+        $conditions = [];
+        foreach ($guards as [$condition, $truthy]) {
+            foreach ($this->featureConditions($condition, $truthy) as $flag => $value) {
+                if (isset($conditions[$flag]) && $conditions[$flag] !== $value) {
+                    return $this->proofResults[$key] = [];
+                }
+                $conditions[$flag] = $value;
+            }
+        }
+
+        return $this->proofResults[$key] = [['inactive' => $this->inactiveFlags($guards), 'conditions' => $conditions]];
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    private function featureConditions(Node $node, bool $truthy): array
+    {
+        if ($node instanceof TrueTest) {
+            return $this->featureConditions($node->getNode('node'), $truthy);
+        }
+        if ($node instanceof NotUnary) {
+            return $this->featureConditions($node->getNode('node'), !$truthy);
+        }
+        if (($node instanceof AndBinary && $truthy) || ($node instanceof OrBinary && !$truthy)) {
+            return $this->featureConditions($node->getNode('left'), $truthy) + $this->featureConditions($node->getNode('right'), $truthy);
+        }
+        if ($node instanceof FunctionExpression && $node->getAttribute('name') === 'feature') {
+            $arguments = $node->getNode('arguments');
+            if ($arguments->hasNode('0') && ($flag = $this->literal($arguments->getNode('0'))) !== null) {
+                return [Feature::normalizeName($flag) => $truthy];
+            }
+        }
+
+        return [];
+    }
+
+    private function terminates(Node $node): bool
+    {
+        if ($node instanceof ReturnNode) {
+            return true;
+        }
+        if ($node instanceof IfNode) {
+            if (!$node->hasNode('else') || !$this->terminates($node->getNode('else'))) {
+                return false;
+            }
+            $tests = $node->getNode('tests');
+            for ($i = 1; $i < \count($tests); $i += 2) {
+                if (!$this->terminates($tests->getNode((string) $i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        if ($node instanceof Nodes || $node instanceof BodyNode) {
+            foreach ($node as $child) {
+                if ($this->terminates($child)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param list<array{Node, bool}> $guards
+     *
+     * @return list<string>
+     */
+    private function inactiveFlags(array $guards): array
+    {
+        $key = implode(',', array_map(static fn (array $guard): string => spl_object_id($guard[0]) . ':' . (int) $guard[1], $guards));
+        if (isset($this->inactiveResults[$key])) {
+            return $this->inactiveResults[$key];
+        }
+        $expressions = array_map(fn (array $guard): PhpNode\Expr => $this->condition($guard[0]), $guards);
+        $inactive = [];
+        foreach ((new NodeFinder())->findInstanceOf($expressions, PhpNode\Expr\StaticCall::class) as $call) {
+            $flag = $call->getArgs()[0]->value ?? null;
+            if (!$flag instanceof PhpNode\Scalar\String_ || !Feature::isMajorVersionFlag($flag->value)) {
+                continue;
+            }
+            $version = $flag->value . (substr_count($flag->value, '.') === 2 ? '.0' : '');
+            if ($this->guarded('tag:' . $version, $guards)) {
+                $inactive[] = $version;
+            }
+        }
+
+        return $this->inactiveResults[$key] = array_values(array_unique($inactive));
+    }
+
     /** @param Declaration $declaration
      * @param list<array{Node, bool}> $guards
+     * @param list<Proof>|null $proofs
      */
-    private function report(string $owner, Node $node, string $kind, string $name, array $declaration, array $guards): void
+    private function report(string $owner, Node $node, string $kind, string $name, array $declaration, array $guards, ?array $proofs = null): void
     {
-        if ($kind !== 'Block override' && $this->guarded($declaration['message'], $guards)) {
+        if ($proofs !== null) {
+            $guard = $this->proofs($guards)[0] ?? null;
+            if ($guard === null) {
+                return;
+            }
+            $proofs = $this->refineProofs($proofs, $guard);
+            if ($proofs === []) {
+                return;
+            }
+        }
+        $inactive = $proofs === null ? [] : array_values(array_intersect(...array_column($proofs, 'inactive')));
+        if ($kind !== 'Block override' && $this->guarded($declaration['message'], $guards, $inactive)) {
             return;
         }
         $message = \sprintf('%s "%s" is deprecated: %s (declared in "%s").', $kind, $name, $declaration['message'], $declaration['template']);
@@ -546,14 +810,21 @@ final class TemplateDeprecations
 
     /**
      * @param list<array{Node, bool}> $guards
+     * @param list<string> $inactive
      */
-    private function guarded(string $message, array $guards): bool
+    private function guarded(string $message, array $guards, array $inactive = []): bool
     {
-        if ($guards === [] || preg_match('/\btag:(v\d+\.\d+\.\d+(?:\.\d+)?)\b/', $message, $match) !== 1) {
+        if (preg_match('/\btag:(v\d+\.\d+\.\d+(?:\.\d+)?)\b/', $message, $match) !== 1) {
             return false;
         }
         $version = $match[1] . (substr_count($match[1], '.') === 2 ? '.0' : '');
         if (!Feature::isMajorVersionFlag($version)) {
+            return false;
+        }
+        if (\in_array($version, $inactive, true)) {
+            return true;
+        }
+        if ($guards === []) {
             return false;
         }
         $code = 'deprecated_usage();';

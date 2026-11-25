@@ -51,7 +51,7 @@ class TemplateDeprecationNodeVisitorTest extends TestCase
 
     public function testOnlyAddsAnalysisDiagnosticsWithoutChangingCompiledRuntimeCode(): void
     {
-        $source = new Source("{% set\n## @deprecated tag:v6.8.0 - Removed.\nold = 'Old'\n%}{{ old }}", 'view.twig');
+        $source = new Source('{## @deprecated tag:v6.8.0 - Removed. ##}{% set old = \'Old\' %}{{ old }}', 'view.twig');
         $loader = new ArrayLoader(['view.twig' => $source->getCode()]);
         $ordinary = new Environment($loader);
         $analysis = new Environment($loader);

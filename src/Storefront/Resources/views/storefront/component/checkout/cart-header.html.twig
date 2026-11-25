@@ -17,7 +17,7 @@
     {% endif %}
 
     {% if not feature('v6.8.0.0') %}
-        {# @deprecated tag:v6.8.0 - Will be removed, use infoColumnSize with a prefix instead. #}
+        {## @deprecated tag:v6.8.0 - Will be removed, use infoColumnSize with a prefix instead. ##}
         {% set infoColumnClass = 'col-' ~ infoColumnSize %}
     {% endif %}
 

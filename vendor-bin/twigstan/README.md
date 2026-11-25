@@ -96,17 +96,23 @@ Ordinary comments remain implementation notes and do not deprecate an API.
 {## @deprecated tag:v6.8.0 - Use title instead. ##}
 {% block legacy_title %}Legacy title{% endblock %}
 
-{% set
-    ## @deprecated tag:v6.8.0 - Use label instead.
-    legacyLabel = label
-%}
+{## @deprecated tag:v6.8.0 - Use label instead. ##}
+{% set legacyLabel = label %}
+
+{## external-interface ##}
+{## @deprecated tag:v6.8.0 - Use label instead. ##}
+{% types {legacyInput?: 'string'} %}
 
 {% types {
     ## @deprecated tag:v6.8.0 - Use label instead.
-    legacyInput?: 'string',
+    otherLegacyInput?: 'string',
     label: 'string',
 } %}
 ```
+
+Documentation immediately before a single-binding `set` or single-field `types` declaration applies to that binding.
+For declarations containing multiple bindings, place inline documentation on the individual deprecated binding instead.
+Prefer the standalone form in Storefront templates while the pinned Ludtwig version does not support inline binding documentation.
 
 Overriding a deprecated block is reported even when the override does not call `parent()`.
 Explicit block calls resolve the target template and retain deprecations from ancestors and imported block aliases.

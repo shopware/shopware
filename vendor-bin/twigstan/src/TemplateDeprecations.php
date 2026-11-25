@@ -246,7 +246,7 @@ final class TemplateDeprecations
     {
         if ($node instanceof TypesNode) {
             foreach ($node as $type) {
-                if (($declaration = $this->declaration($type, $owner)) !== null) {
+                if (($declaration = $this->bindingDeclaration($type, $node, $owner)) !== null) {
                     $context[$this->bindingName($type)] = [$this->declarationKey($declaration) => $declaration];
                 } else {
                     $context[$this->bindingName($type)] ??= [];
@@ -261,7 +261,7 @@ final class TemplateDeprecations
                 if (!$target instanceof ContextVariable) {
                     continue;
                 }
-                $declaration = $this->declaration($target, $owner);
+                $declaration = $this->bindingDeclaration($target, $node, $owner);
                 $context[$this->bindingName($target)] = $declaration === null ? [] : [$this->declarationKey($declaration) => $declaration];
             }
 
@@ -470,7 +470,7 @@ final class TemplateDeprecations
         $inputs = [];
         if ($node instanceof TypesNode) {
             foreach ($node as $type) {
-                if (($declaration = $this->declaration($type, $owner)) !== null) {
+                if (($declaration = $this->bindingDeclaration($type, $node, $owner)) !== null) {
                     $inputs[$type->getAttribute('name')] = $declaration;
                 }
             }
@@ -499,6 +499,17 @@ final class TemplateDeprecations
     private function argument(Node $arguments, string $position, string $name): ?Node
     {
         return $arguments->hasNode($name) ? $arguments->getNode($name) : ($arguments->hasNode($position) ? $arguments->getNode($position) : null);
+    }
+
+    /**
+     * @return Declaration|null
+     */
+    private function bindingDeclaration(Node $binding, TypesNode|SetNode $node, string $owner): ?array
+    {
+        $bindings = $node instanceof SetNode ? $node->getNode('names') : $node;
+
+        return $this->declaration($binding, $owner)
+            ?? (\count($bindings) === 1 ? $this->declaration($node, $owner) : null);
     }
 
     /**

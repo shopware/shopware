@@ -11,7 +11,7 @@
 {% endif %}
 
 {% if not feature('v6.8.0.0') %}
-    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+    {## @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. ##}
     {% set type = addressType %}
 {% endif %}
 

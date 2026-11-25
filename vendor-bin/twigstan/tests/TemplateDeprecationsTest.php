@@ -54,6 +54,37 @@ class TemplateDeprecationsTest extends TestCase
      */
     public static function cases(): iterable
     {
+        yield 'documentation on a single set declaration deprecates its binding' => [[
+            'base.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% set old = 'Old' %}\n{{ old }}",
+        ], [
+            ['base.twig', 2, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "base.twig").'],
+        ]];
+
+        yield 'documentation on a single input declaration checks callers' => [[
+            'input.twig' => '{## external-interface ##}{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: \'string\'} %}',
+            'caller.twig' => '{% include \'input.twig\' with {old: \'Old\'} only %}',
+        ], [
+            ['caller.twig', 1, 'Template input "old" is deprecated: tag:v6.8.0 - Removed. (declared in "input.twig").'],
+        ]];
+
+        yield 'documentation on a single input declaration checks reads' => [[
+            'input.twig' => "{## @deprecated tag:v6.8.0 - Removed. ##}{% types {old?: 'string'} %}\n{{ old }}",
+        ], [
+            ['input.twig', 2, 'Variable "old" is deprecated: tag:v6.8.0 - Removed. (declared in "input.twig").'],
+        ]];
+
+        yield 'tag documentation does not deprecate multiple bindings indiscriminately' => [[
+            'base.twig' => '{## @deprecated tag:v6.8.0 - Implementation reminder. ##}{% set first, second = \'A\', \'B\' %}{{ first }}{{ second }}',
+            'input.twig' => '{## @deprecated tag:v6.8.0 - Implementation reminder. ##}{% types {first: \'string\', second: \'string\'} %}{{ first }}{{ second }}',
+            'caller.twig' => '{% include \'input.twig\' with {first: \'A\', second: \'B\'} only %}',
+        ], []];
+
+        yield 'ordinary comments do not deprecate variable or input declarations' => [[
+            'base.twig' => '{# @deprecated tag:v6.8.0 - Implementation reminder. #}{% set old = \'Old\' %}{{ old }}',
+            'input.twig' => '{# @deprecated tag:v6.8.0 - Implementation reminder. #}{% types {old: \'string\'} %}{{ old }}',
+            'caller.twig' => '{% include \'input.twig\' with {old: \'Old\'} only %}',
+        ], []];
+
         yield 'include preserves its matching inactive removal guard' => [[
             'caller.twig' => "{% set\n## @deprecated tag:v6.8.0 - Removed.\nold = 'Old'\n%}{% if not feature('v6.8.0.0') %}{% include 'child.twig' %}{% endif %}",
             'child.twig' => '{{ old }}',

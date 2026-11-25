@@ -65,7 +65,7 @@ That's why the [developer documentation](https://beta-developer.shopware.com/doc
 ## Decision
 
 1. Before a shop gets a new ShopId, or removes its apps, it keeps the secrets its apps currently accept, for 72 hours.
-   It only does this if it took over production.
+   It only does this after "Move shop permanently", which is how a copy takes over production.
 2. The shop operator takes them from the copy to production, and production registers again with them.
 3. The app protocol does not change: apps already accept a registration signed with their current secret.
 4. If the copy no longer has the secret (it was deleted, or more than 72 hours have passed), the app operator checks with the shop operator which instance is the real shop and resets the registration by hand, as today.
@@ -100,10 +100,12 @@ sequenceDiagram
 
 Getting a new ShopId or removing its apps is the last moment the copy still holds the secret production needs.
 
-The copy only keeps secrets if it took over production. It can tell from the ShopId check, which compares the stored APP_URL, installation path and sales channel domains with the running shop:
+The copy can't see whether it took over production.
+It only knows that "Move shop permanently" ran, so it assumes it took over and keeps the secrets for 72 hours as a safeguard.
+It knows from the ShopId check, which compares the stored APP_URL, installation path and sales channel domains with the running shop:
 
-- After "Move shop permanently", staging has its own details stored, like `https://staging.shop.example`, so the check passes. It took over, so it keeps the secret.
-- A fresh copy still has production's details stored, like `https://shop.example`, so the check fails. It never took over, so it keeps nothing.
+- After "Move shop permanently", staging has its own details stored, like `https://staging.shop.example`, so the check passes and it keeps the secret.
+- A fresh copy still has production's details stored, like `https://shop.example`, so the check fails and it keeps nothing.
 
 For each app, the copy keeps its current secret.
 If a registration broke off halfway, it also keeps the secret from that attempt, since the app may already expect it.
@@ -120,13 +122,12 @@ In the example, the copy stores one row like this per app in its own database:
 ### Handing it over
 
 On the copy, `app:secret:recover --list <app-name>` prints every secret the copy holds for that app, newest first, with their ShopId and expiry.
-`app:secret:recover --start <app-name>` prints only the ones production needs, as JSON with the app name for each secret.
+`app:secret:recover --start <app-name>` prints only the ones production needs, as JSON.
+With `--all` instead of `<app-name>`, it does this for every app at once, so the JSON names the app for each secret.
 Which secret that is depends on what happened on the copy:
 
 - If the copy never registered again, it still has production's secret, copied over with the database.
-- If the copy took over, it has the new secret the app generated then. It still has it after `reinstall-apps`, because it kept it for 72 hours.
-
-The command can recover all apps at once with `--all`, or a single app with `<app-name>`.
+- If the copy moved permanently, it has the new secret the app generated then. It still has it after `reinstall-apps`, because it kept it for 72 hours.
 
 On production, `app:secret:recover --finish` reads that JSON when it is pasted or piped in, never from the command line, so they stay out of the shell history.
 For each app, it registers again, signed with each secret in turn, newest first, and stops at the first one the app accepts.
@@ -174,7 +175,7 @@ Moving the secrets from the copy to production safely, for example through a pas
   The copy keeps the secret for 72 hours after it gets a new ShopId or removes its apps.
   After that, or if the copy is deleted first, only manual recovery is left.
 - **A copy that moves again keeps nothing.**
-  If the copy moves to another URL or directory after the takeover, it can no longer tell that it took over, so it keeps no secrets.
+  If the copy moves to another URL or directory after "Move shop permanently", the ShopId check fails, so it keeps no secrets.
   Production then needs manual recovery.
 - **Production isn't told.**
   Nothing tells production it was locked out.

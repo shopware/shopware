@@ -2,6 +2,7 @@ node_modules/
 .vscode
 /test-results/
 /playwright-report/
+/post-update-results/
 /playwright/.cache/
 /playwright/.auth/
 .env

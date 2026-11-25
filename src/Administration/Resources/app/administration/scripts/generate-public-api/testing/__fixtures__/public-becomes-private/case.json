@@ -1,0 +1,4 @@
+{
+    "description": "Public component became private",
+    "majorFlags": ["v6.8.0.0"]
+}

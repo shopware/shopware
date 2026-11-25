@@ -46,6 +46,7 @@ export default {
             layouts: [],
             landingPages: [],
             isLoading: false,
+            usageRequestId: 0,
         };
     },
 
@@ -76,6 +77,20 @@ export default {
             criteria.setLimit(5);
             criteria.addFilter(Criteria.contains('slotConfig.*.media.value', this.item.id));
             criteria.addFields('name');
+
+            return criteria;
+        },
+
+        productUsageCriteria() {
+            const criteria = new Criteria(1, 10);
+            criteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.contains('slotConfig.*.media.value', this.item.id),
+                    Criteria.equals('documents.translations.mediaId', this.item.id),
+                ]),
+            );
+            criteria.addFields('name');
+            criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             return criteria;
         },
@@ -156,12 +171,12 @@ export default {
 
     watch: {
         item() {
-            this.createdComponent();
+            return this.createdComponent();
         },
     },
 
     created() {
-        this.createdComponent();
+        return this.createdComponent();
     },
 
     methods: {
@@ -179,6 +194,8 @@ export default {
         },
 
         async loadSlotConfigAssociations() {
+            this.usageRequestId += 1;
+            const requestId = this.usageRequestId;
             this.isLoading = true;
 
             const canRead = (key) => canReadMediaUsageArea(this.acl, key);
@@ -191,11 +208,15 @@ export default {
                     foundInCategories,
                     foundInCmsPages,
                 ] = await Promise.all([
-                    canRead('products') ? this.productRepository.search(this.slotConfigCriteria) : emptyResult,
+                    canRead('products') ? this.productRepository.search(this.productUsageCriteria) : emptyResult,
                     canRead('landingPages') ? this.landingPageRepository.search(this.slotConfigCriteria) : emptyResult,
                     canRead('categories') ? this.categoryRepository.search(this.slotConfigCriteria) : emptyResult,
                     canRead('layouts') ? this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria) : emptyResult,
                 ]);
+
+                if (requestId !== this.usageRequestId) {
+                    return;
+                }
 
                 foundInProducts.forEach((foundInProduct) => {
                     if (
@@ -220,7 +241,9 @@ export default {
                     }
                 });
             } finally {
-                this.isLoading = false;
+                if (requestId === this.usageRequestId) {
+                    this.isLoading = false;
+                }
             }
         },
 

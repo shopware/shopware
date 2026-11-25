@@ -30,6 +30,8 @@ export const MEDIA_USAGE_AREAS: MediaUsageArea[] = [
         entities: [
             'product_media',
             'product',
+            'product_document',
+            'product_document_translation',
         ],
     },
     {

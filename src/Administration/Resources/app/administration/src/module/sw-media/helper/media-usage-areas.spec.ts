@@ -25,6 +25,17 @@ describe('module/sw-media/helper/media-usage-areas', () => {
                 ]),
                 'products',
             ),
+        ).toBe(false);
+        expect(
+            canReadMediaUsageArea(
+                aclWith([
+                    'product:read',
+                    'product_media:read',
+                    'product_document:read',
+                    'product_document_translation:read',
+                ]),
+                'products',
+            ),
         ).toBe(true);
     });
 

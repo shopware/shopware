@@ -9,4 +9,14 @@ component sw-block  private  ts  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/structure/sw-block-override/sw-block/index.ts  [private]
   visibility-source export  [private]
+
+props
+  data?: ComponentInternalInstance['proxy']  default=null  [private]
+  extends?: string  [private]
+  name?: string  [private]
+  swInternalComponentName: string  [private]
+  swInternalLegacyShim?: boolean  default=true  [private]
+
+notes
+  unresolved options setup  [private]
 ```

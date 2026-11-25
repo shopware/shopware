@@ -11,7 +11,39 @@ component sw-first-run-wizard-defaults  private  js  [private]
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-defaults/sw-first-run-wizard-defaults.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+emits
+  buttons-update(...args: any[])  [private]
+  frw-redirect(...args: any[])  [private]
+  frw-set-title(...args: any[])  [private]
+
+data
+  configData: object  [private]
+    null: object  [private]
+          active: any  [private]
+          salesChannel: any  [private]
+          visibility: any  [private]
+  defaultSalesChannelCardLoaded: any  [private]
+  isLoading: any  [private]
+  salesChannel: any  [private]
+
+computed
+  buttonConfig: any  [private]
+  salesChannelRepository: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  nextAction(): Promise<any>  [private]
+  setTitle(): any  [private]
+  updateButtons(): any  [private]
+  updateSalesChannel(salesChannel: any): any  [private]
+
 blocks
   sw_first_run_wizard_defaults  [private]
     sw_first_run_wizard_defaults_sales_channel_card  [private]
+
+refs
+  defaultSalesChannelCard  -> sw-settings-listing-default-sales-channel  block=sw_first_run_wizard_defaults_sales_channel_card  [private]
 ```

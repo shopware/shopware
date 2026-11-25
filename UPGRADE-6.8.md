@@ -3282,6 +3282,10 @@ State-based invalidation is not supported anymore.
 A missing CMS block file and a CMS block outside of the `cms/blocks` directory of the App are thrown as `Shopware\Core\Framework\App\AppException` instead.
 Catch `AppException` and check the error codes `FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING` and `FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY`.
 
+## Old shop ID format no longer read
+
+The system config key `core.app.shopId` is no longer read, read the shop ID from `core.app.shopIdV2` instead.
+
 </details>
 
 # Hosting & Configuration

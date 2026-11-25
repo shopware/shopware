@@ -11,6 +11,19 @@ component mt-card  private  ts  [private]
   template src/app/component/meteor-wrapper/mt-card/mt-card.html.twig  [private]
   visibility-source export  [private]
 
+props
+  positionIdentifier: string  default=null  [private]
+
+slots
+  after-card  {}  block=mt_card  [private]
+  before-card  {}  block=mt_card  [private]
+
+methods
+  getFilteredSlots(): any  [private]
+
 blocks
   mt_card  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

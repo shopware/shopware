@@ -11,6 +11,41 @@ component sw-dynamic-url-field  private  ts  [private]
   template src/app/component/form/sw-dynamic-url-field/sw-dynamic-url-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  value?: string  default=''  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+data
+  categoryCollection: any  [private]
+  displayAsButton: any  [private]
+  isHTTPs: any  [private]
+  lastEmittedLink: any  [private]
+  linkCategory: any  [private]
+  linkTarget: any  [private]
+
+computed
+  categoryRepository: RepositoryType<'category'>  [private]
+  entityFilter: CriteriaType  [private]
+  linkCategoryOptions: any  [private]
+  seoUrlReplacePrefix: string  [private]
+
+methods
+  createdComponent(): void  [private]
+  getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollection<'category'>>  [private]
+  getEmptyCategoryCollection(): EntityCollection<'category'>  [private]
+  onSelectFieldChange(selectedLinkCategory: string): void  [private]
+  parseLink(link: string): Promise<{ type: LinkCategories; target: string }>  [private]
+  prepareLink(): string  [private]
+  removeCategorySelection(): void  [private]
+  removeLink(): void  [private]
+  replaceCategorySelection(category: { id: EntityKey<'category'> }): void  [private]
+
 blocks
   sw_dynamic_url_field  [private]
     sw_dynamic_url_field_button_remove  [private]

@@ -10,6 +10,11 @@ component sw-custom-field-type-checkbox  public  js
   registered src/module/sw-settings-custom-field/index.js
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-checkbox/index.js
 
+data
+  propertyNames: object
+    helpText: any
+    label: any
+
 blocks
   sw_custom_field_type_base  [inherited]
     sw_custom_field_type_base_content  [inherited]

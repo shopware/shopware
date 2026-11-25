@@ -10,6 +10,75 @@ component sw-settings-language-detail  public  js
   source src/module/sw-settings-language/page/sw-settings-language-detail/index.js
   template src/module/sw-settings-language/page/sw-settings-language-detail/sw-settings-language-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  feature
+  repositoryFactory
+  translationService
+
+props
+  languageId?: string  default=null
+
+data
+  builtInLocales: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  isSnippetMetadataLoading: any
+  isUpdatingSnippets: any
+  justCreated: any
+  language: any
+  parentTranslationCodeId: any
+  showAlertForChangeParentLanguage: any
+  showAllSalesChannels: any
+  snippetMetadata: any
+  usedTranslationIds: any
+
+computed
+  allowSave: any
+  assignedSalesChannels: any
+  identifier: any
+  inheritanceTooltipText: any
+  isIsoCodeRequired: any
+  isNewLanguage: any
+  isSystemDefaultLanguageId: any
+  languageHasName: any
+  languageLocaleIdError: any
+  languageNameError: any
+  languageRepository: any
+  parentLanguageCriteria: any
+  salesChannelsCardTitle: any
+  salesChannelsEmptyHint: any
+  showCustomFields: any
+  showSnippetAutoUpdate: any
+  showSnippetUpdateButton: any
+  snippetUpdateButtonLabel: any
+  snippetUpdateState: any
+  snippetUpdatesLabel: any
+  tooltipCancel: any
+  tooltipSave: any
+  usedLocaleCriteria: any
+  visibleSalesChannels: any
+
+methods
+  checkTranslationCodeInheritance(value: any): any
+  createdComponent(): any
+  invalidateLanguageCaches(): any
+  isLocaleAlreadyUsed(itemId: any): any
+  loadCustomFieldSets(): Promise<any>
+  loadEntityData(): Promise<any>
+  loadSnippetMetadata(): Promise<any>
+  onCancel(): any
+  onInputLanguage(parentId: any): any
+  onOpenSalesChannelSettings(): any
+  onSave(): any
+  onUpdateSnippets(): any
+  setParentTranslationCodeId(parentId: any): any
+
 blocks
   sw_settings_language_detail
     sw_settings_language_detail_actions
@@ -27,7 +96,7 @@ blocks
         sw_settings_language_detail_content_field_localeId
         sw_settings_language_detail_content_field_name
         sw_settings_language_detail_content_field_parentId  [after v-if]
-      sw_settings_language_detail_content_language_info
+      sw_settings_language_detail_content_language_info  [deprecated tag:v6.8.0]
       sw_settings_language_detail_created_banner
       sw_settings_language_detail_custom_field_sets  [after v-if]
     sw_settings_language_detail_header

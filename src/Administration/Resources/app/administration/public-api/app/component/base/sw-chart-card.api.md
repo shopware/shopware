@@ -11,6 +11,34 @@ component sw-chart-card  private  js  [private]
   template src/app/component/base/sw-chart-card/sw-chart-card.html.twig  [private]
   visibility-source export  [private]
 
+props
+  availableRanges?: any[]  default=factory  [private]
+  cardSubtitle?: string  default=''  [private]
+  cardTitle?: string  default=''  [private]
+  defaultRangeIndex?: number  default=factory  [private]
+  helpText?: object | string  default=factory  [private]
+  isLoading?: boolean  default=false  [private]
+  positionIdentifier: string  default=''  [private]
+
+emits
+  sw-chart-card-range-update(...args: any[])  [private]
+
+slots
+  header-link  {}  block=sw_chart_card_header_slot_link  [private]
+  header-title  {}  block=sw_chart_card_title_slot  [private]
+  range-option  { ...{ index, range: item.value } }  block=sw_chart_card_header_range_select_options  [private]
+
+data
+  selectedRange: any  [private]
+
+computed
+  hasHeaderLink: any  [private]
+  rangeOptions: any  [private]
+
+methods
+  dispatchRangeUpdate(): any  [private]
+  extractSlotText(vnodes: any): any  [private]
+
 blocks
   sw_chart_card  [private]
     sw_chart_card_header  [private]

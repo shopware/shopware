@@ -12,7 +12,7 @@ const WebpackBar = require('webpackbar');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
-const getTwigWatchPaths = require('./build/webpack/twig-watch-paths');
+const getTwigWatchPaths = require('./build/twig-hmr/watch-paths');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -69,7 +69,7 @@ const watchFilePaths = isHotMode ? getTwigWatchPaths(projectRootPath, pluginDefi
 const pluginEntries = (() => {
 
     return Object.entries(pluginDefinition)
-        .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
+        .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !Object.hasOwn(process.env, 'SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
         .map(([name, definition]) => {
             console.log(chalk.bgGreenBright.black(`# Plugin "${name}": Injected successfully`));
 
@@ -290,6 +290,9 @@ const coreConfig = {
             if (isHotMode) {
                 return [
                     new webpack.HotModuleReplacementPlugin(),
+                    new webpack.DefinePlugin({
+                        __SW_HOT_MODE_EXTENSION_ENTRIES__: JSON.stringify(pluginEntries.map((plugin) => plugin.technicalName)),
+                    }),
                 ];
             }
             return [];
@@ -459,7 +462,7 @@ if (isHotMode) {
         console.log(chalk.bgHex('#b30000').white(
             '\n# No custom theme-variables found. Execute ' +
             chalk.bold('bin/console theme:compile') +
-            ' to create these files'
+            ' to create these files',
         ));
         console.log(chalk.bgHex('#b30000').white('# Styling can be wrong in HotMode. Falling back to default var/theme-variables.scss\n'));
     }
@@ -492,7 +495,11 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    coreConfig.entry['hot-reloading'] = [scssEntryFilePath];
+    coreConfig.entry['hot-reloading'] = [
+        scssEntryFilePath,
+        path.resolve(__dirname, 'src/dev/hot-mode/missing-extension-scripts.js'),
+        path.resolve(__dirname, 'src/dev/twig-hmr/twig-hmr.client.js'),
+    ];
 }
 
 const mergedCoreConfig = merge([
@@ -530,13 +537,14 @@ const mergedCoreConfig = merge([
                     headers: {
                         'Access-Control-Allow-Origin': '*',
                     },
-                    watchFiles: {
-                        paths: watchFilePaths,
-                        options: {
-                            persistent: true,
-                            cwd: projectRootPath,
-                            ignorePermissionErrors: true,
-                        },
+                    // The Twig hot reload watches the Twig files, `watchFiles` would reload the page.
+                    watchFiles: [],
+                    setupMiddlewares: (middlewares, devServer) => {
+                        // Required here, because production builds install no dev dependencies such as chokidar.
+                        const setupTwigHmrWatcher = require('./build/webpack/twig-hmr-watcher');
+                        setupTwigHmrWatcher(devServer, watchFilePaths, projectRootPath);
+
+                        return middlewares;
                     },
                 };
             }

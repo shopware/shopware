@@ -54,7 +54,7 @@ Environment overrides:
   (useful in Docker/WSL/remote setups, e.g. `http://host.docker.internal:5175`)
 - `SHOPWARE_STOREFRONT_DEV_UPDATE` - how a source change reaches the open page
   - `reload` (default) - the page reloads
-  - `hmr` - the change is applied to the open page in place
+  - `hmr` - the change is applied to the open page in place, Twig changes included
   - `manual` - nothing is sent to the page, you reload it yourself
 
 `SHOPWARE_STOREFRONT_DEV_UPDATE` is read from the shell first, then from the `.env.local` and `.env` of the project root.
@@ -122,7 +122,8 @@ When the dev server stops, Shopware falls back to production assets/import map.
   - writes `var/cache/storefront_components.dev.json`
   - provides dev import map + styles/scripts URLs
   - puts the Vite client (`/@vite/client`) first in `scripts`, because no Storefront module uses `import.meta.hot`
-  - leaves the Vite client out in `manual` mode
+  - lists the Twig client after it: `twig-reload.vite.js` in `reload` mode, `twig-hmr.vite.js` in `hmr` mode
+  - leaves the Vite client and the Twig client out in `manual` mode
   - serves component styles via `/__sw-comp-css/...`
   - reloads the page on a style change, or swaps component styles in place in `hmr` mode
   - reloads the page when a style file is added or removed
@@ -136,6 +137,11 @@ When the dev server stops, Shopware falls back to production assets/import map.
   - shows the Vite error overlay when the SCSS does not compile
   - reloads the page when `theme-files.json` changes
   - only logs changes in `manual` mode
+
+- `vite/twig-hmr-plugin.ts`
+  - dev-only plugin for Twig templates, not registered in `manual` mode
+  - watches the Storefront view directories of every bundle and sends `sw:twig-update`
+  - see `src/dev/twig-hmr/README.md`
 
 - `vite/storefront-dev-update.ts`
   - reads `SHOPWARE_STOREFRONT_DEV_UPDATE` and falls back to `reload` for an unset or unknown value

@@ -9,7 +9,7 @@ const STOREFRONT_VIEW_DIRECTORIES = ['storefront', 'components'];
 /**
  * Returns the glob patterns of all Twig files the hot mode watches.
  *
- * The view directories come from `var/plugins.json`, which lists every bundle, including the Storefront itself.
+ * The view directories come from `var/plugins.json`, which lists every bundle, including the Storefront itself, and every active app.
  * Core bundles are watched only when they contain Storefront templates, so bundles with mail or document templates are skipped.
  * Extensions can render templates from any directory below their views, so their view directories are always watched.
  * A bundle counts as core when it lives in the same directory as the Storefront bundle, like `src/` or `vendor/shopware/`.

@@ -30,8 +30,22 @@ The preview select is now only shown when the user can read customers, salutatio
 Without these reads, the *Address handling* tab shows a hint instead of the select, and everything else in the country settings works as before.
 Stored roles keep their privileges until an admin saves the role again.
 Extensions that rely on these reads through `country.viewer` must request them in their own privilege mapping.
+### App manifests can contain sections from newer Shopware versions
+
+A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
+Apps that need such a section should require that version in `<compatibility>`.
 
 ## Storefront
+
+### Paginated category listings are crawlable
+
+The default storefront `robots.txt` now contains `Allow: /*?p=` and `Disallow: /*?p=*&` alongside the existing rule `Disallow: /*?`, so search engines can crawl paginated category listings like `/category/?p=2`.
+The default rules still block sorted, filtered, and search pagination URLs such as `/category/?p=2&order=price-asc`, `/category/?p=2&properties=…`, and `/search?p=2&search=…`.
+Shops that want to keep pagination out of crawling can override the `robots_txt_content_default_rules` block.
+
+A category page only gets a paginated canonical like `/category/?p=2` when it shows a product listing on that page, other pages keep their clean canonical.
+From the second listing page on, the meta title ends with the page number, for example `Seasonal decoration – Page 2`.
+The format comes from the new snippet `general.pagination.metaPageSuffix`, set it to `%content%` to keep the title unchanged.
 
 ### Text alternative for the legal guarantee notice
 

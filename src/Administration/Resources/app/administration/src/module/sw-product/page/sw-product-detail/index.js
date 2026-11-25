@@ -1518,7 +1518,8 @@ export default {
             if (Object.keys(this.documentVariantOperations).length) {
                 await this.onSave();
 
-                if (Object.keys(this.documentVariantOperations).length) {
+                const variantDocumentSaveFailed = Object.keys(this.documentVariantOperations).length > 0;
+                if (variantDocumentSaveFailed) {
                     return;
                 }
             }

@@ -11,7 +11,7 @@
                 {% set shippingAddress = billingAddress %}
             {% endif %}
         {% else %}
-            {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
+            {## @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead ##}
             {% set deliveries = order.deliveries.elements %}
 
             {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}

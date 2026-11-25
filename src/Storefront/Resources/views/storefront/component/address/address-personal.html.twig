@@ -252,7 +252,7 @@
 
                         {% block component_address_personal_company_vat_id %}
                             {% if not feature('v6.8.0.0') %}
-                                {# @deprecated tag:v6.8.0 - Unused variable `editMode` and will be removed #}
+                                {## @deprecated tag:v6.8.0 - Unused variable `editMode` and will be removed ##}
                                 {% set editMode = true %}
                             {% endif %}
 
@@ -267,7 +267,7 @@
             {% endif %}
         {% endblock %}
     {% else %}
-        {# @deprecated tag:v6.8.0 - Block will be removed use block `component_address_personal_company_name` instead #}
+        {## @deprecated tag:v6.8.0 - Block will be removed use block `component_address_personal_company_name` instead ##}
         {% block component_address_personal_company %}
             {% if (onlyCompanyRegistration or config('core.loginRegistration.showAccountTypeSelection') or isBusinessAccount) and activeRoute == 'frontend.account.profile.page' %}
                 <div class="js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %}">
@@ -280,7 +280,7 @@
             {% endif %}
         {% endblock %}
 
-        {# @deprecated tag:v6.8.0 - Block will be removed use block `component_address_personal_company_vat_id` instead #}
+        {## @deprecated tag:v6.8.0 - Block will be removed use block `component_address_personal_company_vat_id` instead ##}
         {% block component_address_personal_vat_id %}
             {% if (onlyCompanyRegistration or config('core.loginRegistration.showAccountTypeSelection') or isBusinessAccount) and showVatIdField %}
                 <div class="js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} js-field-toggle-contact-type-vat-id">

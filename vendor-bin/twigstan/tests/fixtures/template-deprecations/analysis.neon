@@ -1,0 +1,6 @@
+parameters:
+    level: 5
+    bootstrapFiles:
+        - ../../../bootstrap.php
+    parallel:
+        maximumNumberOfProcesses: 1

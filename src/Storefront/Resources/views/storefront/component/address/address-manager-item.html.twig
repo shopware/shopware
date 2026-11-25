@@ -1,5 +1,8 @@
+{## external-interface ##}
+{## @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. ##}
+{% types {type?: 'string|null'} %}
+
 {% if not feature('v6.8.0.0') %}
-    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
     {% set addressType = addressType ?? type %}
 {% endif %}
 

@@ -10,7 +10,7 @@
             {% set shippingAddress = billingAddress %}
         {% endif %}
     {% else %}
-        {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
+        {## @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead ##}
         {% set deliveries = order.deliveries.elements %}
         {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
         {% set hasDelivery = deliveries|length > 0 or hasDelivery %}

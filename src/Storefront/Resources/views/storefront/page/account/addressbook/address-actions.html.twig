@@ -1,7 +1,9 @@
-{# @deprecated tag:v6.8.0 - The template is unused and will be removed #}
+{## @deprecated tag:v6.8.0 - The template is unused and will be removed ##}
 {% block page_account_address_actions %}
     <div class="address-actions row row-cols-auto">
+        {## @deprecated tag:v6.8.0 - Will be removed with this unused template. ##}
         {% block page_account_address_actions_buttons %}
+            {## @deprecated tag:v6.8.0 - Will be removed with this unused template. ##}
             {% block page_account_address_actions_update %}
                 <div class="col p-0 pe-3">
                     <a
@@ -15,6 +17,7 @@
                 </div>
             {% endblock %}
 
+            {## @deprecated tag:v6.8.0 - Will be removed with this unused template. ##}
             {% block page_account_address_actions_delete %}
                 {% if defaultShippingAddress.id != address.id and defaultBillingAddress.id != address.id %}
                     <div class="col p-0 pe-3">
@@ -35,7 +38,9 @@
             {% endblock %}
         {% endblock %}
 
+        {## @deprecated tag:v6.8.0 - Will be removed with this unused template. ##}
         {% block page_account_address_actions_set_default %}
+            {## @deprecated tag:v6.8.0 - Will be removed with this unused template. ##}
             {% block page_account_address_actions_set_default_billing %}
                 {% if defaultBillingAddress.id != address.id %}
                     <div class="col p-0 pe-3">
@@ -56,6 +61,7 @@
                 {% endif %}
             {% endblock %}
 
+            {## @deprecated tag:v6.8.0 - Will be removed with this unused template. ##}
             {% block page_account_address_actions_set_default_shipping %}
                 {% if defaultShippingAddress.id != address.id %}
                     <div class="col p-0 pe-3">

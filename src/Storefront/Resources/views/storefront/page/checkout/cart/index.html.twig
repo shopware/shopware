@@ -86,28 +86,28 @@
                 {% if feature('v6.8.0.0') %}
                     {% sw_include '@Storefront/storefront/component/checkout/add-product-by-number.html.twig' %}
                 {% else %}
-                    {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product will be moved to add-product-by-number.html.twig #}
+                    {## @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product will be moved to add-product-by-number.html.twig ##}
                     {% block page_checkout_cart_add_product %}
                         <div class="col-md-5 cart-add-product-container">
                             <form action="{{ path('frontend.checkout.product.add-by-number') }}" method="post">
-                                {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_redirect will be moved to add-product-by-number.html.twig #}
+                                {## @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_redirect will be moved to add-product-by-number.html.twig ##}
                                 {% block page_checkout_cart_add_product_redirect %}
                                     <input type="hidden"
                                            name="redirectTo"
                                            value="frontend.checkout.cart.page">
                                 {% endblock %}
 
-                                {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_label will be moved to add-product-by-number.html.twig #}
+                                {## @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_label will be moved to add-product-by-number.html.twig ##}
                                 {% block page_checkout_cart_add_product_label %}
                                     <label class="mb-1" for="addProductInput">
                                         {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
                                     </label>
                                 {% endblock %}
 
-                                {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_input_group will be moved to add-product-by-number.html.twig #}
+                                {## @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_input_group will be moved to add-product-by-number.html.twig ##}
                                 {% block page_checkout_cart_add_product_input_group %}
                                     <div class="input-group">
-                                        {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_input will be moved to add-product-by-number.html.twig #}
+                                        {## @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_input will be moved to add-product-by-number.html.twig ##}
                                         {% block page_checkout_cart_add_product_input %}
                                             <input type="text"
                                                    name="number"
@@ -116,7 +116,7 @@
                                                    placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}">
                                         {% endblock %}
 
-                                        {# @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_submit will be moved to add-product-by-number.html.twig #}
+                                        {## @deprecated tag:v6.8.0 - Block page_checkout_cart_add_product_submit will be moved to add-product-by-number.html.twig ##}
                                         {% block page_checkout_cart_add_product_submit %}
                                             <button class="btn btn-outline-secondary add-product-button"
                                                     type="submit"

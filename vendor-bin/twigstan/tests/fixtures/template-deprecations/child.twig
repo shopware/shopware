@@ -1,0 +1,5 @@
+{% extends 'base.twig' %}
+{% block old_title %}
+    {{ oldLabel }}
+    {% include 'input.twig' with {oldInput: 'Old'} only %}
+{% endblock %}

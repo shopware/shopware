@@ -86,6 +86,60 @@ Caller inference alone cannot describe extension-facing inputs that core does no
 Use a caller-validated interface declaration for these inputs so concrete supplied values are checked against their declared types.
 Keep computed local variables inferred from their assignments; optional input declarations must not mask lost block context.
 
+## Deprecated template APIs
+
+The analysis reads Twig documentation comments on blocks, variable bindings and input types.
+It reports downstream usage through TwigStan's existing `twig.deprecated` diagnostics, with the usage location and the original declaration.
+Ordinary comments remain implementation notes and do not deprecate an API.
+
+```twig
+{## @deprecated tag:v6.8.0 - Use title instead. ##}
+{% block legacy_title %}Legacy title{% endblock %}
+
+{## @deprecated tag:v6.8.0 - Use label instead. ##}
+{% set legacyLabel = label %}
+
+{## external-interface ##}
+{## @deprecated tag:v6.8.0 - Use label instead. ##}
+{% types {legacyInput?: 'string'} %}
+
+{% types {
+    ## @deprecated tag:v6.8.0 - Use label instead.
+    otherLegacyInput?: 'string',
+    label: 'string',
+} %}
+```
+
+Documentation immediately before a single-binding `set` or single-field `types` declaration applies to that binding.
+For declarations containing multiple bindings, place inline documentation on the individual deprecated binding instead.
+Prefer the standalone form in Storefront templates while the pinned Ludtwig version does not support inline binding documentation.
+
+Overriding a deprecated block is reported even when the override does not call `parent()`.
+Explicit block calls resolve the target template and retain deprecations from ancestors and imported block aliases.
+Nested traits and literal `embed` overrides retain their original declaration and enclosing context.
+Variable reads follow the declaration through inherited block contexts and statically resolved includes.
+Clean reassignments and include argument overrides establish new bindings; aliasing a deprecated variable reports the source read without deprecating the alias.
+Loop targets, `with` scopes and `include ... only` keep their own binding scopes.
+Supplying a deprecated input to an included template is reported at the include, including inputs inherited from a parent template.
+Both include tags and the `include()` function are supported.
+
+The source catalogue keeps declaration provenance separate from PHPStan's inferred context arrays.
+It is built before emitting diagnostics, so include ordering does not affect which deprecated bindings are recognised.
+The analysis resolves literal template references; dynamic template targets and macro interfaces are not inferred by this check.
+Deprecated input-call checks use literal argument maps and declared context bindings; keys hidden in dynamic argument maps are not inferred.
+Register all analysed templates with `TemplateDeprecationNodeVisitor`, using their loader names, when adapting the loader for another project or plugin.
+The Storefront loader registers the core Storefront template directory.
+
+Compatibility reads and deprecated input calls guarded by the matching inactive removal-version feature flag are accepted.
+This reuses Core's `FeatureFlagGuard` for direct boolean feature conditions, including `and`, `or` and `else` branches.
+Named flags alone and unrelated removal versions do not suppress findings.
+Bindings retain the major flags proven inactive when they are created or forwarded, including through inherited contexts and includes.
+Branch merges retain a proof only when it holds on every path where that binding can reach the usage; terminating `return` branches do not contribute.
+Repeated literal feature checks and ternary arms select the matching binding alternatives.
+Input checks also track clean bindings, so an unguarded replacement passed under a deprecated input name still reports a diagnostic.
+A guard inside an overriding block does not suppress the deprecated override itself.
+These annotations and diagnostics do not remove blocks or change rendered output.
+
 ## Analyzer versions
 
 - [TwigStan 0.2.8](https://github.com/twigstan/twigstan/releases/tag/0.2.8) is installed from upstream and pinned in `composer.lock`.

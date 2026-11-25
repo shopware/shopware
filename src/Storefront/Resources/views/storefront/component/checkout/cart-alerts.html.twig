@@ -1,5 +1,6 @@
-{# @deprecated tag:v6.8.0 - Will be removed, use `@Storefront/storefront/utilities/alert.html.twig` instead. #}
+{## @deprecated tag:v6.8.0 - Will be removed, use `@Storefront/storefront/utilities/alert.html.twig` instead. ##}
 {% block component_checkout_cart_alerts %}
+    {## @deprecated tag:v6.8.0 - Will be removed with this template, use `@Storefront/storefront/utilities/alert.html.twig` instead. ##}
     {% block component_checkout_cart_alerts_notices %}
         {% for error in page.cart.errors.notices %}
             {% set snippetName = "checkout.#{error.messageKey}" %}
@@ -12,6 +13,7 @@
         {% endfor %}
     {% endblock %}
 
+    {## @deprecated tag:v6.8.0 - Will be removed with this template, use `@Storefront/storefront/utilities/alert.html.twig` instead. ##}
     {% block component_checkout_cart_alerts_warnings %}
         {% for error in page.cart.errors.warnings %}
             {% set snippetName = "error.#{error.messageKey}" %}
@@ -24,6 +26,7 @@
         {% endfor %}
     {% endblock %}
 
+    {## @deprecated tag:v6.8.0 - Will be removed with this template, use `@Storefront/storefront/utilities/alert.html.twig` instead. ##}
     {% block component_checkout_cart_alerts_errors %}
         {% for error in page.cart.errors.errors %}
             {% set snippetName = "error.#{error.messageKey}" %}

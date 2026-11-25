@@ -295,11 +295,11 @@
             {% sw_include '@Storefront/storefront/utilities/form-validation-config.html.twig' %}
         {% endblock %}
 
-        {# @deprecated tag:v6.8.0 - Will be removed. Use block `layout_head_javascript_assets` instead. #}
         {% if not feature('v6.8.0.0') %}
+            {## @deprecated tag:v6.8.0 - Will be removed. Use block `layout_head_javascript_assets` instead. ##}
             {% block layout_head_javascript_hmr_mode %}
                 {% if isHMRMode and not feature('v6.8.0.0') %}
-                    {# @deprecated tag:v6.8.0 - Will be removed. Use the Vite dev server instead. #}
+                    {## @deprecated tag:v6.8.0 - Will be removed. Use the Vite dev server instead. ##}
                     {% block layout_head_javascript_hmr_dev %}
                         {# Entry point for dev-server #}
                         <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/hot-reloading.js" defer></script>

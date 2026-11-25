@@ -2,7 +2,7 @@
     {% set element = block.slots.getSlot('video') %}
 
     <div class="col-12" data-cms-element-id="{{ element.id }}">
-        {# @deprecated tag:v6.8.0 - `block_image_inner` will be removed, use `block_vimeo_video_inner` instead #}
+        {## @deprecated tag:v6.8.0 - `block_image_inner` will be removed, use `block_vimeo_video_inner` instead ##}
         {% block block_image_inner %}{% endblock %}
 
         {% block block_vimeo_video_inner %}

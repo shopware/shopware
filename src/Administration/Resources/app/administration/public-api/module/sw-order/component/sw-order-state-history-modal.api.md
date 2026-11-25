@@ -10,6 +10,47 @@ component sw-order-state-history-modal  public  ts
   source src/module/sw-order/component/sw-order-state-history-modal/index.ts
   template src/module/sw-order/component/sw-order-state-history-modal/sw-order-state-history-modal.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+  stateStyleDataProviderService
+
+props
+  isLoading?: boolean  default=false  [deprecated tag:v6.8.0]
+  order: Entity<'order'>
+
+emits
+  modal-close(...args: any[])
+
+data
+  dataSource: any
+  limit: any
+  page: any
+  steps: any
+  total: any  [deprecated tag:v6.8.0]
+
+computed
+  columns: Array<{ property: string; label: string }>
+  hasMultipleTransactions: boolean
+  stateHistory: StateMachineHistoryData[]
+  stateMachineHistoryCriteria: CriteriaType
+  stateMachineHistoryRepository: RepositoryType<'state_machine_history'>
+  statesLoading: boolean
+
+methods
+  buildStateHistory(allEntries: EntityCollection<'state_machine_history'>): StateMachineHistoryData[]
+  createEntry(states: CombinedStates, entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>, hideUser?: any = false): StateMachineHistoryData
+  createdComponent(): void
+  enumerateTransaction(item: StateMachineHistoryData): string
+  getStateChangeAuthor(item: StateMachineHistoryData): string
+  getStateHistoryEntries(): Promise<EntityCollection<'state_machine_history'>>
+  getVariantState(entity: string, state: Entity<'state_machine_state'>): string
+  loadHistory(): Promise<void>
+  onClose(): void
+  onPageChange(arg0: { page: number; limit: number }): void
+
 blocks
   sw_order_state_history_modal
     sw_order_state_history_modal_actions

@@ -11,6 +11,25 @@ component sw-user-card  private  js  [private]
   template src/app/component/base/sw-user-card/sw-user-card.html.twig  [private]
   visibility-source export  [private]
 
+props
+  isLoading?: boolean  default=false  [private]
+  title: string  default=''  [private]
+  user: object  default=factory  [private]
+
+slots
+  actions  {}  block=sw_user_card_actions  [private]
+  data-additional  {}  block=sw_user_card_row_primary  [private]
+  default  {}  block=sw_user_card_row_secondary  [private]
+  metadata-additional  {}  block=sw_user_card_metadata_additional  [private]
+  summary  {}  block=sw_user_card_metadata_container  [private]
+
+computed
+  hasActionSlot: any  [private]
+  hasAdditionalDataSlot: any  [private]
+  hasSummarySlot: any  [private]
+  moduleColor: any  [private]
+  salutationFilter: any  [private]
+
 blocks
   sw_user_card  [private]
     sw_user_card_rows  [private]
@@ -20,10 +39,10 @@ blocks
           sw_user_card_metadata  [private]
             sw_user_card_actions  [private]
               sw_user_card_slot_actions  [private]
-            sw_user_card_metadata_additional  [private]
+            sw_user_card_metadata_additional  [after v-if] [private]
               sw_user_card_slot_metadata_additional  [private]
-            sw_user_card_metadata_user_company  [private]
-            sw_user_card_metadata_user_email  [private]
+            sw_user_card_metadata_user_company  [after v-if] [private]
+            sw_user_card_metadata_user_email  [after v-if] [private]
             sw_user_card_metadata_user_name  [private]
           sw_user_card_slot_summary  [private]
         sw_user_card_slot_data_additional  [private]

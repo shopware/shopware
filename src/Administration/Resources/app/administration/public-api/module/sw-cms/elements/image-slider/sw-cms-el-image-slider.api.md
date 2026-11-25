@@ -11,11 +11,50 @@ component sw-cms-el-image-slider  private  js  [private]
   template src/module/sw-cms/elements/image-slider/component/sw-cms-el-image-slider.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+
+props
+  activeMedia?: null | object  default=null  [private]
+
+emits
+  active-image-change(...args: any[])  [private]
+
+data
+  columnCount: any  [private]
+  columnWidth: any  [private]
+  imgPath: any  [private]
+  imgSrc: any  [private]
+  sliderPos: any  [private]
+
+computed
+  assetFilter: any  [private]
+  displayModeClass: any  [private]
+  gridAutoRows: any  [private]
+  navArrowsClass: any  [private]
+  navDotsClass: any  [private]
+  outsideNavArrows: any  [private]
+  showNavigationArrows: any  [private]
+  showNavigationDots: any  [private]
+  sliderItems: any  [private]
+  styles: any  [private]
+  uploadTag: any  [private]
+  verticalAlignStyle: any  [private]
+
+methods
+  activeButtonClass(url: any): any  [private]
+  createdComponent(): any  [private]
+  setSliderArrowItem(direction?: any = 1): any  [private]
+  setSliderItem(mediaItem: any, index: any): any  [private]
+
 blocks
   sw_cms_element_image_slider  [private]
     sw_cms_element_image_slider_img  [private]
     sw_cms_element_image_slider_nav  [private]
-      sw_cms_element_image_slider_nav_arrows  [private]
+      sw_cms_element_image_slider_nav_arrows  [after v-if] [private]
       sw_cms_element_image_slider_nav_dots  [private]
     sw_cms_element_image_slider_nav_default  [private]
 ```

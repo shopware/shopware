@@ -11,6 +11,65 @@ component sw-multi-select  private  js  [private]
   template src/app/component/form/select/base/sw-multi-select/sw-multi-select.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  autocomplete?: string  default=undefined  [private]
+  highlightSearchTerm?: boolean  default=true  [private]
+  isLoading?: boolean  default=false  [private]
+  label?: string  default=undefined  [private]
+  labelProperty?: string  default='label'  [private]
+  options: any[]  [private]
+  placeholder?: string  default=''  [private]
+  searchFunction?: (...args: any[]) => any  default=factory  [private]
+  value: any  [private]
+  valueLimit?: number  default=5  [private]
+  valueProperty?: string  default='value'  [private]
+
+emits
+  display-values-expand(...args: any[])  [private]
+  item-add(...args: any[])  [private]
+  item-remove(...args: any[])  [private]
+  paginate(...args: any[])  [private]
+  search-term-change(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  after-item-list  {}  block=sw_multi_select_base_results_list_after  [private]
+  before-item-list  {}  block=sw_multi_select_base_results_list_before  [private]
+  hint  {}  block=sw_multi_select  [private]
+  label  {}  block=sw_multi_select  [private]
+  result-item  { ...{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey } }  block=sw_multi_select_base_results_list_result  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty, searchTerm, getKey } }  block=sw_multi_select_base_results_list_result_label  [private]
+  selection-label-property  { ...{ item, index, labelProperty, valueProperty} }  block=sw_multi_select_base_selection_list_label_inner  [private]
+
+data
+  limit: any  [private]
+  searchTerm: any  [private]
+
+computed
+  currentValue: any  [private]
+  invisibleValueCount: any  [private]
+  totalValuesCount: any  [private]
+  visibleResults: any  [private]
+  visibleValues: any  [private]
+
+methods
+  addItem(item: any): any  [private]
+  expandValueLimit(): any  [private]
+  getKey(object: any, keyPath: any, defaultValue: any): any  [private]
+  isSelected(item: any): any  [private]
+  onSearchTermChange(term: any): any  [private]
+  onSelectCollapsed(): any  [private]
+  onSelectExpanded(): any  [private]
+  remove(item: any): any  [private]
+  removeLastItem(): any  [private]
+  resetActiveItem(): any  [private]
+
 blocks
   sw_multi_select  [private]
     sw_multi_select_base  [private]
@@ -20,10 +79,14 @@ blocks
             sw_multi_select_base_results_list_after  [private]
             sw_multi_select_base_results_list_before  [private]
             sw_multi_select_base_results_list_result  [private]
-              sw_multi_select_base_results_list_result_label  [private]
+              sw_multi_select_base_results_list_result_label  [scope: index, item] [private]
       sw_multi_select_base_selection  [private]
-        sw_multi_select_base_selection_slot  [private]
-          sw_multi_select_base_selection_list  [private]
-            sw_multi_select_base_selection_list_label  [private]
-              sw_multi_select_base_selection_list_label_inner  [private]
+        sw_multi_select_base_selection_slot  [scope: collapse, disabled, error, expand, identification, size] [private]
+          sw_multi_select_base_selection_list  [scope: collapse, disabled, error, expand, identification, size] [private]
+            sw_multi_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, size] [private]
+              sw_multi_select_base_selection_list_label_inner  [scope: collapse, disabled, error, expand, identification, index, item, labelProperty, size, valueProperty] [private]
+
+refs
+  selectionList  -> sw-select-selection-list  block=sw_multi_select_base_selection_slot  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_multi_select_base_results_slot  [private]
 ```

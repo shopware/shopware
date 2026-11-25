@@ -11,18 +11,54 @@ component sw-import-export-importer  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-importer/sw-import-export-importer.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+  importExport  [private]
+  repositoryFactory  [private]
+
+props
+  sourceEntity?: string  default=''  [private]
+
+emits
+  import-started(...args: any[])  [private]
+
+data
+  config: any  [private]
+  importFile: any  [private]
+  importModalProfile: any  [private]
+  isLoading: any  [private]
+  selectedProfile: any  [private]
+  selectedProfileId: any  [private]
+
+computed
+  disableImporting: any  [private]
+  logCriteria: any  [private]
+  logRepository: any  [private]
+  profileCriteria: any  [private]
+  showProductVariantsInfo: any  [private]
+
+methods
+  handleProgress(log: any): any  [private]
+  onProfileSelect(profileId: any, profile: any): any  [private]
+  onStartDryRunProcess(): any  [private]
+  onStartProcess(dryRun?: any = false): any  [private]
+  setImportModalProfile(profileName: any): any  [private]
+
 blocks
   sw_import_export_importer  [private]
     sw_import_export_importer_file_input  [private]
-    sw_import_export_importer_modal  [private]
+    sw_import_export_importer_modal  [after v-if] [private]
       sw_import_export_importer_modal_exporter  [private]
       sw_import_export_importer_modal_footer  [private]
     sw_import_export_importer_product_variants_warning  [private]
       sw_import_export_importer_product_variants_warning_text  [private]
     sw_import_export_importer_profile_select  [private]
     sw_import_export_importer_profile_select_product_variants_switch  [private]
-    sw_import_export_importer_progress  [private]
+    sw_import_export_importer_progress  [after v-if] [private]
     sw_import_export_importer_select_profile_label  [private]
-    sw_import_export_importer_upload_csv_label  [private]
+    sw_import_export_importer_upload_csv_label  [after v-if] [private]
     sw_import_export_importer_warning_block  [private]
 ```

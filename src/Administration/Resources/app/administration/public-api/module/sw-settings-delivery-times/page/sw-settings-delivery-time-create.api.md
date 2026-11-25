@@ -9,4 +9,25 @@ component sw-settings-delivery-time-create  public  js
   extends sw-settings-delivery-time-detail
   registered src/module/sw-settings-delivery-times/index.js
   source src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-create/index.js
+
+methods
+  createdComponent(): any
+  saveFinish(): any
+
+blocks
+  sw_settings_delivery_time_detail  [inherited]
+    sw_settings_delivery_time_detail_content  [inherited]
+      sw_settings_delivery_time_detail_custom_field_sets  [inherited]
+      sw_settings_delivery_time_detail_form  [inherited]
+        sw_settings_delivery_time_detail_name_field  [inherited]
+        sw_settings_delivery_time_detail_unit_field  [inherited]
+        sw_settings_delivery_time_min_max_container  [inherited]
+          sw_settings_delivery_time_detail_max_field  [inherited]
+          sw_settings_delivery_time_detail_min_field  [inherited]
+      sw_settings_delivery_time_language_info  [inherited]
+    sw_settings_delivery_time_detail_language_switch  [inherited]
+    sw_settings_delivery_time_detail_smart_bar_actions  [inherited]
+      sw_settings_delivery_time_detail_smart_bar_actions_cancel  [inherited]
+      sw_settings_delivery_time_detail_smart_bar_actions_save  [inherited]
+    sw_settings_delivery_time_detail_smart_bar_header  [inherited]
 ```

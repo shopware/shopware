@@ -11,6 +11,25 @@ component sw-custom-entity-input-field  private  ts  [private]
   template src/module/sw-custom-entity/component/sw-custom-entity-input-field/sw-custom-entity-input-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  helpText?: string  default=''  [private]
+  label?: string  default=''  [private]
+  placeholder?: string  default=''  [private]
+  type: string  [private]
+  value?: unknown  default=null  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+computed
+  currentValue: string | number | unknown  [private]
+
+methods
+  onChange(eventInput: string | number): void  [private]
+
 blocks
   sw_custom_entity_input_field  [private]
 ```

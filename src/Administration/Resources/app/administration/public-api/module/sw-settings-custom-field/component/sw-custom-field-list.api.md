@@ -10,28 +10,86 @@ component sw-custom-field-list  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-list/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-custom-field-list.html.twig
 
+mixins
+  sw-inline-snippet, notification
+
+inject
+  acl
+  repositoryFactory
+
+provide
+  SwCustomFieldListIsCustomFieldNameUnique: any
+
+props
+  set: object
+
+emits
+  loading-changed(...args: any[])
+
+data
+  currentCustomField: any
+  customFields: any
+  deleteButtonDisabled: any
+  deleteCustomField: any
+  disableRouteParams: any
+  isLoading: any
+  limit: any
+  page: any
+  term: any
+  total: any
+
+computed
+  customFieldRepository: any
+  globalCustomFieldRepository: any
+
+methods
+  createdComponent(): any
+  isCustomFieldNameUnique(customField: any): Promise<any>
+  loadCustomFields(): Promise<any>
+  onAddCustomField(): any
+  onCancelCustomField(): any
+  onCancelDeleteCustomField(): any
+  onCustomFieldDelete(customField: any): any
+  onCustomFieldEdit(customField: any): any
+  onDeleteCustomField(): Promise<any>
+  onDeleteCustomFields(): any
+  onInlineEditCancel(customField: any): any
+  onInlineEditFinish(item: any): any
+  onPageChange(event: any): any
+  onSaveCustomField(field?: any = this.currentCustomField): Promise<any>
+  onSearchTermChange(): any
+  removeEmptyProperties(config: any): any
+  selectionChanged(selection: any): any
+
 blocks
   sw_custom_field_list
-    sw_custom_field_list_custom_field_delete
+    sw_custom_field_list_custom_field_delete  [after v-if]
       sw_custom_field_list_custom_field_delete_actions
         sw_custom_field_list_custom_field_delete_action_cancel
         sw_custom_field_list_custom_field_delete_action_confirm
       sw_custom_field_list_custom_field_delete_text
-    sw_custom_field_list_custom_field_detail
-    sw_custom_field_list_empty_state
+    sw_custom_field_list_custom_field_detail  [after v-if]
+    sw_custom_field_list_empty_state  [after v-if]
     sw_custom_field_list_grid
-      sw_custom_field_list_grid_column_actions
-        sw_custom_field_list_grid_column_actions_delete
-        sw_custom_field_list_grid_column_actions_edit
-        sw_custom_field_list_grid_column_actions_reset_delete
-      sw_custom_field_list_grid_column_custom_field_position
-        sw_custom_field_list_grid_column_custom_field_position_edit
-      sw_custom_field_list_grid_column_label
-      sw_custom_field_list_grid_column_type
+      sw_custom_field_list_grid_column_actions  [scope: item]
+        sw_custom_field_list_grid_column_actions_delete  [after v-if] [scope: item]
+        sw_custom_field_list_grid_column_actions_edit  [scope: item]
+        sw_custom_field_list_grid_column_actions_reset_delete  [scope: item]
+      sw_custom_field_list_grid_column_custom_field_position  [scope: item]
+        sw_custom_field_list_grid_column_custom_field_position_edit  [scope: item]
+      sw_custom_field_list_grid_column_label  [scope: item]
+      sw_custom_field_list_grid_column_type  [scope: item]
       sw_custom_field_list_grid_pagination
-    sw_custom_field_list_loader
+    sw_custom_field_list_loader  [after v-if]
     sw_custom_field_list_toolbar
       sw_custom_field_list_toolbar_add
       sw_custom_field_list_toolbar_delete
       sw_custom_field_list_toolbar_searchfield
+
+crossings
+  v-if  sw_custom_field_list_grid -> sw_custom_field_list_empty_state
+  v-if  sw_custom_field_list_grid_column_actions_reset_delete -> sw_custom_field_list_grid_column_actions_delete
+
+refs
+  grid  -> sw-grid  block=sw_custom_field_list_grid
 ```

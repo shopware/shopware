@@ -11,17 +11,74 @@ component sw-multi-tag-select  private  js  [private]
   template src/app/component/form/select/base/sw-multi-tag-select/sw-multi-tag-select.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  autocomplete?: string  default=undefined  [private]
+  disabled?: boolean  default=false  [private]
+  invalidMessage?: string  default=''  [private]
+  isLoading?: boolean  default=false  [private]
+  placeholder?: string  default=''  [private]
+  validMessage?: string  default=''  [private]
+  validate?: (...args: any[]) => any  default=factory  [private]
+  value: any[]  [private]
+  valueLimit?: number  default=5  [private]
+
+emits
+  add-item-is-valid(...args: any[])  [private]
+  display-values-expand(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_multi_tag_select  [private]
+  label  {}  block=sw_multi_tag_select  [private]
+  message-add-data  {}  block=sw_multi_tag_select_validation_valid_message  [private]
+  message-enter-valid-data  {}  block=sw_multi_tag_select_validation_invalid_message  [private]
+  selection-label-property  { ...{ item, index, labelProperty, valueProperty} }  block=sw_multi_tag_select_base_selection_list_label_inner  [private]
+
+data
+  hasFocus: any  [private]
+  limit: any  [private]
+  searchTerm: any  [private]
+
+computed
+  errorObject: any  [private]
+  inputIsValid: any  [private]
+  invisibleValueCount: any  [private]
+  totalValuesCount: any  [private]
+  visibleValues: any  [private]
+
+methods
+  addItem(): any  [private]
+  expandValueLimit(): any  [private]
+  getKey(...args: any[]): any  [private]
+  onSearchTermChange(term: any): any  [private]
+  onSelectionListKeyDownEnter(): any  [private]
+  remove(arg0: any): any  [private]
+  removeLastItem(): any  [private]
+  setDropDown(open?: any = true): any  [private]
+
 blocks
   sw_multi_tag_select  [private]
     sw_multi_tag_select_base  [private]
       sw_multi_tag_select_base_selection  [private]
-        sw_multi_tag_select_base_selection_slot  [private]
-          sw_multi_tag_select_base_selection_list  [private]
-            sw_multi_tag_select_base_selection_list_label  [private]
-              sw_multi_tag_select_base_selection_list_label_inner  [private]
+        sw_multi_tag_select_base_selection_slot  [scope: collapse, disabled, error, expand, identification, size] [private]
+          sw_multi_tag_select_base_selection_list  [scope: collapse, disabled, error, expand, identification, size] [private]
+            sw_multi_tag_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, size] [private]
+              sw_multi_tag_select_base_selection_list_label_inner  [scope: collapse, disabled, error, expand, identification, index, item, labelProperty, size, valueProperty] [private]
     sw_multi_tag_select_validation  [private]
-      sw_multi_tag_select_validation_invalid  [private]
+      sw_multi_tag_select_validation_invalid  [after v-if] [private]
         sw_multi_tag_select_validation_invalid_message  [private]
       sw_multi_tag_select_validation_valid  [private]
         sw_multi_tag_select_validation_valid_message  [private]
+
+crossings
+  v-if  sw_multi_tag_select_validation_valid -> sw_multi_tag_select_validation_invalid  [private]
+
+refs
+  selectionList  -> sw-select-selection-list  block=sw_multi_tag_select_base_selection_slot  [private]
 ```

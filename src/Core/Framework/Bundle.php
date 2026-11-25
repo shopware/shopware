@@ -157,17 +157,20 @@ abstract class Bundle extends SymfonyBundle
 
     protected function buildDefaultConfig(ContainerBuilder $container): void
     {
+        $env = $container->getParameter('kernel.environment');
+        \assert(\is_string($env));
+
         $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([
             // @deprecated tag:v6.8.0 - XML configuration is deprecated, remove the XmlFileLoader together with the deprecation
-            new XmlFileLoader($container, $locator),
-            new YamlFileLoader($container, $locator),
-            new IniFileLoader($container, $locator),
-            new PhpFileLoader($container, $locator),
-            new GlobFileLoader($container, $locator),
-            new DirectoryLoader($container, $locator),
-            new ClosureLoader($container),
+            new XmlFileLoader($container, $locator, $env),
+            new YamlFileLoader($container, $locator, $env),
+            new IniFileLoader($container, $locator, $env),
+            new PhpFileLoader($container, $locator, $env),
+            new GlobFileLoader($container, $locator, $env),
+            new DirectoryLoader($container, $locator, $env),
+            new ClosureLoader($container, $env),
         ]);
 
         $configLoader = new DelegatingLoader($resolver);
@@ -180,9 +183,6 @@ abstract class Bundle extends SymfonyBundle
         }
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
-
-        $env = $container->getParameter('kernel.environment');
-        \assert(\is_string($env));
 
         $configLoader->load($confDir . '/{packages}/' . $env . '/*' . Kernel::CONFIG_EXTS, 'glob');
     }
@@ -226,12 +226,15 @@ abstract class Bundle extends SymfonyBundle
      */
     private function registerContainerFile(ContainerBuilder $container): void
     {
+        $env = $container->getParameter('kernel.environment');
+        \assert(\is_string($env));
+
         $fileLocator = new FileLocator($this->getPath());
         $loaderResolver = new LoaderResolver([
             // @deprecated tag:v6.8.0 - XML service definitions are deprecated, remove the XmlFileLoader together with the deprecation
-            new XmlFileLoader($container, $fileLocator),
-            new YamlFileLoader($container, $fileLocator),
-            new PhpFileLoader($container, $fileLocator),
+            new XmlFileLoader($container, $fileLocator, $env),
+            new YamlFileLoader($container, $fileLocator, $env),
+            new PhpFileLoader($container, $fileLocator, $env),
         ]);
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 
@@ -241,7 +244,7 @@ abstract class Bundle extends SymfonyBundle
             $delegatingLoader->load($path);
         }
 
-        if ($container->getParameter('kernel.environment') === 'test') {
+        if ($env === 'test') {
             foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services_test.*') as $testPath) {
                 // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
                 $this->triggerXmlConfigDeprecation($testPath, 'Migrate the service definitions to PHP format (services_test.php).');

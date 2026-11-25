@@ -10,6 +10,59 @@ component sw-order-create-initial-modal  public  ts
   source src/module/sw-order/component/sw-order-create-initial-modal/index.ts
   template src/module/sw-order/component/sw-order-create-initial-modal/sw-order-create-initial-modal.html.twig
 
+mixins
+  notification, cart-notification
+
+inject
+  feature
+
+emits
+  modal-close(...args: any[])
+  order-preview(...args: any[])
+
+data
+  activeTab: any
+  context: object
+    billingAddressId: any
+    currencyId: any
+    languageId: any
+    paymentMethodId: any
+    shippingAddressId: any
+    shippingMethodId: any
+  disabledAutoPromotion: any
+  isLoading: any
+  isProductGridLoading: any
+  productItems: any
+  promotionCodes: any
+  sendOrderConfirmationMail: any
+  shippingCosts: any
+
+computed
+  cart: Cart
+  cartDelivery: CartDelivery | null
+  currency: Entity<'currency'>
+  customer: Entity<'customer'> | null
+  isCustomerActive: boolean
+  orderCreateInitialModalTabs: TabItem[]
+  promotionCodeItems: PromotionCodeItem[]
+  salesChannelContext: SalesChannelContext
+  salesChannelId: EntityKey<'sales_channel'>
+
+methods
+  addPromotionCodes(): Promise<void>
+  cancelCart(): Promise<void>
+  disableAutoAppliedPromotions(): Promise<void>
+  modifyShippingCost(amount: number): Promise<void>
+  onCloseModal(): Promise<void>
+  onPreviewOrder(): Promise<void>
+  onRemoveItems(lineItemKeys: string[]): Promise<void>
+  onSaveItem(item: LineItem): Promise<void>
+  updateAutoPromotionToggle(value: boolean): void
+  updateOrderContext(): Promise<void>
+  updatePromotion(promotions: string[]): void
+  updateSendOrderConfirmationMail(value: boolean): void
+  updateShippingCost(value: number): void
+
 blocks
   sw_order_create_modal
     sw_order_create_modal_footer_modal_footer_cancel
@@ -20,12 +73,12 @@ blocks
         sw_order_create_modal_mt_tabs_content_customer  [from v6.8.0]
         sw_order_create_modal_mt_tabs_content_options  [from v6.8.0]
         sw_order_create_modal_mt_tabs_content_products  [from v6.8.0]
-      sw_order_create_modal_tabs_content  [until v6.8.0]
-        sw_order_create_modal_tabs_content_customer  [until v6.8.0]
-        sw_order_create_modal_tabs_content_options  [until v6.8.0]
-        sw_order_create_modal_tabs_content_products  [until v6.8.0]
-      sw_order_create_modal_tabs_customer  [until v6.8.0]
-      sw_order_create_modal_tabs_extension  [until v6.8.0]
-      sw_order_create_modal_tabs_options  [until v6.8.0]
-      sw_order_create_modal_tabs_products  [until v6.8.0]
+      sw_order_create_modal_tabs_content  [scope: active] [until v6.8.0]
+        sw_order_create_modal_tabs_content_customer  [scope: active] [until v6.8.0]
+        sw_order_create_modal_tabs_content_options  [scope: active] [until v6.8.0]
+        sw_order_create_modal_tabs_content_products  [scope: active] [until v6.8.0]
+      sw_order_create_modal_tabs_customer  [scope: active] [until v6.8.0]
+      sw_order_create_modal_tabs_extension  [scope: active] [until v6.8.0]
+      sw_order_create_modal_tabs_options  [scope: active] [until v6.8.0]
+      sw_order_create_modal_tabs_products  [scope: active] [until v6.8.0]
 ```

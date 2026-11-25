@@ -1,0 +1,4 @@
+{
+    "description": "Text changed inside a block of a native setup SFC",
+    "majorFlags": ["v6.8.0.0"]
+}

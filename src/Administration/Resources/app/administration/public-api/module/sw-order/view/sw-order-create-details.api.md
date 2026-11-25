@@ -10,6 +10,64 @@ component sw-order-create-details  public  ts
   source src/module/sw-order/view/sw-order-create-details/index.ts
   template src/module/sw-order/view/sw-order-create-details/sw-order-create-details.html.twig
 
+mixins
+  notification, cart-notification
+
+inject
+  cartStoreService
+  repositoryFactory
+
+emits
+  error(...args: any[])
+
+data
+  context: object
+    billingAddressId: any
+    currencyId: any
+    languageId: any
+    paymentMethodId: any
+    shippingAddressId: any
+    shippingMethodId: any
+  isLoading: any
+  promotionError: any
+  showPromotionModal: any
+
+computed
+  cart: Cart
+  cartDelivery: CartDelivery | null
+  currency: Entity<'currency'>
+  currencyCriteria: CriteriaType
+  currencyRepository: Repository<'currency'>
+  customer: Entity<'customer'> | null
+  deliveryDate: string
+  disabledAutoPromotion: boolean
+  email: string
+  hasLineItem: boolean
+  isCartTokenAvailable: boolean
+  languageCriteria: CriteriaType
+  paymentMethodCriteria: CriteriaType
+  phoneNumber: string
+  promotionCodeLineItems: LineItem[]
+  promotionCodeTags: PromotionCodeTag[]
+  salesChannelContext: SalesChannelContext
+  salesChannelId: EntityKey<'sales_channel'>
+  shippingCosts: number
+  shippingMethodCriteria: CriteriaType
+
+methods
+  createdComponent(): void
+  handlePromotionCodeTags(newValue: PromotionCodeTag[], oldValue: PromotionCodeTag[]): any
+  loadCart(): Promise<any>
+  modifyShippingCosts(amount: number): any
+  onClosePromotionModal(): any
+  onRemoveExistingCode(item: PromotionCodeTag): any
+  onRemoveItems(lineItemKeys: string[]): Promise<void>
+  onSavePromotionModal(): Promise<any>
+  onSubmitCode(code: string): Promise<void>
+  toggleAutomaticPromotions(visibility: boolean): void
+  updateContext(): Promise<void>
+  updatePromotionList(): any
+
 blocks
   sw_order_create_details
     sw_order_create_details_order
@@ -19,7 +77,7 @@ blocks
       sw_order_create_details_phone_number
       sw_order_create_details_switch_disable_auto_promotion
       sw_order_create_details_voucher_field
-    sw_order_create_details_payment
-    sw_order_create_details_promotion_modal
+    sw_order_create_details_payment  [after v-if]
+    sw_order_create_details_promotion_modal  [after v-if]
     sw_order_create_details_shipping
 ```

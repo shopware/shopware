@@ -11,7 +11,68 @@ component sw-users-permissions-user-create  public  js
   source src/module/sw-users-permissions/page/sw-users-permissions-user-create/index.js
   template src/module/sw-users-permissions/page/sw-users-permissions-user-create/sw-users-permissions-user-create.html.twig
 
+computed
+  userPasswordError: any
+
+methods
+  loadUser(): Promise<any>
+  onSave(): any
+  saveFinish(): any
+
 blocks
-  sw_settings_user_detail_content_password
-  sw_settings_user_detail_grid_change_password
+  sw_settings_user_detail  [inherited]
+    sw_settings_user_detail_actions  [inherited]
+      sw_settings_user_detail_actions_cancel  [inherited]
+      sw_settings_user_detail_actions_save  [inherited]
+    sw_settings_user_detail_content  [inherited]
+      sw_settings_user_detail_content_inner  [inherited]
+        sw_setting_user_detail_card_basic_information  [inherited]
+          sw_settings_user_detail_content_grid  [inherited]
+            sw_settings_user_detail_content_email  [inherited]
+            sw_settings_user_detail_content_first_name  [inherited]
+            sw_settings_user_detail_content_last_name  [inherited]
+            sw_settings_user_detail_content_media_upload  [inherited]
+            sw_settings_user_detail_content_password  [replaced]
+            sw_settings_user_detail_content_username  [inherited]
+            sw_settings_user_detail_grid_content_active  [inherited]
+        sw_setting_user_detail_card_integrations  [inherited]
+          sw_settings_user_detail_grid_toolbar  [inherited]
+            sw_settings_user_detail_grid_add_key  [inherited]
+          sw_settings_user_detail_key_grid  [inherited]
+            sw_settings_user_detail_key_grid_content  [inherited]
+              sw_settings_user_detail_grid_columns_actions  [inherited]
+                sw_settings_user_detail_grid_columns_actions_delete  [inherited] [scope: item]
+                sw_settings_user_detail_grid_columns_actions_edit  [inherited] [scope: item]
+        sw_setting_user_detail_card_mcp_allowlist  [inherited]
+        sw_setting_user_detail_card_roles_permissions  [inherited]
+          sw_settings_user_detail_roles_permissions_grid  [inherited]
+            sw_settings_user_detail_grid_content_acl_is_admin  [inherited]
+            sw_settings_user_detail_grid_content_acl_roles  [inherited]
+            sw_settings_user_detail_grid_content_job_title  [inherited]
+        sw_setting_user_detail_card_user_interface  [inherited]
+          sw_settings_user_detail_user_interface_grid  [inherited]
+            sw_settings_user_detail_grid_content_language  [inherited]
+            sw_settings_user_detail_grid_content_module_icon_colors  [inherited] [after v-if]
+            sw_settings_user_detail_grid_content_theme  [inherited]
+            sw_settings_user_detail_grid_content_timezone  [inherited]
+        sw_settings_user_detail_content_confirm_password_modal  [inherited]
+      sw_settings_user_detail_detail_modal  [inherited] [after v-if]
+        sw_settings_user_detail_detail_modal_inner  [inherited]
+          sw_settings_user_detail_detail_modal_inner_field_access_key  [inherited]
+          sw_settings_user_detail_detail_modal_inner_field_secret_access_key  [inherited]
+            sw_settings_user_detail_detail_modal_inner_field_help_text  [inherited] [after v-if]
+            sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button  [inherited]
+            sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field  [inherited]
+          sw_settings_user_detail_detail_modal_inner_footer  [inherited]
+            sw_settings_user_detail_detail_modal_inner_footer_apply  [inherited]
+            sw_settings_user_detail_detail_modal_inner_footer_cancel  [inherited]
+          sw_settings_user_detail_detail_modal_inner_help_text  [inherited] [after v-if]
+      sw_settings_user_detail_grid_inner_slot_delete_modal  [inherited] [after v-if]
+        sw_settings_user_detail_grid_inner_slot_delete_modal_confirm_text  [inherited]
+        sw_settings_user_detail_grid_inner_slot_delete_modal_footer  [inherited]
+      sw_settings_user_detail_grid_inner_slot_media_modal  [inherited]
+    sw_settings_user_detail_header  [inherited]
+
+crossings
+  v-if  sw_settings_user_detail_detail_modal_inner_field_help_text -> sw_settings_user_detail_detail_modal_inner_help_text
 ```

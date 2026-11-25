@@ -9,4 +9,37 @@ component sw-settings-measurement  public  js
   registered src/module/sw-settings-measurement/index.js
   source src/module/sw-settings-measurement/page/sw-settings-measurement/index.js
   template src/module/sw-settings-measurement/page/sw-settings-measurement/sw-settings-measurement.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+  systemConfigApiService
+
+data
+  defaultDisplayUnits: any
+  isLoading: any
+  measurementSystem: any
+  measurementSystems: any
+  measurementUnits: object
+    length: any
+    system: any
+    weight: any
+
+computed
+  defaultLengthUnit: any
+  defaultWeightUnit: any
+  measurementSystemCriteria: any
+  measurementSystemRepository: any
+  requiredFields: any
+
+methods
+  createdComponent(): Promise<any>
+  getDefaultMeasurementSystems(): any
+  getMeasurementUnits(): any
+  onChangeLanguage(languageId: any): any
+  onChangeMeasurementSystem(technicalName: any): Promise<any>
+  onSave(): Promise<any>
 ```

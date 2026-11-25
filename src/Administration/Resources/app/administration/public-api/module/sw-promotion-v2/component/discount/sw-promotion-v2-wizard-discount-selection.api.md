@@ -11,8 +11,23 @@ component sw-promotion-v2-wizard-discount-selection  public  js
   source src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection/index.js
   template src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection/sw-promotion-v2-wizard-discount-selection.html.twig
 
+emits
+  change-selection(...args: any[])
+
+slots
+  default  {}  block=sw_wizard_page
+
+data
+  modalTitle: any
+  value: any
+
+methods
+  getSelectionOptions(): any
+  onChangeSelection(value: any): any
+
 blocks
-  sw_wizard_page_slot_default
-    sw_wizard_discount_selection
-    sw_wizard_discount_selection_option_selection
+  sw_wizard_page  [inherited]
+    sw_wizard_page_slot_default  [replaced]
+      sw_wizard_discount_selection
+      sw_wizard_discount_selection_option_selection
 ```

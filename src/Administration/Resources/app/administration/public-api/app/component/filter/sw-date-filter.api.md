@@ -11,9 +11,59 @@ component sw-date-filter  private  js  [private]
   template src/app/component/filter/sw-date-filter/sw-date-filter.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  active: boolean  [private]
+  filter: object  [private]
+
+emits
+  filter-reset(...args: any[])  [private]
+  filter-update(...args: any[])  [private]
+
+data
+  dateValue: object  [private]
+    from: any  [private]
+    timeframe: any  [private]
+    to: any  [private]
+  timeframeOptions: any  [private]
+
+computed
+  dateType: any  [private]
+  isDateTimeType: any  [private]
+  showDivider: any  [private]
+  userTimeZone: any  [private]
+
+methods
+  aliasLegacyTimeframe(timeframe: any): any  [private]
+  createDateParts(year: any, month: any, date: any): any  [private]
+  formatDateParts(arg0: any): any  [private]
+  fromToFieldLabel(type: any): any  [private]
+  getCurrentCalendarMonthDates(): any  [private]
+  getCurrentCalendarWeekDates(): any  [private]
+  getCurrentQuarterDates(): any  [private]
+  getCurrentYearDates(): any  [private]
+  getLastNMonthsDates(months: any): any  [private]
+  getNormalizedDateValue(dateValue: any): any  [private]
+  getPreviousCalendarMonthDates(): any  [private]
+  getPreviousCalendarWeekDates(): any  [private]
+  getPreviousQuarterDates(): any  [private]
+  getPreviousYearDates(): any  [private]
+  getTimeframeDates(timeframe: any): any  [private]
+  getTodayDates(): any  [private]
+  getTodayInUserTimezone(): any  [private]
+  getUserTimeZoneDate(date: any, value: any): any  [private]
+  getUserTimeZoneDateBoundary(value: any, time: any): any  [private]
+  getYesterdayDates(): any  [private]
+  onTimeframeSelect(timeframe: any): any  [private]
+  resetFilter(): any  [private]
+  resetTimeframe(): any  [private]
+  updateFilter(): any  [private]
+
 blocks
   sw_date_filter  [private]
-    sw_date_filter_from_field  [private]
+    sw_date_filter_from_field  [after v-if] [private]
     sw_date_filter_timeframe  [private]
     sw_date_filter_to_field  [private]
 ```

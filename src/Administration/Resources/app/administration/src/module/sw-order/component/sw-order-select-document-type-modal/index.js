@@ -32,6 +32,11 @@ export const REQUIRES_CREDIT_ITEMS = [
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
+
     inject: ['repositoryFactory'],
 
     emits: ['modal-close', 'update:value'],
@@ -91,7 +96,8 @@ export default {
         },
 
         documentCriteria() {
-            const criteria = new Criteria(1, 100);
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
             criteria.addFilter(
                 Criteria.equalsAny('documentType.technicalName', [
@@ -123,8 +129,8 @@ export default {
         createdComponent() {
             this.isLoading = true;
 
-            this.documentRepository.searchIds(this.documentCriteria).then((documentCollection) => {
-                this.invoiceExists = documentCollection.total > 0;
+            this.documentRepository.searchIds(this.documentCriteria).then(({ data }) => {
+                this.invoiceExists = data.length > 0;
 
                 this.documentTypeRepository.search(this.documentTypeCriteria).then((response) => {
                     this.documentTypeCollection = response;

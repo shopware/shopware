@@ -1,5 +1,13 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### Environment-specific bundle and plugin configuration
+
+Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.
+PHP configuration files also receive the current environment through `$container->env()`.
+Check existing environment-specific configuration that was previously ignored, including Monolog handler levels.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

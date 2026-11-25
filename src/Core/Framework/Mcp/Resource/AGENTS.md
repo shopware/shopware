@@ -17,7 +17,7 @@ MCP resources expose read-only data that AI clients can request. Unlike tools, r
 
 Static resources have a fixed URI. Resource templates use a URI pattern with placeholders (e.g. `shopware://tool-result/{id}`) so a single handler serves many concrete resources.
 
-- `ToolResultResource` (`shopware://tool-result/{id}`) reads oversized tool results stored in `mcp_tool_result_cache` by `McpToolResponse::success()`. `{id}` is a signed pointer (`<id>.<expiry>.<signature>`, see `McpToolResultPointerSigner`) that only verifies for the principal who stored the result (`McpToolResultPrincipal`: integration and user), on any request and without an MCP session. A plain id, as issued before the pointers were signed, is still served to the session that stored it. `StoreApiToolResultResource` in `System/SalesChannel/Mcp/Resource/` serves the same URIs on `/store-api/_mcp`, bound to the sales channel and `sw-context-token`.
+- `ToolResultResource` (`shopware://tool-result/{id}`) reads oversized tool results stored in `mcp_tool_result_cache` by `McpToolResultRenderer`. `{id}` is a signed pointer (`<id>.<expiry>.<signature>`, see `McpToolResultPointerSigner`) that only verifies for the principal who stored the result (`McpToolResultPrincipal`: integration and user), on any request and without an MCP session. A plain id, as issued before the pointers were signed, is still served to the session that stored it. `StoreApiToolResultResource` in `System/SalesChannel/Mcp/Resource/` serves the same URIs on `/store-api/_mcp`, bound to the sales channel and `sw-context-token`.
 
 Templates are registered with the `mcp.resource_template` DI tag (not `mcp.resource`) and use the `#[McpResourceTemplate(uriTemplate: ..., name: ..., description: ..., mimeType: ...)]` attribute. The template name must match `[a-zA-Z0-9_-]+` and the URI template must contain at least one placeholder.
 
@@ -26,6 +26,10 @@ Templates are registered with the `mcp.resource_template` DI tag (not `mcp.resou
 ## Adding a resource
 1. Create a class with `#[McpResource(uri: '...', name: '...', description: '...')]` on the class
 2. Return an array with `uri`, `mimeType`, and `text` keys from `__invoke`
+   - If the data rarely changes, return `McpResourceCacheHint::read([...], $requestContext, <ttl>)` instead, with a `?RequestContext $requestContext = null` parameter.
+     It adds a `private` cache TTL (SEP-2549) on the 2026-07-28 revision and nothing on the handshake revisions.
+     Use `DEPLOYMENT_TTL_MS` for data that only changes with a deployment or a plugin lifecycle change, `SHOP_CONFIGURATION_TTL_MS` for shop configuration and for anything an app can change, because apps are installed without a deployment.
+     Leave the hint out for anything that changes during an agent's work or differs per request.
 3. Register in `mcp.php` with `mcp.resource` and `shopware.feature` tags
 
 ## Adding a resource template

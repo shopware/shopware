@@ -33,6 +33,10 @@ export default () => {
         () => import('src/app/component/utils/sw-shortcut-overview-item/index'),
     );
     Shopware.Component.register('sw-shortcut-overview', () => import('src/app/component/utils/sw-shortcut-overview/index'));
+    Shopware.Component.register(
+        'sw-silence-deprecations',
+        () => import('src/app/component/utils/sw-silence-deprecations/index'),
+    );
     Shopware.Component.register('sw-provide', () => import('src/app/component/utils/sw-provide/index'));
     Shopware.Component.register('sw-progress-bar', () => import('src/app/component/utils/sw-progress-bar/index'));
     Shopware.Component.register(
@@ -160,6 +164,10 @@ export default () => {
     Shopware.Component.register(
         'sw-condition-all-line-items-container',
         () => import('src/app/component/rule/sw-condition-all-line-items-container/index'),
+    );
+    Shopware.Component.register(
+        'sw-condition-delivery-container',
+        () => import('src/app/component/rule/sw-condition-delivery-container/index'),
     );
     Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
     Shopware.Component.register(
@@ -365,6 +373,10 @@ export default () => {
     Shopware.Component.register(
         'sw-extension-component-section',
         () => import('src/app/component/extension-api/sw-extension-component-section/index'),
+    );
+    Shopware.Component.register(
+        'sw-extension-floating-section',
+        () => import('src/app/component/extension-api/sw-extension-floating-section/index'),
     );
     Shopware.Component.register(
         'sw-product-stream-grid-preview',
@@ -634,6 +646,11 @@ export default () => {
         'sw-condition-generic',
         'sw-condition-base',
         () => import('./rule/condition-type/sw-condition-generic/index'),
+    );
+    Shopware.Component.extend(
+        'sw-condition-generic-delivery',
+        'sw-condition-generic',
+        () => import('./rule/condition-type/sw-condition-generic-delivery/index'),
     );
     Shopware.Component.extend(
         'sw-condition-date-range',

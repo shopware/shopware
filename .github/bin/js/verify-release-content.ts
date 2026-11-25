@@ -18,9 +18,11 @@ import { execFileSync } from 'node:child_process';
 
 export const STATUS_CONTEXT = 'release-content/verify';
 
-export const NOTE_TEXT_WITHOUT_COMMIT = 'RELEASE_INFO present but trunk commit not in branch — verify cherry-pick includes feature code';
+export const NOTE_TEXT_WITHOUT_COMMIT =
+    'RELEASE_INFO present but trunk commit not in branch — verify cherry-pick includes feature code';
 export const NOTE_COMMIT_WITHOUT_TEXT = 'code commit present but RELEASE_INFO entry missing from branch';
-export const NOTE_DOCS_ONLY = 'RELEASE_INFO was updated in a docs-only commit — feature code commit is unknown, verify manually';
+export const NOTE_DOCS_ONLY =
+    'RELEASE_INFO was updated in a docs-only commit — feature code commit is unknown, verify manually';
 
 /** GitHub caps a commit status description at 140 characters. */
 const STATUS_DESCRIPTION_LIMIT = 140;
@@ -194,7 +196,10 @@ function commitMd(sha: string, commitUrlBase: string): string {
 /** Strip the leading "### " from a heading and escape it for a Markdown table cell. */
 function mdTitle(heading: string): string {
     // Escape the backslash first, otherwise the one added for a pipe would be escaped in turn.
-    return heading.replace(/^###\s+/, '').replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
+    return heading
+        .replace(/^###\s+/, '')
+        .replace(/\\/g, '\\\\')
+        .replace(/\|/g, '\\|');
 }
 
 export function consoleReport(result: VerificationResult, releaseInfoFile: string, commitUrlBase = ''): string {
@@ -234,7 +239,9 @@ export function markdownSummary(
 
     lines.push(`## Release content verification — \`${versionPrefix}.*\``);
     lines.push('');
-    lines.push(`**${result.confirmed}** confirmed · **${result.warnings.length}** warning(s) · **${result.missing.length}** missing (of ${result.total})`);
+    lines.push(
+        `**${result.confirmed}** confirmed · **${result.warnings.length}** warning(s) · **${result.missing.length}** missing (of ${result.total})`,
+    );
     lines.push('');
     lines.push(`- branch: \`${branchRef}\``);
     lines.push(`- file: \`${releaseInfoFile}\``);
@@ -316,9 +323,11 @@ export function createProcessGitReader(cwd?: string): GitReader {
         const stderr = (error as { stderr?: unknown }).stderr;
         const message = typeof stderr === 'string' ? stderr : Buffer.isBuffer(stderr) ? stderr.toString('utf8') : '';
 
-        return message.includes('does not exist in')
-            || message.includes('exists on disk, but not in')
-            || message.includes('invalid object name');
+        return (
+            message.includes('does not exist in') ||
+            message.includes('exists on disk, but not in') ||
+            message.includes('invalid object name')
+        );
     };
 
     const outputOrEmpty = (args: string[]): string => {
@@ -346,14 +355,43 @@ export function createProcessGitReader(cwd?: string): GitReader {
 
     return {
         showFile: (ref, path) => outputOrEmpty(['show', `${ref}:${path}`]),
-        refExists: (ref) => succeeds(['rev-parse', '--verify', '--quiet', ref]),
+        refExists: (ref) =>
+            succeeds([
+                'rev-parse',
+                '--verify',
+                '--quiet',
+                ref,
+            ]),
         resolveCommit: (ref) => output(['rev-parse', '--verify', ref]).trim(),
-        findIntroducingCommit: (ref, needle, path) => output(['log', ref, '--format=%H', '--max-count=1', '-S', needle, '--', path]).trim(),
-        isAncestor: (commit, ref) => succeeds(['merge-base', '--is-ancestor', commit, ref]),
-        changedFiles: (commit) => output(['diff-tree', '--no-commit-id', '-r', '--name-only', commit])
-            .split('\n')
-            .map((line) => line.trim())
-            .filter((line) => line !== ''),
+        findIntroducingCommit: (ref, needle, path) =>
+            output([
+                'log',
+                ref,
+                '--format=%H',
+                '--max-count=1',
+                '-S',
+                needle,
+                '--',
+                path,
+            ]).trim(),
+        isAncestor: (commit, ref) =>
+            succeeds([
+                'merge-base',
+                '--is-ancestor',
+                commit,
+                ref,
+            ]),
+        changedFiles: (commit) =>
+            output([
+                'diff-tree',
+                '--no-commit-id',
+                '-r',
+                '--name-only',
+                commit,
+            ])
+                .split('\n')
+                .map((line) => line.trim())
+                .filter((line) => line !== ''),
     };
 }
 
@@ -431,12 +469,16 @@ export async function checkReleaseContent(toolkit: Toolkit, git: GitReader = cre
     const commitUrlBase = commitUrlBaseFromEnv(context.repo);
     const result = verifyReleaseContent(git, { versionPrefix, trunkRef, branchRef, releaseInfoFile });
 
-    core.info(`Verifying RELEASE_INFO for ${versionPrefix}.* (trunk=${trunkRef}, branch=${branchRef}, file=${releaseInfoFile})`);
+    core.info(
+        `Verifying RELEASE_INFO for ${versionPrefix}.* (trunk=${trunkRef}, branch=${branchRef}, file=${releaseInfoFile})`,
+    );
     if (result.total === 0) {
         core.info(`No entries found for ${versionPrefix}.* in trunk's ${releaseInfoFile} — nothing to verify.`);
     } else {
         core.info(consoleReport(result, releaseInfoFile, commitUrlBase));
-        await core.summary.addRaw(markdownSummary(result, { versionPrefix, branchRef, releaseInfoFile, commitUrlBase })).write();
+        await core.summary
+            .addRaw(markdownSummary(result, { versionPrefix, branchRef, releaseInfoFile, commitUrlBase }))
+            .write();
     }
 
     const target = runUrl(context.repo);

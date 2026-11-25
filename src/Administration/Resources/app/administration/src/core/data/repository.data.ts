@@ -5,6 +5,7 @@
 import type { HttpClient, HttpResponse } from 'src/core/factory/http-client.types';
 import Criteria from './criteria.data';
 import type EntityHydrator from './entity-hydrator.data';
+import type { EntitySearchResponseData } from './entity-hydrator.data';
 import type ChangesetGenerator from './changeset-generator.data';
 import type ErrorResolver from './error-resolver.data';
 import type EntityFactory from './entity-factory.data';
@@ -149,9 +150,11 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         }
 
         return this.runCachedRead(cache, () => {
-            return this.httpClient.post(url, criteria.parse(), this.buildRequestConfig(headers)).then((response) => {
-                return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
-            });
+            return this.httpClient
+                .post<EntitySearchResponseData>(url, criteria.parse(), this.buildRequestConfig(headers))
+                .then((response) => {
+                    return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
+                });
         });
     }
 
@@ -654,7 +657,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         );
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return fetch(this.httpClient.getUri({ url, useAxiosV1: true }), {
+        return fetch(this.httpClient.getUri({ url }), {
             method: 'POST',
             headers,
             body: JSON.stringify({}),
@@ -808,7 +811,6 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
     private buildRequestConfig(headers: ReturnType<Repository<EntityName>['buildHeaders']>) {
         return {
             headers,
-            useAxiosV1: true,
         };
     }
 

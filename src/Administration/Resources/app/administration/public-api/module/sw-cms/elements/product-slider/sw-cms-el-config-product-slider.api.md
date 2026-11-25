@@ -11,6 +11,55 @@ component sw-cms-el-config-product-slider  private  js  [private]
   template src/module/sw-cms/elements/product-slider/config/sw-cms-el-config-product-slider.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+slots
+  result-item  { ...{ item, index } }  block=sw_cms_element_product_slider_config_content_products_select_result_item  [until v6.8.0] [private]
+  result-item  { ...{ item, index } }  block=sw_cms_element_product_slider_config_mt_content_products  [from v6.8.0] [private]
+
+data
+  activeTab: any  [private]
+  originProductsValue: any  [private]
+  productCollection: any  [private]
+  productStream: any  [private]
+  showProductStreamPreview: any  [private]
+  tempProductIds: any  [private]
+  tempStreamId: any  [private]
+
+computed
+  alignmentOptions: any  [private]
+  arrowOptions: any  [private]
+  boxLayoutOptions: any  [private]
+  displayModeOptions: any  [private]
+  productAssignmentTypes: any  [private]
+  productMediaFilter: any  [private]
+  productMultiSelectContext: any  [private]
+  productRepository: any  [private]
+  productStreamCriteria: any  [private]
+  productStreamRepository: any  [private]
+  productStreamSortingOptions: any  [private]
+  products: any  [private]
+  tabs: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getProductAssignmentTypes(): any  [private]
+  getProductStreamSortingOptions(): any  [private]
+  isSelected(itemId: any): any  [private]
+  loadManualAssignment(): Promise<any>  [private]
+  loadProductStream(): Promise<any>  [private]
+  onChangeAssignmentType(type: any): any  [private]
+  onChangeProductStream(streamId: any): any  [private]
+  onClickProductStreamPreview(): any  [private]
+  onCloseProductStreamModal(): any  [private]
+  onProductsChange(): any  [private]
+  onRestoreInheritance(): any  [private]
+
 blocks
   sw_cms_element_product_slider_config  [private]
     sw_cms_element_product_slider_config_tabs  [private]
@@ -24,7 +73,7 @@ blocks
         sw_cms_element_product_slider_config_content_products  [after v-if] [scope: active] [until v6.8.0] [private]
           sw_cms_element_product_slider_config_content_products_select_result_item  [scope: active, isInherited] [until v6.8.0] [private]
             sw_cms_element_product_slider_config_content_products_select_result_item_inner  [scope: active, index, isInherited, item] [until v6.8.0] [private]
-              sw_entity_single_select_base_results_list_result_label  [scope: active, index, isInherited, item] [until v6.8.0] [private]
+              sw_entity_single_select_base_results_list_result_label  [scope: active, index, isInherited, item] [until v6.8.0] [deprecated tag:v6.8.0] [private]
           sw_cms_element_product_slider_config_content_products_selection_label  [scope: active, isInherited] [until v6.8.0] [private]
         sw_cms_element_product_slider_config_content_title  [scope: active] [until v6.8.0] [private]
       sw_cms_element_product_slider_config_mt_content  [from v6.8.0] [private]

@@ -11,6 +11,35 @@ component sw-text-editor-table-toolbar  private  js  [private]
   template src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/sw-text-editor-table-toolbar.html.twig  [private]
   visibility-source export  [private]
 
+props
+  selection?: any  default=null  [private]
+
+emits
+  table-delete(...args: any[])  [private]
+  table-modify(...args: any[])  [private]
+
+data
+  colClassName: any  [private]
+  range: any  [private]
+  resizeHandle: any  [private]
+
+methods
+  addResizeHandle(table: any): any  [private]
+  deleteCells(rows: any, colIdx: any): any  [private]
+  fillRowWithCells(row: any, colCount: any, newFirstRow: any): any  [private]
+  getNode(): any  [private]
+  getVariables(mode?: any = 'td'): any  [private]
+  insertNewCellsForColumn(rows: any, colIdx: any, addResizeHanlde?: any = false): any  [private]
+  keepSelection(): any  [private]
+  onAddColumn(position: any): any  [private]
+  onAddRow(position: any): any  [private]
+  onDeleteColumn(): any  [private]
+  onDeleteRow(): any  [private]
+  onDeleteTable(event: any): any  [private]
+  removeResizeHandle(table: any): any  [private]
+  setRangeAfterDelete(table: any, index: any, mode: any): any  [private]
+  setSelectionRange(): any  [private]
+
 blocks
   sw_text_editor_table_toolbar  [private]
     sw_text_editor_table_toolbar_buttons  [private]

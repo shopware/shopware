@@ -8,4 +8,7 @@ Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.
 component sw-media-quickinfo-metadata-item  public  js
   registered src/module/sw-media/index.js
   source src/module/sw-media/component/sidebar/sw-media-quickinfo-metadata-item/index.js
+
+props
+  labelName: string
 ```

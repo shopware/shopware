@@ -11,6 +11,54 @@ component sw-experience-studio-element-settings  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-element-settings/sw-experience-studio-element-settings.html.twig  [private]
   visibility-source export  [private]
 
+props
+  allowEdit?: boolean  default=false  [private]
+  isLoadingMappingCandidates?: boolean  default=false  [private]
+  isLoadingStyleOptions?: boolean  default=false  [private]
+  isLoadingTypes?: boolean  default=false  [private]
+  layout?: object  default=null  [private]
+  mappingCandidateLoadError?: string  default=null  [private]
+  mappingCandidates?: ContentSystemMappingCandidate[]  default=factory  [private]
+  selectedElement?: ContentElementNode | null  default=null  [private]
+  selectedElementId?: string  default=null  [private]
+  selectedElementType?: object  default=null  [private]
+  styleOptionLoadError?: string  default=null  [private]
+  styleOptions?: object  default=factory  [private]
+  typeLoadError?: string  default=null  [private]
+  violations?: ContentSystemViolation[]  default=factory  [private]
+
+emits
+  retry-mapping-candidates(...args: any[])  [private]
+  update-mapping(...args: any[])  [private]
+  update-properties(...args: any[])  [private]
+  update-style(...args: any[])  [private]
+
+data
+  activeSettingsTab: any  [private]
+
+computed
+  elementFields: SettingsFieldDefinition[]  [private]
+  elementMappings: Record<string, string>  [private]
+  elementPropertyValues: Record<string, unknown>  [private]
+  elementStyleValues: Record<string, unknown>  [private]
+  hasMappingCandidateLoadError: boolean  [private]
+  hasSelectedElement: boolean  [private]
+  hasSelectedElementType: boolean  [private]
+  hasStyleOptionLoadError: boolean  [private]
+  hasTypeLoadError: boolean  [private]
+  isLoadingSettings: boolean  [private]
+  layoutFields: SettingsFieldDefinition[]  [private]
+  settingsTabItems: Array<{ name: 'element' | 'layout'; label: string }>  [private]
+  showElementEmptyState: boolean  [private]
+  showLayoutEmptyState: boolean  [private]
+
+methods
+  onRetryMappingCandidates(): void  [private]
+  onSettingsTabChange(tabName: string): void  [private]
+  onUpdateElementField(payload: { key: string; value: unknown }): void  [private]
+  onUpdateElementMapping(payload: { key: string; source: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null; contextType: 'single' | 'collection' | null; }): void  [private]
+  onUpdateLayoutField(payload: { key: string; value: unknown }): void  [private]
+
 blocks
   sw_experience_studio_element_settings  [private]
 ```

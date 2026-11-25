@@ -11,8 +11,52 @@ component sw-tabs-item  private  js  [private]
   template src/app/component/base/sw-tabs-item/sw-tabs-item.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  onNewItemActive  [private]
+  registerNewTabItem  [private]
+  swTabsSetActiveItem  [private]
+  unregisterNewTabItem  [private]
+
+props
+  active?: boolean  default=false  [private]
+  activeTab?: string  default=''  [private]
+  disabled?: boolean  default=false  [private]
+  errorTooltip?: string  default=factory  [private]
+  hasError?: boolean  default=false  [private]
+  hasWarning?: boolean  default=false  [private]
+  name?: string  default=''  [private]
+  route?: object | string  default=''  [private]
+  warningTooltip?: string  default=factory  [private]
+
+emits
+  click(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_tabs_item_slot  [private]
+  default  {}  block=sw_tabs_item_slot_native  [private]
+
+data
+  isActive: any  [private]
+
+computed
+  isNative: any  [private]
+  tabsItemClasses: any  [private]
+
+methods
+  beforeUpdateComponent(): any  [private]
+  checkIfActive(item: any): any  [private]
+  checkIfRouteMatchesLink(): any  [private]
+  clickEvent(): any  [private]
+  createdComponent(): any  [private]
+  mountedComponent(): any  [private]
+  updateActiveState(): any  [private]
+
 blocks
   sw_side_navigation_item  [private]
     sw_tabs_item_slot  [private]
     sw_tabs_item_slot_native  [private]
+
+refs
+  sw-tabs-item  -> component  block=sw_side_navigation_item  [private]
 ```

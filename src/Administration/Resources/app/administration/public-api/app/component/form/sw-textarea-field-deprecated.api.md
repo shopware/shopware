@@ -11,6 +11,34 @@ component sw-textarea-field-deprecated  private  js  [private]
   template src/app/component/form/sw-textarea-field-deprecated/sw-textarea-field.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-form-field, remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  ariaLabel?: string  default=factory  [private]
+  placeholder?: string  default=null  [private]
+  value?: string  default=null  [private]
+
+emits
+  change(...args: any[])  [private]
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_block_field  [private]
+  label  {}  block=sw_block_field  [private]
+
+data
+  currentValue: any  [private]
+
+methods
+  onChange(event: any): any  [private]
+  onInput(event: any): any  [private]
+
 blocks
   sw_block_field  [private]
 ```

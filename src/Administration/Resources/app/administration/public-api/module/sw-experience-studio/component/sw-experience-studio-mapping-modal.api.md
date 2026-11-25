@@ -11,6 +11,44 @@ component sw-experience-studio-mapping-modal  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-mapping-modal/sw-experience-studio-mapping-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  candidates: ContentSystemMappingCandidate[]  [private]
+  currentPath?: string  default=null  [private]
+  isLoading?: boolean  default=false  [private]
+  loadError?: string  default=null  [private]
+  propertyTitle?: string  default=''  [private]
+
+emits
+  close(...args: any[])  [private]
+  retry(...args: any[])  [private]
+  select(...args: any[])  [private]
+
+data
+  searchTerm: any  [private]
+  selectedSourceKey: any  [private]
+
+computed
+  activeSourceGroup: MappingSourceGroup | null  [private]
+  candidateGroups: Array<{ group: string; candidates: ContentSystemMappingCandidate[] }>  [private]
+  emptyStateDescription: string  [private]
+  hasCandidates: boolean  [private]
+  hasLoadError: boolean  [private]
+  matchingCandidates: ContentSystemMappingCandidate[]  [private]
+  sourceGroups: MappingSourceGroup[]  [private]
+
+methods
+  getCandidateDescription(candidate: ContentSystemMappingCandidate): string  [private]
+  getCandidateLabel(candidate: ContentSystemMappingCandidate): string  [private]
+  getGroupLabel(group: string): string  [private]
+  getSourceKey(candidate: ContentSystemMappingCandidate): string  [private]
+  getSourceLabel(type: string, id: string): string  [private]
+  isSelectedCandidate(candidate: ContentSystemMappingCandidate): boolean  [private]
+  isSelectedSource(group: MappingSourceGroup): boolean  [private]
+  onClose(): void  [private]
+  onRetry(): void  [private]
+  onSelectCandidate(candidate: ContentSystemMappingCandidate): void  [private]
+  onSelectSource(group: MappingSourceGroup): void  [private]
+
 blocks
   sw_experience_studio_mapping_modal  [private]
     sw_experience_studio_mapping_modal_candidates  [after v-if] [private]

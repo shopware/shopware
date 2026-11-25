@@ -10,6 +10,12 @@ component sw-settings-tax-rule-type-zip-code-range-cell  public  js
   source src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range-cell/index.js
   template src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range-cell/sw-settings-tax-rule-type-zip-code-range-cell.html.twig
 
+props
+  taxRule: object
+
+methods
+  createdComponent(): any
+
 blocks
   sw_settings_tax_rule_type_zip_code_range_cell
 ```

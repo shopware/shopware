@@ -11,6 +11,45 @@ component sw-base-field  private  js  [private]
   template src/app/component/form/field-base/sw-base-field/sw-base-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  aiBadge?: boolean  default=false  [private]
+  disableInheritanceToggle?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  error?: object  default=factory  [private]
+  helpText?: string  default=null  [private]
+  hint?: string  default=null  [private]
+  isInheritanceField?: boolean  default=false  [private]
+  isInherited?: boolean  default=false  [private]
+  isInvalid?: boolean  default=false  [private]
+  label?: string  default=null  [private]
+  name?: string  default=null  [private]
+  required?: boolean  default=false  [private]
+
+emits
+  base-field-mounted(...args: any[])  [private]
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_base_field  [private]
+  label  {}  block=sw_base_field  [private]
+  sw-field-input  { ...{ identification, error, disabled } }  block=sw_base_field  [private]
+
+data
+  id: any  [private]
+
+computed
+  hasError: any  [private]
+  hasHint: any  [private]
+  hasLabel: any  [private]
+  identification: any  [private]
+  showLabel: any  [private]
+  swFieldClasses: any  [private]
+  swFieldLabelClasses: any  [private]
+
 blocks
   sw_base_field  [private]
 ```

@@ -10,6 +10,60 @@ component sw-order-create-address-modal  public  js
   source src/module/sw-order/component/sw-order-create-address-modal/index.js
   template src/module/sw-order/component/sw-order-create-address-modal/sw-order-create-address-modal.html.twig
 
+mixins
+  notification, placeholder
+
+props
+  addAddressModalTitle: string
+  address: object
+  cart: object
+  customer: object
+  editAddressModalTitle: string
+
+emits
+  close-modal(...args: any[])
+  set-customer-address(...args: any[])
+
+data
+  activeCustomer: any
+  addresses: any
+  currentAddress: any
+  defaultAddressIdMapping: object
+    billing-address: any
+    shipping-address: any
+  isLoading: any
+  selectedAddressId: any
+  showAddressFormModal: any
+  term: any
+
+computed
+  addressCriteria: any
+  addressRepository: any
+  customerRepository: any
+  isValidCompanyField: any
+
+methods
+  closeModal(): any
+  createNewCustomerAddress(): any
+  createdComponent(): Promise<any>
+  findSelectedAddress(): any
+  getAddressFormModalTitle(): any
+  getCustomerAddresses(): Promise<any>
+  isCurrentSelected(addressId: any): any
+  onAddNewAddress(): any
+  onCancel(): any
+  onChangeDefaultAddress(data: any): any
+  onCloseAddressModal(): any
+  onEditAddress(address: any): any
+  onNewActiveItem(): any
+  onSave(): Promise<any>
+  onSearchAddress(term: any): Promise<any>
+  onSelectExistingAddress(address: any): Promise<any>
+  onSubmitAddressForm(): Promise<any>
+  saveCurrentAddress(): Promise<any>
+  saveCurrentCustomer(): Promise<any>
+  updateOrderContext(): Promise<any>
+
 blocks
   sw_order_create_address_modal
     sw_order_create_address_modal_actions
@@ -21,7 +75,7 @@ blocks
           sw_order_create_address_form_modal_apply_button
           sw_order_create_address_form_modal_cancel_button
       sw_order_create_address_modal_empty_state
-        sw_order_create_address_modal_empty_state_content
+        sw_order_create_address_modal_empty_state_content  [deprecated tag:v6.8.0]
       sw_order_create_address_modal_toolbar
         sw_order_create_address_modal_add_button
 ```

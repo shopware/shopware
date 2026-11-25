@@ -11,6 +11,48 @@ component sw-experience-studio-element-picker  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-element-picker/sw-experience-studio-element-picker.html.twig  [private]
   visibility-source export  [private]
 
+props
+  anchorElement?: HTMLElement | null  default=null  [private]
+  elements?: any[]  default=factory  [private]
+  open: boolean  [private]
+  title: string  [private]
+
+emits
+  close(...args: any[])  [private]
+  select(...args: any[])  [private]
+  select-preset(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+  categoryOrder: any  [private]
+  failedIllustrations: any  [private]
+  fallbackCategoryKey: any  [private]
+  searchTerm: any  [private]
+
+computed
+  assetFilter: any  [private]
+  emptyStateSnippetKey: string  [private]
+  floatingUiOptions: { placement: 'right-start' }  [private]
+  groupedElements: Array<{ key: string; headlineSnippetKey: string; elements: PickerItem[]; }>  [private]
+  normalizedSearchTerm: string  [private]
+  searchPlaceholderSnippetKey: string  [private]
+  tabItems: Array<{ name: 'elements' | 'presets'; label: string }>  [private]
+  visibleElements: PickerItem[]  [private]
+
+methods
+  categoryHeadline(key: string, snippetKey: string): string  [private]
+  categoryHeadlineSnippetKey(categoryKey: string): string  [private]
+  illustrationSource(illustration?: string | null): string | null  [private]
+  itemTooltip(item: PickerItem): { message: string; disabled: boolean }  [private]
+  normalizeCategoryKey(category: string | null): string  [private]
+  onIllustrationError(illustration?: string | null): void  [private]
+  onSelect(item: PickerItem): void  [private]
+  onTabChange(tabName: string): void  [private]
+  onTabKeydown(event: KeyboardEvent): void  [private]
+
 blocks
   sw_experience_studio_element_picker  [private]
+
+notes
+  unresolved options setup  [private]
 ```

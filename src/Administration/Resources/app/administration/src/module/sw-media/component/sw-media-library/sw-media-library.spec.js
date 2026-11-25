@@ -105,6 +105,8 @@ const allUsageReads = [
     'tag:read',
     'product_media:read',
     'product:read',
+    'product_document:read',
+    'product_document_translation:read',
     'category:read',
     'landing_page:read',
     'product_manufacturer:read',
@@ -248,6 +250,28 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         });
     });
 
+    it('includes document translations in media list requests', async () => {
+        const search = jest.spyOn(Repository.prototype, 'search');
+        let wrapper;
+        try {
+            wrapper = await createWrapper();
+            await flushPromises();
+            const request = search.mock.calls.find(
+                ([usedCriteria]) => usedCriteria.parse().associations?.productDocumentTranslations,
+            );
+            const [criteria, context] = request ?? [];
+            expect(criteria).toBeDefined();
+            expect(context?.inheritance).not.toBe(true);
+            const associations = criteria.parse().associations;
+            expect(associations).not.toHaveProperty('productDocumentTranslations.limit');
+            expect(associations.productDocumentTranslations).not.toHaveProperty('associations');
+            expect(associations.productMedia.limit).toBe(25);
+        } finally {
+            wrapper?.unmount();
+            search.mockRestore();
+        }
+    });
+
     it('should show the load more button if the folder request fails', async () => {
         const wrapper = await createWrapper({
             folderAmount: [null, 3],
@@ -335,6 +359,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
                     associations: expect.any(Object),
                     'total-count-mode': 1,
                 },
+                productDocumentTranslations: {
+                    'total-count-mode': 1,
+                },
                 categories: { limit: 25, 'total-count-mode': 1 },
                 productManufacturers: {
                     limit: 25,
@@ -380,6 +407,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
                 productMedia: {
                     limit: 25,
                     associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                productDocumentTranslations: {
                     'total-count-mode': 1,
                 },
                 categories: { limit: 25, 'total-count-mode': 1 },
@@ -535,6 +565,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         global.activeAclRoles = [
             'product_media:read',
             'product:read',
+            'product_document:read',
+            'product_document_translation:read',
             'user:read',
         ];
         await createWrapper();
@@ -543,6 +575,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(Object.keys(lastMediaRepository.lastUsedCriteria.parse().associations)).toEqual([
             'productMedia',
             'avatarUsers',
+            'productDocumentTranslations',
         ]);
     });
 

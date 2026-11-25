@@ -118,8 +118,8 @@ trait IntraCommunitySupplyTrait
     {
         yield 'order B, taxed with the rate of the billing country' => [['shippingCountry' => 'CH', 'vatIds' => []], 'S', '20.00'];
         yield 'order C, taxed with the rate of the seller country' => [['shippingCountry' => 'CH', 'vatIds' => [self::SELLER_VAT_ID]], 'S'];
-        yield 'order D, tax-free to a third country' => [['billingCountry' => 'CH', 'shippingCountry' => 'CH', 'vatIds' => [self::FOREIGN_VAT_ID]], 'Z'];
-        yield 'a tax-free private customer' => [['shippingCountry' => 'FR', 'vatIds' => [], 'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE], 'Z'];
+        yield 'order D, billed to a third country, taxed with the rate of the shipping country' => [['billingCountry' => 'CH', 'shippingCountry' => 'DE', 'vatIds' => [self::FOREIGN_VAT_ID]], 'S'];
+        yield 'a tax-free private customer' => [['vatIds' => [], 'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE], 'Z'];
         // The default French pattern requires the country code since 6.6, the one shipped before did not
         yield 'order G, tax-free with a VAT ID without country code' => [['shippingCountry' => 'DE', 'vatIds' => ['12345678901']], 'Z', '19.00', '(FR)?[0-9A-Z]{2}[0-9]{9}'];
     }

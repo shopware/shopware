@@ -517,13 +517,36 @@ class IntraCommunityTaxResolverTest extends TestCase
         static::assertSame(self::FOREIGN_VAT, $this->resolver->getIntraCommunityVatId($order));
     }
 
-    public function testADigitalOnlyOrderIsNoIntraCommunityDelivery(): void
+    public function testADigitalOnlyOrderDecidedByTheBillingAddressIsNoIntraCommunityDelivery(): void
     {
         $this->products = new OrderLineItemCollection([self::product(ProductDefinition::TYPE_DIGITAL)]);
         $order = $this->order($this->country(self::FR_ID), [self::FOREIGN_VAT]);
 
         static::assertFalse($this->resolver->isIntraCommunityDelivery($order));
         static::assertNull($this->resolver->getIntraCommunityVatId($order));
+    }
+
+    #[DataProvider('shippingDecidedDigitalOrderProvider')]
+    public function testADigitalOnlyOrderOutsideTheBillingOptInStatesTheIntraCommunityDelivery(string $billingCountryId, bool $billingCompanyTaxFree): void
+    {
+        $this->products = new OrderLineItemCollection([self::product(ProductDefinition::TYPE_DIGITAL)]);
+        $billingCountry = $this->country($billingCountryId);
+        $billingCountry->setCompanyTax(new TaxFreeConfig($billingCompanyTaxFree));
+        $order = $this->order($this->country(self::FR_ID), [self::FOREIGN_VAT], billingCountry: $billingCountry);
+
+        static::assertFalse($this->resolver->isReverseCharge($order));
+        static::assertNull($this->resolver->getReverseChargeVatId($order));
+        static::assertTrue($this->resolver->isIntraCommunityDelivery($order));
+        static::assertSame(self::FOREIGN_VAT, $this->resolver->getIntraCommunityVatId($order));
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function shippingDecidedDigitalOrderProvider(): iterable
+    {
+        yield 'billed outside the EU' => [self::CH_ID, true];
+        yield 'billing country without Tax-free (B2B)' => [self::NL_ID, false];
     }
 
     /**
@@ -649,7 +672,12 @@ class IntraCommunityTaxResolverTest extends TestCase
 
         $this->resolver->isReverseCharge($order);
 
-        $this->assertPublished($billingCountry, $order->getOrderCustomer()?->getCustomer(), $order);
+        // The billing opt-in reads the dispatch country first
+        $this->assertPublished($billingCountry, $order->getOrderCustomer()?->getCustomer(), $order, [
+            ResolveDispatchCountryExtension::class,
+            ResolveVatIdsExtension::class,
+            ResolveDispatchCountryExtension::class,
+        ]);
     }
 
     public function testADispatchCountryInTheBuyersMemberStateIsNoReverseCharge(): void
@@ -735,9 +763,16 @@ class IntraCommunityTaxResolverTest extends TestCase
         return $order;
     }
 
-    private function assertPublished(CountryEntity $country, ?CustomerEntity $customer, ?OrderEntity $order): void
-    {
-        static::assertSame([ResolveVatIdsExtension::class, ResolveDispatchCountryExtension::class], array_map(get_class(...), $this->published));
+    /**
+     * @param list<class-string> $extensions
+     */
+    private function assertPublished(
+        CountryEntity $country,
+        ?CustomerEntity $customer,
+        ?OrderEntity $order,
+        array $extensions = [ResolveVatIdsExtension::class, ResolveDispatchCountryExtension::class],
+    ): void {
+        static::assertSame($extensions, array_map(get_class(...), $this->published));
         foreach ($this->published as $extension) {
             static::assertSame(self::CHANNEL_ID, $extension->salesChannelId);
             static::assertSame($country, $extension->taxCountry);

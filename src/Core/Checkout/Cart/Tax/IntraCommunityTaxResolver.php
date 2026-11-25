@@ -101,15 +101,15 @@ class IntraCommunityTaxResolver implements ResetInterface
      *
      * Digital products are not shipped, so a cart of only digital products reads the billing country instead
      * opt-in like the intra EU exemption: a seller in the EU and a business customer billed in a member state
-     * with Tax-free (B2B) enabled, or billed in the seller's own country, which is never exempt.
+     * with Tax-free (B2B) enabled, or billed in the seller's own country, which is never exempt. Documents pass the order.
      */
-    public function isTaxedByBillingCountry(?CustomerEntity $customer, CountryEntity $billingCountry, string $salesChannelId): bool
+    public function isTaxedByBillingCountry(?CustomerEntity $customer, CountryEntity $billingCountry, string $salesChannelId, ?OrderEntity $order = null): bool
     {
         if ($customer?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS || !$billingCountry->getIsEu()) {
             return false;
         }
 
-        $dispatchCountryId = $this->resolveDispatchCountryId($salesChannelId, $billingCountry, $customer, null);
+        $dispatchCountryId = $this->resolveDispatchCountryId($salesChannelId, $billingCountry, $customer, $order);
         if ($this->vatIdPatternProvider->getMemberStateOfCountry($dispatchCountryId) === null) {
             return false;
         }
@@ -119,22 +119,22 @@ class IntraCommunityTaxResolver implements ResetInterface
     }
 
     /**
-     * Orders whose products are all digital are no intra-community delivery, their documents state reverse charge.
+     * Orders the cart decided by the billing address are no intra-community delivery, their documents state reverse charge.
      */
     public function isIntraCommunityDelivery(OrderEntity $order): bool
     {
-        return $this->isExemptOrder($order, $this->getShippingAddress($order)?->getCountry(), isDigitalOnly: false);
+        return $this->isExemptOrder($order, $this->getShippingAddress($order)?->getCountry(), isDecidedByBillingAddress: false);
     }
 
     /**
      * @internal
      *
-     * Whether the documents of a tax-free order whose products are all digital state reverse charge: the rules of an
-     * intra-community delivery, applied to the billing address that decided the cart.
+     * Whether the documents of a tax-free order the cart decided by the billing address state reverse charge: the rules
+     * of an intra-community delivery, applied to the billing address.
      */
     public function isReverseCharge(OrderEntity $order): bool
     {
-        return $this->isExemptOrder($order, $this->getBillingAddress($order)?->getCountry(), isDigitalOnly: true);
+        return $this->isExemptOrder($order, $this->getBillingAddress($order)?->getCountry(), isDecidedByBillingAddress: true);
     }
 
     /**
@@ -189,22 +189,35 @@ class IntraCommunityTaxResolver implements ResetInterface
     }
 
     /**
-     * The cart decides an order whose products are all digital by its billing address and every other order by its
-     * shipping address, so documents state at most one of the two exemptions.
+     * Documents state at most one of the two exemptions, the one of the address that decided the cart.
      */
-    private function isExemptOrder(OrderEntity $order, ?CountryEntity $country, bool $isDigitalOnly): bool
+    private function isExemptOrder(OrderEntity $order, ?CountryEntity $country, bool $isDecidedByBillingAddress): bool
     {
         $customer = $order->getOrderCustomer()?->getCustomer();
         if ($customer?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS
             || $country === null
             || !$country->getIsEu()
             || $order->getPrice()->getTaxStatus() !== CartPrice::TAX_STATE_FREE
-            || $this->isDigitalOnly($order) !== $isDigitalOnly
+            || $this->isDecidedByBillingAddress($order, $customer) !== $isDecidedByBillingAddress
         ) {
             return false;
         }
 
         return $this->hasIntraCommunityVatId($order->getSalesChannelId(), $country, $customer, $order);
+    }
+
+    /**
+     * Same switch as the cart's: an order whose products are all digital within the intra-EU opt-in of its billing country.
+     * The order does not record which address decided the cart, so this reads the current Tax-free (B2B) setting of the
+     * billing country.
+     */
+    private function isDecidedByBillingAddress(OrderEntity $order, ?CustomerEntity $customer): bool
+    {
+        $billingCountry = $this->getBillingAddress($order)?->getCountry();
+
+        return $billingCountry !== null
+            && $this->isDigitalOnly($order)
+            && $this->isTaxedByBillingCountry($customer, $billingCountry, $order->getSalesChannelId(), $order);
     }
 
     /**

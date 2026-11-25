@@ -114,14 +114,14 @@ class ReverseChargeNoteTest extends TestCase
     {
         yield 'order B, taxed with the rate of the billing country' => [['shippingCountry' => 'CH', 'vatIds' => []]];
         yield 'order C, taxed with the rate of the seller country' => [['shippingCountry' => 'CH', 'vatIds' => [self::SELLER_VAT_ID]]];
-        yield 'order D, tax-free to a third country' => [['billingCountry' => 'CH', 'shippingCountry' => 'CH', 'vatIds' => [self::FOREIGN_VAT_ID]]];
+        yield 'order D, billed to a third country, taxed with the rate of the shipping country' => [['billingCountry' => 'CH', 'shippingCountry' => 'DE', 'vatIds' => [self::FOREIGN_VAT_ID]]];
     }
 
     public function testATaxFreePrivateCustomerGetsNoNote(): void
     {
         $this->exemptFrenchPrivateCustomers();
 
-        $orderId = $this->placeOrder(shippingCountry: 'FR', vatIds: [], accountType: CustomerEntity::ACCOUNT_TYPE_PRIVATE, products: ['ebook'], withPromotion: false);
+        $orderId = $this->placeOrder(vatIds: [], accountType: CustomerEntity::ACCOUNT_TYPE_PRIVATE, products: ['ebook'], withPromotion: false);
 
         static::assertSame(CartPrice::TAX_STATE_FREE, $this->getOrderTaxStatus($orderId));
         $invoice = $this->renderInvoice($orderId);

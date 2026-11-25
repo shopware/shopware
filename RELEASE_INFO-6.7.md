@@ -423,6 +423,7 @@ The VAT ID is printed even with *Display customer VAT ID* off.
 The *"intra-Community delivery" label* document setting switches both notes.
 The ZUGFeRD and XRechnung XML of these documents uses VAT category `AE` with the exemption reason code `VATEX-EU-AE` and the text "Reverse charge", and contains the customer's VAT ID, also with the *"intra-Community delivery" label* setting off.
 It keeps VAT category `Z` as before if the document settings have no *VAT-ID* or if none of the VAT IDs saved on the order starts with the code of an EU member state.
+Orders whose products are all digital but whose cart was decided by the shipping address print the intra-community delivery note like goods.
 
 The setting applies right after the update.
 Shops whose sales channel default country is not the country they ship from, for example an Austrian sales channel of a shop shipping from Germany, have to set it.
@@ -438,6 +439,8 @@ Limitations:
 - Apart from the billing address, digital products follow the same rules as goods.
   The separate EU rules for them, for example for private customers in other member states, are not implemented yet.
 - A cart with physical and digital products is decided by the shipping address.
+- An order does not record which address decided its cart.
+  Documents of an order whose products are all digital therefore read the current *Tax-free (B2B)* setting of the billing country, and changing it switches their note between "Reverse charge" and the intra-community delivery note.
 - Product prices outside the cart, for example in listings and on detail pages, use the shipping address for digital products as well.
 
 Plugins can lift the first two with the extension events below.
@@ -463,12 +466,12 @@ For extension developers:
   The `taxCountry` is the delivery country.
   When a business customer's billing address is not the shipping address and lies in an EU member state with *Tax-free (B2B)* enabled, both events are dispatched once more with the billing country as `taxCountry`.
   Only a cart whose products are all digital uses that result.
-  Documents of an order whose products are all digital dispatch them with the order's billing country.
+  Documents of an order whose products are all digital dispatch them with the order's billing country under the same condition.
   The tax rules are fixed when the sales channel context is built, before there is a cart, so the cart content cannot decide the dispatch country.
 - `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` are deprecated and will be removed in 6.8.0.
   Custom document renderers should inject the new public service `IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead; it only returns `true` for tax-free orders.
-  It returns `false` for orders whose products are all digital, which print the reverse-charge note instead.
-- E-invoices take the intra-community decision from `isIntraCommunityDelivery()`, and for orders whose products are all digital the reverse-charge decision from the same rules applied to the billing address.
+  It returns `false` for orders whose products are all digital and whose cart was decided by the billing address, which print the reverse-charge note instead.
+- E-invoices take the intra-community decision from `isIntraCommunityDelivery()`, and for orders whose cart was decided by the billing address the reverse-charge decision from the same rules applied to the billing address.
   Both write the first VAT ID returned by `ResolveVatIdsExtension` that starts with the code of an EU member state as the buyer's VAT ID.
   Extensions that set VAT category `K` or `AE`, the buyer's VAT ID or the delivery address themselves, for example in a `ZugferdInvoiceGeneratedEvent` listener, should remove that workaround, otherwise the XML may contain them twice.
 - The new Twig block `document_reverse_charge` in `documents/includes/payment_shipping.html.twig` prints the reverse-charge note (snippet `document.reverseCharge`) when `config.reverseCharge` is `true`.

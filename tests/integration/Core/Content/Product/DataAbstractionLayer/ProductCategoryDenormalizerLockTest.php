@@ -64,7 +64,8 @@ class ProductCategoryDenormalizerLockTest extends TestCase
         $originalTimeout = (int) $this->connection->fetchOne('SELECT @@SESSION.innodb_lock_wait_timeout');
 
         $blocker->beginTransaction();
-        $blocker->fetchOne('SELECT id FROM product WHERE id = :id FOR UPDATE', ['id' => Uuid::fromHexToBytes($this->variantId)]);
+        // a shared lock: only an exclusive lock of the rewrite has to wait for it
+        $blocker->fetchOne('SELECT id FROM product WHERE id = :id LOCK IN SHARE MODE', ['id' => Uuid::fromHexToBytes($this->variantId)]);
         $this->connection->executeStatement('SET SESSION innodb_lock_wait_timeout = 1');
         // inside an outer transaction the rewrite rethrows the timeout instead of retrying it ten times
         $this->connection->beginTransaction();

@@ -5,12 +5,13 @@ namespace Shopware\Core\Content\Media\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
  * @codeCoverageIgnore
  */
 #[Package('discovery')]
-class MediaIndexerEvent extends NestedEvent
+class MediaIndexerEvent extends NestedEvent implements AsyncMessageInterface
 {
     /**
      * @param list<string> $ids

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Projected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -251,6 +253,13 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
+            $projected = $field->getFlag(Projected::class);
+            if ($projected !== null) {
+                $projected->projection->project($criteria, $definition, $field, $root, $query);
+
+                continue;
+            }
+
             // translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
@@ -424,6 +433,15 @@ class EntityReader implements EntityReaderInterface
 
         if ($criteria->getTitle()) {
             $query->setTitle($criteria->getTitle() . '::read');
+        }
+
+        if ($query->hasState(QueryBuilder::JSON_ARRAY_AGGREGATION) && $this->connection->getDatabasePlatform() instanceof MariaDBPlatform) {
+            // MariaDB applies group_concat_max_len to JSON_ARRAYAGG and can silently truncate a collection.
+            return $this->connection->fetchAllAssociative(
+                'SET STATEMENT group_concat_max_len=4294967295 FOR ' . $query->getSQL(),
+                $query->getParameters(),
+                $query->getParameterTypes(),
+            );
         }
 
         return $query->executeQuery()->fetchAllAssociative();

@@ -18,7 +18,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -30,7 +29,6 @@ use Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -53,8 +51,6 @@ class ThumbnailServiceTest extends TestCase
     private FilesystemOperator&Stub $filesystemPrivate;
 
     private EventDispatcherInterface&Stub $dispatcher;
-
-    private EntityIndexer&Stub $indexer;
 
     private Connection&Stub $connection;
 
@@ -79,7 +75,6 @@ class ThumbnailServiceTest extends TestCase
         $this->filesystemPublic = static::createStub(FilesystemOperator::class);
         $this->filesystemPrivate = static::createStub(FilesystemOperator::class);
         $this->dispatcher = static::createStub(EventDispatcherInterface::class);
-        $this->indexer = static::createStub(EntityIndexer::class);
         $this->connection = static::createStub(Connection::class);
         $this->thumbnailSizeCalculator = new ThumbnailSizeCalculator();
         $this->logger = new NullLogger();
@@ -107,11 +102,6 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity->setMedia($mediaEntity);
         $mediaCollection = new MediaCollection([$mediaEntity]);
 
-        $indexer = $this->createMock(EntityIndexer::class);
-        $indexer->expects($this->once())
-            ->method('handle')
-            ->with(static::isInstanceOf(MediaIndexingMessage::class));
-
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
@@ -121,7 +111,7 @@ class ThumbnailServiceTest extends TestCase
                 ];
             });
 
-        $result = $this->createThumbnailService($filesystemPublic, $indexer, $connection)->generate($mediaCollection, $this->context);
+        $result = $this->createThumbnailService($filesystemPublic, $connection)->generate($mediaCollection, $this->context);
         static::assertSame(1, $result);
 
         static::assertCount(1, $this->thumbnailRepository->deletes);
@@ -157,11 +147,6 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity->setMedia($mediaEntity);
         $mediaCollection = new MediaCollection([$mediaEntity]);
 
-        $indexer = $this->createMock(EntityIndexer::class);
-        $indexer->expects($this->once())
-            ->method('handle')
-            ->with(static::isInstanceOf(MediaIndexingMessage::class));
-
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
@@ -171,7 +156,7 @@ class ThumbnailServiceTest extends TestCase
                 ];
             });
 
-        $result = $this->createThumbnailService($filesystemPublic, $indexer, $connection)->generate($mediaCollection, $this->context);
+        $result = $this->createThumbnailService($filesystemPublic, $connection)->generate($mediaCollection, $this->context);
         static::assertSame(1, $result);
 
         static::assertCount(1, $this->thumbnailRepository->deletes);
@@ -422,7 +407,6 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $this->dispatcher,
-            $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
@@ -443,7 +427,6 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $this->dispatcher,
-            $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
@@ -464,7 +447,6 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $this->dispatcher,
-            $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
             new GdImageThumbnailProcessor(),
@@ -553,7 +535,6 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $dispatcher,
-            $this->indexer,
             $this->thumbnailSizeCalculator,
             $connection,
             new GdImageThumbnailProcessor(),
@@ -614,7 +595,6 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $dispatcher,
-            $this->indexer,
             $this->thumbnailSizeCalculator,
             $connection,
             new GdImageThumbnailProcessor(),
@@ -690,7 +670,6 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $dispatcher,
-            $this->indexer,
             $this->thumbnailSizeCalculator,
             $connection,
             new GdImageThumbnailProcessor(),
@@ -775,7 +754,6 @@ class ThumbnailServiceTest extends TestCase
 
     private function createThumbnailService(
         ?FilesystemOperator $filesystemPublic = null,
-        ?EntityIndexer $indexer = null,
         ?Connection $connection = null,
         ?ThumbnailProcessorInterface $processor = null,
     ): ThumbnailService {
@@ -785,7 +763,6 @@ class ThumbnailServiceTest extends TestCase
             $this->filesystemPrivate,
             $this->mediaFolderRepository,
             $this->dispatcher,
-            $indexer ?? $this->indexer,
             $this->thumbnailSizeCalculator,
             $connection ?? $this->connection,
             $processor ?? new GdImageThumbnailProcessor(),

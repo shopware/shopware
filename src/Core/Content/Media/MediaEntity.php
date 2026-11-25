@@ -113,8 +113,10 @@ class MediaEntity extends Entity
 
     /**
      * @internal
+     *
+     * @var list<array<string, mixed>>|string|null The string type allows carts serialized before 6.7.18 to be restored.
      */
-    protected ?string $thumbnailsRo = null;
+    protected array|string|null $thumbnailsRo = null;
 
     protected ?string $path = null;
 
@@ -495,18 +497,22 @@ class MediaEntity extends Entity
 
     /**
      * @internal
+     *
+     * @return list<array<string, mixed>>|null
      */
-    public function getThumbnailsRo(): ?string
+    public function getThumbnailsRo(): ?array
     {
         $this->checkIfPropertyAccessIsAllowed('thumbnailsRo');
 
-        return $this->thumbnailsRo;
+        return \is_array($this->thumbnailsRo) ? $this->thumbnailsRo : null;
     }
 
     /**
      * @internal
+     *
+     * @param list<array<string, mixed>>|null $thumbnailsRo
      */
-    public function setThumbnailsRo(string $thumbnailsRo): void
+    public function setThumbnailsRo(?array $thumbnailsRo): void
     {
         $this->thumbnailsRo = $thumbnailsRo;
     }

@@ -1,5 +1,14 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### Media thumbnails are available immediately after a write
+
+Read `media.thumbnails` through the DAL.
+The `MediaIndexer` service and its `media.indexer` CLI name are deprecated and perform no work.
+Extensions that need additional thumbnail fields or thumbnail-loaded subscribers should request the explicit association.
+`MediaIndexerEvent` is emitted for writes that affect media covers and no longer runs for a full media reindex.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

@@ -76,10 +76,6 @@ class DeleteThumbnailsCommandTest extends TestCase
             ->method('delete')
             ->with([['id' => $thumbnailId]], static::isInstanceOf(Context::class));
 
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->with('UPDATE `media` SET `thumbnails_ro` = NULL;');
-
         $filesystemPublic->expects($this->once())
             ->method('deleteDirectory')
             ->with('thumbnail');
@@ -211,9 +207,6 @@ class DeleteThumbnailsCommandTest extends TestCase
             ->method('delete')
             ->with(array_map(static fn (string $id) => ['id' => $id], array_keys($thumbnails)), static::isInstanceOf(Context::class));
 
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->with('UPDATE `media` SET `thumbnails_ro` = NULL;');
         $commandTester->execute([]);
 
         $commandTester->assertCommandIsSuccessful();

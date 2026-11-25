@@ -551,6 +551,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     public static function inheritedChangeProvider(): iterable
     {
         yield 'active' => ['product', ['active' => false]];
+        yield 'cover' => ['product', ['coverId' => Uuid::randomHex()]];
         yield 'manufacturer' => ['product', ['manufacturerId' => Uuid::randomHex()]];
         yield 'price' => ['product', ['price' => []]];
         yield 'release date' => ['product', ['releaseDate' => '2026-11-23 00:00:00.000']];

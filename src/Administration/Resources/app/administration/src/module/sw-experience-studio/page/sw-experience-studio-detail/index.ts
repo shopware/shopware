@@ -992,7 +992,8 @@ export default Shopware.Component.wrapComponentConfig({
             const entityType = this.resolvePreviewContext(layout)?.entityType;
             if (!entityType) {
                 if (this.layoutTypeLoadError !== null) {
-                    // A failed entity-types request does not establish that the saved preview entity is invalid.
+                    // Without the entity-type list no frame can be classified as entity- or section-rooted,
+                    // so every saved preview entity is kept until a later request succeeds.
                     return false;
                 }
 

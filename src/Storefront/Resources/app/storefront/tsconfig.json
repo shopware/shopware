@@ -25,6 +25,8 @@
     ".storybook/**/*",
     "build/*.ts",
     "build/vite/**/*.ts",
+    "build/vite/**/*.mts",
+    "vite.shopware.config.mts",
     "vite.components.config.mts",
     "vitest.config.mts",
     "__mocks__/*.ts",

@@ -75,12 +75,9 @@ class SearchKeywordUpdaterTest extends TestCase
         $parent->setTranslated(['name' => 'Parent product']);
 
         $productRepository = new StaticEntityRepository([
-            // products to index, the second (empty) search stops the iterator
             new ProductCollection([$child, $standalone]),
-            new ProductCollection(),
             // parent products, hydrated for the `parent.name` config field
             new ProductCollection([$parent]),
-            new ProductCollection(),
         ], $this->createProductDefinition());
 
         $analyzedProducts = [];
@@ -117,10 +114,8 @@ class SearchKeywordUpdaterTest extends TestCase
         $childId = Uuid::randomHex();
         $child = $this->createProduct($childId, Uuid::randomHex());
 
-        // exactly the two searches of the product iterator: loading parent products would exhaust the repository and let it throw
         $productRepository = new StaticEntityRepository([
             new ProductCollection([$child]),
-            new ProductCollection(),
         ], $this->createProductDefinition());
 
         $updater = $this->createUpdater(
@@ -134,6 +129,31 @@ class SearchKeywordUpdaterTest extends TestCase
         $updater->update([$childId], Context::createDefaultContext());
 
         static::assertNull($child->getParent());
+    }
+
+    public function testUpdateReadsRemainingIdsAfterEmptyChunk(): void
+    {
+        $ids = [];
+        for ($i = 0; $i < 51; ++$i) {
+            $ids[] = Uuid::randomHex();
+        }
+        $product = $this->createProduct($ids[50], null);
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
+            static function (Criteria $criteria) use ($ids): ProductCollection {
+                static::assertSame(\array_slice($ids, 0, 50), $criteria->getIds());
+
+                return new ProductCollection();
+            },
+            static function (Criteria $criteria) use ($product): ProductCollection {
+                static::assertSame([$product->getId()], $criteria->getIds());
+
+                return new ProductCollection([$product]);
+            },
+        ], $this->createProductDefinition());
+        $analyzer = $this->createMock(ProductSearchKeywordAnalyzerInterface::class);
+        $analyzer->expects($this->once())->method('analyze')->with($product)->willReturn(new AnalyzedKeywordCollection());
+
+        $this->createUpdater($repository, analyzer: $analyzer)->update($ids, Context::createDefaultContext());
     }
 
     public function testUpdateFiltersTranslationsByLanguageChain(): void

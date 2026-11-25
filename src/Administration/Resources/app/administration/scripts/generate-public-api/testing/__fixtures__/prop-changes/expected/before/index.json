@@ -1,0 +1,22 @@
+{
+    "components": {
+        "sw-example-entity-select": {
+            "file": "app/component/form/sw-example-entity-select",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_example_entity_select",
+                "sw_example_entity_select_clear",
+                "sw_example_entity_select_input",
+                "sw_example_entity_select_results"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

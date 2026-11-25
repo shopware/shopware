@@ -10,6 +10,34 @@ component sw-product-clone-modal  public  js
   source src/module/sw-product/component/sw-product-clone-modal/index.js
   template src/module/sw-product/component/sw-product-clone-modal/sw-product-clone-modal.html.twig
 
+inject
+  numberRangeService
+  repositoryFactory
+
+props
+  product: object
+  productNumberPreview?: string  default=''
+
+emits
+  clone-finish(...args: any[])
+
+data
+  cloneMaxProgress: any
+  cloneProgress: any
+  cloningVariants: any
+
+computed
+  progressInPercentage: any  [deprecated tag:v6.8.0]
+  repository: any
+
+methods
+  cloneParent(number: any): Promise<any>
+  createdComponent(): any
+  duplicate(): Promise<any>
+  duplicateVariant(duplicate: any, ids: any, callback: any): any
+  getChildrenIds(): Promise<any>
+  verifyVariants(duplicate: any): any
+
 blocks
   sw_product_clone_modal
     sw_product_clone_modal_description

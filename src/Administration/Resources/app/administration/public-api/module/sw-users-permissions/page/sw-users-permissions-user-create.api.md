@@ -11,6 +11,14 @@ component sw-users-permissions-user-create  public  js
   source src/module/sw-users-permissions/page/sw-users-permissions-user-create/index.js
   template src/module/sw-users-permissions/page/sw-users-permissions-user-create/sw-users-permissions-user-create.html.twig
 
+computed
+  userPasswordError: any
+
+methods
+  loadUser(): Promise<any>
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_user_detail  [inherited]
     sw_settings_user_detail_actions  [inherited]

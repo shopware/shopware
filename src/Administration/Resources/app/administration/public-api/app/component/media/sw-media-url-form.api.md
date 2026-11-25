@@ -10,6 +10,32 @@ component sw-media-url-form  public  js
   source src/app/component/media/sw-media-url-form/index.js
   template src/app/component/media/sw-media-url-form/sw-media-url-form.html.twig
 
+props
+  variant: string  default='inline'
+
+emits
+  media-url-form-submit(...args: any[])
+  modal-close(...args: any[])
+
+data
+  extensionFromInput: any
+  extensionFromUrl: any
+  showModal: any
+  url: any
+
+computed
+  fileExtension: any
+  hasInvalidInput: any
+  invalidUrlError: any
+  isValid: any
+  missingFileExtension: any
+  urlObject: any
+
+methods
+  emitUrl(originalDomEvent: any): any
+  mountedComponent(): any
+  onModalChange(isOpen: any): any
+
 blocks
   sw_media_url_form
     sw_media_url_form_footer  [after v-if]

@@ -11,6 +11,62 @@ component sw-text-editor-toolbar  private  js  [private]
   template src/app/component/form/sw-text-editor/sw-text-editor-toolbar/sw-text-editor-toolbar.html.twig  [private]
   visibility-source export  [private]
 
+props
+  buttonConfig: any[]  [private]
+  isCodeEdit?: boolean  default=false  [private]
+  isInlineEdit?: boolean  default=false  [private]
+  isTableEdit?: boolean  default=false  [private]
+  parentIsActive?: boolean  default=false  [private]
+  selection?: any  default=null  [private]
+
+emits
+  created-el(...args: any[])  [private]
+  destroyed-el(...args: any[])  [private]
+  on-set-link(...args: any[])  [private]
+  remove-link(...args: any[])  [private]
+  table-edit(...args: any[])  [private]
+  text-style-change(...args: any[])  [private]
+
+slots
+  itemsSlot  {}  block=sw_text_editor_toolbar_slot  [private]
+
+data
+  activeTags: any  [private]
+  arrowPosition: object  [private]
+    --left: any  [private]
+  currentColor: any  [private]
+  currentLink: any  [private]
+  leftButtons: any  [private]
+  middleButtons: any  [private]
+  position: any  [private]
+  preventReposition: any  [private]
+  range: any  [private]
+  rightButtons: any  [private]
+  scrollEventHandler: any  [private]
+  tableEdit: any  [private]
+
+computed
+  classes: any  [private]
+
+methods
+  closeExpandedMenu(): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  handleTextStyleChangeLink(button: any): any  [private]
+  handleToolbarClick(event: any): any  [private]
+  isDisabled(button: any): any  [private]
+  isOverlayingLeft(): any  [private]
+  keepSelection(keepRange: any): any  [private]
+  mountedComponent(): any  [private]
+  onButtonClick(button: any, parent?: any = null): any  [private]
+  onMouseUp(event: any): any  [private]
+  onToggleMenu(event: any, button: any): any  [private]
+  setActiveTags(): any  [private]
+  setButtonPositions(): any  [private]
+  setButtonValues(button: any): any  [private]
+  setSelectionRange(): any  [private]
+  setToolbarPosition(): any  [private]
+
 blocks
   sw_text_editor_toolbar  [private]
     sw_text_editor_toolbar_buttons  [private]

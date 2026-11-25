@@ -18,6 +18,11 @@
                     {# Disallow requests with GET parameters to be indexed #}
                     Disallow: /*?
 
+                    {# Allow paginated listings to be crawled, they reference themselves as canonical.
+                       Pagination combined with further parameters like sorting or filters stays disallowed #}
+                    Allow: /*?p=
+                    Disallow: /*?p=*&
+
                     {# Allow product feed tracking URLs to be crawled so GMC can verify their landing pages.
                        rel=canonical keeps the clean URL indexed #}
                     Allow: /*referringSalesChannel=

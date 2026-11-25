@@ -11,6 +11,31 @@ component sw-grid-column  private  js  [private]
   template src/app/component/grid/sw-grid-column/sw-grid-column.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  swGridColumns  [private]
+
+props
+  align?: string  default='left'  [private]
+  dataIndex?: string  default=''  [private]
+  editable?: boolean  default=false  [private]
+  flex?: any  default=1  [private]
+  iconLabel?: string  default=null  [private]
+  label?: string  default=null  [private]
+  sortable?: boolean  default=false  [private]
+  truncate?: boolean  default=false  [private]
+
+slots
+  default  {}  block=sw_grid_column_content  [private]
+  inline-edit  {}  block=sw_grid_column_editing  [private]
+
+computed
+  parentGrid: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  registerColumn(): any  [private]
+
 blocks
   sw_grid_column  [private]
     sw_grid_column_content  [private]

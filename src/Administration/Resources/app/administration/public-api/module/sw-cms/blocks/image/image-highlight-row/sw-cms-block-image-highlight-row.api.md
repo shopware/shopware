@@ -11,6 +11,11 @@ component sw-cms-block-image-highlight-row  private  js  [private]
   template src/module/sw-cms/blocks/image/image-highlight-row/component/sw-cms-block-image-highlight-row.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center  {}  block=sw_cms_block_image_highlight_row  [private]
+  left  {}  block=sw_cms_block_image_highlight_row  [private]
+  right  {}  block=sw_cms_block_image_highlight_row  [private]
+
 blocks
   sw_cms_block_image_highlight_row  [private]
 ```

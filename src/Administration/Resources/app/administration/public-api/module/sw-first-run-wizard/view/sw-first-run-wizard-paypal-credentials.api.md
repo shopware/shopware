@@ -10,6 +10,18 @@ component sw-first-run-wizard-paypal-credentials  public  js
   source src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials/index.js
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials/sw-first-run-wizard-paypal-credentials.html.twig
 
+emits
+  buttons-update(...args: any[])
+  frw-set-title(...args: any[])
+
+computed
+  buttonConfig: any
+
+methods
+  createdComponent(): any
+  setTitle(): any
+  updateButtons(): any
+
 blocks
   sw_first_run_wizard_paypal_credentials
 ```

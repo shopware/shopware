@@ -11,6 +11,18 @@ component sw-cms-el-config-html  private  js  [private]
   template src/module/sw-cms/elements/html/config/sw-cms-el-config-html.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+methods
+  createdComponent(): any  [private]
+  emitChanges(content: any): any  [private]
+  onBlur(content: any): any  [private]
+  onInput(content: any): any  [private]
+
 blocks
   sw_cms_el_config_html  [private]
 ```

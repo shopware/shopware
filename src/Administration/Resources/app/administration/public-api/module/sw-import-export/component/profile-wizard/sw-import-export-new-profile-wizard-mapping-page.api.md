@@ -10,6 +10,25 @@ component sw-import-export-new-profile-wizard-mapping-page  public  js
   source src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/index.js
   template src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/sw-import-export-new-profile-wizard-mapping-page.html.twig
 
+inject
+  repositoryFactory
+
+props
+  profile: object
+  systemRequiredFields: object
+
+emits
+  next-allow(...args: any[])
+
+data
+  automatedCount: any
+
+methods
+  countAutomatedValues(): any
+  createdComponent(): any
+  mergeMappings(): any
+  updateMapping(newMapping: any): any
+
 blocks
   sw_import_export_new_profile_wizard_mapping_page
     sw_import_export_new_profile_wizard_mapping_page_mapping

@@ -11,6 +11,33 @@ component sw-cms-el-image  private  js  [private]
   template src/module/sw-cms/elements/image/component/sw-cms-el-image.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+data
+  mappedDemoMedia: any  [private]
+  mappedDemoMediaFetchId: any  [private]
+
+computed
+  assetFilter: any  [private]
+  displayModeClass: any  [private]
+  horizontalAlign: any  [private]
+  imgStyles: any  [private]
+  mediaConfigValue: any  [private]
+  mediaRepository: any  [private]
+  mediaUrl: any  [private]
+  styles: any  [private]
+  verticalAlignClass: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  updateDemoValue(value: any): any  [private]
+  updateMappedDemoMedia(): Promise<any>  [private]
+
 blocks
   sw_cms_element_image  [private]
     sw_cms_element_image_content  [private]

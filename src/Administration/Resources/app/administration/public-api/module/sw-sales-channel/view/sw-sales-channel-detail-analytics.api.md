@@ -11,6 +11,17 @@ component sw-sales-channel-detail-analytics  private  js  [private]
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics/sw-sales-channel-detail-analytics.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  isLoading?: boolean  default=false  [private]
+  salesChannel: any  [private]
+
+methods
+  createAnalyticsData(): any  [private]
+
 blocks
   sw_sales_channel_detail_analytics  [private]
     sw_sales_channel_detail_analytics_configuration  [private]

@@ -75,7 +75,7 @@ class LayoutRevisionServiceTest extends TestCase
         $draft = $this->service->createDraft($layoutId);
         $this->save($layoutId, $draft->id, ['draft'], $draft->head);
 
-        $this->assertConflict(
+        $this->assertFailsWith(
             ContentSystemException::LAYOUT_VERSION_CONFLICT,
             fn () => $this->service->publish($layoutId, $draft->id, $draft->head, $this->context),
         );
@@ -94,7 +94,7 @@ class LayoutRevisionServiceTest extends TestCase
 
         $this->service->publish($layoutId, $second->id, $secondSaved['draft']->head, $this->context);
 
-        $this->assertConflict(
+        $this->assertFailsWith(
             ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
             fn () => $this->service->publish($layoutId, $first->id, $firstSaved['draft']->head, $this->context),
         );
@@ -117,7 +117,7 @@ class LayoutRevisionServiceTest extends TestCase
         static::assertNotSame($initial, $history->live);
         static::assertSame($initial, $adopted?->parent);
 
-        $this->assertConflict(
+        $this->assertFailsWith(
             ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
             fn () => $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context),
         );
@@ -158,7 +158,7 @@ class LayoutRevisionServiceTest extends TestCase
         $restore = $this->service->createDraft($layoutId, fromRevisionId: $initial);
         $this->service->publish($layoutId, $restore->id, $restore->head, $this->context);
 
-        $this->assertConflict(
+        $this->assertFailsWith(
             ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
             fn () => $this->service->publish($layoutId, $stale->id, $staleSaved['draft']->head, $this->context),
         );
@@ -203,6 +203,42 @@ class LayoutRevisionServiceTest extends TestCase
         $history = $this->service->history($layoutId);
         static::assertCount(2, $history->revisions);
         static::assertSame($publishedSaved['revision']->id, $history->live);
+    }
+
+    #[TestDox('listing and reading drafts never write: a layout write past publishing is adopted only by the next write')]
+    public function testReadingDraftsDoesNotReconcile(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $draft = $this->service->createDraft($layoutId);
+        $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(['direct'])]], $this->context);
+        $rowsBefore = $this->revisionRows($layoutId);
+
+        static::assertSame([$draft->id], array_map(static fn (LayoutDraft $listed): string => $listed->id, $this->service->listDrafts($layoutId)));
+        $read = $this->service->getDraft($layoutId, $draft->id);
+
+        static::assertSame($draft->head, $read['draft']->head);
+        static::assertSame(['live-a'], array_map(static fn (StoredElement $element): string => $element->id, $read['layout']));
+        static::assertSame($rowsBefore, $this->revisionRows($layoutId));
+
+        $this->service->createDraft($layoutId);
+        static::assertSame($rowsBefore + 1, $this->revisionRows($layoutId));
+    }
+
+    #[TestDox('listing or reading drafts of a layout that does not exist is a layout not found, not an empty answer')]
+    public function testReadingDraftsOfAnUnknownLayoutIsNotFound(): void
+    {
+        $layoutId = Uuid::randomHex();
+
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_NOT_FOUND, fn () => $this->service->listDrafts($layoutId));
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_NOT_FOUND, fn () => $this->service->getDraft($layoutId, Uuid::randomHex()));
+    }
+
+    #[TestDox('reading a draft the layout does not have is a draft not found')]
+    public function testReadingAnUnknownDraftIsNotFound(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, fn () => $this->service->getDraft($layoutId, Uuid::randomHex()));
     }
 
     #[TestDox('the revision rows of a layout are removed with the layout')]
@@ -257,7 +293,7 @@ class LayoutRevisionServiceTest extends TestCase
         $draft = $this->service->createDraft($layoutId);
         $this->save($layoutId, $draft->id, ['draft-a'], $draft->head);
 
-        $this->assertConflict(
+        $this->assertFailsWith(
             ContentSystemException::LAYOUT_VERSION_CONFLICT,
             fn () => $this->service->appendRevision(
                 $layoutId,
@@ -307,10 +343,18 @@ class LayoutRevisionServiceTest extends TestCase
         );
     }
 
+    private function revisionRows(string $layoutId): int
+    {
+        return (int) static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT COUNT(*) FROM `content_layout_revision` WHERE `content_layout_id` = :id',
+            ['id' => Uuid::fromHexToBytes($layoutId)],
+        );
+    }
+
     /**
      * @param \Closure(): mixed $operation
      */
-    private function assertConflict(string $errorCode, \Closure $operation): void
+    private function assertFailsWith(string $errorCode, \Closure $operation): void
     {
         try {
             $operation();
@@ -320,7 +364,7 @@ class LayoutRevisionServiceTest extends TestCase
             return;
         }
 
-        static::fail('Expected a ' . $errorCode . ' conflict.');
+        static::fail('Expected a ' . $errorCode . ' failure.');
     }
 
     /**

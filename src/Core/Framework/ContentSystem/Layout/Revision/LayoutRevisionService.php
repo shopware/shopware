@@ -25,10 +25,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Drafts of a content layout are named pointers into its revision graph. Every persisted edit appends a revision
  * to a draft; publishing writes the draft head's tree to the `layout` column through the DAL, which runs the full
- * write gate including resolvability, and moves the live pointer onto it. Every operation, reads included, runs
- * under the {@see LayoutRowLock} that persisted mutations take too, and first reconciles the live pointer with the
- * `layout` column, see {@see reconcile()}; concurrent writers of one layout therefore serialize and the stale one
- * fails its head or version check.
+ * write gate including resolvability, and moves the live pointer onto it. Every write runs under the
+ * {@see LayoutRowLock} that persisted mutations take too, and first reconciles the live pointer with the `layout`
+ * column, see {@see reconcile()}; concurrent writers of one layout therefore serialize and the stale one fails its
+ * head or version check. Listing and reading drafts take neither, since reconciling never changes a draft or a
+ * stored tree, so a reader never waits for a writer.
  *
  * @internal
  *
@@ -61,13 +62,11 @@ class LayoutRevisionService
      */
     public function listDrafts(string $layoutId): array
     {
-        return $this->locked($layoutId, function (string $live) use ($layoutId): array {
-            $drafts = array_values($this->store->graph($layoutId, $live)->drafts);
+        if (!$this->store->layoutExists($layoutId)) {
+            throw ContentSystemException::contentLayoutNotFound($layoutId);
+        }
 
-            usort($drafts, static fn (LayoutDraft $a, LayoutDraft $b): int => $b->updatedAt <=> $a->updatedAt);
-
-            return $drafts;
-        });
+        return $this->store->drafts($layoutId);
     }
 
     /**
@@ -75,11 +74,17 @@ class LayoutRevisionService
      */
     public function getDraft(string $layoutId, string $draftId): array
     {
-        return $this->locked($layoutId, function () use ($layoutId, $draftId): array {
-            $draft = $this->draft($layoutId, $draftId);
+        $draft = $this->store->draftWithHead($layoutId, $draftId);
 
-            return ['draft' => $draft, 'layout' => $this->tree($layoutId, $draft->head)];
-        });
+        if ($draft !== null) {
+            return $draft;
+        }
+
+        if (!$this->store->layoutExists($layoutId)) {
+            throw ContentSystemException::contentLayoutNotFound($layoutId);
+        }
+
+        throw ContentSystemException::contentLayoutDraftNotFound($layoutId, $draftId);
     }
 
     public function history(string $layoutId): RevisionGraph

@@ -24,6 +24,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class LayoutRevisionStore
 {
+    private const DRAFT_SELECT = <<<'SQL'
+        SELECT LOWER(HEX(`draft`.`id`)) AS `id`, `draft`.`name`, LOWER(HEX(`draft`.`base_revision_id`)) AS `base`,
+            LOWER(HEX(`draft`.`head_revision_id`)) AS `head`, LOWER(HEX(`draft`.`live_at_open_revision_id`)) AS `live_at_open`,
+            `draft`.`created_at`, `draft`.`updated_at`
+        SQL;
+
     public function __construct(
         private readonly Connection $connection,
         private readonly StoredTreeCodec $treeCodec,
@@ -147,7 +153,7 @@ class LayoutRevisionStore
         }
 
         $drafts = [];
-        foreach ($this->fetchDrafts('WHERE `content_layout_id` = :layoutId', ['layoutId' => Uuid::fromHexToBytes($layoutId)]) as $draft) {
+        foreach ($this->drafts($layoutId) as $draft) {
             $drafts[$draft->id] = $draft;
         }
 
@@ -173,12 +179,70 @@ class LayoutRevisionStore
         return $this->treeCodec->decode(Json::decodeToList((string) $layout))->roots;
     }
 
+    public function layoutExists(string $layoutId): bool
+    {
+        return $this->connection->fetchOne(
+            <<<'SQL'
+                SELECT 1 FROM `content_layout` WHERE `id` = :id
+                SQL,
+            ['id' => Uuid::fromHexToBytes($layoutId)],
+        ) !== false;
+    }
+
+    /**
+     * @return list<LayoutDraft> most recently updated first
+     */
+    public function drafts(string $layoutId): array
+    {
+        return array_map($this->hydrateDraft(...), $this->connection->fetchAllAssociative(
+            self::DRAFT_SELECT . <<<'SQL'
+                 FROM `content_layout_draft` `draft`
+                WHERE `draft`.`content_layout_id` = :layoutId
+                ORDER BY `draft`.`updated_at` DESC
+                SQL,
+            ['layoutId' => Uuid::fromHexToBytes($layoutId)],
+        ));
+    }
+
     public function draft(string $layoutId, string $draftId): ?LayoutDraft
     {
-        return $this->fetchDrafts(
-            'WHERE `id` = :draftId AND `content_layout_id` = :layoutId',
+        $row = $this->connection->fetchAssociative(
+            self::DRAFT_SELECT . <<<'SQL'
+                 FROM `content_layout_draft` `draft`
+                WHERE `draft`.`id` = :draftId AND `draft`.`content_layout_id` = :layoutId
+                SQL,
             ['draftId' => Uuid::fromHexToBytes($draftId), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
-        )[0] ?? null;
+        );
+
+        return $row === false ? null : $this->hydrateDraft($row);
+    }
+
+    /**
+     * The draft and the tree of its head in one statement, so a concurrent discard that prunes the head cannot
+     * fall between reading the one and the other.
+     *
+     * @return array{draft: LayoutDraft, layout: list<StoredElement>}|null
+     */
+    public function draftWithHead(string $layoutId, string $draftId): ?array
+    {
+        $row = $this->connection->fetchAssociative(
+            self::DRAFT_SELECT . <<<'SQL'
+                , `head`.`layout` AS `head_layout`
+                FROM `content_layout_draft` `draft`
+                INNER JOIN `content_layout_revision` `head` ON `head`.`id` = `draft`.`head_revision_id`
+                WHERE `draft`.`id` = :draftId AND `draft`.`content_layout_id` = :layoutId
+                SQL,
+            ['draftId' => Uuid::fromHexToBytes($draftId), 'layoutId' => Uuid::fromHexToBytes($layoutId)],
+        );
+
+        if ($row === false) {
+            return null;
+        }
+
+        return [
+            'draft' => $this->hydrateDraft($row),
+            'layout' => $this->treeCodec->decode(Json::decodeToList((string) $row['head_layout']))->roots,
+        ];
     }
 
     public function saveDraft(string $layoutId, LayoutDraft $draft): void
@@ -231,22 +295,11 @@ class LayoutRevisionStore
     }
 
     /**
-     * @param array<string, string> $parameters
-     *
-     * @return list<LayoutDraft>
+     * @param array<string, mixed> $row
      */
-    private function fetchDrafts(string $where, array $parameters): array
+    private function hydrateDraft(array $row): LayoutDraft
     {
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                SELECT LOWER(HEX(`id`)) AS `id`, `name`, LOWER(HEX(`base_revision_id`)) AS `base`, LOWER(HEX(`head_revision_id`)) AS `head`,
-                    LOWER(HEX(`live_at_open_revision_id`)) AS `live_at_open`, `created_at`, `updated_at`
-                FROM `content_layout_draft`
-                SQL . ' ' . $where,
-            $parameters,
-        );
-
-        return array_map(fn (array $row): LayoutDraft => new LayoutDraft(
+        return new LayoutDraft(
             (string) $row['id'],
             (string) $row['name'],
             (string) $row['base'],
@@ -254,7 +307,7 @@ class LayoutRevisionStore
             (string) $row['live_at_open'],
             $this->date((string) $row['created_at']),
             $this->date((string) $row['updated_at']),
-        ), $rows);
+        );
     }
 
     private function date(string $value): \DateTimeImmutable

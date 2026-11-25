@@ -517,6 +517,13 @@
                             "$ref": "#/components/schemas/ProductMedia"
                         }
                     },
+                    "documents": {
+                        "description": "Documents of the product per language, such as manuals, datasheets or certificates",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductDocument"
+                        }
+                    },
                     "crossSellings": {
                         "description": "Cross-selling configurations (related products, accessories, similar items)",
                         "type": "array",

@@ -170,10 +170,7 @@ Module.register('sw-product', {
     icon: 'regular-products',
     favicon: 'icon-module-products.svg',
     entity: 'product',
-    childEntities: [
-        'product_document',
-        'product_download',
-    ],
+    childEntities: ['product_document'],
 
     routes: {
         index: {

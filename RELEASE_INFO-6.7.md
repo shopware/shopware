@@ -132,6 +132,7 @@ The format comes from the new snippet `general.pagination.metaPageSuffix`, set i
 The notice SVGs are now `aria-hidden`, and the notice link is described by the notice's text, visually hidden and rendered by the new Twig filter `sw_legal_guarantee_notice_text`.
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
+
 ## Administration
 
 ### Modules can declare child entities
@@ -147,8 +148,7 @@ Shopware.Module.register('swag-example', {
 });
 ```
 
-The Product module now lists `product_document` and `product_download` as child entities.
-If two modules list the same child entity, the first registered module wins and a warning is logged.
+The Product module now lists `product_document` as a child entity.
 
 # 6.7.17.0
 

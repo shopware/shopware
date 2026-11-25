@@ -11,6 +11,32 @@ component sw-cms-el-config-vimeo-video  private  js  [private]
   template src/module/sw-cms/elements/vimeo-video/config/sw-cms-el-config-vimeo-video.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  initialFolderId: any  [private]
+  mediaModalIsOpen: any  [private]
+
+computed
+  mediaRepository: any  [private]
+  previewSource: any  [private]
+  uploadTag: any  [private]
+  videoID: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onCloseModal(): any  [private]
+  onImageRemove(): any  [private]
+  onImageUpload(arg0: any): Promise<any>  [private]
+  onOpenMediaModal(): any  [private]
+  onSelectionChanges(mediaEntity: any): any  [private]
+  shortenLink(link: any): any  [private]
+  updateElementData(media?: any = null): any  [private]
+
 blocks
   sw_cms_element_vimeo_video_config  [private]
     sw_cms_element_vimeo_video_config_artist_information  [private]
@@ -20,14 +46,14 @@ blocks
     sw_cms_element_vimeo_video_config_color  [private]
     sw_cms_element_vimeo_video_config_needs_confirmation  [private]
     sw_cms_element_vimeo_video_config_player_controls  [private]
-      sw_cms_element_vimeo_video_config_autoplay  [private]
+      sw_cms_element_vimeo_video_config_autoplay  [scope: isInherited] [private]
       sw_cms_element_vimeo_video_config_controls  [private]
       sw_cms_element_vimeo_video_config_do_not_track  [private]
       sw_cms_element_vimeo_video_config_loop  [private]
-    sw_cms_element_vimeo_video_config_preview_media  [private]
-      sw_cms_element_vimeo_video_config_preview_media_display  [private]
-      sw_cms_element_vimeo_video_config_preview_media_modal  [private]
-      sw_cms_element_vimeo_video_config_preview_media_upload_listener  [private]
+    sw_cms_element_vimeo_video_config_preview_media  [scope: isInherited] [private]
+      sw_cms_element_vimeo_video_config_preview_media_display  [scope: isInherited] [private]
+      sw_cms_element_vimeo_video_config_preview_media_modal  [scope: isInherited] [private]
+      sw_cms_element_vimeo_video_config_preview_media_upload_listener  [scope: isInherited] [private]
     sw_cms_element_vimeo_video_config_title  [private]
     sw_cms_element_vimeo_video_config_video_id  [private]
 ```

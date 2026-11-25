@@ -11,9 +11,48 @@ component sw-order-document-settings-delivery-note-modal  public  js
   source src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js
   template src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/sw-order-document-settings-delivery-note-modal.html.twig
 
+emits
+  loading-document(...args: any[])
+  loading-preview(...args: any[])
+
+data
+  documentConfig: object
+    custom: object
+      deliveryDate: any
+      deliveryNoteDate: any
+    documentComment: any
+    documentDate: any
+    documentNumber: any
+
+computed
+  documentPreconditionsFulfilled: any
+
+methods
+  onCreateDocument(additionalAction?: any = false): any
+  onPreview(fileType?: any = 'pdf'): any
+
 blocks
-  sw_order_document_settings_modal_form_first_row
-    sw_order_document_settings_modal_form_document_date
-    sw_order_document_settings_modal_form_document_delivery_date
-    sw_order_document_settings_modal_form_document_number
+  sw_order_document_settings_modal  [inherited]
+    sw_order_document_settings_modal_form_additional_content  [inherited] [after v-if]
+    sw_order_document_settings_modal_form_document_comment  [inherited] [after v-if]
+    sw_order_document_settings_modal_form_document_footer  [inherited]
+      sw_order_document_settings_modal_form_document_footer_cancel  [inherited]
+      sw_order_document_settings_modal_form_document_footer_preview  [inherited]
+      sw_order_document_settings_modal_form_document_footer_split_button  [inherited]
+        sw_order_document_settings_modal_form_document_footer_split_button_context  [inherited]
+          sw_order_document_settings_modal_form_document_footer_split_button_context_arrow  [inherited]
+          sw_order_document_settings_modal_form_document_footer_split_button_context_create_download  [inherited]
+          sw_order_document_settings_modal_form_document_footer_split_button_context_create_send  [inherited]
+        sw_order_document_settings_modal_form_document_footer_split_button_create  [inherited]
+    sw_order_document_settings_modal_form_file_upload  [inherited]
+      sw_order_document_settings_modal_form_file_upload_input  [inherited]
+      sw_order_document_settings_modal_form_file_upload_toggle  [inherited]
+    sw_order_document_settings_modal_form_first_row  [replaced] [deprecated tag:v6.9.0]
+      sw_order_document_settings_modal_form_document_date
+      sw_order_document_settings_modal_form_document_delivery_date
+      sw_order_document_settings_modal_form_document_number
+    sw_order_document_settings_modal_media_modal  [inherited] [after v-if]
+
+refs
+  fileInput  -> sw-media-upload-v2  block=sw_order_document_settings_modal_form_file_upload_input
 ```

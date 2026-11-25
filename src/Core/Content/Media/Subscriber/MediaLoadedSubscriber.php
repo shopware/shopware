@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Subscriber;
 
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\DataAbstractionLayer\ThumbnailReadProjection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
@@ -32,14 +33,13 @@ class MediaLoadedSubscriber
                 continue;
             }
 
+            /** @var list<array<string, mixed>>|string|null $thumbnailsRo */
             $thumbnailsRo = $media->has('thumbnailsRo') ? $media->get('thumbnailsRo') : null;
 
-            $thumbnails = match (true) {
-                /** @phpstan-ignore shopware.unserializeUsage */
-                $thumbnailsRo !== null => \unserialize($thumbnailsRo),
-                default => new MediaThumbnailCollection(),
-            };
-
+            $thumbnails = new MediaThumbnailCollection();
+            if (\is_array($thumbnailsRo) && $thumbnailsRo !== []) {
+                $thumbnails = ThumbnailReadProjection::hydrate($thumbnailsRo, $event->getDefinition());
+            }
             $media->assign(['thumbnails' => $thumbnails]);
         }
     }

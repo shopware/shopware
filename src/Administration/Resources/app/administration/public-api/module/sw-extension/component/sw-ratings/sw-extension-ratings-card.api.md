@@ -11,11 +11,42 @@ component sw-extension-ratings-card  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card/sw-extension-ratings-card.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-extension-error  [private]
+
+props
+  extension: object  [private]
+  isInstalledAndLicensed?: boolean  default=false  [private]
+  producerName: string  [private]
+
+emits
+  update-extension(...args: any[])  [private]
+
+data
+  criteriaLimit: any  [private]
+  criteriaPage: any  [private]
+  isLoading: any  [private]
+  numberOfRatings: any  [private]
+  reviews: any  [private]
+  summary: any  [private]
+
+computed
+  canShowMore: any  [private]
+  extensionStoreDataService: any  [private]
+  hasReviews: any  [private]
+  numberOfRatingsHasChanged: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  fetchReviews(isLoadingMore?: any = false): Promise<any>  [private]
+  getReviews(): Promise<any>  [private]
+  loadMoreReviews(): Promise<any>  [private]
+
 blocks
   sw_extension_ratings_card  [private]
-    sw_extension_ratings_card_empty_state  [private]
+    sw_extension_ratings_card_empty_state  [after v-if] [private]
       sw_extension_ratings_card_empty_state_content  [private]
-    sw_extension_ratings_card_footer  [private]
+    sw_extension_ratings_card_footer  [after v-if] [private]
       sw_extension_ratings_card_footer_review_creation  [private]
     sw_extension_ratings_card_has_reviews  [private]
       sw_extension_ratings_card_has_reviews_summary  [private]
@@ -23,4 +54,7 @@ blocks
         sw_extension_ratings_card_has_reviews_wrapper_more_button  [private]
         sw_extension_ratings_card_has_reviews_wrapper_review  [private]
     sw_extension_ratings_card_installed_and_licensed_headline  [private]
+
+crossings
+  v-if  sw_extension_ratings_card_has_reviews -> sw_extension_ratings_card_empty_state  [private]
 ```

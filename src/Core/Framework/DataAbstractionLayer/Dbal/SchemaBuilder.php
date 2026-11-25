@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Projected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
@@ -170,7 +171,7 @@ class SchemaBuilder
         $table->addOption('collate', 'utf8mb4_unicode_ci');
 
         foreach ($definition->getFields() as $field) {
-            if ($field->is(Runtime::class)) {
+            if ($field->isAny([Runtime::class, Projected::class])) {
                 continue;
             }
 

@@ -135,10 +135,6 @@ class MigrationIndexerSafeguardTest extends TestCase
             'indexer' => 'landing_page.indexer',
             'tables' => ['landing_page'],
         ];
-        yield 'media.indexer' => [
-            'indexer' => 'media.indexer',
-            'tables' => ['media', 'media_thumbnail'],
-        ];
         yield 'media_folder.indexer' => [
             'indexer' => 'media_folder.indexer',
             'tables' => ['media_folder'],

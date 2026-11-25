@@ -4,24 +4,31 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -160,5 +167,71 @@ class IteratorFactoryTest extends TestCase
         $params = $iterator->getQuery()->getParameters();
         static::assertArrayHasKey('versionId', $params);
         static::assertSame(50, $iterator->getQuery()->getMaxResults());
+    }
+
+    public function testIteratesTranslationsByTheIdOfTheirEntity(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CategoryDefinition::class, CategoryTranslationDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
+
+        $iterator = (new IteratorFactory($connection, $registry))->createIterator($registry->get(CategoryTranslationDefinition::class), null, 50, Defaults::LIVE_VERSION);
+        $sql = $iterator->getQuery()->getSQL();
+
+        static::assertSame(
+            ['`category_translation`.`category_id`', 'LOWER(HEX(`category_translation`.`category_id`))'],
+            $iterator->getQuery()->getSelectParts()
+        );
+        static::assertStringStartsWith('SELECT DISTINCT', $sql, 'a translation of several languages is iterated once');
+        static::assertStringContainsString('WHERE `category_translation`.`category_version_id` = :versionId', $sql, 'the version of the entity the translation belongs to is filtered');
+        static::assertStringContainsString('ORDER BY `category_translation`.`category_id`', $sql, 'the offset pagination needs a stable order');
+    }
+
+    public function testFailsForTranslationsOfEntitiesWithoutTranslations(): void
+    {
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+
+        $parent = new class extends EntityDefinition {
+            public function getEntityName(): string
+            {
+                return 'broken';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([(new IdField('id', 'id'))->addFlags(new PrimaryKey())]);
+            }
+        };
+
+        $translation = new class extends EntityTranslationDefinition {
+            public EntityDefinition $parent;
+
+            public function getEntityName(): string
+            {
+                return 'broken_translation';
+            }
+
+            public function getParentDefinition(): EntityDefinition
+            {
+                return $this->parent;
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([]);
+            }
+        };
+        $translation->parent = $parent;
+        $parent->compile($registry);
+        $translation->compile($registry);
+
+        $this->expectExceptionObject(DataAbstractionLayerException::missingParentForeignKey('broken'));
+
+        (new IteratorFactory(static::createStub(Connection::class), $registry))->createIterator($translation);
     }
 }

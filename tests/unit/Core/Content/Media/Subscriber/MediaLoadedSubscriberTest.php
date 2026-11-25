@@ -76,6 +76,27 @@ class MediaLoadedSubscriberTest extends TestCase
         static::assertSame($thumbnails, $media->get('thumbnails'));
     }
 
+    public function testReadsProjectedThumbnailOnFullMedia(): void
+    {
+        $id = Uuid::randomHex();
+        $media = new MediaEntity();
+        $media->setThumbnailsRo([[
+            'id' => $id,
+            'width' => 200,
+            'path' => 'thumbnail/cover.jpg',
+            'createdAt' => '2026-01-01',
+            'updatedAt' => null,
+        ]]);
+
+        $this->subscriber->unserialize(new EntityLoadedEvent(new MediaDefinition(), [$media], $this->context));
+
+        $thumbnail = $media->getThumbnails()?->get($id);
+        static::assertNotNull($thumbnail);
+        static::assertSame('thumbnail/cover.jpg', $thumbnail->getPath());
+        static::assertSame('2026-01-01', $thumbnail->getCreatedAt()?->format('Y-m-d'));
+        static::assertNull($thumbnail->getUpdatedAt());
+    }
+
     public function testDoesNotSetMediaTypeWhenRawIsMissingOnPartialEntity(): void
     {
         $media = new PartialEntity();

@@ -10,4 +10,16 @@ component sw-settings-usage-data-profile-consent  private  ts  [private]
   source src/module/sw-settings-usage-data/component/sw-settings-usage-data-profile-consent/index.ts  [private]
   template src/module/sw-settings-usage-data/component/sw-settings-usage-data-profile-consent/sw-settings-usage-data-profile-consent.html.twig  [private]
   visibility-source export  [private]
+
+data
+  isLoading: any  [private]
+
+computed
+  suspended: any  [private]
+  unionPath: any  [private]
+  userDataConsent: any  [private]
+
+methods
+  onLegalLinkClick(): any  [private]
+  updateConsent(newValue: boolean): Promise<any>  [private]
 ```

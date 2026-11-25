@@ -10,9 +10,61 @@ component sw-media-field  public  js
   source src/app/component/media/sw-media-field/index.js
   template src/app/component/media/sw-media-field/sw-media-field.html.twig
 
+inject
+  feature
+  repositoryFactory
+
+props
+  defaultFolder?: string  default=null
+  disabled?: boolean  default=false
+  fileAccept?: string  default='*/*'
+  label?: string  default=null
+  value?: null | string  default=null
+
+emits
+  update:value(...args: any[])
+
+slots
+  label  {}  block=sw_media_field_label
+
+data
+  isLoadingSuggestions: any
+  limit: any
+  mediaEntity: any
+  page: any
+  pickerClasses: any
+  searchTerm: any
+  showPicker: any
+  showUploadField: any
+  suggestedItems: any
+  total: any
+  uploadTag: any
+
+computed
+  mediaFieldClasses: any
+  mediaId: any
+  mediaRepository: any
+  popoverConfig: any
+  suggestionCriteria: any
+  toggleButtonLabel: any
+
+methods
+  computePickerPositionAndStyle(): any
+  createdComponent(): any
+  exposeNewId(arg0: any): any
+  fetchItem(id?: any = this.mediaId): Promise<any>
+  fetchSuggestions(): Promise<any>
+  mediaItemChanged(newMediaId: any): any
+  onPageChange(arg0: any): any
+  onSearchTermChange(searchTerm: any): any
+  onTogglePicker(): any
+  removeLink(): any
+  showLabel(): any
+  toggleUploadField(): any
+
 blocks
   sw_media_field
-    sw_media_field_input
+    sw_media_field_input  [after v-if]
       sw_media_field_preview
       sw_media_field_toggle_button
         sw_media_field_media_icon
@@ -21,8 +73,11 @@ blocks
             sw_media_field_action_bar_button_toggle
             sw_media_field_action_bar_button_unlink
           sw_media_field_media_list
-            sw_media_field_suggestion_preview
+            sw_media_field_suggestion_preview  [scope: suggestion]
           sw_media_field_search_field
           sw_media_field_upload_component
     sw_media_field_label
+
+crossings
+  v-if  sw_media_field_upload_component -> sw_media_field_media_popover
 ```

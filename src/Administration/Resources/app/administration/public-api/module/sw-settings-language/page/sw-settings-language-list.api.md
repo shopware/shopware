@@ -10,6 +10,82 @@ component sw-settings-language-list  public  js
   source src/module/sw-settings-language/page/sw-settings-language-list/index.js
   template src/module/sw-settings-language/page/sw-settings-language-list/sw-settings-language-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  feature
+  repositoryFactory
+  translationService
+
+data
+  builtInLocales: any
+  deleteCandidates: any
+  deleteTranslationFiles: any
+  filterSidebarItem: any  [deprecated tag:v6.8.0]
+  isDeleting: any
+  isLoading: any
+  languages: any
+  parentLanguages: any
+  showAddLanguageModal: any
+  showDeleteModal: any
+  snippetSelection: any
+  sortBy: any
+  sortDirection: any
+  total: any
+  translationMetadata: any
+  updatingLocales: any
+
+computed
+  allowCreate: any
+  allowDelete: any
+  allowEdit: any
+  allowInlineEdit: any
+  allowView: any
+  bulkDeleteLanguages: any
+  cardTitle: any
+  deleteCandidateInstalledLocales: any
+  getColumns: any
+  isUpdatingSnippets: any
+  languageRepository: any
+  listingCriteria: any
+  selectedLanguages: any
+  selectedUpdatableLocales: any
+  snackbar: any
+  snippetStatusConfig: any
+  sortedDeleteCandidates: any
+  updatableLocales: any
+
+methods
+  buildSnippetProgressSnackbar(processed: any, total: any): any
+  closeDeleteModal(): any
+  confirmDelete(): Promise<any>
+  createdComponent(): any
+  getList(): Promise<any>
+  getParentName(item: any): any
+  getSnippetStatus(item: any): any
+  invalidateLanguageCaches(): any
+  isDefault(languageId: any): any
+  isLocaleInstalled(localeCode: any): any
+  loadTranslationMetadata(): Promise<any>
+  localeLabel(item: any): any
+  onAddLanguage(): any
+  onInlineEditSave(promise: any): any
+  onLanguageAdded(locale: any): Promise<any>
+  onRefresh(): any
+  onSelectionChange(selection: any): any
+  onUpdateAllSnippets(): Promise<any>
+  onUpdateSelectedSnippets(): any
+  onUpdateSnippets(item: any): Promise<any>
+  openDeleteModal(languages: any): any
+  openFilterSidebar(): any  [deprecated tag:v6.8.0]
+  registerFilterSidebarItem(sidebarItem: any): any  [deprecated tag:v6.8.0]
+  removeTranslationFiles(locales: any): Promise<any>
+  runSnippetUpdate(locales: any): Promise<any>
+  salesChannelLabel(item: any): any
+  tooltipDelete(languageId: any): any
+
 blocks
   sw_settings_list
     sw_settings_language_index
@@ -18,7 +94,7 @@ blocks
         sw_settings_language_list_content_list_bulk
         sw_settings_language_list_content_list_content
           sw_settings_language_list_content_list_columns
-            sw_settings_language_list_content_list_column_id
+            sw_settings_language_list_content_list_column_id  [deprecated tag:v6.8.0]
             sw_settings_language_list_content_list_column_locale
             sw_settings_language_list_content_list_column_name
             sw_settings_language_list_content_list_column_parent
@@ -26,28 +102,31 @@ blocks
             sw_settings_language_list_content_list_column_snippet_status
           sw_settings_language_list_content_list_delete
             sw_settings_language_list_content_list_delete_action
-            sw_settings_language_list_content_list_delete_confirm_action
+            sw_settings_language_list_content_list_delete_confirm_action  [deprecated tag:v6.8.0]
           sw_settings_language_list_content_list_update_snippets_action
-        sw_settings_language_list_delete_modal
+        sw_settings_language_list_delete_modal  [after v-if]
           sw_settings_language_list_delete_modal_content
-          sw_settings_language_list_delete_modal_footer
+          sw_settings_language_list_delete_modal_footer  [after v-if]
       sw_settings_language_list_grid_sidebar
-        sw_settings_language_list_grid_sidebar_filter
-        sw_settings_language_list_grid_sidebar_filter_content
-        sw_settings_language_list_grid_sidebar_filter_content_inherited_languages
-        sw_settings_language_list_grid_sidebar_filter_content_root_languages
-        sw_settings_language_list_grid_sidebar_filter_header
-        sw_settings_language_list_grid_sidebar_filter_header_icon
-        sw_settings_language_list_grid_sidebar_filter_header_icon_expanded
-        sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded
-        sw_settings_language_list_grid_sidebar_filter_header_title
+        sw_settings_language_list_grid_sidebar_filter  [deprecated tag:v6.8.0]
+        sw_settings_language_list_grid_sidebar_filter_content  [deprecated tag:v6.8.0]
+        sw_settings_language_list_grid_sidebar_filter_content_inherited_languages  [deprecated tag:v6.8.0]
+        sw_settings_language_list_grid_sidebar_filter_content_root_languages  [deprecated tag:v6.8.0]
+        sw_settings_language_list_grid_sidebar_filter_header  [deprecated tag:v6.8.0]
+        sw_settings_language_list_grid_sidebar_filter_header_icon  [deprecated tag:v6.8.0]
+        sw_settings_language_list_grid_sidebar_filter_header_icon_expanded  [deprecated tag:v6.8.0]
+        sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded  [deprecated tag:v6.8.0]
+        sw_settings_language_list_grid_sidebar_filter_header_title  [deprecated tag:v6.8.0]
         sw_settings_language_list_grid_sidebar_refresh
       sw_settings_language_list_search_bar
       sw_settings_language_list_smart_bar_actions
-        sw_settings_language_list_smart_bar_actions_add
+        sw_settings_language_list_smart_bar_actions_add  [after v-if]
         sw_settings_language_list_smart_bar_actions_update_snippets
       sw_settings_language_list_smart_bar_header
         sw_settings_language_list_smart_bar_header_title
-          sw_settings_language_list_smart_bar_header_amount
+          sw_settings_language_list_smart_bar_header_amount  [deprecated tag:v6.8.0]
           sw_settings_language_list_smart_bar_header_title_text
+
+refs
+  languageGrid  -> sw-entity-listing  block=sw_settings_language_list_content
 ```

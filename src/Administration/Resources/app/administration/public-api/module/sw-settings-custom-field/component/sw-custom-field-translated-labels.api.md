@@ -10,14 +10,45 @@ component sw-custom-field-translated-labels  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels/sw-custom-field-translated-labels.html.twig
 
+mixins
+  sw-inline-snippet
+
+inject
+  acl
+  feature
+
+props
+  config: object
+  disabled?: boolean  default=false
+  locales: any[]  default=[]
+  propertyNames: object
+
+data
+  activeTab: any
+
+computed
+  activeLocale: any
+  fallbackLocale: any
+  localeCount: any
+  translatedLabelTabs: any
+
+methods
+  createdComponent(): any
+  getLabel(label: any, locale: any): any
+  initializeConfiguration(): any
+  onInput(input: any, propertyName: any, locale: any): any
+
 blocks
   sw_custom_field_translated_labels
     sw_custom_field_translated_labels_single
-    sw_custom_field_translated_labels_translated
+    sw_custom_field_translated_labels_translated  [after v-if]
       sw_custom_field_translated_labels_translated_content  [until v6.8.0]
-        sw_custom_field_translated_labels_translated_content_field  [until v6.8.0]
+        sw_custom_field_translated_labels_translated_content_field  [scope: active, locale] [until v6.8.0]
       sw_custom_field_translated_labels_translated_mt_content  [from v6.8.0]
-        sw_custom_field_translated_labels_translated_mt_content_field  [from v6.8.0]
+        sw_custom_field_translated_labels_translated_mt_content_field  [scope: locale] [from v6.8.0]
       sw_custom_field_translated_labels_translated_mt_tabs  [from v6.8.0]
       sw_custom_field_translated_labels_translated_tabs  [until v6.8.0]
+
+crossings
+  v-if  sw_custom_field_translated_labels_single -> sw_custom_field_translated_labels_translated
 ```

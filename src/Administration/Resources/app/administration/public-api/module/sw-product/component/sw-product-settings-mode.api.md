@@ -10,13 +10,29 @@ component sw-product-settings-mode  public  js  [until v6.8.0]
   source src/module/sw-product/component/sw-product-settings-mode/index.js
   template src/module/sw-product/component/sw-product-settings-mode/sw-product-settings-mode.html.twig
 
+props
+  isLoading?: boolean  default=true  [until v6.8.0]
+  modeSettings: object  [until v6.8.0]
+
+emits
+  settings-change(...args: any[])  [until v6.8.0]
+  settings-item-change(...args: any[])  [until v6.8.0]
+
+computed
+  advancedMode: any  [until v6.8.0]
+  settings: any  [until v6.8.0]
+
+methods
+  onChangeSetting(): any  [until v6.8.0]
+  onChangeSettingItem(): any  [until v6.8.0]
+
 blocks
   sw_product_settings_mode  [until v6.8.0]
     sw_product_settings_mode_content  [until v6.8.0]
       sw_product_settings_mode_devider  [until v6.8.0]
       sw_product_settings_mode_list  [until v6.8.0]
         sw_product_settings_mode_item  [until v6.8.0]
-          sw_product_settings_mode_item_visibility_checkbox  [until v6.8.0]
+          sw_product_settings_mode_item_visibility_checkbox  [scope: index, item] [until v6.8.0]
       sw_product_settings_mode_loader  [until v6.8.0]
       sw_product_settings_mode_main  [until v6.8.0]
         sw_product_settings_mode_advanced_switch  [until v6.8.0]

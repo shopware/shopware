@@ -10,6 +10,24 @@ component sw-media-modal-folder-dissolve  public  js
   source src/app/component/media/sw-media-modal-folder-dissolve/index.js
   template src/app/component/media/sw-media-modal-folder-dissolve/sw-media-modal-folder-dissolve.html.twig
 
+mixins
+  notification
+
+inject
+  mediaFolderService
+
+props
+  itemsToDissolve: any[]
+
+emits
+  media-folder-dissolve-modal-close(...args: any[])
+  media-folder-dissolve-modal-dissolve(...args: any[])
+
+methods
+  _dissolveSelection(item: any): Promise<any>
+  closeDissolveModal(originalDomEvent: any): any
+  dissolveSelection(): Promise<any>
+
 blocks
   sw_media_modal_folder_dissolve
     sw_media_modal_folder_dissolve_body

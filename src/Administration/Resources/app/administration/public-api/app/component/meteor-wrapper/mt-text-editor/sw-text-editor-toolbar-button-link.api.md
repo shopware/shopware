@@ -10,4 +10,49 @@ component sw-text-editor-toolbar-button-link  private  ts  [private]
   source src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/index.ts  [private]
   template src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/sw-text-editor-toolbar-button-link.html.twig  [private]
   visibility-source export  [private]
+
+inject
+  repositoryFactory  [private]
+
+props
+  button: CustomButton  [private]
+  disabled?: boolean  default=false  [private]
+  editor: Editor  [private]
+
+data
+  buttonVariant: any  [private]
+  categoryCollection: any  [private]
+  displayAsButton: any  [private]
+  isLoading: any  [private]
+  linkHref: any  [private]
+  linkTarget: any  [private]
+  linkType: any  [private]
+  showLinkModal: any  [private]
+
+computed
+  buttonVariantList: any  [private]
+  categoryRepository: RepositoryType<'category'>  [private]
+  entityFilter: CriteriaType  [private]
+  linkOptions: any  [private]
+  productEntityFilter: CriteriaType  [private]
+  seoUrlReplacePrefix: string  [private]
+  showOpenInNewTabToggle: any  [private]
+
+methods
+  addProtocolToLink(link: string): string  [private]
+  applyLink(): any  [private]
+  getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollectionType<'category'>>  [private]
+  getEditor(): Editor  [private]
+  getEmptyCategoryCollection(): EntityCollectionType<'category'>  [private]
+  isLink(): any  [private]
+  onSelectFieldChange(linkType: LinkCategories): any  [private]
+  openLinkModal(): Promise<any>  [private]
+  parseButtonClass(): string  [private]
+  parseLink(link: string): Promise<{ linkType: LinkCategories; linkHref: string; }>  [private]
+  prepareClass(): any  [private]
+  prepareLink(): any  [private]
+  prepareTarget(): any  [private]
+  removeCategorySelection(): void  [private]
+  removeLink(): any  [private]
+  replaceCategorySelection(category: { id: EntityKey<'category'> }): void  [private]
 ```

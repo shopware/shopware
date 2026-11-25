@@ -6,17 +6,21 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\PostUpdateIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -46,6 +50,41 @@ class EntityIndexerRegistryTest extends TestCase
         $this->indexerMock1 = static::createStub(EntityIndexer::class);
         $this->indexerMock2 = static::createStub(EntityIndexer::class);
         $this->instrumentorStub = static::createStub(IndexerMetricsInstrumentor::class);
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Remove with the queue compatibility path for 6.7.
+     */
+    #[DisabledFeatures(['v6.9.0.0'])]
+    public function testOldMediaIterationDrainsWhenIndexerIsMissing(): void
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($this->never())->method('dispatch');
+        $registry = new EntityIndexerRegistry([], $bus, $this->dispatcherMock, $this->instrumentorStub);
+
+        $registry(new IterateEntityIndexerMessage('media.indexer', ['offset' => 50]));
+    }
+
+    public function testMissingIndexerFailsIteration(): void
+    {
+        $registry = new EntityIndexerRegistry([], $this->messageBusMock, $this->dispatcherMock, $this->instrumentorStub);
+        $this->expectExceptionObject(DataAbstractionLayerException::entityIndexerNotFound('unknown.indexer'));
+
+        $registry(new IterateEntityIndexerMessage('unknown.indexer', null));
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Remove with the queue compatibility path for 6.7.
+     */
+    public function testMissingMediaIndexerFailsIterationIn69(): void
+    {
+        $registry = new EntityIndexerRegistry([], $this->messageBusMock, $this->dispatcherMock, $this->instrumentorStub);
+        $this->expectExceptionObject(DataAbstractionLayerException::entityIndexerNotFound('media.indexer'));
+
+        Feature::fake(['v6.9.0.0'], static function () use ($registry): void {
+            Feature::registerFeature('v6.9.0.0');
+            $registry(new IterateEntityIndexerMessage('media.indexer', null));
+        });
     }
 
     public function testIndexSuccessful(): void

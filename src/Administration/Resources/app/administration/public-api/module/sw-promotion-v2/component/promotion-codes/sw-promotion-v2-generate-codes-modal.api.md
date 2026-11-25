@@ -10,6 +10,40 @@ component sw-promotion-v2-generate-codes-modal  public  js
   source src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/index.js
   template src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/sw-promotion-v2-generate-codes-modal.html.twig
 
+mixins
+  notification
+
+inject
+  promotionCodeApiService
+
+props
+  promotion: object
+
+emits
+  close(...args: any[])
+  generate-finish(...args: any[])
+
+data
+  codeAmount: any
+  customPatternMode: any
+  isGenerating: any
+  pattern: object
+    codeLength: any
+    prefix: any
+    suffix: any
+  preview: any
+
+computed
+  hasValidPattern: any
+  patternError: any
+
+methods
+  createdComponent(): any
+  onClose(): any
+  onGenerate(): any
+  updatePattern(): any
+  updatePreview(): any
+
 blocks
   sw_promotion_v2_generate_codes_modal
     sw_promotion_v2_generate_codes_modal_content
@@ -17,15 +51,18 @@ blocks
         sw_promotion_v2_generate_codes_modal_code_amount
         sw_promotion_v2_generate_codes_modal_preview
       sw_promotion_v2_generate_codes_modal_container_pattern
-        sw_promotion_v2_generate_codes_modal_container_pattern_custom
+        sw_promotion_v2_generate_codes_modal_container_pattern_custom  [after v-if]
         sw_promotion_v2_generate_codes_modal_container_pattern_simple
           sw_promotion_v2_generate_codes_modal_prefix
           sw_promotion_v2_generate_codes_modal_replacement
           sw_promotion_v2_generate_codes_modal_suffix
       sw_promotion_v2_generate_codes_modal_custom_pattern_switch
-      sw_promotion_v2_generate_codes_modal_description
+      sw_promotion_v2_generate_codes_modal_description  [after v-if]
       sw_promotion_v2_generate_codes_modal_warning
     sw_promotion_v2_generate_codes_modal_footer
       sw_promotion_v2_generate_codes_modal_cancel
       sw_promotion_v2_generate_codes_modal_generate
+
+crossings
+  v-if  sw_promotion_v2_generate_codes_modal_container_pattern_simple -> sw_promotion_v2_generate_codes_modal_container_pattern_custom
 ```

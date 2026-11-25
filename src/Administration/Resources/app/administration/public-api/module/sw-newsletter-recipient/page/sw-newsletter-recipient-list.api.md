@@ -10,6 +10,55 @@ component sw-newsletter-recipient-list  public  js
   source src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js
   template src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/sw-newsletter-recipient-list.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  repositoryFactory
+
+data
+  filterSidebarItem: any
+  internalFilters: any
+  isLoading: any
+  items: any
+  languageFilterValue: any
+  languageFilters: any
+  salesChannelFilterValue: any
+  salesChannelFilters: any  [deprecated tag:v6.8.0]
+  searchConfigEntity: any  [deprecated tag:v6.8.0]
+  sortBy: any
+  sortDirection: any
+  statusFilterValue: any
+  tagCollection: any  [deprecated tag:v6.8.0]
+  tagFilterValue: any
+  tagFilters: any
+  total: any
+
+computed
+  adminEsEnable: any
+  columns: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  emailIdnFilter: any
+  newsletterRecipientRepository: any
+  salesChannelRepository: any
+  statusData: any
+  tagRepository: any
+
+methods
+  createdComponent(): Promise<any>
+  getColumns(): any
+  getList(): Promise<any>
+  handleBooleanFilter(filter: any): any  [deprecated tag:v6.8.0]
+  handleTagFilter(filter: any): any  [deprecated tag:v6.8.0]
+  onChange(filter: any): Promise<any>  [deprecated tag:v6.8.0]
+  onLanguageSelectionChanged(value: any): Promise<any>
+  onSalesChannelSelectionChanged(value: any): Promise<any>
+  onStatusSelectionChanged(value: any): Promise<any>
+  onTagSelectionChanged(value: any): Promise<any>
+  openFilterSidebar(): any
+  registerFilterSidebarItem(sidebarItem: any): any
+
 blocks
   sw_newsletter_recipient_list
     sw_newsletter_recipient_list_search_bar
@@ -22,10 +71,10 @@ blocks
         sw_newsletter_recipient_list_sidebar_filter_sales_tags
           sw_newsletter_recipient_list_sidebar_filter_sales_tags_select
         sw_newsletter_recipient_list_sidebar_filter_status
-          sw_newsletter_recipient_list_sidebar_filter_status_direct
-          sw_newsletter_recipient_list_sidebar_filter_status_not_set
-          sw_newsletter_recipient_list_sidebar_filter_status_opt_in
-          sw_newsletter_recipient_list_sidebar_filter_status_opt_out
+          sw_newsletter_recipient_list_sidebar_filter_status_direct  [deprecated tag:v6.8.0]
+          sw_newsletter_recipient_list_sidebar_filter_status_not_set  [deprecated tag:v6.8.0]
+          sw_newsletter_recipient_list_sidebar_filter_status_opt_in  [deprecated tag:v6.8.0]
+          sw_newsletter_recipient_list_sidebar_filter_status_opt_out  [deprecated tag:v6.8.0]
       sw_newsletter_recipient_list_sidebar_refresh
     sw_newsletter_recipient_list_smart_bar_header
       sw_newsletter_recipient_list_smart_bar_header_title
@@ -33,19 +82,29 @@ blocks
         sw_newsletter_recipientlist_list_smart_bar_header_title_text
     sw_newsletter_recipientlist_list_content
       sw_newsletter_recipient_list_empty_state
-      sw_newsletter_recipientlist_list_content_card
-        sw_newsletter_recipientlist_list_grid
+      sw_newsletter_recipientlist_list_content_card  [after v-if]
+        sw_newsletter_recipientlist_list_grid  [after v-if]
           sw_newsletter_recipientlist_list_grid_created_at
           sw_newsletter_recipientlist_list_grid_email
           sw_newsletter_recipientlist_list_grid_name
-            sw_newsletter_recipientlist_list_grid_inline_edit_name
-              sw_newsletter_recipientlist_list_grid_inline_edit_first_name
-              sw_newsletter_recipientlist_list_grid_inline_edit_last_name
-            sw_newsletter_recipientlist_list_grid_name_link
+            sw_newsletter_recipientlist_list_grid_inline_edit_name  [scope: compact, isInlineEdit, item]
+              sw_newsletter_recipientlist_list_grid_inline_edit_first_name  [scope: compact, isInlineEdit, item]
+              sw_newsletter_recipientlist_list_grid_inline_edit_last_name  [scope: compact, isInlineEdit, item]
+            sw_newsletter_recipientlist_list_grid_name_link  [after v-if] [scope: compact, isInlineEdit, item]
           sw_newsletter_recipientlist_list_grid_status
-            sw_newsletter_recipientlist_list_grid_status_direct
-            sw_newsletter_recipientlist_list_grid_status_notSet
-            sw_newsletter_recipientlist_list_grid_status_optIn
-            sw_newsletter_recipientlist_list_grid_status_optOut
+            sw_newsletter_recipientlist_list_grid_status_direct  [after v-if] [scope: compact, isInlineEdit, item]
+            sw_newsletter_recipientlist_list_grid_status_notSet  [scope: compact, isInlineEdit, item]
+            sw_newsletter_recipientlist_list_grid_status_optIn  [after v-if] [scope: compact, isInlineEdit, item]
+            sw_newsletter_recipientlist_list_grid_status_optOut  [after v-if] [scope: compact, isInlineEdit, item]
           sw_newsletter_recipientlist_list_grid_updated_at
+
+crossings
+  v-if  sw_newsletter_recipient_list_empty_state -> sw_newsletter_recipientlist_list_grid
+  v-if  sw_newsletter_recipientlist_list_grid_inline_edit_name -> sw_newsletter_recipientlist_list_grid_name_link
+  v-if  sw_newsletter_recipientlist_list_grid_status_notSet -> sw_newsletter_recipientlist_list_grid_status_optIn
+  v-if  sw_newsletter_recipientlist_list_grid_status_optIn -> sw_newsletter_recipientlist_list_grid_status_optOut
+  v-if  sw_newsletter_recipientlist_list_grid_status_optOut -> sw_newsletter_recipientlist_list_grid_status_direct
+
+refs
+  swNewsletterRecipientGrid  -> sw-entity-listing  block=sw_newsletter_recipientlist_list_grid
 ```

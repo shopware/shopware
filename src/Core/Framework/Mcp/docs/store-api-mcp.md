@@ -60,14 +60,14 @@ class MyProductFinderTool extends McpToolResponse
         private readonly ProductListingLoader $listingLoader,
     ) {}
 
-    public function __invoke(string $query): string
+    public function __invoke(string $query): McpToolResult
     {
         $context = $this->contextProvider->getSalesChannelContext();
         if ($context === null) {
-            return $this->error('No sales-channel context available.');
+            return $this->errorResult('No sales-channel context available.');
         }
         // use $this->listingLoader with $context
-        return $this->success([...]);
+        return $this->successResult([...]);
     }
 }
 ```

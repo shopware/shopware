@@ -10,14 +10,54 @@ component sw-bulk-edit-customer  public  js
   source src/module/sw-bulk-edit/page/sw-bulk-edit-customer/index.js
   template src/module/sw-bulk-edit/page/sw-bulk-edit-customer/sw-bulk-edit-customer.html.twig
 
+mixins
+  notification
+
+inject
+  bulkEditApiFactory
+  customFieldDataProviderService
+  repositoryFactory
+
+data
+  bulkEditData: any
+  customFieldSets: any
+  customer: any
+  isLoadedData: any
+  isLoading: any
+  isSaveSuccessful: any
+  processStatus: any
+
+computed
+  accountFormFields: any
+  actionsRequestGroup: any
+  customFieldSetCriteria: any  [deprecated tag:v6.8.0]
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+  customerRepository: any
+  hasChanges: any
+  selectedIds: any
+  tagsFormFields: any
+
+methods
+  closeModal(): any
+  createdComponent(): any
+  defineBulkEditData(name: any, value?: any = null, type?: any = 'overwrite', isChanged?: any = false): any
+  loadBulkEditData(): any
+  loadCustomFieldSets(): Promise<any>
+  onChangeLanguage(languageId: any): any
+  onCustomFieldsChange(value: any): any
+  onProcessData(): any
+  onSave(): Promise<any>
+  openModal(): any
+  setRouteMetaModule(): any
+
 blocks
   sw_bulk_edit_customer
     sw_bulk_edit_customer_content
       sw_bulk_edit_customer_content_account_card
         sw_bulk_edit_customer_content_account_section
       sw_bulk_edit_customer_custom_field_card
-      sw_bulk_edit_customer_empty_state
-      sw_bulk_edit_customer_save_modal
+      sw_bulk_edit_customer_empty_state  [after v-if]
+      sw_bulk_edit_customer_save_modal  [after v-if]
       sw_bulk_edit_customer_tags_card
         sw_bulk_edit_customer_tags
     sw_bulk_edit_customer_content_language_switch

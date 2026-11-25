@@ -10,9 +10,24 @@ component sw-payment-card  public  js
   source src/module/sw-settings-payment/component/sw-payment-card/index.js
   template src/module/sw-settings-payment/component/sw-payment-card/sw-payment-card.html.twig
 
+inject
+  acl
+
+props
+  paymentMethod: object
+
+emits
+  set-payment-active(...args: any[])
+
+computed
+  previewUrl: any
+
+methods
+  setPaymentMethodActive(active: any): any
+
 blocks
   sw_payment_card
-    sw_payment_card_description
+    sw_payment_card_description  [after v-if]
     sw_payment_card_link
     sw_payment_card_preview
     sw_payment_card_toggle

@@ -10,27 +10,82 @@ component sw-sales-channel-product-assignment-categories  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/sw-sales-channel-product-assignment-categories.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  containerStyle: object
+  salesChannel: object
+
+emits
+  product-loading(...args: any[])
+  selection-change(...args: any[])
+
+data
+  categories: any
+  categoriesCollection: any
+  isComponentReady: any
+  isFetching: any
+  isProductLoading: any
+  searchResult: any
+  searchTerm: any
+
+computed
+  categoryRepository: any
+  productRepository: any
+  selectedCategoriesItemsIds: any
+  selectedCategoriesPathIds: any
+
+methods
+  categoryCriteria(parentId: any): any
+  categorySearchCriteria(term: any): any
+  createdComponent(): any
+  getBreadcrumb(item: any): any
+  getProductFromCategories(categories: any): any
+  getTreeItems(parentId?: any = null): Promise<any>
+  isSearchItemChecked(itemId: any): any
+  onChangeSearchTerm(searchTerm: any): any
+  onCheckItem(item: any): any
+  onCheckSearchItem(item: any): any
+  onSearchTermChange(input: any): any
+  productCriteria(categories: any): any
+  removeItem(item: any): any
+  searchCategories(term: any): any
+
 blocks
   sw_sales_channel_product_assignment_categories
     sw_sales_channel_product_assignment_categories_content
       sw_sales_channel_product_assignment_categories_tree
-        sw_sales_channel_product_assignment_categories_search_results
+        sw_sales_channel_product_assignment_categories_search_results  [after v-if]
           sw_sales_channel_product_assignment_categories_search_results_item
-            sw_category_tree_field_input_results_search_results_item_endpoint
-              sw_category_tree_field_input_results_search_results_item_endpoint_icon
-            sw_sales_channel_product_assignment_categories_search_results_item_checkbox
-            sw_sales_channel_product_assignment_categories_search_results_item_folder
-              sw_sales_channel_product_assignment_categories_search_results_item_folder_icon
-            sw_sales_channel_product_assignment_categories_search_results_item_name
-              sw_category_tree_field_input_results_search_results_item_name_highlight
-        sw_sales_channel_product_assignment_categories_search_results_empty
+            sw_category_tree_field_input_results_search_results_item_endpoint  [after v-if] [scope: item]
+              sw_category_tree_field_input_results_search_results_item_endpoint_icon  [scope: item]
+            sw_sales_channel_product_assignment_categories_search_results_item_checkbox  [scope: item]
+            sw_sales_channel_product_assignment_categories_search_results_item_folder  [scope: item]
+              sw_sales_channel_product_assignment_categories_search_results_item_folder_icon  [scope: item]
+            sw_sales_channel_product_assignment_categories_search_results_item_name  [scope: item]
+              sw_category_tree_field_input_results_search_results_item_name_highlight  [scope: item]
+        sw_sales_channel_product_assignment_categories_search_results_empty  [after v-if]
         sw_sales_channel_product_assignment_categories_tree_result
           sw_sales_channel_product_assignment_categories_tree_headline
           sw_sales_channel_product_assignment_categories_tree_items
-            ssw_sales_channel_product_assignment_categories_tree_item
-              sw_sales_channel_product_assignment_categories_tree_item_actions
+            ssw_sales_channel_product_assignment_categories_tree_item  [scope: draggedItem, translationContext, treeItems]
+              sw_sales_channel_product_assignment_categories_tree_item_actions  [scope: draggedItem, item, translationContext, treeItems]
           sw_sales_channel_product_assignment_categories_tree_search
       sw_sales_channel_products_assignment_single_products_secondary
         sw_sales_channel_product_assignment_categories_search_field
     sw_sales_channel_product_assignment_categories_info
+
+crossings
+  v-if  sw_sales_channel_product_assignment_categories_search_results -> sw_sales_channel_product_assignment_categories_search_results_empty
+  v-if  sw_sales_channel_product_assignment_categories_search_results_item_folder -> sw_category_tree_field_input_results_search_results_item_endpoint
+  v-if  sw_sales_channel_product_assignment_categories_tree_result -> sw_sales_channel_product_assignment_categories_search_results
+
+refs
+  alert  -> mt-banner  block=sw_sales_channel_product_assignment_categories_info
+  cardSectionSecondary  -> sw-card-section  block=sw_sales_channel_products_assignment_single_products_secondary
+  swTree  -> sw-tree  block=sw_sales_channel_product_assignment_categories_tree_result
 ```

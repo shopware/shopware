@@ -12,7 +12,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\ThumbnailGeneratedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -22,15 +21,16 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
+use Shopware\Core\Framework\Adapter\Cache\Message\InvalidateMediaCache;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -51,7 +51,7 @@ class ThumbnailService
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly EntityRepository $mediaFolderRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly EntityIndexer $indexer,
+        private readonly MessageBusInterface $bus,
         private readonly ThumbnailSizeCalculator $thumbnailSizeCalculator,
         private readonly Connection $connection,
         private readonly ThumbnailProcessorInterface $thumbnailProcessor,
@@ -100,7 +100,7 @@ class ThumbnailService
             $generate[] = $media;
         }
 
-        // disable media indexing to trigger it once after processing all thumbnails
+        // Invalidate the covers once after all thumbnail paths have been written.
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         if ($delete !== []) {
@@ -135,7 +135,7 @@ class ThumbnailService
             }
         }
 
-        $this->indexer->handle(new MediaIndexingMessage($collection->getIds()));
+        InvalidateMediaCache::dispatch($this->bus, $collection->getIds(), $context);
 
         return \count($updates);
     }
@@ -220,13 +220,11 @@ class ThumbnailService
             return $context->state(function () use ($delete, $media, $config, $context, $toBeCreatedSizes, $toBeDeletedPaths): array {
                 $this->thumbnailRepository->delete($delete, $context);
 
-                $updated = $this->generateAndSave($media, $config, $context, $toBeCreatedSizes, $toBeDeletedPaths);
-
-                $this->indexer->handle(new MediaIndexingMessage([$media->getId()]));
-
-                return $updated;
+                return $this->generateAndSave($media, $config, $context, $toBeCreatedSizes, $toBeDeletedPaths);
             }, EntityIndexerRegistry::DISABLE_INDEXING, MediaDeletionSubscriber::SKIP_FILE_DELETE);
         });
+
+        InvalidateMediaCache::dispatch($this->bus, [$media->getId()], $context);
 
         /** @var list<array{id:string, mediaId:string, mediaThumbnailSizeId:string, width:int, height:int}> $update */
         $this->deleteStaleThumbnailFiles($media, $toBeDeletedPaths, $update);

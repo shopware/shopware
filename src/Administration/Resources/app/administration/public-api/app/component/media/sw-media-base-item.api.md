@@ -10,19 +10,72 @@ component sw-media-base-item  public  js
   source src/app/component/media/sw-media-base-item/index.js
   template src/app/component/media/sw-media-base-item/sw-media-base-item.html.twig
 
+inject
+  systemConfigApiService
+
+props
+  allowDelete?: boolean  default=true
+  allowEdit?: boolean  default=true
+  allowMultiSelect?: boolean  default=true
+  disabled?: boolean  default=false
+  editable?: boolean  default=true
+  isList?: boolean  default=false
+  item: object
+  selected?: boolean  default=false
+  showContextMenuButton?: boolean  default=true
+  showSelectionIndicator?: boolean  default=false
+  truncateRight?: boolean  default=false
+
+emits
+  media-item-click(...args: any[])
+  media-item-selection-add(...args: any[])
+  media-item-selection-remove(...args: any[])
+
+slots
+  context-menu  { ...{ item, startInlineEdit, allowEdit, allowDelete } }  block=sw_media_base_item_context_items
+  metadata  { ...{ item } }  block=sw_media_base_item_metadata
+  modal-windows  { ...{ item, allowEdit, allowDelete } }  block=sw_media_base_item
+  name  { ...{ item, isInlineEdit, startInlineEdit, endInlineEdit } }  block=sw_media_base_item_name_container
+  preview  { ...{ item } }  block=sw_media_base_item_preview
+
+data
+  defaultArReady: any
+  isInlineEdit: any
+
+computed
+  isLoading: any
+  isSpatial: any
+  listSelected: any
+  mediaItemClasses: any
+  mediaNameContainerClasses: any
+  selectionIndicatorClasses: any
+
+methods
+  createdComponent(): any
+  endInlineEdit(): any
+  handleItemClick(originalDomEvent: any): any
+  isSelectionIndicatorClicked(path: any): any
+  onClickedItem(originalDomEvent: any): any
+  removeFromSelection(originalDomEvent: any): any
+  selectItem(originalDomEvent: any): any
+  startInlineEdit(): any
+
 blocks
   sw_media_base_item
-    sw_media_base_item_context_menu
+    sw_media_base_item_context_menu  [after v-if]
       sw_media_base_item_context_items
         sw_media_base_item_slot_media_item_context_menu
-    sw_media_base_item_list_selected_indicator
-    sw_media_base_item_loading_indicator
+    sw_media_base_item_list_selected_indicator  [after v-if]
+    sw_media_base_item_loading_indicator  [after v-if]
     sw_media_base_item_metadata_container
       sw_media_base_item_metadata
         sw_media_base_item_slot_media_item_metadata
     sw_media_base_item_name_container
-    sw_media_base_item_preview
+    sw_media_base_item_preview  [after v-if]
       sw_media_base_item_slot_media_preview
       sw_media_base_spatial_label_indicator
     sw_media_base_item_selected_indicator
+
+refs
+  swContextButton  -> sw-context-button  block=sw_media_base_item_context_menu
 ```

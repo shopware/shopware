@@ -12,9 +12,37 @@ component sw-cms-create  private  js  [private]
   template src/module/sw-cms/page/sw-cms-create/sw-cms-create.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder  [private]
+
+data
+  wizardComplete: any  [private]
+
+computed
+  categoryRepository: any  [private]
+  pageHasSections: any  [private]
+
+methods
+  assignToEntity(page: any): Promise<any>  [private]
+  createdComponent(): any  [private]
+  onSave(): Promise<any>  [private]
+  onWizardComplete(): any  [private]
+
 blocks
-  sw_cms_detail_stage_container  [private]
-  sw_cms_detail_toolbar_actions_sales_channel  [private]
-  sw_cms_detail_toolbar_actions_save  [private]
-  sw_cms_detail_toolbar_language_switch  [private]
+  sw_cms_detail  [inherited] [private]
+    sw_cms_detail_content  [inherited] [private]
+      sw_cms_detail_stage_container  [replaced] [private]
+      sw_cms_detail_toolbar  [inherited] [private]
+        sw_cms_detail_toolbar_actions  [inherited] [private]
+          sw_cms_detail_toolbar_actions_save  [replaced] [private]
+        sw_cms_detail_toolbar_device_actions  [inherited] [private]
+          sw_cms_detail_toolbar_device_actions_desktop  [inherited] [private]
+          sw_cms_detail_toolbar_device_actions_form  [inherited] [private]
+          sw_cms_detail_toolbar_device_actions_mobile  [inherited] [private]
+          sw_cms_detail_toolbar_device_actions_tablet_landscape  [inherited] [private]
+        sw_cms_detail_toolbar_language_switch  [replaced] [private]
+        sw_cms_detail_toolbar_title  [inherited] [private]
+          sw_cms_detail_toolbar_back_button  [inherited] [private]
+          sw_cms_detail_toolbar_page_name  [inherited] [private]
+          sw_cms_detail_toolbar_page_type  [inherited] [private]
 ```

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Projected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
@@ -57,6 +58,7 @@ class DefinitionValidator
         'product.cheapest_price',
         'product.cheapest_price_accessor',
         'sales_channel_domain.external_storefront_language_id',
+        'product_document.media',
     ];
 
     /**
@@ -127,6 +129,10 @@ class DefinitionValidator
         'mcp_tool_result_cache',
         'mcp_toolset_session',
         'mcp_list_version',
+        'cms_page_media_usage',
+        'category_translation_media_usage',
+        'product_translation_media_usage',
+        'landing_page_translation_media_usage',
         'webhook_delivery',
         'webhook_stream',
     ];
@@ -973,7 +979,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if ($field->getFlag(Runtime::class)) {
+            if ($field->isAny([Runtime::class, Projected::class])) {
                 continue;
             }
 

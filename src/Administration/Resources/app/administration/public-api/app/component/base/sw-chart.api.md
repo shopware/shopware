@@ -11,9 +11,46 @@ component sw-chart  private  js  [private]
   template src/app/component/base/sw-chart/sw-chart.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  fillEmptyValues?: string  default=null  [private]
+  height?: number  default=400  [private]
+  options: object  [private]
+  series: any[]  [private]
+  sort?: boolean  default=false  [private]
+  type: string  [private]
+
+data
+  isLoading: any  [private]
+  localeConfig: any  [private]
+
+computed
+  convertedSeriesStructure: any  [private]
+  defaultLocale: any  [private]
+  defaultOptions: any  [private]
+  generatedLabels: any  [private]
+  mergedLabels: any  [private]
+  mergedOptions: any  [private]
+  needOneDimensionalArray: any  [private]
+  optimizedSeries: any  [private]
+
+methods
+  addZeroValuesToSeries(series: any): any  [private]
+  createdComponent(): Promise<any>  [private]
+  getZeroValues(): any  [private]
+  incrementByTimeUnit(date: any): any  [private]
+  loadLocaleConfig(): Promise<any>  [private]
+  setDateTime(date: any): any  [private]
+  sortSeries(series: any): any  [private]
+
 blocks
   sw_line_chart  [private]
     sw_line_chart_multiple  [private]
       sw_line_chart_multiple_chart  [private]
-    sw_line_chart_single  [private]
+    sw_line_chart_single  [after v-if] [private]
+
+crossings
+  v-if  sw_line_chart_multiple -> sw_line_chart_single  [private]
 ```

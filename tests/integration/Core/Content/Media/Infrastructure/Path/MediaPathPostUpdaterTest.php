@@ -9,11 +9,9 @@ use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
 use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaPathPostUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -35,7 +33,7 @@ class MediaPathPostUpdaterTest extends TestCase
             static::getContainer()->get(IteratorFactory::class),
             static::getContainer()->get(MediaPathUpdater::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(EntityIndexerRegistry::class),
+            static::getContainer()->get('messenger.default_bus'),
         );
 
         $ids = new IdsCollection();
@@ -71,22 +69,11 @@ class MediaPathPostUpdaterTest extends TestCase
         $ids = new IdsCollection();
         $message = new EntityIndexingMessage([$ids->get('media-1'), $ids->get('media-2'), $ids->get('media-3')]);
 
-        $indexerRegistry = $this->createMock(EntityIndexerRegistry::class);
-        $indexerRegistry->expects($this->once())
-            ->method('__invoke')
-            ->with(static::callback(static function (MediaIndexingMessage $message) use ($ids) {
-                // It is expected that indexer is triggered, even if the path was already generated
-                static::assertSame([$ids->get('media-1'), $ids->get('media-2'), $ids->get('media-3')], $message->getData());
-                static::assertSame('media.indexer', $message->getIndexer());
-
-                return true;
-            }));
-
         $updater = new MediaPathPostUpdater(
             static::getContainer()->get(IteratorFactory::class),
             $internal,
             static::getContainer()->get(Connection::class),
-            $indexerRegistry
+            static::getContainer()->get('messenger.default_bus')
         );
 
         $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class), 250);

@@ -11,8 +11,30 @@ component sw-inheritance-switch  private  js  [private]
   template src/app/component/base/sw-inheritance-switch/sw-inheritance-switch.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  removeInheritanceHandler  [private]
+  restoreInheritanceHandler  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  isInherited: boolean  default=false  [private]
+
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+
+computed
+  unInheritClasses: any  [private]
+
+methods
+  onClickRemoveInheritance(): any  [private]
+  onClickRestoreInheritance(): any  [private]
+
 blocks
   sw_inheritance_switch  [private]
     sw_inheritance_switch_inherit_icon  [private]
-    sw_inheritance_switch_uninherit_icon  [private]
+    sw_inheritance_switch_uninherit_icon  [after v-if] [private]
+
+crossings
+  v-if  sw_inheritance_switch_inherit_icon -> sw_inheritance_switch_uninherit_icon  [private]
 ```

@@ -10,12 +10,118 @@ component sw-bulk-edit-product  public  js
   source src/module/sw-bulk-edit/page/sw-bulk-edit-product/index.js
   template src/module/sw-bulk-edit/page/sw-bulk-edit-product/sw-bulk-edit-product.html.twig
 
+inject
+  bulkEditApiFactory
+  customFieldDataProviderService
+  feature
+  repositoryFactory
+
+slots
+  sw-bulk-edit-modal-cancel  {}  block=sw_bulk_edit_product_content_advanced_prices_modal_footer
+
+data
+  bulkEditProduct: any
+  bulkEditSelected: any
+  currency: any
+  customFieldSets: any
+  displayAdvancePricesModal: any
+  isComponentMounted: any
+  isDisabledListPrice: any  [deprecated tag:v6.8.0]
+  isDisabledRegulationPrice: any  [deprecated tag:v6.8.0]
+  isLoadedData: any
+  isLoading: any
+  isSaveSuccessful: any
+  lengthUnit: any
+  parentProductFrozen: any
+  preferenceUnits: any
+  processStatus: any
+  rules: any
+  taxRate: any
+  weightUnit: any
+
+computed
+  advancedPricesFormFields: any
+  assignmentFormFields: any
+  currencyRepository: any
+  customFieldSetCriteria: any  [deprecated tag:v6.8.0]
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+  defaultCurrency: any
+  defaultPrice: any
+  deliverabilityFormFields: any
+  essentialCharacteristicsFormFields: any
+  generalFormFields: any
+  guaranteeFormFields: any
+  hasPreferenceUnitsChanged: any
+  hasSelectedChanges: any
+  isChild: any
+  labellingFormFields: any
+  measuresPackagingFields: any
+  mediaFormFields: any
+  parentProduct: any
+  priceRepository: any
+  priceRuleGroups: any
+  pricesFormFields: any
+  product: any
+  productCriteria: any
+  productRepository: any
+  propertyFormFields: any
+  restrictedFields: any
+  ruleCriteria: any
+  ruleRepository: any
+  selectedIds: any
+  selectedPriceRules: any
+  sellingPackagingFields: any
+  seoFormFields: any
+  taxCriteria: any
+  taxRepository: any
+  taxes: any
+
+methods
+  closeModal(): any
+  convertHeight(unit: any): any
+  convertLength(unit: any): any
+  convertWidth(unit: any): any
+  createPriceRuleEntry(rule: any): any
+  createdComponent(): Promise<any>
+  defineBulkEditData(name: any, value?: any = null, type?: any = 'overwrite', isChanged?: any = false): any
+  definePricesBulkEdit(): any
+  getBulkEditFormGroups(): any
+  getParentProduct(): Promise<any>
+  loadBulkEditData(): any
+  loadCurrencies(): Promise<any>
+  loadCustomFieldSets(): Promise<any>
+  loadDefaultCurrency(): Promise<any>
+  loadPreferenceUnits(): Promise<any>
+  loadRules(): Promise<any>
+  loadTaxes(): Promise<any>
+  onChangeLanguage(languageId: any): any
+  onChangePrices(item: any, value?: any = null): any
+  onCustomFieldsChange(value: any): any
+  onInheritanceRemove(item: any): any
+  onInheritanceRestore(item: any): any
+  onProcessData(): any
+  onRuleChange(rules: any): any
+  onSave(): Promise<any>
+  onUpdateDefaultUnit(event: any): any
+  openModal(): any
+  processListPrice(): any
+  processRegulationPrice(): any
+  productTaxRate(): any
+  savePreferenceUnits(): any
+  setBulkEditProductValue(): any
+  setDefaultBooleanProductValues(): any
+  setProductAssociation(entityName: any, parentProduct?: any = null): any
+  setProductPrice(price: any): any
+  setProductSearchKeywords(): any
+  setRouteMetaModule(): any
+  transformVariantVisibilityChange(change: any): any
+
 blocks
   sw_bulk_edit_product
     sw_bulk_edit_product_content
       sw_bulk_edit_product_content_advanced_prices_card
         sw_bulk_edit_product_content_advanced_prices
-          sw_bulk_edit_product_content_advanced_prices_rule_selection
+          sw_bulk_edit_product_content_advanced_prices_rule_selection  [after v-if] [scope: entity, formField, index]
         sw_bulk_edit_product_content_advanced_prices_modal
           sw_bulk_edit_product_content_advanced_prices_modal_footer
       sw_bulk_edit_product_content_assignments_card
@@ -23,7 +129,7 @@ blocks
       sw_bulk_edit_product_content_deliverability_card
         sw_bulk_edit_product_content_deliverability
       sw_bulk_edit_product_content_essential_card
-      sw_bulk_edit_product_content_gereral_information_card
+      sw_bulk_edit_product_content_gereral_information_card  [after v-if]
         sw_bulk_edit_product_content_gereral_information
       sw_bulk_edit_product_content_guarantee_card
         sw_bulk_edit_product_content_guarantee
@@ -32,7 +138,7 @@ blocks
       sw_bulk_edit_product_content_labelling_card
         sw_bulk_edit_product_content_labelling
       sw_bulk_edit_product_content_meansures_custom_field_card
-      sw_bulk_edit_product_content_meansures_packaging_card
+      sw_bulk_edit_product_content_meansures_packaging_card  [deprecated tag:v6.8.0]
       sw_bulk_edit_product_content_measurement_card
       sw_bulk_edit_product_content_media_card
         media
@@ -43,7 +149,7 @@ blocks
       sw_bulk_edit_product_content_selling_packaging_card
       sw_bulk_edit_product_content_seo_card
         sw_bulk_edit_product_content_seo
-      sw_bulk_edit_product_save_modal
+      sw_bulk_edit_product_save_modal  [after v-if]
     sw_bulk_edit_product_content_language_switch
     sw_bulk_edit_product_content_smart_bar_actions
       sw_bulk_edit_product_actions_save

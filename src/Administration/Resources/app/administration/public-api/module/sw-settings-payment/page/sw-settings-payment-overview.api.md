@@ -10,15 +10,42 @@ component sw-settings-payment-overview  public  ts
   source src/module/sw-settings-payment/page/sw-settings-payment-overview/index.ts
   template src/module/sw-settings-payment/page/sw-settings-payment-overview/sw-settings-payment-overview.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  paymentMethods: any
+  showSortingModal: any
+
+computed
+  customCards: PaymentOverviewCard[]
+  isEmpty: boolean
+  paymentMethodCards: PaymentMethodCard[]
+  paymentMethodCriteria: CriteriaType
+  paymentMethodRepository: Repository<'payment_method'>
+
+methods
+  createdComponent(): void
+  loadPaymentMethods(): void
+  onChangeLanguage(languageId: EntityKey<'language'>): void
+  showActivationErrorNotification(name: string, active: boolean): any
+  showActivationSuccessNotification(name: string, active: boolean): any
+  togglePaymentMethodActive(paymentMethod: Entity<'payment_method'>): void
+
 blocks
   sw_settings_payment_overview
     sw_settings_payment_overview_content
       sw_settings_payment_overview_content_inner
         sw_settings_payment_overview_empty_state
-        sw_settings_payment_overview_list
-          sw_settings_payment_overview_list_card_custom_card
-          sw_settings_payment_overview_list_card_custom_location
-          sw_settings_payment_overview_list_card_default
+        sw_settings_payment_overview_list  [after v-if]
+          sw_settings_payment_overview_list_card_custom_card  [scope: card]
+          sw_settings_payment_overview_list_card_custom_location  [scope: card]
+          sw_settings_payment_overview_list_card_default  [scope: card]
         sw_settings_payment_overview_sorting_modal_card
           sw_settings_payment_overview_sorting_modal_card_button
       sw_settings_payment_overview_sorting_modal

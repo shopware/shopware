@@ -25,6 +25,7 @@ export default {
     getTemplateRegistry,
     getNormalizedTemplateRegistry,
     getTemplateOverrides,
+    replaceTemplate,
 };
 
 /**
@@ -124,6 +125,29 @@ const templateRegistry = new Map();
 const normalizedTemplateRegistry = new Map();
 
 /**
+ * Maps a template string to the edited string that replaced it during development.
+ * Templates can be registered again with the string their module exported at load time,
+ * so every registration follows these edits to the latest version.
+ *
+ * @type {Map<String, String>}
+ */
+const editedTemplates = new Map();
+
+function latestTemplate(template) {
+    if (process.env.NODE_ENV === 'production') {
+        return template;
+    }
+
+    let latest = template;
+
+    while (editedTemplates.has(latest)) {
+        latest = editedTemplates.get(latest);
+    }
+
+    return latest;
+}
+
+/**
  * Registers the main template for the defined component.
  *
  * @private
@@ -137,7 +161,7 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
 
     templateRegistry.set(componentName, {
         name: componentName,
-        raw: componentTemplate,
+        raw: latestTemplate(componentTemplate),
         extend: null,
         overrides: overrides,
     });
@@ -166,7 +190,7 @@ function extendComponentTemplate(componentName, extendComponentName, templateExt
 
     templateRegistry.set(componentName, {
         name: componentName,
-        raw: templateExtension,
+        raw: latestTemplate(templateExtension),
         extend: extendComponentName,
         overrides: overrides,
     });
@@ -192,11 +216,62 @@ function registerTemplateOverride(componentName, templateOverride = null, overri
     };
     component.overrides.push({
         index: overrideIndex,
-        raw: templateOverride,
+        raw: latestTemplate(templateOverride),
     });
     component.overrides.sort((a, b) => a.index - b.index);
     templateRegistry.set(componentName, component);
     return true;
+}
+
+/**
+ * Swaps a registered raw template for its edited version during development.
+ * The raw string is the only link between a template file and its registration,
+ * so a template that is registered more than once cannot be swapped.
+ *
+ * @private
+ * @param {String} previousTemplate
+ * @param {String} nextTemplate
+ * @returns {String[]|null} The changed component followed by all components extending it, or null without a unique match
+ */
+function replaceTemplate(previousTemplate, nextTemplate) {
+    if (process.env.NODE_ENV === 'production') {
+        return null;
+    }
+
+    const matches = findTemplateEntries(previousTemplate);
+
+    // Without a base template the component is not rendered by Twig, its overrides reach it through `sw-block`.
+    if (matches.length !== 1 || (matches[0].component.raw === null && !matches[0].component.extend)) {
+        return null;
+    }
+
+    const [{ component, entry }] = matches;
+    // An edit back to an earlier version, or a save without a change, must not leave a cycle behind.
+    editedTemplates.delete(nextTemplate);
+    if (previousTemplate !== nextTemplate) {
+        editedTemplates.set(previousTemplate, nextTemplate);
+    }
+    entry.raw = nextTemplate;
+    normalizedTemplateRegistry.clear();
+
+    const affected = new Set([component.name]);
+    affected.forEach((parent) => {
+        templateRegistry.forEach((item) => {
+            if (item.extend === parent) {
+                affected.add(item.name);
+            }
+        });
+    });
+
+    return [...affected];
+}
+
+function findTemplateEntries(rawTemplate) {
+    return Array.from(templateRegistry.values()).flatMap((component) =>
+        [component, ...component.overrides]
+            .filter((entry) => entry.raw === rawTemplate)
+            .map((entry) => ({ component, entry })),
+    );
 }
 
 /**

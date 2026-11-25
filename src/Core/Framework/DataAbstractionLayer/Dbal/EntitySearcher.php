@@ -31,6 +31,8 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 #[Package('framework')]
 class EntitySearcher implements EntitySearcherInterface
 {
+    private const WINDOW_TOTAL = '_total';
+
     public function __construct(
         private readonly Connection $connection,
         private readonly EntityDefinitionQueryHelper $queryHelper,
@@ -80,10 +82,18 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
-        if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->getGroupFields() !== []) {
+        $scored = $query->hasState(Criteria::SCORE_FIELD);
+        if ($scored && $criteria->getGroupFields() !== []) {
             $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table, $fields);
         } else {
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
+        }
+
+        $countQuery = $query;
+        if ($scored
+            && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
+            && $criteria->getLimit() !== null) {
+            $query = $this->buildWindowTotalQuery($query, $fields);
         }
 
         // add pagination
@@ -98,12 +108,13 @@ class EntitySearcher implements EntitySearcherInterface
 
         if ($criteria->getTitle()) {
             $query->setTitle($criteria->getTitle() . '::search-ids');
+            $countQuery->setTitle($criteria->getTitle() . '::search-ids');
         }
 
         // execute and fetch ids
         $rows = $query->executeQuery()->fetchAllAssociative();
 
-        $total = $this->getTotalCount($criteria, $query, $rows);
+        $total = $this->getTotalCount($criteria, $countQuery, $rows);
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             $rows = \array_slice($rows, 0, $criteria->getLimit());
@@ -134,6 +145,8 @@ class EntitySearcher implements EntitySearcherInterface
 
                 $pk[$field->getPropertyName()] = $value;
             }
+
+            unset($data[self::WINDOW_TOTAL]);
 
             $arrayKey = implode('-', $pk);
 
@@ -186,26 +199,9 @@ class EntitySearcher implements EntitySearcherInterface
             $partitionColumns[] = 'inner_q.`' . $alias . '`';
         }
 
-        $outer = new QueryBuilder($this->connection);
-
-        foreach ($query->getOrderByPairs() as $i => [$expression, $direction]) {
-            // the outer query cannot reach the table aliases the expression is built from, so it travels as a column
-            $alias = Criteria::SCORE_FIELD;
-            if ($expression !== Criteria::SCORE_FIELD) {
-                $alias = '_sort_' . $i;
-                $query->addSelect($expression . ' as ' . EntityDefinitionQueryHelper::escape($alias));
-            }
-
-            $outer->addOrderBy('ranked.' . EntityDefinitionQueryHelper::escape($alias), $direction);
-        }
-
-        $query->resetOrderBy();
+        $outer = $this->createOuterQuery($query, $fields, 'ranked');
 
         $innerSql = $query->getSQL();
-
-        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
-            $outer->addSelect('ranked.' . EntityDefinitionQueryHelper::escape($column));
-        }
 
         $outer->from(\sprintf(
             '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, %s) as _rn FROM (%s) inner_q)',
@@ -215,6 +211,47 @@ class EntitySearcher implements EntitySearcherInterface
         ), 'ranked')->andWhere('ranked._rn = 1');
 
         $outer->setParameters($query->getParameters(), $query->getParameterTypes());
+
+        return $outer;
+    }
+
+    /**
+     * @param array<string, Field> $fields keyed by storage name
+     */
+    private function buildWindowTotalQuery(QueryBuilder $query, array $fields): QueryBuilder
+    {
+        $outer = $this->createOuterQuery($query, $fields, 'counted');
+
+        $outer->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL))
+            ->from('(' . $query->getSQL() . ')', 'counted')
+            ->setParameters($query->getParameters(), $query->getParameterTypes());
+
+        return $outer;
+    }
+
+    /**
+     * @param array<string, Field> $fields keyed by storage name
+     */
+    private function createOuterQuery(QueryBuilder $query, array $fields, string $alias): QueryBuilder
+    {
+        $outer = new QueryBuilder($this->connection);
+
+        foreach ($query->getOrderByPairs() as $i => [$expression, $direction]) {
+            // the outer query cannot reach the table aliases the expression is built from, so it travels as a column
+            $column = Criteria::SCORE_FIELD;
+            if ($expression !== Criteria::SCORE_FIELD) {
+                $column = '_sort_' . $i;
+                $query->addSelect($expression . ' as ' . EntityDefinitionQueryHelper::escape($column));
+            }
+
+            $outer->addOrderBy($alias . '.' . EntityDefinitionQueryHelper::escape($column), $direction);
+        }
+
+        $query->resetOrderBy();
+
+        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
+            $outer->addSelect($alias . '.' . EntityDefinitionQueryHelper::escape($column));
+        }
 
         return $outer;
     }
@@ -236,6 +273,10 @@ class EntitySearcher implements EntitySearcherInterface
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT
             && ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES || $criteria->getLimit() !== null)) {
             return \count($data);
+        }
+
+        if (isset($data[0][self::WINDOW_TOTAL])) {
+            return (int) $data[0][self::WINDOW_TOTAL];
         }
 
         $offset = $criteria->getOffset() ?? 0;

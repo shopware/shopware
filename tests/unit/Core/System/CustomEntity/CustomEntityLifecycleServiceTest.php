@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityCollection;
-use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
@@ -270,7 +269,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
     public function testRemoveAppDoesNothingWithoutCustomEntities(): void
     {
         $context = Context::createDefaultContext();
-        $customEntityRepository = $this->createCustomEntityRepository();
+        $customEntityRepository = StaticEntityRepository::of(CustomEntityCollection::class, [[]]);
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
         $customEntitySchemaUpdater->expects($this->never())->method('update');
@@ -290,8 +289,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
     public function testRemoveAppSoftDeletesCustomEntitiesWhenKeepingUserData(): void
     {
         $context = Context::createDefaultContext();
-        $customEntity = (new CustomEntityEntity())->assign(['id' => Uuid::randomHex()]);
-        $customEntityRepository = $this->createCustomEntityRepository($customEntity);
+        $customEntityId = Uuid::randomHex();
+        $customEntityRepository = StaticEntityRepository::of(CustomEntityCollection::class, [[$customEntityId]]);
         $clock = new MockClock('2026-06-16 12:34:56.123456');
         $deletedAt = $clock->now();
 
@@ -308,7 +307,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntityLifecycleService->removeApp(AppFixture::createAppEntity(), $context, true);
 
         static::assertCount(1, $customEntityRepository->updates);
-        static::assertSame($customEntity->getId(), $customEntityRepository->updates[0][0]['id']);
+        static::assertSame($customEntityId, $customEntityRepository->updates[0][0]['id']);
         static::assertNull($customEntityRepository->updates[0][0]['appId']);
         static::assertInstanceOf(\DateTimeImmutable::class, $customEntityRepository->updates[0][0]['deletedAt']);
         static::assertSame(
@@ -321,8 +320,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
     public function testRemoveAppHardDeletesCustomEntities(): void
     {
         $context = Context::createDefaultContext();
-        $customEntity = (new CustomEntityEntity())->assign(['id' => Uuid::randomHex()]);
-        $customEntityRepository = $this->createCustomEntityRepository($customEntity);
+        $customEntityId = Uuid::randomHex();
+        $customEntityRepository = StaticEntityRepository::of(CustomEntityCollection::class, [[$customEntityId]]);
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
         $customEntitySchemaUpdater->expects($this->once())->method('update');
@@ -336,7 +335,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntityLifecycleService->removeApp(AppFixture::createAppEntity(), $context, false);
 
         static::assertSame([], $customEntityRepository->updates);
-        static::assertSame([[['id' => $customEntity->getId()]]], $customEntityRepository->deletes);
+        static::assertSame([[['id' => $customEntityId]]], $customEntityRepository->deletes);
     }
 
     private function checkFieldsAndFlagsCount(CustomEntityXmlSchema $customEntityXmlSchema, bool $withAdminUi = false): void
@@ -390,18 +389,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator()),
             new StaticSourceResolver([]),
             $connection,
-            $customEntityRepository ?? $this->createCustomEntityRepository(),
+            $customEntityRepository ?? StaticEntityRepository::of(CustomEntityCollection::class, [[]]),
             $clock ?? new NativeClock(),
         );
-    }
-
-    /**
-     * @return StaticEntityRepository<CustomEntityCollection>
-     */
-    private function createCustomEntityRepository(CustomEntityEntity ...$customEntities): StaticEntityRepository
-    {
-        $repository = new StaticEntityRepository([new CustomEntityCollection($customEntities)]);
-
-        return $repository;
     }
 }

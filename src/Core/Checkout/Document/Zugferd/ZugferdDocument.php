@@ -229,14 +229,16 @@ class ZugferdDocument
             $this->addLineTotalAmount($totalNet);
         }
 
+        $unitCode = $this->getUnitCode($lineItem);
+
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
             ->setDocumentPositionNetPrice(
                 \round($totalNet / $lineItem->getQuantity(), self::UNIT_PRICE_DECIMALS),
                 self::PRICE_BASIS_QUANTITY,
-                ZugferdUnitCodes::REC20_PIECE
+                $unitCode
             )
-            ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
+            ->setDocumentPositionQuantity($lineItem->getQuantity(), $unitCode)
             ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax?->getTaxRate() ?? 0.0)
             ->setDocumentPositionLineSummation($totalNet)
             ->setDocumentPositionProductDetails(
@@ -548,6 +550,23 @@ class ZugferdDocument
         }
 
         return 'Delivery refund';
+    }
+
+    private function getUnitCode(OrderLineItemEntity $lineItem): string
+    {
+        $payload = $lineItem->getPayload() ?? [];
+        $uneceCode = $payload['uneceCode'] ?? null;
+        $purchaseUnit = $payload['purchaseUnit'] ?? null;
+
+        if (!\is_string($uneceCode) || $uneceCode === '') {
+            return ZugferdUnitCodes::REC20_PIECE;
+        }
+
+        if (\is_numeric($purchaseUnit) && !FloatComparator::equals((float) $purchaseUnit, 1.0)) {
+            return ZugferdUnitCodes::REC20_PIECE;
+        }
+
+        return $uneceCode;
     }
 
     private function getPercentageBasisAmount(bool $isPercentage, float $discountValue, float $actualAmount): ?float

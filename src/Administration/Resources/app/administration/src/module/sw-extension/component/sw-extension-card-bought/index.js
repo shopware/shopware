@@ -270,15 +270,17 @@ export default {
                     await this.shopwareExtensionService.cancelLicense(this.extension.storeLicense.id);
                 }
 
-                await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type);
-
-                this.$nextTick(() => {
-                    this.emitUpdateList();
-                });
+                if (this.hasDeletableFiles) {
+                    await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type);
+                }
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
+
+                this.$nextTick(() => {
+                    this.emitUpdateList();
+                });
             }
         },
 

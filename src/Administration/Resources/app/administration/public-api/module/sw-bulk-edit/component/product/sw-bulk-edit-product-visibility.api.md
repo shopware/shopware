@@ -10,9 +10,32 @@ component sw-bulk-edit-product-visibility  public  js
   source src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/index.js
   template src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/sw-bulk-edit-product-visibility.html.twig
 
+inject
+  repositoryFactory
+
+props
+  bulkEditProduct: object
+  disabled?: boolean  default=false
+
+data
+  displayVisibilityDetail: any
+
+computed
+  product: any
+  productVisibilityRepository: any
+
+methods
+  closeModal(): any
+  openModal(): any
+  visibilitiesRemoveInheritanceFunction(newValue: any): any
+
 blocks
   sw_bulk_edit_product_visibility
     sw_bulk_edit_product_visibility_advanced
-    sw_bulk_edit_product_visibility_advanced_modal
+    sw_bulk_edit_product_visibility_advanced_modal  [after v-if]
     sw_bulk_edit_product_visibility_select
+
+refs
+  productVisibilitiesInheritance  -> sw-inherit-wrapper  block=sw_bulk_edit_product_visibility_select
+  productVisibility  -> sw-product-visibility-select  block=sw_bulk_edit_product_visibility_select
 ```

@@ -11,21 +11,86 @@ component sw-cms-section  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-section/sw-cms-section.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-state  [private]
+
+inject
+  cmsService  [private]
+  repositoryFactory  [private]
+
+provide
+  swCmsSectionEmitPageConfigOpen: any  [private]
+
+props
+  active?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  page: Entity<'cms_page'>  [private]
+  section: Entity<'cms_section'>  [private]
+
+emits
+  block-duplicate(...args: any[])  [private]
+  page-config-open(...args: any[])  [private]
+
+data
+  isCollapsed: any  [private]
+  pageSlotconfigError: any  [deprecated tag:v6.8.0] [private]
+
+computed
+  assetFilter: any  [private]
+  blockCount: any  [private]
+  blockRepository: any  [private]
+  blockTypes: any  [private]
+  customSectionClass: any  [private]
+  expandedClass: any  [private]
+  isSideBarType: any  [private]
+  isVisible: any  [private]
+  mainContentBlocks: any  [private]
+  mainContentEmpty: any  [private]
+  pageSlotConfigError: any  [private]
+  pageSlotsError: any  [private]
+  sectionClasses: any  [private]
+  sectionContentClasses: any  [private]
+  sectionMobileAndHidden: any  [private]
+  sectionSidebarClasses: any  [private]
+  sectionStyles: any  [private]
+  sectionTypeClass: any  [private]
+  sideBarBlocks: any  [private]
+  sideBarEmpty: any  [private]
+  slotRepository: any  [private]
+  toggleButtonText: any  [private]
+
+methods
+  blockTypeExists(type: string): any  [private]
+  createdComponent(): any  [private]
+  emitPageConfigOpen(arg: string): any  [private]
+  getBlockComponent(type: string): any  [private]
+  getDropData(index: number, sectionPosition?: any = 'main'): any  [private]
+  hasBlockErrors(block: Entity<'cms_block'>): any  [private]
+  hasSlotConfigErrors(block: Entity<'cms_block'>): any  [private]
+  hasUniqueBlockErrors(block: Entity<'cms_block'>): any  [private]
+  onAddSectionBlock(): any  [private]
+  onBlockDelete(blockId: EntityKey<'cms_block'>): any  [private]
+  onBlockDuplicate(block: Entity<'cms_block'>, section: Entity<'cms_section'>): any  [private]
+  onBlockSelection(block: Entity<'cms_block'>): any  [private]
+  openBlockBar(): any  [private]
+  toggleVisibility(): any  [private]
+  updateBlockPositions(): any  [private]
+
 blocks
   sw_cms_section  [private]
     sw_cms_section_actions  [private]
-    sw_cms_section_content  [private]
-      sw_cms_section_add_content_block  [private]
+    sw_cms_section_content  [after v-if] [private]
+      sw_cms_section_add_content_block  [scope: block, index] [private]
       sw_cms_section_content_add_first_block  [private]
-      sw_cms_section_content_block  [private]
-        sw_cms_section_content_block_component  [private]
-          sw_cms_section_content_block_component_slot  [private]
+      sw_cms_section_content_block  [scope: block, index] [private]
+        sw_cms_section_content_block_component  [scope: block, index] [private]
+          sw_cms_section_content_block_component_slot  [scope: block, index] [private]
       sw_cms_section_content_block_empty  [private]
-    sw_cms_section_sidebar  [private]
-      sw_cms_section_add_sidebar_block  [private]
+    sw_cms_section_sidebar  [after v-if] [private]
+      sw_cms_section_add_sidebar_block  [scope: block, index] [private]
       sw_cms_section_sidebar_add_first_block  [private]
-      sw_cms_section_sidebar_block  [private]
-        sw_cms_section_sidebar_block_component  [private]
-          sw_cms_section_content_block_slot  [private]
+      sw_cms_section_sidebar_block  [scope: block, index] [private]
+        sw_cms_section_sidebar_block_component  [scope: block, index] [private]
+          sw_cms_section_content_block_slot  [scope: block, index] [private]
       sw_cms_section_sidebar_block_empty  [private]
 ```

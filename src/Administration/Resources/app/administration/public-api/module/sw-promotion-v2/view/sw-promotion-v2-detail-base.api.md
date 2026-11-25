@@ -10,15 +10,57 @@ component sw-promotion-v2-detail-base  public  js
   source src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/index.js
   template src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/sw-promotion-v2-detail-base.html.twig
 
+mixins
+  placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  promotionCodeApiService
+
+props
+  isCreateMode: boolean
+  isLoading?: boolean  default=false
+  promotion?: object  default=factory
+
+emits
+  clean-up-codes(...args: any[])
+  delete-individual-codes-finish(...args: any[])
+  generate-individual-codes-finish(...args: any[])
+
+data
+  CODE_TYPES: any
+  codeSortDirection: any
+  codeSortProperty: any
+  customFieldSets: any
+  isGenerateSuccessful: any
+  isGenerating: any
+  selectedCodeType: any
+
+computed
+  codeTypeOptions: any
+  promotionNameError: any
+  promotionValidUntilError: any
+  showCustomFields: any
+
+methods
+  createdComponent(): any
+  generateFinish(): any
+  initialSort(): any
+  loadCustomFieldSets(): any
+  onChangeCodeType(value: any): any
+  onGenerateCodeFixed(): any
+  setNewCodeType(value: any): any
+
 blocks
   sw_promotion_v2_detail_base
-    sw_promotion_detail_custom_field_sets
-    sw_promotion_v2_detail_base_codes_card
+    sw_promotion_detail_custom_field_sets  [after v-if]
+    sw_promotion_v2_detail_base_codes_card  [after v-if]
       sw_promotion_v2_detail_base_codes_select
       sw_promotion_v2_detail_base_codes_type_fixed
         sw_promotion_v2_detail_base_codes_type_fixed_code
         sw_promotion_v2_detail_base_codes_type_fixed_generate
-      sw_promotion_v2_detail_base_codes_type_individual
+      sw_promotion_v2_detail_base_codes_type_individual  [after v-if]
         sw_promotion_v2_detail_base_codes_type_individual_codes_behavior
     sw_promotion_v2_detail_base_general_card
       sw_promotion_v2_detail_base_general_active
@@ -29,4 +71,7 @@ blocks
       sw_promotion_v2_detail_base_general_valid_container
         sw_promotion_v2_detail_base_general_valid_from
         sw_promotion_v2_detail_base_general_valid_until
+
+crossings
+  v-if  sw_promotion_v2_detail_base_codes_type_fixed -> sw_promotion_v2_detail_base_codes_type_individual
 ```

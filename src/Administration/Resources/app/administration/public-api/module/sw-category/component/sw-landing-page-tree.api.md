@@ -10,14 +10,78 @@ component sw-landing-page-tree  public  js
   source src/module/sw-category/component/sw-landing-page-tree/index.js
   template src/module/sw-category/component/sw-landing-page-tree/sw-landing-page-tree.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+  syncService
+
+props
+  allowCreate?: boolean  default=true
+  allowDelete?: boolean  default=true
+  allowEdit?: boolean  default=true
+  currentLanguageId: string
+  landingPageId?: string  default=null
+
+emits
+  landing-page-checked-elements-count(...args: any[])
+  unsaved-changes(...args: any[])
+
+data
+  isLoadingInitialData: any
+  isLoadingMore: any
+  linkContext: any
+  loadedLandingPages: any
+  page: any
+  total: any
+  translationContext: any
+
+computed
+  cmsLandingPageCriteria: any
+  contextMenuTooltipText: any
+  disableContextMenu: any
+  hasMoreLandingPages: any
+  landingPage: any
+  landingPageRepository: any
+  landingPages: any
+  landingPagesToDelete: any
+
+methods
+  addLandingPage(landingPage: any): any
+  addLandingPages(landingPages: any): any
+  changeLandingPage(landingPage: any): any
+  checkedElementsCount(count: any): any
+  createNewElement(contextItem: any, parentId: any, name?: any = ''): any
+  createNewLandingPage(name: any): any
+  createdComponent(): any
+  deleteCheckedItems(checkedItems: any): Promise<any>
+  duplicateElement(contextItem: any): any
+  getLandingPageUrl(landingPage: any): any
+  loadLandingPages(): Promise<any>
+  loadMoreLandingPages(): Promise<any>
+  newLandingPageUrl(): any
+  onDeleteLandingPage(arg0: any): Promise<any>
+  reloadLandingPages(): Promise<any>
+  removeFromStore(id: any): any
+  resetLandingPages(): any
+  syncLandingPages(): Promise<any>
+
 blocks
   sw_landing_page_tree
-    sw_landing_page_tree_action
+    sw_landing_page_tree_action  [after v-if]
     sw_landing_page_tree_inner
-      sw_landing_page_tree_items
-        sw_landing_page_tree_items_actions
-          sw_landing_page_tree_items_actions_delete
-          sw_landing_page_tree_items_actions_duplicate
-          sw_landing_page_tree_items_actions_edit
+      sw_landing_page_tree_items  [scope: checkItem, disableContextMenu, draggedItem, newElementId, onChangeRoute, sortable, translationContext, treeItems]
+        sw_landing_page_tree_items_actions  [scope: checkItem, deleteElement, disableContextMenu, draggedItem, item, newElementId, onChangeRoute, onDuplicate, sortable, toolTip, translationContext, treeItems]
+          sw_landing_page_tree_items_actions_delete  [scope: checkItem, deleteElement, disableContextMenu, draggedItem, item, newElementId, onChangeRoute, onDuplicate, sortable, toolTip, translationContext, treeItems]
+          sw_landing_page_tree_items_actions_duplicate  [scope: checkItem, deleteElement, disableContextMenu, draggedItem, item, newElementId, onChangeRoute, onDuplicate, sortable, toolTip, translationContext, treeItems]
+          sw_landing_page_tree_items_actions_edit  [scope: checkItem, deleteElement, disableContextMenu, draggedItem, item, newElementId, onChangeRoute, onDuplicate, sortable, toolTip, translationContext, treeItems]
     sw_landing_page_tree_load_more
+
+crossings
+  v-if  sw_landing_page_tree_inner -> sw_landing_page_tree
+
+refs
+  landingPageTree  -> sw-tree  block=sw_landing_page_tree_inner
 ```

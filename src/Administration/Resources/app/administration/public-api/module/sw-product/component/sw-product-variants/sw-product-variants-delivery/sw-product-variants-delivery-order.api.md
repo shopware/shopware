@@ -10,9 +10,26 @@ component sw-product-variants-delivery-order  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/sw-product-variants-delivery-order.html.twig
 
+props
+  product: object
+  selectedGroups: any[]
+
+data
+  groups: any
+  orderObjects: any
+
+methods
+  createOrderObjects(): any
+  getOptionsForGroup(groupId: any): any
+  mountedComponent(): any
+  orderChanged(): any
+
 blocks
   sw_product_variants_delivery_order
     sw_product_variants_delivery_order_groups
       sw_product_variants_delivery_order_groups_sw_tree
-      sw_product_variants_delivery_order_loader
+      sw_product_variants_delivery_order_loader  [after v-if]
+
+crossings
+  v-if  sw_product_variants_delivery_order_groups_sw_tree -> sw_product_variants_delivery_order_loader
 ```

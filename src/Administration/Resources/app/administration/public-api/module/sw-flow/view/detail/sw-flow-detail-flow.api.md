@@ -11,6 +11,42 @@ component sw-flow-detail-flow  private  js  [private]
   template src/module/sw-flow/view/detail/sw-flow-detail-flow/sw-flow-detail-flow.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  flowActionService  [private]
+  repositoryFactory  [private]
+  ruleConditionDataProviderService  [private]
+
+props
+  isLoading?: boolean  default=false  [private]
+  isNewFlow?: boolean  default=false  [private]
+  isTemplate?: boolean  default=false  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
+
+data
+  flowContainerStyle: any  [private]
+
+computed
+  availableActions: any  [private]
+  flow: any  [private]
+  formatSequences: any  [private]
+  hasAvailableAction: any  [private]
+  rootSequences: any  [private]
+  sequenceRepository: any  [private]
+  sequences: any  [private]
+  showActionWarning: any  [private]
+  triggerActions: any  [private]
+
+methods
+  convertSequenceData(): any  [private]
+  convertToTreeData(sequences: any): any  [private]
+  createSequence(): any  [private]
+  createdComponent(): any  [private]
+  getSequenceId(sequence: any): any  [private]
+  getTriggerActions(): Promise<any>  [private]
+  onAddRootSequence(): any  [private]
+  onEventChange(eventName: any): any  [private]
+
 blocks
   sw_flow_detail_flow  [private]
     sw_flow_detail_flow_content  [private]
@@ -18,10 +54,10 @@ blocks
         sw_flow_detail_flow_start_line  [private]
         sw_flow_detail_flow_transition_group  [private]
           sw_flow_detail_flow_position  [private]
-            sw_flow_detail_flow_sequences  [private]
-            sw_flow_sequence_icon_connection  [private]
-            sw_flow_sequence_icon_plus  [private]
-      sw_flow_detail_trigger_card  [private]
+            sw_flow_detail_flow_sequences  [scope: sequence] [private]
+            sw_flow_sequence_icon_connection  [scope: sequence] [private]
+            sw_flow_sequence_icon_plus  [scope: sequence] [private]
+      sw_flow_detail_trigger_card  [after v-if] [private]
         sw_flow_detail_flow_trigger_explains  [private]
           sw_flow_detail_flow_trigger_explains_help_text  [private]
           sw_flow_detail_flow_trigger_explains_title  [private]

@@ -11,9 +11,28 @@ component sw-context-menu-item  private  js  [private]
   template src/app/component/context-menu/sw-context-menu-item/sw-context-menu-item.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+  icon?: string  default=null  [private]
+  routerLink?: object  default=null  [private]
+  target?: string  default=null  [private]
+  variant?: string  default=''  [private]
+
+slots
+  default  {}  block=sw_context_menu_item_entry_text  [private]
+  default  {}  block=sw_context_menu_item_text  [private]
+  icon  {}  block=sw_context_menu_item_entry_icon  [private]
+  icon  {}  block=sw_context_menu_item_icon  [private]
+
+computed
+  contextMenuItemStyles: any  [private]
+
+methods
+  handleClick(event: any): any  [private]
+
 blocks
   sw_context_menu_item  [private]
-    sw_context_menu_item_entry  [private]
+    sw_context_menu_item_entry  [after v-if] [private]
       sw_context_menu_item_entry_icon  [private]
         sw_context_menu_item_entry_slot_icon  [private]
       sw_context_menu_item_entry_text  [private]
@@ -23,4 +42,7 @@ blocks
         sw_context_menu_item_slot_icon  [private]
       sw_context_menu_item_text  [private]
         sw_context_menu_item_slot_default  [private]
+
+crossings
+  v-if  sw_context_menu_item_router_link -> sw_context_menu_item_entry  [private]
 ```

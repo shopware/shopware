@@ -10,8 +10,18 @@ component sw-category-detail-cms  public  js
   source src/module/sw-category/view/sw-category-detail-cms/index.js
   template src/module/sw-category/view/sw-category-detail-cms/sw-category-detail-cms.html.twig
 
+inject
+  acl
+
+props
+  isLoading: boolean
+
+computed
+  category: any
+  cmsPage: any
+
 blocks
   sw_category_detail_cms
-    sw_category_detail_cms_form
+    sw_category_detail_cms_form  [after v-if]
     sw_category_detail_cms_layout
 ```

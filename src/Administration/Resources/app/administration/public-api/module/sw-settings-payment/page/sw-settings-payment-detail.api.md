@@ -10,6 +10,60 @@ component sw-settings-payment-detail  public  js
   source src/module/sw-settings-payment/page/sw-settings-payment-detail/index.js
   template src/module/sw-settings-payment/page/sw-settings-payment-detail/sw-settings-payment-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+data
+  customFieldSets: any
+  deletionInProcess: any
+  isLoading: any
+  isSaveSuccessful: any
+  mediaItem: any
+  paymentMethod: any
+  showDeleteModal: any
+  uploadTag: any
+
+computed
+  forbidDelete: any
+  identifier: any
+  isNewPaymentMethod: any
+  mediaRepository: any
+  paymentMethodCriteria: any
+  paymentMethodNameError: any
+  paymentMethodRepository: any
+  paymentMethodTechnicalNameError: any
+  ruleFilter: any
+  ruleRepository: any
+  showCustomFields: any
+  technicalNameIsProvided: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  deletePaymentMethod(): Promise<any>
+  loadCustomFieldSets(): any
+  loadEntityData(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onDismissRule(): any
+  onDropMedia(mediaItem: any): any
+  onError(error: any): any
+  onSave(): Promise<any>
+  onSaveRule(ruleId: any): any
+  onUnlinkLogo(): any
+  openMediaSidebar(): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  setMediaFromSidebar(mediaEntity: any): any
+  setMediaItem(arg0: any): any
+
 blocks
   sw_settings_payment_detail
     sw_settings_payment_detail_actions
@@ -27,14 +81,17 @@ blocks
         sw_settings_payment_detail_content_field_position
         sw_settings_payment_detail_content_field_technical_name
       sw_settings_payment_detail_custom_field_sets
-      sw_settings_payment_detail_delete_modal
+      sw_settings_payment_detail_delete_modal  [after v-if]
         sw_settings_payment_detail_delete_modal_footer
           sw_settings_payment_detail_reset_modal_cancel
           sw_settings_payment_detail_reset_modal_confirm
         sw_settings_payment_detail_delete_modal_info
-      sw_settings_payment_detail_delete_payment_method
+      sw_settings_payment_detail_delete_payment_method  [after v-if]
       sw_settings_payment_detail_top_rule
         sw_settings_payment_detail_top_rule_select
     sw_settings_payment_detail_header
     sw_settings_payment_detail_language_switch
+
+refs
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_settings_payment_detail
 ```

@@ -10,6 +10,116 @@ component sw-cms-list  public  js
   source src/module/sw-cms/page/sw-cms-list/index.js
   template src/module/sw-cms/page/sw-cms-list/sw-cms-list.html.twig
 
+mixins
+  listing, notification, user-settings
+
+inject
+  acl
+  cmsPageTypeService
+  feature
+  mediaDefaultFolderService
+  repositoryFactory
+  systemConfigApiService
+
+data
+  assignablePageTypes: any
+  associationLimit: any
+  cardViewIdentifier: any
+  compactLayoutBreakpoint: any
+  currentPage: any
+  currentPageType: any
+  defaultCategoryId: any
+  defaultMediaFolderId: any
+  defaultProductId: any
+  isCompactLayout: any
+  isLoading: any
+  layoutResizeObserver: any
+  limit: any
+  limitDefaults: object
+    cardView: any
+    gridView: any
+  linkedLayouts: any
+  listMode: any
+  maxVisibleAssignedPages: any
+  newDefaultLayout: any
+  newName: any
+  pages: any
+  searchConfigEntity: any
+  showDeleteModal: any
+  showLayoutSetAsDefaultModal: any
+  showMediaModal: any
+  showRenameModal: any
+  sortBy: any
+  sortDirection: any
+  term: any
+
+computed
+  activePageTypeTab: any
+  adminEsEnable: any
+  associatedCategoryBuckets: any  [deprecated tag:v6.8.0]
+  associatedProductBuckets: any  [deprecated tag:v6.8.0]
+  cmsListPageTypeTabs: any
+  columnConfig: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  defaultFolderRepository: any  [deprecated tag:v6.8.0]
+  isLinkedCriteria: any
+  listCriteria: any
+  pageRepository: any
+  sortPageTypes: any
+
+methods
+  addLinkedLayoutsAggregation(criteria: any): any
+  beforeUnmountComponent(): any
+  createdComponent(): Promise<any>
+  deleteCmsPage(page: any): Promise<any>
+  deleteDisabledToolTip(page: any): any
+  getColumnConfig(): any
+  getDefaultFolderId(): any
+  getDefaultLayouts(): Promise<any>
+  getList(): Promise<any>
+  getPageCategoryCount(page: any): any
+  getPageCount(page: any): any
+  getPageLandingPageCount(page: any): any
+  getPageProductCount(page: any): any
+  getPageType(page: any): any
+  getPages(page: any): any
+  getPagesString(page: any): any
+  getPagesTooltip(page: any): any
+  isDefaultLayout(page: any): any
+  layoutIsLinked(pageId: any): any
+  loadGridUserSettings(): Promise<any>
+  mountedComponent(): any
+  onChangeLanguage(languageId: any): any
+  onCloseDeleteModal(): any
+  onCloseLayoutSetAsDefault(): any
+  onCloseRenameModal(): any
+  onConfirmLayoutSetAsDefault(): Promise<any>
+  onConfirmPageDelete(): any
+  onConfirmPageRename(): any
+  onCreateNewLayout(): any
+  onDeleteCmsPage(page: any): any
+  onDuplicateCmsPage(page: any, behavior?: any = { overwrites: {} }): any
+  onListItemClick(page: any): any
+  onListModeChange(): any
+  onModalClose(): any
+  onOpenLayoutSetAsDefault(page: any): any
+  onPageChange(arg0: any): any
+  onPreviewChange(page: any): any
+  onPreviewImageChange(arg0: any): any
+  onPreviewImageRemove(page: any): any
+  onRenameCmsPage(page: any): any
+  onSearch(value?: any = null): any
+  onSortPageType(value?: any = null): any
+  onSortingChanged(value: any): any
+  optionContextDeleteDisabled(page: any): any
+  registerLayoutResizeObserver(): any
+  resetList(): any
+  saveCmsPage(page: any, context?: any = Shopware.Context.api): Promise<any>
+  saveGridUserSettings(): any
+  setPageContext(): any
+  showDefaultLayoutContextMenu(cmsPage: any): any
+  updateLimit(): any
+
 blocks
   sw_cms_list
     sw_cms_list_card_view
@@ -20,15 +130,15 @@ blocks
             sw_cms_list_listing_actions_sorting
               sw_cms_list_listing_actions_sorting_select
             sw_cms_list_listing_title
-          sw_cms_list_listing_list
-            sw_cms_list_listing_list_card
+          sw_cms_list_listing_list  [after v-if]
+            sw_cms_list_listing_list_card  [after v-if]
               sw_cms_list_listing_list_data_grid
                 sw_cms_list_listing_list_data_grid_actions
-                  sw_cms_list_listing_list_data_grid_actions_edit
-                  sw_cms_list_listing_list_data_grid_actions_edit_delete
-                  sw_cms_list_listing_list_data_grid_actions_edit_duplicate
-                  sw_cms_list_listing_list_data_grid_actions_set_as_default
-                  sw_cms_list_listing_list_item_option_rename
+                  sw_cms_list_listing_list_data_grid_actions_edit  [scope: item]
+                  sw_cms_list_listing_list_data_grid_actions_edit_delete  [after v-if] [scope: item]
+                  sw_cms_list_listing_list_data_grid_actions_edit_duplicate  [after v-if] [scope: item]
+                  sw_cms_list_listing_list_data_grid_actions_set_as_default  [scope: item]
+                  sw_cms_list_listing_list_item_option_rename  [scope: item]
                 sw_cms_list_listing_list_data_grid_column_assignment_list
                 sw_cms_list_listing_list_data_grid_column_assignments
                 sw_cms_list_listing_list_data_grid_column_created
@@ -39,27 +149,30 @@ blocks
             sw_cms_list_listing_list_grid
               sw_cms_list_listing_list_grid_content
                 sw_cms_list_listing_list_item
-                  sw_cms_list_listing_list_item_option_add_preview
-                  sw_cms_list_listing_list_item_option_delete
-                  sw_cms_list_listing_list_item_option_duplicate
-                  sw_cms_list_listing_list_item_option_remove_preview
-                  sw_cms_list_listing_list_item_option_set_as_default
+                  sw_cms_list_listing_list_item_option_add_preview  [scope: cmsPage, index]
+                  sw_cms_list_listing_list_item_option_delete  [after v-if] [scope: cmsPage, index]
+                  sw_cms_list_listing_list_item_option_duplicate  [after v-if] [scope: cmsPage, index]
+                  sw_cms_list_listing_list_item_option_remove_preview  [scope: cmsPage, index]
+                  sw_cms_list_listing_list_item_option_set_as_default  [scope: cmsPage, index]
               sw_cms_list_listing_pagination
           sw_cms_list_listing_list_empty_state
         sw_cms_list_sidebar
           sw_cms_list_sidebar_tabs
             sw_cms_list_sidebar_mt_tabs  [from v6.8.0]
-      sw_cms_list_delete_modal
+      sw_cms_list_delete_modal  [after v-if]
         sw_cms_list_delete_modal_confirm_delete_text
         sw_cms_list_delete_modal_footer
           sw_cms_list_delete_modal_cancel
           sw_cms_list_delete_modal_confirm
       sw_cms_list_media_modal
-      sw_cms_list_rename_modal
+      sw_cms_list_rename_modal  [after v-if]
         sw_cms_list_rename_modal_confirm_rename_input
         sw_cms_list_rename_modal_footer
           sw_cms_list_rename_modal_cancel
           sw_cms_list_rename_modal_confirm
     sw_cms_list_search_bar
     sw_cms_list_toolbar
+
+crossings
+  v-if  sw_cms_list_listing_list_grid -> sw_cms_list_listing_list_card
 ```

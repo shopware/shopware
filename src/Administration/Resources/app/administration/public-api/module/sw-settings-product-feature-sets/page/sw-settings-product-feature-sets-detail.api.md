@@ -10,6 +10,41 @@ component sw-settings-product-feature-sets-detail  public  js
   source src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail/index.js
   template src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail/sw-settings-product-feature-sets-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  productFeatureSetId?: string  default=null
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+  productFeatureSet: any
+
+computed
+  identifier: any
+  productFeatureSetDescriptionError: any
+  productFeatureSetFeaturesIdError: any
+  productFeatureSetNameError: any
+  productFeatureSetsRepository: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  loadEntityData(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onSave(): Promise<any>
+  saveFinish(): any
+  saveOnLanguageChange(): any
+
 blocks
   sw_settings_product_feature_set_detail
     sw_settings_product_feature_set_detail_actions

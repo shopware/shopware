@@ -11,9 +11,30 @@ component sw-condition-line-item-with-quantity  public  js
   source src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/index.js
   template src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/sw-condition-line-item-with-quantity.html.twig
 
+inject
+  repositoryFactory
+
+data
+  initialProduct: any
+
+computed
+  id: any
+  operators: any
+  productRepository: any
+  quantity: any
+
 blocks
-  sw_condition_value_content
-    sw_condition_line_item_with_quantity_field_operator
-    sw_condition_line_item_with_quantity_field_product
-    sw_condition_line_item_with_quantity_field_quantity
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [inherited]
+      sw_condition_value_content  [replaced] [after v-if]
+        sw_condition_line_item_with_quantity_field_operator
+        sw_condition_line_item_with_quantity_field_product
+        sw_condition_line_item_with_quantity_field_quantity
+    sw_condition_base_error  [inherited]
 ```

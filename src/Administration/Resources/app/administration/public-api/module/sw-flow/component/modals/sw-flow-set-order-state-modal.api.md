@@ -11,13 +11,49 @@ component sw-flow-set-order-state-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-set-order-state-modal/sw-flow-set-order-state-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  repositoryFactory  [private]
+
+props
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  config: object  [private]
+    force_transition: any  [private]
+    order: any  [private]
+    order_delivery: any  [private]
+    order_transaction: any  [private]
+  deliveryOptions: any  [private]
+  orderOptions: any  [private]
+  paymentOptions: any  [private]
+
+computed
+  stateMachineState: any  [private]
+  stateMachineStateCriteria: any  [private]
+  stateMachineStateRepository: any  [private]
+
+methods
+  buildTransitionOptions(stateMachineName: any, allTransitions: any): any  [private]
+  createdComponent(): any  [private]
+  generateOptions(data: any): any  [private]
+  getAllStates(): Promise<any>  [private]
+  onAddAction(): any  [private]
+  onClose(): any  [private]
+
 blocks
   sw_flow_set_order_state_modal  [private]
-    sw_flow_set_order_state_modal_content  [private]
+    sw_flow_set_order_state_modal_content  [after v-if] [private]
       sw_flow_set_order_state_modal_delivery_status  [private]
       sw_flow_set_order_state_modal_force_transition  [private]
       sw_flow_set_order_state_modal_order_status  [private]
-      sw_flow_set_order_state_modal_payment_status  [private]
+      sw_flow_set_order_state_modal_payment_status  [after v-if] [private]
     sw_flow_set_order_state_modal_footer  [private]
       sw_flow_set_order_state_modal_footer_cancel_button  [private]
       sw_flow_set_order_state_modal_footer_save_button  [private]

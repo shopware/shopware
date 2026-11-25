@@ -12,13 +12,23 @@ component sw-email-field-deprecated  private  js  [private]
   template src/app/component/form/sw-email-field-deprecated/sw-email-field-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_email_field  [private]
+  label  {}  block=sw_email_field  [private]
+  prefix  { ...{disabled, identification} }  block=sw_email_field_prefix_inner  [private]
+  suffix  { ...{ identification } }  block=sw_email_field_copyable_inner  [private]
+
 blocks
-  sw_text_field  [private]
+  sw_text_field  [replaced] [private]
     sw_email_field  [private]
       sw_email_field_copyable  [private]
-        sw_email_field_copyable_inner  [private]
+        sw_email_field_copyable_inner  [scope: disabled, identification] [private]
       sw_email_field_input  [private]
-        sw_email_field_input_inner  [private]
+        sw_email_field_input_inner  [scope: disabled, error, hasPrefix, hasSuffix, identification, removeFocusClass, setFocusClass, size] [private]
       sw_email_field_prefix  [private]
-        sw_email_field_prefix_inner  [private]
+        sw_email_field_prefix_inner  [scope: disabled, identification] [private]
 ```

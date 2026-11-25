@@ -8,6 +8,7 @@ import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
@@ -219,6 +220,8 @@ function getCurrencyData() {
     ];
 }
 
+const filterFactoryCreate = jest.fn(() => []);
+
 async function createWrapper() {
     // delete global $router and $routes mocks
     delete config.global.mocks.$router;
@@ -294,7 +297,7 @@ async function createWrapper() {
                         },
                     },
                     filterFactory: {
-                        create: () => [],
+                        create: filterFactoryCreate,
                     },
                     acl: {
                         can: () => true,
@@ -302,7 +305,7 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-page': {
-                        template: '<div><slot name="content"></slot></div>',
+                        template: '<div><slot name="content"></slot><slot name="sidebar"></slot></div>',
                     },
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
                     'sw-context-button': {
@@ -318,7 +321,7 @@ async function createWrapper() {
                         template: '<div></div>',
                     },
                     'sw-sidebar': {
-                        template: '<div></div>',
+                        template: '<div><slot></slot></div>',
                     },
                     'sw-sidebar-item': {
                         template: '<div></div>',
@@ -380,6 +383,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('sw-product-list.dateFilter is deprecated');
         jest.restoreAllMocks();
         lastProductSearchCriteria = null;
         jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
@@ -716,6 +720,22 @@ describe('module/sw-product/page/sw-product-list', () => {
             expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         }
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
+    });
+
+    it('should offer a documents filter', async () => {
+        expect(filterFactoryCreate).toHaveBeenCalledWith(
+            'product',
+            expect.objectContaining({
+                'product-documents-filter': {
+                    property: 'documents',
+                    label: 'sw-product.filters.documentsFilter.label',
+                    placeholder: 'sw-product.filters.documentsFilter.placeholder',
+                    optionHasCriteria: 'sw-product.filters.documentsFilter.textHasCriteria',
+                    optionNoCriteria: 'sw-product.filters.documentsFilter.textNoCriteria',
+                },
+            }),
+        );
+        expect(wrapper.find('sw-sidebar-filter-panel-stub').attributes('defaults')).toContain('product-documents-filter');
     });
 
     it('should not have media and configuratorSettings association when loading product list', async () => {

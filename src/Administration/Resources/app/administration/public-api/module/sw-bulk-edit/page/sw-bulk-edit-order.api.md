@@ -10,20 +10,76 @@ component sw-bulk-edit-order  public  js
   source src/module/sw-bulk-edit/page/sw-bulk-edit-order/index.js
   template src/module/sw-bulk-edit/page/sw-bulk-edit-order/sw-bulk-edit-order.html.twig
 
+mixins
+  notification
+
+inject
+  bulkEditApiFactory
+  customFieldDataProviderService
+  feature
+  orderDocumentApiService  [deprecated tag:v6.9.0]
+  repositoryFactory
+
+data
+  bulkEditData: any
+  customFieldSets: any
+  deliveryStatus: any
+  isLoadedData: any
+  isLoading: any
+  isStatusMailsSelected: any
+  isStatusSelected: any
+  itemsPerRequest: any
+  order: any
+  orderStatus: any
+  processStatus: any
+  statusTransitionFailures: any
+  transactionStatus: any
+
+computed
+  documentsFormFields: any
+  hasChanges: any
+  hasInvalidDocumentGenerationConfig: any
+  orderRepository: any
+  restrictedFields: any
+  selectedIds: any
+  stateMachineStateRepository: any
+  statusFormFields: any
+  tagsFormFields: any
+
+methods
+  closeModal(): any
+  createdComponent(): Promise<any>
+  fetchStateMachineStates(field: any): Promise<any>
+  fetchStatusOptions(field: any): Promise<any>
+  fetchToStateMachineTransitions(states: any): Promise<any>
+  getLatestOrderStatus(): Promise<any>
+  loadBulkEditData(): any
+  loadCustomFieldSets(): Promise<any>
+  onChangeDocument(type: any, isChanged: any): any
+  onCustomFieldsChange(value: any): any
+  onProcessData(): any
+  onSave(): Promise<any>
+  openModal(): any
+  setRouteMetaModule(): any
+  toStateMachineStatesCriteria(states: any): any
+
 blocks
   sw_bulk_edit_order
     sw_bulk_edit_order_content
       sw_bulk_edit_order_content_documents
         sw_bulk_edit_order_content_documents_content
-      sw_bulk_edit_order_content_order_status_card
+      sw_bulk_edit_order_content_order_status_card  [after v-if]
         sw_bulk_edit_order_content_order_status_section
       sw_bulk_edit_order_custom_field_card
-      sw_bulk_edit_order_empty_state
-      sw_bulk_edit_order_save_modal
+      sw_bulk_edit_order_empty_state  [after v-if]
+      sw_bulk_edit_order_save_modal  [after v-if]
       sw_bulk_edit_order_tags_card
         sw_bulk_edit_order_tags
     sw_bulk_edit_order_content_smart_bar_actions
       sw_bulk_edit_order_actions_save
     sw_bulk_edit_order_search_bar
     sw_bulk_edit_order_smart_bar_header
+
+notes
+  unresolved computed ...deprecatedComputed
 ```

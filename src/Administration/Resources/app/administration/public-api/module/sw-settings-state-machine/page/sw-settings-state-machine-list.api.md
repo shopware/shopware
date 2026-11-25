@@ -10,13 +10,36 @@ component sw-settings-state-machine-list  public  js
   source src/module/sw-settings-state-machine/page/sw-settings-state-machine-list/index.js
   template src/module/sw-settings-state-machine/page/sw-settings-state-machine-list/sw-settings-state-machine-list.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  stateMachines: any
+  total: any
+
+computed
+  stateMachineColumns: any
+  stateMachineRepository: any
+
+methods
+  createdComponent(): any
+  loadStateMachines(): Promise<any>
+  onChangeLanguage(): any
+  onInlineEditCancel(): any
+  onInlineEditSave(stateMachine: any): Promise<any>
+
 blocks
   sw_settings_state_machine_list
     sw_settings_state_machine_list_content
       sw_settings_state_machine_list_content_card
         sw_settings_state_machine_list_content_card_grid
           sw_settings_state_machine_list_content_card_grid_actions
-            sw_settings_state_machine_list_content_card_grid_actions_edit
+            sw_settings_state_machine_list_content_card_grid_actions_edit  [scope: item]
     sw_settings_state_machine_list_language_switch
     sw_settings_state_machine_list_smart_bar_header
       sw_settings_state_machine_list_smart_bar_header_title

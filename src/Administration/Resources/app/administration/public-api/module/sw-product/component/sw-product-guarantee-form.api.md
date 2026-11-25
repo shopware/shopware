@@ -10,6 +10,34 @@ component sw-product-guarantee-form  public  js
   source src/module/sw-product/component/sw-product-guarantee-form/index.js
   template src/module/sw-product/component/sw-product-guarantee-form/sw-product-guarantee-form.html.twig
 
+props
+  allowEdit?: boolean  default=true
+
+data
+  guaranteeMonthsWasTyped: any
+
+computed
+  effectiveGuaranteeConfirmed: any
+  effectiveGuaranteeMonths: any
+  effectiveManufacturerName: any
+  effectiveManufacturerNumber: any
+  guaranteeMonthsError: any
+  guaranteeMonthsMaximum: any
+  guaranteeMonthsMinimum: any
+  guaranteeMonthsStep: any
+  guaranteeMonthsValidationError: any
+  parentProduct: any
+  product: any
+  productGuaranteeConfirmedError: any
+  productGuaranteeMonthsError: any
+  productGuaranteeTermsUrlError: any
+  unmetGuaranteeLabelRequirements: any
+
+methods
+  commitGuaranteeMonths(guaranteeMonths: any, previousGuaranteeMonths: any): any
+  onGuaranteeMonthsTyped(): any
+  revealUnmetLabelRequirements(): any
+
 blocks
   sw_product_guarantee_form
     sw_product_guarantee_form_content
@@ -20,4 +48,7 @@ blocks
     sw_product_guarantee_form_terms
       sw_product_guarantee_form_guarantee_terms_media_field
       sw_product_guarantee_form_guarantee_terms_url_field
+
+refs
+  requirementsNotice  -> mt-banner  block=sw_product_guarantee_form_requirements_notice
 ```

@@ -10,6 +10,35 @@ component sw-customer-detail-order  public  js
   source src/module/sw-customer/view/sw-customer-detail-order/index.js
   template src/module/sw-customer/view/sw-customer-detail-order/sw-customer-detail-order.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  customer: object
+
+data
+  activeCustomer: any
+  isLoading: any
+  orders: any
+  sortBy: any
+  sortDirection: any
+  term: any
+
+computed
+  assetFilter: any
+  currencyFilter: any
+  emptyTitle: any
+  orderColumns: any
+  orderRepository: any
+
+methods
+  createdComponent(): any
+  getOrderColumns(): any
+  navigateToCreateOrder(): any
+  onChange(term: any): any
+  refreshList(): any
+
 blocks
   sw_customer_detail_order_card
     sw_customer_detail_order_card_grid
@@ -18,7 +47,7 @@ blocks
         sw_customer_detail_order_card_grid_columns_number
         sw_customer_detail_order_card_grid_columns_order_date_time
       sw_customer_detail_order_card_grid_columns_action
-        sw_customer_detail_order_card_grid_columns_action_button
+        sw_customer_detail_order_card_grid_columns_action_button  [scope: item]
     sw_customer_detail_order_card_grid_empty_state
       sw_customer_detail_order_card_grid_empty_state_action
     sw_customer_detail_order_card_toolbar

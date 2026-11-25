@@ -11,6 +11,9 @@ component sw-cms-el-form-template-newsletter  private  js  [private]
   template src/module/sw-cms/elements/form/component/templates/form-newsletter/sw-cms-el-form-newsletter.html.twig  [private]
   visibility-source registration  [private]
 
+props
+  formSettings?: any  [private]
+
 blocks
   sw_cms_el_form_newsletter  [private]
 ```

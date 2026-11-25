@@ -10,13 +10,35 @@ component sw-order-create-promotion-modal  public  js
   source src/module/sw-order/component/sw-order-create-promotion-modal/index.js
   template src/module/sw-order/component/sw-order-create-promotion-modal/sw-order-create-promotion-modal.html.twig
 
+props
+  currency: object
+  salesChannelId?: string  default=null
+
+emits
+  close(...args: any[])
+  save(...args: any[])
+
+data
+  isLoading: any
+
+computed
+  cart: any
+  cartAutomaticPromotionItems: any
+  hasNoAutomaticPromotions: any
+
+methods
+  disableAutomaticPromotions(): any
+  getDescription(item: any): any
+  onCancel(): any
+  onSave(): any
+
 blocks
   sw_order_create_promotion_modal
     sw_order_create_promotion_modal_body
       sw_order_create_promotion_modal_message
       sw_order_create_promotion_modal_promotions
-        sw_order_create_promotion_modal_promotion_description
-        sw_order_create_promotion_modal_promotion_name
+        sw_order_create_promotion_modal_promotion_description  [scope: index, item]
+        sw_order_create_promotion_modal_promotion_name  [scope: index, item]
     sw_order_create_promotion_modal_footer
       sw_order_create_promotion_modal_footer_button_cancel
       sw_order_create_promotion_modal_footer_button_save

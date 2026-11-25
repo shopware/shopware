@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseC
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
@@ -86,7 +87,7 @@ class DocumentConfigurationFactory
                 if (method_exists($baseConfig, $setterMethod)) {
                     if (is_subclass_of($typeName, Struct::class) && \is_array($value)) {
                         // @phpstan-ignore method.dynamicName
-                        $baseConfig->$setterMethod((new $typeName())->assign($value));
+                        $baseConfig->$setterMethod(self::createStruct($typeName, $value));
                         continue;
                     }
 
@@ -101,11 +102,29 @@ class DocumentConfigurationFactory
                 }
 
                 // @phpstan-ignore property.dynamicName
-                $baseConfig->{$key} = (new $typeName())->assign($value);
+                $baseConfig->{$key} = self::createStruct($typeName, $value);
             }
         }
 
         return $baseConfig;
+    }
+
+    /**
+     * @param class-string<Struct> $typeName
+     * @param array<array-key, mixed> $value
+     */
+    private static function createStruct(string $typeName, array $value): Struct
+    {
+        // The config stored with a document holds JSON-encoded entities, whose extensions are plain arrays.
+        // Wrapped in ArrayStruct, as addArrayExtension() does, they keep their data and Struct::getExtension() works again.
+        if (\is_array($value['extensions'] ?? null)) {
+            $value['extensions'] = array_map(
+                static fn (mixed $extension): mixed => \is_array($extension) ? new ArrayStruct($extension) : $extension,
+                $value['extensions'],
+            );
+        }
+
+        return (new $typeName())->assign($value);
     }
 
     /**

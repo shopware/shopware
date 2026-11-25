@@ -1,5 +1,20 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### Moving a category re-indexes its products
+
+Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.
+Before, `product.categoryTree` and `product.categoriesRo` kept the old parents, so listings and "line item in category" rules were wrong until the products were re-indexed.
+Integrations that called `POST /api/_action/index-products` after moving a category no longer need to.
+The Administration category tree no longer sends these requests after a drag and drop.
+Its `syncProducts()` and `indexProducts()` methods and its `productRepository` computed property are deprecated and will be removed in 6.8.
+### Environment-specific bundle and plugin configuration
+
+Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.
+PHP configuration files also receive the current environment through `$container->env()`.
+Check existing environment-specific configuration that was previously ignored, including Monolog handler levels.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it
@@ -20,7 +35,16 @@ The SVG is now `aria-hidden`, so headless frontends should render `text` as its 
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+### App manifests can contain sections from newer Shopware versions
+
+A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
+Apps that need such a section should require that version in `<compatibility>`.
+
 ## Storefront
+
+### Production Vite builds generate JavaScript SBOMs
+
+Production Vite builds now generate CycloneDX JSON inventories at `Resources/sbom/storefront/shopware.cdx.json` for the shared Shopware module and `Resources/sbom/storefront/components.cdx.json` for each bundle's components. The reports are kept outside public assets and are not published by `assets:install`. Extension component builds include bundled npm packages regardless of their development-dependency classification, including when using custom Vite configurations. The reports also include dependencies bundled into Web Workers, including shared and inline workers. Retain these reports when packaging extensions after source cleanup.
 
 ### Paginated category listings are crawlable
 

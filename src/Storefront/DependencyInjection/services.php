@@ -459,6 +459,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CategoryRoute::class),
             service(SeoUrlPlaceholderHandlerInterface::class),
             service(CategoryBreadcrumbBuilder::class),
+            service(Translator::class),
         ]);
 
     $services->set(ErrorPageLoader::class)

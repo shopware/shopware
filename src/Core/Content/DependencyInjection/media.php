@@ -44,7 +44,6 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\MediaPathWriteValidator;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaUsageIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer;
-use Shopware\Core\Content\Media\DataAbstractionLayer\RetiredMediaIndexer;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileFetcher;
@@ -604,11 +603,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // region DBAL
     $services->set(MediaIndexer::class)
         ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0'])
-        ->tag('shopware.entity_indexer');
-
-    // Workers can still receive iteration messages produced before the upgrade.
-    $services->set(RetiredMediaIndexer::class)
-        ->tag('shopware.feature', ['flag' => 'v6.8.0.0'])
         ->tag('shopware.entity_indexer');
 
     $services->set('shopware.cms.element_media_ids_provider.image', CmsElementMediaIdsProvider::class)

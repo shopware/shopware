@@ -2,6 +2,11 @@
 
 # Core
 
+## Drain legacy media indexing iterations before upgrading
+
+Shopware 6.8 workers acknowledged pending `media.indexer` iteration messages from 6.7 after the service was removed.
+Drain those messages before upgrading to 6.9, when workers report the missing indexer.
+
 ## Document generation v1 removed
 
 The legacy document generation implementation was removed together with the `DOCUMENT_GENERATION_REWORK` feature flag. Document generation v2 is now the only implementation. The full strategy is described in the [migration ADR](adr/2026-08-05-document-generation-v1-to-v2-migration-strategy.md).

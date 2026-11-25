@@ -66,6 +66,16 @@ class ContentLayoutDefaultValidatorTest extends TestCase
         $this->systemConfigService->set(ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, $this->ids->get('missing-layout'));
     }
 
+    #[TestDox('rejects a default layout id written in uppercase hex')]
+    public function testRejectsDefaultLayoutIdInUppercaseHex(): void
+    {
+        $uppercaseId = strtoupper($this->ids->get('product-layout'));
+
+        $this->expectExceptionObject(ContentSystemException::contentLayoutNotFound($uppercaseId));
+
+        $this->systemConfigService->set(ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, $uppercaseId);
+    }
+
     #[TestDox('blocks deleting the layout that is the default product layout')]
     public function testBlocksDeletingTheDefaultLayout(): void
     {

@@ -76,7 +76,7 @@ class ContentLayoutDefaultValidatorTest extends TestCase
     public function testAcceptsUnsettingTheDefaultLayout(): void
     {
         $reader = static::createMock(LayoutRootSourceReader::class);
-        $reader->expects($this->never())->method('read');
+        $reader->expects($this->never())->method('rootSources');
 
         (new ContentLayoutDefaultValidator($this->createDefinitionRegistry(), $reader, static::createStub(Connection::class)))->validateDefaultChange(
             new BeforeSystemConfigChangedEvent(ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, null, null)
@@ -87,7 +87,7 @@ class ContentLayoutDefaultValidatorTest extends TestCase
     public function testAcceptsEmptyStringAsUnsettingTheDefaultLayout(): void
     {
         $reader = static::createMock(LayoutRootSourceReader::class);
-        $reader->expects($this->never())->method('read');
+        $reader->expects($this->never())->method('rootSources');
 
         (new ContentLayoutDefaultValidator($this->createDefinitionRegistry(), $reader, static::createStub(Connection::class)))->validateDefaultChange(
             new BeforeSystemConfigChangedEvent(ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, '', null)
@@ -108,7 +108,7 @@ class ContentLayoutDefaultValidatorTest extends TestCase
     public function testIgnoresUnrelatedConfigKeys(): void
     {
         $reader = static::createMock(LayoutRootSourceReader::class);
-        $reader->expects($this->never())->method('read');
+        $reader->expects($this->never())->method('rootSources');
 
         (new ContentLayoutDefaultValidator($this->createDefinitionRegistry(), $reader, static::createStub(Connection::class)))->validateDefaultChange(
             new BeforeSystemConfigChangedEvent('core.cms.default_product_cms_page', 'not-a-layout', null)
@@ -141,7 +141,9 @@ class ContentLayoutDefaultValidatorTest extends TestCase
     private function createValidator(?string $rootSource = null, array $configuredDefaults = []): ContentLayoutDefaultValidator
     {
         $reader = static::createStub(LayoutRootSourceReader::class);
-        $reader->method('read')->willReturn($rootSource);
+        $reader->method('rootSources')->willReturnCallback(
+            static fn (array $layoutIds): array => $rootSource === null ? [] : array_fill_keys($layoutIds, $rootSource)
+        );
 
         $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn(array_map(

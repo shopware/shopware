@@ -11,6 +11,12 @@ component sw-product-document-empty-state  private  ts  [private]
   template src/module/sw-product/component/sw-product-document-form/sw-product-document-empty-state/sw-product-document-empty-state.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  add-button  {}  block=sw_product_document_empty_state_add  [private]
+
+computed
+  isSystemDefaultLanguage: boolean  [private]
+
 blocks
   sw_product_document_empty_state  [private]
     sw_product_document_empty_state_add  [private]

@@ -11,9 +11,27 @@ component sw-checkbox-field  private  ts  [private]
   template src/app/component/form/sw-checkbox-field/sw-checkbox-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  modelValue?: string  default=null  [private]
+  value?: boolean  default=null  [private]
+
+slots
+  default  {}  block=sw_checkbox_field  [private]
+
+computed
+  compatValue: any  [private]
+
+methods
+  getSlots(): any  [private]
+  handleUpdateChecked(event: unknown): any  [private]
+
 blocks
   sw_checkbox_field  [private]
 
 crossings
   v-if  sw_checkbox_field -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

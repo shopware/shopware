@@ -11,6 +11,30 @@ component sw-multi-select-filter  private  js  [private]
   template src/app/component/filter/sw-multi-select-filter/sw-multi-select-filter.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  active: boolean  [private]
+  filter: object  [private]
+
+emits
+  filter-reset(...args: any[])  [private]
+  filter-update(...args: any[])  [private]
+
+slots
+  result-item  { ...{ item, index } }  block=sw_multi_select_filter_content_slot_result_item  [private]
+  selection-label-property  { ...{ item, index } }  block=sw_multi_select_filter_content_slot_selection_label_property  [private]
+
+computed
+  isEntityMultiSelect: any  [private]
+  labelProperty: any  [private]
+  values: any  [private]
+
+methods
+  changeValue(newValues: any): any  [private]
+  resetFilter(): any  [private]
+
 blocks
   sw_multi_select_filter  [private]
     sw_multi_select_filter_content  [private]

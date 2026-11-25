@@ -1,0 +1,11 @@
+[
+    {
+        "group": "Break",
+        "rule": "visibility_became_private",
+        "element": "component:sw-example-filter",
+        "states": ["current", "major"],
+        "explanation": "The component became @private, which removes its name, members and blocks from the public API.",
+        "fix": "pattern \"Becomes private\". Keep it public, mark it @bc-change BecomesPrivate version:v6.8.0, and make it private in the major.",
+        "at": "src/app/component/base/sw-example-filter/index.js:10"
+    }
+]

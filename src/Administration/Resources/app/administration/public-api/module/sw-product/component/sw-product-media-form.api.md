@@ -10,6 +10,64 @@ component sw-product-media-form  public  js
   source src/module/sw-product/component/sw-product-media-form/index.js
   template src/module/sw-product/component/sw-product-media-form/sw-product-media-form.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+  systemConfigApiService
+
+props
+  disabled?: boolean  default=false
+  fileAccept?: string  default='*/*'
+  isInherited?: boolean  default=false
+
+emits
+  media-open(...args: any[])
+
+data
+  columnCount: any
+  columnWidth: any
+  globalIsArReady: any
+  isMediaLoading: any
+  showCoverLabel: any
+
+computed
+  cover: any
+  currentCoverID: any
+  galleryItems: any
+  gridAutoRows: any
+  isLoading: any
+  isStoreLoading: any
+  mediaItems: any
+  mediaRepository: any
+  product: any
+  productMedia: any
+  productMediaRepository: any
+  productMediaStore: any
+
+methods
+  buildProductMedia(mediaId: any): any
+  createMediaAssociation(targetId: any): any
+  createPlaceholderMedia(mediaItems: any): any
+  getPlaceholderCount(columnCount: any): any
+  isArReady(productMedia: any): any
+  isCover(productMedia: any): any
+  isSpatial(productMedia: any): any
+  markMediaAsCover(productMedia: any): any
+  moveGalleryItem(item: any, position: any): any
+  onCreated(): any
+  onDropMedia(dragData: any): any
+  onMediaItemDragSort(dragData: any, dropData: any, validDrop: any): any
+  onOpenMedia(): any
+  onUploadFailed(uploadTask: any): any
+  removeCover(): any
+  removeFile(productMedia: any): any
+  successfulUpload(arg0: any): Promise<any>
+  updateColumnCount(): any
+  updateMediaItemPositions(): any
+
 blocks
   sw_product_media_form
     sw_product_media_form_grid  [after v-if]

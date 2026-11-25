@@ -10,6 +10,51 @@ component sw-sales-channel-product-assignment-categories  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/sw-sales-channel-product-assignment-categories.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  containerStyle: object
+  salesChannel: object
+
+emits
+  product-loading(...args: any[])
+  selection-change(...args: any[])
+
+data
+  categories: any
+  categoriesCollection: any
+  isComponentReady: any
+  isFetching: any
+  isProductLoading: any
+  searchResult: any
+  searchTerm: any
+
+computed
+  categoryRepository: any
+  productRepository: any
+  selectedCategoriesItemsIds: any
+  selectedCategoriesPathIds: any
+
+methods
+  categoryCriteria(parentId: any): any
+  categorySearchCriteria(term: any): any
+  createdComponent(): any
+  getBreadcrumb(item: any): any
+  getProductFromCategories(categories: any): any
+  getTreeItems(parentId?: any = null): Promise<any>
+  isSearchItemChecked(itemId: any): any
+  onChangeSearchTerm(searchTerm: any): any
+  onCheckItem(item: any): any
+  onCheckSearchItem(item: any): any
+  onSearchTermChange(input: any): any
+  productCriteria(categories: any): any
+  removeItem(item: any): any
+  searchCategories(term: any): any
+
 blocks
   sw_sales_channel_product_assignment_categories
     sw_sales_channel_product_assignment_categories_content
@@ -38,4 +83,9 @@ crossings
   v-if  sw_sales_channel_product_assignment_categories_search_results -> sw_sales_channel_product_assignment_categories_search_results_empty
   v-if  sw_sales_channel_product_assignment_categories_search_results_item_folder -> sw_category_tree_field_input_results_search_results_item_endpoint
   v-if  sw_sales_channel_product_assignment_categories_tree_result -> sw_sales_channel_product_assignment_categories_search_results
+
+refs
+  alert  -> mt-banner  block=sw_sales_channel_product_assignment_categories_info
+  cardSectionSecondary  -> sw-card-section  block=sw_sales_channel_products_assignment_single_products_secondary
+  swTree  -> sw-tree  block=sw_sales_channel_product_assignment_categories_tree_result
 ```

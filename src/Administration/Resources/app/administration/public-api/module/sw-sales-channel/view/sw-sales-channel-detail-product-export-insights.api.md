@@ -10,6 +10,74 @@ component sw-sales-channel-detail-product-export-insights  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/sw-sales-channel-detail-product-export-insights.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  salesChannel: any
+
+data
+  historyCustomerDataCount: any
+  historyOrderDataCount: any
+  historyOrderDataSum: any
+  isLoading: any
+  statisticDateRangesCustomerCount: object
+    options: any
+    value: any
+  statisticDateRangesOrderCount: object
+    options: any
+    value: any
+  statisticDateRangesOrderSum: object
+    options: any
+    value: any
+
+computed
+  availableRanges: any
+  chartOptionsCustomerCount: any
+  chartOptionsOrderCount: any
+  chartOptionsOrderSum: any
+  currencyFilter: any
+  customerCountCriteria: any
+  customerCountSeries: any
+  customerCountSummary: any
+  customerTrackingRepository: any
+  defaultRangeIndex: any
+  orderCountCriteria: any
+  orderCountSeries: any
+  orderCountSummary: any
+  orderSumCriteria: any
+  orderSumSeries: any
+  orderSumSummary: any
+  orderTrackingRepository: any
+  today: any
+
+methods
+  aggregateByDateTime(dateTimeString: any, aggregateByHour: any, data: any, aggregationArray?: any = []): any
+  createdComponent(): any
+  dateAgoValue(range: any): any
+  extractHistoryCustomerData(data: any): any
+  extractHistoryOrderData(data: any): any
+  extractTurnoverData(data: any): any
+  fetchData(): Promise<any>
+  formatChartHeadlineDate(date: any): any
+  formatCustomerDataArray(array: any, groupByHour?: any = false): any
+  formatDate(date: any): any
+  formatDateStringToAggregationTime(dateString: any, aggregateByHour?: any = false): any
+  formatOrderDataArray(array: any, groupByHour?: any = false): any
+  formatTooltipDate(value: any, range: any): any
+  getChartOptions(range: any, useCurrency?: any = false): any
+  getChartRangeSubtitle(range: any): any
+  getHistoryCustomerCountData(): Promise<any>
+  getHistoryOrderCountData(): Promise<any>
+  getHistoryOrderSumData(): Promise<any>
+  getTimeUnitInterval(range: any): any
+  getTrackingOrderAmountTotal(trackingOrder: any): any
+  onCustomerCountRangeUpdate(value: any): any
+  onOrderCountRangeUpdate(value: any): any
+  onOrderSumRangeUpdate(value: any): any
+  tooltipDateFormatOptions(range: any): any
+
 blocks
   sw_sales_channel_detail_product_export_insights
 ```

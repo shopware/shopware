@@ -68,7 +68,7 @@
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/promises": "^2.5",
         "guzzlehttp/psr7": "^2.4",
-        "horstoeko/zugferd": "^1.0.104",
+        "horstoeko/zugferd": "^1.0.116",
         "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.13.0",
         "league/flysystem-local": "^3.29.0",

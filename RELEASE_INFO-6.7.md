@@ -31,6 +31,10 @@ The *Used in* sidebar of the media library checks only the areas the user can re
 Roles that include `media.viewer`, such as the category, product, manufacturer, email template, payment, shipping, sales channel and theme viewers, no longer receive these reads through it.
 Stored roles keep their privileges until an admin saves the role again.
 Extensions that rely on these reads through `media.viewer` must request them in their own privilege mapping.
+### App manifests can contain sections from newer Shopware versions
+
+A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
+Apps that need such a section should require that version in `<compatibility>`.
 
 ## Storefront
 

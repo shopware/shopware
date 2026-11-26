@@ -40,6 +40,8 @@ describe('src/app/main.ts', () => {
         EntityValidationService: undefined,
         CustomEntityDefinitionService: undefined,
         FileValidationService: undefined,
+        SsoReauthService: undefined,
+        UserVerificationService: undefined,
     };
 
     beforeAll(async () => {
@@ -175,6 +177,12 @@ describe('src/app/main.ts', () => {
 
         jest.mock('src/app/service/file-validation.service');
         serviceMocks.FileValidationService = (await import('src/app/service/file-validation.service')).default;
+
+        jest.mock('src/core/service/sso-reauth.service');
+        serviceMocks.SsoReauthService = (await import('src/core/service/sso-reauth.service')).default;
+
+        jest.mock('src/core/service/user-verification.service');
+        serviceMocks.UserVerificationService = (await import('src/core/service/user-verification.service')).default;
 
         // Reset the Shopware object to make sure that the application is not already initialized
         Shopware = undefined;
@@ -419,5 +427,11 @@ describe('src/app/main.ts', () => {
         expect(serviceMocks.FileValidationService).not.toHaveBeenCalled();
         Shopware.Service('fileValidationService');
         expect(serviceMocks.FileValidationService).toHaveBeenCalled();
+
+        expect(serviceMocks.SsoReauthService).not.toHaveBeenCalled();
+        expect(serviceMocks.UserVerificationService).not.toHaveBeenCalled();
+        Shopware.Service('userVerificationService');
+        expect(serviceMocks.SsoReauthService).toHaveBeenCalled();
+        expect(serviceMocks.UserVerificationService).toHaveBeenCalled();
     });
 });

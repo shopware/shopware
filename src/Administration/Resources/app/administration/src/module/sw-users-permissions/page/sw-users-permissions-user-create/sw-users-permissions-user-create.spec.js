@@ -14,6 +14,9 @@ async function createWrapper(privileges = []) {
             global: {
                 renderStubDefaultSlot: true,
                 provide: {
+                    userVerificationService: {
+                        verify: jest.fn(() => Promise.resolve({ ...Shopware.Context.api })),
+                    },
                     acl: {
                         can: (identifier) => {
                             if (!identifier) {

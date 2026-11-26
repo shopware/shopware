@@ -16,6 +16,7 @@ mixins
 
 inject
   loginService  [private]
+  userVerificationService  [private]
 
 emits
   close(...args: any[])  [private]
@@ -23,16 +24,25 @@ emits
 
 data
   confirmPassword: any  [private]
+  isLoading: any  [private]
+  ssoLoginUrl: any  [private]
+  ssoSession: any  [private]
+
+computed
+  title: any  [private]
 
 methods
-  createdComponent(): any  [private]
+  createdComponent(): Promise<any>  [private]
   onCloseConfirmPasswordModal(): any  [private]
   onSubmitConfirmPassword(): Promise<any>  [private]
+  onVerifyWithSso(): Promise<any>  [private]
 
 blocks
   sw_settings_user_detail_content_confirm_password_modal  [private]
-    sw_settings_user_detail_content_confirm_password_modal_footer  [private]
-      sw_settings_user_detail_content_confirm_password_modal_actions_cancel  [private]
+    sw_settings_user_detail_content_confirm_password_modal_footer  [after v-if] [private]
+      sw_settings_user_detail_content_confirm_password_modal_actions_cancel  [after v-if] [private]
       sw_settings_user_detail_content_confirm_password_modal_actions_change  [private]
-    sw_settings_user_detail_content_confirm_password_modal_input__confirm_password  [private]
+      sw_settings_user_detail_content_confirm_password_modal_actions_sso  [private]
+    sw_settings_user_detail_content_confirm_password_modal_input__confirm_password  [after v-if] [private]
+    sw_verify_user_modal_sso_text  [private]
 ```

@@ -64,6 +64,23 @@ Apps that need such a section should require that version in `<compatibility>`.
 
 ## Administration
 
+### User verification before sensitive actions through `userVerificationService`
+
+The new public service `userVerificationService` verifies the current user before a sensitive action, such as changing users, roles or access keys.
+`verify()` returns a promise that resolves with the API context carrying the verified token.
+It opens the verify user modal: a password session confirms its password, an SSO session signs in again at the identity provider in a separate window.
+The promise rejects with a `UserVerificationError` when the user closes the modal.
+
+```ts
+this.userVerificationService.verify()
+    .then((context) => this.repository.save(this.entity, context))
+    .catch(() => {});
+```
+
+Extensions that render `sw-verify-user-modal` themselves keep working: on an SSO session the modal offers the identity provider instead of the password and emits `verified` after the sign-in.
+New code should request the verification through the service.
+The core pages for users, roles and the profile no longer render the modal in their templates; the Twig blocks that held it stay in place.
+
 ### Context menus render with `mt-floating-ui` before 6.8
 
 The menu of `sw-context-button` renders with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.

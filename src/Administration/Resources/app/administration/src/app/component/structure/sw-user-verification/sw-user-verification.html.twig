@@ -1,0 +1,7 @@
+{% block sw_user_verification %}
+<sw-verify-user-modal
+    v-if="requested"
+    @verified="onVerified"
+    @close="onClose"
+/>
+{% endblock %}

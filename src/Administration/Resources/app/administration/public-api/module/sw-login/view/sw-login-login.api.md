@@ -46,6 +46,7 @@ methods
   handleLoginSuccess(): Promise<any>  [private]
   loginUserWithPassword(): Promise<any>  [private]
   showLoginErrorFromResponse(response: unknown): any  [private]
+  showLogoutReason(): void  [private]
 
 blocks
   sw_login_login  [private]

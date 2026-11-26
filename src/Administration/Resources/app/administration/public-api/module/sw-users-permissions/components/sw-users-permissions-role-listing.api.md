@@ -16,7 +16,7 @@ mixins
 inject
   acl
   repositoryFactory
-  ssoSettingsService
+  userVerificationService
 
 emits
   get-list(...args: any[])
@@ -42,14 +42,14 @@ methods
   getList(): Promise<any>
   onCloseConfirmPasswordModal(): any
   onCloseDeleteModal(): any
-  onConfirmDelete(): any
+  onConfirmDelete(): Promise<any>
   onDelete(role: any): any
   onSearch(searchTerm: any): any
 
 blocks
   sw_users_permissions_role_listing
     sw_users_permissions_role_listing_empty_state  [after v-if]
-    sw_users_permissions_role_listing_grid  [after v-if]
+    sw_users_permissions_role_listing_grid
       sw_users_permissions_role_listing_grid_action_modals
         sw_users_permissions_role_listing_grid_actions_modals_modal  [scope: item]
           sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text  [scope: item]

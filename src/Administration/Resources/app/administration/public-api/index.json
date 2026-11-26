@@ -16353,6 +16353,14 @@
             "extends": null,
             "blocks": []
         },
+        "sw-user-verification": {
+            "file": "app/component/structure/sw-user-verification",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_user_verification"
+            ]
+        },
         "sw-users-permissions": {
             "file": "module/sw-users-permissions/page/sw-users-permissions",
             "visibility": "public",
@@ -16703,8 +16711,10 @@
                 "sw_settings_user_detail_content_confirm_password_modal",
                 "sw_settings_user_detail_content_confirm_password_modal_actions_cancel",
                 "sw_settings_user_detail_content_confirm_password_modal_actions_change",
+                "sw_settings_user_detail_content_confirm_password_modal_actions_sso",
                 "sw_settings_user_detail_content_confirm_password_modal_footer",
-                "sw_settings_user_detail_content_confirm_password_modal_input__confirm_password"
+                "sw_settings_user_detail_content_confirm_password_modal_input__confirm_password",
+                "sw_verify_user_modal_sso_text"
             ]
         },
         "sw-version": {

@@ -20,8 +20,8 @@ inject
   loginService
   privileges
   repositoryFactory
-  ssoSettingsService
   userService
+  userVerificationService
 
 data
   confirmPasswordModal: any

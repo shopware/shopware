@@ -19,6 +19,7 @@ inject
   integrationService  [private]
   repositoryFactory  [private]
   userService  [private]
+  userVerificationService  [private]
 
 data
   currentUser: any  [private]

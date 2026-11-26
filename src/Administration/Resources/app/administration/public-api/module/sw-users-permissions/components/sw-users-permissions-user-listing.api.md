@@ -19,6 +19,7 @@ inject
   repositoryFactory
   ssoSettingsService
   userService
+  userVerificationService
 
 emits
   get-list(...args: any[])
@@ -59,8 +60,8 @@ methods
 
 blocks
   sw_settings_user_list
-    sw_settings_user_list_content  [after v-if]
-      sw_settings_user_list_content_grid  [after v-if]
+    sw_settings_user_list_content
+      sw_settings_user_list_content_grid
         sw_settings_user_list_column_email
           sw_settings_user_list_column_email_content  [scope: item]
         sw_settings_user_list_column_status

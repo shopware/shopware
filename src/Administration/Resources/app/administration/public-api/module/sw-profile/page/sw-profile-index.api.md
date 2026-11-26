@@ -21,8 +21,8 @@ inject
   repositoryFactory
   searchPreferencesService
   searchRankingService
-  ssoSettingsService
   userService
+  userVerificationService
   validationApiService
 
 data
@@ -79,7 +79,7 @@ methods
   onCloseConfirmPasswordModal(): any
   onDropMedia(mediaItem: any): any
   onMediaSelectionChange(arg0: any): any
-  onSave(): any
+  onSave(): Promise<any>
   onUnlinkAvatar(): any
   onVerifyPasswordFinished(context: any): any
   openMediaModal(): any
@@ -98,7 +98,7 @@ blocks
     sw_profile_index_actions
     sw_profile_index_content_confirm_password_modal
     sw_profile_index_headline
-    sw_profile_index_media_upload_actions_media_modal  [after v-if]
+    sw_profile_index_media_upload_actions_media_modal
     sw_profile_index_router_view
     sw_profile_index_smart_bar_back
     sw_profile_index_tabs

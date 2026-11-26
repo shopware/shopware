@@ -22,6 +22,7 @@ inject
   repositoryFactory
   userService
   userValidationService
+  userVerificationService
 
 data
   confirmPasswordModal: any
@@ -100,7 +101,7 @@ methods
   onMcpAllowlistUpdate(allowlist: any): any
   onMediaSelectionChange(arg0: any): any
   onOpenMedia(): any
-  onSave(): any
+  onSave(): Promise<any>
   onSaveIntegration(): any
   onSearch(value: any): any
   onShowDetailModal(id: any): any

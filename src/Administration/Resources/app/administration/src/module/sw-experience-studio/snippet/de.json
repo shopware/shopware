@@ -206,24 +206,29 @@
         },
         "showFiltersInOffcanvas": {
           "title": "Filter im Off-Canvas anzeigen",
-          "helpText": "Wenn aktiv, werden die Filter als Filter-Button angezeigt, der alle Filter in einem Off-Canvas-Menü öffnet, statt sie direkt anzuzeigen.",
-          "xs": {
-            "title": "Filter im Off-Canvas anzeigen (XS)"
-          },
-          "sm": {
-            "title": "Filter im Off-Canvas anzeigen (SM)"
-          },
-          "md": {
-            "title": "Filter im Off-Canvas anzeigen (MD)"
-          },
-          "lg": {
-            "title": "Filter im Off-Canvas anzeigen (LG)"
-          },
-          "xl": {
-            "title": "Filter im Off-Canvas anzeigen (XL)"
-          },
-          "xxl": {
-            "title": "Filter im Off-Canvas anzeigen (XXL)"
+          "helpText": "Unterhalb des gewählten Breakpoints werden die Filter als Filter-Button angezeigt, der alle Filter in einem Off-Canvas-Menü öffnet. Ab dem Breakpoint werden die Filter direkt angezeigt.",
+          "options": {
+            "never": {
+              "label": "Nie"
+            },
+            "sm": {
+              "label": "Unterhalb SM"
+            },
+            "md": {
+              "label": "Unterhalb MD"
+            },
+            "lg": {
+              "label": "Unterhalb LG"
+            },
+            "xl": {
+              "label": "Unterhalb XL"
+            },
+            "xxl": {
+              "label": "Unterhalb XXL"
+            },
+            "always": {
+              "label": "Immer"
+            }
           }
         },
         "visibleFilterCount": {

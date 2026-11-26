@@ -12,29 +12,19 @@
     visibleFilterCount = 3,
     displayType = 'inline',
     propertyAllowList = null,
-    showFiltersInOffcanvas = null,
+    showFiltersInOffcanvas = 'lg',
 %}
 
 {% set filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'] %}
 
 {% set offcanvasId = 'filter-offcanvas-' ~ random() %}
 
-{# Fallback breakpoints #}
-{% set offcanvasDefaults = { xs: true, sm: true, md: true, lg: false, xl: false, xxl: false } %}
-
-{# Bootstrap's responsive offcanvas switches at one breakpoint: the first one turned off, counting up from xs. #}
-{# Null keeps the filters in the offcanvas on every breakpoint. #}
-{% set offcanvasBreakpoint = null %}
-{% for breakpoint, offcanvasDefault in offcanvasDefaults %}
-    {% set showInOffcanvas = showFiltersInOffcanvas is mapping
-        ? (showFiltersInOffcanvas[breakpoint] ?? offcanvasDefault)
-        : (showFiltersInOffcanvas ?? offcanvasDefault) %}
-    {% if offcanvasBreakpoint is null and not showInOffcanvas %}
-        {% set offcanvasBreakpoint = breakpoint %}
-    {% endif %}
-{% endfor %}
-
-{% set hasOffcanvas = offcanvasBreakpoint != 'xs' %}
+{# Mirrors Bootstrap's responsive offcanvas, which switches at a single breakpoint. #}
+{# `always` renders the plain `offcanvas` class, a breakpoint the `offcanvas-{breakpoint}` class. #}
+{# `never`, null and any unknown value render no offcanvas markup. #}
+{% set offcanvasBreakpoints = ['sm', 'md', 'lg', 'xl', 'xxl'] %}
+{% set hasOffcanvas = showFiltersInOffcanvas == 'always' or showFiltersInOffcanvas in offcanvasBreakpoints %}
+{% set offcanvasBreakpoint = showFiltersInOffcanvas in offcanvasBreakpoints ? showFiltersInOffcanvas : null %}
 {% set offcanvasToggleClass = offcanvasBreakpoint ? 'd-flex d-' ~ offcanvasBreakpoint ~ '-none' : 'd-flex' %}
 
 {% set filterPanelOptions = {

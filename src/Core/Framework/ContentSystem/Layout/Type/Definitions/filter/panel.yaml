@@ -45,54 +45,46 @@ properties:
       helpTextSnippet: "sw-experience-studio.elements.filter-panel.displayType.helpText"
 
   showFiltersInOffcanvas:
-    type:
-      - "boolean"
-      - "object"
+    type: string
     title: "Show Filters in Off-Canvas"
     titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.title"
-    description: "Breakpoints on which the panel shows only a filter button that opens the filters in an off-canvas, instead of showing the filters directly. The off-canvas switches at one breakpoint: the filters are shown directly on the first breakpoint turned off, counting up from xs, and on every larger breakpoint."
+    description: "Viewports on which the panel shows only a filter button that opens the filters in an off-canvas, instead of showing the filters directly. Mirrors Bootstrap's responsive off-canvas, which switches at a single breakpoint. `never` (or no value) always shows the filters directly; a breakpoint (`sm` to `xxl`) uses the off-canvas below that breakpoint and shows the filters directly from it upward; `always` uses the off-canvas on every viewport."
+    default: "lg"
+    enum:
+      - "never"
+      - "sm"
+      - "md"
+      - "lg"
+      - "xl"
+      - "xxl"
+      - "always"
     adminUI:
-      component: "switch"
-      breakpointAware: true
-      helpText: "When active, the filters are shown as a filter button that opens all filters in an off-canvas menu instead of showing them directly."
+      component: "select"
+      props:
+        options:
+          - value: "never"
+            label: "Never"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.never.label"
+          - value: "sm"
+            label: "Below SM"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.sm.label"
+          - value: "md"
+            label: "Below MD"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.md.label"
+          - value: "lg"
+            label: "Below LG"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.lg.label"
+          - value: "xl"
+            label: "Below XL"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.xl.label"
+          - value: "xxl"
+            label: "Below XXL"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.xxl.label"
+          - value: "always"
+            label: "Always"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.always.label"
+      helpText: "Below the selected breakpoint, the filters are shown as a filter button that opens all filters in an off-canvas menu. From the breakpoint upward, the filters are shown directly."
       helpTextSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.helpText"
-    properties:
-      xs:
-        type: boolean
-        title: "Show Filters in Off-Canvas (XS)"
-        titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.xs.title"
-        description: "Whether the filters open in an off-canvas on the extra small breakpoint."
-        default: true
-      sm:
-        type: boolean
-        title: "Show Filters in Off-Canvas (SM)"
-        titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.sm.title"
-        description: "Whether the filters open in an off-canvas on the small breakpoint."
-        default: true
-      md:
-        type: boolean
-        title: "Show Filters in Off-Canvas (MD)"
-        titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.md.title"
-        description: "Whether the filters open in an off-canvas on the medium breakpoint."
-        default: true
-      lg:
-        type: boolean
-        title: "Show Filters in Off-Canvas (LG)"
-        titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.lg.title"
-        description: "Whether the filters open in an off-canvas on the large breakpoint."
-        default: false
-      xl:
-        type: boolean
-        title: "Show Filters in Off-Canvas (XL)"
-        titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.xl.title"
-        description: "Whether the filters open in an off-canvas on the extra large breakpoint."
-        default: false
-      xxl:
-        type: boolean
-        title: "Show Filters in Off-Canvas (XXL)"
-        titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.xxl.title"
-        description: "Whether the filters open in an off-canvas on the extra extra large breakpoint."
-        default: false
 
   visibleFilterCount:
     type: integer

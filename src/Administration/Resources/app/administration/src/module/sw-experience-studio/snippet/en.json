@@ -1002,7 +1002,7 @@
         "previewEntity": "Entity",
         "previewLanguage": "Language",
         "previewLanguageLoadError": "The available languages for this preview sales channel could not be loaded.",
-        "previewEntityTypesLoadError": "The entity types for previews could not be loaded. Opening a workspace or another layout tries again.",
+        "previewEntityTypesLoadError": "The entity types for previews could not be loaded. Switch the workspace or reload the page to try again.",
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",

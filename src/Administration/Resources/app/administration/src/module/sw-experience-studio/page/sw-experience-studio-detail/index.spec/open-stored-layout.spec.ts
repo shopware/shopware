@@ -52,6 +52,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail opening a
                 get: () => methods.resolvePreviewContext.call(vm, vm.layout),
             },
         });
+        // The page starts the entity type request when it is created.
+        void methods.ensureLayoutTypesLoaded.call(vm);
 
         return vm;
     }
@@ -102,16 +104,41 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail opening a
         expect(vm.previewSalesChannelId).toBe('sales-channel-id');
     });
 
-    it('retries a failed entity type request when the layout opens', async () => {
+    it('applies the preview context with entity types loaded while the layout was opening', async () => {
+        const { getEntityTypes, resolveEntityTypes } = pendingEntityTypes();
+        const vm = createLayoutOpener(getEntityTypes);
+
+        const open = methods.openLayoutById.call(vm, layout.id);
+        await flushPromises();
+        resolveEntityTypes(['product']);
+        await open;
+
+        expect(vm.previewEntityId).toBe('product-id');
+    });
+
+    async function openLayoutAfterFailedEntityTypeRequest() {
         const getEntityTypes = jest
             .fn()
             .mockRejectedValueOnce(new Error('Entity types unavailable'))
             .mockResolvedValueOnce(['product']);
         const vm = createLayoutOpener(getEntityTypes);
-        await methods.ensureLayoutTypesLoaded.call(vm);
+        await vm.layoutTypesRequest;
 
         await methods.openLayoutById.call(vm, layout.id);
 
-        expect(vm.previewEntityId).toBe('product-id');
+        return { getEntityTypes, vm };
+    }
+
+    it('does not request the entity types again when a layout opens after a failed request', async () => {
+        const { getEntityTypes } = await openLayoutAfterFailedEntityTypeRequest();
+
+        expect(getEntityTypes).toHaveBeenCalledTimes(1);
+    });
+
+    it('opens the layout without a preview context after a failed entity type request', async () => {
+        const { vm } = await openLayoutAfterFailedEntityTypeRequest();
+
+        expect(vm.frames).toHaveLength(1);
+        expect(vm.previewEntityId).toBeNull();
     });
 });

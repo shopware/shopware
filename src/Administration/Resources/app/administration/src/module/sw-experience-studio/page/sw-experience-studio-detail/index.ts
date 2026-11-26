@@ -992,7 +992,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (!entityType) {
                 if (this.layoutTypeLoadError !== null) {
                     // Without the entity-type list no frame can be classified as entity- or section-rooted,
-                    // so every saved preview entity is kept until a later request succeeds.
+                    // so every saved preview entity is kept until a workspace open retries and re-checks them.
                     return false;
                 }
 
@@ -1405,14 +1405,14 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const layoutTypesRequest = this.ensureLayoutTypesLoaded();
                 const layout = await this.layoutRepository.get(layoutId, Shopware.Context.api, this.layoutLoadCriteria);
 
                 if (!layout) {
                     return;
                 }
 
-                await layoutTypesRequest;
+                // Only a workspace open retries a failed request, because only it re-checks every open frame.
+                await this.layoutTypesRequest;
 
                 // Another open request may have completed while this layout was loading.
                 if (this.openLayouts.some((item) => item.id === layoutId)) {

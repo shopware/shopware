@@ -149,6 +149,8 @@ Shopware.Module.register('swag-example', {
 ```
 
 The Product module now lists `product_document` as a child entity.
+If two modules list the same child entity, the first registered module wins.
+The warning about it is only logged in development builds.
 
 # 6.7.17.0
 

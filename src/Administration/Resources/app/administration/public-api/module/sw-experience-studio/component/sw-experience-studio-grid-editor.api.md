@@ -33,6 +33,7 @@ data
   nextId: any  [private]
   patterns: any  [private]
   selected: any  [private]
+  syncedLayoutJson: any  [private]
 
 computed
   areas: { id: number; number: number; row: number; column: number; rowSpan: number; columnSpan: number }[]  [private]

@@ -512,7 +512,7 @@ class CacheInvalidationSubscriber
     {
         yield from $this->getDocumentProductBatches($mediaIds);
 
-        // Probe all assignments together before switching to per-media pagination.
+        // Small updates resolve all media and their variants in one query, avoiding per-media and separate variant lookups.
         $probe = $this->connection->fetchAllAssociative(
             'SELECT pm.product_id, variant.id AS variant_id
              FROM product_media pm LEFT JOIN product variant ON variant.parent_id = pm.product_id
@@ -532,18 +532,26 @@ class CacheInvalidationSubscriber
         unset($probe);
 
         foreach (Uuid::fromHexToBytesList($mediaIds) as $mediaId) {
-            $params = ['media' => $mediaId];
-            $after = '';
+            // The media FK index contains the assignment primary key (id, version_id).
+            $base = $this->connection->createQueryBuilder()
+                ->select('pm.id', 'pm.version_id', 'pm.product_id', 'EXISTS(SELECT 1 FROM product v WHERE v.parent_id = pm.product_id) AS has_variants')
+                ->from('product_media pm IGNORE INDEX (PRIMARY)')
+                ->where('pm.media_id = :media')
+                ->orderBy('pm.id')
+                ->addOrderBy('pm.version_id')
+                ->setMaxResults($this->mediaBatchSize)
+                ->setParameter('media', $mediaId);
+
+            $last = null;
             do {
-                // The media FK index contains the assignment primary key (id, version_id).
-                $rows = $this->connection->fetchAllAssociative(
-                    'SELECT pm.id, pm.version_id, pm.product_id,
-                            EXISTS(SELECT 1 FROM product v WHERE v.parent_id = pm.product_id) AS has_variants
-                     FROM product_media pm IGNORE INDEX (PRIMARY)
-                     WHERE pm.media_id = :media' . $after . '
-                     ORDER BY pm.id, pm.version_id LIMIT ' . $this->mediaBatchSize,
-                    $params
-                );
+                $page = clone $base;
+                if ($last !== null) {
+                    $page->andWhere('pm.id > :id OR (pm.id = :id AND pm.version_id > :version)')
+                        ->setParameter('id', $last['id'])
+                        ->setParameter('version', $last['version_id']);
+                }
+
+                $rows = $page->executeQuery()->fetchAllAssociative();
                 if ($rows === []) {
                     break;
                 }
@@ -556,8 +564,6 @@ class CacheInvalidationSubscriber
                 }
 
                 $last = $rows[array_key_last($rows)];
-                $params = ['media' => $mediaId, 'id' => $last['id'], 'version' => $last['version_id']];
-                $after = ' AND (pm.id > :id OR (pm.id = :id AND pm.version_id > :version))';
             } while (\count($rows) === $this->mediaBatchSize);
         }
     }
@@ -573,27 +579,35 @@ class CacheInvalidationSubscriber
      */
     private function getDocumentProductBatches(array $mediaIds): \Generator
     {
-        $params = ['ids' => Uuid::fromHexToBytesList($mediaIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
-        $after = '';
+        $base = $this->connection->createQueryBuilder()
+            ->select('COALESCE(product.parent_id, product.id) AS owner_id')
+            ->distinct()
+            ->from('product_document_translation', 'pdt')
+            ->innerJoin('pdt', 'product_document', 'pd', 'pdt.product_document_id = pd.id AND pdt.product_document_version_id = pd.version_id')
+            ->innerJoin('pd', 'product', 'product', 'pd.product_id = product.id AND pd.product_version_id = product.version_id')
+            ->where('pdt.media_id IN (:ids)')
+            ->andWhere('pd.version_id = :version')
+            ->orderBy('owner_id')
+            ->setMaxResults($this->mediaBatchSize)
+            ->setParameter('ids', Uuid::fromHexToBytesList($mediaIds), ArrayParameterType::BINARY)
+            ->setParameter('version', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+
+        $lastId = null;
         do {
-            $ids = $this->connection->fetchFirstColumn(
-                'SELECT DISTINCT COALESCE(product.parent_id, product.id) AS owner_id
-                 FROM product_document_translation AS pdt
-                 INNER JOIN product_document AS pd ON pdt.product_document_id = pd.id AND pdt.product_document_version_id = pd.version_id
-                 INNER JOIN product ON pd.product_id = product.id AND pd.product_version_id = product.version_id
-                 WHERE pdt.media_id IN (:ids) AND pd.version_id = :version' . $after . '
-                 ORDER BY owner_id LIMIT ' . $this->mediaBatchSize,
-                $params,
-                ['ids' => ArrayParameterType::BINARY]
-            );
+            $page = clone $base;
+            if ($lastId !== null) {
+                $page->andWhere('COALESCE(product.parent_id, product.id) > :last')
+                    ->setParameter('last', $lastId);
+            }
+
+            $ids = $page->executeQuery()->fetchFirstColumn();
             if ($ids === []) {
                 return;
             }
 
             yield $ids;
 
-            $params['last'] = $ids[array_key_last($ids)];
-            $after = ' AND COALESCE(product.parent_id, product.id) > :last';
+            $lastId = $ids[array_key_last($ids)];
         } while (\count($ids) === $this->mediaBatchSize);
     }
 
@@ -608,27 +622,37 @@ class CacheInvalidationSubscriber
      */
     private function getMediaVariantBatches(array $parents): \Generator
     {
-        $params = ['parents' => $parents];
-        $after = '';
+        $base = $this->connection->createQueryBuilder()
+            ->select('parent_id', 'parent_version_id', 'id')
+            ->from('product')
+            ->where('parent_id IN (:parents)')
+            ->orderBy('parent_id')
+            ->addOrderBy('parent_version_id')
+            ->addOrderBy('id')
+            ->setMaxResults($this->mediaBatchSize)
+            ->setParameter('parents', $parents, ArrayParameterType::BINARY);
+
+        $last = null;
         do {
-            $rows = $this->connection->fetchAllAssociative(
-                'SELECT parent_id, parent_version_id, id FROM product WHERE parent_id IN (:parents)' . $after .
-                ' ORDER BY parent_id, parent_version_id, id LIMIT ' . $this->mediaBatchSize,
-                $params,
-                ['parents' => ArrayParameterType::BINARY]
-            );
+            $page = clone $base;
+            if ($last !== null) {
+                // Follow the parent FK index, including nullable parent versions. Equal IDs have the same cache tag.
+                $page->andWhere('parent_id > :parent OR (parent_id = :parent AND (
+                    parent_version_id > :version OR (parent_version_id IS NOT NULL AND :version IS NULL)
+                    OR (parent_version_id <=> :version AND id > :id)))')
+                    ->setParameter('parent', $last['parent_id'])
+                    ->setParameter('version', $last['parent_version_id'])
+                    ->setParameter('id', $last['id']);
+            }
+
+            $rows = $page->executeQuery()->fetchAllAssociative();
             if ($rows === []) {
                 return;
             }
 
             yield array_column($rows, 'id');
 
-            // Follow the parent FK index, including nullable parent versions. Equal IDs have the same cache tag.
             $last = $rows[array_key_last($rows)];
-            $params = ['parents' => $parents, 'parent' => $last['parent_id'], 'version' => $last['parent_version_id'], 'id' => $last['id']];
-            $after = ' AND (parent_id > :parent OR (parent_id = :parent AND (
-                parent_version_id > :version OR (parent_version_id IS NOT NULL AND :version IS NULL)
-                OR (parent_version_id <=> :version AND id > :id))))';
         } while (\count($rows) === $this->mediaBatchSize);
     }
 

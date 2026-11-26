@@ -231,6 +231,7 @@ function componentMapPlugin() {
 async function main() {
     const { build } = await import('vite');
     const { glob } = await import('tinyglobby');
+    const { storefrontSbomPlugin, clearStorefrontSbomReports } = await import('./storefront-sbom.mjs');
 
     // Load plugins.json
     let plugins;
@@ -243,8 +244,13 @@ async function main() {
 
     // Collect bundles that have a components directory.
     const bundlesWithComponents = Object.entries(plugins).filter(([, config]) => {
-        const componentRoot = path.resolve(projectRoot, config.basePath, COMPONENTS_PATH);
-        return fs.existsSync(componentRoot);
+        const bundleRoot = path.resolve(projectRoot, config.basePath);
+        const componentRoot = path.join(bundleRoot, COMPONENTS_PATH);
+        if (fs.existsSync(componentRoot)) {
+            return true;
+        }
+        clearStorefrontSbomReports({ bundleRoot, target: 'components' });
+        return false;
     });
 
     if (bundlesWithComponents.length === 0) {
@@ -262,6 +268,8 @@ async function main() {
         const outDir = path.join(bundleAbsPath, 'Resources', 'public', 'storefront', 'components');
         const customConfigMts = path.join(storefrontAppDir, 'vite.components.config.mts');
         const customConfig = fs.existsSync(customConfigMts) ? customConfigMts : null;
+        const sbomOptions = { bundleName, bundleRoot: bundleAbsPath, target: 'components', orchestrated: true };
+        clearStorefrontSbomReports(sbomOptions);
 
         console.log(`\n[build-components] Building ${bundleName}…`);
         console.log(`  components : ${componentRoot}`);
@@ -327,7 +335,11 @@ async function main() {
 
         // Bundle with a custom Vite config — honour it via configFile.
         if (customConfig !== null) {
-            await build({ configFile: customConfig, root: storefrontAppDir });
+            await build({
+                configFile: customConfig,
+                root: storefrontAppDir,
+                plugins: [storefrontSbomPlugin(sbomOptions)],
+            });
             return;
         }
 
@@ -463,6 +475,7 @@ async function main() {
                 },
             },
             plugins: [
+                storefrontSbomPlugin(sbomOptions),
                 ...(isExtensionBundle ? [extensionNodeModulesPlugin(storefrontAppDir)] : []),
                 componentMapPlugin(),
                 plainCssShimPlugin,

@@ -209,12 +209,9 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
                 }),
                 'sw-condition-type-select': true,
                 'sw-field-error': true,
-                'sw-popover': {
-                    template: `
-                            <div class="sw-popover sw-context-button__menu-popover">
-                                <slot></slot>
-                            </div>
-                        `,
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'router-link': true,
             },

@@ -6,6 +6,7 @@ import { normalizeComponentEntryName, warnForDuplicateEntryNames } from './compo
 import { componentMapPlugin } from './component-map-plugin';
 import { plainCssShimPlugin } from './plain-css-shim-plugin';
 import { scopedSubpathExportsPlugin } from './scoped-subpath-exports-plugin';
+import { storefrontSbomPlugin } from './storefront-sbom.mjs';
 
 const PLAIN_CSS_SHIM_PREFIX = '\0sw-plain-css:';
 
@@ -189,6 +190,11 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
             alias: resolveAliases,
         },
         plugins: [
+            storefrontSbomPlugin({
+                bundleName: namespace,
+                bundleRoot: path.resolve(storefrontAppDir, '../../..'),
+                target: 'components',
+            }),
             ...prependPlugins,
             ...pluginStack,
             ...additionalPlugins,

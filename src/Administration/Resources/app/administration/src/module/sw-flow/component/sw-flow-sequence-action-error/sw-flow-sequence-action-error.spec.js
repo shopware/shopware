@@ -29,8 +29,9 @@ async function createWrapper() {
                     'sw-context-menu': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-popover': {
-                        template: '<div><slot></slot></div>',
+                    'mt-floating-ui': {
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'router-link': true,
                 },

@@ -144,6 +144,16 @@
         }
     }
 
+    // WHY: The viewport heading shows the title visually; each control keeps its own label as its accessible name.
+    &__responsive-input .mt-field__label {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
     &__responsive-slider {
         width: 100%;
     }

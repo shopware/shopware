@@ -118,9 +118,8 @@
                             class="sw-experience-studio-settings-fields__responsive-slider"
                         >
                             <mt-slider
-                                class="sw-experience-studio-settings-fields__responsive-slider-input"
-                                label=""
-                                :aria-label="getPropertyTitle(field.property)"
+                                class="sw-experience-studio-settings-fields__responsive-slider-input sw-experience-studio-settings-fields__responsive-input"
+                                :label="getPropertyTitle(field.property)"
                                 :min="getResponsiveLimits(field.property).min"
                                 :max="getResponsiveLimits(field.property).max"
                                 :step="getResponsiveLimits(field.property).step"
@@ -145,8 +144,8 @@
                         <mt-select
                             v-else-if="getControlType(field.property) === 'select'"
                             v-bind="getControlProps(field.property)"
-                            label=""
-                            :aria-label="getPropertyTitle(field.property)"
+                            class="sw-experience-studio-settings-fields__responsive-input"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="getResponsiveValue(field)"
                             :options="getSelectOptions(field.property)"
@@ -193,8 +192,8 @@
                         <sw-experience-studio-box-spacing-field
                             v-else-if="getControlType(field.property) === 'box-spacing'"
                             :field-key="getFieldControlKey(field.key)"
-                            label=""
-                            :aria-label="getPropertyTitle(field.property)"
+                            class="sw-experience-studio-settings-fields__responsive-input"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="String(getResponsiveValue(field) ?? '')"
                             :disabled="!allowEdit || undefined"
@@ -204,8 +203,8 @@
                         <mt-text-field
                             v-else
                             v-bind="getControlProps(field.property)"
-                            label=""
-                            :aria-label="getPropertyTitle(field.property)"
+                            class="sw-experience-studio-settings-fields__responsive-input"
+                            :label="getPropertyTitle(field.property)"
                             :help-text="getPropertyHelpText(field.property)"
                             :model-value="getResponsiveValue(field)"
                             :disabled="!allowEdit || undefined"

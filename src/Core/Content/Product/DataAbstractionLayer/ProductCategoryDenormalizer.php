@@ -43,7 +43,6 @@ class ProductCategoryDenormalizer
         }
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $productIds, $versionId, $context): void {
-            // locked before the reads, so rewrites of one variant family run one after another
             $this->lockProducts($productIds, $versionId);
 
             $categories = $this->fetchMapping($ids, $context);

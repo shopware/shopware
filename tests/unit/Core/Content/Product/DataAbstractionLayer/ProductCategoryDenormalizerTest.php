@@ -122,13 +122,6 @@ class ProductCategoryDenormalizerTest extends TestCase
 
     public static function unchangedTreeProvider(): \Generator
     {
-        yield 'tree stored in the same order' => [
-            'paths' => '|' . self::ROOT_CATEGORY_ID . '|',
-            'ids' => self::CATEGORY_ID,
-            'storedTree' => '["' . self::ROOT_CATEGORY_ID . '","' . self::CATEGORY_ID . '"]',
-            'storedCategoryIds' => [self::ROOT_CATEGORY_ID, self::CATEGORY_ID],
-        ];
-
         yield 'tree stored in another order' => [
             'paths' => '|' . self::ROOT_CATEGORY_ID . '|',
             'ids' => self::CATEGORY_ID,

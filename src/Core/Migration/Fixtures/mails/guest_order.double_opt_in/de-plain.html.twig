@@ -1,4 +1,4 @@
-Hallo {{ customer.salutation.translated.displayName }} {{ customer.lastName }},
+{% if customer.salutation.translated.letterName|default() %}{{ customer.salutation.translated.letterName }}{% else %}Hallo{% endif %} {{ customer.firstName }} {{ customer.lastName }},
 
 Bitte bestätigen Sie Ihre E-Mail-Adresse über den nachfolgenden Link:
 

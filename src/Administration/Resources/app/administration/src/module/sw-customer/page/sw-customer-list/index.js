@@ -215,15 +215,7 @@ export default {
     },
 
     methods: {
-        /**
-         * @deprecated tag:v6.8.0 - will be removed without replacement
-         */
         createdComponent() {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-customer-list.createdComponent() is deprecated. Will be removed without replacement.',
-            );
-
             return Promise.resolve();
         },
 

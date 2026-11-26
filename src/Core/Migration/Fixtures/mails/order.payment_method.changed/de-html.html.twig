@@ -1,5 +1,5 @@
 <div style="font-family:arial; font-size:12px;">
-    <p>{% if order.orderCustomer.salutation.translated.letterName|default() %}{{ order.orderCustomer.salutation.translated.letterName }}{% else %}Hallo{% endif %} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},</p>
+    <p>{{ order.orderCustomer.salutation.translated.letterName|default('Hallo') }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},</p>
     <p>wir bestätigen, dass die Zahlungsart für Ihre Bestellung erfolgreich geändert wurde.</p>
     <p>
         <strong>Bestellnummer:</strong> {{ order.orderNumber }}<br>

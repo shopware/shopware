@@ -10,13 +10,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 #[Package('fundamentals@after-sales')]
@@ -44,12 +47,14 @@ class PrimaryKeyResolver
 
         $context = Context::createDefaultContext();
 
-        return $this->resolvePrimaryKey(
+        $record = $this->resolvePrimaryKey(
             $config,
             $definition,
             $this->handleManyToManyAssociations($config, $definition, $record, $context),
             $context
         );
+
+        return $this->resolveReverseOneToOnePrimaryKeys($config, $definition, $record, $context);
     }
 
     /**
@@ -125,6 +130,95 @@ class PrimaryKeyResolver
     }
 
     /**
+     * A one-to-one association whose foreign key lives on the referenced entity (e.g. `order.orderCustomer`) can only
+     * be updated if the record carries the referenced entity's primary key. Without it, the DAL generates a new id and
+     * tries to insert a second referenced entity. Look the existing one up by its foreign key to the imported entity.
+     *
+     * The record still holds the raw import values here, so ids are deserialized before they are used in a search.
+     * Errors are reported through `_error`, because this runs outside the per-row error handling of the import.
+     *
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
+    private function resolveReverseOneToOnePrimaryKeys(Config $config, EntityDefinition $definition, iterable $record, Context $context): iterable
+    {
+        $record = \is_array($record) ? $record : iterator_to_array($record);
+
+        if (isset($record['_error']) || $this->isCreateOnly($config)) {
+            return $record;
+        }
+
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof OneToOneAssociationField) {
+                continue;
+            }
+
+            $association = $record[$field->getPropertyName()] ?? null;
+            if (!\is_array($association)) {
+                continue;
+            }
+
+            $localField = $definition->getFields()->getByStorageName($field->getStorageName());
+            if (!$localField instanceof IdField) {
+                continue;
+            }
+
+            try {
+                $parentId = $this->fieldSerializer->deserialize($config, $localField, $record[$localField->getPropertyName()] ?? null);
+            } catch (\Throwable $exception) {
+                $record['_error'] = $exception;
+
+                return $record;
+            }
+
+            if (!\is_string($parentId) || !Uuid::isValid($parentId)) {
+                continue;
+            }
+
+            $referenceDefinition = $field->getReferenceDefinition();
+            $referenceFkField = $referenceDefinition->getFields()->getByStorageName($field->getReferenceField());
+            $referenceIdFields = $referenceDefinition->getPrimaryKeys()->filter(static fn (Field $field) => $field instanceof IdField);
+            $referenceIdField = $referenceIdFields->first();
+
+            if (!$referenceFkField instanceof FkField || $referenceIdFields->count() !== 1 || !$referenceIdField) {
+                continue;
+            }
+
+            // an exported file always contains the id column, which stays blank for associations that should be resolved
+            $associationId = $association[$referenceIdField->getPropertyName()] ?? null;
+            if (\is_string($associationId) ? trim($associationId) !== '' : $associationId !== null) {
+                continue;
+            }
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter($referenceFkField->getPropertyName(), $parentId));
+            $criteria->setLimit(1);
+
+            $id = $this->definitionInstanceRegistry
+                ->getRepository($referenceDefinition->getEntityName())
+                ->searchIds($criteria, $context)
+                ->firstId();
+
+            if ($id) {
+                $association[$referenceIdField->getPropertyName()] = $id;
+                $record[$field->getPropertyName()] = $association;
+            }
+        }
+
+        return $record;
+    }
+
+    /**
+     * A create-only import fails for existing entities anyway, so there is nothing to resolve.
+     */
+    private function isCreateOnly(Config $config): bool
+    {
+        return ($config->get('createEntities') ?? true) === true
+            && ($config->get('updateEntities') ?? true) === false;
+    }
+
+    /**
      * @param array<string, mixed> $data
      * @param list<string> $keyPath
      */
@@ -161,7 +255,7 @@ class PrimaryKeyResolver
             return implode('.', $updateByFieldPath);
         }
 
-        if (empty($updateByFieldPath[1])) {
+        if (!isset($updateByFieldPath[1]) || $updateByFieldPath[1] === '' || $updateByFieldPath[1] === '0') {
             return null;
         }
 
@@ -206,7 +300,7 @@ class PrimaryKeyResolver
             $updatedBy = $config->getUpdateBy()->get($manyToManyDefinition->getEntityName());
             $record = \is_array($record) ? $record : iterator_to_array($record);
 
-            if (!$updatedBy || empty($record[$field->getPropertyName()])) {
+            if (!$updatedBy || \in_array($record[$field->getPropertyName()] ?? null, [null, false, 0, 0.0, '', '0', []], true)) {
                 continue;
             }
 

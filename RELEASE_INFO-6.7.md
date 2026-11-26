@@ -42,6 +42,11 @@ The SVG is now `aria-hidden`, so headless frontends should render `text` as its 
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+### App manifests can contain sections from newer Shopware versions
+
+A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
+Apps that need such a section should require that version in `<compatibility>`.
+
 ## Administration
 
 ### Deprecated `sw-product-detail.loadLanguage()` and `languageCriteria`
@@ -49,10 +54,6 @@ The system config key `core.app.shopId` is deprecated, read the shop ID from `co
 The method `loadLanguage()` and the computed property `languageCriteria` of the Administration page `sw-product-detail` are deprecated and will be removed in v6.8.0.
 The page no longer uses them, because `Shopware.Context.api.language` is already loaded at startup and on every language switch.
 Read `Shopware.Context.api.language` instead, and watch `Shopware.Context.api.languageId` to react to a language switch.
-### App manifests can contain sections from newer Shopware versions
-
-A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
-Apps that need such a section should require that version in `<compatibility>`.
 
 ## Storefront
 

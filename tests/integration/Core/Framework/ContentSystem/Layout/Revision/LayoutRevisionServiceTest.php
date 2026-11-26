@@ -444,7 +444,10 @@ class LayoutRevisionServiceTest extends TestCase
 
     private function asUser(string $userId): Context
     {
-        return Context::createDefaultContext(new AdminApiSource($userId));
+        $source = new AdminApiSource($userId);
+        $source->setIsAdmin(true);
+
+        return Context::createDefaultContext($source);
     }
 
     private function revisionRows(string $layoutId): int

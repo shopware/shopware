@@ -1524,11 +1524,9 @@ export default {
                 await this.onSave();
             }
 
-            if (this.hasUnsavedVariantDocuments) {
-                return;
+            if (!this.hasUnsavedVariantDocuments) {
+                this.cloning = true;
             }
-
-            this.cloning = true;
         },
 
         onDuplicateFinish(duplicate) {

@@ -167,7 +167,7 @@ class ElementStyleNormalizerTest extends TestCase
                 'xxl' => '0 8px',
             ],
             'col-span' => ['lg' => 6],
-            'align-self' => ['md' => 'auto'],
+            'align-self' => ['md' => 'auto', 'lg' => 'auto'],
         ], $normalized->toArray());
     }
 
@@ -294,16 +294,25 @@ class ElementStyleNormalizerTest extends TestCase
         $normalized = $this->normalizer($this->alignSelfOption())
             ->normalize(new ElementStyle(['align-self' => ['xs' => 'start', 'sm' => '']]));
 
-        static::assertSame(['align-self' => ['xs' => 'start']], $normalized->toArray());
+        static::assertSame(['align-self' => ['xs' => 'start', 'lg' => 'auto']], $normalized->toArray());
     }
 
-    #[TestDox('leaves a map unchanged when no canonical breakpoint carries an entry')]
-    public function testKeepsMapUnchangedWhenNoBreakpointCarriesAnEntry(): void
+    #[TestDox('seeds the declared default as the base entry of a map without one')]
+    public function testSeedsTheBaseEntryOfAMapWithoutOne(): void
     {
         $normalized = $this->normalizer($this->displayOption())
-            ->normalize(new ElementStyle(['display' => ['print' => false]]));
+            ->normalize(new ElementStyle(['display' => ['sm' => false]]));
 
-        static::assertSame(['display' => ['print' => false]], $normalized->toArray());
+        static::assertSame(['display' => ['sm' => false, 'lg' => true]], $normalized->toArray());
+    }
+
+    #[TestDox('keeps an authored base entry that differs from the declared default')]
+    public function testKeepsAnAuthoredBaseEntry(): void
+    {
+        $normalized = $this->normalizer($this->displayOption())
+            ->normalize(new ElementStyle(['display' => ['sm' => true, 'lg' => false]]));
+
+        static::assertSame(['display' => ['sm' => true, 'lg' => false]], $normalized->toArray());
     }
 
     #[TestDox('leaves a map unchanged when every breakpoint carries the same entry')]

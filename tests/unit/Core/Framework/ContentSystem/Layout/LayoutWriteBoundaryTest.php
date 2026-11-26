@@ -32,7 +32,7 @@ class LayoutWriteBoundaryTest extends TestCase
 
     private const FLAT = 'test-flat-span';
 
-    #[TestDox('preserves the authored entries in a partial breakpoint map')]
+    #[TestDox('preserves the authored entries in a partial breakpoint map and seeds its base default')]
     public function testStyleNormalizationPreservesAPartialBreakpointMap(): void
     {
         $element = StoredElementBuilder::create('Sw:Block', 'el-1')
@@ -43,7 +43,7 @@ class LayoutWriteBoundaryTest extends TestCase
 
         static::assertSame('category', $result->rootSource);
         static::assertSame(
-            [self::BREAKPOINT_AWARE => ['xs' => false]],
+            [self::BREAKPOINT_AWARE => ['xs' => false, 'lg' => true]],
             $result->roots[0]->style->toArray()
         );
     }

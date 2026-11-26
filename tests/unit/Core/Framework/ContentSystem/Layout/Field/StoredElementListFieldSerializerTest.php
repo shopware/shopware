@@ -235,7 +235,7 @@ class StoredElementListFieldSerializerTest extends TestCase
         }
     }
 
-    #[TestDox('preserves a partial breakpoint map on a raw-array write')]
+    #[TestDox('preserves a partial breakpoint map and seeds its base default on a raw-array write')]
     public function testNormalizePreservesAPartialBreakpointMapOnARawArrayPayload(): void
     {
         $field = $this->createField();
@@ -247,7 +247,7 @@ class StoredElementListFieldSerializerTest extends TestCase
 
         static::assertSame(
             [['id' => 'el', 'component' => 'Sw:Block', 'properties' => [], 'style' => [
-                'display' => ['xs' => false],
+                'display' => ['xs' => false, 'lg' => true],
             ]]],
             $result['elements']
         );

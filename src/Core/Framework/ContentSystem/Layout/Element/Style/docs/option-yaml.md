@@ -47,7 +47,8 @@ LG provides the base value.
 XS inherits SM if XS is absent and SM is present.
 XXL inherits XL if XXL is absent and XL is present.
 All remaining missing values inherit LG.
-The write boundary preserves the supplied entries and the storefront resolves inherited values when rendering.
+The write boundary preserves the supplied entries and seeds a missing LG entry from the declared `default`.
+The storefront resolves inherited values when rendering.
 
 ```json
 { "display": { "lg": true, "sm": false }, "align-self": { "lg": "center", "xl": "start" } }

@@ -10,7 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Canonicalises an authored ElementStyle into the form a write stores: a box-spacing value becomes
  * explicit four-part CSS and a breakpoint-aware scalar is wrapped into the full breakpoint map.
- * Breakpoint maps retain the authored entries so rendering can resolve their inherited values.
+ * Breakpoint maps retain the authored entries so rendering can resolve their inherited values. A map
+ * without a base entry gets the option's declared default there, because every breakpoint falls back to
+ * the base and serving applies no defaults.
  * A style whose every value drops normalises to an empty ElementStyle, which the element encoders omit.
  *
  * Idempotent by contract: normalising an already normalised style returns it unchanged.
@@ -73,7 +75,7 @@ final class ElementStyleNormalizer
 
             $entries = array_filter($resolved, static fn (mixed $entry): bool => $entry !== '');
 
-            return $entries === [] ? null : $entries;
+            return $entries === [] ? null : $this->withBaseDefault($entries, $option);
         }
 
         if ($this->isUnsetValue($resolved, $option)) {
@@ -81,6 +83,22 @@ final class ElementStyleNormalizer
         }
 
         return $breakpointAware ? array_fill_keys(Breakpoint::values(), $resolved) : $resolved;
+    }
+
+    /**
+     * @param non-empty-array<string, StyleScalar> $entries
+     *
+     * @return non-empty-array<string, StyleScalar>
+     */
+    private function withBaseDefault(array $entries, ?StyleOptionSpecification $option): array
+    {
+        $default = $option?->valueType()->default();
+
+        if ($default === null || \array_key_exists(Breakpoint::Lg->value, $entries)) {
+            return $entries;
+        }
+
+        return [...$entries, Breakpoint::Lg->value => $default];
     }
 
     /**

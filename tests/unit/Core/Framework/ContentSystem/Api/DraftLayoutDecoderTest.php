@@ -70,7 +70,7 @@ class DraftLayoutDecoderTest extends TestCase
         ]]);
 
         static::assertSame(
-            ['align-self' => ['xs' => 'center']],
+            ['align-self' => ['xs' => 'center', 'lg' => 'auto']],
             $tree[0]->style->toArray(),
         );
     }
@@ -89,7 +89,7 @@ class DraftLayoutDecoderTest extends TestCase
         ]]);
 
         static::assertSame(
-            ['align-self' => ['xs' => 'end']],
+            ['align-self' => ['xs' => 'end', 'lg' => 'auto']],
             $tree[0]->slots['content'][0]->style->toArray(),
         );
     }
@@ -105,7 +105,7 @@ class DraftLayoutDecoderTest extends TestCase
 
         static::assertSame([], $violations);
         static::assertSame(
-            ['align-self' => ['xs' => 'center']],
+            ['align-self' => ['xs' => 'center', 'lg' => 'auto']],
             $tree[0]->style->toArray(),
         );
     }

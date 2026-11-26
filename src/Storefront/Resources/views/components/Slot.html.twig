@@ -56,7 +56,7 @@
                     {% if optionName == 'display' and optionValue is mapping %}
                         {% set visibilityClasses = '' %}
                         {% for breakpoint in breakpoints %}
-                            {% if breakpoint.resolve(optionValue) ?? true %}
+                            {% if breakpoint.resolve(optionValue) %}
                                 {% set visibilityClasses = visibilityClasses ~ ' display-' ~ breakpoint.value %}
                             {% endif %}
                         {% endfor %}

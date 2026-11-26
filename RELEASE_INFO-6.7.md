@@ -23,6 +23,13 @@ It is off by default, so existing exports do not change.
 Plugins that add their own `ProductAvailableFilter` in a `ProductExportProductCriteriaEvent` subscriber to export inactive products can use the switch instead.
 The `--include-inactive` option of `product-export:generate` is unchanged: it still only selects exports of inactive sales channels.
 
+### Regenerating a document keeps its deep link and its stored files
+
+`DocumentGenerator::generate()` with the id of an existing document now keeps the document's deep link code and its stored PDF and HTML files, and renders only the file type that is missing.
+While a stored file is kept, the document also keeps its order version and config.
+The missing file is rendered from the current order.
+To get fresh files for an existing document, generate a new document instead of regenerating it.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

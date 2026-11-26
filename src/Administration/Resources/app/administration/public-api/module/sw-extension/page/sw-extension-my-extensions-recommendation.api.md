@@ -11,6 +11,12 @@ component sw-extension-my-extensions-recommendation  private  js  [private]
   template src/module/sw-extension/page/sw-extension-my-extensions-recommendation/sw-extension-store-recommendation.html.twig  [private]
   visibility-source export  [private]
 
+data
+  isLoading: any  [private]
+
+methods
+  finishLoading(): any  [private]
+
 blocks
   sw_extension_my_extensions_recommendation  [private]
     sw_extension_my_extensions_recommendation_plugin_wizard  [private]

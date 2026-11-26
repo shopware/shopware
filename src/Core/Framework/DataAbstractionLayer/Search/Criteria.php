@@ -35,6 +35,11 @@ class Criteria extends Struct implements \Stringable
      */
     final public const STATE_SCORE_RANKED_GROUPING = 'scoreRankedGrouping';
 
+    /**
+     * Each group is positioned by and represented by its first entity in sorting order.
+     */
+    final public const STATE_SORTING_RANKED_GROUPING = 'sortingRankedGrouping';
+
     final public const SCORE_FIELD = '_score';
 
     /**

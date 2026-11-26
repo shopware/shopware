@@ -10,6 +10,32 @@ component sw-manufacturer-list  public  js
   source src/module/sw-manufacturer/page/sw-manufacturer-list/index.js
   template src/module/sw-manufacturer/page/sw-manufacturer-list/sw-manufacturer-list.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  manufacturers: any
+  searchConfigEntity: any
+  sortBy: any
+  sortDirection: any
+  total: any
+
+computed
+  adminEsEnable: any
+  manufacturerColumns: any
+  manufacturerCriteria: any
+  manufacturerRepository: any
+
+methods
+  getList(): Promise<any>
+  onChangeLanguage(languageId: any): any
+  updateTotal(arg0: any): any
+
 blocks
   sw_manufacturer_list
     sw_manufacturer_list_actions

@@ -11,6 +11,34 @@ component sw-settings-rule-add-assignment-listing  private  js  [private]
   template src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing/sw-settings-rule-add-assignment-listing.html.twig  [private]
   visibility-source export  [private]
 
+props
+  entityContext: object  [private]
+  ruleId: string  [private]
+
+emits
+  select-item(...args: any[])  [private]
+
+data
+  items: any  [private]
+  limit: any  [private]
+  loading: any  [private]
+  page: any  [private]
+  preselectedIds: any  [private]
+  repository: any  [private]
+  total: any  [private]
+
+computed
+  criteria: any  [private]
+  shippingCostTaxOptions: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  doSearch(term: any): Promise<any>  [private]
+  isNotAssigned(item: any): any  [private]
+  onSelectItem(selection: any, item: any, selected: any): any  [private]
+  paginate(arg0: any): any  [private]
+  shippingTaxTypeLabel(taxName: any): any  [private]
+
 blocks
   sw_settings_rule_add_assignment_listing  [private]
     sw_settings_rule_add_assignment_listing_grid  [private]

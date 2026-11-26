@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Event\CategoryLevelLoaderCacheKeyEvent;
 use Shopware\Core\Content\Category\Service\CachedDefaultCategoryLevelLoader;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -150,6 +152,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             $this->eventDispatcher,
             $innerLoader,
             static::createStub(Connection::class),
+            new EntityCacheKeyGenerator(),
         );
 
         $cacheKeyParts = [
@@ -157,6 +160,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             'depth' => $depth,
             'salesChannelId' => 'sales-channel-id',
             'languageId' => $context->getLanguageId(),
+            'criteria' => (new EntityCacheKeyGenerator())->getCriteriaHash($criteria),
         ];
         $eventsThrown = 0;
         $this->eventDispatcher->addListener(
@@ -228,6 +232,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             $this->eventDispatcher,
             $innerLoader,
             static::createStub(Connection::class),
+            new EntityCacheKeyGenerator(),
         );
 
         $cacheKeyParts = [
@@ -235,6 +240,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             'depth' => $depth,
             'salesChannelId' => 'sales-channel-id',
             'languageId' => $context->getLanguageId(),
+            'criteria' => (new EntityCacheKeyGenerator())->getCriteriaHash($criteria),
         ];
         $eventsThrown = 0;
         $this->eventDispatcher->addListener(
@@ -295,6 +301,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             $this->eventDispatcher,
             $innerLoader,
             static::createStub(Connection::class),
+            new EntityCacheKeyGenerator(),
         );
 
         $cacheKeyParts = [
@@ -302,6 +309,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             'depth' => $depth,
             'salesChannelId' => 'sales-channel-id',
             'languageId' => $context->getLanguageId(),
+            'criteria' => (new EntityCacheKeyGenerator())->getCriteriaHash($criteria),
         ];
         $eventsThrown = 0;
         $this->eventDispatcher->addListener(
@@ -332,6 +340,42 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         $loader->invalidateCache();
 
         static::assertFalse($cache->hasItem(Hasher::hash($cacheKeyParts)));
+    }
+
+    public function testDifferentCriteriaUseDifferentCacheEntries(): void
+    {
+        $rootId = 'navigation-category-id';
+        $rootLevel = 1;
+        $depth = 3;
+
+        $criteriaWithoutAssociation = new Criteria();
+        $criteriaWithAssociation = (new Criteria())->addAssociation('media');
+
+        $salesChannel = (new SalesChannelEntity())->assign([
+            'navigationCategoryId' => $rootId,
+        ]);
+
+        $this->salesChannelContext->method('getSalesChannel')
+            ->willReturn($salesChannel);
+        $this->salesChannelContext->method('getContext')
+            ->willReturn(Context::createDefaultContext());
+        $this->salesChannelContext->method('getSalesChannelId')
+            ->willReturn('sales-channel-id');
+
+        $this->innerLoader->method('loadLevels')
+            ->willReturnCallback(static fn (string $rootId, int $rootLevel, SalesChannelContext $context, Criteria $criteria): CategoryCollection => new CategoryCollection([
+                (new CategoryEntity())->assign(['_uniqueIdentifier' => $criteria->hasAssociation('media') ? 'with-media' : 'without-media']),
+            ]));
+
+        $loader = $this->createLoader(new TagAwareAdapter(new ArrayAdapter()));
+
+        $withoutAssociation = $loader->loadLevels($rootId, $rootLevel, $this->salesChannelContext, $criteriaWithoutAssociation, $depth);
+        $withAssociation = $loader->loadLevels($rootId, $rootLevel, $this->salesChannelContext, $criteriaWithAssociation, $depth);
+        $withAssociationCached = $loader->loadLevels($rootId, $rootLevel, $this->salesChannelContext, $criteriaWithAssociation, $depth);
+
+        static::assertSame(['without-media'], array_values($withoutAssociation->getIds()));
+        static::assertSame(['with-media'], array_values($withAssociation->getIds()));
+        static::assertSame(['with-media'], array_values($withAssociationCached->getIds()));
     }
 
     public function testCategoryWriteInvalidatesOnlyTheNavigationTreeContainingIt(): void
@@ -469,6 +513,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             $this->eventDispatcher,
             $innerLoader ?? $this->innerLoader,
             $connection ?? static::createStub(Connection::class),
+            new EntityCacheKeyGenerator(),
         );
     }
 
@@ -492,6 +537,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             'depth' => 3,
             'salesChannelId' => 'sales-channel-of-' . $rootId,
             'languageId' => Context::createDefaultContext()->getLanguageId(),
+            'criteria' => (new EntityCacheKeyGenerator())->getCriteriaHash(new Criteria()),
         ]);
     }
 

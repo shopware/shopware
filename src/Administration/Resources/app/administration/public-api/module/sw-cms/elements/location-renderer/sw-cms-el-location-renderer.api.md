@@ -11,6 +11,28 @@ component sw-cms-el-location-renderer  private  ts  [private]
   template src/module/sw-cms/elements/location-renderer/component/sw-cms-el-location-renderer.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+props
+  elementData: ElementDataProp  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  unpublishData: any  [private]
+  unpublishDataWithElementId: any  [private]
+
+computed
+  elementLocation: string  [private]
+  publishingKey: string  [private]
+  src: string  [private]
+
+methods
+  createdComponent(): void  [private]
+  updatePublishData(): any  [private]
+
 blocks
   sw_cms_el_location_renderer  [private]
 ```

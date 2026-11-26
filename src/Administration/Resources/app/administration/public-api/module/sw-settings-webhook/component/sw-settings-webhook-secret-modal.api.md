@@ -11,6 +11,34 @@ component sw-settings-webhook-secret-modal  private  ts  [private]
   template src/module/sw-settings-webhook/component/sw-settings-webhook-secret-modal/sw-settings-webhook-secret-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  repositoryFactory  [private]
+
+props
+  webhook: Entity<'webhook'>  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  generatedSecret: any  [private]
+  isOpen: any  [private]
+  isSaving: any  [private]
+  secret: any  [private]
+
+computed
+  canSave: boolean  [private]
+  isGenerated: boolean  [private]
+  webhookRepository: Repository<'webhook'>  [private]
+
+methods
+  generateSecret(): void  [private]
+  onModalRootChange(isOpen: boolean): void  [private]
+  onSave(): Promise<void>  [private]
+
 blocks
   sw_settings_webhook_secret_modal  [private]
 ```

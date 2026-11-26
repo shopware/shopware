@@ -94,13 +94,6 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         }
 
         if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
-            // visibilities and media have their own primary key, the product id is only in the payload
-            $productIds = [
-                ...$productIds,
-                ...$this->getWrittenProductIds($event, ProductVisibilityDefinition::ENTITY_NAME, 'salesChannelId'),
-                ...$this->getWrittenProductIds($event, ProductMediaDefinition::ENTITY_NAME, 'mediaId'),
-            ];
-
             $inheritedChangeIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
                 'active',
                 'coverId',
@@ -115,7 +108,12 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                 }
             }
 
-            $productIds = array_merge($productIds, $this->getFamilyIds($event, [...$inheritedChangeIds, ...$this->getProductIdsWithChangedDocuments($event)]));
+            $productIds = array_merge($productIds, $this->getFamilyIds($event, [
+                ...$inheritedChangeIds,
+                ...$this->getWrittenProductIds($event, ProductVisibilityDefinition::ENTITY_NAME, 'salesChannelId'),
+                ...$this->getWrittenProductIds($event, ProductMediaDefinition::ENTITY_NAME, 'mediaId'),
+                ...$this->getProductIdsWithChangedDocuments($event),
+            ]));
         }
 
         return array_values(array_unique(array_filter($productIds, '\is_string')));

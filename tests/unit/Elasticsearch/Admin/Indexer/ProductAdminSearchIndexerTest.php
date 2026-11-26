@@ -558,6 +558,8 @@ class ProductAdminSearchIndexerTest extends TestCase
         yield 'name' => ['product_translation', ['name' => 'Drill']];
         yield 'custom search keywords' => ['product_translation', ['customSearchKeywords' => ['drill']]];
         yield 'category' => ['product_category', ['categoryId' => Uuid::randomHex()]];
+        yield 'visibility' => ['product_visibility', ['salesChannelId' => Uuid::randomHex()]];
+        yield 'media' => ['product_media', ['mediaId' => Uuid::randomHex()]];
     }
 
     /**
@@ -583,8 +585,13 @@ class ProductAdminSearchIndexerTest extends TestCase
         $primaryKey = match ($entity) {
             'product_translation' => ['productId' => $productId, 'productVersionId' => Defaults::LIVE_VERSION, 'languageId' => Defaults::LANGUAGE_SYSTEM],
             'product_category' => ['productId' => $productId, 'productVersionId' => Defaults::LIVE_VERSION, 'categoryId' => Uuid::randomHex(), 'categoryVersionId' => Defaults::LIVE_VERSION],
+            'product_visibility', 'product_media' => Uuid::randomHex(),
             default => $productId,
         };
+
+        if (\in_array($entity, ['product_visibility', 'product_media'], true)) {
+            $payload['productId'] = $productId;
+        }
 
         $event = $this->createWrittenEvent([
             new EntityWrittenEvent($entity, [

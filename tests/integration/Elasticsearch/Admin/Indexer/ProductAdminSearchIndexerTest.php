@@ -216,6 +216,29 @@ class ProductAdminSearchIndexerTest extends TestCase
         });
     }
 
+    public function testAddingAVisibilityToTheParentUpdatesItsVariants(): void
+    {
+        $event = static::getContainer()->get('product_visibility.repository')->create([[
+            'productId' => $this->ids->get('drill'),
+            'salesChannelId' => $this->visibleSalesChannelId,
+            'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+        ]], $this->context);
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event): void {
+            static::assertEqualsCanonicalizing(
+                array_values($this->ids->getList(['drill', 'drill.blue', 'drill.red'])),
+                $this->getIndexer()->getUpdatedIds($event)
+            );
+
+            $documents = $this->getIndexer()->fetch($this->ids->getList(['drill.blue']));
+
+            static::assertSame(
+                [$this->visibleSalesChannelId],
+                array_column($documents[$this->ids->get('drill.blue')]['visibilities'], 'salesChannelId')
+            );
+        });
+    }
+
     public function testDeactivatingTheParentUpdatesItsVariants(): void
     {
         $productRepository = static::getContainer()->get('product.repository');

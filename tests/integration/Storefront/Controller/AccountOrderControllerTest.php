@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -235,9 +235,7 @@ class AccountOrderControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(
-            new NotFilter(NotFilter::CONNECTION_AND, [
-                new EqualsFilter('id', $orderShippingMethodId),
-            ]),
+            new NotEqualsFilter('id', $orderShippingMethodId),
             new EqualsFilter('active', true)
         );
         $differentShippingMethodId = static::getContainer()->get('shipping_method.repository')->searchIds($criteria, $context)->firstId();

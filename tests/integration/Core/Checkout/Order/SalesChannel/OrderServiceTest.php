@@ -24,8 +24,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -528,12 +527,7 @@ class OrderServiceTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM),
-                ]
-            )
+            new NotEqualsFilter('id', Defaults::LANGUAGE_SYSTEM)
         );
 
         $languageId = $languageRepository->searchIds($criteria, $this->salesChannelContext->getContext())->firstId();

@@ -147,7 +147,7 @@ class ProductCategoryDenormalizerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('createQueryBuilder')->willReturnCallback(static fn (): QueryBuilder => new QueryBuilder($connection));
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
-        $connection->method('fetchFirstColumn')->willReturn(Uuid::fromHexToBytesList(array_column($mapping, 'product_id')));
+        $connection->method('fetchFirstColumn')->willReturn(array_column($mapping, 'product_id'));
         $connection->method('fetchAllAssociative')->willReturn($storedRows);
         $connection->method('executeQuery')->willReturn($result);
         $connection->method('executeStatement')->willReturnCallback($recorder->write(...));

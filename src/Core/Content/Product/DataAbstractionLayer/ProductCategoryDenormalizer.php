@@ -47,17 +47,17 @@ class ProductCategoryDenormalizer
             $this->lockProducts($productIds, $versionId);
 
             $categories = $this->fetchMapping($ids, $context);
-            $storedTree = $this->fetchStoredTree(array_keys($categories), $versionId);
+            $storedRowsByProduct = $this->fetchStoredRows(array_keys($categories), $versionId);
 
-            $this->writeChanges($categories, $storedTree, $versionId);
+            $this->writeChanges($categories, $storedRowsByProduct, $versionId);
         });
     }
 
     /**
      * @param array<string, array<string, string|null>> $categories
-     * @param array<string, list<string>> $storedTree
+     * @param array<string, list<string>> $storedRowsByProduct
      */
-    private function writeChanges(array $categories, array $storedTree, string $versionId): void
+    private function writeChanges(array $categories, array $storedRowsByProduct, string $versionId): void
     {
         $changedTrees = [];
         $removedRows = [];
@@ -65,9 +65,9 @@ class ProductCategoryDenormalizer
 
         foreach ($categories as $productId => $mapping) {
             $tree = $this->mapCategories($mapping);
-            $storedRows = $storedTree[$productId] ?? [];
+            $storedRows = $storedRowsByProduct[$productId] ?? [];
 
-            if (!$this->isTreeUnchanged($mapping['category_tree'] ?? null, $tree)) {
+            if ($this->hasTreeChanged($mapping['category_tree'] ?? null, $tree)) {
                 $key = implode('|', $tree);
                 $changedTrees[$key] ??= ['tree' => $tree, 'productIds' => []];
                 $changedTrees[$key]['productIds'][] = $productId;
@@ -90,17 +90,17 @@ class ProductCategoryDenormalizer
     /**
      * @param list<string> $categoryIds
      */
-    private function isTreeUnchanged(?string $storedTree, array $categoryIds): bool
+    private function hasTreeChanged(?string $storedJson, array $categoryIds): bool
     {
-        $stored = $storedTree === null ? [] : json_decode($storedTree, true);
+        $stored = $storedJson === null ? [] : json_decode($storedJson, true);
         if (!\is_array($stored)) {
-            return false;
+            return true;
         }
 
         sort($stored);
         sort($categoryIds);
 
-        return $stored === $categoryIds;
+        return $stored !== $categoryIds;
     }
 
     /**
@@ -152,7 +152,7 @@ class ProductCategoryDenormalizer
     {
         /** @var list<string> $productIds */
         $productIds = $this->connection->fetchFirstColumn(
-            'SELECT id FROM product WHERE (id IN (:ids) OR parent_id IN (:ids)) AND categories IN (:ids) AND version_id = :version',
+            'SELECT LOWER(HEX(id)) FROM product WHERE (id IN (:ids) OR parent_id IN (:ids)) AND categories IN (:ids) AND version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
             ['ids' => ArrayParameterType::BINARY]
         );
@@ -165,9 +165,10 @@ class ProductCategoryDenormalizer
      */
     private function lockProducts(array $productIds, string $versionId): void
     {
-        sort($productIds);
+        $ids = Uuid::fromHexToBytesList($productIds);
+        sort($ids);
 
-        foreach (array_chunk($productIds, self::BATCH_SIZE) as $chunk) {
+        foreach (array_chunk($ids, self::BATCH_SIZE) as $chunk) {
             $this->connection->fetchFirstColumn(
                 'SELECT id FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY id FOR UPDATE',
                 ['ids' => $chunk, 'version' => $versionId],
@@ -181,7 +182,7 @@ class ProductCategoryDenormalizer
      *
      * @return array<string, list<string>>
      */
-    private function fetchStoredTree(array $productIds, string $versionId): array
+    private function fetchStoredRows(array $productIds, string $versionId): array
     {
         $rows = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(product_id)) AS product_id, LOWER(HEX(category_id)) AS category_id
@@ -191,12 +192,7 @@ class ProductCategoryDenormalizer
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        $tree = [];
-        foreach ($rows as $row) {
-            $tree[(string) $row['product_id']][] = (string) $row['category_id'];
-        }
-
-        return $tree;
+        return FetchModeHelper::group($rows, static fn (array $row): string => (string) $row['category_id']);
     }
 
     /**

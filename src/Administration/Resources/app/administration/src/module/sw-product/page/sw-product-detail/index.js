@@ -118,6 +118,11 @@ export default {
             },
         },
 
+        /** @private */
+        hasUnsavedVariantDocuments() {
+            return Object.keys(this.documentVariantOperations).length > 0;
+        },
+
         parentProduct() {
             return Shopware.Store.get('swProductDetail').parentProduct;
         },
@@ -1515,13 +1520,12 @@ export default {
         },
 
         async onDuplicate() {
-            if (Object.keys(this.documentVariantOperations).length) {
+            if (this.hasUnsavedVariantDocuments) {
                 await this.onSave();
+            }
 
-                const variantDocumentSaveFailed = Object.keys(this.documentVariantOperations).length > 0;
-                if (variantDocumentSaveFailed) {
-                    return;
-                }
+            if (this.hasUnsavedVariantDocuments) {
+                return;
             }
 
             this.cloning = true;

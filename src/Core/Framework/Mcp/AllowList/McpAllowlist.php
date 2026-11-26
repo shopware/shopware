@@ -71,6 +71,37 @@ final class McpAllowlist
     }
 
     /**
+     * @param array<mixed> $allowlist
+     */
+    public static function isValidPayload(array $allowlist): bool
+    {
+        $knownKeys = [self::TOOLS, self::RESOURCES, self::PROMPTS];
+
+        if (array_diff(array_keys($allowlist), $knownKeys) !== []) {
+            return false;
+        }
+
+        foreach ($knownKeys as $key) {
+            if (!\array_key_exists($key, $allowlist)) {
+                continue;
+            }
+            $value = $allowlist[$key];
+            if ($value !== null && !\is_array($value)) {
+                return false;
+            }
+            // A JSON object decodes to an associative array, which restrictedFromJson() reads as an empty selection.
+            if (\is_array($value) && !array_is_list($value)) {
+                return false;
+            }
+            if (\is_array($value) && array_filter($value, static fn ($item) => !\is_string($item)) !== []) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @param array<string, mixed> $data
      *
      * @return list<string>|null

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
@@ -23,6 +25,10 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
+use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition;
@@ -51,6 +57,8 @@ use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler;
+use Shopware\Core\Content\Product\Cleanup\CleanupUnusedProductDocumentMediaTask;
+use Shopware\Core\Content\Product\Cleanup\CleanupUnusedProductDocumentMediaTaskHandler;
 use Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
@@ -93,6 +101,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingR
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
@@ -153,6 +162,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecode
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -229,6 +239,29 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductDownloadDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentTranslationDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(ProductDocumentConfig::class)
+        ->args([
+            service('event_dispatcher'),
+            param('shopware.product_documents.allowed_extensions'),
+            param('shopware.product_documents.max_file_size'),
+            service(MediaFileExtensionListProvider::class),
+        ]);
+
+    $services->set(ProductDocumentValidator::class)
+        ->args([
+            service(WriteOutcome::class),
+            service('media.repository'),
+            service(ProductDocumentConfig::class),
+            service('product_document.repository'),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(ProductTranslationDefinition::class)
         ->tag('shopware.entity.definition');
@@ -486,6 +519,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductReviewLoader::class),
             service(ScriptExecutor::class),
             service(SystemConfigService::class),
+            service(ProductDocumentRoute::class),
         ])
         ->tag('shopware.cms.data_resolver');
 
@@ -494,6 +528,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('unit.repository'),
             service(QuantityPriceCalculator::class),
             service(ExtensionDispatcher::class),
+            service(PriceSelector::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
@@ -571,7 +606,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductLineItemCommandValidator::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -583,6 +618,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ResolvedCriteriaProductSuggestRoute::class . '.inner'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductSuggestRoute::class)
@@ -607,6 +643,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ResolvedCriteriaProductSearchRoute::class . '.inner'),
             service('event_dispatcher'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResolveCriteriaProductListingRoute::class)
@@ -777,6 +814,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ]);
 
+    $services->set(ProductDocumentRoute::class)
+        ->public()
+        ->args([
+            service('sales_channel.product.repository'),
+            service('product_document.repository'),
+            service('media.repository'),
+            service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
+        ]);
+
     $services->set(ProductReviewRoute::class)
         ->public()
         ->args([
@@ -880,6 +927,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.scheduled.task');
 
     $services->set(CleanupUnusedDownloadMediaTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(UnusedMediaPurger::class),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(CleanupUnusedProductDocumentMediaTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(CleanupUnusedProductDocumentMediaTaskHandler::class)
         ->args([
             service('scheduled_task.repository'),
             service('logger'),

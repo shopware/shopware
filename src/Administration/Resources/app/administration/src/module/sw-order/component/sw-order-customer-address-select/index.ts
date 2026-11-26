@@ -16,6 +16,8 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory'],
 
+    emits: ['update:value'],
+
     props: {
         customer: {
             type: Object as PropType<Entity<'customer'>>,
@@ -68,9 +70,6 @@ export default Component.wrapComponentConfig({
                 }
 
                 this.$emit('update:value', newValue);
-                return;
-
-                this.$emit('change', newValue);
             },
         },
 

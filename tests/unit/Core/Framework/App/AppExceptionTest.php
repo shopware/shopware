@@ -12,8 +12,11 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
+use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,11 +35,44 @@ class AppExceptionTest extends TestCase
         static::assertSame(AppException::CANNOT_DELETE_COMPOSER_MANAGED, $e->getErrorCode());
     }
 
-    public function testNotCompatible(): void
+    public function testValidationFailedFromErrorsListsEveryError(): void
+    {
+        $e = AppException::validationFailedFromErrors([
+            new IncompatibleAppError('IncompatibleApp'),
+            new MissingPermissionError(['order:read']),
+        ]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(AppException::VALIDATION_FAILED, $e->getErrorCode());
+        static::assertSame(
+            "App IncompatibleApp is not compatible with this Shopware version\nMissing permissions: order:read",
+            $e->getMessage()
+        );
+        static::assertSame(
+            ['errors' => [
+                [
+                    'code' => AppException::NOT_COMPATIBLE,
+                    'message' => 'App IncompatibleApp is not compatible with this Shopware version',
+                    'parameters' => ['name' => 'IncompatibleApp'],
+                ],
+                [
+                    'code' => MissingPermissionError::CODE,
+                    'message' => 'Missing permissions: order:read',
+                    'parameters' => [],
+                ],
+            ]],
+            $e->getParameters()
+        );
+    }
+
+    public function testNotCompatibleReportsLikeAnIncompatibleAppError(): void
     {
         $e = AppException::notCompatible('IncompatibleApp');
 
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
+        static::assertSame('App IncompatibleApp is not compatible with this Shopware version', $e->getMessage());
+        static::assertSame(['name' => 'IncompatibleApp'], $e->getParameters());
     }
 
     public function testNotFound(): void
@@ -261,27 +297,36 @@ class AppExceptionTest extends TestCase
         static::assertSame('APP_URL is invalid: invalid-url', $e->getMessage());
     }
 
-    public function testRequirementsNotMet(): void
+    public function testAFailedAppUrlVerificationNamesTheHttpStatusCode(): void
     {
-        $violation1 = new UnmetRequirement(
-            appName: 'TestApp1',
-            requirementName: 'PHP Version',
-            actionableResolution: 'Upgrade to PHP 8.2 or higher'
+        $e = AppException::appUrlFailedVerification(
+            new VerificationState('https://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'HTTP code: "403"', 403),
         );
 
-        $violation2 = new UnmetRequirement(
-            appName: 'TestApp2',
-            requirementName: 'MySQL Version',
-            actionableResolution: 'Upgrade to MySQL 8.0 or higher'
+        static::assertSame(Response::HTTP_BAD_GATEWAY, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_FAILED_VERIFICATION', $e->getErrorCode());
+        static::assertSame('APP_URL "https://shop.test" did not answer the verification request as expected (HTTP 403). Check that APP_URL points to this installation and is not blocked.', $e->getMessage());
+    }
+
+    public function testAFailedAppUrlVerificationWithoutAResponsePointsToTheCommand(): void
+    {
+        $e = AppException::appUrlFailedVerification(
+            new VerificationState('https://shop.test', VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Invalid URL format.', statusCode: null),
         );
 
-        $e = AppException::requirementsNotMet($violation1, $violation2);
+        static::assertSame(Response::HTTP_BAD_GATEWAY, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_FAILED_VERIFICATION', $e->getErrorCode());
+        static::assertSame('APP_URL "https://shop.test" could not be verified. Run bin/console app:url:verify for details.', $e->getMessage());
+    }
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame('FRAMEWORK__APP_REQUIREMENTS_NOT_MET', $e->getErrorCode());
-        static::assertSame('The app requirements are not met: App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher', $e->getMessage());
+    public function testATemporarilyFailedAppUrlVerificationAsksToTryAgain(): void
+    {
+        $e = AppException::appUrlFailedVerification(
+            new VerificationState('https://shop.test', VerificationStatus::SOFT_FAIL, 1, new \DateTimeImmutable(), 'Failed to connect to APP_URL: timeout', statusCode: null),
+        );
 
-        $expectedViolations = 'App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher';
-        static::assertSame(['violations' => $expectedViolations], $e->getParameters());
+        static::assertSame(Response::HTTP_SERVICE_UNAVAILABLE, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE', $e->getErrorCode());
+        static::assertSame('APP_URL "https://shop.test" could not be reached. Try again later, or run bin/console app:url:verify for details.', $e->getMessage());
     }
 }

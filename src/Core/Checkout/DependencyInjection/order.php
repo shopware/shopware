@@ -38,7 +38,9 @@ use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
+use Shopware\Core\Checkout\Order\Subscriber\OrderDeliveryPositionSubscriber;
 use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
+use Shopware\Core\Checkout\Order\Subscriber\OrderTransactionVersionMergeSubscriber;
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
@@ -240,6 +242,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(OrderSalutationSubscriber::class)
         ->args([
             service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderDeliveryPositionSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderTransactionVersionMergeSubscriber::class)
+        ->args([
+            service('order_transaction.repository'),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -5,7 +5,9 @@ namespace Shopware\Storefront\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
@@ -67,6 +69,7 @@ use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Shopware\Storefront\Controller\ScriptController;
@@ -92,7 +95,6 @@ use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
-use Shopware\Storefront\Framework\Routing\ProductListingPageOutOfRangeSubscriber;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\ResponseHeaderListener;
 use Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist;
@@ -108,6 +110,7 @@ use Shopware\Storefront\Framework\Store\ThemeExtensionRemovalValidator;
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
@@ -220,7 +223,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('customer_group.repository'),
             service('seo_url.repository'),
-            service('language.repository'),
             service(SeoUrlPersister::class),
             service('slugify'),
         ])
@@ -419,9 +421,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
-    $services->set(ProductListingPageOutOfRangeSubscriber::class)
-        ->tag('kernel.event_subscriber');
-
     $services->set(TemplateDataSubscriber::class)
         ->args([
             service(HreflangLoaderInterface::class),
@@ -458,6 +457,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CategoryRoute::class),
             service(SeoUrlPlaceholderHandlerInterface::class),
             service(CategoryBreadcrumbBuilder::class),
+            service(Translator::class),
         ]);
 
     $services->set(ErrorPageLoader::class)
@@ -479,6 +479,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GenericPageLoader::class),
             service(LandingPageRoute::class),
             service('event_dispatcher'),
+            service(SeoUrlPlaceholderHandlerInterface::class),
         ]);
 
     $services->set(MenuOffcanvasPageletLoader::class)
@@ -545,6 +546,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDetailRoute::class),
             service('product_review.repository'),
             service(SystemConfigService::class),
+            service(SeoUrlPlaceholderHandlerInterface::class),
             service(CategoryBreadcrumbBuilder::class),
         ]);
 
@@ -567,6 +569,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderRoute::class),
             service(Translator::class),
             service(SystemConfigService::class),
+            service(OrderProductAvailabilityResolver::class),
         ]);
 
     $services->set(CheckoutConfirmPageLoader::class)
@@ -613,6 +616,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerRoute::class),
             service(NewsletterAccountPageletLoader::class),
             service(Translator::class),
+            service(OrderProductAvailabilityResolver::class),
         ]);
 
     $services->set(AccountOrderPageLoader::class)
@@ -621,6 +625,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(OrderRoute::class),
             service(Translator::class),
+            service(OrderProductAvailabilityResolver::class),
+        ]);
+
+    $services->set(OrderProductAvailabilityResolver::class)
+        ->args([
+            service('sales_channel.product.repository'),
+            service(SystemConfigService::class),
+            service(ProductCloseoutFilterFactory::class),
         ]);
 
     $services->set(AccountOrderDetailPageLoader::class)
@@ -739,19 +751,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    // @deprecated tag:v6.8.0 Will be removed
     $services->set(CookieProviderInterface::class, CookieProvider::class)
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->args([
+            param('session.storage.options'),
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
-    // @deprecated tag:v6.8.0 Will be removed
     $services->set(AppCookieProvider::class)
         ->decorate(CookieProviderInterface::class)
         ->args([
             service('.inner'),
         ])
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0 without replacement')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(ResponseHeaderListener::class)
         ->tag('kernel.event_subscriber');
@@ -819,6 +830,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(KernelInterface::class),
             service('logger'),
             service(ClockInterface::class),
+            service('services_resetter'),
         ]);
 
     $services->set(SalesChannelsReadinessCheck::class)
@@ -831,8 +843,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDetailReadinessCheck::class)
         ->args([
             service(SalesChannelDomainUtil::class),
-            service(Connection::class),
             service(SalesChannelDomainProvider::class),
+            service('sales_channel.product.repository'),
+            service(SalesChannelDomainContextFactory::class),
+            service(ProductCloseoutFilterFactory::class),
+            service(SystemConfigService::class),
         ])
         ->tag('shopware.system_check');
 
@@ -841,12 +856,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelDomainUtil::class),
             service(Connection::class),
             service(SalesChannelDomainProvider::class),
+            service('sales_channel.category.repository'),
+            service(SalesChannelDomainContextFactory::class),
         ])
         ->tag('shopware.system_check');
 
     $services->set(SalesChannelDomainProvider::class)
         ->args([
             service(Connection::class),
+        ]);
+
+    $services->set(SalesChannelDomainContextFactory::class)
+        ->args([
+            service(SalesChannelContextFactory::class),
+            service(CartRuleLoader::class),
+            service(CartFactory::class),
         ]);
 
     $services->set(RobotsDirectiveParser::class)

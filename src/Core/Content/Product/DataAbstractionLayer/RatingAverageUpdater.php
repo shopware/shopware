@@ -41,7 +41,7 @@ class RatingAverageUpdater
         $query = $this->connection->createQueryBuilder();
         $query->select(
             'IFNULL(product.parent_id, product.id) as id',
-            'AVG(product_review.points) as average',
+            'AVG(NULLIF(product_review.points, 0)) as average',
         );
         $query->from('product_review');
         $query->innerJoin('product_review', 'product', 'product', 'product.id = product_review.product_id');

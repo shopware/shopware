@@ -49,6 +49,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('shopware.admin_login'),
             service(RouterInterface::class),
+            param('shopware.api.user_recovery.enabled'),
         ]);
 
     $services->set(ExternalTokenService::class)

@@ -55,11 +55,11 @@ class ListAddressRoute extends AbstractListAddressRoute
         return $this->extensions->publish(
             name: ListAddressRouteExtension::NAME,
             extension: new ListAddressRouteExtension($criteria, $context, $customer),
-            function: $this->_load(...),
+            function: fn (Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse => $this->_load($criteria, $context),
         );
     }
 
-    private function _load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
+    private function _load(Criteria $criteria, SalesChannelContext $context): ListAddressRouteResponse
     {
         $criteria
             ->addAssociation('salutation')

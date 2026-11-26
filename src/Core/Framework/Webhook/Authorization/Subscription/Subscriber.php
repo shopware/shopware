@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Subscription;
 
+use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 
@@ -15,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 final class Subscriber
 {
     private function __construct(
-        public readonly SubscriberType $type,
+        public readonly ?IdentityType $type,
         public readonly ?Manifest $manifest,
     ) {
     }
@@ -25,39 +27,15 @@ final class Subscriber
      */
     public static function app(Manifest $manifest): self
     {
-        return new self(SubscriberType::App, $manifest);
+        return new self(IdentityType::App, $manifest);
     }
 
     /**
-     * An admin user creating a webhook through the Admin API.
+     * A user or integration creating a webhook through the Admin API.
      */
-    public static function admin(): self
+    public static function api(ApiCaller $caller): self
     {
-        return new self(SubscriberType::Admin, null);
-    }
-
-    /**
-     * A non-admin user creating a webhook through the Admin API.
-     */
-    public static function user(): self
-    {
-        return new self(SubscriberType::User, null);
-    }
-
-    /**
-     * An integration creating a webhook through the Admin API.
-     */
-    public static function integration(): self
-    {
-        return new self(SubscriberType::Integration, null);
-    }
-
-    /**
-     * An app's integration creating a webhook through the Admin API.
-     */
-    public static function appIntegration(): self
-    {
-        return new self(SubscriberType::AppIntegration, null);
+        return new self($caller->type, null);
     }
 
     /**
@@ -65,6 +43,6 @@ final class Subscriber
      */
     public static function none(): self
     {
-        return new self(SubscriberType::None, null);
+        return new self(null, null);
     }
 }

@@ -98,7 +98,12 @@ class RepositoryIterator
             throw DataAbstractionLayerException::repositoryIteratorExpectedStringLastId();
         }
 
-        $increment = $ids->getDataFieldOfId($last, 'autoIncrement') ?? 0;
+        $increment = $ids->getDataFieldOfId($last, 'autoIncrement');
+        // without the cursor the next page would restart at the first one and never end
+        if (!\is_int($increment)) {
+            throw DataAbstractionLayerException::repositoryIteratorMissingAutoIncrement();
+        }
+
         $this->criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GT => $increment]));
 
         return $values;

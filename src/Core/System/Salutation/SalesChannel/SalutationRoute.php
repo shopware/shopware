@@ -54,11 +54,11 @@ class SalutationRoute extends AbstractSalutationRoute
         return $this->extensions->publish(
             name: SalutationRouteExtension::NAME,
             extension: new SalutationRouteExtension($request, $context, $criteria),
-            function: $this->_load(...),
+            function: fn (Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse => $this->_load($context, $criteria),
         );
     }
 
-    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
+    private function _load(SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName());
 

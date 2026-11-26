@@ -1,5 +1,6 @@
 import template from './sw-multi-tag-select.html.twig';
 import './sw-multi-tag-select.scss';
+import '../sw-select-result-list/sw-select-result-list.scss';
 
 const { Mixin } = Shopware;
 const { get } = Shopware.Utils;

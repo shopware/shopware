@@ -5,6 +5,7 @@
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import path from 'path';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';
 const conditionTypesApplyIsEmpty = [
@@ -55,7 +56,7 @@ async function createWrapperForComponent(componentName) {
                 'sw-entity-multi-select': true,
                 'sw-condition-base': true,
                 'sw-condition-base-line-item': true,
-                'sw-tagged-field': true,
+                'sw-multi-tag-select': true,
                 'sw-context-menu-item': true,
                 'mt-number-field': true,
                 'sw-field-error': true,
@@ -95,6 +96,11 @@ describe('src/app/component/rule/condition-type/*.js', () => {
         return importAllConditionTypes();
     });
 
+    beforeEach(() => {
+        allowDeprecation('The component "sw-condition-line-item-in-category" is deprecated');
+        allowDeprecation('The component "sw-condition-line-item-purchase-price" is deprecated');
+    });
+
     it.each(conditionTypesApplyIsEmpty)('The component %s should be a mounted successfully', async (conditionType) => {
         const wrapper = await createWrapperForComponent(conditionType.filePath);
         await flushPromises();
@@ -118,14 +124,14 @@ describe('src/app/component/rule/condition-type/*.js', () => {
             value: { operator: '=', [conditionType.value]: 'kyln' },
         };
         await wrapper.setProps({ condition: condition });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.condition.value[conditionType.value]).toBe('kyln');
 
         const conditionEmpty = {
             value: { operator: 'empty', [conditionType.value]: 'kyln' },
         };
         await wrapper.setProps({ condition: conditionEmpty });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         // Expect value always delete when operator is empty
         expect(wrapper.vm.condition.value[conditionType.value]).toBeUndefined();
     });

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Contracts\Service\ResetInterface;
@@ -43,7 +44,7 @@ class HookableEventCollector implements ResetInterface
     /**
      * @return array<string, array{privileges: list<string>}>
      */
-    public function getHookableEventNamesWithPrivileges(Context $context, Manifest $manifest): array
+    public function getHookableEventNamesWithPrivileges(Context $context, ?Manifest $manifest): array
     {
         return $this->getEventNamesWithPrivileges($context, $manifest);
     }
@@ -55,7 +56,7 @@ class HookableEventCollector implements ResetInterface
     {
         $privileges = [];
         foreach ($businessEventDefinition->getData() as $data) {
-            if ($data['type'] !== 'entity') {
+            if ($data['type'] !== 'entity' || ($data[EventDataCollection::HIDDEN_FROM_WEBHOOK] ?? false)) {
                 continue;
             }
 
@@ -127,7 +128,7 @@ class HookableEventCollector implements ResetInterface
     /**
      * @return array<string, array{privileges: list<string>}>
      */
-    private function getEventNamesWithPrivileges(Context $context, Manifest $manifest): array
+    private function getEventNamesWithPrivileges(Context $context, ?Manifest $manifest): array
     {
         return array_merge(
             $this->getEntityWrittenEventNamesWithPrivileges(),
@@ -139,14 +140,18 @@ class HookableEventCollector implements ResetInterface
     /**
      * @return array<string, array{privileges: list<string>}>
      */
-    private function getHookableEventNames(Manifest $manifest): array
+    private function getHookableEventNames(?Manifest $manifest): array
     {
         $events = [];
 
         foreach ($this->hookableEventDescribers as $describer) {
             $describerClass = $describer::class;
 
-            foreach ($describer->describeForValidation($manifest) as $eventDescription) {
+            $descriptions = $manifest === null
+                ? $describer->describe()
+                : $describer->describeForValidation($manifest);
+
+            foreach ($descriptions as $eventDescription) {
                 if (isset($events[$eventDescription->eventName])) {
                     throw WebhookException::duplicateDescribedEvent(
                         $eventDescription->eventName,

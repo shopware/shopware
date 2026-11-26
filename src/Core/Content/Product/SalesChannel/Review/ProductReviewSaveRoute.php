@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -156,7 +157,11 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $definition->add('title', new NotBlank(), new Length(min: 5));
         $definition->add('content', new NotBlank(), new Length(min: 40));
 
-        $definition->add('points', new GreaterThanOrEqual(1), new LessThanOrEqual(5));
+        if (Feature::isActive('v6.8.0.0')) {
+            $definition->add('points', new NotBlank(), new GreaterThanOrEqual(1), new LessThanOrEqual(5));
+        } else {
+            $definition->add('points', new GreaterThanOrEqual(1), new LessThanOrEqual(5));
+        }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $data->get('customerId')));

@@ -190,6 +190,45 @@ class ThemeMergedConfigBuilderTest extends TestCase
         static::assertEquals($expected, $config);
     }
 
+    public function testGetPlainThemeConfigurationsLoadsAllThemesOnceForTheThemeAndItsCopies(): void
+    {
+        $base = (new ThemeEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+            'baseConfig' => ['fields' => ['sw-color-brand-primary' => ['type' => 'color', 'value' => '#000']]],
+        ]);
+        $themes = new ThemeCollection([$base]);
+        foreach (['#001', '#002', '#003'] as $color) {
+            $themes->add((new ThemeEntity())->assign([
+                'id' => Uuid::randomHex(),
+                'parentThemeId' => $base->getId(),
+                'configValues' => ['sw-color-brand-primary' => ['value' => $color]],
+            ]));
+        }
+
+        $searches = 0;
+        $themeRepository = static::createStub(EntityRepository::class);
+        $themeRepository->method('search')->willReturnCallback(
+            function (Criteria $criteria) use ($themes, &$searches): EntitySearchResult {
+                ++$searches;
+
+                return new EntitySearchResult('theme', $themes->count(), $themes, null, $criteria, $this->context);
+            }
+        );
+        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
+
+        $mergedConfigBuilder = new ThemeMergedConfigBuilder($this->storefrontPluginRegistryMock, $themeRepository);
+
+        $configurations = $mergedConfigBuilder->getPlainThemeConfigurations($themes->getKeys(), $this->context);
+
+        static::assertSame(1, $searches);
+        static::assertSame($themes->getKeys(), array_keys($configurations));
+        foreach ($themes->getKeys() as $themeId) {
+            static::assertEquals($mergedConfigBuilder->getPlainThemeConfiguration($themeId, $this->context), $configurations[$themeId]);
+        }
+        static::assertSame('#002', $configurations[$themes->getKeys()[2]]['fields']['sw-color-brand-primary']['value']);
+    }
+
     /**
      * @deprecated tag:v6.8.0 Will be removed, use testGetThemeConfigurationFieldStructure instead
      *
@@ -239,6 +278,41 @@ class ThemeMergedConfigBuilderTest extends TestCase
         static::assertArrayHasKey('default', $config['tabs']);
         static::assertArrayHasKey('blocks', $config['tabs']['default']);
         static::assertEquals($expectedStructured, $config);
+    }
+
+    public function testGetThemeConfigurationFieldStructureAlwaysContainsDefaultTab(): void
+    {
+        $themeId = Uuid::randomHex();
+        $baseThemeId = Uuid::randomHex();
+
+        $this->mockThemeRepositorySearch(new ThemeCollection([
+            (new ThemeEntity())->assign([
+                'id' => $themeId,
+                '_uniqueIdentifier' => $themeId,
+                'technicalName' => 'Test',
+                'baseConfig' => [
+                    'fields' => [
+                        'sw-color-brand-primary' => [
+                            'type' => 'color',
+                            'value' => '#008490',
+                            'tab' => 'colors',
+                        ],
+                    ],
+                ],
+            ]),
+            (new ThemeEntity())->assign([
+                'id' => $baseThemeId,
+                '_uniqueIdentifier' => $baseThemeId,
+                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+            ]),
+        ]));
+
+        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
+
+        $config = $this->mergedConfigBuilder->getThemeConfigurationFieldStructure($themeId, $this->context);
+
+        static::assertArrayHasKey('colors', $config['tabs']);
+        static::assertSame(['labelSnippetKey' => 'default.label'], $config['tabs']['default']);
     }
 
     private function mockThemeRepositorySearch(ThemeCollection $themeCollection): void

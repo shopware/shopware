@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -17,6 +18,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -28,10 +30,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
@@ -249,6 +253,70 @@ class OrderRouteTest extends TestCase
             );
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
+    }
+
+    #[DataProvider('guestCredentialsProvider')]
+    public function testGuestCredentialsAreReadFromTheCompressedCriteria(string $zipcode, int $expectedStatus, ?string $expectedErrorCode): void
+    {
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', '');
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addAssociation('orderCustomer');
+
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($this->orderId);
+
+        static::assertNotNull($order);
+        static::assertNotNull($order->getOrderCustomer());
+
+        $this->customerRepository->update([
+            [
+                'id' => $order->getOrderCustomer()->getCustomerId(),
+                'guest' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
+
+        $compressed = gzencode(json_encode(
+            \array_merge(
+                $this->requestCriteriaBuilder->toArray($criteria),
+                [
+                    'email' => 'test@example.com',
+                    'zipcode' => $zipcode,
+                ]
+            ),
+            \JSON_THROW_ON_ERROR
+        ));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/order', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        $content = (string) $this->browser->getResponse()->getContent();
+        static::assertSame($expectedStatus, $this->browser->getResponse()->getStatusCode(), $content);
+
+        if ($expectedErrorCode !== null) {
+            $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame($expectedErrorCode, $response['errors'][0]['code']);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{zipcode: string, expectedStatus: int, expectedErrorCode: ?string}>
+     */
+    public static function guestCredentialsProvider(): iterable
+    {
+        yield 'the order is returned for the right credentials' => [
+            'zipcode' => '59438-0403',
+            'expectedStatus' => Response::HTTP_OK,
+            'expectedErrorCode' => null,
+        ];
+
+        yield 'a wrong zipcode is checked and rejected the same as a plain query parameter' => [
+            'zipcode' => '00000',
+            'expectedStatus' => Response::HTTP_FORBIDDEN,
+            'expectedErrorCode' => OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
+        ];
     }
 
     public function testGetOrderGuestNoOrder(): void
@@ -515,6 +583,41 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
         static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
         static::assertSame(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
+    }
+
+    public function testProtectedStateMachineStateOrdersAssociationCannotBeExposedThroughIncludes(): void
+    {
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/order',
+                [
+                    'associations' => [
+                        'stateMachineState' => [
+                            'associations' => [
+                                'orders' => [],
+                            ],
+                        ],
+                    ],
+                    'includes' => [
+                        'state_machine_state' => ['id', 'orders.id'],
+                    ],
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+            static::assertArrayNotHasKey('orders', $response);
+            static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+
+            return;
+        }
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        static::assertCount(1, $response['orders']['elements']);
+        static::assertArrayNotHasKey('orders', $response['orders']['elements'][0]['stateMachineState']);
     }
 
     protected function getValidPaymentMethods(): PaymentMethodCollection

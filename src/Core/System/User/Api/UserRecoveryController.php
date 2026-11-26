@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,19 +23,29 @@ class UserRecoveryController extends AbstractController
      */
     public function __construct(
         private readonly UserRecoveryService $userRecoveryService,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly bool $userRecoveryEnabled = true
     ) {
     }
 
     #[Route(path: '/api/_action/user/user-recovery', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery', methods: ['POST'])]
     public function createUserRecovery(Request $request, Context $context): Response
     {
-        $email = (string) $request->request->get('email');
+        if (!$this->userRecoveryEnabled) {
+            // Silently do nothing to avoid revealing that the flow is disabled or whether the email exists.
+            return new Response();
+        }
 
-        $this->rateLimiter->ensureAccepted(
-            RateLimiter::USER_RECOVERY,
-            strtolower($email) . '-' . $request->getClientIp()
-        );
+        $email = (string) $request->request->get('email');
+        $emailKey = mb_strtolower(mb_trim($email));
+        $clientIp = (string) $request->getClientIp();
+        // an IPv6 client can rotate through its whole /64, so the network shares one limit
+        $clientNetworkKey = $clientIp === '' ? '' : IpUtils::anonymize($clientIp, 0, 8);
+
+        $this->rateLimiter->ensureAccepted(RateLimiter::USER_RECOVERY_CLIENT, $clientNetworkKey);
+        $this->rateLimiter->ensureAccepted(RateLimiter::USER_RECOVERY, $emailKey . '-' . $clientIp);
+        // last, so a request blocked by an IP limit does not use up the limit of the email owner
+        $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::USER_RECOVERY_USER, $emailKey);
 
         $this->userRecoveryService->generateUserRecovery($email, $context);
 
@@ -44,6 +55,10 @@ class UserRecoveryController extends AbstractController
     #[Route(path: '/api/_action/user/user-recovery/hash', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.hash', methods: ['GET'])]
     public function checkUserRecovery(Request $request, Context $context): Response
     {
+        if (!$this->userRecoveryEnabled) {
+            return $this->getErrorResponse();
+        }
+
         $hash = (string) $request->query->get('hash');
 
         if ($hash !== '' && $this->userRecoveryService->checkHash($hash, $context)) {
@@ -56,6 +71,10 @@ class UserRecoveryController extends AbstractController
     #[Route(path: '/api/_action/user/user-recovery/password', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.password', methods: ['PATCH'])]
     public function updateUserPassword(#[\SensitiveParameter] Request $request, Context $context): Response
     {
+        if (!$this->userRecoveryEnabled) {
+            return $this->getErrorResponse();
+        }
+
         $hash = (string) $request->request->get('hash');
         $password = (string) $request->request->get('password');
         $passwordConfirm = (string) $request->request->get('passwordConfirm');
@@ -73,11 +92,13 @@ class UserRecoveryController extends AbstractController
             return $this->getErrorResponse();
         }
 
-        $usernameKey = strtolower($user->getUsername());
+        $usernameKey = mb_strtolower(mb_trim($user->getUsername()));
         $this->rateLimiter->reset(RateLimiter::OAUTH, $usernameKey . '-' . $request->getClientIp());
         $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_USER, $usernameKey);
         $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_CLIENT, (string) $request->getClientIp());
-        $this->rateLimiter->reset(RateLimiter::USER_RECOVERY, strtolower($user->getEmail()) . '-' . $request->getClientIp());
+        $emailKey = mb_strtolower(mb_trim($user->getEmail()));
+        $this->rateLimiter->reset(RateLimiter::USER_RECOVERY, $emailKey . '-' . $request->getClientIp());
+        $this->rateLimiter->resetIfConfigured(RateLimiter::USER_RECOVERY_USER, $emailKey);
 
         return new Response();
     }

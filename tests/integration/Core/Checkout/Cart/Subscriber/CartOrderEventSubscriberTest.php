@@ -50,6 +50,8 @@ class CartOrderEventSubscriberTest extends TestCase
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
+            // login() creates the customer with an address in a country of the default sales channel
+            'countries' => [['id' => $this->getValidCountryId(null)], ['id' => $this->getValidCountryId()]],
         ]);
 
         $this->customerAddressRepository = static::getContainer()->get('customer_address.repository');

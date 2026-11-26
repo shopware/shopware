@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const { Module } = Shopware;
 
@@ -165,6 +166,10 @@ async function createWrapper(defaultFolderId, privileges = []) {
 }
 
 describe('components/media/sw-media-folder-item', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-media-folder-item.dateFilter is deprecated');
+    });
+
     afterEach(() => {
         useModuleIconColors().enabled.value = false;
     });
@@ -176,7 +181,7 @@ describe('components/media/sw-media-folder-item', () => {
         ['fallback', undefined],
     ])('should use the blue folder thumbnail for %s', async (_, defaultFolderId) => {
         const wrapper = await createWrapper(defaultFolderId);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.iconName).toBe('folder-thumbnail');
     });
@@ -216,14 +221,14 @@ describe('components/media/sw-media-folder-item', () => {
         await flushPromises();
 
         useModuleIconColors().enabled.value = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.findComponent('svg.sw-media-folder-thumbnail').props('color')).toBe('#57D9A3');
     });
 
     it('should not be able to delete', async () => {
         const aclWrapper = await createWrapper();
-        await aclWrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = aclWrapper.find('.sw-media-context-item__delete-folder-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -231,7 +236,7 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should be able to delete', async () => {
         const aclWrapper = await createWrapper(null, ['media.deleter']);
-        await aclWrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = aclWrapper.find('.sw-media-context-item__delete-folder-action');
         expect(deleteMenuItem.attributes().disabled).toBeDefined();
@@ -239,7 +244,7 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should not be able to edit', async () => {
         const aclWrapper = await createWrapper();
-        await aclWrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -247,7 +252,7 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should be able to edit', async () => {
         const aclWrapper = await createWrapper(null, ['media.editor']);
-        await aclWrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');
         expect(editMenuItem.attributes().disabled).toBeDefined();
@@ -258,7 +263,7 @@ describe('components/media/sw-media-folder-item', () => {
         await wrapper.setProps({
             isParent: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.text()).toContain('AllowMultiSelect: "true"');
     });
@@ -268,7 +273,7 @@ describe('components/media/sw-media-folder-item', () => {
         await wrapper.setProps({
             isParent: true,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.text()).toContain('AllowMultiSelect: "false"');
     });
@@ -322,7 +327,7 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should not call the api get default folder if default folder id does not exist', async () => {
         const wrapper = await createWrapper(null);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const mediaDefaultFolderRepositorySpy = jest.spyOn(wrapper.vm.mediaDefaultFolderRepository, 'get');
         await wrapper.vm.getIconConfigFromFolder();

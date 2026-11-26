@@ -99,7 +99,7 @@ class NotFoundSubscriberTest extends TestCase
     public function testCookiesAreNotPersistedToNotFoundPages(): void
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
-        $response = new Response();
+        $response = new Response('', Response::HTTP_NOT_FOUND);
         $response->headers->setCookie(new Cookie('extension-cookie', '1'));
         $response->headers->setCookie(new Cookie(PlatformRequest::FALLBACK_SESSION_NAME, '1'));
         $httpKernel
@@ -143,6 +143,37 @@ class NotFoundSubscriberTest extends TestCase
         static::assertCount(1, $cookies);
 
         static::assertSame('extension-cookie', $cookies[0]->getName());
+    }
+
+    public function testFailedNotFoundPageRenderingIsNotCached(): void
+    {
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+        $httpKernel
+            ->expects($this->once())
+            ->method('handle')
+            ->willReturn(new Response('', Response::HTTP_INTERNAL_SERVER_ERROR));
+
+        $arrayAdapter = new ArrayAdapter();
+        $subscriber = new NotFoundSubscriber(
+            $httpKernel,
+            $this->createContextRestorer(),
+            false,
+            new TagAwareAdapter($arrayAdapter, $arrayAdapter),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(CacheInvalidator::class),
+            new EventDispatcher()
+        );
+
+        $event = new ExceptionEvent(
+            static::createStub(Kernel::class),
+            new Request(),
+            0,
+            new HttpException(Response::HTTP_NOT_FOUND)
+        );
+        $subscriber->onError($event);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $event->getResponse()?->getStatusCode());
+        static::assertSame([], array_filter($arrayAdapter->getValues()));
     }
 
     public function testOtherExceptionsDoNotGetCached(): void
@@ -261,11 +292,85 @@ class NotFoundSubscriberTest extends TestCase
         ];
     }
 
+    /**
+     * @param list<string> $expectedRenderedSalesChannels
+     */
+    #[DataProvider('providerNotFoundPageChanges')]
+    public function testChangingTheNotFoundPageDropsOnlyTheCachedPagesOfTheAffectedSalesChannels(
+        ?string $changedSalesChannelId,
+        array $expectedRenderedSalesChannels,
+    ): void {
+        $renderedSalesChannels = [];
+        $httpKernel = static::createStub(HttpKernelInterface::class);
+        $httpKernel->method('handle')->willReturnCallback(static function (Request $request) use (&$renderedSalesChannels): Response {
+            $renderedSalesChannels[] = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+            return new Response('', Response::HTTP_NOT_FOUND);
+        });
+
+        $cache = new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter());
+        $cacheInvalidator = static::createStub(CacheInvalidator::class);
+        $cacheInvalidator->method('invalidate')->willReturnCallback(static function (array $tags) use ($cache): void {
+            $cache->invalidateTags($tags);
+        });
+
+        $subscriber = new NotFoundSubscriber(
+            $httpKernel,
+            $this->createContextRestorer(),
+            false,
+            $cache,
+            static::createStub(EntityCacheKeyGenerator::class),
+            $cacheInvalidator,
+            new EventDispatcher()
+        );
+
+        $this->requestNotFoundPage($subscriber, 'sales-channel-a');
+        $this->requestNotFoundPage($subscriber, 'sales-channel-b');
+        $renderedSalesChannels = [];
+
+        $subscriber->onSystemConfigChanged(new SystemConfigChangedEvent('core.basicInformation.http404Page', 'new-page', $changedSalesChannelId));
+
+        $this->requestNotFoundPage($subscriber, 'sales-channel-a');
+        $this->requestNotFoundPage($subscriber, 'sales-channel-b');
+
+        static::assertSame($expectedRenderedSalesChannels, $renderedSalesChannels);
+    }
+
+    /**
+     * @return iterable<string, array{?string, list<string>}>
+     */
+    public static function providerNotFoundPageChanges(): iterable
+    {
+        yield 'a sales channel specific change renders only the page of that sales channel again' => [
+            'sales-channel-a',
+            ['sales-channel-a'],
+        ];
+
+        yield 'a global change renders the pages of all sales channels again' => [
+            null,
+            ['sales-channel-a', 'sales-channel-b'],
+        ];
+    }
+
     public function testSubscribedEvents(): void
     {
         static::assertArrayHasKey(SystemConfigChangedEvent::class, NotFoundSubscriber::getSubscribedEvents());
 
         static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
+    }
+
+    private function requestNotFoundPage(NotFoundSubscriber $subscriber, string $salesChannelId): void
+    {
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
+
+        $subscriber->reset();
+        $subscriber->onError(new ExceptionEvent(
+            static::createStub(Kernel::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            new HttpException(Response::HTTP_NOT_FOUND)
+        ));
     }
 
     private function createContextRestorer(): SalesChannelContextRequestRestorer

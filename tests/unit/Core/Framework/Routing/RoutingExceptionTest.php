@@ -49,6 +49,14 @@ class RoutingExceptionTest extends TestCase
         static::assertSame(RoutingException::APP_INTEGRATION_NOT_FOUND, $e->getErrorCode());
     }
 
+    public function testAppUserNotFound(): void
+    {
+        $e = RoutingException::appUserNotFound('foo');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $e->getStatusCode());
+        static::assertSame(RoutingException::APP_USER_NOT_FOUND, $e->getErrorCode());
+    }
+
     public function testCustomerNotLoggedIn(): void
     {
         $e = RoutingException::customerNotLoggedIn();
@@ -120,5 +128,15 @@ class RoutingExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(RoutingException::SESSION_CONTEXT_NOT_RESOLVABLE, $e->getErrorCode());
         static::assertStringContainsString('the request carries no storefront session cookie', $e->getMessage());
+    }
+
+    public function testInvalidAppUrl(): void
+    {
+        $e = RoutingException::invalidAppUrl('not-a-url');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(RoutingException::INVALID_APP_URL, $e->getErrorCode());
+        static::assertSame('The APP_URL "not-a-url" is not a valid http(s) URL.', $e->getMessage());
+        static::assertSame('not-a-url', $e->getParameter('appUrl'));
     }
 }

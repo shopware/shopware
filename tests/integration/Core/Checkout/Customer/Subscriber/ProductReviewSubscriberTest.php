@@ -160,6 +160,8 @@ class ProductReviewSubscriberTest extends TestCase
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'title' => 'fooo',
                 'content' => 'baar',
+                'points' => 5,
+                'externalUser' => 'Test',
                 'status' => true,
             ],
             [
@@ -169,6 +171,8 @@ class ProductReviewSubscriberTest extends TestCase
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'title' => 'fooo',
                 'content' => 'baar',
+                'points' => 5,
+                'externalUser' => 'Test',
                 'status' => false,
             ],
         ], Context::createDefaultContext());

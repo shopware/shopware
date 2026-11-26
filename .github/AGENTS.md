@@ -21,10 +21,10 @@ nightlies and the release gate. Change one and you change all three contexts.
 | `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit` and `migration` suites, license-check, composer-audit, composer-prefer-lowest |
 | `integration.yml` | PHPUnit integration shards, dynamic matrix |
 | `integration-major.yml` | the same, plus Jest, with the upcoming major flag enabled (`V6_8_0_0=1`) |
-| `admin.yml` | ESLint, Stylelint and Jest for the Administration |
+| `admin.yml` | ESLint, Stylelint and Jest for the Administration, and its build with Vite 8 (`ADMIN_VITE_8`) |
 | `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
 | `acceptance.yml` | Playwright acceptance runs, reused by the label-triggered `acceptance-major.yml` PR entry point |
-| `lint-actions.yml` | actionlint, yamlfmt, zizmor, and the `.github/bin/js` tests |
+| `lint-actions.yml` | actionlint, yamlfmt, zizmor, and the tests, ESLint and Prettier checks for the scripts under `.github` |
 
 Composition, rather than duplication, is how the arms are built:
 
@@ -45,10 +45,12 @@ Three mechanisms decide how much runs:
   `matrix: ${{ fromJson(...) }}` — the expression must stay on `matrix:`, since
   zizmor cannot audit a file whose whole `strategy:` block is an expression.
 - **Major arms** — opt in on a PR with the `major-php`, `major-js`, or
-  `major-acceptance` label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml`
+  `major-acceptance` label, or the `major-tests` umbrella. `major-label.yml`
   applies the relevant PHP and Administration JS labels automatically when the diff
   touches major feature flags, and `major-acceptance` when acceptance specs change.
-  This detector retains its same-repository PR restriction; fork PRs can opt in manually.
+  It runs on `pull_request_target`, so fork PRs are labeled too.
+  The merge queue does not run the major arms itself; `major-lanes-gate.yml` blocks a
+  queued PR whose labels select an arm that is not green on its head commit.
   Nightly and manual runs ignore the labels. The
   upcoming major flag is set directly in `integration-major.yml`, `acceptance.yml`,
   and the migration suite in `php.yml`; update those three workflow settings when
@@ -69,13 +71,14 @@ its own timing in the job UI: `phpunit-prepare` (PHP, database, webserver, test
 install) → `phpunit-run` (the suite) → `phpunit-upload` (Codecov, called with
 `if: !cancelled()`).
 
-The agentic workflows (`sw-triage`, `sw-review`, `sw-bugfixer`) are
+The agentic workflows (`sw-triage`, `sw-review`, `sw-bugfixer`, `sw-docs-impact`) are
 [gh aw](https://github.com/githubnext/gh-aw) sources: edit `<name>.md`, never the
 generated `<name>.lock.yml`, and run `gh aw compile`. Setup and the version pin
 live in [`.github/aw/README.md`](aw/README.md).
 
 Locally: `composer lint:actions` runs the workflow linters,
-`cd .github/bin/js && node --test` runs the automation-script tests.
+`cd .github/bin/js && node --test` runs the automation-script tests,
+`composer lint:github-scripts` lints and format-checks every TypeScript/JavaScript file under `.github`.
 
 ## Every workflow also runs in shopware-private
 
@@ -170,6 +173,8 @@ grows a branch worth getting wrong, move it out:
 - `composer lint:actions` — mandatory for any file under `.github/workflows/` or
   `.github/actions/`. `composer lint:actions:fix` applies the formatting.
 - `cd .github/bin/js && node --test` when you touched a script there.
+- `composer lint:github-scripts` when you touched a TypeScript/JavaScript file under `.github`.
+  `composer lint:github-scripts:fix` applies ESLint fixes and the Prettier formatting.
 - **Prove it ran.** Link a real run — `workflow_dispatch`, a draft PR, or a
   throwaway branch. For a new guard, also show it failing: a unit test over its
   decision function, or a run on a deliberately broken branch. A guard that has

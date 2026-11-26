@@ -304,7 +304,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper('product_detail', {});
 
         wrapper.vm[loadingProperty] = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isModalLoading).toBe(true);
         expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);
@@ -349,27 +349,29 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(true);
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])('should provide landing page meteor tabs', async () => {
-        const wrapper = await createWrapper('landingpage');
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should provide enabled landing page meteor tabs without system config permission',
+        async () => {
+            const wrapper = await createWrapper('landingpage');
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
-        expect(tabs.props('items')).toEqual([
-            {
-                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabCategories',
-                name: 'categories',
-            },
-            {
-                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages',
-                name: 'landing_pages',
-                disabled: true,
-            },
-        ]);
-    });
+            expect(tabs.props('items')).toEqual([
+                {
+                    label: 'sw-cms.components.cmsLayoutAssignmentModal.tabCategories',
+                    name: 'categories',
+                },
+                {
+                    label: 'sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages',
+                    name: 'landing_pages',
+                },
+            ]);
+        },
+    );
 
-    it.activeFeatureFlags(['v6.8.0.0']).each(['page', 'landingpage'])(
-        'should render a tab permission warning banner for %s meteor tabs without system config permission',
-        async (layoutType) => {
-            const wrapper = await createWrapper(layoutType);
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render a tab permission warning banner for page meteor tabs without system config permission',
+        async () => {
+            const wrapper = await createWrapper('page');
             const banner = wrapper.get('.sw-cms-layout-assignment-modal__tab-permission-warning');
 
             expect(banner.text()).toBe('sw-privileges.tooltip.warning');
@@ -377,12 +379,21 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         },
     );
 
-    it.activeFeatureFlags(['v6.8.0.0']).each(['page', 'landingpage'])(
-        'should not render a tab permission warning banner for %s meteor tabs with system config permission',
-        async (layoutType) => {
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not render a tab permission warning banner for page meteor tabs with system config permission',
+        async () => {
             global.activeAclRoles = ['system.system_config'];
 
-            const wrapper = await createWrapper(layoutType);
+            const wrapper = await createWrapper('page');
+
+            expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-permission-warning').exists()).toBe(false);
+        },
+    );
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not render a tab permission warning banner for landing page meteor tabs without system config permission',
+        async () => {
+            const wrapper = await createWrapper('landingpage');
 
             expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-permission-warning').exists()).toBe(false);
         },
@@ -409,6 +420,15 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(
             wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').classes('sw-tabs-item--is-disabled'),
         ).toBeTruthy();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
+    it.deprecated('v6.8.0.0')('should not disable landing pages tab with missing system config permission', async () => {
+        const wrapper = await createWrapper('landingpage');
+
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-landing-pages').classes('sw-tabs-item--is-disabled')).toBe(
+            false,
+        );
     });
 
     it('should not render tabs when type is not shop page', async () => {

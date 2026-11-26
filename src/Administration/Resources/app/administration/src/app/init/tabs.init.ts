@@ -2,7 +2,14 @@
  * @sw-package framework
  */
 
-import type { Router, RouteRecordRaw } from 'vue-router';
+import type { Router, RouteRecordNameGeneric, RouteRecordRaw } from 'vue-router';
+
+// Unknown URLs resolve to this catch-all route, so it must not count as a registered route
+const NOT_FOUND_ROUTE_NAME = 'sw.not.found.index';
+
+function isRegisteredRoute(router: Router, route: { name?: RouteRecordNameGeneric | null }): boolean {
+    return route.name !== NOT_FOUND_ROUTE_NAME && router.hasRoute(route.name ?? '');
+}
 
 /**
  * @private
@@ -15,8 +22,14 @@ export default function initializeTabs(): void {
         const router = Shopware.Application.view?.router as Router;
         const currentRoute = router.currentRoute.value;
 
-        if (!router.hasRoute(currentRoute.name ?? '')) {
-            await router.replace(currentRoute.fullPath);
+        if (!isRegisteredRoute(router, currentRoute)) {
+            // `force` is needed because the URL already resolves to the catch-all route, which would be a duplicate navigation
+            await router.replace({
+                path: currentRoute.path,
+                query: currentRoute.query,
+                hash: currentRoute.hash,
+                force: true,
+            });
         }
     });
 
@@ -31,7 +44,7 @@ export default function initializeTabs(): void {
 
         router.beforeResolve((to) => {
             // Skip if route is already registered
-            if (router.hasRoute(to.name ?? '')) {
+            if (isRegisteredRoute(router, to)) {
                 return;
             }
 
@@ -59,6 +72,11 @@ export default function initializeTabs(): void {
             // Get the parent route
             const parentPath = to.fullPath.replace(matchingTabRoute, '');
             const parentRoute = router.resolve(parentPath);
+
+            // Unknown parent routes keep showing the not found page instead of nesting the tab inside it
+            if (!isRegisteredRoute(router, parentRoute)) {
+                return;
+            }
 
             // Get the new route name based on parent route name
             const newRouteName = `${parentRoute.name as string}.${matchingTabRoute}`;

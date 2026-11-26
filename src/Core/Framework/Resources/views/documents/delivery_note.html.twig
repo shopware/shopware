@@ -19,7 +19,10 @@ The blocks from the templates in the /includes folder can be overwritten directl
     </h1>
 {% endblock %}
 
-    {% set firstDelivery = order.deliveries|first %}
+    {% set orderDelivery = (documentV2 ?? false) ? config.orderDelivery : orderDelivery ?? null %}
+    {% set deliveryLineItemQuantities = (documentV2 ?? false) ? config.deliveryLineItemQuantities : deliveryLineItemQuantities ?? null %}
+
+    {% set firstDelivery = deliveryLineItemQuantities is null ? order.deliveries|first : orderDelivery %}
     {% set deliveryAddressId = firstDelivery.shippingOrderAddressId %}
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
 
@@ -37,6 +40,30 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% block document_side_info_contents %}
     {{ parent() }}
     <tr><td>{% trans with {'%deliveryDate%': config.custom.deliveryDate|format_date('medium', locale=order.language.locale.code)} %}document.deliveryDate{% endtrans %}</td></tr>
+{% endblock %}
+
+{% block document_body %}
+    {%- if deliveryLineItemQuantities is not null -%}
+        {%- set nestedLineItems = nestedLineItems|filter(lineItem => lineItem.id in deliveryLineItemQuantities|keys) -%}
+        {%- set total = deliveryLineItemQuantities|length -%}
+    {%- endif -%}
+    {{- parent() -}}
+{% endblock %}
+
+{% block document_line_item_table_column_quantity %}
+    {%- if deliveryLineItemQuantities is null -%}
+        {{- parent() -}}
+    {%- else -%}
+        {{- deliveryLineItemQuantities[lineItem.id] -}}
+    {%- endif -%}
+{% endblock %}
+
+{% block document_shipping %}
+    {%- if deliveryLineItemQuantities is null -%}
+        {{- parent() -}}
+    {%- else -%}
+        {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': orderDelivery.shippingMethod.translated.name})|sw_sanitize }}<br><br>
+    {%- endif -%}
 {% endblock %}
 
 {% block document_line_item_table_shipping %}

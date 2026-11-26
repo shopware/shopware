@@ -14,10 +14,12 @@ Follow the general feature-flag rules in [core feature flags](../core/feature-fl
 ## Deprecations
 
 - Mark deprecated Administration APIs with `@deprecated tag:vX.Y.Z - ...` and name the replacement.
-- Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards).
+- Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards). `sw-deprecation-rules/require-deprecation-guard` enforces this, and that every runtime guard has a `@deprecated tag:` marker.
 - Document the migration path when deprecating public Administration extension points.
 - Do not introduce new internal callers of deprecated APIs; move core/Admin code to the replacement.
-- When removing a flag, remove the legacy branch, flag configuration, obsolete tests, and stale documentation in the same change.
+- At the major, remove the flag checks, the legacy branch, obsolete tests, and stale documentation in the same change.
+  The major flag itself stays registered in `feature.yaml` (default on, not toggleable), because plugins use it as a version switch.
+  Every other flag is removed from `feature.yaml` once it is enabled.
 
 ### Runtime guards
 
@@ -45,4 +47,33 @@ Component.register('sw-example', {
 
 Pass a registered major flag and a version like `v6.8.0.0`. Anything else could never throw, so it logs a console error instead.
 
-`@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
+The guard is the first statement, so no early return or condition skips it.
+
+`@private` symbols and identifiers starting with `_` are no public contract and need no guard.
+Neither do values, types, lifecycle hooks, `data`, `watch`, `provide`, `inject`, store `state` and `getters`, which core runs for every instance or have no use to guard.
+Any other deprecated function that core itself runs on every use states why it has no guard:
+
+```ts
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- the boot sequence runs it until Vuex is removed
+export default function initState() {}
+```
+
+See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
+
+For now, only specs inside the platform's `src/` fail on unasserted deprecations.
+In the Jest run of an extension that reuses core's test setup, they are still recorded, so `toHaveTriggered()` works, and majors a test activates still throw.
+See the [ADR](../../adr/2026-10-23-fail-on-administration-deprecations-only-in-core-tests.md).
+
+### Deprecation baseline
+
+Jest lets known usages of deprecated APIs pass when they are listed in the deprecation baseline.
+In the running Administration, a deprecation whose message is listed in the baseline logs a console error instead of throwing once the major flag is active.
+To update it, run both commands:
+
+```bash
+DEPRECATION_BASELINE=update composer admin:unit
+```
+
+```bash
+DEPRECATION_BASELINE=update composer admin:unit:major
+```

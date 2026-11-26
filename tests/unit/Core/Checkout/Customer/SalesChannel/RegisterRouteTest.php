@@ -151,8 +151,8 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = static::createStub(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) use ($definition) {
-            if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event, ?string $eventName = null) use ($definition) {
+            if ($event instanceof BuildValidationEvent && $eventName === 'framework.validation.address.create') {
                 $definition->add('company', new NotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
 
@@ -214,8 +214,8 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = static::createStub(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
-            if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event, ?string $eventName = null) {
+            if ($event instanceof BuildValidationEvent && $eventName === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
                 $definition->add('company', new NotBlank());
@@ -277,8 +277,8 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = static::createStub(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
-            if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event, ?string $eventName = null) {
+            if ($event instanceof BuildValidationEvent && $eventName === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
                 $definition->add('company', new NotBlank());
@@ -736,6 +736,179 @@ class RegisterRouteTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testVatIdConstraintsAreAddedBeforeCustomerCreateValidationEvent(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+            ],
+        ]);
+
+        $countryId = Uuid::randomHex();
+
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $country->setVatIdRequired(true);
+        $country->setCheckVatIdPattern(false);
+
+        $countryRepository = static::createStub(SalesChannelRepository::class);
+        $countryRepository
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    CountryDefinition::ENTITY_NAME,
+                    1,
+                    new CountryCollection([$country]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            );
+
+        $vatIdConstraintsOnDispatch = null;
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener('framework.validation.customer.create', static function (BuildValidationEvent $event) use (&$vatIdConstraintsOnDispatch): void {
+            $vatIdConstraintsOnDispatch = $event->getDefinition()->getProperty('vatIds');
+        });
+
+        $dataValidator = static::createStub(DataValidator::class);
+        $dataValidator
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList([
+                new ConstraintViolation('Stop after validation', null, [], null, '/email', null),
+            ]));
+
+        $customerDefinitionFactory = static::createStub(DataValidationFactoryInterface::class);
+        $customerDefinitionFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('customer.create'));
+
+        $addressDefinitionFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressDefinitionFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
+
+        $doubleOptInService = static::createStub(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
+        $registerRoute = new RegisterRoute(
+            $eventDispatcher,
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $customerDefinitionFactory,
+            $addressDefinitionFactory,
+            $systemConfigService,
+            static::createStub(EntityRepository::class),
+            static::createStub(SalesChannelContextPersister::class),
+            $countryRepository,
+            static::createStub(Connection::class),
+            static::createStub(SalesChannelContextService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            $customerDefinitionFactory,
+            $doubleOptInService,
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $salutationId = Uuid::randomHex();
+
+        $data = [
+            'email' => 'test@test.de',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'countryId' => $countryId,
+                'salutationId' => $salutationId,
+            ],
+            'salutationId' => $salutationId,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+        ];
+
+        try {
+            $registerRoute->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
+            static::fail('The stubbed violation should stop the registration.');
+        } catch (ConstraintViolationException) {
+        }
+
+        static::assertIsArray($vatIdConstraintsOnDispatch);
+        static::assertCount(3, $vatIdConstraintsOnDispatch);
+        static::assertInstanceOf(NotBlank::class, $vatIdConstraintsOnDispatch[0]);
+        static::assertInstanceOf(Type::class, $vatIdConstraintsOnDispatch[1]);
+        static::assertInstanceOf(CustomerVatIdentification::class, $vatIdConstraintsOnDispatch[2]);
+    }
+
+    public function testAddressValidationIsDispatchedPerAddressType(): void
+    {
+        $events = $this->registerCollectingAddressValidationEvents($this->createRegistrationData([
+            'billingAddress' => [
+                'street' => 'Billing Street 1',
+                'countryId' => Uuid::randomHex(),
+            ],
+            'shippingAddress' => [
+                'street' => 'Shipping Street 2',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]));
+
+        static::assertCount(2, $events['framework.validation.address.create']);
+        foreach ($events['framework.validation.address.create'] as $event) {
+            static::assertSame('test@example.com', $event->getData()->get('email'));
+        }
+
+        static::assertCount(1, $events['framework.validation.address.create.billing']);
+        $billing = $events['framework.validation.address.create.billing'][0];
+        static::assertSame('Billing Street 1', $billing->getData()->get('street'));
+        static::assertSame($events['framework.validation.address.create'][0]->getDefinition(), $billing->getDefinition());
+
+        static::assertCount(1, $events['framework.validation.address.create.shipping']);
+        $shipping = $events['framework.validation.address.create.shipping'][0];
+        static::assertSame('Shipping Street 2', $shipping->getData()->get('street'));
+        static::assertSame($events['framework.validation.address.create'][1]->getDefinition(), $shipping->getDefinition());
+    }
+
+    public function testBillingAddressWithoutShippingAddressIsValidatedForBothTypes(): void
+    {
+        $events = $this->registerCollectingAddressValidationEvents($this->createRegistrationData([
+            'billingAddress' => [
+                'street' => 'Billing Street 1',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]));
+
+        static::assertCount(1, $events['framework.validation.address.create']);
+        $definition = $events['framework.validation.address.create'][0]->getDefinition();
+
+        foreach (['billing', 'shipping'] as $addressType) {
+            static::assertCount(1, $events['framework.validation.address.create.' . $addressType]);
+            $event = $events['framework.validation.address.create.' . $addressType][0];
+            static::assertSame('Billing Street 1', $event->getData()->get('street'));
+            static::assertSame($definition, $event->getDefinition());
+        }
+    }
+
+    public function testShippingAddressWithoutBillingAddressIsValidatedForBothTypes(): void
+    {
+        $events = $this->registerCollectingAddressValidationEvents($this->createRegistrationData([
+            'billingAddress' => null,
+            'shippingAddress' => [
+                'street' => 'Shipping Street 2',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]));
+
+        static::assertCount(1, $events['framework.validation.address.create']);
+        $definition = $events['framework.validation.address.create'][0]->getDefinition();
+
+        foreach (['billing', 'shipping'] as $addressType) {
+            static::assertCount(1, $events['framework.validation.address.create.' . $addressType]);
+            $event = $events['framework.validation.address.create.' . $addressType][0];
+            static::assertSame('Shipping Street 2', $event->getData()->get('street'));
+            static::assertSame($definition, $event->getDefinition());
+        }
     }
 
     public function testRegisterWithoutBillingAddressCountryViolation(): void
@@ -1503,6 +1676,41 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, list<BuildValidationEvent>>
+     */
+    private function registerCollectingAddressValidationEvents(array $data): array
+    {
+        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressValidationFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
+
+        $events = [
+            'framework.validation.address.create' => [],
+            'framework.validation.address.create.billing' => [],
+            'framework.validation.address.create.shipping' => [],
+        ];
+
+        $eventDispatcher = new EventDispatcher();
+        foreach (array_keys($events) as $eventName) {
+            $eventDispatcher->addListener($eventName, static function (BuildValidationEvent $event) use (&$events, $eventName): void {
+                $events[$eventName][] = $event;
+            });
+        }
+
+        $register = $this->createRegisterRoute(
+            eventDispatcher: $eventDispatcher,
+            addressValidationFactory: $addressValidationFactory,
+        );
+
+        $register->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
+
+        return $events;
+    }
+
+    /**
      * @return StaticEntityRepository<CustomerCollection>
      */
     private function createCustomerRepository(): StaticEntityRepository
@@ -1535,7 +1743,6 @@ class RegisterRouteTest extends TestCase
         ?StaticSystemConfigService $systemConfigService = null,
         EntityRepository|StaticEntityRepository|null $customerRepository = null,
         ?DataValidationFactoryInterface $accountValidationFactory = null,
-        ?DataValidationFactoryInterface $passwordValidationFactory = null,
         ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null,
         ?DoubleOptInService $doubleOptInService = null,
         ?SalesChannelRepository $countryRepository = null,
@@ -1544,7 +1751,6 @@ class RegisterRouteTest extends TestCase
         $eventDispatcher ??= new EventDispatcher();
         $accountValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
         $addressValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
-        $passwordValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
         $customFieldMapper ??= static::createStub(StoreApiCustomFieldMapper::class);
         $salutationRepository ??= static::createStub(EntityRepository::class);
         $systemConfigService ??= new StaticSystemConfigService([
@@ -1576,7 +1782,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(SalesChannelContextService::class),
             $customFieldMapper,
             $salutationRepository,
-            $passwordValidationFactory,
+            static::createStub(DataValidationFactoryInterface::class),
             $doubleOptInService,
             $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),

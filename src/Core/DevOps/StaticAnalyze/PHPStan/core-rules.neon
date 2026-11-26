@@ -12,6 +12,7 @@ parametersSchema:
     shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
 
 rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedEntityConstructionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDefinitionFeatureTagRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceFeatureTagRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FeatureFlagVersionRule
@@ -40,10 +41,16 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NameConstantEntityDefinition
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\StorefrontRouteUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRuntimeExceptionInDomainExceptionsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoXmlUtilsParsingRule
     # core-only until the commercial repositories have swept their own reflection backlogs
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionOnNonPublicMethodsRule
+    # core-only until 6.8.0, extensions are warned by the deprecated string helpers of McpToolResponse; moves to rules.neon with 6.8.0
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule
 
 services:
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedExceptionPattern
+
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedFrameworkMethodPattern
 
@@ -54,6 +61,7 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
         arguments:
             deprecationPatterns:
+                - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedExceptionPattern
                 - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedFrameworkMethodPattern
                 - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern
         tags:

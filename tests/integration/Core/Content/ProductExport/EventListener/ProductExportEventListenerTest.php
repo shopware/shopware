@@ -75,7 +75,6 @@ class ProductExportEventListenerTest extends TestCase
 
     private function ensureProductStream(): void
     {
-        /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
         $exists = (bool) $connection->fetchOne('SELECT COUNT(*) FROM product_stream WHERE id = UNHEX(?)', ['137b079935714281ba80b40f83f8d7eb']);
         if ($exists) {

@@ -13,7 +13,11 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'mediaDefaultFolderService',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -35,6 +39,10 @@ export default {
     computed: {
         product() {
             return Shopware.Store.get('swProductDetail').product;
+        },
+
+        isDownloadExternallyManaged() {
+            return Shopware.Store.get('swProductDetail').isDownloadExternallyManaged;
         },
 
         parentProduct() {
@@ -61,6 +69,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
          */
         productStates() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail-base.productStates is deprecated. Will be removed, use `productType` instead.',
+            );
+
             return Shopware.Store.get('swProductDetail').productStates;
         },
 
@@ -82,11 +95,25 @@ export default {
             return this.repositoryFactory.create(this.product.media.entity);
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         mediaDefaultFolderRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail-base.mediaDefaultFolderRepository is deprecated. ' +
+                    'Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead.',
+            );
+
             return this.repositoryFactory.create('media_default_folder');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         mediaDefaultFolderCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail-base.mediaDefaultFolderCriteria is deprecated. ' +
+                    'Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead.',
+            );
+
             const criteria = new Criteria(1, 1);
 
             criteria.addAssociation('folder');
@@ -111,24 +138,40 @@ export default {
             });
         },
 
+        onDownloadExternalManagementChange(value) {
+            Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = value;
+            const errorPath = `product.${this.product.id}.downloads`;
+
+            if (value) {
+                const error = Shopware.Store.get('error').getApiError(this.product, 'downloads');
+
+                if (error?.code === 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED') {
+                    Shopware.Store.get('error').removeApiError(errorPath);
+                }
+                return;
+            }
+
+            if (this.productType === 'digital' && !this.product.downloads?.length) {
+                this.showRequiredDownloadsError();
+            }
+        },
+
+        showRequiredDownloadsError() {
+            Shopware.Store.get('error').addApiError({
+                expression: `product.${this.product.id}.downloads`,
+                error: new Shopware.Classes.ShopwareError({
+                    code: 'SW_PRODUCT_DOWNLOADS_EXTERNAL_MANAGEMENT_REQUIRED',
+                    detail: this.$t('sw-product.detailBase.downloadsExternalManagementRequired'),
+                }),
+            });
+        },
+
         showProductCard(key) {
             return Shopware.Store.get('swProductDetail').showProductCard(key);
         },
 
         getMediaDefaultFolderId() {
-            return this.mediaDefaultFolderRepository
-                .search(this.mediaDefaultFolderCriteria, {
-                    cacheKey: ['media-default-folder', 'product'],
-                })
-                .then((mediaDefaultFolder) => {
-                    const defaultFolder = mediaDefaultFolder.first();
-
-                    if (defaultFolder.folder?.id) {
-                        return defaultFolder.folder.id;
-                    }
-
-                    return null;
-                });
+            return this.mediaDefaultFolderService.getDefaultFolderId('product');
         },
 
         mediaRemoveInheritanceFunction(newValue) {

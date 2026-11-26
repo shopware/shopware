@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
@@ -183,6 +184,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TemporaryDirectoryFactory::class),
             service(AppExtractor::class),
             service(Filesystem::class),
+            service('logger'),
         ])
         ->tag('app.source_resolver', ['priority' => 100]);
 
@@ -261,11 +263,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             env('ENABLE_SERVICES'),
             param('kernel.environment'),
             service(SystemConfigService::class),
-            service(ServiceStorage::class),
             service(ServiceLifecycle::class),
             service(AllServiceInstaller::class),
             service(PermissionsService::class),
-            service(Client::class),
         ]);
 
     $services->set(ServiceLifecycleSubscriber::class)
@@ -288,7 +288,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ServiceWriteProtectionSubscriber::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -45,14 +45,47 @@ module.exports = {
     create(context) {
         let componentNode;
         let emitsNode;
+        let declaredEmits = [];
         const emittedEvents = new Set();
 
         function getComponentAndEmitsNodes(objectNode) {
             if (isComponentDefinition(objectNode)) {
                 componentNode = objectNode;
-                emitsNode = objectNode.properties.find(property => property.key?.name === 'emits'
-                    && property.value.type === 'ArrayExpression')?.value;
+                emitsNode = unwrapTypeExpression(
+                    objectNode.properties.find(property => property.key?.name === 'emits')?.value,
+                );
+                declaredEmits = getDeclaredEmits(emitsNode);
             }
+        }
+
+        // `emits: [...] as const` and `emits: {...} satisfies X` in TypeScript components
+        function unwrapTypeExpression(node) {
+            if (node?.type === 'TSAsExpression' || node?.type === 'TSSatisfiesExpression') {
+                return unwrapTypeExpression(node.expression);
+            }
+
+            return node;
+        }
+
+        // Returns null when the declared events can't be read statically, e.g. for a spread or a variable
+        function getDeclaredEmits(node) {
+            if (!node) {
+                return [];
+            }
+
+            if (node.type === 'ArrayExpression') {
+                return node.elements.map(element => element?.value);
+            }
+
+            if (node.type === 'ObjectExpression') {
+                if (node.properties.some(property => property.type !== 'Property' || property.computed)) {
+                    return null;
+                }
+
+                return node.properties.map(property => property.key.name ?? property.key.value);
+            }
+
+            return null;
         }
 
         function getEmitCallsFromScript(callNode) {
@@ -84,6 +117,13 @@ module.exports = {
 
             // default export component
             if (parent.type === 'ExportDefaultDeclaration') {
+                return true;
+            }
+
+            // defineComponent()
+            if (parent.type === 'CallExpression' &&
+                parent.callee.type === 'Identifier' &&
+                parent.callee.name === 'defineComponent') {
                 return true;
             }
 
@@ -127,9 +167,12 @@ module.exports = {
         }
 
         function fixMissingEmitDefinitions(programNode) {
-            const emitsDefinition = emitsNode?.elements.map(element => element.value) ?? [];
+            if (!componentNode || declaredEmits === null) {
+                return;
+            }
+
             const pendingEmitDefinitions = Array.from(emittedEvents)
-                .filter(e => e && !emitsDefinition.includes(e));
+                .filter(e => e && !declaredEmits.includes(e));
 
             if (pendingEmitDefinitions.length) {
                 const stringEmitEvents = `'${pendingEmitDefinitions.join('\', \'')}'`;
@@ -138,6 +181,11 @@ module.exports = {
                     node: programNode,
                     message: `Event(s) ${stringEmitEvents} not defined in the emits option.`,
                     fix(fixer) {
+                        // Validators can't be generated, so the object form is fixed by hand
+                        if (emitsNode?.type === 'ObjectExpression') {
+                            return null;
+                        }
+
                         // no emits field in the component
                         if (!emitsNode) {
                             return  insertNewEmitsNode(fixer, stringEmitEvents);
@@ -167,7 +215,7 @@ module.exports = {
             ];
 
             const nodeAfterWhichToInsert = componentNode.properties
-                .findLast(property => fieldsBeforeEmits.includes(property.key.name));
+                .findLast(property => fieldsBeforeEmits.includes(property.key?.name));
 
             if (nodeAfterWhichToInsert) {
                 return fixer.insertTextAfter(nodeAfterWhichToInsert, `,\n\nemits: [${stringEmitEvents}]`);

@@ -135,12 +135,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         );
     }
 
-    it('should be able to instantiate', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('has the correct class', async () => {
         const wrapper = await createWrapper();
 

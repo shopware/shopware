@@ -36,6 +36,9 @@ return [
         // Expected to be appended when a new internal route default is added; existing entries are never removed
         preg_quote('Value of constant Shopware\Core\PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS', '/'),
 
+        // Expected to grow when new robots.txt directives are supported
+        preg_quote('ADDED: Case Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType::', '/') . '.* was added',
+
         // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
         // BC changes are in the third-party OpenApi\Analysis API. Extensions
         // that only define OpenAPI annotations/attributes continue to work; code
@@ -72,6 +75,9 @@ return [
         // CartLoadRoute is not an extension point, its getDecorated() throws a DecorationPatternException.
         preg_quote('ADDED: Parameter cart was added to Method load() of class Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute', '/'),
 
+        // Optional parameter added with default null; existing callers and subclass constructors are unaffected
+        preg_quote('ADDED: Parameter text was added to Method __construct() of class Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel\LegalGuaranteeNoticeRouteResponse', '/'),
+
         // Promoted properties expose their default on the constructor parameter rather than
         // ReflectionProperty. CustomerZipCode still initializes this property to true.
         preg_quote('CHANGED: Property Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode#$caseSensitiveCheck changed default value from true to NULL', '/'),
@@ -106,6 +112,16 @@ return [
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
 
+        // Experimental app MCP DAL aggregates were replaced by the generic app feature storage.
+        // Their accessors lived on stable parent entities, so the BC checker does not infer the
+        // experimental status from the removed aggregate types.
+        preg_quote('REMOVED: Property Shopware\Core\Framework\App\AppEntity#$mcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\App\AppEntity#getMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\App\AppEntity#setMcp', '/'),
+        preg_quote('REMOVED: Property Shopware\Core\System\Language\LanguageEntity#$appMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\System\Language\LanguageEntity#getAppMcp', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\System\Language\LanguageEntity#setAppMcp', '/'),
+
         // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
         'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',
 
@@ -130,6 +146,9 @@ return [
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
 
+        // AppException is internal, but its methods are still compared through subclasses that are not marked internal
+        preg_quote('Shopware\Core\Framework\App\AppException', '/') . '(::|#|$)',
+
         // Only thrown during the legacy commercial license sync; all services
         // that used it have published versions using the new webhooks instead
         preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),
@@ -141,5 +160,7 @@ return [
         // Not released yet, so safe to be removed again
         preg_quote('REMOVED: Class Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService has been deleted', '/'),
         preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension has been deleted', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome#rows() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow#isInPayload() was removed', '/'),
     ],
 ];

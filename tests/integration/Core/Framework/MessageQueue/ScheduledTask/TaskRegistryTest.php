@@ -57,7 +57,6 @@ class TaskRegistryTest extends TestCase
         $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(1, $tasks);
-        /** @var ScheduledTaskEntity $task */
         $task = $tasks->first();
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(TestTask::class, $task->getScheduledTaskClass());
@@ -86,7 +85,6 @@ class TaskRegistryTest extends TestCase
         $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(1, $tasks);
-        /** @var ScheduledTaskEntity $task */
         $task = $tasks->first();
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(TestTask::class, $task->getScheduledTaskClass());
@@ -116,7 +114,6 @@ class TaskRegistryTest extends TestCase
         $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(1, $tasks);
-        /** @var ScheduledTaskEntity $task */
         $task = $tasks->first();
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(TestTask::class, $task->getScheduledTaskClass());

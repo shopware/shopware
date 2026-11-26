@@ -4,6 +4,7 @@
 
 import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { ContextStore } from '../../../../app/store/context.store';
+import type { DocumentVariantOperation } from 'src/module/sw-product/service/product-document-variant.service';
 
 type LoadingProperties =
     | 'init'
@@ -37,6 +38,9 @@ const swProductDetail = Shopware.Store.register({
         return {
             product: {} as ProductDetailProduct,
             parentProduct: {} as Entity<'product'>,
+            isDownloadExternallyManaged: false,
+            /** @private */
+            documentVariantOperations: {} as Record<string, DocumentVariantOperation>,
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
             taxes: [] as Entity<'tax'>[],

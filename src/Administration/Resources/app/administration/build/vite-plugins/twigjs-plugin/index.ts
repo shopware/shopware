@@ -1,3 +1,4 @@
+import path from 'path';
 import type { Plugin } from 'vite';
 
 /**
@@ -9,13 +10,36 @@ import type { Plugin } from 'vite';
 const isTwigFile = /\.twig$/;
 const isHTMLFile = /\.html$/;
 
+// Resolved from this file, so it also matches when Shopware is installed in `vendor/shopware/administration`.
+const administrationIndexHtml = path.resolve(__dirname, '../../../index.html').replace(/\\/g, '/');
+
+// Hands an edited template to the running Administration, which falls back to a page reload when it cannot apply it.
+function serveModule(template: string): string {
+    return `const template = "${template}";
+export default template;
+
+if (import.meta.hot) {
+    import.meta.hot.accept((next) => {
+        Promise.resolve(next && globalThis.Shopware?.Application?.view?.hotUpdateTemplate?.(template, next.default))
+            .catch(() => false)
+            .then((updated) => updated || import.meta.hot.invalidate());
+    });
+}`;
+}
+
 /* @private */
 export default function twigPlugin(): Plugin {
+    let isServe = false;
+
     return {
         name: 'shopware-vite-plugin-twigjs',
 
+        configResolved(config) {
+            isServe = config.command === 'serve';
+        },
+
         transform(fileContent, id) {
-            if (id.endsWith('src/Administration/Resources/app/administration/index.html')) {
+            if (id === administrationIndexHtml) {
                 return;
             }
 
@@ -36,6 +60,10 @@ export default function twigPlugin(): Plugin {
                 .replace(/\$/g, '\\$') // Escape dollar signs
                 .replace(/\n/g, ' ') // Replace newlines with spaces
                 .replace(/\r/g, ' '); // Replace carriage returns with spaces
+
+            if (isServe) {
+                return { code: serveModule(fileContent), map: null };
+            }
 
             const code = `export default "${fileContent}"`;
 

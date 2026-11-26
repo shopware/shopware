@@ -223,7 +223,7 @@ class GoogleProductExportValidator extends AbstractProviderValidator
             }
 
             $price = trim((string) ($googleChildren->price ?? ''));
-            if ($price !== '' && preg_match('/^\d+(?:\.\d+)? [A-Z]{3}$/', $price) !== 1) {
+            if ($price !== '' && preg_match('/^\d+(?:\.\d+)? [A-Z]{3}$/D', $price) !== 1) {
                 $errors->add(new ProviderValidationError(
                     $productExportEntity->getId(),
                     $this->getProviderTechnicalName(),
@@ -234,7 +234,7 @@ class GoogleProductExportValidator extends AbstractProviderValidator
             }
 
             $salePrice = trim((string) ($googleChildren->sale_price ?? ''));
-            if ($salePrice !== '' && preg_match('/^\d+(?:\.\d+)? [A-Z]{3}$/', $salePrice) !== 1) {
+            if ($salePrice !== '' && preg_match('/^\d+(?:\.\d+)? [A-Z]{3}$/D', $salePrice) !== 1) {
                 $errors->add(new ProviderValidationError(
                     $productExportEntity->getId(),
                     $this->getProviderTechnicalName(),

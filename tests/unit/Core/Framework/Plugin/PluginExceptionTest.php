@@ -337,4 +337,13 @@ class PluginExceptionTest extends TestCase
         static::assertSame('Invalid input provided during plugin creation. Error: invalid name', $exception->getMessage());
         static::assertSame(['reason' => 'invalid name'], $exception->getParameters());
     }
+
+    public function testConsoleOutputRequired(): void
+    {
+        $exception = PluginException::consoleOutputRequired();
+
+        static::assertSame(PluginException::PLUGIN_CONSOLE_OUTPUT_REQUIRED, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame('This command accepts only an instance of "ConsoleOutputInterface".', $exception->getMessage());
+    }
 }

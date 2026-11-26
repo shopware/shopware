@@ -7,18 +7,17 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Instrumentation\ElapsedTimer;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Instrumentation\DurationMetric;
+use Shopware\Core\Framework\Telemetry\Instrumentation\OperationResult;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 
 /**
  * Telemetry collaborator for {@see \Shopware\Core\Framework\Api\Sync\SyncService}: derives the Sync API
  * metrics (operations per request, request duration, affected entities) from a single `sync()` call.
+ * Failed requests are timed too, kept out of the healthy distribution by the `result` label.
  *
- * Times manually on rather than via `Telemetry::instrument()`, as `result` label that is only known once
- * `sync()` returns or throws. Failed requests are timed separately to keep distributions separate.
- *
- * Merely-hot path: relies on `Meter::emit`'s early-return when telemetry is disabled.
+ * Merely-hot path: relies on the Meter's early-return when telemetry is disabled.
  *
  * @internal
  *
@@ -32,16 +31,13 @@ class SyncMetricsInstrumentor
     public const ACTION_UPSERT = 'upsert';
     public const ACTION_DELETE = 'delete';
 
-    private const RESULT_SUCCESS = 'success';
-    private const RESULT_FAILED = 'failed';
-
     /**
      * Label value for requests without an explicit indexing behavior (synchronous indexing).
      */
     private const INDEXING_BEHAVIOR_DEFAULT = 'default';
 
     public function __construct(
-        private readonly Meter $meter,
+        private readonly Telemetry $telemetry,
         private readonly EntityGroupResolver $entityGroupResolver,
     ) {
     }
@@ -52,30 +48,18 @@ class SyncMetricsInstrumentor
      */
     public function measure(array $operations, SyncBehavior $behavior, \Closure $callback): SyncResult
     {
-        $this->meter->emit(new ConfiguredMetric(
+        $this->telemetry->emit(new ConfiguredMetric(
             name: 'api.sync.operations.count',
             value: \count($operations),
         ));
 
-        $result = self::RESULT_SUCCESS;
-        $timer = ElapsedTimer::start();
-
-        try {
-            $syncResult = $callback();
-        } catch (\Throwable $e) {
-            $result = self::RESULT_FAILED;
-
-            throw $e;
-        } finally {
-            $this->meter->emit(new ConfiguredMetric(
-                name: 'api.sync.duration',
-                value: $timer->getElapsedMs(),
-                labels: [
-                    'indexing_behavior' => $behavior->getIndexingBehavior() ?? self::INDEXING_BEHAVIOR_DEFAULT,
-                    'result' => $result,
-                ],
-            ));
-        }
+        $syncResult = $this->telemetry->instrument($callback, new DurationMetric(
+            name: 'api.sync.duration',
+            labels: static fn (?SyncResult $result, ?\Throwable $e): array => [
+                'indexing_behavior' => $behavior->getIndexingBehavior() ?? self::INDEXING_BEHAVIOR_DEFAULT,
+                'result' => OperationResult::fromOutcome($e),
+            ],
+        ));
 
         $this->emitAffectedEntities($syncResult->getData(), self::ACTION_UPSERT);
         $this->emitAffectedEntities($syncResult->getDeleted(), self::ACTION_DELETE);
@@ -98,7 +82,7 @@ class SyncMetricsInstrumentor
         }
 
         foreach ($countByGroup as $group => $count) {
-            $this->meter->emit(new ConfiguredMetric(
+            $this->telemetry->emit(new ConfiguredMetric(
                 name: 'api.sync.entities.affected',
                 value: $count,
                 labels: ['entity_group' => $group, 'action' => $action],

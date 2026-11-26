@@ -7,6 +7,7 @@ import './product-export-templates';
 import './agentic-product-export-templates';
 import './service/domain-link.service';
 import './service/sales-channel-file.api.service';
+import './service/sales-channel-product-assignment.api.service';
 import './service/sales-channel-favorites.service';
 import './component/structure/sw-admin-menu-extension';
 import './acl';

@@ -20,6 +20,9 @@ class MissingUnitTests
         'RuleTestCase',
         'TestCase',
         'MiddlewareTestCase',
+        'AbstractProviderTestCase',
+        'ImportStrategyTestCase',
+        'ConstraintValidatorTestCase',
     ];
 
     private const IGNORE_SUFFIXES = [

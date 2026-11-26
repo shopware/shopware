@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -47,8 +48,9 @@ class JsonFieldTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_nullable`');
+
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS `_test_nullable`;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` longtext CHARACTER SET utf8mb4,
@@ -437,6 +439,18 @@ EOF;
                 static::assertStringContainsString('Named parameter ', $e->getMessage());
             }
         }
+    }
+
+    public function testJsonPathWithCommentMarkerIsRejected(): void
+    {
+        $repo = $this->getRepository();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('data.a*/b', 'bar'));
+
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('.a*/b'));
+
+        $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, Context::createDefaultContext());
     }
 
     public function testNestedJsonFilter(): void

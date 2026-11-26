@@ -25,6 +25,10 @@ WEBHOOKS_REWORK:
   - "src/Core/Framework/Webhook/Outbox/**"
   - "src/Core/Framework/Webhook/Transport/**"
 
+ADMIN_VITE_8:
+  - "src/Administration/Resources/app/administration/build/vite-8/**"
+  - "src/Administration/Resources/app/administration/build/vite-plugins/vite-toolchain/**"
+
 BREADCRUMB_REWORK: []
 FLOW_EXECUTION_AFTER_BUSINESS_PROCESS: []
 JSON_LD_DATA: []

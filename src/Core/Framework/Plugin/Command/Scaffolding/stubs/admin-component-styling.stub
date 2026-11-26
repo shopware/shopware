@@ -1,0 +1,6 @@
+.swag-example-list {
+    &__text {
+        // docs on design tokens: https://meteor.shopware.com/documentation/design/tokens
+        color: var(--color-icon-attention-default);
+    }
+}

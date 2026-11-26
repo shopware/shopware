@@ -92,6 +92,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 return true;
             }
 
+            const ssoPreviousRoute = consumeSsoPreviousRoute(loggedIn);
+            if (ssoPreviousRoute && ssoPreviousRoute !== to.fullPath) {
+                return ssoPreviousRoute;
+            }
+
             // The login route will be called and the user is not logged in, let him see the login.
             if (
                 !loggedIn &&
@@ -148,6 +153,32 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         });
 
         return router;
+    }
+
+    /**
+     * The SSO login always returns to the plain Administration URL. Returns the route which was
+     * requested before the SSO forwarding, so the user continues there instead of the dashboard.
+     *
+     * @param {boolean} loggedIn
+     * @returns {string|null}
+     */
+    function consumeSsoPreviousRoute(loggedIn) {
+        if (!loggedIn || !sessionStorage.getItem('sw-sso-restore-previous-route')) {
+            return null;
+        }
+
+        sessionStorage.removeItem('sw-sso-restore-previous-route');
+
+        let previousRoute = null;
+        try {
+            previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
+        } catch {
+            return null;
+        } finally {
+            sessionStorage.removeItem('sw-admin-previous-route');
+        }
+
+        return typeof previousRoute?.fullPath === 'string' ? previousRoute.fullPath : null;
     }
 
     function addModuleInfoToTarget(to) {
@@ -249,7 +280,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         core.map((route) => {
             if (route.root === true) {
-                route.children = moduleNormalRoutes;
+                // Keep children defined on the root route itself, e.g. the catch-all route for unknown URLs.
+                // The login-only boot has no module routes, so the catch-all would match every Administration URL there.
+                route.children = LoginService.isLoggedIn()
+                    ? [...moduleNormalRoutes, ...(route.children ?? [])]
+                    : moduleNormalRoutes;
             }
 
             return route;
@@ -321,6 +356,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         if (typeof route.component === 'string') {
             route.component = getViewComponent(route.component);
+            route = iterateChildRoutes(route);
         }
 
         return route;

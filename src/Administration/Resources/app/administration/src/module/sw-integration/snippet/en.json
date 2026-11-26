@@ -21,7 +21,7 @@
     "mcp": {
       "cardTitle": "MCP Allowlist",
       "modalTitle": "MCP Allowlist",
-      "infoText": "Select which MCP capabilities this integration may use. Anything that is not selected is blocked. Note: tools also require the matching entity permissions from the assigned role.",
+      "infoText": "Select which MCP capabilities may be used. Anything that is not selected is blocked. \"All\" selects the capabilities available now. Capabilities added later by an update, a plugin or an app have to be selected separately. Note: tools also require the matching entity permissions from the assigned role.",
       "adminBanner": "This user is an administrator. All MCP capabilities are accessible regardless of the selection below.",
       "noSelectionBanner": "No capabilities are selected, so nothing is reachable over MCP right now. Select the tools, resources and prompts that are needed.",
       "allCapabilitiesLabel": "All capabilities",
@@ -29,7 +29,7 @@
       "toolsSection": "Tools",
       "resourcesSection": "Resources",
       "promptsSection": "Prompts",
-      "toolsGuidance": "Tools execute actions and may have side effects (writes, deletes). Restrict to exactly what this integration needs.",
+      "toolsGuidance": "Tools execute actions and may have side effects (writes, deletes). Restrict to exactly what is needed.",
       "resourcesGuidance": "Resources provide read-only reference data (entity lists, state machines, sales channels). Limit these to avoid exposing business configuration a merchant assistant doesn't need.",
       "promptsGuidance": "Prompts are system instructions that set the AI's context. Exposing unrelated prompts wastes context window and may confuse the AI.",
       "noCapabilitiesHeadline": "No capabilities found",

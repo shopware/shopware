@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Plugin\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed. Use \Shopware\Core\Framework\Plugin\PluginException::kernelPluginLoaderError instead
- *
- * @codeCoverageIgnore
+ * @deprecated tag:v6.8.0 - Will be removed. Use \Shopware\Core\Framework\Plugin\PluginException::kernelPluginLoaderError instead
  */
 #[Package('framework')]
 class KernelPluginLoaderException extends ShopwareHttpException
@@ -17,6 +16,8 @@ class KernelPluginLoaderException extends ShopwareHttpException
         string $plugin,
         string $reason
     ) {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         parent::__construct(
             'Failed to load plugin "{{ plugin }}". Reason: {{ reason }}',
             ['plugin' => $plugin, 'reason' => $reason]

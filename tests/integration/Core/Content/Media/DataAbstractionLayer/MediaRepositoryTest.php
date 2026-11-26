@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -21,9 +22,13 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,6 +40,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -73,6 +79,66 @@ class MediaRepositoryTest extends TestCase
         $this->documentRepository = static::getContainer()->get('document.repository');
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
+    }
+
+    public function testDeletingAProductWithACoverReportsTheProductAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository->create([
+            (new ProductBuilder($ids, 'cover-product'))->price(100)->cover('cover-media')->build(),
+        ], $this->context);
+
+        $event = $productRepository->delete([['id' => $ids->get('cover-product')]], $this->context);
+
+        static::assertSame([$ids->get('cover-product')], $event->getDeletedPrimaryKeys('product'));
+        static::assertSame([], $this->getProductUpdates($event));
+        static::assertNull($productRepository->search(new Criteria([$ids->get('cover-product')]), $this->context)->getEntities()->first());
+    }
+
+    #[DataProvider('mediaVisibility')]
+    public function testPrivateFlagCanBeSetOnCreationAndResent(bool $private): void
+    {
+        $id = Uuid::randomHex();
+        $this->mediaRepository->create([['id' => $id, 'private' => $private]], $this->context);
+        $this->mediaRepository->update([['id' => $id, 'private' => $private, 'fileName' => 'updated']], $this->context);
+
+        $media = $this->mediaRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
+        static::assertNotNull($media);
+        static::assertSame($private, $media->isPrivate());
+        static::assertSame('updated', $media->getFileName());
+    }
+
+    #[DataProvider('mediaVisibility')]
+    public function testPrivateFlagCannotBeChanged(bool $private): void
+    {
+        $id = Uuid::randomHex();
+        $this->mediaRepository->create([['id' => $id, 'private' => $private]], $this->context);
+
+        try {
+            $this->mediaRepository->update([['id' => $id, 'private' => !$private]], $this->context);
+            static::fail('Changing media visibility must be rejected.');
+        } catch (WriteException $exception) {
+            static::assertCount(1, $exception->getExceptions());
+            $violation = $exception->getExceptions()[0];
+            static::assertInstanceOf(WriteConstraintViolationException::class, $violation);
+            static::assertSame('The field "private" of "media" is immutable and cannot be updated.', $violation->getViolations()->get(0)->getMessage());
+        }
+
+        $media = $this->mediaRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
+        static::assertNotNull($media);
+        static::assertSame($private, $media->isPrivate());
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function mediaVisibility(): iterable
+    {
+        yield 'public media' => [false];
+        yield 'private media' => [true];
     }
 
     public function testPrivateMediaNotReadable(): void
@@ -777,6 +843,22 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->first();
         static::assertNotNull($media);
         static::assertSame(str_repeat('a', 255), $media->getAlt());
+    }
+
+    /**
+     * @return list<EntityWriteResult>
+     */
+    private function getProductUpdates(EntityWrittenContainerEvent $event): array
+    {
+        $productEvent = $event->getEventByEntityName('product');
+        if ($productEvent === null) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $productEvent->getWriteResults(),
+            static fn (EntityWriteResult $result): bool => $result->getOperation() !== EntityWriteResult::OPERATION_DELETE,
+        ));
     }
 
     /**

@@ -3,10 +3,12 @@
 /**
  * @sw-package after-sales
  */
-import { mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
+import DocumentApiService from 'src/core/service/api/document.api.service';
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -164,6 +166,19 @@ let getDocumentV2Mock;
 let getDocumentLegacyMock;
 let getDocumentArchiveV2Mock;
 let getDocumentPreviewV2Mock;
+let documentService;
+
+/**
+ * The real legacy document service, so the card's own `setListener()` call runs its deprecation guard, with the
+ * requests it would send replaced by mocks.
+ */
+function createDocumentService() {
+    documentService = new DocumentApiService({}, { getToken: () => 'token' });
+    documentService.getDocument = (...args) => getDocumentLegacyMock(...args);
+    documentService.createDocument = (...args) => createDocumentMock(...args);
+
+    return documentService;
+}
 
 async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details', additionalStubs = {}) {
     documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
@@ -231,11 +246,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                 ...additionalStubs,
             },
             provide: {
-                documentService: {
-                    setListener: () => ({}),
-                    getDocument: (...args) => getDocumentLegacyMock(...args),
-                    createDocument: (...args) => createDocumentMock(...args),
-                },
+                documentService: createDocumentService(),
                 documentV2ApiService: {
                     setListener: () => ({}),
                     getDocument: (...args) => getDocumentV2Mock(...args),
@@ -334,6 +345,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         setActivePinia(createPinia());
     });
 
+    beforeEach(() => {
+        allowDeprecation('sw-order-document-card.convertStoreEventToVueEvent() is deprecated');
+        allowDeprecation('sw-order-document-card.createDocument() is deprecated');
+        allowDeprecation('sw-order-document-card.openDocument() is deprecated');
+    });
+
     afterEach(() => {
         global.activeAclRoles = [];
     });
@@ -354,28 +371,38 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(createNewButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should show the error of document number already exists', async () => {
-        wrapper = await createWrapper();
-        wrapper.vm.createNotificationError = jest.fn();
+    it.each([
+        {
+            parameters: { number: '1001', documentType: 'invoice' },
+            expected:
+                'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS {"number":"1001","documentType":"invoice--type-snippet"}',
+        },
+        {
+            parameters: [],
+            expected: 'server message',
+        },
+    ])('should show the document number already exists error for $parameters', async ({ parameters, expected }) => {
+        const translate = jest
+            .spyOn(config.global.mocks, '$t')
+            .mockImplementation((key, values) => (values ? `${key} ${JSON.stringify(values)}` : key));
 
-        await wrapper.vm.convertStoreEventToVueEvent({
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+
+        wrapper = await createWrapper();
+
+        documentService.$listener({
             action: 'create-document-fail',
             payload: {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
-                detail: 'error message',
-                meta: {
-                    parameters: [],
-                },
+                detail: 'server message',
+                meta: { parameters },
             },
         });
 
-        await flushPromises();
+        expect(notificationSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: 'error', message: expected }));
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
-        });
-
-        wrapper.vm.createNotificationError.mockRestore();
+        translate.mockRestore();
+        notificationSpy.mockRestore();
     });
 
     it('should save document when the event return finished', async () => {
@@ -1364,6 +1391,66 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 },
             },
         ]);
+    });
+
+    it('should load the documents of the new order when the order changes', async () => {
+        wrapper = await createWrapper();
+
+        const otherOrderDocument = { ...documentFixture, id: 'other-order-document', orderId: 'other-order' };
+        documentSearchMock.mockClear();
+        documentSearchMock.mockResolvedValue(getCollection('document', [otherOrderDocument]));
+
+        await wrapper.setProps({
+            order: { ...orderFixture, id: 'other-order' },
+        });
+        await flushPromises();
+
+        expect(documentSearchMock).toHaveBeenCalledTimes(1);
+        expect(documentSearchMock.mock.calls[0][0].filters).toEqual([
+            { type: 'equals', field: 'order.id', value: 'other-order' },
+        ]);
+        expect(wrapper.vm.documents).toHaveLength(1);
+        expect(wrapper.vm.documents.first().id).toBe('other-order-document');
+    });
+
+    it('should ignore documents of the previous order that arrive after the order changed', async () => {
+        wrapper = await createWrapper();
+
+        const previousOrderDocument = { ...documentFixture, id: 'previous-order-document' };
+        const otherOrderDocument = { ...documentFixture, id: 'other-order-document', orderId: 'other-order' };
+        let resolvePreviousOrderSearch;
+        documentSearchMock.mockReset();
+        documentSearchMock
+            .mockReturnValueOnce(
+                new Promise((resolve) => {
+                    resolvePreviousOrderSearch = resolve;
+                }),
+            )
+            .mockResolvedValueOnce(getCollection('document', [otherOrderDocument]));
+
+        wrapper.vm.getList();
+        await wrapper.setProps({
+            order: { ...orderFixture, id: 'other-order' },
+        });
+        await flushPromises();
+
+        resolvePreviousOrderSearch(getCollection('document', [previousOrderDocument]));
+        await flushPromises();
+
+        expect(wrapper.vm.documents).toHaveLength(1);
+        expect(wrapper.vm.documents.first().id).toBe('other-order-document');
+    });
+
+    it('should not reload the documents when the order is updated without changing its id', async () => {
+        wrapper = await createWrapper();
+        documentSearchMock.mockClear();
+
+        await wrapper.setProps({
+            order: { ...orderFixture, orderNumber: '10001' },
+        });
+        await flushPromises();
+
+        expect(documentSearchMock).not.toHaveBeenCalled();
     });
 
     it('should label a document with the translated document type when the current language has no name', async () => {

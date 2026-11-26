@@ -62,7 +62,7 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
 
         await wrapper.find('.sw-extension-privacy-policy-extensions-modal__close-button').trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted()).toHaveProperty('modal-close');
     });

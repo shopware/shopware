@@ -1,8 +1,7 @@
 {% block page_checkout_finish_address_inner %}
     {% set order = page.order %}
     {% set billingAddress = order.billingAddress %}
-    {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
-    {% set deliveries = order.deliveries.elements %}
+    {% set hasDelivery = order.primaryOrderDelivery %}
 
     {% if feature('v6.8.0.0') %}
         {% if order.billingAddress.id != order.primaryOrderDelivery.shippingOrderAddressId %}
@@ -11,6 +10,11 @@
             {% set shippingAddress = billingAddress %}
         {% endif %}
     {% else %}
+        {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
+        {% set deliveries = order.deliveries.elements %}
+        {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+        {% set hasDelivery = deliveries|length > 0 or hasDelivery %}
+
         {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
             {% set shippingAddress = deliveries|first.shippingOrderAddress %}
         {% else %}
@@ -18,10 +22,11 @@
         {% endif %}
     {% endif %}
 
+    {% set shipments = order.deliveries.shipments(order.primaryOrderDeliveryId) %}
+
     <div class="row">
         {% block page_checkout_finish_address_shipping %}
-            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
-            {% if deliveries|length > 0 or order.primaryOrderDelivery %}
+            {% if hasDelivery %}
                 <div class="col-sm-6">
                     <div class="card checkout-card">
                         <div class="card-body">
@@ -33,7 +38,19 @@
 
                             {% block page_checkout_finish_address_shipping_data %}
                                 <div class="finish-address-shipping">
-                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: shippingAddress} %}
+                                    {% if shipments|length > 1 %}
+                                        {% block page_checkout_finish_address_shipping_shipments %}
+                                            {% for shipment in shipments %}
+                                                {% sw_include '@Storefront/storefront/component/checkout/shipment.html.twig' with {
+                                                    shipment: shipment,
+                                                    shipmentNumber: loop.index,
+                                                    currencyIsoCode: order.currency.isoCode ?? null,
+                                                } %}
+                                            {% endfor %}
+                                        {% endblock %}
+                                    {% else %}
+                                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: shippingAddress} %}
+                                    {% endif %}
                                 </div>
                             {% endblock %}
                         </div>

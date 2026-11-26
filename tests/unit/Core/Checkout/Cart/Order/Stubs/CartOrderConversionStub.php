@@ -217,6 +217,7 @@ final class CartOrderConversionStub
                         'regulationPrice' => null,
                         'extensions' => [],
                     ],
+                    'payload' => [],
                     'extensions' => [
                         'originalId' => [
                             'id' => 'order-delivery-id',
@@ -230,10 +231,81 @@ final class CartOrderConversionStub
                             'id' => 'order-address-version-id',
                             'extensions' => [],
                         ],
+                        'originalPosition' => [
+                            'position' => 0,
+                            'extensions' => [],
+                        ],
                     ],
                 ],
             ],
-            'transactions' => [],
+            'transactions' => [
+                [
+                    'amount' => [
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                        'extensions' => [],
+                    ],
+                    'paymentMethodId' => 'order-transaction-cancelled-payment-method-id',
+                    'validationStruct' => null,
+                    'payload' => [],
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-cancelled-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                ],
+                [
+                    'amount' => [
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                        'extensions' => [],
+                    ],
+                    'paymentMethodId' => 'order-transaction-payment-method-id',
+                    'validationStruct' => null,
+                    'payload' => [],
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                ],
+                [
+                    'amount' => [
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                        'extensions' => [],
+                    ],
+                    'paymentMethodId' => 'order-transaction-failed-payment-method-id',
+                    'validationStruct' => null,
+                    'payload' => [],
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-failed-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                ],
+            ],
             'modified' => false,
             'customerComment' => null,
             'affiliateCode' => null,
@@ -342,6 +414,7 @@ final class CartOrderConversionStub
                         'unitPrice' => 1,
                     ],
                     'shippingMethodId' => 'shipping-method-id',
+                    'payload' => [],
                     'shippingOrderAddress' => [
                         'city' => 'billing-address-city',
                         'countryId' => 'billing-address-country-id',
@@ -352,6 +425,7 @@ final class CartOrderConversionStub
                         'zipcode' => 'billing-address-zipcode',
                     ],
                     'stateId' => '',
+                    'position' => 1,
                 ]],
                 'customerComment' => null,
                 'affiliateCode' => null,
@@ -495,6 +569,7 @@ final class CartOrderConversionStub
                     'unitPrice' => 1,
                 ],
                 'shippingMethodId' => 'shipping-method-id',
+                'payload' => [],
                 'shippingOrderAddress' => [
                     'city' => 'billing-address-city',
                     'countryId' => 'billing-address-country-id',
@@ -505,6 +580,7 @@ final class CartOrderConversionStub
                     'zipcode' => 'billing-address-zipcode',
                 ],
                 'stateId' => '',
+                'position' => 1,
             ]],
             'customerComment' => null,
             'affiliateCode' => null,

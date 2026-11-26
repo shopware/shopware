@@ -180,7 +180,7 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         await wrapper.find('.sw-settings-option-detail__link').trigger('click');
 
         // waiting for modal to be loaded
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const modal = wrapper.find('.sw-modal');
 
@@ -192,7 +192,7 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         await findByText(modal, 'button', 'global.default.apply').trigger('click');
 
         // waiting for the modal to disappear
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.optionRepository.save).toHaveBeenCalledWith(
             expect.objectContaining({

@@ -334,6 +334,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
                 'productId' => $productId,
                 'title' => 'Test',
                 'content' => 'test',
+                'externalUser' => 'Test',
                 'points' => min(5, $i + $i / 5),
                 'status' => true,
             ];

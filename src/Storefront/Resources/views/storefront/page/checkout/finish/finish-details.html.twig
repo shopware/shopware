@@ -47,8 +47,14 @@
 
                 {% block page_checkout_finish_subtitle %}
                     {% if page.changedPayment == true %}
+                        {% if feature('v6.8.0.0') %}
+                            {% set paymentName = page.order.primaryOrderTransaction.paymentMethod.translated.name %}
+                        {% else %}
+                            {# @deprecated tag:v6.8.0 - Use `order.primaryOrderTransaction` instead of the last transaction. #}
+                            {% set paymentName = page.order.transactions.last.paymentMethod.translated.name %}
+                        {% endif %}
                         <p class="finish-order-subtitle">
-                            {{ 'checkout.finishPaymentHeader'|trans({'%paymentName%': page.order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}
+                            {{ 'checkout.finishPaymentHeader'|trans({'%paymentName%': paymentName})|sw_sanitize }}
                         </p>
                     {% endif %}
                 {% endblock %}
@@ -108,7 +114,16 @@
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
-                                {% if feature('v6.8.0.0') %}
+                                {% set shipments = page.order.deliveries.shipments(page.order.primaryOrderDeliveryId) %}
+
+                                {% if shipments|length > 1 %}
+                                    {% block page_checkout_finish_order_dispatch_method_shipments %}
+                                        <p>
+                                            <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
+                                            {{ shipments.shippingMethods|map(shippingMethod => shippingMethod.translated.name)|join(', ') }}
+                                        </p>
+                                    {% endblock %}
+                                {% elseif feature('v6.8.0.0') %}
                                     {% if page.order.primaryOrderDelivery is defined %}
                                         <p>
                                             <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>

@@ -11,6 +11,12 @@ component sw-cms-el-config-manufacturer-logo  private  js  [private]
   source src/module/sw-cms/elements/manufacturer-logo/config/index.js  [private]
   visibility-source export  [private]
 
+computed
+  isProductPage: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_element_image_config  [inherited] [private]
     sw_cms_element_image_config_display_mode  [inherited] [private]

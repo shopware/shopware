@@ -10,6 +10,39 @@ component sw-order-create-general  public  ts
   source src/module/sw-order/view/sw-order-create-general/index.ts
   template src/module/sw-order/view/sw-order-create-general/sw-order-create-general.html.twig
 
+mixins
+  notification, cart-notification
+
+emits
+  error(...args: any[])
+
+data
+  isLoading: any
+
+computed
+  cart: Cart
+  cartDelivery: CartDelivery
+  cartDeliveryDiscounts: CartDelivery[]
+  context: SalesChannelContext
+  currency: Entity<'currency'>
+  currencyFilter: any
+  customer: Entity<'customer'> | null
+  displayRounded: boolean
+  filteredCalculatedTaxes: CalculatedTax[]
+  isCustomerActive: boolean
+  orderTotal: number
+  shippingCostsDetail: string | null
+  taxStatus: string
+
+methods
+  createdComponent(): void
+  loadCart(): Promise<void>
+  onRemoveItems(lineItemKeys: string[]): Promise<void>
+  onSaveItem(item: LineItem): Promise<void>
+  onShippingChargeEdited(): void
+  onShippingChargeUpdated(amount: number): void
+  sortByTaxRate(price: Array<CalculatedTax>): Array<CalculatedTax>
+
 blocks
   sw_order_create_general
 ```

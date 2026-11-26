@@ -75,6 +75,9 @@ return [
         // CartLoadRoute is not an extension point, its getDecorated() throws a DecorationPatternException.
         preg_quote('ADDED: Parameter cart was added to Method load() of class Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute', '/'),
 
+        // Optional parameter added with default null; existing callers and subclass constructors are unaffected
+        preg_quote('ADDED: Parameter text was added to Method __construct() of class Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel\LegalGuaranteeNoticeRouteResponse', '/'),
+
         // Promoted properties expose their default on the constructor parameter rather than
         // ReflectionProperty. CustomerZipCode still initializes this property to true.
         preg_quote('CHANGED: Property Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode#$caseSensitiveCheck changed default value from true to NULL', '/'),

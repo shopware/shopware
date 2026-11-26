@@ -10,6 +10,34 @@ component sw-bulk-edit-product-media  public  js
   source src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/index.js
   template src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/sw-bulk-edit-product-media.html.twig
 
+mixins
+  notification
+
+inject
+  mediaDefaultFolderService
+  repositoryFactory
+
+props
+  disabled?: boolean  default=false
+
+data
+  mediaDefaultFolderId: any
+  showMediaModal: any
+
+computed
+  mediaDefaultFolderCriteria: any  [deprecated tag:v6.8.0]
+  mediaDefaultFolderRepository: any  [deprecated tag:v6.8.0]
+  product: any
+  productMediaRepository: any
+
+methods
+  addMedia(media: any): Promise<any>
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  isExistingMedia(media: any): any
+  loadMediaDefaultFolder(): any
+  onAddMedia(media: any): any
+
 blocks
   sw_bulk_edit_product_media
     sw_bulk_edit_product_media_form

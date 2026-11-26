@@ -11,6 +11,28 @@ component sw-media-add-thumbnail-form  private  js  [private]
   template src/app/component/media/sw-media-add-thumbnail-form/sw-media-add-thumbnail-form.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+
+emits
+  on-input(...args: any[])  [private]
+  thumbnail-form-size-add(...args: any[])  [private]
+
+data
+  height: any  [private]
+  isLocked: any  [private]
+  width: any  [private]
+
+computed
+  lockedButtonClass: any  [private]
+
+methods
+  heightInputChanged(value: any): any  [private]
+  inputChanged(): any  [private]
+  onAdd(): any  [private]
+  onLockSwitch(): any  [private]
+  widthInputChanged(value: any): any  [private]
+
 blocks
   sw_media_add_thumbnail_form  [private]
     sw_media_add_thumbnail_add_button  [private]

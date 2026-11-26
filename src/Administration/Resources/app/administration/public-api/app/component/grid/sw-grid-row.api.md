@@ -11,9 +11,45 @@ component sw-grid-row  private  js  [private]
   template src/app/component/grid/sw-grid-row/sw-grid-row.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  swGridColumns  [private]
+  swGridInlineEditCancel  [private]
+  swGridInlineEditStart  [private]
+  swGridSetColumns  [private]
+  swOnInlineEditStart  [private]
+  swRegisterGridDisableInlineEditListener  [private]
+  swUnregisterGridDisableInlineEditListener  [private]
+
+props
+  allowInlineEdit?: boolean  default=true  [private]
+  index?: number  default=null  [private]
+  item: object  [private]
+
+emits
+  inline-edit-finish(...args: any[])  [private]
+
+slots
+  actions  {}  block=sw_grid_row_actions  [private]
+  default  {}  block=sw_grid_row  [private]
+
+data
+  id: any  [private]
+  inlineEditingCls: any  [private]
+  isEditingActive: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onInlineEditCancel(id: any, index: any): any  [private]
+  onInlineEditFinish(): any  [private]
+  onInlineEditStart(): any  [private]
+  startInlineEditing(): any  [private]
+
 blocks
   sw_grid_row  [private]
     sw_grid_row_actions  [private]
       sw_grid_row_slot_actions  [private]
     sw_grid_row_slot_default  [private]
+
+refs
+  swGridRow  -> div  block=sw_grid_row  [private]
 ```

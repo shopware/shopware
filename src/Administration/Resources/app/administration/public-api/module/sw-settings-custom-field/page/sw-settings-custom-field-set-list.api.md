@@ -10,6 +10,29 @@ component sw-settings-custom-field-set-list  public  js
   source src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list/index.js
   template src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list/sw-settings-custom-field-set-list.html.twig
 
+mixins
+  sw-inline-snippet, sw-settings-list
+
+inject
+  acl
+  feature
+
+data
+  datetime: any
+  entityName: any
+  showModal: any
+  sortBy: any
+
+computed
+  listingCriteria: any
+  messageSaveSuccess: any
+  titleSaveSuccess: any
+
+methods
+  getLocaleCriterias(term: any): any
+  getTermCriteria(term: any): any
+  onConfirmDelete(id: any): Promise<any>
+
 blocks
   sw_settings_custom_field_set_list
     sw_settings_custom_field_set_list_actions

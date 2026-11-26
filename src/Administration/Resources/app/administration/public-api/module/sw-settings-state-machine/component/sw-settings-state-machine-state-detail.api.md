@@ -10,6 +10,30 @@ component sw-settings-state-machine-state-detail  public  js
   source src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-detail/index.js
   template src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-detail/sw-settings-state-machine-state-detail.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  currentStateMachineState: object
+
+emits
+  modal-close(...args: any[])
+
+data
+  stateMachineState: any
+
+computed
+  stateMachineStateNameError: any
+  stateMachineStateRepository: any
+
+methods
+  createdComponent(): any
+  onCancel(): any
+  onSave(): Promise<any>
+
 blocks
   sw_settings_state_machine_state_detail
     sw_settings_state_machine_state_detail_content

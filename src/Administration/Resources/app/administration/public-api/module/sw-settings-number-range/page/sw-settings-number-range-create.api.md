@@ -11,6 +11,24 @@ component sw-settings-number-range-create  public  js
   source src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js
   template src/module/sw-settings-number-range/page/sw-settings-number-range-create/sw-settings-number-range-create.html.twig
 
+data
+  hasProductNumberRange: any
+  isShowProductWarning: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  numberRangeTypeCriteria: any
+  productNumberRangeCriteria: any
+  showNumberRangeStateFields: any
+
+methods
+  checkPatternCollision(): Promise<any>
+  createdComponent(): Promise<any>
+  getProductNumberRanges(): Promise<any>
+  onChangeType(id: any, numberRange: any): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_number_range_detail  [inherited]
     sw_settings_number_range_detail_actions  [inherited]

@@ -45,6 +45,9 @@ The `published-revisions` route lists those revisions, most recently live first,
 
 Publishing writes the draft head into the `layout` column through the DAL, so the full write gate runs and `content_layout.written` invalidates caches as for any other layout write.
 Then it moves the live pointer and deletes the draft.
+The write boundary runs again on that write and depends on the registries at publish time, so the column can differ from the head, for example by a type default added since the draft was edited.
+In that case the column becomes a new revision on top of the head, attributed to the publisher, and the live pointer moves onto it.
+Otherwise the next write would adopt the column as an unattributed revision, and every other open draft would conflict with it.
 
 Writes that bypass publishing are detected, not prevented.
 Before every write, `LayoutRevisionService::reconcile()` compares the SHA2 checksum of the column with the live revision.
@@ -76,7 +79,8 @@ publish(draft, expectedHead):
                 and isAncestorOrSelf(live, draft.head)):  # and the draft contains it
                                                        -> 409 LAYOUT_PUBLISH_CONFLICT
     write draft head to content_layout.layout through the DAL
-    move live pointer to draft.head, record published_at and published_by_id once, last_live_at every time
+    published = draft.head, or a new revision on top of it if the column differs from the head
+    move live pointer to published, record published_at and published_by_id once, last_live_at every time
     delete draft
     compact()
 ```

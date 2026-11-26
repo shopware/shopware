@@ -17,6 +17,7 @@ class RoutingException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__MISSING_REQUEST_PARAMETER';
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     public const APP_INTEGRATION_NOT_FOUND = 'FRAMEWORK__APP_INTEGRATION_NOT_FOUND';
+    public const APP_USER_NOT_FOUND = 'FRAMEWORK__APP_USER_NOT_FOUND';
     public const LANGUAGE_NOT_FOUND = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
     /**
      * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
@@ -70,6 +71,16 @@ class RoutingException extends HttpException
             self::APP_INTEGRATION_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'app integration', 'field' => 'id', 'value' => $integrationId]
+        );
+    }
+
+    public static function appUserNotFound(string $userId): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::APP_USER_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'user', 'field' => 'id', 'value' => $userId]
         );
     }
 

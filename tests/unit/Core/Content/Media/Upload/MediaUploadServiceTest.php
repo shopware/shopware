@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -120,6 +121,8 @@ class MediaUploadServiceTest extends TestCase
         static::assertCount(1, $this->mediaRepository->creates);
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['id']));
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['private']));
+        static::assertArrayNotHasKey('title', $this->mediaRepository->creates[0][0]);
+        static::assertArrayNotHasKey('alt', $this->mediaRepository->creates[0][0]);
     }
 
     public function testUploadFromLocalPathFileNotFound(): void
@@ -249,6 +252,63 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame('test', $createdMedia['fileName']);
         static::assertSame('jpg', $createdMedia['fileExtension']);
         static::assertSame('image/jpeg', $createdMedia['mimeType']);
+        static::assertArrayNotHasKey('title', $createdMedia);
+        static::assertArrayNotHasKey('alt', $createdMedia);
+    }
+
+    public function testLinkURLWithTitleAndAlt(): void
+    {
+        $params = new MediaUploadParameters(
+            fileName: 'test.jpg',
+            mimeType: 'image/jpeg',
+            title: 'Shopware logo',
+            alt: 'Blue Shopware logo',
+        );
+
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024']]));
+
+        $this->buildService(httpClient: $httpClient)->linkURL('https://example.com/image.jpg', $this->context, $params);
+
+        static::assertCount(1, $this->mediaRepository->creates);
+
+        $createdMedia = $this->mediaRepository->creates[0][0];
+        static::assertSame('Shopware logo', $createdMedia['title']);
+        static::assertSame('Blue Shopware logo', $createdMedia['alt']);
+    }
+
+    public function testLinkURLRejectsGivenFileNameWithPathSegments(): void
+    {
+        $params = new MediaUploadParameters(fileName: '../../../evil.jpg', mimeType: 'image/jpeg');
+
+        $this->expectExceptionObject(MediaException::illegalFileName('../../../evil', 'Filename must not start with a "." (dot).'));
+
+        $this->buildService()->linkURL('https://example.com/image.jpg', $this->context, $params);
+    }
+
+    public function testLinkURLAcceptsFileNameDerivedFromUrlWithQueryString(): void
+    {
+        $url = 'https://example.com/image.jpg?width=200';
+        $params = new MediaUploadParameters(mimeType: 'image/jpeg');
+
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024']]));
+
+        $this->buildService(httpClient: $httpClient)->linkURL($url, $this->context, $params);
+
+        static::assertCount(1, $this->mediaRepository->creates);
+    }
+
+    #[DataProvider('urlsResolvingToLocalFilesAfterDecodingProvider')]
+    public function testLinkURLRejectsUrlResolvingToLocalFileAfterDecoding(string $url): void
+    {
+        $this->expectExceptionObject(MediaException::invalidUrl($url));
+
+        $this->buildService()->linkURL($url, $this->context, new MediaUploadParameters(mimeType: 'image/jpeg'));
+    }
+
+    public static function urlsResolvingToLocalFilesAfterDecodingProvider(): \Generator
+    {
+        yield 'percent encoded dot segments decode to a traversal' => ['https://example.com/%2e%2e/%2e%2e/document/invoice.pdf'];
+        yield 'percent encoded backslashes decode to separators of the derived file name' => ['https://example.com/a%5C..%5C..%5Cx.jpg'];
     }
 
     public function testLinkURLAppliesConfiguredMaximumDuration(): void
@@ -402,7 +462,9 @@ class MediaUploadServiceTest extends TestCase
             id: $customId,
             mediaFolderId: $mediaFolderId,
             private: true,
-            fileName: 'custom-name.jpg'
+            fileName: 'custom-name.jpg',
+            title: 'Shopware logo',
+            alt: 'Blue Shopware logo',
         );
 
         $fileSaver = $this->createMock(FileSaver::class);
@@ -431,6 +493,8 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame($customId, $createdMedia['id']);
         static::assertTrue($createdMedia['private']);
         static::assertSame($mediaFolderId, $createdMedia['mediaFolderId']);
+        static::assertSame('Shopware logo', $createdMedia['title']);
+        static::assertSame('Blue Shopware logo', $createdMedia['alt']);
     }
 
     public function testAddExternalThumbnailsToMedia(): void
@@ -462,6 +526,21 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame('https://localhost:8000/thumb-400.jpg', $createdThumbnails[1]['path']);
         static::assertSame(400, $createdThumbnails[1]['width']);
         static::assertSame(400, $createdThumbnails[1]['height']);
+    }
+
+    public function testAddExternalThumbnailsRejectsUrlResolvingToLocalFileAfterDecoding(): void
+    {
+        $url = 'https://localhost:8000/%2e%2e/%2e%2e/document/invoice.pdf';
+        $collection = new ExternalThumbnailCollection([new ExternalThumbnailData($url, 200, 200)]);
+
+        try {
+            $this->mediaUploadService->addExternalThumbnailsToMedia(Uuid::randomHex(), $collection, $this->context);
+            static::fail('Expected the thumbnail URL to be rejected');
+        } catch (MediaException $exception) {
+            static::assertEquals(MediaException::invalidUrl($url), $exception);
+        }
+
+        static::assertCount(0, $this->mediaThumbnailRepository->creates);
     }
 
     public function testDeleteAllExternalThumbnailsSkipsMediaWithZeroThumbnails(): void

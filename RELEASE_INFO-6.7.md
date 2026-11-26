@@ -67,6 +67,7 @@ Apps that need such a section should require that version in `<compatibility>`.
 ### Core popovers render with `mt-floating-ui` before 6.8
 
 `sw-context-button`, `sw-select-result-list` and `sw-multi-tag-select` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+`sw-category-tree-field` renders its dropdown with `mt-floating-ui` instead of `sw-popover-deprecated`.
 An open select dropdown now follows its field while the page scrolls, instead of staying where it was when it opened.
 
 The popovers are still teleported to `<body>`, but the markup around them changed.
@@ -82,6 +83,8 @@ Extensions have to be adjusted:
   Scope a rule with `.mt-floating-ui__content` to keep it on the popover.
 - The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
   The private `zIndex` prop of `sw-context-button` was removed.
+- `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
 
 ## Storefront
 

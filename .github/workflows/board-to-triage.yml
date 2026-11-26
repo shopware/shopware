@@ -1,0 +1,55 @@
+name: Board to triage
+
+# Moves new issues that GitHub's issue statuses filed into a team board's `Backlog` back into the
+# board's triage column. The rule and its reasoning live in .github/bin/js/board-to-triage.ts.
+#
+# Add a board to TRIAGE_BOARDS to cover it. Only columns named like an issue status are copied, so
+# a board needs this only when it has such a column.
+
+on:
+  schedule:
+    - cron: "17 * * * *" # hourly
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Only report, move nothing
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  sweep:
+    name: Move copied statuses to triage
+    # The boards are organization-wide; the mirror in shopware-private would sweep them twice.
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/bin/js
+      - id: sts
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          DRY_RUN: ${{ inputs.dry-run || false }}
+          PROJECT_TOKEN: ${{ steps.sts.outputs.token }}
+          TRIAGE_BOARDS: >-
+            [{ "number": 27, "triageStatus": "To Triage", "copiedStatuses": ["Backlog"] }]
+        with:
+          script: |
+            const { moveCopiedStatusesToTriage, parseBoards } = await import('${{ github.workspace }}/.github/bin/js/board-to-triage.ts')
+            await moveCopiedStatusesToTriage(
+              { github: getOctokit(process.env.PROJECT_TOKEN), core },
+              { org: context.repo.owner, boards: parseBoards(process.env.TRIAGE_BOARDS), dryRun: process.env.DRY_RUN === 'true', lookbackDays: 7 },
+            )

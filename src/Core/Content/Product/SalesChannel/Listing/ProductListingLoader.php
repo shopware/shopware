@@ -384,17 +384,12 @@ class ProductListingLoader
             $this->addGrouping($criteria);
         }
 
-        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
-
-        if ($displayAsGroup && $isSearchRoute && $this->systemConfigService->getBool(
-            'core.listing.findBestVariant',
-            $context->getSalesChannelId()
-        )) {
+        if ($displayAsGroup && $this->findsBestVariant($criteria, $context)) {
             $criteria->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('childCount', 0),
-                new EqualsFilter('childCount', null),
-            ]));
+            $this->addVariantFilter($criteria);
+        } elseif ($displayAsGroup && $this->ignoresMainVariantOnPriceSorting($criteria, $context)) {
+            $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+            $this->addVariantFilter($criteria);
         }
 
         if (!$criteria->hasState(self::STATE_INCLUDE_INACTIVE) && $this->systemConfigService->getBool(
@@ -438,12 +433,30 @@ class ProductListingLoader
 
     private function shouldLoadPreviews(Criteria $criteria, SalesChannelContext $context): bool
     {
-        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+        return !$this->findsBestVariant($criteria, $context) && !$this->ignoresMainVariantOnPriceSorting($criteria, $context);
+    }
 
-        return !$isSearchRoute || !$this->systemConfigService->getBool(
-            'core.listing.findBestVariant',
-            $context->getSalesChannelId()
-        );
+    private function findsBestVariant(Criteria $criteria, SalesChannelContext $context): bool
+    {
+        return $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE)
+            && $this->systemConfigService->getBool('core.listing.findBestVariant', $context->getSalesChannelId());
+    }
+
+    private function ignoresMainVariantOnPriceSorting(Criteria $criteria, SalesChannelContext $context): bool
+    {
+        $sorting = array_values($criteria->getSorting())[0] ?? null;
+
+        return $sorting !== null
+            && \in_array($sorting->getField(), ['cheapestPrice', 'product.cheapestPrice'], true)
+            && $this->systemConfigService->getBool('core.listing.ignoreMainVariantOnPriceSorting', $context->getSalesChannelId());
+    }
+
+    private function addVariantFilter(Criteria $criteria): void
+    {
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('childCount', 0),
+            new EqualsFilter('childCount', null),
+        ]));
     }
 
     /**

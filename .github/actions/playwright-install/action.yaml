@@ -20,4 +20,5 @@ runs:
       with:
         working-directory: ${{ inputs.working-directory }}
         # A stalled apt mirror hangs without failing, so the retry loop never fires; time each attempt out so it can retry (normal runtime is ~2 minutes).
-        command: timeout 10m bash -c 'sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium'
+        # The dry run fails only when system packages are missing, so runners that have them (our runner image) skip apt and its mirrors.
+        command: timeout 10m bash -c 'npx playwright install-deps --dry-run chromium > /dev/null || { sudo apt-get update --allow-releaseinfo-change && npx playwright install-deps chromium; } && npx playwright install chromium'

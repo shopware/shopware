@@ -650,6 +650,32 @@ class PropertyTypeTest extends TestCase
     }
 
     /**
+     * @param string|list<string> $declaredType
+     */
+    #[DataProvider('referenceFqcnProvider')]
+    #[TestDox('reads $_dataName as the reference $expected')]
+    public function testReferenceFqcnNamesOnlyALoneClassDeclaration(string|array $declaredType, ?string $expected): void
+    {
+        static::assertSame($expected, (new PropertyType($declaredType, false, null, null))->referenceFqcn());
+    }
+
+    /**
+     * @return iterable<string, array{string|list<string>, ?string}>
+     */
+    public static function referenceFqcnProvider(): iterable
+    {
+        yield 'a primitive' => ['string', null];
+
+        yield 'a bare object' => ['object', null];
+
+        yield 'an array' => ['array', null];
+
+        yield 'a union carrying an FQCN' => [['string', MediaEntity::class], null];
+
+        yield 'an FQCN' => [MediaEntity::class, MediaEntity::class];
+    }
+
+    /**
      * @param string|list<string> $type
      * @param list<string> $expected
      */

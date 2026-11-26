@@ -286,6 +286,7 @@ class DefaultBindingSpecificationSynthesizerTest extends TestCase
         yield 'number' => ['number'];
         yield 'boolean' => ['boolean'];
         yield 'object' => ['object'];
+        yield 'array' => ['array'];
     }
 
     /**

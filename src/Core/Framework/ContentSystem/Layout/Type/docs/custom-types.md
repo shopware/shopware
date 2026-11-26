@@ -85,6 +85,7 @@ Presets declare their own top-level `category` and `priority` fields; see [Layou
 The `enum` values are hints for clients; stored values are not checked against them. The loader validates the enum declaration itself.
 An `object` declaration describes named members through `properties`. An `array` declaration describes its entries through `items`, which may itself describe an object or another array.
 These nested declarations are exposed through introspection. They do not recursively validate stored property values; components that require stricter rules must validate them separately.
+Only a lone FQCN declares a reference that a loader or a context delivery fills; primitives, `object`, `array` and unions are authored and render their stored value.
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key. A misused `resolvedBy`, for example on a primitive property, therefore fails app install and `manifest:validate` outright.
 

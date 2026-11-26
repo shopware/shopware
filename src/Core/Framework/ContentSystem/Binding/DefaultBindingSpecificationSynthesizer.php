@@ -65,7 +65,7 @@ final class DefaultBindingSpecificationSynthesizer
                 );
             }
 
-            if ($this->isNonReferenceType($rawType)) {
+            if (!PropertyType::namesReference($rawType)) {
                 throw ContentSystemException::bindingSpecificationLoadFailed(
                     $path,
                     \sprintf('property "%s" declares "resolvedBy" but its type "%s" is not a reference (FQCN) property; resolvedBy is only valid on a reference property', $key, $rawType),
@@ -95,16 +95,6 @@ final class DefaultBindingSpecificationSynthesizer
             'label' => $this->label($data, $type),
             'resolves' => $resolves,
         ];
-    }
-
-    /**
-     * Mirrors BindingSpecificationCanonicalizer::declaredReferenceFqcn() at the raw-YAML surface: that method
-     * treats a primitive type and "object" alike (both yield a null FQCN, so neither is a reference); this reads
-     * the same distinction directly off the raw `type` string, before a PropertyType object exists.
-     */
-    private function isNonReferenceType(string $rawType): bool
-    {
-        return $rawType === 'object' || \in_array($rawType, PropertyType::PRIMITIVE_TYPES, true);
     }
 
     /**

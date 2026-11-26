@@ -61,12 +61,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final readonly class RenderedElementFactory
 {
-    /**
-     * The declared type that names an object without naming which one. It constrains nothing, so nothing can
-     * resolve it and everything under it is authored — the same reading {@see ElementResolver::resolve()} takes.
-     */
-    private const UNCONSTRAINED_OBJECT_TYPE = 'object';
-
     public function __construct(
         private AbstractContentSystemElementTypeRegistry $typeRegistry,
     ) {
@@ -220,8 +214,8 @@ final readonly class RenderedElementFactory
 
     /**
      * The one thing a declaration can be that nothing authors: a single class string naming the type a loader
-     * or a context delivery fills. Everything else — a primitive, a bare `object`, and any union, whether its
-     * members are all primitive or mixed — is authored, and its stored value is what serving means.
+     * or a context delivery fills. Everything else — a primitive, a bare `object`, an `array`, and any union,
+     * whether its members are all primitive or mixed — is authored, and its stored value is what serving means.
      *
      * This mirrors {@see ElementResolver::resolve()}'s own split, which files exactly these declarations under
      * `PropertyKind::Primitive`. The two must agree: a property diagnostics calls satisfied by a stored value
@@ -229,9 +223,7 @@ final readonly class RenderedElementFactory
      */
     private function isResolvableReference(PropertyType $type): bool
     {
-        $declared = $type->type();
-
-        return \is_string($declared) && $declared !== self::UNCONSTRAINED_OBJECT_TYPE && !$type->isPrimitive();
+        return $type->referenceFqcn() !== null;
     }
 
     /**

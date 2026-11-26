@@ -57,8 +57,9 @@ class ElementResolver
         foreach ($this->registry->get($type)->properties() as $key => $property) {
             $propertyType = $property->type();
             $declaredType = $propertyType->type();
+            $referenceFqcn = $propertyType->referenceFqcn();
 
-            if ($propertyType->isPrimitive() || !\is_string($declaredType) || $declaredType === 'object') {
+            if ($referenceFqcn === null) {
                 $resolutions[] = new PropertyResolution(
                     key: $key,
                     kind: PropertyKind::Primitive,
@@ -71,7 +72,7 @@ class ElementResolver
                 continue;
             }
 
-            $resolutions[] = $this->resolveReference($key, $declaredType, $property->required(), $context, $storedRequirements[$key] ?? null, $mappedPaths[$key] ?? null);
+            $resolutions[] = $this->resolveReference($key, $referenceFqcn, $property->required(), $context, $storedRequirements[$key] ?? null, $mappedPaths[$key] ?? null);
         }
 
         return $resolutions;

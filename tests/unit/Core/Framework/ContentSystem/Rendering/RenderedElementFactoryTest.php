@@ -595,6 +595,8 @@ class RenderedElementFactoryTest extends TestCase
         yield 'a mixed union carrying an FQCN' => [['string', StubStruct::class], 'left'];
 
         yield 'a bare object' => ['object', ['nested' => 'value']];
+
+        yield 'an array' => ['array', [['type' => 'px', 'value' => 300], ['type' => 'auto']]];
     }
 
     /**

@@ -31,8 +31,9 @@ describe('components/sw-entity-single-select', () => {
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-highlight-text': true,
-                    'sw-popover': {
-                        template: '<div><slot></slot></div>',
+                    'mt-floating-ui': {
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

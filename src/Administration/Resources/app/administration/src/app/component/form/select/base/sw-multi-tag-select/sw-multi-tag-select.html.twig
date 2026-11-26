@@ -49,14 +49,14 @@
 
     {% block sw_multi_tag_select_validation %}
     <template #results-list>
+        {# Mounted only while open: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
         <div
             v-if="hasFocus"
             class="sw-multi-tag-select-validation sw-select-result-list"
         >
-            <sw-popover
-                class="sw-select-result-list-popover"
-                popover-class="sw-multi-tag-select-validation-popover"
-                :z-index="1100"
+            <mt-floating-ui
+                class="sw-select-result-list-popover sw-multi-tag-select-validation-popover"
+                :is-opened="true"
                 :match-reference-width="true"
             >
                 <div class="sw-select-result-list__content">
@@ -88,7 +88,7 @@
                     </div>
                     {% endblock %}
                 </div>
-            </sw-popover>
+            </mt-floating-ui>
         </div>
     </template>
     {% endblock %}

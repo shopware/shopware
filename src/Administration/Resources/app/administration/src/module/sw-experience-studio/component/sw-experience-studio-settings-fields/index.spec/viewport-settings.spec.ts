@@ -142,7 +142,7 @@ describe('responsive settings field', () => {
         expect(wrapper.emitted('update-field')).toEqual([[{ key: 'display', value: { lg: false, xl: true } }]]);
     });
 
-    it('shows and preserves the declared Base default when adding the first override', async () => {
+    it('shows the declared Base default without storing it when adding the first override', async () => {
         wrapper = createWrapper({});
         await wrapper.get('select[aria-label="Viewport"]').setValue('sm');
 
@@ -150,7 +150,10 @@ describe('responsive settings field', () => {
         expect(control.text()).toBe('true');
         await control.trigger('click');
 
-        expect(wrapper.emitted('update-field')).toEqual([[{ key: 'display', value: { lg: true, sm: false } }]]);
+        expect(wrapper.emitted('update-field')).toEqual([[{ key: 'display', value: { sm: false } }]]);
+        await wrapper.setProps({ values: { display: { sm: false } } });
+        await wrapper.get('select[aria-label="Viewport"]').setValue('lg');
+        expect(wrapper.get('.viewport-switch').text()).toBe('true');
     });
 
     it('leaves Base unset when the field has no non-empty default', async () => {

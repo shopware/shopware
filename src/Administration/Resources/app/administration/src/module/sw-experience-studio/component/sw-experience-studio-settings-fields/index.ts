@@ -445,13 +445,6 @@ export default Shopware.Component.wrapComponentConfig({
             if (rawValue == null || rawValue === '') {
                 delete value[breakpoint];
             } else {
-                if (breakpoint !== GRID_BASE_BREAKPOINT && value.lg == null) {
-                    const fallback = this.getResponsiveFallbackValue(field.property);
-                    if (fallback != null && fallback !== '') {
-                        value.lg = fallback;
-                    }
-                }
-
                 value[breakpoint] = this.normalizeResponsiveValue(field.property, rawValue);
             }
 

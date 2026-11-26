@@ -34,10 +34,10 @@ A component has one report, named after the component and placed beside its fold
 The services of a source file share one report, named after that file without the leading `src/`.
 `src/core/service/api/cache.api.service.js` gives `public-api/core/service/api/cache.api.service.api.md`.
 
-| File            | Content                                                                                                                                                                     |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `<name>.api.md` | The report for reviewers, which merges both flag states                                                                                                                     |
-| `index.json`    | The components with their file, visibility, parent and the names of the blocks they render, and the services with their file and visibility, for tools such as ESLint rules |
+| File | Content |
+|---|---|
+| `<name>.api.md` | The report for reviewers, which merges both flag states |
+| `index.json` | The components with their file, visibility, parent and the names of the blocks they render, and the services with their file and visibility, for tools such as ESLint rules |
 
 The `.d.ts` contracts follow once they can be type-checked, see "Not covered yet".
 All files are marked as generated, so GitHub collapses them in a diff.
@@ -68,12 +68,12 @@ The report of a component shows the template it renders.
 For an extend child that includes the blocks it inherits, so a block change in a parent changes the reports of its extend children too.
 Each block of an extend child carries its origin as the first marker:
 
-| Marker          | Meaning                                                                           |
-| --------------- | --------------------------------------------------------------------------------- |
-| `[inherited]`   | Taken unchanged from the component it extends                                     |
-| `[replaced]`    | Redeclared without `{% parent %}`, so the blocks inside the parent block are gone |
-| `[keepsParent]` | Redeclared with `{% parent %}`                                                    |
-| none            | A block the child adds inside a block it redeclares                               |
+| Marker | Meaning |
+|---|---|
+| `[inherited]` | Taken unchanged from the component it extends |
+| `[replaced]` | Redeclared without `{% parent %}`, so the blocks inside the parent block are gone |
+| `[keepsParent]` | Redeclared with `{% parent %}` |
+| none | A block the child adds inside a block it redeclares |
 
 ```text
 component sw-example-tile  public  js
@@ -133,12 +133,12 @@ crossings
   v-if  sw_example_card_title -> sw_example_card_fallback
 ```
 
-| Marker or line      | Meaning                                                                                                          |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `[after v-if]`      | The block follows an element with `v-if` or `v-else-if`, so an override may start with `v-else-if` or `v-else`   |
-| `[scope: <names>]`  | The variables of the `v-for` and slot elements around the block, which an override can use                       |
+| Marker or line | Meaning |
+|---|---|
+| `[after v-if]` | The block follows an element with `v-if` or `v-else-if`, so an override may start with `v-else-if` or `v-else` |
+| `[scope: <names>]` | The variables of the `v-for` and slot elements around the block, which an override can use |
 | `<tag>  <a> -> <b>` | An element opens in block `a` and closes in block `b`, so replacing one of them leaves a tag without its partner |
-| `v-if  <a> -> <b>`  | A `v-if` chain of block `a` continues in block `b`, so replacing `a` leaves a `v-else` without its `v-if`        |
+| `v-if  <a> -> <b>` | A `v-if` chain of block `a` continues in block `b`, so replacing `a` leaves a `v-else` without its `v-if` |
 
 - Only whitespace, comments and the tags of other blocks may stand between the element and the block, as in Vue.
   A `v-else` closes the chain.
@@ -199,19 +199,19 @@ notes
   unresolved computed ...mapPageErrors(errorConfig)
 ```
 
-| Section    | A line holds                                                                                                                                                                         |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `mixins`   | The registered mixins on one line, in the order the component applies them                                                                                                           |
-| `inject`   | The local name, and the injected key when it differs                                                                                                                                 |
-| `provide`  | The provided key                                                                                                                                                                     |
-| `props`    | The name with `?` for an optional prop, its type, and its default as the source writes it, or `default=factory`                                                                      |
-| `emits`    | The event with the parameters of its validator, `...args: any[]` for the array form                                                                                                  |
-| `slots`    | The name, the props the slot passes, and the block around it                                                                                                                         |
-| `data`     | The key, and the keys of a nested object literal indented below it                                                                                                                   |
-| `computed` | The name and the type its getter declares                                                                                                                                            |
-| `methods`  | The signature. A parameter with a default is optional and shows its default, a destructured one is named `arg<position>`, and a method that returns a promise returns `Promise<any>` |
-| `refs`     | The ref, the tag it sits on, with `list` for a ref inside a `v-for`, and the block around it                                                                                         |
-| `notes`    | What the generator could not read, see below                                                                                                                                         |
+| Section | A line holds |
+|---|---|
+| `mixins` | The registered mixins on one line, in the order the component applies them |
+| `inject` | The local name, and the injected key when it differs |
+| `provide` | The provided key |
+| `props` | The name with `?` for an optional prop, its type, and its default as the source writes it, or `default=factory` |
+| `emits` | The event with the parameters of its validator, `...args: any[]` for the array form |
+| `slots` | The name, the props the slot passes, and the block around it |
+| `data` | The key, and the keys of a nested object literal indented below it |
+| `computed` | The name and the type its getter declares |
+| `methods` | The signature. A parameter with a default is optional and shows its default, a destructured one is named `arg<position>`, and a method that returns a promise returns `Promise<any>` |
+| `refs` | The ref, the tag it sits on, with `list` for a ref inside a `v-for`, and the block around it |
+| `notes` | What the generator could not read, see below |
 
 The sections stand in this order, with `blocks` and `crossings` between `methods` and `refs`.
 
@@ -237,11 +237,11 @@ The sections stand in this order, with `blocks` and `crossings` between `methods
 
 A note says that a section may miss members, with the start of the source the generator could not read:
 
-| Note                                                    | Meaning                                                                                                                 |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `unresolved <section> <source>`                         | A spread, a computed key or a name that is no literal in that section                                                   |
-| `unresolved options <source>`                           | A spread into the options object, a `setup` function, or a source without an options object, such as a native component |
-| `dynamic-ref <expression>`, `dynamic-slot <expression>` | A bound `:ref` or a `<slot :name>`                                                                                      |
+| Note | Meaning |
+|---|---|
+| `unresolved <section> <source>` | A spread, a computed key or a name that is no literal in that section |
+| `unresolved options <source>` | A spread into the options object, a `setup` function, or a source without an options object, such as a native component |
+| `dynamic-ref <expression>`, `dynamic-slot <expression>` | A bound `:ref` or a `<slot :name>` |
 
 `scripts/generate-public-api/read/options/option-members.spec/runtime.spec.ts` loads every component of the Administration and compares the names with the options object at runtime.
 A section with a note may hold fewer names than the runtime, every other section has to hold the same.
@@ -283,11 +283,11 @@ methods
 
 What the generator cannot follow becomes a line under `notes`, and the service stays in the snapshot with its name:
 
-| Note                      | Reason                                                                                                                      |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Note | Reason |
+|---|---|
 | `unresolved provider ...` | The provider returns something the generator cannot follow, such as an instance of a class it reads from `Shopware.Classes` |
-| `unresolved parent ...`   | The class extends one that the sources do not declare under that name                                                       |
-| `unresolved members ...`  | An object literal spreads something that is no object literal, or has a computed key                                        |
+| `unresolved parent ...` | The class extends one that the sources do not declare under that name |
+| `unresolved members ...` | An object literal spreads something that is no object literal, or has a computed key |
 
 The Administration has 10 of these notes today.
 
@@ -380,21 +380,21 @@ onDeleteItem(item, itemIndex) {
 - The text of a `@deprecated` is required and follows the version after `- ` on the same line.
 - The text of a `@bc-change` starts on the line after the marker.
 
-| Kind                          | Announces                                                               | Keys                   |
-| ----------------------------- | ----------------------------------------------------------------------- | ---------------------- |
-| `ParameterRemoval`            | A method loses a parameter                                              | `parameter`            |
-| `NewRequiredParameter`        | A method gets a required parameter, or an optional one becomes required | `parameter`            |
-| `ParameterDefaultValueChange` | The default value of a parameter changes                                | `parameter`, `default` |
-| `ReturnTypeNarrowing`         | A method or computed property returns a narrower type                   | `type`                 |
-| `ReturnTypeWidening`          | A method or computed property returns a wider type                      | `type`                 |
-| `BecomesPrivate`              | A public element becomes `@private`                                     | none                   |
-| `BlockMoved`                  | A block moves under another parent block                                | `parent`               |
-| `ScopeVariableRemoval`        | A block loses a template variable from a `v-for` or a slot              | `variable`             |
-| `PropBecomesRequired`         | An optional prop becomes required                                       | none                   |
-| `PropDefaultValueChange`      | The default value of a prop changes                                     | `default`              |
-| `EmitPayloadChange`           | The payload of an event changes                                         | none                   |
-| `RouteParentChange`           | A route moves under another parent route, or to the top level           | `parent`               |
-| `RegistryGroupChange`         | A registry entry, for example a rule condition, moves to another group  | `group`                |
+| Kind | Announces | Keys |
+|---|---|---|
+| `ParameterRemoval` | A method loses a parameter | `parameter` |
+| `NewRequiredParameter` | A method gets a required parameter, or an optional one becomes required | `parameter` |
+| `ParameterDefaultValueChange` | The default value of a parameter changes | `parameter`, `default` |
+| `ReturnTypeNarrowing` | A method or computed property returns a narrower type | `type` |
+| `ReturnTypeWidening` | A method or computed property returns a wider type | `type` |
+| `BecomesPrivate` | A public element becomes `@private` | none |
+| `BlockMoved` | A block moves under another parent block | `parent` |
+| `ScopeVariableRemoval` | A block loses a template variable from a `v-for` or a slot | `variable` |
+| `PropBecomesRequired` | An optional prop becomes required | none |
+| `PropDefaultValueChange` | The default value of a prop changes | `default` |
+| `EmitPayloadChange` | The payload of an event changes | none |
+| `RouteParentChange` | A route moves under another parent route, or to the top level | `parent` |
+| `RegistryGroupChange` | A registry entry, for example a rule condition, moves to another group | `group` |
 
 The first five kinds have the names of the PHP attributes in `src/Core/Framework/Deprecation/BCChange/`.
 Their keys are shorter than the PHP arguments, for example `parameter` for `parameterName` and `type` for `newType`.
@@ -438,19 +438,19 @@ The generator rejects those for the committed snapshot, and the check leaves the
 `break-check/rules/block-rules.ts` holds one rule per kind of change.
 A rule compares the blocks of one component in one flag state, and its text says what an override of the block notices.
 
-| Rule                         | Group    | Reported when                                                              | An override notices                                                                                       |
-| ---------------------------- | -------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `block_missing`              | Break    | A block is gone                                                            | It replaces nothing and renders nothing                                                                   |
-| `block_moved_parent`         | Break    | A block left a block that still exists, or entered one that existed before | Overrides of that block without `{% parent %}` render without it or drop it                               |
-| `element_crosses_block`      | Break    | A new element crossing                                                     | Replacing either block leaves a tag without its partner                                                   |
-| `if_chain_crosses_block`     | Break    | A new `v-if` crossing                                                      | Replacing the first block leaves a `v-else` without its `v-if`                                            |
-| `block_if_context_lost`      | Break    | A block lost `[after v-if]`, and its content continued the chain           | An override that starts with `v-else-if` or `v-else`, as the content of the block did, no longer compiles |
-| `block_scope_missing`        | Break    | A block lost a variable                                                    | An override that uses the variable fails at render time                                                   |
-| `block_added`                | Addition | A new block                                                                | Nothing, plugins can rely on it from now on                                                               |
-| `block_if_neighbour_lost`    | Info     | A block lost `[after v-if]`, and its content did not continue the chain    | Nothing, unless it starts with `v-else-if` or `v-else` on its own                                         |
-| `block_if_chain_changed`     | Info     | The conditions of the chain before a block changed                         | Its `v-else` may render under another condition                                                           |
-| `block_scope_source_changed` | Info     | A variable comes from another `v-for` expression or slot                   | The variable may hold another value                                                                       |
-| `crossing_resolved`          | Info     | A crossing is gone                                                         | Nothing                                                                                                   |
+| Rule | Group | Reported when | An override notices |
+|---|---|---|---|
+| `block_missing` | Break | A block is gone | It replaces nothing and renders nothing |
+| `block_moved_parent` | Break | A block left a block that still exists, or entered one that existed before | Overrides of that block without `{% parent %}` render without it or drop it |
+| `element_crosses_block` | Break | A new element crossing | Replacing either block leaves a tag without its partner |
+| `if_chain_crosses_block` | Break | A new `v-if` crossing | Replacing the first block leaves a `v-else` without its `v-if` |
+| `block_if_context_lost` | Break | A block lost `[after v-if]`, and its content continued the chain | An override that starts with `v-else-if` or `v-else`, as the content of the block did, no longer compiles |
+| `block_scope_missing` | Break | A block lost a variable | An override that uses the variable fails at render time |
+| `block_added` | Addition | A new block | Nothing, plugins can rely on it from now on |
+| `block_if_neighbour_lost` | Info | A block lost `[after v-if]`, and its content did not continue the chain | Nothing, unless it starts with `v-else-if` or `v-else` on its own |
+| `block_if_chain_changed` | Info | The conditions of the chain before a block changed | Its `v-else` may render under another condition |
+| `block_scope_source_changed` | Info | A variable comes from another `v-for` expression or slot | The variable may hold another value |
+| `crossing_resolved` | Info | A crossing is gone | Nothing |
 
 - A block that only got a new block around it did not move, and neither did one whose parent is gone: every existing override renders as before.
   The blocks inside a moved block are not reported.
@@ -470,24 +470,24 @@ A rule compares the blocks of one component in one flag state, and its text says
 `break-check/rules/member-rules.ts` builds one rule per kind of member for a member that is gone and one for a new member, from the table of kinds in `model/members.ts`.
 The rules below those are about what only one kind has.
 
-| Rule                                   | Group    | Reported when                                                                                                                           | A plugin notices                                                                                         |
-| -------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `<kind>_missing`                       | Break    | A mixin, injection, provided value, prop, event, slot, data key, computed property, method or template ref is gone                      | Its override reads `undefined`, or `$super` throws                                                       |
-| `<kind>_added`                         | Addition | A new member, except a ref                                                                                                              | Nothing, plugins can rely on it from now on                                                              |
-| `prop_now_required`                    | Break    | An optional prop became required                                                                                                        | Templates that do not pass it fail prop validation                                                       |
-| `param_missing`                        | Break    | A method lost a parameter                                                                                                               | Overrides that read the parameter get `undefined`, and the parameters behind it receive the wrong values |
-| `param_now_required`                   | Break    | A new parameter without a default behind the existing ones, or a parameter that lost its default                                        | Calls with the old arguments leave it `undefined`                                                        |
-| `param_added`                          | Addition | A new optional or rest parameter behind the existing ones                                                                               | `$super` calls with explicit arguments do not pass it on                                                 |
-| `method_signature_changed`             | Break    | A method starts or stops returning a promise, its parameters changed their order, or a new parameter stands in front of an existing one | The return value is a Promise, or values arrive in the wrong place                                       |
-| `method_param_renamed`                 | Info     | A parameter has another name at the same position                                                                                       | Nothing                                                                                                  |
-| `ref_target_changed`                   | Break    | A ref sits on another tag, or moved into or out of a `v-for`                                                                            | Methods it calls on the ref are gone                                                                     |
-| `type_changed`                         | Break    | The declared type of a prop or of a property changed                                                                                    | Values it passes or reads may no longer fit                                                              |
-| `return_type_changed`                  | Break    | The declared type of a computed property or the return type of a method changed                                                         | Code that uses the value may no longer fit                                                               |
-| `type_widened`                         | Info     | An untyped member got a type, a typed one lost it, or a prop got a `PropType` on the constructors it had                                | Nothing                                                                                                  |
-| `prop_default_changed`                 | Break    | An optional prop lost its default, or its default value changed                                                                         | Templates that do not pass it get `undefined` or another value                                           |
-| `param_default_changed`                | Break    | An optional parameter lost its default, or its default value changed                                                                    | Calls that do not pass it get `undefined` or another value                                               |
-| `visibility_became_private`            | Break    | A member of the options object became `@private`                                                                                        | Its code may change in any release                                                                       |
-| `deprecation_added`, `bc_change_added` | Info     | A member got a new marker                                                                                                               | Nothing yet, the upgrade notes should name it                                                            |
+| Rule | Group | Reported when | A plugin notices |
+|---|---|---|---|
+| `<kind>_missing` | Break | A mixin, injection, provided value, prop, event, slot, data key, computed property, method or template ref is gone | Its override reads `undefined`, or `$super` throws |
+| `<kind>_added` | Addition | A new member, except a ref | Nothing, plugins can rely on it from now on |
+| `prop_now_required` | Break | An optional prop became required | Templates that do not pass it fail prop validation |
+| `param_missing` | Break | A method lost a parameter | Overrides that read the parameter get `undefined`, and the parameters behind it receive the wrong values |
+| `param_now_required` | Break | A new parameter without a default behind the existing ones, or a parameter that lost its default | Calls with the old arguments leave it `undefined` |
+| `param_added` | Addition | A new optional or rest parameter behind the existing ones | `$super` calls with explicit arguments do not pass it on |
+| `method_signature_changed` | Break | A method starts or stops returning a promise, its parameters changed their order, or a new parameter stands in front of an existing one | The return value is a Promise, or values arrive in the wrong place |
+| `method_param_renamed` | Info | A parameter has another name at the same position | Nothing |
+| `ref_target_changed` | Break | A ref sits on another tag, or moved into or out of a `v-for` | Methods it calls on the ref are gone |
+| `type_changed` | Break | The declared type of a prop or of a property changed | Values it passes or reads may no longer fit |
+| `return_type_changed` | Break | The declared type of a computed property or the return type of a method changed | Code that uses the value may no longer fit |
+| `type_widened` | Info | An untyped member got a type, a typed one lost it, or a prop got a `PropType` on the constructors it had | Nothing |
+| `prop_default_changed` | Break | An optional prop lost its default, or its default value changed | Templates that do not pass it get `undefined` or another value |
+| `param_default_changed` | Break | An optional parameter lost its default, or its default value changed | Calls that do not pass it get `undefined` or another value |
+| `visibility_became_private` | Break | A member of the options object became `@private` | Its code may change in any release |
+| `deprecation_added`, `bc_change_added` | Info | A member got a new marker | Nothing yet, the upgrade notes should name it |
 
 - Parameters are matched by name, and a destructured one by its pattern, because a caller passes them by position.
   A finding names a destructured parameter by its pattern too, for example `method:load/param:{id}`, which a marker writes as `parameter:{id}`.
@@ -525,11 +525,11 @@ A finding about a service says how plugin code reaches the member, `Shopware.Ser
 
 `break-check/unit-changes.ts` reports a service as a whole:
 
-| Rule                        | Group    | Reported when                                    | A plugin notices                                 |
-| --------------------------- | -------- | ------------------------------------------------ | ------------------------------------------------ |
-| `service_missing`           | Break    | A service is gone, in both flag states or in one | `Shopware.Service('<name>')` returns `undefined` |
-| `service_added`             | Addition | A new service                                    | Nothing, plugins can rely on it from now on      |
-| `visibility_became_private` | Break    | A public service became `@private`               | Its code may change in any release               |
+| Rule | Group | Reported when | A plugin notices |
+|---|---|---|---|
+| `service_missing` | Break | A service is gone, in both flag states or in one | `Shopware.Service('<name>')` returns `undefined` |
+| `service_added` | Addition | A new service | Nothing, plugins can rely on it from now on |
+| `visibility_became_private` | Break | A public service became `@private` | Its code may change in any release |
 
 - A `@deprecated` marker on the service announces `service_missing`, and `@bc-change BecomesPrivate` announces `visibility_became_private`.
 - A service that is private in the base commit, and a new private one, are listed as `Private`.
@@ -547,29 +547,29 @@ A finding about a service says how plugin code reaches the member, `Shopware.Ser
 
 The rule of a finding names the change, and its group says what the change counts as.
 
-| Group      | Meaning                                                                                                             |
-| ---------- | ------------------------------------------------------------------------------------------------------------------- |
-| `Break`    | An unannounced break. Only this group fails the check                                                               |
-| `Addition` | New public API                                                                                                      |
-| `Allowed`  | A change that a marker on the block or the member announced                                                         |
-| `Private`  | A change to a component or service that is `@private` in the base commit, or to a `@private` member of a public one |
-| `Info`     | A change that a reviewer may want to look at                                                                        |
+| Group | Meaning |
+|---|---|
+| `Break` | An unannounced break. Only this group fails the check |
+| `Addition` | New public API |
+| `Allowed` | A change that a marker on the block or the member announced |
+| `Private` | A change to a component or service that is `@private` in the base commit, or to a `@private` member of a public one |
+| `Info` | A change that a reviewer may want to look at |
 
 A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag, or in the comment directly above the member:
 
-| Marker                                                                                                                          | Announces                                      | Rule of the finding  |
-| ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | -------------------- |
-| `@deprecated tag:vX.Y.Z`                                                                                                        | `block_missing`, `<kind>_missing`              | `deprecated_removal` |
-| `@deprecated tag:vX.Y.Z` on a block, for the blocks inside it and for a slot or a ref inside it in every place                  | `block_missing`, `slot_missing`, `ref_missing` | `deprecated_removal` |
-| `@bc-change BlockMoved` with the new `parent`                                                                                   | `block_moved_parent`                           | `announced_change`   |
-| `@bc-change ScopeVariableRemoval` with the `variable`                                                                           | `block_scope_missing`                          | `announced_change`   |
-| `@bc-change ParameterRemoval` with the `parameter`, on the method                                                               | `param_missing`                                | `announced_change`   |
-| `@bc-change NewRequiredParameter` with the `parameter`, on the method                                                           | `param_now_required`                           | `announced_change`   |
-| `@bc-change PropBecomesRequired`, on the prop                                                                                   | `prop_now_required`                            | `announced_change`   |
-| `@bc-change PropDefaultValueChange` with the new `default` without spaces, `undefined` for a removed one, on the prop           | `prop_default_changed`                         | `announced_change`   |
-| `@bc-change ParameterDefaultValueChange` with the `parameter` and the new `default`, on the method                              | `param_default_changed`                        | `announced_change`   |
-| `@bc-change BecomesPrivate`, on the member                                                                                      | `visibility_became_private`                    | `announced_change`   |
-| `@bc-change ReturnTypeNarrowing` or `ReturnTypeWidening` with the new `type` without spaces, on the method or computed property | `return_type_changed`                          | `announced_change`   |
+| Marker | Announces | Rule of the finding |
+|---|---|---|
+| `@deprecated tag:vX.Y.Z` | `block_missing`, `<kind>_missing` | `deprecated_removal` |
+| `@deprecated tag:vX.Y.Z` on a block, for the blocks inside it and for a slot or a ref inside it in every place | `block_missing`, `slot_missing`, `ref_missing` | `deprecated_removal` |
+| `@bc-change BlockMoved` with the new `parent` | `block_moved_parent` | `announced_change` |
+| `@bc-change ScopeVariableRemoval` with the `variable` | `block_scope_missing` | `announced_change` |
+| `@bc-change ParameterRemoval` with the `parameter`, on the method | `param_missing` | `announced_change` |
+| `@bc-change NewRequiredParameter` with the `parameter`, on the method | `param_now_required` | `announced_change` |
+| `@bc-change PropBecomesRequired`, on the prop | `prop_now_required` | `announced_change` |
+| `@bc-change PropDefaultValueChange` with the new `default` without spaces, `undefined` for a removed one, on the prop | `prop_default_changed` | `announced_change` |
+| `@bc-change ParameterDefaultValueChange` with the `parameter` and the new `default`, on the method | `param_default_changed` | `announced_change` |
+| `@bc-change BecomesPrivate`, on the member | `visibility_became_private` | `announced_change` |
+| `@bc-change ReturnTypeNarrowing` or `ReturnTypeWidening` with the new `type` without spaces, on the method or computed property | `return_type_changed` | `announced_change` |
 
 The marker counts from the version it names on.
 A change that happens in the major state only counts as announced when the marker names that major, also when the marker comes with the same pull request.
@@ -615,13 +615,13 @@ The owner and the kind of the element below it, `component` and `block` in this 
 
 Each folder in `scripts/generate-public-api/testing/__fixtures__/` is one case: a small source tree before and after a change, and the output expected for it.
 
-| Path                                  | Content                                                                                   |
-| ------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `case.json`                           | A description of the case, the version the base branch releases next, and the major flags |
-| `before/`, `after/`                   | Minimal Administration source tree at the base and at the head commit                     |
-| `expected/before/`, `expected/after/` | The snapshot files for each tree                                                          |
-| `expected/findings.json`              | The findings the break check returns for the change                                       |
-| `expected/findings.txt`               | How the break check prints these findings                                                 |
+| Path | Content |
+|---|---|
+| `case.json` | A description of the case, the version the base branch releases next, and the major flags |
+| `before/`, `after/` | Minimal Administration source tree at the base and at the head commit |
+| `expected/before/`, `expected/after/` | The snapshot files for each tree |
+| `expected/findings.json` | The findings the break check returns for the change |
+| `expected/findings.txt` | How the break check prints these findings |
 
 A source tree holds only what its case is about.
 The script part of a component stays empty unless the case covers it, even where the template uses a prop or a method.
@@ -638,29 +638,29 @@ The expected snapshots hold whole files with every unit kind, while the generato
 
 The blocks have four unit kinds, because they are built in four steps:
 
-| Unit kind         | Compares                                                                                                                               |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `block-tree`      | The block names, their parents, their flag states and their origin in an extend child in the reports, and the block names in the index |
-| `block-contract`  | The blocks, their context and the crossings in the `.d.ts` contracts                                                                   |
-| `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks, in the reports                                                    |
-| `block-findings`  | The findings on blocks and crossings                                                                                                   |
+| Unit kind | Compares |
+|---|---|
+| `block-tree` | The block names, their parents, their flag states and their origin in an extend child in the reports, and the block names in the index |
+| `block-contract` | The blocks, their context and the crossings in the `.d.ts` contracts |
+| `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks, in the reports |
+| `block-findings` | The findings on blocks and crossings |
 
 The other markers of a block line, such as `[after v-if]` and `[scope: item]`, belong to `block-structure`, and the other facets of `Block<>` to `block-contract`.
 The comparison moves them out of the block tree into a section `block-context` and a member `blockContext`, which exist only in the comparison.
 
 The members have three unit kinds:
 
-| Unit kind           | Compares                                                                                                  |
-| ------------------- | --------------------------------------------------------------------------------------------------------- |
+| Unit kind | Compares |
+|---|---|
 | `component-members` | The sections `inject`, `props`, `emits`, `slots`, `data`, `computed`, `methods` and `refs` in the reports |
-| `member-contract`   | The members of a component besides its blocks in the `.d.ts` contracts                                    |
-| `member-findings`   | The findings on props, computed properties, methods and refs                                              |
+| `member-contract` | The members of a component besides its blocks in the `.d.ts` contracts |
+| `member-findings` | The findings on props, computed properties, methods and refs |
 
 A service has two unit kinds:
 
-| Unit kind         | Compares                                                                                                            |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `service-units`   | The header of a service in the reports, its entry in the index, and the findings about the service as a whole       |
+| Unit kind | Compares |
+|---|---|
+| `service-units` | The header of a service in the reports, its entry in the index, and the findings about the service as a whole |
 | `service-members` | The sections `properties` and `methods` of a service in the reports, and the findings on its properties and methods |
 
 A unit kind belongs to components or to services, and it only reads the outlines, index entries and findings of those.

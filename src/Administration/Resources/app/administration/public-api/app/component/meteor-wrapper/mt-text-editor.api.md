@@ -11,6 +11,30 @@ component mt-text-editor  private  ts  [private]
   template src/app/component/meteor-wrapper/mt-text-editor/mt-text-editor.html.twig  [private]
   visibility-source export  [private]
 
+props
+  customButtons?: CustomButton[]  default=factory  [private]
+  excludedButtons?: string[]  default=factory  [private]
+  modelValue?: string  default=''  [private]
+
+emits
+  update:modelValue(...args: any[])  [private]
+
+computed
+  compatValue: any  [private]
+  mergedCustomButtons: any  [private]
+  mergedExcludedButtons: any  [private]
+
+methods
+  getSlots(): any  [private]
+  onUpdateModelValue(value: string): any  [private]
+  validate(): Promise<boolean>  [private]
+
 blocks
   mt_text_editor_original  [private]
+
+refs
+  mtTextEditorOriginal  -> mt-text-editor-original  block=mt_text_editor_original  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

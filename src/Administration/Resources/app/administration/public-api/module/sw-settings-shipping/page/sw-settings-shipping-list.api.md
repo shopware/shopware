@@ -10,6 +10,37 @@ component sw-settings-shipping-list  public  js
   source src/module/sw-settings-shipping/page/sw-settings-shipping-list/index.js
   template src/module/sw-settings-shipping/page/sw-settings-shipping-list/sw-settings-shipping-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  searchConfigEntity: any
+  shippingMethods: any
+  showDeleteModal: any
+  skeletonItemAmount: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  columns: any
+  listingCriteria: any
+  shippingCostTaxOptions: any
+  shippingRepository: any
+
+methods
+  getList(): Promise<any>
+  onChangeLanguage(languageId: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): any
+  onDelete(id: any): any
+  onInlineEditSave(item: any): Promise<any>
+  shippingTaxTypeLabel(taxName: any): any
+
 blocks
   sw_settings_shipping_index
     sw_settings_shipping_list_content
@@ -46,4 +77,7 @@ crossings
   v-if  sw_settings_shipping_list_empty_state -> sw_settings_shipping_list_grid
   v-if  sw_settings_shipping_list_grid_columns_active_inline_edit -> sw_settings_shipping_list_grid_columns_active_content
   v-if  sw_settings_shipping_list_grid_columns_tax_type_inline_edit -> sw_settings_shipping_list_grid_columns_tax_type_content
+
+refs
+  swSettingsTaxGrid  -> sw-entity-listing  block=sw_settings_shipping_list_grid
 ```

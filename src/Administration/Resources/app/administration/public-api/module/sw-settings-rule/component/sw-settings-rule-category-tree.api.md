@@ -11,10 +11,40 @@ component sw-settings-rule-category-tree  private  js  [private]
   template src/module/sw-settings-rule/component/sw-settings-rule-category-tree/sw-settings-rule-category-tree.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  association: string  [private]
+  categoriesCollection: any[]  [private]
+  hideHeadline?: boolean  default=false  [private]
+  hideSearch?: boolean  default=false  [private]
+  rule: object  [private]
+
+emits
+  on-selection(...args: any[])  [private]
+
+data
+  categories: any  [private]
+  isComponentReady: any  [private]
+  isFetching: any  [private]
+
+computed
+  categoryRepository: any  [private]
+  treeCriteria: any  [private]
+
+methods
+  getTreeItems(parentId?: any = null, term?: any = null, withTermFilter?: any = false): Promise<any>  [private]
+  onCheckItem(checkedItems: any): any  [private]
+  searchTreeItems(term: any): any  [private]
+
 blocks
   sw_settings_rule_category_tree  [private]
     sw_settings_rule_category_tree_component  [private]
       sw_settings_rule_category_tree_items  [private]
         sw_settings_rule_category_tree_item  [scope: checkItem, disableContextMenu, draggedItem, newElementId, onChangeRoute, sortable, translationContext, treeItems] [private]
     sw_settings_rule_category_tree_toolbar  [private]
+
+refs
+  swTree  -> sw-settings-rule-tree  block=sw_settings_rule_category_tree_component  [private]
 ```

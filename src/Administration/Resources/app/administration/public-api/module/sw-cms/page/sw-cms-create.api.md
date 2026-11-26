@@ -12,6 +12,22 @@ component sw-cms-create  private  js  [private]
   template src/module/sw-cms/page/sw-cms-create/sw-cms-create.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder  [private]
+
+data
+  wizardComplete: any  [private]
+
+computed
+  categoryRepository: any  [private]
+  pageHasSections: any  [private]
+
+methods
+  assignToEntity(page: any): Promise<any>  [private]
+  createdComponent(): any  [private]
+  onSave(): Promise<any>  [private]
+  onWizardComplete(): any  [private]
+
 blocks
   sw_cms_detail  [inherited] [private]
     sw_cms_detail_content  [inherited] [private]

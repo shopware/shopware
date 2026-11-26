@@ -11,6 +11,71 @@ component sw-tabs-deprecated  private  js  [private]
   template src/app/component/base/sw-tabs-deprecated/sw-tabs-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+provide
+  onNewItemActive: any  [private]
+  registerNewTabItem: any  [private]
+  swTabsSetActiveItem: any  [private]
+  unregisterNewTabItem: any  [private]
+
+props
+  alignRight?: boolean  default=false  [private]
+  defaultItem?: string  default=''  [private]
+  isVertical?: boolean  default=false  [private]
+  positionIdentifier: string  default=null  [private]
+  small?: boolean  default=true  [private]
+
+emits
+  new-item-active(...args: any[])  [private]
+
+slots
+  content  { active }  block=sw_tabs_custom_content  [private]
+  default  { active }  block=sw_tabs_content_slot  [private]
+
+data
+  active: any  [private]
+  activeItem: any  [private]
+  firstScroll: any  [private]
+  hasRoutes: any  [private]
+  isScrollable: any  [private]
+  onNewItemActiveHandlers: any  [private]
+  registeredTabItems: any  [private]
+  scrollLeftPossible: any  [private]
+  scrollRightPossible: any  [private]
+  scrollbarOffset: any  [private]
+
+computed
+  activeTabHasErrors: any  [private]
+  activeTabHasWarnings: any  [private]
+  arrowClassesLeft: any  [private]
+  arrowClassesRight: any  [private]
+  sliderClasses: any  [private]
+  sliderLength: any  [private]
+  sliderMovement: any  [private]
+  sliderStyle: any  [private]
+  tabClasses: any  [private]
+  tabContentStyle: any  [private]
+  tabExtensions: any  [private]
+
+methods
+  addScrollbarOffset(): any  [private]
+  beforeDestroyComponent(): any  [private]
+  checkIfNeedScroll(): any  [private]
+  createdComponent(): any  [private]
+  mountedComponent(): any  [private]
+  onNewItemActiveHandler(callback: any): any  [private]
+  onTabBarResize(): any  [private]
+  recalculateSlider(): any  [private]
+  registerNewTabItem(item: any): any  [private]
+  registerOnNewItemActiveHandler(callback: any): any  [private]
+  scrollTo(direction: any): any  [private]
+  scrollToItem(item: any): any  [private]
+  setActiveItem(item: any): any  [private]
+  unregisterNewTabItem(item: any): any  [private]
+  updateActiveItem(): any  [private]
+
 blocks
   sw_tabs  [private]
     sw_tabs_arrow_left  [private]
@@ -19,4 +84,7 @@ blocks
       sw_tabs_content_slot  [private]
       sw_tabs_slider  [private]
     sw_tabs_custom_content  [private]
+
+refs
+  swTabContent  -> div  block=sw_tabs_content  [private]
 ```

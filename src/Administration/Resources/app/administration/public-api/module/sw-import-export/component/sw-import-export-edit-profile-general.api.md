@@ -10,10 +10,28 @@ component sw-import-export-edit-profile-general  public  js
   source src/module/sw-import-export/component/sw-import-export-edit-profile-general/index.js
   template src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig
 
+inject
+  feature
+
+props
+  profile: object
+
+computed
+  mappingLength: any
+  profileNameError: any
+  profileSourceEntityError: any
+  profileTypeError: any
+  supportedEntities: any
+  supportedProfileTypes: any
+
+methods
+  shouldDisableObjectType(item: any): any
+  shouldDisableProfileType(item: any): any
+
 blocks
   sw_import_export_edit_profile_general
     sw_import_export_edit_profile_general_container
-      sw_import_export_edit_profile_general_container_name
+      sw_import_export_edit_profile_general_container_name  [deprecated tag:v6.8.0]
       sw_import_export_edit_profile_general_container_object_type
         sw_import_export_edit_profile_general_container_object_type_select
           sw_import_export_edit_profile_general_container_object_type_select_result  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
@@ -29,4 +47,7 @@ blocks
 crossings
   v-if  sw_import_export_edit_profile_general_container_object_type_select_result_highlight -> sw_import_export_edit_profile_general_container_object_type_select_result_text
   v-if  sw_import_export_edit_profile_general_container_type_result_highlight -> sw_import_export_edit_profile_general_container_type_result_text
+
+refs
+  objectTypeSelect  -> sw-single-select  block=sw_import_export_edit_profile_general_container_object_type_select
 ```

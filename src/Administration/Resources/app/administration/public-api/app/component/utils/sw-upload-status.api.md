@@ -9,4 +9,38 @@ component sw-upload-status  private  ts  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/utils/sw-upload-status/index.ts  [private]
   visibility-source export  [private]
+
+mixins
+  notification  [private]
+
+inject
+  mediaService  [private]
+
+data
+  snackbarItem: any  [private]
+  uploads: any  [private]
+
+computed
+  hasFailedUploads: any  [private]
+  processedUploadCount: any  [private]
+  snackbar: any  [private]
+  snackbarConfig: Snackbar  [private]
+  snackbarMessage: string  [private]
+  uploadComplete: any  [private]
+  uploadCount: any  [private]
+  uploadProgress: any  [private]
+
+methods
+  findByTargetId(targetId: string): { uploadId: string; fileInfo: FileInfo } | null  [private]
+  getTransportErrorSnippet(error?: UploadError): string | null  [private]
+  getUploadId(name: string, size: number): string  [private]
+  onUploadAdded(event: MediaUploadEvent): any  [private]
+  onUploadCancel(event: MediaUploadEvent): any  [private]
+  onUploadEvent(event: MediaUploadEvent): any  [private]
+  onUploadFailed(event: MediaUploadEvent): any  [private]
+  onUploadFinished(event: MediaUploadEvent): any  [private]
+  onUploadProgress(event: MediaUploadEvent): any  [private]
+  registerListeners(): any  [private]
+  showErrorNotification(payload: UploadFailedPayload): any  [private]
+  updateSnackbar(): any  [private]
 ```

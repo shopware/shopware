@@ -1,0 +1,2 @@
+parameters:
+    unit_test.bundle.packages.prod_directory: true

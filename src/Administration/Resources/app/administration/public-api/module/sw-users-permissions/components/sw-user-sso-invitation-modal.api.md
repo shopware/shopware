@@ -10,4 +10,32 @@ component sw-user-sso-invitation-modal  private  js  [private]
   source src/module/sw-users-permissions/components/sw-user-sso-invitation-modal/index.js  [private]
   template src/module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw-user-sso-invitation-modal.html.twig  [private]
   visibility-source export  [private]
+
+emits
+  invitation-failed(...args: any[])  [private]
+  modal-close(...args: any[])  [private]
+  user-invited(...args: any[])  [private]
+
+data
+  email: any  [private]
+  errors: object  [private]
+    errorEmail: any  [private]
+    errorLanguage: any  [private]
+  isLoading: any  [private]
+  languageId: any  [private]
+  languages: any  [private]
+
+computed
+  hasError: any  [private]
+  invitationService: any  [private]
+  languageCriteria: any  [private]
+  languageRepository: any  [private]
+
+methods
+  closeModal(): any  [private]
+  componentCreated(): any  [private]
+  loadLanguages(): Promise<any>  [private]
+  sendInvitation(): Promise<any>  [private]
+  validateEmail(): any  [private]
+  validateLanguage(): any  [private]
 ```

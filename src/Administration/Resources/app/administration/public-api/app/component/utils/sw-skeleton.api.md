@@ -11,6 +11,12 @@ component sw-skeleton  private  ts  [private]
   template src/app/component/utils/sw-skeleton/sw-skeleton.html.twig  [private]
   visibility-source export  [private]
 
+props
+  variant?: string  default='detail'  [private]
+
+computed
+  classList: any  [private]
+
 blocks
   sw_skeleton  [private]
 ```

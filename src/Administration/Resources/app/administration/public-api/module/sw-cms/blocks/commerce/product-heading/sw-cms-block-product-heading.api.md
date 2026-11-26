@@ -11,6 +11,14 @@ component sw-cms-block-product-heading  private  js  [private]
   template src/module/sw-cms/blocks/commerce/product-heading/component/sw-cms-block-product-heading.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  left  {}  block=sw_cms_block_product_heading  [private]
+  right  {}  block=sw_cms_block_product_heading  [private]
+
+computed
+  currentDeviceView: any  [private]
+  currentDeviceViewClass: any  [private]
+
 blocks
   sw_cms_block_product_heading  [private]
     sw_cms_block_product_heading_slot_left  [private]

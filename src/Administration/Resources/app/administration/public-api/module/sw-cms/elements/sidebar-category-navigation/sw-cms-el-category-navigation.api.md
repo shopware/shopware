@@ -11,6 +11,12 @@ component sw-cms-el-category-navigation  private  js  [private]
   template src/module/sw-cms/elements/sidebar-category-navigation/component/sw-cms-el-category-navigation.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element, placeholder  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_element_category_navigation  [private]
 ```

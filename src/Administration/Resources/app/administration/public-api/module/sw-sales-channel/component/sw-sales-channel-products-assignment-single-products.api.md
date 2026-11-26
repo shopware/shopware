@@ -10,6 +10,39 @@ component sw-sales-channel-products-assignment-single-products  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/sw-sales-channel-products-assignment-single-products.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  containerStyle: object
+  salesChannel: object
+
+emits
+  selection-change(...args: any[])
+
+data
+  isLoading: any
+  limit: any
+  page: any
+  products: any
+  searchTerm: any
+  total: any
+
+computed
+  assetFilter: any
+  productColumns: any
+  productCriteria: any
+  productRepository: any
+
+methods
+  getProducts(): Promise<any>
+  onChangePage(data: any): any
+  onChangeSearchTerm(searchTerm: any): any
+  onSelectionChange(selection: any): any
+
 blocks
   sw_sales_channel_products_assignment_single_products
     sw_sales_channel_products_assignment_single_products_primary
@@ -21,4 +54,7 @@ blocks
 
 crossings
   v-if  sw_sales_channel_products_assignment_single_products_primary_listing -> sw_sales_channel_products_assignment_single_products_primary_empty_state
+
+refs
+  cardSectionSecondary  -> sw-card-section  block=sw_sales_channel_products_assignment_single_products_secondary
 ```

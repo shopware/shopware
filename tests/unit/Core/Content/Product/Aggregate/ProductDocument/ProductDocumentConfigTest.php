@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductDocument;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent;
 use Shopware\Core\Framework\Context;
@@ -20,7 +22,7 @@ class ProductDocumentConfigTest extends TestCase
     public function testFileTypesAreCleanedUp(): void
     {
         $context = Context::createDefaultContext();
-        $config = self::config(['PDF', ' .docx', 'pdf', '']);
+        $config = self::config(['DOCX', ' .pdf', 'pdf', '']);
 
         static::assertSame(['pdf', 'docx'], $config->getAllowedExtensions($context));
     }
@@ -58,6 +60,19 @@ class ProductDocumentConfigTest extends TestCase
         static::assertSame(['pdf', 'docx'], $config->getAllowedExtensions($context));
     }
 
+    public function testFileTypesThatExtensionsAllowForPublicMediaAreAllowed(): void
+    {
+        $context = Context::createDefaultContext();
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(MediaFileExtensionWhitelistEvent::class, static function (MediaFileExtensionWhitelistEvent $event): void {
+            $event->setWhitelist([...$event->getWhitelist(), 'zip']);
+        });
+
+        $config = self::config(['pdf', 'zip'], dispatcher: $dispatcher, publicMediaExtensions: ['pdf']);
+
+        static::assertSame(['pdf', 'zip'], $config->getAllowedExtensions($context));
+    }
+
     /**
      * @param list<string|int> $allowedExtensions
      * @param list<string> $publicMediaExtensions
@@ -67,6 +82,6 @@ class ProductDocumentConfigTest extends TestCase
         $dispatcher ??= new EventDispatcher();
 
         /** @phpstan-ignore argument.type */
-        return new ProductDocumentConfig($dispatcher, $allowedExtensions, $maxFileSize, $publicMediaExtensions);
+        return new ProductDocumentConfig($dispatcher, $allowedExtensions, $maxFileSize, new MediaFileExtensionListProvider($dispatcher, $publicMediaExtensions, []));
     }
 }

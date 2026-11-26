@@ -11,6 +11,30 @@ component sw-first-run-wizard-mailer-selection  private  js  [private]
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection/sw-first-run-wizard-mailer-selection.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  systemConfigApiService  [private]
+
+emits
+  buttons-update(...args: any[])  [private]
+  frw-redirect(...args: any[])  [private]
+  frw-set-title(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  mailAgent: any  [private]
+
+computed
+  assetFilter: any  [private]
+  buttonConfig: any  [private]
+  nextLabel: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  handleSelection(): Promise<any>  [private]
+  setMailAgent(name: any): any  [private]
+  setTitle(): any  [private]
+  updateButtons(): any  [private]
+
 blocks
   sw_first_run_wizard_mailer_selection  [private]
 ```

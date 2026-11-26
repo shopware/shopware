@@ -10,6 +10,29 @@ component sw-settings-state-machine-list  public  js
   source src/module/sw-settings-state-machine/page/sw-settings-state-machine-list/index.js
   template src/module/sw-settings-state-machine/page/sw-settings-state-machine-list/sw-settings-state-machine-list.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  stateMachines: any
+  total: any
+
+computed
+  stateMachineColumns: any
+  stateMachineRepository: any
+
+methods
+  createdComponent(): any
+  loadStateMachines(): Promise<any>
+  onChangeLanguage(): any
+  onInlineEditCancel(): any
+  onInlineEditSave(stateMachine: any): Promise<any>
+
 blocks
   sw_settings_state_machine_list
     sw_settings_state_machine_list_content

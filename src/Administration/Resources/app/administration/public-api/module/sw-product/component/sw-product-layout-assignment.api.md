@@ -10,6 +10,26 @@ component sw-product-layout-assignment  public  js
   source src/module/sw-product/component/sw-product-layout-assignment/index.js
   template src/module/sw-product/component/sw-product-layout-assignment/sw-product-layout-assignment.html.twig
 
+inject
+  acl
+
+props
+  cmsPage?: object  default=null
+  product?: object  default=null
+
+emits
+  button-delete-click(...args: any[])
+  button-edit-click(...args: any[])
+  modal-layout-open(...args: any[])
+
+computed
+  pageName: any
+
+methods
+  onLayoutReset(): any
+  openInPageBuilder(): any
+  openLayoutModal(): any
+
 blocks
   sw_product_layout_assignment
     sw_product_layout_assignment_description

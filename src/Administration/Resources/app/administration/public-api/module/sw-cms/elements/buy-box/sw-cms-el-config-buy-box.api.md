@@ -11,6 +11,34 @@ component sw-cms-el-config-buy-box  private  js  [private]
   template src/module/sw-cms/elements/buy-box/config/sw-cms-el-config-buy-box.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+
+computed
+  alignmentOptions: any  [private]
+  isProductPage: any  [private]
+  productCriteria: any  [private]
+  productRepository: any  [private]
+  productSelectContext: any  [private]
+  selectedProductCriteria: any  [private]
+  tabs: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  deleteProduct(): any  [private]
+  fetchProduct(productId: any): Promise<any>  [private]
+  onProductChange(productId: any): Promise<any>  [private]
+
 blocks
   sw_cms_element_buy_box_config  [private]
     sw_cms_element_buy_box_config_tabs  [private]
@@ -28,9 +56,13 @@ blocks
       sw_cms_element_buy_box_config_product_select  [after v-if] [scope: active] [until v6.8.0] [private]
         sw_cms_element_buy_box_config_product_select_result_item  [scope: active, isInherited] [until v6.8.0] [private]
           sw_cms_element_buy_box_config_product_select_result_item_inner  [scope: active, index, isInherited, item] [until v6.8.0] [private]
-            sw_entity_single_select_base_results_list_result_label  [scope: active, index, isInherited, item] [until v6.8.0] [private]
+            sw_entity_single_select_base_results_list_result_label  [scope: active, index, isInherited, item] [until v6.8.0] [deprecated tag:v6.8.0] [private]
         sw_cms_element_buy_box_config_product_selection_label  [scope: active, isInherited] [until v6.8.0] [private]
-          sw_cms_element_buy_box_config_product_variant_label  [scope: active, isInherited] [until v6.8.0] [private]
+          sw_cms_element_buy_box_config_product_variant_label  [scope: active, isInherited] [until v6.8.0] [deprecated tag:v6.8.0] [private]
       sw_cms_element_buy_box_config_tab_content  [scope: active] [until v6.8.0] [private]
       sw_cms_element_buy_box_config_tab_option  [scope: active] [until v6.8.0] [private]
+
+refs
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_buy_box_config_mt_product_select  [from v6.8.0] [private]
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_buy_box_config_product_select  [until v6.8.0] [private]
 ```

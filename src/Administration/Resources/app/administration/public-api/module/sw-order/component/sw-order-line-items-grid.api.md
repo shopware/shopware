@@ -10,6 +10,79 @@ component sw-order-line-items-grid  public  js
   source src/module/sw-order/component/sw-order-line-items-grid/index.js
   template src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig
 
+inject
+  acl
+  orderService
+  repositoryFactory
+
+props
+  context: object
+  editable?: boolean  default=true
+  order: object
+
+emits
+  existing-item-edit(...args: any[])
+  item-cancel(...args: any[])
+  item-delete(...args: any[])
+  item-edit(...args: any[])
+
+data
+  isLoading: any
+  limit: any
+  nestedLineItemsModal: any
+  page: any
+  searchTerm: any
+  selectedItems: any
+  showDeleteModal: any
+
+computed
+  canCreateDiscounts: any
+  currencyFilter: any
+  getLineItemColumns: any
+  isProductNumberColumnVisible: any
+  lineItemIds: any
+  lineItemTypes: any
+  orderLineItemRepository: any
+  orderLineItems: any
+  paginatedLineItems: any
+  salesChannelId: any
+  taxStatus: any
+  unitPriceLabel: any
+
+methods
+  canOpenProduct(item: any): any
+  checkItemPrice(price: any, item: any): any
+  closeNestedLineItemsModal(): any
+  createNewOrderLineItem(): any
+  getMinItemPrice(id: any): any
+  getProductRoute(item: any): any
+  hasChildren(item: any): any
+  hasMultipleTaxes(item: any): any
+  insertLineItem(item: any): any
+  isContainerItem(item: any): any
+  isCreditItem(id: any): any
+  isProductItem(item: any): any
+  isPromotionItem(item: any): any
+  itemCreatedFromProduct(id: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(): any
+  onDeleteItem(item: any): any
+  onDeleteSelectedItems(): any
+  onInlineEditCancel(item: any): any
+  onInlineEditSave(item: any): Promise<any>
+  onInsertBlankItem(): any
+  onInsertCreditItem(): any
+  onInsertExistingItem(): any
+  onPageChange(arg0: any): any
+  onSearchTermChange(searchTerm: any): any
+  onSelectionChanged(selection: any): any
+  openNestedLineItemsModal(item: any): any
+  refreshChildrenQuantity(children: any, oldParentQuantity: any, newParentQuantity: any): any
+  showTaxRulesInlineEdit(item: any): any
+  showTaxValue(item: any): any
+  tooltipTaxDetail(item: any): any
+  updateItemQuantity(item: any, newQuantity?: any = undefined): any
+
 blocks
   sw_order_line_items_grid
     sw_order_line_items_grid_actions
@@ -66,4 +139,8 @@ crossings
   v-if  sw_order_line_items_grid_grid_columns_tax_content_tooltip -> sw_order_line_items_grid_grid_columns_tax_content
   v-if  sw_order_line_items_grid_grid_columns_tax_inline_edit -> sw_order_line_items_grid_grid_columns_tax_content_tooltip
   v-if  sw_order_line_items_grid_grid_columns_unit_price_inline_edit -> sw_order_line_items_grid_grid_columns_unit_price_content
+
+refs
+  dataGrid  -> sw-data-grid  block=sw_order_line_items_grid_grid
+  itemFilter  -> sw-card-filter  block=sw_order_line_items_grid_line_item_filter
 ```

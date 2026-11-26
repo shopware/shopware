@@ -10,6 +10,15 @@ component sw-category-detail-seo  public  js
   source src/module/sw-category/view/sw-category-detail-seo/index.js
   template src/module/sw-category/view/sw-category-detail-seo/sw-category-detail-seo.html.twig
 
+inject
+  acl
+
+props
+  isLoading: boolean
+
+computed
+  category: any
+
 blocks
   sw_category_detail_seo
     sw_category_detail_seo_config

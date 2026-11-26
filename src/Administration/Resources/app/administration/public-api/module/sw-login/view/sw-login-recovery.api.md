@@ -11,6 +11,31 @@ component sw-login-recovery  private  ts  [private]
   template src/module/sw-login/view/sw-login-recovery/sw-login-recovery.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  validationApiService  [private]
+
+emits
+  is-loading(...args: any[])  [private]
+  is-not-loading(...args: any[])  [private]
+
+data
+  email: any  [private]
+  isEmailValid: any  [private]
+  rateLimitMessage: any  [private]
+  rateLimitTimeout: any  [private]
+
+computed
+  isRateLimited: any  [private]
+  showLinkExpiredError: any  [private]
+
+methods
+  checkEmailIsValid(): Promise<any>  [private]
+  debouncedEmailValidation(): any  [private]
+  displayRecoveryInfo(): any  [private]
+  handleRateLimitError(error: unknown): boolean  [private]
+  mountedComponent(): any  [private]
+  sendRecoveryMail(): any  [private]
+
 blocks
   sw_login_recovery  [private]
     sw_login_recovery_alert  [private]
@@ -20,4 +45,7 @@ blocks
     sw_login_recovery_headline  [private]
       sw_login_recovery_text  [private]
     sw_login_recovery_link_expired  [after v-if] [private]
+
+refs
+  swLoginRecoveryEmailField  -> mt-text-field  block=sw_login_recovery_form_email_field  [private]
 ```

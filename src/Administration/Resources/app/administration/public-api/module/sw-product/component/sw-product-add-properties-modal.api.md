@@ -10,6 +10,34 @@ component sw-product-add-properties-modal  public  js
   source src/module/sw-product/component/sw-product-add-properties-modal/index.js
   template src/module/sw-product/component/sw-product-add-properties-modal/sw-product-add-properties-modal.html.twig
 
+inject
+  repositoryFactory
+
+props
+  newProperties: any[]
+  propertiesAvailable?: boolean  default=true
+
+emits
+  modal-cancel(...args: any[])
+  modal-save(...args: any[])
+
+slots
+  toolbar  {}  block=sw_property_search_field
+  toolbar-search-field  {}  block=sw_property_search_field
+
+data
+  properties: any
+
+computed
+  assetFilter: any
+  showSaveButton: any
+
+methods
+  onCancel(): any
+  onOpenProperties(): any
+  onSave(): any
+  onSelectOption(selection: any): any
+
 blocks
   sw_product_add_properties_modal
     sw_product_add_properties_modal_button_cancel
@@ -19,4 +47,8 @@ blocks
         sw_product_add_properties_modal_filled_state_search_field
           sw_property_search_field  [scope: focus, input, searchTerm]
             sw_productadd_properties_selection_search_field  [scope: focus, input, searchTerm]
+
+refs
+  propertySearch  -> sw-property-search  block=sw_product_add_properties_modal_filled_state_search_field
+  searchField  -> sw-simple-search-field  block=sw_productadd_properties_selection_search_field
 ```

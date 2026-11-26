@@ -85,6 +85,7 @@ app/storefront/dist/*
 app/storefront/test/app
 
 public/
+/sbom/
 
 *storybook.log
 storybook-static

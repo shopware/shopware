@@ -11,6 +11,41 @@ component sw-cms-block-config  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-block/sw-cms-block-config/sw-cms-block-config.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-state  [private]
+
+inject
+  cmsService  [private]
+  repositoryFactory  [private]
+
+props
+  block: Entity<'cms_block'>  [private]
+
+emits
+  block-delete(...args: any[])  [private]
+  block-duplicate(...args: any[])  [private]
+
+computed
+  backgroundModeOptions: any  [private]
+  blockConfig: any  [private]
+  cmsBlocks: any  [private]
+  cmsPageState: any  [private]
+  combinedDuplicateClasses: any  [private]
+  combinedDuplicateDisabled: any  [private]
+  duplicateDisabled: any  [private]
+  mediaRepository: any  [private]
+  quickactionClasses: any  [private]
+  quickactionsDisabled: any  [private]
+  uploadTag: any  [private]
+
+methods
+  onBlockDelete(): any  [private]
+  onBlockDuplicate(): any  [private]
+  onBlockNameChange(value: string): any  [private]
+  onSetBackgroundMedia(arg0: Entity<'media'>[]): any  [private]
+  removeMedia(): any  [private]
+  successfulUpload(uploadedMedia: MediaUploadResult): Promise<any>  [private]
+
 blocks
   sw_cms_block_config  [private]
     sw_cms_block_config__quickactions  [private]

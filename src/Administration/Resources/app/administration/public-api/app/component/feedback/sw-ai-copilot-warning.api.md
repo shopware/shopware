@@ -11,6 +11,12 @@ component sw-ai-copilot-warning  private  ts  [private]
   template src/app/component/feedback/sw-ai-copilot-warning/sw-ai-copilot-warning.html.twig  [private]
   visibility-source export  [private]
 
+props
+  text?: string  default=''  [private]
+
+computed
+  warningText: string  [private]
+
 blocks
   sw_ai_copilot_warning  [private]
 ```

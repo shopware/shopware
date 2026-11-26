@@ -11,6 +11,13 @@ component sw-help-text  private  js  [private]
   template src/app/component/base/sw-help-text/sw-help-text.html.twig  [private]
   visibility-source export  [private]
 
+props
+  hideDelay?: number  default=100  [private]
+  showDelay?: number  default=100  [private]
+  text: string  default=''  [private]
+  tooltipPosition?: string  default='top'  [private]
+  width?: number  default=200  [private]
+
 blocks
   sw_help_text  [private]
     sw_help_text_icon  [private]

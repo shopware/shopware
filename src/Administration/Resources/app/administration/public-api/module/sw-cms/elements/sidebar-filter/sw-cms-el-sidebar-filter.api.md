@@ -11,6 +11,15 @@ component sw-cms-el-sidebar-filter  private  js  [private]
   template src/module/sw-cms/elements/sidebar-filter/component/sw-cms-el-sidebar-filter.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+computed
+  componentClasses: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_element_sidebar_filter  [private]
 ```

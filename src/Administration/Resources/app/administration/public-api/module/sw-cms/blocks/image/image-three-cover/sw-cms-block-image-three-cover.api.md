@@ -11,6 +11,11 @@ component sw-cms-block-image-three-cover  private  js  [private]
   template src/module/sw-cms/blocks/image/image-three-cover/component/sw-cms-block-image-three-cover.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center  {}  block=sw_cms_block_image_three_cover  [private]
+  left  {}  block=sw_cms_block_image_three_cover  [private]
+  right  {}  block=sw_cms_block_image_three_cover  [private]
+
 blocks
   sw_cms_block_image_three_cover  [private]
 ```

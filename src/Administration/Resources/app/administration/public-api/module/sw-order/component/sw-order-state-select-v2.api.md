@@ -10,6 +10,41 @@ component sw-order-state-select-v2  public  js
   source src/module/sw-order/component/sw-order-state-select-v2/index.js
   template src/module/sw-order/component/sw-order-state-select-v2/sw-order-state-select-v2.html.twig
 
+inject
+  stateStyleDataProviderService
+
+props
+  backgroundStyle?: string  default=''  [deprecated tag:v6.8.0]
+  disabled?: boolean  default=false
+  label?: string  default=null
+  placeholder?: string  default=null
+  roundedStyle?: boolean  default=false  [deprecated tag:v6.8.0]
+  small?: boolean  default=true
+  stateName?: string  default=null
+  stateType: string
+  transitionOptions?: any[]  default=factory
+
+emits
+  state-select(...args: any[])
+
+slots
+  hint  {}  block=sw_order_state_select_v2_field
+
+data
+  selectedActionName: any
+
+computed
+  currentStateOptionId: any
+  selectPlaceholder: any
+  selectStyle: any  [deprecated tag:v6.8.0]
+  selectValue: any
+  selectable: any
+
+methods
+  getStateVariant(stateName: any): any
+  onSelectValueChange(value: any): any
+  onStateChangeClicked(): any
+
 blocks
   sw_order_state_select_v2
     sw_order_state_select_v2_field

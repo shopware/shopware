@@ -10,6 +10,67 @@ component sw-datepicker-deprecated  public  js
   source src/app/component/form/sw-datepicker-deprecated/index.js
   template src/app/component/form/sw-datepicker-deprecated/sw-datepicker-deprecated.html.twig
 
+mixins
+  sw-form-field, remove-api-error
+
+inject
+  feature
+
+props
+  config?: object  default=factory
+  dateType?: string  default='date'
+  disabled?: boolean  default=false
+  hideHint?: boolean  default=false
+  placeholder?: string  default=''
+  required?: boolean  default=false
+  value?: string  default=null
+
+emits
+  inheritance-remove(...args: any[])
+  inheritance-restore(...args: any[])
+  update:value(...args: any[])
+
+slots
+  label  {}  block=sw_datepicker
+
+data
+  defaultConfig: any
+  flatpickrInstance: any
+  isDatepickerOpen: any
+
+computed
+  additionalAttrs: any
+  currentFlatpickrConfig: any
+  enableTime: any
+  is24HourFormat: any
+  locale: any
+  noCalendar: any
+  placeholderText: any
+  showTimeZoneHint: any
+  suffixName: any
+  timeZoneHint: any
+  timezoneFormattedValue: any
+  userTimeZone: any
+
+methods
+  beforeDestroyComponent(): any
+  createConfig(): any
+  createFlatpickrInstance(): any
+  createdComponent(): any
+  emitValue(value: any): any
+  getDateStringFormat(options: any): any
+  getEventNames(): any
+  getMergedConfig(newConfig: any): any
+  kebabToCamel(string: any): any
+  mountedComponent(): any
+  openDatepicker(): any
+  setDatepickerValue(value: any): any
+  unsetValue(): any
+  updateFlatpickrInstance(): any
+
 blocks
   sw_datepicker
+
+refs
+  flatpickrInput  -> input  block=sw_datepicker
 ```

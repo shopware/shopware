@@ -10,6 +10,37 @@ component sw-bulk-edit-change-type-field-renderer  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer/sw-bulk-edit-change-type-field-renderer.html.twig
 
+inject
+  feature
+
+props
+  bulkEditData: object
+  disabled?: boolean  default=false
+  entity: object
+  formFields: any[]
+
+emits
+  change-value(...args: any[])
+  inheritance-remove(...args: any[])
+  inheritance-restore(...args: any[])
+  update:default-unit(...args: any[])
+
+slots
+  valueField  { ...{formField, entity, index, isDisplayingValue } }  block=sw_bulk_edit_change_type_field_renderer_change_form_value_field_without_change_type
+  valueFieldWithBoxType  { ...{formField, entity, index, isDisplayingValue } }  block=sw_bulk_edit_change_type_field_renderer_change_form_value_field
+
+data
+  isDisplayingValue: any
+
+methods
+  getConfigValue(formField: any, key: any): any
+  hasFormFieldConfig(formField: any): any
+  onChangeToggle(value: any, fieldName: any): any
+  onChangeValue(value: any, fieldName: any, valueChange?: any = true): any
+  onInheritanceRemove(item: any): any
+  onInheritanceRestore(item: any): any
+  showSelectBoxType(formField: any): any
+
 blocks
   sw_bulk_edit_change_type_field_renderer
     sw_bulk_edit_change_type_field_renderer_container  [scope: formField, index]

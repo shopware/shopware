@@ -11,6 +11,50 @@ component sw-flow-tag-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-tag-modal/sw-flow-tag-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification  [private]
+
+inject
+  acl  [private]
+  flowBuilderService  [private]
+  repositoryFactory  [private]
+
+props
+  action?: string  default=null  [private]
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  entity: any  [private]
+  entityError: any  [private]
+  entityOptions: any  [private]
+  isLoading: any  [private]
+  tagCollection: any  [private]
+  tagError: any  [private]
+
+computed
+  isNewTag: any  [private]
+  tagCriteria: any  [private]
+  tagRepository: any  [private]
+  tagTitle: any  [private]
+  triggerActions: any  [private]
+  triggerEvent: any  [private]
+
+methods
+  createTagCollection(): any  [private]
+  createdComponent(): any  [private]
+  fieldError(field: any): any  [private]
+  getConfig(): any  [private]
+  getEntityOptions(): any  [private]
+  getTagCollection(): Promise<any>  [private]
+  onAddTag(data: any): any  [private]
+  onClose(): any  [private]
+  onRemoveTag(data: any): any  [private]
+  onSaveTag(): any  [private]
+
 blocks
   sw_flow_tag_modal  [private]
     sw_flow_tag_modal_content  [private]

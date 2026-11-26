@@ -11,6 +11,28 @@ component sw-label  private  js  [private]
   template src/app/component/base/sw-label/sw-label.html.twig  [private]
   visibility-source export  [private]
 
+props
+  appearance?: string  default='default'  [private]
+  caps?: boolean  default=false  [private]
+  dismissable?: boolean  default=true  [private]
+  ghost?: boolean  default=false  [private]
+  light?: boolean  default=false  [private]
+  onDismiss?: (...args: any[]) => any  default=null  [private]
+  size?: string  default='default'  [private]
+  variant?: string  default=''  [private]
+
+emits
+  dismiss(...args: any[])  [private]
+  selected(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_label_text_holder  [private]
+  dismiss-icon  {}  block=sw_select_selection_dismiss_icon  [private]
+
+computed
+  labelClasses: any  [private]
+  showDismissable: any  [private]
+
 blocks
   sw_label  [private]
     sw_label_dismiss  [private]

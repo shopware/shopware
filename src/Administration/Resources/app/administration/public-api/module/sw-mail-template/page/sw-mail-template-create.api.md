@@ -11,6 +11,11 @@ component sw-mail-template-create  public  js
   source src/module/sw-mail-template/page/sw-mail-template-create/index.js
   template src/module/sw-mail-template/page/sw-mail-template-create/sw-mail-template-create.html.twig
 
+methods
+  createdComponent(): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_mail_template_detail  [inherited]
     sw_mail_template_detail_actions  [inherited]
@@ -24,8 +29,8 @@ blocks
       sw_mail_template_detail_content_language_info  [inherited]
       sw_mail_template_detail_mail_text_info  [inherited]
         sw_mail_template_detail_preview_modal  [inherited]
-          sw_mail_template_detail_preview_modal_footer  [inherited] [after v-if] [until v6.8.0]
-            sw_mail_template_detail_preview_modal_footer_cancel  [inherited] [until v6.8.0]
+          sw_mail_template_detail_preview_modal_footer  [inherited] [after v-if] [until v6.8.0] [deprecated tag:v6.8.0]
+            sw_mail_template_detail_preview_modal_footer_cancel  [inherited] [until v6.8.0] [deprecated tag:v6.8.0]
         sw_mail_template_mail_text_form_content_html_field  [inherited]
         sw_mail_template_mail_text_form_content_plain_field  [inherited]
       sw_mail_template_detail_options_info  [inherited]
@@ -49,4 +54,9 @@ blocks
               sw_mail_template_available_variables_tree_items_item  [inherited] [scope: disableContextMenu, draggedItem, onChangeRoute, sortable, treeItems]
                 sw_mail_template_available_variables_tree_items_item_actions  [inherited] [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
                 sw_mail_template_available_variables_tree_items_item_grip  [inherited] [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
+
+refs
+  htmlEditor  -> sw-code-editor  block=sw_mail_template_mail_text_form_content_html_field
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_mail_template_detail_sidebar_inner_media
+  plainEditor  -> sw-code-editor  block=sw_mail_template_mail_text_form_content_plain_field
 ```

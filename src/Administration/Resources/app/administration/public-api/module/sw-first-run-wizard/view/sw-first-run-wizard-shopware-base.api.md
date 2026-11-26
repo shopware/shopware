@@ -10,6 +10,9 @@ component sw-first-run-wizard-shopware-base  public  js
   source src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base/index.js
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base/sw-first-run-wizard-shopware-base.html.twig
 
+computed
+  filteredAttributes: any
+
 blocks
   sw_first_run_wizard_shopware_base
 ```

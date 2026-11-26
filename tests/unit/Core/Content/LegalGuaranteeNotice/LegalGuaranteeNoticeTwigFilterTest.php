@@ -23,11 +23,12 @@ class LegalGuaranteeNoticeTwigFilterTest extends TestCase
 
         $filters = $filter->getFilters();
 
-        static::assertCount(3, $filters);
+        static::assertCount(4, $filters);
         static::assertContainsOnlyInstancesOf(TwigFilter::class, $filters);
 
         $names = array_map(static fn (TwigFilter $f) => $f->getName(), $filters);
         static::assertContains('sw_legal_guarantee_notice', $names);
+        static::assertContains('sw_legal_guarantee_notice_text', $names);
         static::assertContains('sw_legal_guarantee_notice_link', $names);
         static::assertContains('sw_garan_label_link', $names);
     }
@@ -43,6 +44,19 @@ class LegalGuaranteeNoticeTwigFilterTest extends TestCase
         $filter = new LegalGuaranteeNoticeTwigFilter($renderer);
 
         static::assertSame('<svg>notice</svg>', $filter->render('language-id'));
+    }
+
+    public function testTextDelegatesToRenderer(): void
+    {
+        $renderer = $this->createMock(LegalGuaranteeNoticeRenderer::class);
+        $renderer->expects($this->once())
+            ->method('renderTextForLanguage')
+            ->with('language-id')
+            ->willReturn('<div lang="de"><p>notice</p></div>');
+
+        $filter = new LegalGuaranteeNoticeTwigFilter($renderer);
+
+        static::assertSame('<div lang="de"><p>notice</p></div>', $filter->text('language-id'));
     }
 
     public function testLinkDelegatesToRenderer(): void

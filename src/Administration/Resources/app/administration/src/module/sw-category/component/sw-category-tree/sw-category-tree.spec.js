@@ -55,7 +55,7 @@ const interactiveCategories = {
     }),
 };
 
-async function createWrapper(categories = null, props = {}) {
+async function createWrapper(categories = null, props = {}, repositoryFactory = null) {
     const routes = [
         {
             name: 'sw.category.detail',
@@ -91,7 +91,7 @@ async function createWrapper(categories = null, props = {}) {
             },
             provide: {
                 syncService: {},
-                repositoryFactory: {
+                repositoryFactory: repositoryFactory ?? {
                     create: () => ({
                         search: () =>
                             Promise.resolve([
@@ -728,5 +728,32 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             initialLoadedCategoryCount + Object.keys(toLoadCategories).length,
         );
         expect(wrapper.vm.$refs.categoryTree.openTreeById).toHaveBeenCalled();
+    });
+
+    it('should not index the products of a category moved to another parent', async () => {
+        jest.useFakeTimers();
+
+        const categoryRepository = {
+            search: () => Promise.resolve([{ id: '1a' }]),
+            get: () => Promise.resolve(),
+            sync: jest.fn(() => Promise.resolve()),
+        };
+        const repositoryFactory = { create: jest.fn(() => categoryRepository) };
+
+        const wrapper = await createWrapper(null, {}, repositoryFactory);
+        await flushPromises();
+
+        wrapper.findComponent('.sw-tree').vm.$emit('drag-end', {
+            draggedItem: { id: 'moved', children: [] },
+            oldParentId: 'old-parent',
+            newParentId: 'new-parent',
+        });
+        jest.runAllTimers();
+        await flushPromises();
+
+        expect(categoryRepository.sync).toHaveBeenCalledTimes(2);
+        expect(repositoryFactory.create).not.toHaveBeenCalledWith('product');
+
+        jest.useRealTimers();
     });
 });

@@ -11,7 +11,13 @@ component sw-product-document-language-hint  private  ts  [private]
   template src/module/sw-product/component/sw-product-document-form/sw-product-document-language-hint/sw-product-document-language-hint.html.twig  [private]
   visibility-source export  [private]
 
+methods
+  switchToDefaultLanguage(): void  [private]
+
 blocks
   sw_product_document_language_hint  [private]
     sw_product_document_language_hint_link  [private]
+
+notes
+  unresolved options setup  [private]
 ```

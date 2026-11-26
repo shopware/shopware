@@ -10,8 +10,67 @@ component sw-order-user-card  public  js
   source src/module/sw-order/component/sw-order-user-card/index.js
   template src/module/sw-order/component/sw-order-user-card/sw-order-user-card.html.twig
 
+mixins
+  salutation
+
+inject
+  customSnippetApiService
+  orderService
+  repositoryFactory
+
+props
+  currentOrder: object
+  isEditing: boolean
+  isLoading: boolean
+  versionContext: object
+
+emits
+  error(...args: any[])
+  onEditDeliveryAddress(...args: any[])
+  order-change(...args: any[])
+  order-reset(...args: any[])
+
+slots
+  additional-actions  {}  block=sw_order_user_card_row_primary
+
+data
+  addressBeingEdited: any
+  countries: any
+  formattingAddress: any
+
+computed
+  OrderTagRepository: any
+  billingAddress: any
+  countryRepository: any
+  currencyFilter: any
+  delivery: any
+  fullName: any
+  hasDeliveries: any
+  hasDeliveryTrackingCode: any
+  hasDifferentBillingAndShippingAddress: any
+  hasTags: any
+  lastChangedDate: any
+  orderAddressRepository: any
+  orderDate: any
+
+methods
+  countryCriteria(): any
+  createdComponent(): any
+  emitChange(): any
+  onAddNewDeliveryAddress(): any
+  onAddTag(item: any): any
+  onAddressModalAddressSelected(address: any): any
+  onAddressModalSave(): any
+  onEditBillingAddress(): any
+  onEditDeliveryAddress(): any
+  onRemoveTag(item: any): any
+  onResetOrder(): any
+  reload(): any
+  renderFormattingAddress(): any
+  renderTrackingUrl(trackingCode: any, shippingMethod: any): any
+
 blocks
-  sw_order_detail_base_order_overview
+  sw_order_detail_base_order_overview  [deprecated tag:v6.8.0]
     sw_order_detail_base_address_modal
     sw_order_user_card_row_primary
       sw_order_detail_base_order_overview_columns

@@ -10,6 +10,50 @@ component sw-settings-salutation-detail  public  js
   source src/module/sw-settings-salutation/page/sw-settings-salutation-detail/index.js
   template src/module/sw-settings-salutation/page/sw-settings-salutation-detail/sw-settings-salutation-detail.html.twig
 
+mixins
+  notification, placeholder, discard-detail-page-changes
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+props
+  salutationId?: string  default=null
+
+data
+  customFieldSets: any
+  entityName: any
+  invalidKey: any
+  isKeyChecking: any
+  isLoading: any
+  isSaveSuccessful: any
+  salutation: any
+
+computed
+  allowSave: any
+  entityDescription: any
+  identifier: any
+  invalidKeyError: any
+  salutationDisplayNameError: any
+  salutationLetterNameError: any
+  salutationPositionError: any
+  salutationRepository: any
+  salutationSalutationKeyError: any
+  showCustomFields: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  createdComponent(): any
+  loadCustomFieldSets(): any
+  onCancel(): any
+  onChange(): any
+  onChangeDebounce(): any
+  onChangeLanguage(): any
+  onSave(): Promise<any>
+  saveFinish(): any
+
 blocks
   sw_settings_salutation_detail
     sw_settings_salutation_detail_actions

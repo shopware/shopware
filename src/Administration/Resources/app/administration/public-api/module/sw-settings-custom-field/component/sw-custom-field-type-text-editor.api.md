@@ -10,6 +10,11 @@ component sw-custom-field-type-text-editor  public  js
   registered src/module/sw-settings-custom-field/index.js
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-text-editor/index.js
 
+data
+  propertyNames: object
+    label: any
+    placeholder: any
+
 blocks
   sw_custom_field_type_base  [inherited]
     sw_custom_field_type_base_content  [inherited]

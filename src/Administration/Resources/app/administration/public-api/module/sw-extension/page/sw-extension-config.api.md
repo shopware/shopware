@@ -11,6 +11,35 @@ component sw-extension-config  private  ts  [private]
   template src/module/sw-extension/page/sw-extension-config/sw-extension-config.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  shopwareExtensionService  [private]
+
+props
+  namespace: string  [private]
+
+data
+  extension: any  [private]
+  fromLink: any  [private]
+  salesChannelId: any  [private]
+
+computed
+  defaultThemeAsset: string  [private]
+  domain: string  [private]
+  extensionLabel: string  [private]
+  image: string  [private]
+  myExtensions: Extension[]  [private]
+
+methods
+  createdComponent(): Promise<void>  [private]
+  onSave(): Promise<void>  [private]
+  refreshExtension(): void  [private]
+
 blocks
   sw_extension_config  [private]
+
+refs
+  systemConfig  -> sw-system-config  block=sw_extension_config  [private]
 ```

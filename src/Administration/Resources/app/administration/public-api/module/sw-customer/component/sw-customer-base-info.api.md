@@ -10,6 +10,33 @@ component sw-customer-base-info  public  js
   source src/module/sw-customer/component/sw-customer-base-info/index.js
   template src/module/sw-customer/component/sw-customer-base-info/sw-customer-base-info.html.twig
 
+inject
+  repositoryFactory
+
+props
+  customer: object
+  customerEditMode: boolean  default=false
+  isLoading?: boolean  default=false
+
+data
+  currencyCode: any
+  customerLanguage: any
+  orderCount: any
+
+computed
+  currencyFilter: any
+  customerLanguageName: any
+  dateFilter: any
+  isBusinessAccountType: any
+  languageCriteria: any
+  languageId: any
+  languageRepository: any
+  orderCriteria: any
+  orderRepository: any
+
+methods
+  createdComponent(): any
+
 blocks
   sw_customer_base_info
     sw_customer_base_info_metadata
@@ -55,4 +82,7 @@ crossings
   v-if  sw_customer_base_metadata_customer_group_content -> sw_customer_base_metadata_customer_group_editor
   v-if  sw_customer_base_metadata_customer_number_content -> sw_customer_base_metadata_customer_number_editor
   v-if  sw_customer_base_metadata_language_content -> sw_customer_base_metadata_language_editor
+
+notes
+  unresolved computed ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].cust...
 ```

@@ -11,6 +11,11 @@ component sw-cms-block-product-three-column  private  js  [private]
   template src/module/sw-cms/blocks/commerce/product-three-column/component/sw-cms-block-product-three-column.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center  {}  block=sw_cms_block_product_three_column  [private]
+  left  {}  block=sw_cms_block_product_three_column  [private]
+  right  {}  block=sw_cms_block_product_three_column  [private]
+
 blocks
   sw_cms_block_product_three_column  [private]
 ```

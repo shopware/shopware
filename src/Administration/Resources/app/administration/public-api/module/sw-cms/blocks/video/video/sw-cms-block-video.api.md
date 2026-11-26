@@ -11,6 +11,9 @@ component sw-cms-block-video  private  ts  [private]
   template src/module/sw-cms/blocks/video/video/component/sw-cms-block-video.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  video  {}  block=sw_cms_block_video  [private]
+
 blocks
   sw_cms_block_video  [private]
     sw_cms_block_video_slot_video  [private]

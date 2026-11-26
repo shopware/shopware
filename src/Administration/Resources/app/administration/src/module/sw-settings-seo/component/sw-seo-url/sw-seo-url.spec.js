@@ -58,6 +58,8 @@ function expectedCurrentSeoUrl({ routeName, pathInfo, salesChannelId, foreignKey
     return { foreignKey, isCanonical: true, languageId: LANGUAGE_ID, pathInfo, routeName, salesChannelId, isModified: true };
 }
 
+let salesChannelSearchCriteria = [];
+
 async function createWrapper(stubs = {}) {
     return mount(await wrapTestComponent('sw-seo-url', { sync: true }), {
         global: {
@@ -76,6 +78,8 @@ async function createWrapper(stubs = {}) {
                             if (entity !== 'sales_channel') {
                                 return Promise.resolve([]);
                             }
+
+                            salesChannelSearchCriteria.push(criteria);
 
                             const { ids } = criteria;
 
@@ -98,6 +102,8 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeAclRoles = ['sales_channel_domain:read'];
+        salesChannelSearchCriteria = [];
         wrapper = await createWrapper();
         Shopware.Store.get('swSeoUrl').currentSeoUrl = '';
     });
@@ -330,6 +336,48 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         expect(wrapper.vm.headlessExternalStorefrontUrl).toBeNull();
         expect(wrapper.vm.seoUrlHelptext).toBeNull();
         expect(wrapper.vm.allowInput).toBe(true);
+    });
+
+    it('loads the sales channel domains only with the sales_channel_domain:read privilege', async () => {
+        wrapper.unmount();
+        salesChannelSearchCriteria = [];
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        setSalesChannels([SALES_CHANNELS[0]]);
+        await wrapper.setData({ showEmptySeoUrlError: false });
+        wrapper.findComponent('sw-sales-channel-switch-stub').vm.$emit('change-sales-channel-id', HEADLESS_SALES_CHANNEL_ID);
+        await flushPromises();
+
+        expect(salesChannelSearchCriteria).toHaveLength(2);
+        salesChannelSearchCriteria.forEach((criteria) => {
+            expect(criteria.hasAssociation('type')).toBe(true);
+            expect(criteria.hasAssociation('domains')).toBe(false);
+        });
+    });
+
+    it('does not report a missing external storefront domain for a headless channel when the domains are not readable', async () => {
+        wrapper.unmount();
+        global.activeAclRoles = [];
+        wrapper = await createWrapper({
+            'mt-card': { template: '<div><slot name="toolbar"></slot><slot></slot></div>' },
+            'sw-inherit-wrapper': {
+                template: '<div><slot name="content" v-bind="{ isInherited: false, currentValue: null }"></slot></div>',
+            },
+            'mt-text-field': {
+                props: ['disabled', 'helpText'],
+                template: '<div class="mt-text-field"><slot name="prefix"></slot></div>',
+            },
+        });
+        await flushPromises();
+        setSalesChannels([{ id: HEADLESS_SALES_CHANNEL_ID, typeId: HEADLESS_TYPE_ID }]);
+        await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: HEADLESS_SALES_CHANNEL_ID });
+
+        const seoPathField = wrapper.findComponent('.mt-text-field');
+        expect(seoPathField.props('disabled')).toBe(false);
+        expect(seoPathField.props('helpText')).toBeNull();
+        expect(seoPathField.text()).toBe('');
     });
 
     it('loads a selected sales channel that is not part of the initially loaded sales channels', async () => {

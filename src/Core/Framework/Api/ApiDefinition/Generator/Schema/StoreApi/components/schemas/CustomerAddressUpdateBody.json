@@ -5,7 +5,7 @@
     "components": {
         "schemas": {
             "CustomerAddressUpdateBody": {
-                "description": "Added since version: 6.7.17.0",
+                "description": "Added since version: 6.7.18.0",
                 "required": [
                     "countryId",
                     "zipcode",
@@ -26,11 +26,11 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "firstName": {
-                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. An omitted name keeps the stored value then.",
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. A new address needs the company instead then, and an update that omits the name keeps the stored value.",
                         "type": "string"
                     },
                     "lastName": {
-                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. An omitted name keeps the stored value then.",
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. A new address needs the company instead then, and an update that omits the name keeps the stored value.",
                         "type": "string"
                     },
                     "zipcode": {
@@ -50,7 +50,7 @@
                         ]
                     },
                     "company": {
-                        "description": "Company of the address. Required when `accountType` is `business`. An omitted company keeps the stored value only when the names are optional, see `firstName`. Otherwise it is stored as `null`.",
+                        "description": "Company of the address. Required when `accountType` is `business`, and when a new address omits the contact person. An update that omits the company keeps the stored value only when the names are optional, see `firstName`. Otherwise it is stored as `null`.",
                         "type": "string"
                     },
                     "street": {

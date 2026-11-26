@@ -10,7 +10,8 @@
                     "id",
                     "email",
                     "firstName",
-                    "lastName"
+                    "lastName",
+                    "displayName"
                 ],
                 "properties": {
                     "id": {
@@ -31,11 +32,11 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "firstName": {
-                        "description": "First name of the customer.",
+                        "description": "First name of the customer. Empty for a commercial account without a contact person, use `displayName` for rendering.",
                         "type": "string"
                     },
                     "lastName": {
-                        "description": "Last name of the customer.",
+                        "description": "Last name of the customer. Empty for a commercial account without a contact person, use `displayName` for rendering.",
                         "type": "string"
                     },
                     "company": {

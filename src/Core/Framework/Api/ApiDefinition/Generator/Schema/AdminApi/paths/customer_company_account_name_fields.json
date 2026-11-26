@@ -40,6 +40,12 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "description": "Missing privileges. The route requires `customer:read`."
                     }
                 }
             }

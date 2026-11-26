@@ -395,73 +395,26 @@ class DocumentRouteTest extends TestCase
     #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testAnonymousGuestCanDownload(): void
     {
-        $billingAddress = new OrderAddressEntity();
-        $billingAddress->setId(Uuid::randomHex());
-        $billingAddress->setZipcode('zipcode');
+        $this->assertAnonymousGuestCanDownload('email', 'email');
+    }
 
-        $customer = $this->createCustomer(Uuid::randomHex(), true);
+    /**
+     * @deprecated tag:v6.8.0 - remove together with DocumentRoute::checkGuestAuth()
+     */
+    #[DataProvider('provideInternationalizedGuestEmails')]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.8.0.0'])]
+    public function testAnonymousGuestWithInternationalizedEmailCanDownload(string $storedEmail, string $submittedEmail): void
+    {
+        $this->assertAnonymousGuestCanDownload($storedEmail, $submittedEmail);
+    }
 
-        $orderCustomer = new OrderCustomerEntity();
-        $orderCustomer->setId(Uuid::randomHex());
-        $orderCustomer->setCustomer($customer);
-        $orderCustomer->setCustomerId($customer->getId());
-        $orderCustomer->setEmail('email');
-
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setOrderCustomer($orderCustomer);
-        $order->setBillingAddress($billingAddress);
-
-        $document = $this->createDocument($order);
-
-        $documentRepository = new StaticEntityRepository([
-            new DocumentCollection([$document]),
-        ]);
-
-        $fileRenderers = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
-        ]);
-
-        $rateLimiter = $this->createMock(RateLimiter::class);
-        $rateLimiter->expects($this->once())
-            ->method('ensureAccepted')
-            ->with(RateLimiter::GUEST_LOGIN, \strtolower(self::DUMMY_DOCUMENT_ID) . '-127.0.0.1');
-        $rateLimiter->expects($this->once())
-            ->method('reset')
-            ->with(RateLimiter::GUEST_LOGIN, \strtolower(self::DUMMY_DOCUMENT_ID) . '-127.0.0.1');
-
-        $route = new DocumentRoute(
-            static::createStub(DocumentGenerator::class),
-            $this->createDocumentReaderStub(),
-            $documentRepository,
-            $rateLimiter,
-            new GuestAuthenticator(),
-            $fileRenderers,
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
-
-        $request = new Request([
-            'email' => 'email',
-            'zipcode' => 'zipcode',
-        ], [], [], [], [], ['REMOTE_ADDR' => '127.0.0.1']);
-
-        $context = static::createStub(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
-
-        if (Feature::isActive('v6.8.0.0')) {
-            $this->expectExceptionObject(
-                DocumentException::documentFileTypeUnavailable(
-                    self::DUMMY_DOCUMENT_ID,
-                    [PdfRenderer::FILE_EXTENSION],
-                )
-            );
-        }
-
-        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context, 'deepLinkCode');
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        }
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideInternationalizedGuestEmails(): iterable
+    {
+        yield 'Unicode domain matches stored ASCII domain' => ['test@xn--exmple-cua.com', 'test@exämple.com'];
+        yield 'ASCII domain matches stored Unicode domain' => ['test@exämple.com', 'test@xn--exmple-cua.com'];
     }
 
     #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
@@ -1244,6 +1197,77 @@ class DocumentRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->download($documentId, $request, $context, $deepLinkCode, $fileType, $format));
+    }
+
+    private function assertAnonymousGuestCanDownload(string $storedEmail, string $submittedEmail): void
+    {
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setId(Uuid::randomHex());
+        $billingAddress->setZipcode('zipcode');
+
+        $customer = $this->createCustomer(Uuid::randomHex(), true);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customer->getId());
+        $orderCustomer->setEmail($storedEmail);
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+
+        $document = $this->createDocument($order);
+
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $fileRenderers = new \ArrayIterator([
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
+        ]);
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::GUEST_LOGIN, \strtolower(self::DUMMY_DOCUMENT_ID) . '-127.0.0.1');
+        $rateLimiter->expects($this->once())
+            ->method('reset')
+            ->with(RateLimiter::GUEST_LOGIN, \strtolower(self::DUMMY_DOCUMENT_ID) . '-127.0.0.1');
+
+        $route = new DocumentRoute(
+            static::createStub(DocumentGenerator::class),
+            $this->createDocumentReaderStub(),
+            $documentRepository,
+            $rateLimiter,
+            new GuestAuthenticator(),
+            $fileRenderers,
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $request = new Request([
+            'email' => $submittedEmail,
+            'zipcode' => 'zipcode',
+        ], [], [], [], [], ['REMOTE_ADDR' => '127.0.0.1']);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable(
+                    self::DUMMY_DOCUMENT_ID,
+                    [PdfRenderer::FILE_EXTENSION],
+                )
+            );
+        }
+
+        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context, 'deepLinkCode');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        }
     }
 
     private function assertWrongGuestCredentials(Request $request): void

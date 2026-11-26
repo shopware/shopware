@@ -89,8 +89,6 @@ class ZugferdDocument
 
     private string $currentDocumentType = ZugferdInvoiceType::INVOICE;
 
-    private ?TaxExemptionView $taxExemption = null;
-
     /**
      * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
      */
@@ -100,9 +98,13 @@ class ZugferdDocument
         self::ALLOWANCE_AMOUNT => [],
     ];
 
+    /**
+     * @param TaxExemptionView|null $taxExemption internal - the exemption the whole document states; without one, every position keeps the category of its tax rate
+     */
     public function __construct(
         protected readonly ZugferdDocumentBuilder $zugferdBuilder,
         protected readonly bool $isGross = false,
+        private readonly ?TaxExemptionView $taxExemption = null,
     ) {
         ZugferdSettings::addSpecialDecimalPlacesMap(
             self::UNIT_PRICE_NODE_PATH,
@@ -164,26 +166,14 @@ class ZugferdDocument
                 $countryStateCode
             );
 
-        return $this;
-    }
-
-    /**
-     * @internal
-     *
-     * States the category of the exemption on every position, with the buyer VAT ID and the delivery address it requires.
-     * Without one, the positions keep their rate-based category. Must come before the positions and taxes.
-     */
-    public function withTaxExemption(?TaxExemptionView $taxExemption): self
-    {
-        if ($taxExemption === null) {
+        if ($this->taxExemption === null) {
             return $this;
         }
 
-        $this->taxExemption = $taxExemption;
-        $deliveryAddress = $taxExemption->deliveryAddress;
+        $deliveryAddress = $this->taxExemption->deliveryAddress;
 
         $this->zugferdBuilder
-            ->addDocumentBuyerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $taxExemption->buyerVatId)
+            ->addDocumentBuyerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $this->taxExemption->buyerVatId)
             ->setDocumentShipTo()
             ->setDocumentShipToAddress(
                 lineOne: $deliveryAddress->getStreet(),

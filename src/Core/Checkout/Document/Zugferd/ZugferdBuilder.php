@@ -127,14 +127,15 @@ class ZugferdBuilder
         }
 
         $taxStatus = $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus();
-        $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $taxStatus === CartPrice::TAX_STATE_GROSS))
+        $taxExemption = TaxExemptionView::fromIntraCommunitySupply(
+            $this->intraCommunityTaxResolver->getIntraCommunityVatId($order),
+            $this->intraCommunityTaxResolver->getShippingAddress($order),
+            $config->getVatId(),
+        );
+
+        $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $taxStatus === CartPrice::TAX_STATE_GROSS, $taxExemption))
             ->withBuyerInformation($customer, $billingAddress)
             ->withSellerInformation($config)
-            ->withTaxExemption(TaxExemptionView::fromIntraCommunitySupply(
-                $this->intraCommunityTaxResolver->getIntraCommunityVatId($order),
-                $this->intraCommunityTaxResolver->getShippingAddress($order),
-                $config->getVatId(),
-            ))
             ->withDocumentInformation($config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())

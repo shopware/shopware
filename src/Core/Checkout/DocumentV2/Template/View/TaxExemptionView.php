@@ -28,7 +28,7 @@ final readonly class TaxExemptionView
      */
     public static function fromIntraCommunitySupply(?string $buyerVatId, ?OrderAddressEntity $deliveryAddress, ?string $sellerVatId): ?self
     {
-        if ($buyerVatId === null || ($sellerVatId ?? '') === '' || $deliveryAddress === null || ($deliveryAddress->getZipcode() ?? '') === '') {
+        if ($buyerVatId === null || $buyerVatId === '' || ($sellerVatId ?? '') === '' || $deliveryAddress === null || ($deliveryAddress->getZipcode() ?? '') === '') {
             return null;
         }
 

@@ -38,6 +38,7 @@ class TaxExemptionViewTest extends TestCase
     public static function incompleteIntraCommunitySupplyProvider(): \Generator
     {
         yield 'no intra-community delivery, so no buyer VAT ID' => [null, self::address('75001'), 'DE123456789'];
+        yield 'an empty buyer VAT ID' => ['', self::address('75001'), 'DE123456789'];
         yield 'no delivery address' => ['FR12345678901', null, 'DE123456789'];
         yield 'a delivery address without zip code' => ['FR12345678901', self::address(null), 'DE123456789'];
         yield 'a delivery address with an empty zip code' => ['FR12345678901', self::address(''), 'DE123456789'];

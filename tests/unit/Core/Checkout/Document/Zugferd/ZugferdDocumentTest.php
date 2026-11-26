@@ -873,8 +873,7 @@ class ZugferdDocumentTest extends TestCase
 
     public function testAnIntraCommunitySupplyStatesCategoryKOnEveryPositionAndOneExemptBreakdown(): void
     {
-        $document = $this->createIntraCommunitySupplyDocument();
-        $document->withTaxExemption(new TaxExemptionView(TaxCategory::INTRA_COMMUNITY_SUPPLY, 'FR12345678901', $this->createShippingAddress('75001')));
+        $document = $this->createIntraCommunitySupplyDocument(new TaxExemptionView(TaxCategory::INTRA_COMMUNITY_SUPPLY, 'FR12345678901', $this->createShippingAddress('75001')));
         $this->addTaxFreePositions($document);
         $dom = $this->getDom($document);
 
@@ -896,8 +895,7 @@ class ZugferdDocumentTest extends TestCase
 
     public function testAnIntraCommunitySupplyNamesTheBuyerVatIdAndTheDeliveryAddress(): void
     {
-        $document = $this->createIntraCommunitySupplyDocument();
-        $document->withTaxExemption(new TaxExemptionView(TaxCategory::INTRA_COMMUNITY_SUPPLY, 'FR12345678901', $this->createShippingAddress('75001')));
+        $document = $this->createIntraCommunitySupplyDocument(new TaxExemptionView(TaxCategory::INTRA_COMMUNITY_SUPPLY, 'FR12345678901', $this->createShippingAddress('75001')));
         $dom = $this->getDom($document);
 
         $buyerVatId = $dom->getElementsByTagName('BuyerTradeParty')->item(0)?->getElementsByTagName('SpecifiedTaxRegistration')->item(0);
@@ -915,8 +913,7 @@ class ZugferdDocumentTest extends TestCase
 
     public function testWithoutATaxExemptionThePositionsKeepTheRateBasedCategory(): void
     {
-        $document = $this->createIntraCommunitySupplyDocument();
-        $document->withTaxExemption(null);
+        $document = $this->createIntraCommunitySupplyDocument(null);
         $this->addTaxFreePositions($document);
         $dom = $this->getDom($document);
 
@@ -936,9 +933,9 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame($builder, (new ZugferdDocument($builder))->getBuilder());
     }
 
-    private function createDocument(bool $isGross = false): ZugferdDocumentMock
+    private function createDocument(bool $isGross = false, ?TaxExemptionView $taxExemption = null): ZugferdDocumentMock
     {
-        return new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $isGross);
+        return new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $isGross, $taxExemption);
     }
 
     /**
@@ -956,14 +953,14 @@ class ZugferdDocumentTest extends TestCase
         return $document->getDomContent($order, new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator()));
     }
 
-    private function createIntraCommunitySupplyDocument(): ZugferdDocumentMock
+    private function createIntraCommunitySupplyDocument(?TaxExemptionView $taxExemption): ZugferdDocumentMock
     {
         $customer = new OrderCustomerEntity();
         $customer->setFirstName('Max');
         $customer->setLastName('Mustermann');
         $customer->setEmail('max@example.com');
 
-        $document = $this->createDocument();
+        $document = $this->createDocument(taxExemption: $taxExemption);
         $document->withBuyerInformation($customer, $this->createBillingAddress(countryIso: 'FR', stateShortCode: ''));
 
         return $document;

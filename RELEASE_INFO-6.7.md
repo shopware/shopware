@@ -455,8 +455,9 @@ For extension developers:
   - `ResolveDispatchCountryExtension` (`checkout.tax.resolve-dispatch-country`) returns the id of the country the goods are dispatched from.
   - `ResolveVatIdsExtension` (`checkout.tax.resolve-vat-ids`) returns the VAT IDs that count, by default all VAT IDs of the customer, or the ones saved on the order for documents.
 
-  Both carry the sales channel id, the delivery country, the customer and, for documents, the order.
-  Both events are also dispatched with the billing country as `deliveryCountry` when a business customer's billing address is not the shipping address and lies in an EU member state with *Tax-free (B2B)* enabled.
+  Both carry the sales channel id, the `taxCountry`, the customer and, for documents, the order.
+  The `taxCountry` is the delivery country.
+  When a business customer's billing address is not the shipping address and lies in an EU member state with *Tax-free (B2B)* enabled, both events are dispatched once more with the billing country as `taxCountry`.
   Only a cart whose products are all digital uses that result.
   The tax rules are fixed when the sales channel context is built, before there is a cart, so the cart content cannot decide the dispatch country.
 - `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` are deprecated and will be removed in 6.8.0.

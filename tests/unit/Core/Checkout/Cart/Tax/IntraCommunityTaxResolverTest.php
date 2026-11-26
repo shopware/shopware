@@ -530,7 +530,7 @@ class IntraCommunityTaxResolverTest extends TestCase
         static::assertSame([ResolveVatIdsExtension::class, ResolveDispatchCountryExtension::class], array_map(get_class(...), $this->published));
         foreach ($this->published as $extension) {
             static::assertSame(self::CHANNEL_ID, $extension->salesChannelId);
-            static::assertSame($country, $extension->deliveryCountry);
+            static::assertSame($country, $extension->taxCountry);
             static::assertSame($customer, $extension->customer);
             static::assertSame($order, $extension->order);
         }

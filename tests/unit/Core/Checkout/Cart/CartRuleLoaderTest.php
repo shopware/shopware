@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Cart\Rule\CartTaxDisplayRule;
 use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -318,6 +319,55 @@ class CartRuleLoaderTest extends TestCase
         static::assertSame(CartPrice::TAX_STATE_FREE, $context->getTaxState(), 'the shipping country decides the tax state');
     }
 
+    #[DataProvider('storedAndNewDigitalProductProvider')]
+    public function testRulesMatchTheTaxStateOfTheBillingCountry(LineItem $product, ?string $loadedProductType): void
+    {
+        $context = $this->createContextWithBillingTaxes();
+        $netRule = (new RuleEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'name' => 'Tax display net',
+            'priority' => 1,
+            'payload' => new CartTaxDisplayRule(CartPrice::TAX_STATE_NET),
+        ]);
+        $cart = new Cart('test');
+        $cart->add($product);
+
+        $this->loadAndGetTaxRules($context, $cart, $loadedProductType, new RuleCollection([$netRule]));
+
+        static::assertSame([$netRule->getId()], $context->getRuleIds(), 'the billing country makes the cart net, the shipping country tax-free');
+    }
+
+    /**
+     * @return iterable<string, array{LineItem, ?string}>
+     */
+    public static function storedAndNewDigitalProductProvider(): iterable
+    {
+        yield 'a stored digital product switches before the first calculation' => [self::createProduct('e-book', ProductDefinition::TYPE_DIGITAL), null];
+        yield 'a new digital product switches once its type is known' => [new LineItem('e-book', LineItem::PRODUCT_LINE_ITEM_TYPE), ProductDefinition::TYPE_DIGITAL];
+    }
+
+    public function testFailedCalculationRestoresTheShippingTaxes(): void
+    {
+        $context = $this->createContextWithBillingTaxes();
+        $shippingTaxRules = $context->getTaxRules();
+        $cart = new Cart('test');
+        $cart->add(self::createProduct('e-book', ProductDefinition::TYPE_DIGITAL));
+
+        $exception = new \RuntimeException('calculation failed');
+        $processor = static::createStub(Processor::class);
+        $processor->method('process')->willThrowException($exception);
+
+        try {
+            $this->createCartRuleLoader($processor)->loadByCart($context, $cart, new CartBehavior());
+            static::fail('the calculation should fail');
+        } catch (\RuntimeException $e) {
+            static::assertSame($exception, $e);
+        }
+
+        static::assertSame($shippingTaxRules, $context->getTaxRules());
+        static::assertSame(CartPrice::TAX_STATE_FREE, $context->getTaxState());
+    }
+
     /**
      * @return iterable<string, array{LineItem}>
      */
@@ -395,7 +445,7 @@ class CartRuleLoaderTest extends TestCase
     /**
      * @return list<TaxCollection> the tax rules of each calculation
      */
-    private function loadAndGetTaxRules(SalesChannelContext $context, Cart $cart, ?string $loadedProductType = null): array
+    private function loadAndGetTaxRules(SalesChannelContext $context, Cart $cart, ?string $loadedProductType = null, RuleCollection $rules = new RuleCollection()): array
     {
         $taxRules = [];
         $processor = static::createStub(Processor::class);
@@ -412,10 +462,17 @@ class CartRuleLoaderTest extends TestCase
             return $cart;
         });
 
-        $ruleLoader = static::createStub(RuleLoader::class);
-        $ruleLoader->method('load')->willReturn(new RuleCollection());
+        $this->createCartRuleLoader($processor, $rules)->loadByCart($context, $cart, new CartBehavior());
 
-        $cartRuleLoader = new CartRuleLoader(
+        return $taxRules;
+    }
+
+    private function createCartRuleLoader(Processor $processor, RuleCollection $rules = new RuleCollection()): CartRuleLoader
+    {
+        $ruleLoader = static::createStub(RuleLoader::class);
+        $ruleLoader->method('load')->willReturn($rules);
+
+        return new CartRuleLoader(
             static::createStub(AbstractCartPersister::class),
             $processor,
             new NullLogger(),
@@ -427,8 +484,5 @@ class CartRuleLoaderTest extends TestCase
             new ExtensionDispatcher(static::createStub(EventDispatcherInterface::class)),
             static::createStub(AbstractTranslator::class),
         );
-        $cartRuleLoader->loadByCart($context, $cart, new CartBehavior());
-
-        return $taxRules;
     }
 }

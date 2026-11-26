@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -97,6 +98,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly DoubleOptInService $doubleOptInService,
         private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
         private readonly ClockInterface $clock,
+        private readonly CompanyAccountNameFields $companyAccountNameFields,
         private readonly ExtensionDispatcher $extensions,
     ) {
     }
@@ -155,6 +157,16 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
+        if ($this->namesAreOptional($data, $context)) {
+            $this->companyAccountNameFields->normalize($data);
+
+            foreach ([$billing, $shipping] as $address) {
+                if ($address instanceof DataBag) {
+                    $this->companyAccountNameFields->normalize($address);
+                }
+            }
+        }
+
         $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions, $validateStorefrontUrl);
 
         $customer = $this->mapCustomerData($data, $isGuest, $context);
@@ -189,7 +201,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $companyName = $billingAddress['company'] ?? $shippingAddress['company'] ?? null;
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $companyName) {
+        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && \is_string($companyName) && $companyName !== '') {
             $customer['company'] = $companyName;
             if ($data->get('vatIds')) {
                 $customer['vatIds'] = $data->get('vatIds');
@@ -347,13 +359,14 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($shippingAddress instanceof DataBag) {
-            $shippingAccountType = $shippingAddress->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+            $isDefaultBillingAddress = !$billingAddress instanceof DataBag;
+
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition(
                 $data,
-                $shippingAccountType,
+                $isDefaultBillingAddress ? $accountType : $this->addressAccountType($shippingAddress),
                 $shippingAddress,
                 $context,
-                isBillingAddress: !$billingAddress instanceof DataBag,
+                isBillingAddress: $isDefaultBillingAddress,
                 isShippingAddress: true,
             ));
         }
@@ -452,9 +465,11 @@ class RegisterRoute extends AbstractRegisterRoute
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+        if ($isBillingAddress && $this->namesAreOptional($data, $context)) {
+            $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: true);
+        } elseif ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
-            $validation->add('company', new NotBlank());
+            $validation->add('company', CompanyAccountNameFields::companyNotBlank());
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
@@ -480,6 +495,20 @@ class RegisterRoute extends AbstractRegisterRoute
         return $validation;
     }
 
+    private function addressAccountType(DataBag $address): string
+    {
+        $accountType = $address->get('accountType');
+
+        return \is_string($accountType) && $accountType !== ''
+            ? $accountType
+            : CustomerEntity::ACCOUNT_TYPE_PRIVATE;
+    }
+
+    private function namesAreOptional(DataBag $data, SalesChannelContext $context): bool
+    {
+        return $this->companyAccountNameFields->areOptional($data, null, $context->getSalesChannelId());
+    }
+
     private function getCustomerCreateValidationDefinition(bool $isGuest, DataBag $data, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->accountValidationFactory->create($context);
@@ -498,6 +527,10 @@ class RegisterRoute extends AbstractRegisterRoute
                 $this->passwordValidationFactory->create($context)
             );
             $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
+        }
+
+        if ($this->namesAreOptional($data, $context)) {
+            $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: false);
         }
 
         $this->addVatIdsValidation($validation, $data, $context);

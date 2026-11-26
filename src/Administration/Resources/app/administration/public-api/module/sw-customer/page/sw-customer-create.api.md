@@ -14,6 +14,7 @@ mixins
   notification
 
 inject
+  companyAccountNameFieldsService
   customFieldDataProviderService
   customerValidationService
   numberRangeService
@@ -22,6 +23,7 @@ inject
 
 data
   address: any
+  companyNamesRequired: any
   customer: any
   customerCustomFieldSets: any
   customerNumberPreview: any
@@ -30,20 +32,25 @@ data
 
 computed
   addressCompanyError: any
+  contactPersonRequired: any
   customerRepository: any
   languageCriteria: any
   languageId: any
   languageRepository: any
+  resolvedCompany: any
   salutationCriteria: any
   salutationFilter: any
   salutationRepository: any
   showCustomFieldSets: any
   validCompanyField: any
+  validContactPersonFields: any
 
 methods
   createErrorMessageForCompanyField(): any
+  createErrorMessageForContactPerson(): any
   createdComponent(): Promise<any>
   getDefaultSalutation(): Promise<any>
+  loadCompanyNamesRequired(): Promise<any>
   loadCustomFieldSets(): Promise<any>
   loadLanguage(salesChannelId: any): Promise<any>
   onChangeSalesChannel(salesChannelId: any): any

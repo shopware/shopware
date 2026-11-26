@@ -15,6 +15,7 @@ inject
   repositoryFactory  [deprecated tag:v6.8.0]
 
 props
+  companyNamesRequired?: boolean  default=true
   customer: object
   customerEditMode: boolean  default=false
   isLoading?: boolean  default=false

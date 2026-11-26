@@ -13,6 +13,7 @@ async function createWrapper({
     salutationRepositorySearchIdsMock = jest.fn(() => Promise.resolve({ total: 1, data: ['salutationId'] })),
     checkCustomerEmail = jest.fn(() => Promise.resolve({ isValid: true })),
     getCustomFieldSets = jest.fn(() => Promise.resolve([])),
+    isContactPersonRequired = jest.fn(() => Promise.resolve(true)),
     customer = {},
     address = {},
     errorHandler,
@@ -39,7 +40,7 @@ async function createWrapper({
                 },
                 'sw-customer-base-form': {
                     name: 'sw-customer-base-form',
-                    props: ['customer', 'isLoading'],
+                    props: ['customer', 'isLoading', 'companyNamesRequired'],
                     emits: ['sales-channel-change'],
                     template: `
                         <select aria-label="Account type" v-model="customer.accountType">
@@ -67,6 +68,7 @@ async function createWrapper({
                             'core.register.minPasswordLength': 8,
                         }),
                 },
+                companyAccountNameFieldsService: { isContactPersonRequired },
                 customerValidationService: { checkCustomerEmail },
                 customFieldDataProviderService: {
                     getCustomFieldSets,
@@ -130,6 +132,8 @@ function customerForm(wrapper) {
     return wrapper.findComponent({ name: 'sw-customer-base-form' });
 }
 
+const contactPerson = { firstName: 'Ada', lastName: 'Lovelace' };
+
 describe('module/sw-customer/page/sw-customer-create', () => {
     afterEach(() => {
         jest.restoreAllMocks();
@@ -138,7 +142,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     it('should save without checking email when no email is given', async () => {
         const checkCustomerEmail = jest.fn();
         const customerRepositorySaveMock = jest.fn(() => Promise.resolve());
-        const wrapper = await createWrapper({ checkCustomerEmail, customerRepositorySaveMock });
+        const wrapper = await createWrapper({ checkCustomerEmail, customerRepositorySaveMock, customer: contactPerson });
         await flushPromises();
 
         await saveCustomer(wrapper);
@@ -190,7 +194,11 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     ])('should save using %s', async (_, languageId) => {
         const customerRepositorySaveMock = jest.fn(() => Promise.resolve());
         const languageRepositorySearchIdsMock = jest.fn(() => Promise.resolve({ total: 1, data: [languageId] }));
-        const wrapper = await createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock });
+        const wrapper = await createWrapper({
+            customerRepositorySaveMock,
+            languageRepositorySearchIdsMock,
+            customer: contactPerson,
+        });
         await flushPromises();
 
         await changeSalesChannel(wrapper);
@@ -279,7 +287,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         const customerRepositorySaveMock = jest.fn(() => Promise.reject(error));
         const notificationMock = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         const errorHandler = jest.fn();
-        const wrapper = await createWrapper({ customerRepositorySaveMock, errorHandler });
+        const wrapper = await createWrapper({ customerRepositorySaveMock, errorHandler, customer: contactPerson });
         await flushPromises();
 
         await saveCustomer(wrapper);
@@ -313,5 +321,130 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         expect(wrapper.find('.sw-customer-create__custom-field-sets').exists()).toBe(true);
         expect(renderer.props('sets')).toEqual(customFieldSets);
         expect(renderer.props('entity')).toEqual(customerForm(wrapper).props('customer'));
+    });
+
+    it('is strict again while the settings of the next sales channel are read', async () => {
+        let resolveNextSalesChannel;
+        const nextSalesChannelRequirement = new Promise((resolve) => {
+            resolveNextSalesChannel = resolve;
+        });
+        const isContactPersonRequired = (salesChannelId) => {
+            return salesChannelId ? nextSalesChannelRequirement : Promise.resolve(false);
+        };
+        const wrapper = await createWrapper({ isContactPersonRequired });
+        await flushPromises();
+
+        expect(customerForm(wrapper).props('companyNamesRequired')).toBe(false);
+
+        await changeSalesChannel(wrapper);
+
+        expect(customerForm(wrapper).props('companyNamesRequired')).toBe(true);
+
+        resolveNextSalesChannel(false);
+        await flushPromises();
+
+        expect(customerForm(wrapper).props('companyNamesRequired')).toBe(false);
+    });
+
+    it.each([
+        [
+            'the account company wins when both are set',
+            'Acme GmbH',
+            'Old GmbH',
+            'Acme GmbH',
+        ],
+        [
+            'a cleared account company falls back to the address',
+            '',
+            'Addr GmbH',
+            'Addr GmbH',
+        ],
+        [
+            'a blank account company falls back to the address',
+            '   ',
+            'Addr GmbH',
+            'Addr GmbH',
+        ],
+    ])('should resolve the company: %s', async (_name, company, addressCompany, expected) => {
+        const customerRepositorySaveMock = jest.fn(() => Promise.resolve());
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: { accountType: 'business', company, ...contactPerson },
+            address: { company: addressCompany },
+        });
+        await saveCustomer(wrapper);
+
+        const [savedCustomer] = customerRepositorySaveMock.mock.calls[0];
+        expect(savedCustomer.company).toBe(expected);
+    });
+
+    it('should mark both company fields when a company account has none', async () => {
+        const customerRepositorySaveMock = jest.fn(() => Promise.resolve());
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: { id: '1', accountType: 'business', ...contactPerson },
+            address: { id: '2' },
+        });
+        await saveCustomer(wrapper);
+
+        expect(customerRepositorySaveMock).not.toHaveBeenCalled();
+
+        const errors = Shopware.Store.get('error');
+
+        expect(errors.getApiError({ getEntityName: () => 'customer', id: '1' }, 'company')).not.toBeNull();
+        expect(errors.getApiError({ getEntityName: () => 'customer_address', id: '2' }, 'company')).not.toBeNull();
+    });
+
+    it('should refuse to save a company account without a contact person while the settings require one', async () => {
+        const customerRepositorySaveMock = jest.fn(() => Promise.resolve());
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: { accountType: 'business' },
+            address: { company: 'Acme GmbH' },
+        });
+        await saveCustomer(wrapper);
+
+        expect(customerRepositorySaveMock).not.toHaveBeenCalled();
+    });
+
+    it('should save a company account without a contact person once the settings allow it', async () => {
+        const customerRepositorySaveMock = jest.fn(() => Promise.resolve());
+        const wrapper = await createWrapper({
+            customerRepositorySaveMock,
+            isContactPersonRequired: () => Promise.resolve(false),
+        });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: { accountType: 'business' },
+            address: { company: 'Acme GmbH' },
+        });
+        await saveCustomer(wrapper);
+
+        expect(customerRepositorySaveMock).toHaveBeenCalledTimes(1);
+
+        const [savedCustomer] = customerRepositorySaveMock.mock.calls[0];
+        expect(savedCustomer.firstName).toBe('');
+        expect(savedCustomer.lastName).toBe('');
+    });
+
+    it('should still require a contact person on a private account', async () => {
+        const customerRepositorySaveMock = jest.fn(() => Promise.resolve());
+        const wrapper = await createWrapper({
+            customerRepositorySaveMock,
+            isContactPersonRequired: () => Promise.resolve(false),
+        });
+        await flushPromises();
+
+        await wrapper.setData({ customer: { accountType: 'private' } });
+        await saveCustomer(wrapper);
+
+        expect(customerRepositorySaveMock).not.toHaveBeenCalled();
     });
 });

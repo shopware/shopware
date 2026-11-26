@@ -19,6 +19,7 @@
                     "customerNumber",
                     "firstName",
                     "lastName",
+                    "displayName",
                     "email"
                 ],
                 "properties": {
@@ -66,12 +67,17 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "firstName": {
-                        "description": "First name of the customer.",
+                        "description": "First name of the customer. Empty for a commercial account without a contact person, use `displayName` for rendering.",
                         "type": "string"
                     },
                     "lastName": {
-                        "description": "Last name of the customer.",
+                        "description": "Last name of the customer. Empty for a commercial account without a contact person, use `displayName` for rendering.",
                         "type": "string"
+                    },
+                    "displayName": {
+                        "description": "The name to render for this customer: the contact person, or the company when a commercial account has none.",
+                        "type": "string",
+                        "readOnly": true
                     },
                     "email": {
                         "description": "Email ID of the customer.",

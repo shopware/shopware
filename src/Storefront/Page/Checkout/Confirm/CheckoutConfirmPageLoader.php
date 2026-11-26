@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
@@ -40,7 +41,8 @@ class CheckoutConfirmPageLoader
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly CompanyAccountNameFields $companyAccountNameFields
     ) {
     }
 
@@ -109,6 +111,15 @@ class CheckoutConfirmPageLoader
         $this->validateShippingAddress($shippingAddress, $billingAddress, $cart, $context);
     }
 
+    private function makeNameOptionalForCompanyAccounts(DataValidationDefinition $validation, SalesChannelContext $context): void
+    {
+        if (!$this->companyAccountNameFields->areOptional(new DataBag(), $context->getCustomer(), $context->getSalesChannelId())) {
+            return;
+        }
+
+        $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: false);
+    }
+
     private function validateBillingAddress(
         ?CustomerAddressEntity $billingAddress,
         ?CustomerAddressEntity $shippingAddress,
@@ -119,6 +130,8 @@ class CheckoutConfirmPageLoader
         if ($billingAddress) {
             $validation->set('zipcode', new CustomerZipCode(countryId: $billingAddress->getCountryId()));
         }
+
+        $this->makeNameOptionalForCompanyAccounts($validation, $context);
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -151,6 +164,8 @@ class CheckoutConfirmPageLoader
         if ($shippingAddress) {
             $validation->set('zipcode', new CustomerZipCode(countryId: $shippingAddress->getCountryId()));
         }
+
+        $this->makeNameOptionalForCompanyAccounts($validation, $context);
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

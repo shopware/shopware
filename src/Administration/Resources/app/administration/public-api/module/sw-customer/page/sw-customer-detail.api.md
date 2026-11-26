@@ -15,6 +15,7 @@ mixins
 
 inject
   acl
+  companyAccountNameFieldsService
   customerGroupRegistrationService
   customerValidationService
   feature
@@ -27,6 +28,7 @@ props
   customerId: string
 
 data
+  companyNamesRequired: any
   customer: any
   customerAddressCustomFieldSets: any
   customerCustomFieldSets: any
@@ -36,6 +38,7 @@ data
 
 computed
   addressesRoute: any
+  contactPersonRequired: any
   customerDetailTabs: any
   customerRepository: any
   defaultCriteria: any
@@ -47,14 +50,17 @@ computed
   salutationCriteria: any
   salutationRepository: any
   validCompanyField: any
+  validContactPersonFields: any
 
 methods
   abortOnLanguageChange(): any
   acceptCustomerGroupRegistration(): any
   createErrorMessageForCompanyField(): any
+  createErrorMessageForContactPerson(): any
   createdComponent(): Promise<any>
   declineCustomerGroupRegistration(): any
   getDefaultSalutation(): Promise<any>
+  loadCompanyNamesRequired(): Promise<any>
   loadCustomer(): Promise<any>
   onAbortButtonClick(): Promise<any>
   onActivateCustomerEditMode(): any

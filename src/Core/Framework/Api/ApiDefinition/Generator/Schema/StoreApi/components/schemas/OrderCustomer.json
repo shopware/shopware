@@ -10,7 +10,8 @@
                     "id",
                     "email",
                     "firstName",
-                    "lastName"
+                    "lastName",
+                    "displayName"
                 ],
                 "properties": {
                     "id": {
@@ -31,16 +32,21 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "firstName": {
-                        "description": "First name of the customer.",
+                        "description": "First name of the customer. Empty for a commercial account without a contact person, use `displayName` for rendering.",
                         "type": "string"
                     },
                     "lastName": {
-                        "description": "Last name of the customer.",
+                        "description": "Last name of the customer. Empty for a commercial account without a contact person, use `displayName` for rendering.",
                         "type": "string"
                     },
                     "company": {
                         "description": "Name of the company.",
                         "type": "string"
+                    },
+                    "displayName": {
+                        "description": "The name to render for this order customer: the contact person, or the company when there is none.",
+                        "type": "string",
+                        "readOnly": true
                     },
                     "title": {
                         "description": "Title name given to the customer like Dr, prof. etc.",

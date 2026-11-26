@@ -14,6 +14,7 @@ inject
   feature
 
 props
+  companyNamesRequired?: boolean  default=true
   customer: object
 
 emits
@@ -21,6 +22,7 @@ emits
 
 computed
   accountTypeOptions: any
+  contactPersonRequired: any
   isBusinessAccountType: any
   languageCriteria: any
   salutationCriteria: any
@@ -32,6 +34,7 @@ blocks
   sw_customer_base_form
     sw_customer_base_form_account_type_field
     sw_customer_base_form_birthday_field
+    sw_customer_base_form_company_field
     sw_customer_base_form_customer_group_field  [after v-if]
     sw_customer_base_form_customer_number_field
     sw_customer_base_form_email_field
@@ -43,7 +46,7 @@ blocks
     sw_customer_base_form_sales_channel_field
     sw_customer_base_form_tag_field
     sw_customer_base_form_title_field
-    sw_customer_base_form_vat_id_field
+    sw_customer_base_form_vat_id_field  [after v-if]
 
 notes
   unresolved computed ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer...

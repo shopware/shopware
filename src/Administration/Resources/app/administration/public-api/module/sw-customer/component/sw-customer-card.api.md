@@ -19,6 +19,7 @@ inject
   repositoryFactory
 
 props
+  companyNamesRequired?: boolean  default=true
   customer: object
   editMode?: boolean  default=false
   isLoading?: boolean  default=false
@@ -37,6 +38,7 @@ computed
   accountTypeOptions: any
   canUseConvertCustomer: any
   canUseCustomerImitation: any
+  contactPersonRequired: any
   currentUser: any
   customerImitationWarning: any
   emailIdnFilter: any

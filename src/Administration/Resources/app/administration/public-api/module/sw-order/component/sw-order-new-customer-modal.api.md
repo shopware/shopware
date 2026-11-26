@@ -14,6 +14,7 @@ mixins
   notification
 
 inject
+  companyAccountNameFieldsService
   customerValidationService
   feature
   numberRangeService
@@ -26,6 +27,7 @@ emits
 
 data
   activeTab: any
+  companyNamesRequired: any
   customer: any
   customerNumberPreview: any
   defaultSalutationId: any
@@ -34,6 +36,7 @@ data
 computed
   addressRepository: any
   billingAddress: any
+  contactPersonRequired: any
   customerRepository: any
   isSameBilling: any
   languageCriteria: any
@@ -44,12 +47,16 @@ computed
   salutationRepository: any
   shippingAddress: any
   validCompanyField: any
+  validContactPersonFields: any
 
 methods
+  allowBlankContactPerson(): any
   clearOwnApiErrors(): any
   createErrorMessageForCompanyField(): any
+  createErrorMessageForContactPerson(): any
   createdComponent(): Promise<any>
   getDefaultSalutationId(): Promise<any>
+  loadCompanyNamesRequired(): Promise<any>
   loadLanguage(salesChannelId: any): Promise<any>
   onChangeSalesChannel(salesChannelId: any): any
   onClose(): any

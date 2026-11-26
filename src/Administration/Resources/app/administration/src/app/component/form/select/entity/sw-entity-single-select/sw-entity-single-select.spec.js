@@ -129,8 +129,9 @@ async function createEntitySingleSelect(
                 'sw-help-text': true,
                 'mt-loader': true,
                 'sw-loader-deprecated': true,
-                'sw-popover': {
-                    template: '<div><slot></slot></div>',
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
             },
             provide: {
@@ -927,8 +928,9 @@ describe('components/sw-entity-single-select', () => {
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'sw-popover': {
-                        template: '<div><slot></slot></div>',
+                    'mt-floating-ui': {
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                 },
                 provide: {

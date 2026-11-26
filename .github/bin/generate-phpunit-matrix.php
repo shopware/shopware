@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 // Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
 // workflow, because zizmor cannot audit a file whose whole `strategy:` is an expression.
@@ -35,26 +35,26 @@ $php = ['8.2'];
 $db = ['mysql:8.0'];
 
 if ($nightly) {
-    $php = ['8.2', '8.5'];
+    $php = ['8.2', '8.6'];
 }
 
 $includes = [
     [
         'test' => ['testsuite' => 'devops'],
         'php' => '8.5',
-        'db' => 'mariadb:11'
+        'db' => 'mariadb:11',
     ],
     // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
     // skips without it.
     [
         'test' => ['testsuite' => 'devops'],
         'php' => '8.2',
-        'db' => 'mysql:8.4'
-    ]
+        'db' => 'mysql:8.4',
+    ],
 ];
 
 if ($nightly) {
-    // The DB spread runs on PHP 8.2 only and the PHP spread (8.5) on mysql:8.0 only:
+    // The DB spread runs on PHP 8.2 only and the PHP spread (8.6) on mysql:8.0 only:
     // DB behaviour does not depend on the PHP version, so the full cross product
     // adds jobs but no signal.
     $nightlyDbs = ['mysql:9.7', 'mariadb:11', 'mariadb:12.3', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
@@ -73,7 +73,7 @@ if ($nightly) {
     $includes[] = [
         'test' => ['testsuite' => 'migration'],
         'php' => '8.2',
-        'db' => 'mariadb:11'
+        'db' => 'mariadb:11',
     ];
 }
 
@@ -84,7 +84,7 @@ $matrix = [
     'php' => $php,
     'db' => $db,
     'opensearch' => ['opensearchproject/opensearch:3'],
-    'include' => $includes
+    'include' => $includes,
 ];
 
 if ($nightly) {

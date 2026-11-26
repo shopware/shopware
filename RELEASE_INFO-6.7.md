@@ -2,6 +2,11 @@
 
 ## Core
 
+### PHP 8.6 support
+
+Shopware now supports PHP 8.6.
+Verify that your plugins and other Composer dependencies support PHP 8.6 before upgrading your PHP runtime.
+
 ### Moving a category re-indexes its products
 
 Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.

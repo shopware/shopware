@@ -85,6 +85,8 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 
 - PHP/server code: use the `shopware-php-code` skill when the task touches PHP architecture, API schema, migrations, deprecations, or BC-sensitive code.
 - Administration JS/TS/Vue code: detailed guidance starts at `src/Administration/Resources/app/administration/AGENTS.md`; use the `shopware-admin-js` skill for Admin coding rules.
+- Administration UI (templates, SCSS, icons, snippet text): use the Meteor design system and look up components, tokens, icons and the UX writing guidelines (wording, messaging, glossary) through the `meteor` MCP server instead of memory;
+  the rules are in "UI components, styling and UX writing (Meteor)" in `src/Administration/Resources/app/administration/AGENTS.md`.
 - PHPUnit tests: use the `shopware-phpunit-tests` skill.
 - CI workflows, composite actions, and automation scripts: local rules in `.github/AGENTS.md`, rationale and examples in `coding-guidelines/core/ci-workflows.md`.
 - More specific nested `AGENTS.md` files add local rules for their subtree.
@@ -110,6 +112,8 @@ This rules apply to every file with the ending `*.md`.
 German snippets differ in register between the two UIs.
 The Administration addresses the user informally ("Du"), the Storefront formally ("Sie").
 Keep each domain consistent when adding or editing `de` snippets.
+Administration snippet text in both languages follows the Meteor content guidelines for wording, messaging and the glossary of approved terms.
+Check them in the Meteor documentation before writing or changing Administration copy.
 
 Snippet files are named by language, not locale: `en.json` / `de.json` in the Administration, `storefront.en.json` / `storefront.de.json` in the Storefront.
 Locale-specific names such as `en-GB.json` or `storefront.de-DE.json` are the legacy scheme;

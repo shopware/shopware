@@ -2,257 +2,142 @@
 
 ## Overview
 
-The **Meteor Component Library** is Shopware's modern, open-source design system that serves as the foundation for all Shopware commerce solutions. It provides a comprehensive collection of Vue.js components designed to create elegant, delightful, and accessible user experiences across the Shopware ecosystem.
+Meteor is Shopware's design system.
+The Administration uses three of its packages, pinned in `package.json`:
 
-### Purpose
+- `@shopware-ag/meteor-component-library`: the Vue components and the design tokens.
+- `@shopware-ag/meteor-icon-kit`: the icons.
+- `@shopware-ag/meteor-admin-sdk`: the extension SDK, including the position identifiers that extensions target.
 
-- **Modern replacement** for legacy `sw-*` components in the Shopware 6 Administration
-- **Consistent design language** based on the Meteor Design System
-- **Enhanced developer experience** with improved TypeScript support and modern Vue 3 patterns
-- **Better accessibility** and performance optimization
-- **Standardized theming** using design tokens
+Meteor components replace the legacy `sw-*` base and form components.
+New Administration UI uses Meteor components, tokens and icons.
 
-## Architecture & Structure
+## Documentation
 
-### Component Naming Convention
+The Meteor documentation at <https://meteor.shopware.com> is the source of truth for component APIs, tokens, icons and content guidelines.
+Component names, props, slots, events, token names and icon names change between Meteor releases.
+This file therefore names none of them and only describes how the Administration integrates Meteor.
+Look them up every time, not from memory and not from older code.
 
-All Meteor components follow the `mt-*` prefix naming convention:
-- `mt-button` (replaces `sw-button`)
-- `mt-card` (replaces `sw-card`)
-- `mt-text-field` (replaces `sw-text-field`)
-- `mt-data-table` (replaces `sw-data-table`)
+### MCP server
 
-### External Repository
+Meteor serves its documentation through an MCP server, so AI assistants can read the current pages instead of relying on model memory.
 
-The Meteor Component Library is maintained as a separate package:
-- **Repository**: https://github.com/shopware/meteor
-- **Package**: `@shopware-ag/meteor-component-library`
-- **Documentation**: https://meteor-component-library.vercel.app/
-
-### Design Token Integration
-
-Meteor components consume design tokens from `@shopware-ag/meteor-tokens`, providing:
-- **Color system** with semantic color names
-- **Typography scale** with consistent font sizes and weights
-- **Spacing system** with standardized margins and paddings
-- **Border radius** and shadow definitions
-- **Animation timings** and easing functions
-
-## Component Categories
-
-### Layout Components
-- `mt-card` - Container component for content sections
-- `mt-empty-state` - Empty state displays
-
-### Form Components
-- `mt-text-editor` - Rich text editor
-- `mt-field-label` - Form field labels
-- `mt-button` - Action buttons with variants
-- `mt-checkbox` - Checkbox inputs
-- `mt-colorpicker` - Color selection input
-- `mt-datepicker` - Date selection
-- `mt-email-field` - Email input fields
-- `mt-help-text` - Form help text
-- `mt-number-field` - Numeric input fields
-- `mt-password-field` - Password input fields
-- `mt-select` - Dropdown selection
-- `mt-slider` - Range slider inputs
-- `mt-switch` - Toggle switches
-- `mt-text-field` - Text input fields
-- `mt-textarea` - Multi-line text input
-- `mt-unit-field` - Input fields with units
-- `mt-url-field` - URL input fields
-
-### Data Display & Table Components
-- `mt-data-table` - Advanced data tables with sorting, filtering
-- `mt-pagination` - Page navigation
-
-### Feedback & Indicator Components
-- `mt-badge` - Status badges and indicators
-- `mt-promo-badge` - Promotional badges
-- `mt-snackbar` - Toast notifications
-- `mt-toast` - Simple toast messages
-- `mt-banner` - Alert messages and banners
-- `mt-loader` - Loading indicators
-- `mt-progress-bar` - Progress indicators
-- `mt-skeleton-bar` - Skeleton loading states
-
-### Navigation Components
-- `mt-link` - Navigation links
-- `mt-search` - Search input components
-- `mt-segmented-control` - Segmented control navigation
-- `mt-tabs` - Tabbed navigation
-
-### Charts & Visualization
-- `mt-chart` - Chart visualization components
-
-### Content Components
-- `mt-text` - Text content display
-
-### Entity Components
-- `mt-entity-single-select` - Entity selection components
-
-### Icons & Media Components
-- Various icon and media display components
-
-### Overlay Components
-- Modal and overlay components
-
-## Integration Strategy
-
-### Wrapper Components
-
-Shopware 6 uses a wrapper pattern to integrate Meteor components while maintaining backward compatibility and extensibility:
-
-```typescript
-// Example: mt-card wrapper
-import { MtCard } from '@shopware-ag/meteor-component-library';
-import template from './mt-card.html.twig';
-
-export default Shopware.Component.wrapComponentConfig({
-    template,
-    components: {
-        'mt-card-original': MtCard,
-    },
-    inheritAttrs: false,
-    props: {
-        positionIdentifier: {
-            type: String,
-            required: true,
-            default: null,
-        },
-    },
-});
+```text
+https://meteor.shopware.com/mcp
 ```
 
-### Extension Points
+| Tool         | Description                                                                                       |
+|--------------|---------------------------------------------------------------------------------------------------|
+| `list-pages` | Lists all documentation pages with their paths and descriptions.                                  |
+| `get-page`   | Returns one page. Component pages include the API reference and example code inlined as markdown. |
 
-Wrapped components provide extension points for plugins:
+| Resource              | Description                                                 |
+|-----------------------|-------------------------------------------------------------|
+| `meteor://components` | Every component with its name, slug and description.        |
+| `meteor://examples`   | Every documented example and its owning component.          |
+| `meteor://icons`      | The full icon kit with name, mode and tags.                 |
+| `meteor://tokens`     | Design tokens grouped by category, each with a description. |
 
-```html
-<mt-card-original v-bind="$attrs">
-    <template #before-card>
-        <sw-extension-component-section
-            v-if="positionIdentifier"
-            :position-identifier="positionIdentifier + '__before'"
-        />
-        <slot name="before-card"></slot>
-    </template>
-    
-    <!-- Original component slots -->
-    <template v-for="(index, name) in getFilteredSlots()" #[name]="data">
-        <slot :name="name" v-bind="data"></slot>
-    </template>
-    
-    <template #after-card>
-        <slot name="after-card"></slot>
-        <sw-extension-component-section
-            v-if="positionIdentifier"
-            :position-identifier="positionIdentifier + '__after'"
-        />
-    </template>
-</mt-card-original>
+Besides the component pages, the documentation covers design tokens, spacing, typography, icons, accessibility, the migration from legacy components, release notes, and content guidelines for wording, messaging and the glossary.
+
+The server is not configured in this repository, so connect it in your own assistant.
+
+```bash
+# Claude Code
+claude mcp add --transport http meteor https://meteor.shopware.com/mcp
+
+# Several assistants at once
+npx add-mcp https://meteor.shopware.com/mcp --name meteor
 ```
 
-## Usage Patterns
+The [setup guide](https://meteor.shopware.com/documentation/getting-started/agents) lists the configuration for other tools.
 
-### Direct Import
+### Without MCP
 
-For new development, components can be imported directly:
+The same content is available as static files:
 
-```javascript
-import { MtButton, MtCard, MtTextField } from '@shopware-ag/meteor-component-library';
+- <https://meteor.shopware.com/llms.txt> is an index of all pages.
+- Every page is available as raw markdown under `https://meteor.shopware.com/raw/<path>.md`.
 
-export default {
-    components: {
-        'mt-button': MtButton,
-        'mt-card': MtCard,
-        'mt-text-field': MtTextField,
-    },
-};
-```
+### Version drift
 
-### Template Usage
+The documentation describes the latest Meteor release.
+The Administration can be behind, so a documented component or prop may not exist in the pinned version.
+Check the installed version in `package.json` and the registration described below before relying on something new.
 
-```html
-<mt-card title="User Profile">
-    <mt-text-field 
-        label="Username"
-        v-model="username"
-        :required="true"
-    />
-    
-    <mt-button 
-        variant="primary"
-        @click="saveUser"
-    >
-        Save Changes
-    </mt-button>
-</mt-card>
-```
+## Integration in the Administration
 
-### Styling Integration
+### Global registration
 
-Import required stylesheets in your application:
+Meteor components are registered globally, so templates use them by tag name.
+Do not import them from `@shopware-ag/meteor-component-library` inside a component.
 
-```javascript
-// Required styles
-import '@shopware-ag/meteor-component-library/styles.css';
-import '@shopware-ag/meteor-component-library/font.css';
-```
+- `src/app/adapter/view/vue.adapter.ts` registers the library components directly, some of them as async components.
+- `src/app/component/index.ts` registers the Administration wrappers from `src/app/component/meteor-wrapper/`.
+- `src/app/main.ts` imports the library stylesheet and font, which also provide the design tokens.
 
-## Theming & Customization
+A library component that is not registered in `vue.adapter.ts` is not available in templates yet.
+Register it there in the same change when you need it.
 
-### Design Token Override
+### Experimental components
 
-Customize appearance by overriding design tokens:
+Meteor components are Experimental, Stable or Deprecated.
+Experimental components can change or disappear in any release, without prior notice.
+They are marked in the documentation with a warning at the top of the component page, and in the library code with `@experimental`.
 
-```css
-:root {
-    --mt-color-primary: #3498db;
-    --mt-color-secondary: #2c3e50;
-    --mt-border-radius-default: 8px;
-    --mt-spacing-unit: 16px;
-}
-```
+Do not use experimental components in the Administration.
+The status changes between releases, so check the component page before using a component you have not used before.
+Some experimental components are registered in `vue.adapter.ts`, and a few existing templates use one.
+That is not a reason to add new usages.
 
-### Component Variants
+### Wrapper components
 
-Most components support multiple variants:
+Some Meteor components are wrapped so the Administration can add extension points or admin-specific behavior.
+The wrapper is registered under the original Meteor name, so templates do not change.
+`src/app/component/meteor-wrapper/` contains the current wrappers, and each one describes its purpose in the docblock of its `index.ts`.
 
-```html
-<!-- Button variants -->
-<mt-button variant="primary">Primary Action</mt-button>
-<mt-button variant="secondary">Secondary Action</mt-button>
-<mt-button variant="ghost">Ghost Button</mt-button>
+Wrappers that add extension points require a `position-identifier`.
+They render `sw-extension-component-section` with it, so extensions can add their own content.
+Position identifiers are public API for extensions.
+Give every such component a unique one and do not rename existing ones.
 
-<!-- Card variants -->
-<mt-card variant="outline">Outlined Card</mt-card>
-<mt-card variant="filled">Filled Card</mt-card>
-```
+## Styling
 
-## Migration from Legacy Components
+Design tokens are CSS custom properties from the library stylesheet.
 
-### Component Mapping
+- Use tokens instead of hard-coded colors, spacing, font sizes and border radii, and instead of the legacy SCSS variables.
+- Choose a token by its meaning, not by its current value, so the UI works in light and dark mode.
+- Take every token name from the Meteor documentation; never guess a name or derive one from another.
+- Do not add fallback values inside `var()`.
+- Do not override Meteor tokens.
+  Overrides diverge from the design system and can break when token values change in a later release.
+  Add a missing token with the `--sw-` prefix instead.
+- Do not restyle Meteor internals through selectors on Meteor's own classes or `!important`.
 
-| Legacy Component | Meteor Component | Notes |
-|------------------|------------------|--------|
-| `sw-button` | `mt-button` | Updated prop names, new variants |
-| `sw-card` | `mt-card` | New slot structure, improved styling |
-| `sw-text-field` | `mt-text-field` | Enhanced validation, better accessibility |
-| `sw-data-table` | `mt-data-table` | New API, improved performance |
-| `sw-select` | `mt-select` | Simplified props, better UX |
+## UX writing
 
-### Breaking Changes
+The Meteor documentation also holds the content guidelines for Shopware products.
+They cover wording and tone of voice, message patterns for error, validation, success, warning, info, empty and loading states, the glossary of approved English and German terms, and copy for AI features.
 
-1. **Prop Renaming**: Some props have been renamed for consistency
-2. **Slot Changes**: Slot names may have changed
-3. **Event Names**: Event naming follows Vue 3 conventions
-4. **CSS Classes**: New CSS class structure based on design tokens
+- Read them before writing or changing snippet text, in the same way as the component pages.
+- Use glossary terms exactly as listed, in `en.json` and in `de.json`.
+- Raise a term that the glossary does not cover instead of inventing one.
+
+## Migration from legacy components
+
+The legacy components stay available until their removal version.
+Each one is marked with `@deprecated` in its `index` file, which names the Meteor replacement.
+Do not add new usages of them.
+
+A replacement is not a rename.
+Props, slots and events differ, so read the component page and the migration page of the Meteor documentation before migrating a usage.
+Legacy components without a stable Meteor replacement remain in use.
+
+When you replace an `sw-*` component with a Meteor one in core, follow the deprecation rules in `coding-guidelines/administration/feature-flags-and-deprecations.md`.
 
 ## Resources
 
-- **Storybook Documentation**: https://meteor-component-library.vercel.app/
-- **GitHub Repository**: https://github.com/shopware/meteor
-- **Design System**: https://shopware.design/
-- **NPM Package**: https://www.npmjs.com/package/@shopware-ag/meteor-component-library
+- Documentation: <https://meteor.shopware.com>
+- Agents and MCP setup: <https://meteor.shopware.com/documentation/getting-started/agents>
+- Repository: <https://github.com/shopware/meteor>

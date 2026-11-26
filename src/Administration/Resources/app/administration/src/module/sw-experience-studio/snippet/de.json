@@ -1002,6 +1002,7 @@
         "previewEntity": "Entität",
         "previewLanguage": "Sprache",
         "previewLanguageLoadError": "Die verfügbaren Sprachen für diesen Vorschau-Verkaufskanal konnten nicht geladen werden.",
+        "previewEntityTypesLoadError": "Die Entitätstypen für Vorschauen konnten nicht geladen werden. Wechsle den Arbeitsbereich oder lade die Seite neu, um es erneut zu versuchen.",
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",

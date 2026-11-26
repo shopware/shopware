@@ -155,21 +155,34 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
     });
 
-    it('derives preview entity type from layout rootSource', () => {
+    it.each([
+        ['product', { entityType: 'product', entityId: null, salesChannelId: null }],
+        ['swag-sidebar', null],
+    ])('resolves the preview context of a layout rooted on %s', (rootSource, expected) => {
         const vm = {
+            availableLayoutTypes: ['product'],
             getLayoutRootSource: methods.getLayoutRootSource,
             resolveAssignedPreviewContext: jest.fn().mockReturnValue(null),
         };
 
-        const previewContext = methods.resolvePreviewContext.call(vm, {
-            rootSource: 'product',
-        });
+        expect(methods.resolvePreviewContext.call(vm, { rootSource })).toEqual(expected);
+    });
 
-        expect(previewContext).toEqual({
-            entityType: 'product',
-            entityId: null,
-            salesChannelId: null,
-        });
+    it('does not load a default preview entity without a preview entity type', async () => {
+        const repositoryFactory = { create: jest.fn() };
+        const vm = {
+            previewEntityId: null,
+            previewEntityType: null,
+            frames: [{ id: 'frame-header', layoutId: 'layout-header', previewEntityId: null }],
+            activeFrameId: 'frame-header',
+            workspaceStore: { activeWorkspace: { id: 'workspace' } },
+            repositoryFactory,
+            defaultPreviewEntityCriteria: {},
+        };
+
+        await methods.loadDefaultPreviewEntity.call(vm);
+
+        expect(repositoryFactory.create).not.toHaveBeenCalled();
     });
 
     it('loads first preview entity when assignment does not provide one', async () => {

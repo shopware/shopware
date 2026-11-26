@@ -1,94 +1,42 @@
 import type CriteriaType from 'src/core/data/criteria.data';
+import type { WorkspaceConfiguration } from '../../types/workspace.types';
 import detailComponent from './index';
 import { getStorefrontSalesChannelCriteria } from '../../util/sales-channel-criteria.util';
-import { createWorkspaceConfiguration } from '../../util/workspace-configuration.util';
+import { createRestore } from './index.spec/workspace-restoration.fixtures';
 
 const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
 
-function createRestore() {
-    const configuration = createWorkspaceConfiguration();
-    configuration.frames = [
-        {
-            id: 'layout-a',
-            layoutId: 'layout-a',
-            x: 0,
-            y: 0,
-            width: 1480,
-            height: 900,
-            viewport: 'desktop',
-            previewEntityId: 'saved-entity',
-        },
-    ];
-    const target = { id: 'target', configuration };
-    const current = { id: 'current', configuration: createWorkspaceConfiguration() };
-    const entityRepository = {
-        searchIds: jest.fn().mockResolvedValue({ data: ['saved-entity'] }),
-        search: jest.fn().mockResolvedValue({ first: () => ({ id: 'default-entity' }) }),
-    };
-    const editor = {
-        workspaceStore: {
-            activeWorkspace: current as typeof current | null,
-            get: jest.fn().mockResolvedValue(target),
-            activate: jest.fn(),
-        },
-        repositoryFactory: { create: jest.fn(() => entityRepository) },
-        layoutRepository: {
-            search: jest.fn().mockResolvedValue([
-                { id: 'layout-a', name: 'Products', rootSource: 'product', layout: [] },
-            ]),
-        },
-        layoutLoadCriteria: new Shopware.Data.Criteria(1, 25),
-        restoreWorkspaceLayouts: methods.restoreWorkspaceLayouts,
-        restoreFramePreviewEntity: methods.restoreFramePreviewEntity,
-        restoreWorkspacePreviewContext: methods.restoreWorkspacePreviewContext,
-        restoreWorkspaceSalesChannel: methods.restoreWorkspaceSalesChannel,
-        loadPreviewLanguageContext: methods.loadPreviewLanguageContext,
-        applyPreviewLanguageContext: methods.applyPreviewLanguageContext,
-        previewLanguageContext: null,
-        defaultSalesChannelCriteria: getStorefrontSalesChannelCriteria(1),
-        salesChannelRepository: {
-            search: jest.fn().mockResolvedValue({ first: () => ({ id: 'channel' }) }),
-            get: jest.fn((id: string) =>
-                Promise.resolve({
-                    id,
-                    languageId: Shopware.Defaults.systemLanguageId,
-                    languages: [{ id: Shopware.Defaults.systemLanguageId, parentId: null, active: true }],
-                }),
-            ),
-        },
-        createOpenLayoutState: methods.createOpenLayoutState,
-        createPreviewFrame: methods.createPreviewFrame,
-        serializeLayoutState: methods.serializeLayoutState,
-        getLayoutRootSource: methods.getLayoutRootSource,
-        resolvePreviewContext: (layout: { rootSource: string }) => ({ entityType: layout.rootSource }),
-        resetWorkspaceEditor: jest.fn(),
-        activateFrame: jest.fn(),
-        openLayouts: [{ id: 'current-layout' }],
-        frames: [
-            {
-                id: 'current-frame',
-                layoutId: 'current-layout',
-                previewEntityId: 'current-entity',
-                languageId: Shopware.Defaults.systemLanguageId,
-            },
-        ],
-        workspaceCanvasConfiguration: current.configuration,
-        previewSalesChannelId: 'current-channel',
-        workspaceError: false,
-        isWorkspacePickerOpen: false,
-        isLoading: false,
-        isRestoringWorkspace: false,
-        $nextTick: jest.fn().mockResolvedValue(undefined),
-        $router: { replace: jest.fn().mockResolvedValue(undefined) },
-        createNotificationWarning: jest.fn(),
-        createNotificationError: jest.fn(),
-        $t: (key: string) => key,
-    };
-
-    return { editor, current, target, entityRepository };
-}
-
 describe('Experience Studio workspace preview reference restoration', () => {
+    it('rejects a workspace action while the opening workspace waits for entity types', async () => {
+        const { editor, target, entityTypeService } = createRestore();
+        let resolveLayoutTypes: (types: string[]) => void;
+        entityTypeService.getEntityTypes.mockReturnValue(
+            new Promise<string[]>((resolve) => {
+                resolveLayoutTypes = resolve;
+            }),
+        );
+        const executeWorkspaceAction = jest.fn();
+        const workspaceEditor = {
+            ...editor,
+            openLayouts: [],
+            isWorkspaceTransitioning: false,
+            isSavingAll: false,
+            mutationQueue: Promise.resolve(),
+            syncActiveLayoutState: jest.fn(),
+            isLayoutDirty: () => false,
+            executeWorkspaceAction,
+        };
+
+        const open = methods.openWorkspace.call(workspaceEditor, target.id);
+        await flushPromises();
+        await methods.requestWorkspaceAction.call(workspaceEditor, { type: 'open', id: 'other' });
+
+        expect(executeWorkspaceAction).not.toHaveBeenCalled();
+
+        resolveLayoutTypes!(['product']);
+        await open;
+    });
+
     it('replaces saved frame languages unavailable in the selected channel before opening the workspace', async () => {
         const { editor, target } = createRestore();
         const germanLanguageId = 'a'.repeat(32) as EntityKey<'language'>;
@@ -179,6 +127,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
         expect(editor.resetWorkspaceEditor).not.toHaveBeenCalled();
         expect(editor.createNotificationError).toHaveBeenCalledTimes(1);
     });
+
     it.each([
         'unavailable',
         'forbidden',
@@ -250,6 +199,122 @@ describe('Experience Studio workspace preview reference restoration', () => {
         },
     );
 
+    it('clears and schedules an empty preview entity without a missing-reference warning for a non-entity frame', async () => {
+        const { editor, target, entityRepository } = createRestore();
+        editor.layoutRepository.search.mockResolvedValue([
+            { id: 'layout-a', name: 'Sidebar', rootSource: 'swag-sidebar', layout: [] },
+        ]);
+        editor.activeFrameId = 'different-frame';
+        editor.previewEntityId = null;
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.frames[0].previewEntityId).toBeNull();
+        expect(editor.createNotificationWarning).not.toHaveBeenCalled();
+        expect(editor.repositoryFactory.create).not.toHaveBeenCalled();
+        expect(entityRepository.searchIds).not.toHaveBeenCalled();
+
+        editor.workspaceStore.activeWorkspace = target;
+        await methods.scheduleWorkspaceSetup.call(editor);
+
+        expect(editor.workspaceStore.schedule).toHaveBeenCalledWith(
+            expect.objectContaining({
+                frames: [expect.objectContaining({ layoutId: 'layout-a', previewEntityId: null })],
+            }),
+        );
+    });
+
+    it('keeps and schedules a saved preview entity without a missing-reference warning when entity types failed to load', async () => {
+        const { editor, target, entityRepository, entityTypeService } = createRestore();
+        entityTypeService.getEntityTypes.mockRejectedValue(new Error('Entity types unavailable'));
+        editor.activeFrameId = 'different-frame';
+        editor.previewEntityId = null;
+        const scheduledConfiguration: WorkspaceConfiguration = {
+            ...Shopware.Utils.object.cloneDeep(target.configuration),
+            frames: [{ ...target.configuration.frames[0], previewEntityId: null }],
+        };
+        editor.$refs.experienceStudioCanvas.getWorkspaceConfiguration.mockReturnValue(scheduledConfiguration);
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
+        expect(editor.createNotificationWarning).not.toHaveBeenCalled();
+        expect(editor.repositoryFactory.create).not.toHaveBeenCalled();
+        expect(entityRepository.searchIds).not.toHaveBeenCalled();
+
+        editor.workspaceStore.activeWorkspace = target;
+        await methods.scheduleWorkspaceSetup.call(editor);
+
+        expect(editor.workspaceStore.schedule).toHaveBeenCalledWith(
+            expect.objectContaining({
+                frames: [expect.objectContaining({ layoutId: 'layout-a', previewEntityId: 'saved-entity' })],
+            }),
+        );
+    });
+
+    it('notifies the user when the entity type request fails', async () => {
+        const { editor, target, entityTypeService } = createRestore();
+        entityTypeService.getEntityTypes.mockRejectedValue(new Error('Entity types unavailable'));
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-experience-studio.detail.toolbar.previewEntityTypesLoadError',
+        });
+    });
+
+    it('retries a failed entity type request when the next workspace opens', async () => {
+        const { editor, target, entityRepository, entityTypeService } = createRestore();
+        entityTypeService.getEntityTypes
+            .mockRejectedValueOnce(new Error('Entity types unavailable'))
+            .mockResolvedValueOnce(['product']);
+        entityRepository.searchIds.mockResolvedValue({ data: [] });
+        await methods.openWorkspace.call(editor, target.id);
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.frames[0].previewEntityId).toBe('default-entity');
+    });
+
+    it('fetches the workspace while the entity type request is pending', async () => {
+        const { editor, target, entityTypeService } = createRestore();
+        let resolveLayoutTypes: (types: string[]) => void;
+        entityTypeService.getEntityTypes.mockReturnValue(
+            new Promise<string[]>((resolve) => {
+                resolveLayoutTypes = resolve;
+            }),
+        );
+
+        const open = methods.openWorkspace.call(editor, target.id);
+        await flushPromises();
+        expect(editor.workspaceStore.get).toHaveBeenCalledWith(target.id);
+
+        resolveLayoutTypes!(['product']);
+        await open;
+    });
+
+    it('restores no frame before the entity type request settles', async () => {
+        const { editor, target, entityTypeService } = createRestore();
+        const currentFrames = editor.frames;
+        let resolveLayoutTypes: (types: string[]) => void;
+        entityTypeService.getEntityTypes.mockReturnValue(
+            new Promise<string[]>((resolve) => {
+                resolveLayoutTypes = resolve;
+            }),
+        );
+
+        const open = methods.openWorkspace.call(editor, target.id);
+        await flushPromises();
+        expect(editor.frames).toBe(currentFrames);
+
+        resolveLayoutTypes!(['product']);
+        await open;
+
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
+    });
+
+    // Regression guard: a product frame keeps a saved preview entity when the entity exists.
     it('preserves a saved reference confirmed by a successful lookup', async () => {
         const { editor, target, entityRepository } = createRestore();
 

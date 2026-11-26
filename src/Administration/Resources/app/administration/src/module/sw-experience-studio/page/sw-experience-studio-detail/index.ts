@@ -239,6 +239,7 @@ type ExperienceStudioDetailState = {
     latestDiagnoseRequestId: number;
     diagnoseTimeoutId: number | null;
     availableLayoutTypes: string[];
+    layoutTypesRequest: Promise<void> | null;
     isLoadingLayoutTypes: boolean;
     layoutTypeLoadError: string | null;
     createWizardName: string;
@@ -316,6 +317,7 @@ export default Shopware.Component.wrapComponentConfig({
             latestDiagnoseRequestId: 0,
             diagnoseTimeoutId: null,
             availableLayoutTypes: [],
+            layoutTypesRequest: null,
             isLoadingLayoutTypes: false,
             layoutTypeLoadError: null,
             createWizardName: '',
@@ -694,6 +696,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.onHistoryKeydown(event);
         };
         this.pendingLinkedLayoutId = (this.$route.params.id as string | undefined) ?? null;
+        void this.ensureLayoutTypesLoaded();
         const workspaceId = this.$route.params.workspaceId as string | undefined;
         if (workspaceId) {
             void this.openWorkspace(workspaceId);
@@ -704,7 +707,6 @@ export default Shopware.Component.wrapComponentConfig({
         void this.loadElementTypes();
         void this.loadStyleOptions();
         void this.loadLayoutPresets();
-        void this.loadLayoutTypes();
         void this.loadMappingCandidates();
     },
 
@@ -810,8 +812,10 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
             this.workspaceError = false;
             try {
+                const layoutTypesRequest = this.ensureLayoutTypesLoaded();
                 const workspace = await this.workspaceStore.get(id);
                 const configuration = copyWorkspaceConfiguration(workspace.configuration);
+                await layoutTypesRequest;
                 const { openLayouts, frames, missingReferences } = await this.restoreWorkspaceLayouts(configuration);
                 const { salesChannelId, languageContext, missingSalesChannel } = await this.restoreWorkspacePreviewContext(
                     configuration.previewSalesChannelId,
@@ -985,15 +989,15 @@ export default Shopware.Component.wrapComponentConfig({
         async restoreFramePreviewEntity(item: ExperienceStudioPreviewFrame, layout: ContentLayoutEntity): Promise<boolean> {
             let missingReference = false;
             const entityType = this.resolvePreviewContext(layout)?.entityType;
-            if (
-                !entityType ||
-                [
-                    'none',
-                    'header',
-                    'footer',
-                ].includes(entityType)
-            ) {
+            if (!entityType) {
+                if (this.layoutTypeLoadError !== null) {
+                    // Without the entity-type list no frame can be classified as entity- or section-rooted,
+                    // so every saved preview entity is kept until a workspace open retries and re-checks them.
+                    return false;
+                }
+
                 item.previewEntityId = null;
+
                 return false;
             }
             const entityRepository = this.repositoryFactory.create(entityType as keyof EntitySchema.EntityKeys);
@@ -1406,6 +1410,9 @@ export default Shopware.Component.wrapComponentConfig({
                 if (!layout) {
                     return;
                 }
+
+                // Only a workspace open retries a failed request, because only it re-checks every open frame.
+                await this.layoutTypesRequest;
 
                 // Another open request may have completed while this layout was loading.
                 if (this.openLayouts.some((item) => item.id === layoutId)) {
@@ -1892,6 +1899,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return assignedContext;
             }
 
+            if (!this.availableLayoutTypes.includes(rootSource)) {
+                return null;
+            }
+
             if (assignedContext?.entityType === rootSource) {
                 return {
                     entityType: rootSource,
@@ -1929,6 +1940,14 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Service('contentSystemEntityTypeService') as ContentSystemEntityTypeService;
         },
 
+        ensureLayoutTypesLoaded(): Promise<void> {
+            if (this.layoutTypesRequest === null || this.layoutTypeLoadError !== null) {
+                this.layoutTypesRequest = this.loadLayoutTypes();
+            }
+
+            return this.layoutTypesRequest;
+        },
+
         async loadLayoutTypes(): Promise<void> {
             this.isLoadingLayoutTypes = true;
             this.layoutTypeLoadError = null;
@@ -1938,6 +1957,9 @@ export default Shopware.Component.wrapComponentConfig({
             } catch {
                 this.layoutTypeLoadError = 'Failed to load layout types.';
                 this.availableLayoutTypes = [];
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.toolbar.previewEntityTypesLoadError'),
+                });
             } finally {
                 this.isLoadingLayoutTypes = false;
             }

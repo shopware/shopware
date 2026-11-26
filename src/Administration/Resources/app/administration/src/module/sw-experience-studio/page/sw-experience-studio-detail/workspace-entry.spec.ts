@@ -16,7 +16,13 @@ function createEditor(params: Record<string, string> = {}) {
         loadElementTypes: jest.fn(),
         loadStyleOptions: jest.fn(),
         loadLayoutPresets: jest.fn(),
-        loadLayoutTypes: jest.fn(),
+        ensureLayoutTypesLoaded: component.methods.ensureLayoutTypesLoaded,
+        loadLayoutTypes: component.methods.loadLayoutTypes,
+        entityTypeService: () => ({ getEntityTypes: () => Promise.resolve(['product']) }),
+        availableLayoutTypes: [] as string[],
+        layoutTypesRequest: null as Promise<void> | null,
+        layoutTypeLoadError: null as string | null,
+        isLoadingLayoutTypes: false,
         loadMappingCandidates: jest.fn(),
         onHistoryKeydown: jest.fn(),
         pendingLinkedLayoutId: null as string | null,
@@ -40,6 +46,14 @@ describe('Experience Studio workspace entry', () => {
         expect(editor.workspaceStore.activate).toHaveBeenCalledWith(null);
         expect(editor.isWorkspacePickerOpen).toBe(true);
         expect(editor.openWorkspace).not.toHaveBeenCalled();
+    });
+
+    it('loads the entity types when the studio is entered', async () => {
+        const editor = createEditor();
+        component.created.call(editor);
+        await flushPromises();
+
+        expect(editor.availableLayoutTypes).toEqual(['product']);
     });
 
     it('opens a workspace directly when its ID is in the route', () => {

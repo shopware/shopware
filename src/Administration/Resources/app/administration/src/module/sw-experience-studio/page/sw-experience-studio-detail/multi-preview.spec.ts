@@ -39,6 +39,7 @@ async function createWrapper(role: 'viewer' | 'editor' = 'editor') {
             attachTo: document.body,
             data: () => ({
                 layout,
+                availableLayoutTypes: ['product'],
                 activeFrameId: 'first-preview',
                 previewSalesChannelId: 'preview-channel',
                 previewLanguageContext: {

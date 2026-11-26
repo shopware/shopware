@@ -216,6 +216,7 @@ describe('preview languages in the selected sales channel', () => {
             openLayouts: [] as Array<{ id: string }>,
             isLayoutPickerOpen: true,
             layoutLoadCriteria: {},
+            layoutTypesRequest: Promise.resolve(),
             layoutRepository: { get: jest.fn().mockResolvedValue(layout) },
             createOpenLayoutState: (item: { id: string }) => ({ id: item.id }),
             createPreviewFrame: methods.createPreviewFrame,

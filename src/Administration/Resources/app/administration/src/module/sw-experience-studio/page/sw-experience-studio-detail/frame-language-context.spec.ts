@@ -28,6 +28,7 @@ async function createWrapper() {
     const wrapper = shallowMount({ ...detailComponent, created() {}, mounted() {}, beforeUnmount() {} } as Component, {
         data: () => ({
             layout,
+            availableLayoutTypes: ['product'],
             activeFrameId: 'english-frame',
             previewSalesChannelId: 'channel',
             previewLanguageContext: {

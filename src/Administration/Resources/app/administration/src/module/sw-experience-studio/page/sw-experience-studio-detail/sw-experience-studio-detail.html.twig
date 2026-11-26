@@ -117,8 +117,9 @@
 
                     <template #frame-menu="{ frame, popoverClass }">
                         <sw-entity-single-select
+                            v-if="resolvePreviewContext(frame.layout)?.entityType"
                             :key="frame.languageId"
-                            :entity="resolvePreviewContext(frame.layout)?.entityType ?? null"
+                            :entity="resolvePreviewContext(frame.layout)?.entityType"
                             size="small"
                             :value="frame.previewEntityId"
                             :context="frameContexts[frame.id]"
@@ -126,7 +127,7 @@
                             :popover-classes="[popoverClass]"
                             :placeholder="$t('sw-experience-studio.detail.toolbar.previewEntityPlaceholder')"
                             :show-clearable-button="false"
-                            :disabled="isLoading || !resolvePreviewContext(frame.layout)?.entityType || undefined"
+                            :disabled="isLoading || undefined"
                             @pointerdown.stop
                             @update:value="onFramePreviewEntityChange(frame.id, $event)"
                         />

@@ -16,6 +16,8 @@ An extension that copies them into its own `Required` field needs the flag there
 {{ order.orderCustomer.displayName }}
 ```
 
+The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
+
 ### Faster DAL writes
 
 DAL writes avoid redundant database queries for versioned entities and translations.
@@ -50,8 +52,6 @@ Each product displays the variant that determines its position instead: the chea
 The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPriceSorting`.
 
 The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
-
-The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
 
 ## API
 

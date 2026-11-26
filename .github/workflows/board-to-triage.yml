@@ -3,10 +3,16 @@ name: Board to triage
 # Moves new issues that GitHub's issue statuses filed into a team board's `Backlog` back into the
 # board's triage column. The rule and its reasoning live in .github/bin/js/board-to-triage.ts.
 #
+# A domain label checks that one issue right away. The hourly sweep catches the rest: issues in
+# other repositories, and domain labels the labeler sets with the workflow token, which fire no
+# `labeled` event.
+#
 # Add a board to TRIAGE_BOARDS to cover it. Only columns named like an issue status are copied, so
 # a board needs this only when it has such a column.
 
 on:
+  issues:
+    types: [labeled]
   schedule:
     - cron: "17 * * * *" # hourly
   workflow_dispatch:
@@ -18,19 +24,23 @@ on:
 
 permissions: {}
 
-concurrency:
-  group: ${{ github.workflow }}
-
 jobs:
-  sweep:
+  move-to-triage:
     name: Move copied statuses to triage
-    # The boards are organization-wide; the mirror in shopware-private would sweep them twice.
-    if: github.repository == 'shopware/shopware'
+    # The boards are organization-wide; the mirror in shopware-private would act on them twice.
+    if: >-
+      github.repository == 'shopware/shopware' && (github.event_name != 'issues' || startsWith(github.event.label.name, 'domain/'))
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.issue.number || 'sweep' }}
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
     steps:
+      # The board's auto-add and the status GitHub copies onto it land within seconds of the label.
+      - name: Wait for the board to pick up the issue
+        if: github.event_name == 'issues'
+        run: sleep 30
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -43,13 +53,17 @@ jobs:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           DRY_RUN: ${{ inputs.dry-run || false }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
           PROJECT_TOKEN: ${{ steps.sts.outputs.token }}
           TRIAGE_BOARDS: >-
             [{ "number": 27, "triageStatus": "To Triage", "copiedStatuses": ["Backlog"] }]
         with:
           script: |
-            const { moveCopiedStatusesToTriage, parseBoards } = await import('${{ github.workspace }}/.github/bin/js/board-to-triage.ts')
-            await moveCopiedStatusesToTriage(
-              { github: getOctokit(process.env.PROJECT_TOKEN), core },
-              { org: context.repo.owner, boards: parseBoards(process.env.TRIAGE_BOARDS), dryRun: process.env.DRY_RUN === 'true', lookbackDays: 7 },
-            )
+            const { moveCopiedStatusesToTriage, moveIssueToTriage, parseBoards } = await import('${{ github.workspace }}/.github/bin/js/board-to-triage.ts')
+            const toolkit = { github: getOctokit(process.env.PROJECT_TOKEN), core }
+            const options = { boards: parseBoards(process.env.TRIAGE_BOARDS), dryRun: process.env.DRY_RUN === 'true', lookbackDays: 7 }
+            if (process.env.ISSUE_NUMBER) {
+              await moveIssueToTriage(toolkit, { ...options, ...context.repo, number: Number(process.env.ISSUE_NUMBER) })
+            } else {
+              await moveCopiedStatusesToTriage(toolkit, { ...options, org: context.repo.owner })
+            }

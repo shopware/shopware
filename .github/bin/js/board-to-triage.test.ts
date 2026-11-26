@@ -8,6 +8,7 @@ import {
     evaluateItem,
     itemQuery,
     moveCopiedStatusesToTriage,
+    moveIssueToTriage,
     parseBoards,
 } from './board-to-triage.ts';
 
@@ -192,4 +193,56 @@ test('a board without the triage option fails the run instead of skipping it', a
         ),
         /no Status option "To Triage"/,
     );
+});
+
+function fakeIssueGithub(projectItems: unknown[], actors: string[]) {
+    const calls: Call[] = [];
+    const github: GraphqlClient = {
+        async graphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
+            calls.push({ query, variables });
+            if (query.includes('updateProjectV2ItemFieldValue')) {
+                return {} as T;
+            }
+
+            const { content } = node('unused', 23439, actors);
+            return { repository: { issue: { ...content, projectItems: { nodes: projectItems } } } } as T;
+        },
+    };
+
+    return { github, writes: () => calls.filter((call) => call.query.includes('updateProjectV2ItemFieldValue')) };
+}
+
+const projectItem = (id: string, number: number, status = 'Backlog') => ({
+    id,
+    createdAt: '2026-11-26T08:31:42Z',
+    fieldValueByName: { name: status },
+    project: {
+        id: `PROJECT_${number}`,
+        number,
+        field: { id: 'FIELD_STATUS', options: [{ id: 'OPT_TRIAGE', name: 'To Triage' }] },
+    },
+});
+
+const issue = { owner: 'shopware', repo: 'shopware', number: 23439, boards: [board], lookbackDays: 7, now };
+
+test('a labeled issue moves to triage on the configured board only', async () => {
+    const { github, writes } = fakeIssueGithub(
+        [projectItem('ITEM_27', 27), projectItem('ITEM_58', 58)],
+        [PROJECT_AUTOMATION_LOGIN],
+    );
+
+    const moved = await moveIssueToTriage({ github, core: silent }, { ...issue, dryRun: false });
+
+    assert.deepEqual(moved, [27]);
+    assert.deepEqual(
+        writes().map((call) => call.variables),
+        [{ project: 'PROJECT_27', item: 'ITEM_27', field: 'FIELD_STATUS', option: 'OPT_TRIAGE' }],
+    );
+});
+
+test('a labeled issue someone already placed stays where it is', async () => {
+    const { github, writes } = fakeIssueGithub([projectItem('ITEM_27', 27)], [PROJECT_AUTOMATION_LOGIN, 'someone']);
+
+    assert.deepEqual(await moveIssueToTriage({ github, core: silent }, { ...issue, dryRun: false }), []);
+    assert.equal(writes().length, 0);
 });

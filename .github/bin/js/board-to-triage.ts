@@ -13,6 +13,11 @@
  * was seen by the team, whatever the automation did to it later (a reopened issue also lands in
  * `Backlog`). A status any person or app chose, this sweep's own write included, keeps the item
  * where it is, so a run never undoes a triage decision and never moves the same item twice.
+ *
+ * Two entry points apply the rule: `moveIssueToTriage` checks one issue right after it got a domain
+ * label, and `moveCopiedStatusesToTriage` sweeps whole boards. The sweep catches what no label
+ * event announces: issues in other repositories, and labels the labeler sets with the workflow
+ * token, which fire no event.
  */
 
 export const PROJECT_AUTOMATION_LOGIN = 'github-project-automation';
@@ -136,27 +141,79 @@ mutation ($project: ID!, $item: ID!, $field: ID!, $option: String!) {
   ) { projectV2Item { id } }
 }`;
 
+const ISSUE_QUERY = `
+query ($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $number) {
+      number
+      state
+      repository { nameWithOwner }
+      timelineItems(last: 50, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT]) {
+        nodes {
+          ... on ProjectV2ItemStatusChangedEvent { actor { login } project { number } status }
+        }
+      }
+      projectItems(first: 20) {
+        nodes {
+          id
+          createdAt
+          fieldValueByName(name: "Status") {
+            ... on ProjectV2ItemFieldSingleSelectValue { name }
+          }
+          project {
+            id
+            number
+            field(name: "Status") {
+              ... on ProjectV2SingleSelectField { id options { id name } }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
+
+type StatusField = { id: string; options: { id: string; name: string }[] } | null;
+
+type TimelineNodes = {
+    nodes: ({ actor: { login: string } | null; project: { number: number } | null; status: string } | null)[];
+};
+
+type IssueContent = {
+    number?: number;
+    state?: string;
+    repository?: { nameWithOwner: string };
+    timelineItems?: TimelineNodes;
+};
+
 type ItemNode = {
     id: string;
     createdAt: string;
     fieldValueByName: { name?: string } | null;
-    content: {
-        number?: number;
-        state?: string;
-        repository?: { nameWithOwner: string };
-        timelineItems?: {
-            nodes: ({ actor: { login: string } | null; project: { number: number } | null; status: string } | null)[];
-        };
-    } | null;
+    content: IssueContent | null;
 };
 
 type ItemsResponse = {
     organization: {
         projectV2: {
             id: string;
-            field: { id: string; options: { id: string; name: string }[] } | null;
+            field: StatusField;
             items: { pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: ItemNode[] };
         } | null;
+    };
+};
+
+type IssueResponse = {
+    repository: {
+        issue:
+            | (IssueContent & {
+                  projectItems: {
+                      nodes: (Omit<ItemNode, 'content'> & {
+                          project: { id: string; number: number; field: StatusField };
+                      })[];
+                  };
+              })
+            | null;
     };
 };
 
@@ -187,20 +244,60 @@ export type GraphqlClient = {
 
 type Logger = { info(message: string): void };
 
-export type SweepOptions = {
-    org: string;
+type Toolkit = { github: GraphqlClient; core: Logger };
+
+type RuleOptions = {
     boards: TriageBoard[];
     dryRun: boolean;
     lookbackDays: number;
     now?: Date;
 };
 
+export type SweepOptions = RuleOptions & { org: string };
+
+export type IssueOptions = RuleOptions & { owner: string; repo: string; number: number };
+
+function lookbackStart({ lookbackDays, now = new Date() }: RuleOptions): Date {
+    return new Date(now.getTime() - lookbackDays * 24 * 60 * 60 * 1000);
+}
+
+/** A board without its triage column is misconfigured, which fails the run instead of skipping it. */
+function triageOptionId(field: StatusField, board: TriageBoard): { fieldId: string; optionId: string } {
+    const option = field?.options.find(({ name }) => name === board.triageStatus);
+    if (!field || !option) {
+        throw new Error(`Project ${board.number} has no Status option "${board.triageStatus}".`);
+    }
+
+    return { fieldId: field.id, optionId: option.id };
+}
+
+/** Applies the rule to one item and moves it when the rule says so; returns whether it moved. */
+async function applyRule(
+    { github, core }: Toolkit,
+    item: BoardItem,
+    target: { board: TriageBoard; projectId: string; fieldId: string; optionId: string },
+    { dryRun, since }: { dryRun: boolean; since: Date },
+): Promise<boolean> {
+    const { board, projectId, fieldId, optionId } = target;
+    const verdict = evaluateItem(item, board, since);
+    const reference = item.issue?.reference ?? item.id;
+    if (verdict.action === 'skip') {
+        return false;
+    }
+
+    core.info(`${dryRun ? '[dry run] ' : ''}${reference}: ${item.status} → ${board.triageStatus}`);
+    if (!dryRun) {
+        await github.graphql(SET_STATUS_MUTATION, { project: projectId, item: item.id, field: fieldId, option: optionId });
+    }
+
+    return true;
+}
+
 /** Sweeps every configured board once; returns the references of the issues it moved. */
-export async function moveCopiedStatusesToTriage(
-    { github, core }: { github: GraphqlClient; core: Logger },
-    { org, boards, dryRun, lookbackDays, now = new Date() }: SweepOptions,
-): Promise<string[]> {
-    const since = new Date(now.getTime() - lookbackDays * 24 * 60 * 60 * 1000);
+export async function moveCopiedStatusesToTriage(toolkit: Toolkit, options: SweepOptions): Promise<string[]> {
+    const { github, core } = toolkit;
+    const { org, boards, dryRun } = options;
+    const since = lookbackStart(options);
     const moved: string[] = [];
 
     for (const board of boards) {
@@ -217,28 +314,11 @@ export async function moveCopiedStatusesToTriage(
                 throw new Error(`Project ${org}/${board.number} does not exist or the token cannot read it.`);
             }
 
-            const option = project.field?.options.find(({ name }) => name === board.triageStatus);
-            if (!project.field || !option) {
-                throw new Error(`Project ${board.number} has no Status option "${board.triageStatus}".`);
-            }
-
+            const target = { board, projectId: project.id, ...triageOptionId(project.field, board) };
             for (const item of project.items.nodes.map(toBoardItem)) {
-                const verdict = evaluateItem(item, board, since);
-                if (verdict.action === 'skip') {
-                    continue;
+                if (await applyRule(toolkit, item, target, { dryRun, since })) {
+                    moved.push(item.issue?.reference ?? item.id);
                 }
-
-                const reference = item.issue?.reference ?? item.id;
-                core.info(`${dryRun ? '[dry run] ' : ''}${reference}: ${item.status} → ${board.triageStatus}`);
-                if (!dryRun) {
-                    await github.graphql(SET_STATUS_MUTATION, {
-                        project: project.id,
-                        item: item.id,
-                        field: project.field.id,
-                        option: option.id,
-                    });
-                }
-                moved.push(reference);
             }
 
             after = project.items.pageInfo.hasNextPage ? project.items.pageInfo.endCursor : null;
@@ -246,6 +326,39 @@ export async function moveCopiedStatusesToTriage(
     }
 
     core.info(`${moved.length} item(s) ${dryRun ? 'would move' : 'moved'} to triage.`);
+
+    return moved;
+}
+
+/** Applies the rule to one issue on every configured board it sits on; returns the boards it moved on. */
+export async function moveIssueToTriage(toolkit: Toolkit, options: IssueOptions): Promise<number[]> {
+    const { github, core } = toolkit;
+    const { owner, repo, number, boards, dryRun } = options;
+    const since = lookbackStart(options);
+
+    const { repository } = await github.graphql<IssueResponse>(ISSUE_QUERY, { owner, repo, number });
+    if (!repository.issue) {
+        throw new Error(`${owner}/${repo}#${number} is no issue the token can read.`);
+    }
+
+    const { projectItems, ...content } = repository.issue;
+    const moved: number[] = [];
+    for (const { project, ...node } of projectItems.nodes) {
+        const board = boards.find((candidate) => candidate.number === project.number);
+        if (!board) {
+            continue;
+        }
+
+        const item = toBoardItem({ ...node, content });
+        const target = { board, projectId: project.id, ...triageOptionId(project.field, board) };
+        if (await applyRule(toolkit, item, target, { dryRun, since })) {
+            moved.push(board.number);
+        }
+    }
+
+    if (moved.length === 0) {
+        core.info(`${owner}/${repo}#${number}: nothing to move.`);
+    }
 
     return moved;
 }

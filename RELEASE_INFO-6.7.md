@@ -8,6 +8,7 @@ Administration workers load from the shop origin while retaining the installatio
 Same-origin asset URLs retain their configured path, including S3 proxy prefixes.
 This restores Administration login when assets are hosted on a separate S3 or CDN domain.
 Rebuild custom Administration bundles to apply this fix.
+Rebuilt bundles receive new filenames to invalidate cached worker URL handling.
 
 ## Core
 

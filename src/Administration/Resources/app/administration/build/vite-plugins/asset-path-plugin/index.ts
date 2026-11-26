@@ -15,8 +15,19 @@ function escapeBundleName(bundleName: string): string {
  * This plugin is used to dynamically change the public path of the assets.
  */
 export default function assetPathPlugin(bundleName = 'administration'): Plugin {
+    const workerUrlRegex = new RegExp(
+        `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${escapeBundleName(bundleName)}\\/administration\\/[^"]*)"`,
+        'g',
+    );
+    const workerUrlReplacement =
+        '$1(new URL(window.__sw__.assetPath,location.href).origin===location.origin?window.__sw__.assetPath:Shopware.Context.api.basePath)+"$2"';
+
     return {
         name: 'shopware-vite-plugin-asset-path',
+        augmentChunkHash() {
+            // generateBundle rewrites run after chunk hashing, so include their inputs explicitly.
+            return `${workerUrlRegex}:${workerUrlReplacement}`;
+        },
         renderChunk(code) {
             // The code is minified afterward, so we can look for the none minified version directly
             // This code could change with every minor version of vite but there is no way around this.
@@ -40,16 +51,9 @@ export default function assetPathPlugin(bundleName = 'administration'): Plugin {
             // Workers must stay on the shop origin, even when assets are hosted on a CDN.
             // Keep same-origin asset prefixes; use the request base path for cross-origin assets.
             // This runs on the final, minified output where the literal reliably matches.
-            const workerUrlRegex = new RegExp(
-                `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${escapeBundleName(bundleName)}\\/administration\\/[^"]*)"`,
-                'g',
-            );
-            const workerBasePath =
-                '(new URL(window.__sw__.assetPath,location.href).origin===location.origin?window.__sw__.assetPath:Shopware.Context.api.basePath)';
-
             for (const output of Object.values(bundle)) {
                 if (output.type === 'chunk' && typeof output.code === 'string') {
-                    output.code = output.code.replace(workerUrlRegex, `$1${workerBasePath}+"$2"`);
+                    output.code = output.code.replace(workerUrlRegex, workerUrlReplacement);
                 }
             }
         },

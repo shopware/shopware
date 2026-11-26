@@ -277,6 +277,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PermissionsSubscriber::class)
         ->args([
             service(ServiceLifecycle::class),
+            service(AllServiceInstaller::class),
+            service(FirstRunWizardService::class),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -3,9 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Service\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Shopware\Core\Service\Permission\PermissionsConsent;
@@ -26,7 +29,9 @@ class PermissionsSubscriberTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testReevaluatesServicesOnGrant(): void
+    #[TestWith([false, 1])]
+    #[TestWith([true, 0])]
+    public function testReevaluatesServicesAndSchedulesInstallOnGrantUnlessTheFirstRunWizardIsPending(bool $frwPending, int $scheduled): void
     {
         $consent = new PermissionsConsent(
             identifier: 'test-identifier',
@@ -42,7 +47,13 @@ class PermissionsSubscriberTest extends TestCase
             ->method('reevaluateInstalled')
             ->with($this->context);
 
-        (new PermissionsSubscriber($serviceLifecycle))->reevaluateServices($event);
+        $serviceInstaller = $this->createMock(AllServiceInstaller::class);
+        $serviceInstaller->expects($this->exactly($scheduled))->method('scheduleInstall');
+
+        $firstRunWizardService = static::createStub(FirstRunWizardService::class);
+        $firstRunWizardService->method('frwShouldRun')->willReturn($frwPending);
+
+        (new PermissionsSubscriber($serviceLifecycle, $serviceInstaller, $firstRunWizardService))->onGranted($event);
     }
 
     public function testReevaluatesServicesOnRevoke(): void
@@ -61,7 +72,10 @@ class PermissionsSubscriberTest extends TestCase
             ->method('reevaluateInstalled')
             ->with($this->context);
 
-        (new PermissionsSubscriber($serviceLifecycle))->reevaluateServices($event);
+        $serviceInstaller = $this->createMock(AllServiceInstaller::class);
+        $serviceInstaller->expects($this->never())->method('scheduleInstall');
+
+        (new PermissionsSubscriber($serviceLifecycle, $serviceInstaller, static::createStub(FirstRunWizardService::class)))->reevaluateServices($event);
     }
 
     public function testSubscribedEvents(): void
@@ -70,7 +84,7 @@ class PermissionsSubscriberTest extends TestCase
 
         static::assertArrayHasKey(PermissionsGrantedEvent::class, $events);
         static::assertArrayHasKey(PermissionsRevokedEvent::class, $events);
-        static::assertSame('reevaluateServices', $events[PermissionsGrantedEvent::class]);
+        static::assertSame('onGranted', $events[PermissionsGrantedEvent::class]);
         static::assertSame('reevaluateServices', $events[PermissionsRevokedEvent::class]);
     }
 }

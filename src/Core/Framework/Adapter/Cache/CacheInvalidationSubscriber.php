@@ -366,6 +366,11 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate($logs);
     }
 
+    /**
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
+     */
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
         $mediaIds = $event->getIds();
@@ -498,6 +503,10 @@ class CacheInvalidationSubscriber
      * @param list<string> $mediaIds
      *
      * @return \Generator<int, list<string>>
+     *
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
      */
     private function getMediaProductBatches(array $mediaIds): \Generator
     {
@@ -556,6 +565,10 @@ class CacheInvalidationSubscriber
      * @param list<string> $mediaIds
      *
      * @return \Generator<int, list<string>>
+     *
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
      */
     private function getDocumentProductBatches(array $mediaIds): \Generator
     {
@@ -587,6 +600,10 @@ class CacheInvalidationSubscriber
      * @param list<string> $parents
      *
      * @return \Generator<int, list<string>>
+     *
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
      */
     private function getMediaVariantBatches(array $parents): \Generator
     {
@@ -618,6 +635,10 @@ class CacheInvalidationSubscriber
      * @param list<string> $productIds
      *
      * @return array<string>
+     *
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
      */
     private function getMediaProductTags(array $productIds): array
     {

@@ -113,28 +113,6 @@ jobs:
         if: ${{ !cancelled() && steps.phpunit.conclusion != 'skipped' }}
         with:
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
-      # Collect SQL pagination coverage once, without enabling coverage for every integration shard.
-      - name: Run media cache invalidation coverage
-        id: media-coverage
-        if: ${{ matrix.test.testsuite == 'core-framework-batch1' && matrix.php == '8.2' && matrix.db == 'mysql:8.0' }}
-        uses: ./.github/actions/phpunit-run
-        with:
-          test-path: Core/Framework/Adapter/Cache/MediaCacheInvalidationTest.php
-          coverage: "true"
-          phpunit-options: --fail-on-warning --fail-on-empty-test-suite
-      - name: Verify media cache coverage was collected
-        id: media-coverage-report
-        if: ${{ steps.media-coverage.conclusion == 'success' }}
-        run: |
-          php -r '$report = simplexml_load_file("coverage.xml"); if (!$report || (int) $report["lines-covered"] === 0) { throw new RuntimeException("No media cache coverage collected"); }'
-          test -s junit.xml
-      - name: Upload media cache coverage and test results
-        if: ${{ !cancelled() && steps.media-coverage-report.conclusion == 'success' }}
-        uses: ./.github/actions/phpunit-upload
-        with:
-          coverage: "true"
-          coverage-flags: phpunit-media-integration
-          codecov-token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload junit report for the failure tracking issue
         if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

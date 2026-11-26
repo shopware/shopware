@@ -36,7 +36,7 @@ The rejections of the draft routes of `ContentLayoutDraftController` ([persisted
 | A body field the route does not declare                                           | 400  | `unknownRequestField`                               |
 | A missing or wrongly typed body field, or a blank or over-long `name`             | 400  | `#[MapRequestPayload]` validation                   |
 | `draftId` names no draft of the layout                                            | 404  | `contentLayoutDraftNotFound`                        |
-| `create-draft`: `fromRevisionId` names no revision of the layout                  | 404  | `contentLayoutRevisionNotFound`                     |
+| `create-draft`: `fromRevisionId` names no kept revision of the layout             | 404  | `contentLayoutRevisionNotFound`                     |
 | `publish-draft`: `expectedHead` is no longer the draft head                       | 409  | `layoutVersionConflict` (nothing written)           |
 | `publish-draft`: live moved back, or to a revision the draft does not contain     | 409  | `layoutPublishConflict` (nothing written)           |
 | `publish-draft`: the draft head breaks resolvability for a bound source           | 400  | `ContentLayoutWriteValidator` rejects the `content_layout` write (`WriteException`); the draft stays |

@@ -39,9 +39,12 @@ A draft branched from another draft's head can be published after that draft.
 The client reopens a draft from the new live state or discards it; publishing never replaces a live state the draft has not seen.
 Rejections: [persisted-mutation-errors.md](persisted-mutation-errors.md#draft-routes).
 
-Every draft edit stores the full tree as a new revision.
-Discarding a draft prunes the revisions nothing else reaches; publishing prunes nothing, and every revision that was ever live keeps its ancestors.
-The revision table therefore grows with every published edit; a retention policy is an open point.
+Every draft edit stores the full tree as a new revision, and every edit, publish and discard then compacts the layout's history.
+It keeps the live revision, the 20 most recently published revisions and each open draft's base, head and live-at-open revision, and deletes every other.
+A draft therefore holds only its head, and a published draft leaves only the published state.
+Each surviving revision is re-parented onto its nearest surviving ancestor, so the publish rule above judges the same ancestry as before.
+A `fromRevisionId` that compaction removed is a `404`, so a draft branches from another draft's current head only, and a rollback reaches the last 20 published states.
+Compaction runs under the layout row lock, so no job is needed and an untouched draft costs at most three revisions.
 
 ## Mutating a draft
 

@@ -184,8 +184,8 @@ class LayoutRevisionServiceTest extends TestCase
         static::assertSame($branchedSaved['revision']->id, $this->service->history($layoutId)->live);
     }
 
-    #[TestDox('discarding a draft prunes the revisions only it reached and keeps every published one')]
-    public function testDiscardingADraftPrunesItsRevisions(): void
+    #[TestDox('discarding a draft deletes its head and keeps every published revision')]
+    public function testDiscardingADraftDeletesItsRevisions(): void
     {
         $layoutId = $this->createLayout(['live-a']);
         $published = $this->service->createDraft($layoutId);
@@ -196,13 +196,78 @@ class LayoutRevisionServiceTest extends TestCase
         $first = $this->save($layoutId, $draft->id, ['one'], $draft->head);
         $this->save($layoutId, $draft->id, ['two'], $first['draft']->head);
 
-        static::assertCount(4, $this->service->history($layoutId)->revisions);
+        static::assertCount(3, $this->service->history($layoutId)->revisions);
 
         $this->service->discardDraft($layoutId, $draft->id);
 
         $history = $this->service->history($layoutId);
         static::assertCount(2, $history->revisions);
         static::assertSame($publishedSaved['revision']->id, $history->live);
+    }
+
+    #[TestDox('a draft keeps only its head, attached to the revision it started from')]
+    public function testADraftKeepsOnlyItsHead(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $draft = $this->service->createDraft($layoutId);
+        $head = $draft->head;
+        foreach (['one', 'two', 'three'] as $elementId) {
+            $head = $this->save($layoutId, $draft->id, [$elementId], $head)['draft']->head;
+        }
+
+        $history = $this->service->history($layoutId);
+        static::assertCount(2, $history->revisions);
+        static::assertSame($draft->base, $history->revision($head)?->parent);
+    }
+
+    #[TestDox('publishing keeps the 20 most recently published revisions, so an older one can no longer be restored')]
+    public function testPublishingKeepsTheLatestPublishedRevisions(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $initial = $this->service->history($layoutId)->live;
+        for ($i = 1; $i <= 20; ++$i) {
+            $this->publishEdit($layoutId, ['edit-' . $i]);
+        }
+
+        $history = $this->service->history($layoutId);
+        static::assertCount(20, $history->revisions);
+        static::assertNull($history->revision($initial));
+        $this->assertFailsWith(
+            ContentSystemException::CONTENT_LAYOUT_REVISION_NOT_FOUND,
+            fn () => $this->service->createDraft($layoutId, fromRevisionId: $initial),
+        );
+    }
+
+    #[TestDox('an open draft keeps the live revision it was opened from beyond the published window, so publishing it still conflicts')]
+    public function testAnOpenDraftKeepsItsLiveAtOpenRevision(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $initial = $this->service->history($layoutId)->live;
+        $stale = $this->service->createDraft($layoutId);
+        $staleSaved = $this->save($layoutId, $stale->id, ['stale'], $stale->head);
+        for ($i = 1; $i <= 20; ++$i) {
+            $this->publishEdit($layoutId, ['edit-' . $i]);
+        }
+
+        static::assertNotNull($this->service->history($layoutId)->revision($initial));
+        $this->assertFailsWith(
+            ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
+            fn () => $this->service->publish($layoutId, $stale->id, $staleSaved['draft']->head, $this->context),
+        );
+    }
+
+    #[TestDox('a draft branches from another draft\'s current head only, since its earlier heads are deleted')]
+    public function testBranchingFromASupersededHeadIsNotFound(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $draft = $this->service->createDraft($layoutId);
+        $first = $this->save($layoutId, $draft->id, ['one'], $draft->head);
+        $this->save($layoutId, $draft->id, ['two'], $first['draft']->head);
+
+        $this->assertFailsWith(
+            ContentSystemException::CONTENT_LAYOUT_REVISION_NOT_FOUND,
+            fn () => $this->service->createDraft($layoutId, fromRevisionId: $first['draft']->head),
+        );
     }
 
     #[TestDox('listing and reading drafts never write: a layout write past publishing is adopted only by the next write')]
@@ -341,6 +406,16 @@ class LayoutRevisionServiceTest extends TestCase
             fn (): StoredTree => new StoredTree($this->storedTree($elementIds)),
             $this->context,
         );
+    }
+
+    /**
+     * @param list<string> $elementIds
+     */
+    private function publishEdit(string $layoutId, array $elementIds): void
+    {
+        $draft = $this->service->createDraft($layoutId);
+        $saved = $this->save($layoutId, $draft->id, $elementIds, $draft->head);
+        $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
     }
 
     private function revisionRows(string $layoutId): int

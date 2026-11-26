@@ -295,6 +295,25 @@ class LayoutRevisionStore
     }
 
     /**
+     * @param array<string, string|null> $parents the new parent, keyed by revision id
+     */
+    public function reparent(string $layoutId, array $parents): void
+    {
+        foreach ($parents as $revisionId => $parentId) {
+            $this->connection->executeStatement(
+                <<<'SQL'
+                    UPDATE `content_layout_revision` SET `parent_id` = :parentId WHERE `id` = :revisionId AND `content_layout_id` = :layoutId
+                    SQL,
+                [
+                    'parentId' => $parentId !== null ? Uuid::fromHexToBytes($parentId) : null,
+                    'revisionId' => Uuid::fromHexToBytes((string) $revisionId),
+                    'layoutId' => Uuid::fromHexToBytes($layoutId),
+                ],
+            );
+        }
+    }
+
+    /**
      * @param array<string, mixed> $row
      */
     private function hydrateDraft(array $row): LayoutDraft

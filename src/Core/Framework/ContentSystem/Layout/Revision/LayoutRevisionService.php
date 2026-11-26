@@ -29,7 +29,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * {@see LayoutRowLock} that persisted mutations take too, and first reconciles the live pointer with the `layout`
  * column, see {@see reconcile()}; concurrent writers of one layout therefore serialize and the stale one fails its
  * head or version check. Listing and reading drafts take neither, since reconciling never changes a draft or a
- * stored tree, so a reader never waits for a writer.
+ * stored tree, so a reader never waits for a writer. Editing, publishing and discarding compact the history, see
+ * {@see RevisionGraph::compaction()}: a draft keeps only its head, and the published history its latest entries.
  *
  * @internal
  *
@@ -39,6 +40,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class LayoutRevisionService
 {
     private const DEFAULT_DRAFT_NAME = 'Draft';
+
+    private const PUBLISHED_REVISIONS_KEPT = 20;
 
     /**
      * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
@@ -120,13 +123,12 @@ class LayoutRevisionService
      */
     public function appendRevision(string $layoutId, string $draftId, string $expectedHead, \Closure $derive, Context $context): array
     {
-        return $this->locked($layoutId, fn (): array => $this->append(
-            $layoutId,
-            $draftId,
-            $expectedHead,
-            fn (array $head): array => $this->admit($derive($head)),
-            $context,
-        ));
+        return $this->locked($layoutId, function (string $live) use ($layoutId, $draftId, $expectedHead, $derive, $context): array {
+            $appended = $this->append($layoutId, $draftId, $expectedHead, fn (array $head): array => $this->admit($derive($head)), $context);
+            $this->compact($layoutId, $live);
+
+            return $appended;
+        });
     }
 
     /**
@@ -152,6 +154,7 @@ class LayoutRevisionService
             $this->store->deleteDraft($layoutId, $draftId);
             $this->contentLayoutRepository->update([['id' => $layoutId, 'layout' => $this->tree($layoutId, $draft->head)]], $context);
             $this->store->markPublished($layoutId, $draft->head, $this->now());
+            $this->compact($layoutId, $draft->head);
         });
     }
 
@@ -160,9 +163,16 @@ class LayoutRevisionService
         $this->locked($layoutId, function (string $live) use ($layoutId, $draftId): void {
             $this->draft($layoutId, $draftId);
             $this->store->deleteDraft($layoutId, $draftId);
-
-            $this->store->deleteRevisions($layoutId, $this->store->graph($layoutId, $live)->unreachableIds());
+            $this->compact($layoutId, $live);
         });
+    }
+
+    private function compact(string $layoutId, string $live): void
+    {
+        $compaction = $this->store->graph($layoutId, $live)->compaction(self::PUBLISHED_REVISIONS_KEPT);
+
+        $this->store->reparent($layoutId, $compaction['reparent']);
+        $this->store->deleteRevisions($layoutId, $compaction['delete']);
     }
 
     private function movedForwardInto(string $layoutId, string $live, LayoutDraft $draft): bool

@@ -41,32 +41,42 @@ final readonly class RevisionGraph
     }
 
     /**
-     * The revisions that no draft, no ever-published revision and the live one reach through their
-     * parent chain. A rollback therefore never makes a newer live state prunable.
+     * Keeps the live revision, the `$publishedKept` most recently published ones and each draft's base, head and
+     * live-at-open revision, and deletes every other. Each survivor is re-parented onto its nearest surviving
+     * ancestor, which keeps ancestry among the survivors exactly as it was: the publish rule reads only survivors.
      *
-     * @return list<string>
+     * @return array{delete: list<string>, reparent: array<string, string|null>}
      */
-    public function unreachableIds(): array
+    public function compaction(int $publishedKept): array
     {
-        $tips = [$this->live];
-        foreach ($this->revisions as $revision) {
-            if ($revision->publishedAt !== null) {
-                $tips[] = $revision->id;
-            }
+        $published = array_values(array_filter($this->revisions, static fn (LayoutRevision $revision): bool => $revision->publishedAt !== null));
+        usort($published, static fn (LayoutRevision $a, LayoutRevision $b): int => [$b->publishedAt, $b->id] <=> [$a->publishedAt, $a->id]);
+
+        $kept = [$this->live => true];
+        foreach (\array_slice($published, 0, $publishedKept) as $revision) {
+            $kept[$revision->id] = true;
         }
         foreach ($this->drafts as $draft) {
-            $tips[] = $draft->head;
-            $tips[] = $draft->liveAtOpen;
+            $kept[$draft->base] = $kept[$draft->head] = $kept[$draft->liveAtOpen] = true;
         }
+        $kept = array_intersect_key($kept, $this->revisions);
 
-        $reachable = [];
-        foreach ($tips as $id) {
-            while ($id !== null && !isset($reachable[$id]) && isset($this->revisions[$id])) {
-                $reachable[$id] = true;
-                $id = $this->revisions[$id]->parent;
+        $reparent = [];
+        foreach (array_keys($kept) as $id) {
+            $parent = $this->revisions[$id]->parent;
+            $survivor = $parent;
+            while ($survivor !== null && !isset($kept[$survivor])) {
+                $survivor = ($this->revisions[$survivor] ?? null)?->parent;
+            }
+
+            if ($survivor !== $parent) {
+                $reparent[(string) $id] = $survivor;
             }
         }
 
-        return array_map('strval', array_keys(array_diff_key($this->revisions, $reachable)));
+        return [
+            'delete' => array_map('strval', array_keys(array_diff_key($this->revisions, $kept))),
+            'reparent' => $reparent,
+        ];
     }
 }

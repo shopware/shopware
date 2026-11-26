@@ -17,28 +17,70 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(RevisionGraph::class)]
 class RevisionGraphTest extends TestCase
 {
-    #[TestDox('unreachableIds keeps the chains of draft heads, of the live state a draft was opened from and of every ever-published revision')]
-    public function testUnreachableIdsKeepsEveryTip(): void
+    #[TestDox('compaction keeps live, the most recently published revisions and what each draft points at, and deletes the rest')]
+    public function testCompactionKeepsLiveRecentlyPublishedAndDraftRevisions(): void
     {
         $graph = $this->graph(
             [
-                $this->revision('root', null, published: true),
-                $this->revision('old-live', 'root', published: true),
-                $this->revision('live', 'root', published: true),
-                $this->revision('kept-1', 'root'),
-                $this->revision('kept-2', 'kept-1'),
-                $this->revision('opened-from', 'root'),
-                $this->revision('orphan-1', 'root'),
-                $this->revision('orphan-2', 'orphan-1'),
+                $this->revision('p1', null, publishedAt: 1),
+                $this->revision('p2', 'p1', publishedAt: 2),
+                $this->revision('p3', 'p2', publishedAt: 3),
+                $this->revision('p4', 'p3', publishedAt: 4),
+                $this->revision('edit-1', 'p4'),
+                $this->revision('edit-2', 'edit-1'),
+                $this->revision('discarded', 'p4'),
             ],
-            live: 'live',
-            drafts: [$this->draft('draft', head: 'kept-2', liveAtOpen: 'opened-from')],
+            live: 'p1',
+            drafts: [$this->draft('draft', base: 'p4', head: 'edit-2', liveAtOpen: 'p2')],
         );
 
-        $unreachable = $graph->unreachableIds();
-        sort($unreachable);
+        $delete = $graph->compaction(1)['delete'];
+        sort($delete);
 
-        static::assertSame(['orphan-1', 'orphan-2'], $unreachable);
+        static::assertSame(['discarded', 'edit-1', 'p3'], $delete);
+    }
+
+    #[TestDox('compaction re-parents each survivor onto its nearest surviving ancestor, so ancestry among survivors is unchanged')]
+    public function testCompactionPreservesAncestryAmongSurvivors(): void
+    {
+        $revisions = [
+            $this->revision('p1', null, publishedAt: 1),
+            $this->revision('p2', 'p1', publishedAt: 2),
+            $this->revision('p3', 'p2', publishedAt: 3),
+            $this->revision('a1', 'p3'),
+            $this->revision('a2', 'a1'),
+            $this->revision('b1', 'p1'),
+        ];
+        $drafts = [
+            $this->draft('a', base: 'p3', head: 'a2', liveAtOpen: 'p1'),
+            $this->draft('b', base: 'b1', head: 'b1', liveAtOpen: 'p1'),
+        ];
+        $before = $this->graph($revisions, live: 'p3', drafts: $drafts);
+
+        $compaction = $before->compaction(1);
+        $survivors = array_values(array_filter($revisions, static fn (LayoutRevision $revision): bool => !\in_array($revision->id, $compaction['delete'], true)));
+        $after = $this->graph(
+            array_map(
+                static fn (LayoutRevision $revision): LayoutRevision => \array_key_exists($revision->id, $compaction['reparent'])
+                    ? new LayoutRevision($revision->id, $compaction['reparent'][$revision->id], $revision->createdAt, null, $revision->publishedAt)
+                    : $revision,
+                $survivors,
+            ),
+            live: 'p3',
+            drafts: $drafts,
+        );
+
+        static::assertSame(['p2', 'a1'], $compaction['delete']);
+        static::assertSame(['p3' => 'p1', 'a2' => 'p3'], $compaction['reparent']);
+        foreach ($survivors as $ancestor) {
+            foreach ($survivors as $descendant) {
+                static::assertSame(
+                    $before->isAncestorOrSelf($ancestor->id, $descendant->id),
+                    $after->isAncestorOrSelf($ancestor->id, $descendant->id),
+                    $ancestor->id . ' → ' . $descendant->id,
+                );
+            }
+        }
     }
 
     #[TestDox('isAncestorOrSelf follows the parent chain of the descendant only')]
@@ -76,17 +118,17 @@ class RevisionGraphTest extends TestCase
         return new RevisionGraph($byId, $draftsById, $live);
     }
 
-    private function revision(string $id, ?string $parent, bool $published = false): LayoutRevision
+    private function revision(string $id, ?string $parent, ?int $publishedAt = null): LayoutRevision
     {
         $createdAt = new \DateTimeImmutable('2026-10-27 10:00:00.000');
 
-        return new LayoutRevision($id, $parent, $createdAt, null, $published ? $createdAt : null);
+        return new LayoutRevision($id, $parent, $createdAt, null, $publishedAt !== null ? $createdAt->add(new \DateInterval('PT' . $publishedAt . 'M')) : null);
     }
 
-    private function draft(string $id, string $head, string $liveAtOpen): LayoutDraft
+    private function draft(string $id, string $base, string $head, string $liveAtOpen): LayoutDraft
     {
         $now = new \DateTimeImmutable('2026-10-27 10:00:00.000');
 
-        return new LayoutDraft($id, $id, $head, $head, $liveAtOpen, $now, $now);
+        return new LayoutDraft($id, $id, $base, $head, $liveAtOpen, $now, $now);
     }
 }

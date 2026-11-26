@@ -1181,6 +1181,12 @@ export default {
         onChangeLanguage(languageId) {
             Shopware.Store.get('context').setApiLanguageId(languageId);
 
+            if (!Shopware.Feature.isActive('V6_8_0_0')) {
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    this.loadLanguage(languageId);
+                });
+            }
+
             this.initState();
         },
 
@@ -1635,11 +1641,15 @@ export default {
                 'sw-product-detail.loadLanguage() is deprecated. Read Shopware.Context.api.language instead.',
             );
 
-            Shopware.Store.get('context').api.language = await this.languageRepository.get(
+            const language = await this.languageRepository.get(
                 newLanguageId,
                 { ...Shopware.Context.api, inheritance: true },
                 this.languageCriteria,
             );
+
+            if (newLanguageId === Shopware.Context.api.languageId) {
+                Shopware.Store.get('context').api.language = language;
+            }
         },
 
         async initProductMeasurementUnits() {

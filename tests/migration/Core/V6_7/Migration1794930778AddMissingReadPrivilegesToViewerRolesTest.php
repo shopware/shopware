@@ -60,6 +60,7 @@ class Migration1794930778AddMissingReadPrivilegesToViewerRolesTest extends TestC
     {
         yield 'category viewer' => ['category.viewer', 'sales_channel_domain:read'];
         yield 'cms viewer' => ['cms.viewer', 'cms_slot_translation:read'];
+        yield 'landing page viewer' => ['landing_page.viewer', 'cms_slot_translation:read'];
         yield 'theme viewer' => ['theme.viewer', 'sales_channel_type:read'];
     }
 

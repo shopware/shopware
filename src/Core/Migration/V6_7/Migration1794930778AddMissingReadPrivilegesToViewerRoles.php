@@ -19,6 +19,10 @@ class Migration1794930778AddMissingReadPrivilegesToViewerRoles extends Migration
         'cms.viewer' => [
             'cms_slot_translation:read',
         ],
+        // The landing page viewer embeds the CMS viewer privileges without storing the `cms.viewer` key
+        'landing_page.viewer' => [
+            'cms_slot_translation:read',
+        ],
         'theme.viewer' => [
             'sales_channel_type:read',
         ],

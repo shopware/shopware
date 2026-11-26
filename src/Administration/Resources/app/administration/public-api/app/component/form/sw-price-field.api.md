@@ -11,6 +11,70 @@ component sw-price-field  private  js  [private]
   template src/app/component/form/sw-price-field/sw-price-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  allowEmpty?: boolean  default=false  [private]
+  allowModal?: boolean  default=false  [private]
+  compact?: any  default=false  [private]
+  currency: object  default=factory  [private]
+  defaultPrice?: object  default=factory  [private]
+  disableSuffix?: boolean  default=false  [private]
+  disabled?: any  default=false  [private]
+  error?: object  default=null  [private]
+  grossHelpText?: string  default=null  [private]
+  grossLabel?: string  default=null  [private]
+  hideListPrices?: boolean  default=false  [private]
+  inherited?: boolean  default=undefined  [private]
+  label?: any  default=true  [private]
+  name?: string  default=null  [private]
+  netHelpText?: string  default=null  [private]
+  netLabel?: string  default=null  [private]
+  taxRate?: object  default=factory  [private]
+  validation?: any  default=null  [private]
+  value: any[]  [private]
+
+emits
+  calculating(...args: any[])  [private]
+  change(...args: any[])  [private]
+  price-calculate(...args: any[])  [private]
+  price-gross-change(...args: any[])  [private]
+  price-lock-change(...args: any[])  [private]
+  price-net-change(...args: any[])  [private]
+
+data
+  showModal: any  [private]
+
+computed
+  attributesWithoutListeners: any  [private]
+  calculatePriceApiService: any  [private]
+  grossError: any  [private]
+  grossFieldName: any  [private]
+  isDisabled: any  [private]
+  isInherited: any  [private]
+  labelGross: any  [private]
+  labelNet: any  [private]
+  netError: any  [private]
+  netFieldName: any  [private]
+  priceForCurrency: any  [private]
+
+methods
+  convertGrossToNet(value: any): any  [private]
+  convertNetToGross(value: any): any  [private]
+  convertPrice(value: any): any  [private]
+  keymonitor(event: any): any  [private]
+  onCloseModal(): any  [private]
+  onEndsWithDecimalSeparator(value: any): any  [private]
+  onLockSwitch(): any  [private]
+  onPriceGrossChange(value: any): any  [private]
+  onPriceGrossChangeDebounce(): any  [private]
+  onPriceGrossInputChange(value: any): any  [private]
+  onPriceNetChange(value: any): any  [private]
+  onPriceNetChangeDebounce(): any  [private]
+  onPriceNetInputChange(value: any): any  [private]
+  requestTaxValue(value: any, outputType: any): Promise<any>  [private]
+
 blocks
   sw_price_field  [private]
     sw_price_field_gross  [private]

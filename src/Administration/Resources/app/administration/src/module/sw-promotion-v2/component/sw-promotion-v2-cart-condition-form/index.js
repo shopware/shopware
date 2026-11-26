@@ -54,6 +54,18 @@ export default {
             return criteria;
         },
 
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - will be removed with `ruleFilter`, the rule select then uses its default rule filter
+         */
+        ruleFilterDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return undefined;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.ruleFilter);
+        },
+
         packagers() {
             const result = [];
 

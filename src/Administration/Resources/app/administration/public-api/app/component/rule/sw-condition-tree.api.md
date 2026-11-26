@@ -11,6 +11,61 @@ component sw-condition-tree  private  js  [private]
   template src/app/component/rule/sw-condition-tree/sw-condition-tree.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+provide
+  availableGroups: any  [private]
+  availableTypes: any  [private]
+  childAssociationField: any  [private]
+  conditionDataProviderService: any  [private]
+  conditionScopes: any  [private]
+  createCondition: any  [private]
+  insertNodeIntoTree: any  [private]
+  removeNodeFromTree: any  [private]
+  restrictedConditions: any  [private]
+
+props
+  allowedTypes?: any[]  default=null  [private]
+  associationEntity?: object  default=null  [private]
+  associationField: string  [private]
+  associationValue: string  [private]
+  childAssociationField?: string  default='children'  [private]
+  conditionDataProviderService: object  [private]
+  conditionRepository?: object  default=null  [private]
+  disabled?: boolean  default=false  [private]
+  initialConditions?: any[]  default=null  [private]
+  rootCondition?: object  default=null  [private]
+  scopes?: any[]  default=null  [private]
+
+emits
+  conditions-changed(...args: any[])  [private]
+  initial-loading-done(...args: any[])  [private]
+
+data
+  conditionTree: any  [private]
+  initialLoadingDone: any  [private]
+
+computed
+  availableGroups: any  [private]
+  availableTypes: any  [private]
+  restrictedConditions: any  [private]
+  rootId: any  [private]
+
+methods
+  applyRoot(rootNodes: any): any  [private]
+  buildTree(): any  [private]
+  createCondition(conditionData: any, parentId: any, position: any): any  [private]
+  createTreeRecursive(condition: any, conditions: any): any  [private]
+  emitChange(deletedIds: any): any  [private]
+  getDeletedIds(condition: any): any  [private]
+  getDeletedIdsRecursive(condition: any, deletedIs: any): any  [private]
+  getRootNodes(conditions: any, rootId: any): any  [private]
+  insertNodeIntoTree(parentCondition: any, childToInsert: any): any  [private]
+  needsRootOrContainer(rootNodes: any): any  [private]
+  removeNodeFromTree(parentCondition: any, childToRemove: any): any  [private]
+  validatePosition(parentCondition: any, condition: any): any  [private]
+
 blocks
   sw_condition_tree  [private]
 ```

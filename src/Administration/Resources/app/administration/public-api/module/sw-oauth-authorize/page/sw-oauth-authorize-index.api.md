@@ -11,6 +11,36 @@ component sw-oauth-authorize-index  private  ts  [private]
   template src/module/sw-oauth-authorize/page/index/sw-oauth-authorize-index.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  oauthAuthorizeApiService  [private]
+  systemConfigApiService  [private]
+
+data
+  errorMessage: any  [private]
+  info: any  [private]
+  isLoading: any  [private]
+  isSubmitting: any  [private]
+  shopName: any  [private]
+
+computed
+  assetFilter: any  [private]
+  authorizationParams: OAuthAuthorizationParams  [private]
+  clientName: string  [private]
+  hasRequiredParams: boolean  [private]
+  redirectHost: string  [private]
+  resource: string  [private]
+  username: string  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+  getErrorMessage(error: unknown): string  [private]
+  loadInfo(): Promise<any>  [private]
+  loadShopName(): Promise<any>  [private]
+  navigateTo(url: string): any  [private]
+  onApprove(): any  [private]
+  onDeny(): any  [private]
+  submitDecision(approved: boolean): Promise<any>  [private]
+
 blocks
   sw_oauth_authorize  [private]
 ```

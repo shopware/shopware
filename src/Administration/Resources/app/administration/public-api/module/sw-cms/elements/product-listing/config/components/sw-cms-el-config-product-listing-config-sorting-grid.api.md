@@ -11,6 +11,51 @@ component sw-cms-el-config-product-listing-config-sorting-grid  private  js  [pr
   template src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid/sw-cms-el-config-product-listing-config-sorting-grid.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-inline-snippet  [private]
+
+inject
+  repositoryFactory  [private]
+
+props
+  defaultSorting: object  [private]
+  disabled?: boolean  default=false  [private]
+  modelValue: any[]  [private]
+
+emits
+  inline-edit-cancel(...args: any[])  [private]
+  inline-edit-save(...args: any[])  [private]
+  sorting-delete(...args: any[])  [private]
+  update:modelValue(...args: any[])  [private]
+
+data
+  customFields: any  [private]
+  limit: any  [private]
+  page: any  [private]
+
+computed
+  customFieldCriteria: any  [private]
+  customFieldRepository: any  [private]
+  gridColumns: any  [private]
+  paginationVisible: any  [private]
+  productSortings: any  [private]
+  total: any  [private]
+  visibleProductSortings: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  fetchCustomFields(): any  [private]
+  formatProductSortingFields(fields: any): any  [private]
+  getCustomFieldByName(technicalName: any): any  [private]
+  getCustomFieldLabelByCriteriaName(criteriaName: any): any  [private]
+  isDefaultSorting(productSorting: any): any  [private]
+  isItemACustomField(fieldName: any): any  [private]
+  onDelete(productSorting: any): any  [private]
+  onInlineEditCancel(productSorting: any): any  [private]
+  onInlineEditSave(productSorting: any): any  [private]
+  onPageChange(arg0: any): any  [private]
+  stripCustomFieldPath(fieldName: any): any  [private]
+
 blocks
   sw_cms_el_config_product_listing_config_sorting_grid  [private]
 ```

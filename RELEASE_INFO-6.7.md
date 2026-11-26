@@ -2,6 +2,11 @@
 
 ## Core
 
+### Faster DAL writes
+
+DAL writes avoid redundant database queries for versioned entities and translations.
+Local benchmarks on a catalogue with three million products showed approximately 20% lower write times without indexing on MySQL and MariaDB.
+
 ### Moving a category re-indexes its products
 
 Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.
@@ -29,6 +34,16 @@ The `--include-inactive` option of `product-export:generate` is unchanged: it st
 While a stored file is kept, the document also keeps its order version and config.
 The missing file is rendered from the current order.
 To get fresh files for an existing document, generate a new document instead of regenerating it.
+
+### Price sorted listings can display the variant that determines the position
+
+The new listing setting `core.listing.ignoreMainVariantOnPriceSorting` ("Ignore main variant on price sorting") is disabled by default.
+When it is enabled, product listings, search results, cross-sellings and product stream sliders sorted by price ignore the main variant or main product selected in the "Storefront presentation > Product listings" configuration, like `core.listing.findBestVariant` does for search results.
+Each product displays the variant that determines its position instead: the cheapest matching variant when sorted ascending, the most expensive matching variant when sorted descending.
+
+The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPriceSorting`.
+
+The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
 
 ## API
 

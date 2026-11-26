@@ -636,7 +636,6 @@
       "removeLanguageVersionSuccess": "Die Version auf {language} von „{name}“ wurde entfernt.",
       "removeLanguageVersionDescription": "Die Version auf {language} wird entfernt. Stattdessen werden Name und Datei aus der Fallback-Sprache verwendet. Die Datei bleibt unter „Medien“ verfügbar.",
       "changedForLanguage": "Für diese Sprache geändert.",
-      "switchContentLanguage": "Inhaltssprache wechseln",
       "columnPosition": "Position",
       "columnTitle": "Name",
       "columnFileName": "Datei",
@@ -671,7 +670,6 @@
       "removeFromVariantsHelp": "Entfernt das Dokument auch aus Varianten mit aufgehobener Vererbung, solange ihre Kopie noch denselben Namen und dieselbe Datei hat. Aus Varianten, die die Dokumente des Hauptprodukts erben, wird das Dokument in jedem Fall entfernt.",
       "errorLoadMedia": "Die hochgeladene Datei konnte nicht geladen werden. Versuche es erneut.",
       "errorDocumentDuplicated": "Diese Datei ist dem Produkt bereits zugewiesen.",
-      "languageHint": "Füge Dokumente in der Standardsprache hinzu. Wechsle die Inhaltssprache, um ihre Namen und Dateien zu übersetzen.",
       "fileUploadLabel": "Datei-Upload",
       "uploadHint": "{extensions}, jeweils bis zu {size}.",
       "unlinkToAdd": "Hebe die Vererbung der Karte auf, um Dokumente für diese Variante hinzuzufügen."

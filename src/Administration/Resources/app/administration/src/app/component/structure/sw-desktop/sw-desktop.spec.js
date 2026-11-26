@@ -130,7 +130,7 @@ const router = createRouter({
     history: createWebHashHistory(),
 });
 
-async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } = {}) {
+async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()), isAdmin = true } = {}) {
     // delete global $router and $routes mocks
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
@@ -163,6 +163,9 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
                 },
                 snackbarService: {
                     addSnackbar,
+                },
+                acl: {
+                    isAdmin: () => isAdmin,
                 },
             },
         },
@@ -329,6 +332,17 @@ describe('src/app/component/structure/sw-desktop', () => {
         await flushPromises();
 
         expect(wrapper.find('sw-app-shop-id-change-modal-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-app-wrong-app-url-modal-stub').exists()).toBe(false);
+    });
+
+    it('hides the APP_URL warning from users who are not admins', async () => {
+        const wrapper = await createWrapper({
+            checkShopId: jest.fn(() => Promise.resolve(null)),
+            isAdmin: false,
+        });
+
+        await flushPromises();
+
         expect(wrapper.find('sw-app-wrong-app-url-modal-stub').exists()).toBe(false);
     });
 

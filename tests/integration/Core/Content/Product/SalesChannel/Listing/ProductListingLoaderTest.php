@@ -20,10 +20,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -767,6 +770,133 @@ class ProductListingLoaderTest extends TestCase
         $searchData = $mainVariant->get('search');
         static::assertInstanceOf(ArrayEntity::class, $searchData);
         static::assertTrue($searchData->get('_score') > 0);
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('priceSortingProvider')]
+    public function testPriceSortingDisplaysTheVariantWhichPositionsTheGroup(string $direction, array $expected): void
+    {
+        $ids = $this->createPriceSortingProducts(['mainVariantId' => 'expensive']);
+
+        $criteria = $this->createPriceSortingCriteria($ids, $direction);
+
+        static::assertSame(array_values($ids->getList($expected)), $this->loadListingIds($criteria));
+    }
+
+    /**
+     * @return iterable<string, array{string, list<string>}>
+     */
+    public static function priceSortingProvider(): iterable
+    {
+        yield 'ascending, positioned and displayed by the cheapest variant' => [FieldSorting::ASCENDING, ['cheap', 'single']];
+        yield 'descending, positioned and displayed by the most expensive variant' => [FieldSorting::DESCENDING, ['expensive', 'single']];
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('priceSortingProvider')]
+    public function testPriceSortingOnSearchResultsIgnoresTheScore(string $direction, array $expected): void
+    {
+        $ids = $this->createPriceSortingProducts(['mainVariantId' => 'expensive']);
+
+        $criteria = $this->createPriceSortingCriteria($ids, $direction);
+        $criteria->addState(ResolvedCriteriaProductSearchRoute::STATE);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.productNumber', ''), 100));
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('product.productNumber', 'mid'), 500));
+
+        static::assertSame(array_values($ids->getList($expected)), $this->loadListingIds($criteria));
+    }
+
+    public function testPriceSortingDisplaysTheVariantMatchingTheFilters(): void
+    {
+        $ids = $this->createPriceSortingProducts(['mainVariantId' => 'expensive']);
+
+        $criteria = $this->createPriceSortingCriteria($ids, FieldSorting::DESCENDING);
+        $criteria->addPostFilter(new RangeFilter('product.cheapestPrice', [RangeFilter::LTE => 70]));
+
+        static::assertSame(array_values($ids->getList(['mid', 'single'])), $this->loadListingIds($criteria));
+    }
+
+    public function testPriceSortingIgnoresTheParentPreview(): void
+    {
+        $ids = $this->createPriceSortingProducts(['displayParent' => true]);
+
+        $criteria = $this->createPriceSortingCriteria($ids, FieldSorting::ASCENDING);
+
+        static::assertSame(array_values($ids->getList(['cheap', 'single'])), $this->loadListingIds($criteria));
+    }
+
+    public function testOtherSortingsDisplayTheMainVariant(): void
+    {
+        $ids = $this->createPriceSortingProducts(['mainVariantId' => 'expensive']);
+
+        $criteria = $this->createPriceSortingCriteria($ids, FieldSorting::ASCENDING);
+        $criteria->resetSorting();
+        $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::ASCENDING));
+
+        static::assertSame(array_values($ids->getList(['expensive', 'single'])), $this->loadListingIds($criteria));
+    }
+
+    public function testPriceSortingDisplaysTheMainVariantWithoutTheSetting(): void
+    {
+        $ids = $this->createPriceSortingProducts(['mainVariantId' => 'expensive'], false);
+
+        $criteria = $this->createPriceSortingCriteria($ids, FieldSorting::ASCENDING);
+
+        static::assertSame(array_values($ids->getList(['expensive', 'single'])), $this->loadListingIds($criteria));
+    }
+
+    /**
+     * @param array{mainVariantId?: string, displayParent?: bool} $listingConfig
+     */
+    private function createPriceSortingProducts(array $listingConfig, bool $ignoreMainVariant = true): IdsCollection
+    {
+        $this->systemConfigService->set('core.listing.ignoreMainVariantOnPriceSorting', $ignoreMainVariant);
+
+        $ids = new IdsCollection();
+
+        if (isset($listingConfig['mainVariantId'])) {
+            $listingConfig['mainVariantId'] = $ids->get($listingConfig['mainVariantId']);
+        }
+
+        $parent = (new ProductBuilder($ids, 'parent'))
+            ->price(100)
+            ->visibility($this->salesChannelContext->getSalesChannelId())
+            ->variantListingConfig($listingConfig);
+
+        foreach (['cheap' => 10, 'mid' => 60, 'expensive' => 100] as $key => $price) {
+            $parent->variant((new ProductBuilder($ids, $key))->price($price)->build());
+        }
+
+        $single = (new ProductBuilder($ids, 'single'))
+            ->price(50)
+            ->visibility($this->salesChannelContext->getSalesChannelId());
+
+        $products = [$parent->build(), $single->build()];
+        $this->productRepository->create($products, Context::createDefaultContext());
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, $products[0]['tax']);
+
+        return $ids;
+    }
+
+    private function createPriceSortingCriteria(IdsCollection $ids, string $direction): Criteria
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', $ids->getList(['parent', 'cheap', 'mid', 'expensive', 'single'])));
+        $criteria->addSorting(new FieldSorting('cheapestPrice', $direction));
+
+        return $criteria;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function loadListingIds(Criteria $criteria): array
+    {
+        return array_values($this->productListingLoader->load($criteria, $this->salesChannelContext)->getEntities()->getIds());
     }
 
     private function createSearchCriteriaWithOptionFilter(string $state, string $optionKey): Criteria

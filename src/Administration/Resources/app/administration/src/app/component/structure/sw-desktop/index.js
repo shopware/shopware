@@ -12,7 +12,12 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: ['shopIdChangeService', 'userActivityApiService', 'snackbarService'],
+    inject: [
+        'shopIdChangeService',
+        'userActivityApiService',
+        'snackbarService',
+        'acl',
+    ],
 
     shortcuts: {
         CT: 'onCycleTheme',
@@ -47,7 +52,7 @@ export default {
         },
 
         showWrongAppUrlModal() {
-            return !this.isShopIdCheckPending && this.shopIdCheck === null;
+            return !this.isShopIdCheckPending && this.shopIdCheck === null && this.acl.isAdmin();
         },
     },
 

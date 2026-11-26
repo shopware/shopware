@@ -4,7 +4,8 @@
 
 ### Media cache invalidation uses bounded batches
 
-Reindexing or updating media shared by many products reads media assignments and affected variants in batches of up to 10,000 rows to bound worker memory usage.
+Reindexing or updating media shared by many products uses bounded batches to reduce worker memory usage.
+Large updates can call `CacheInvalidator::invalidate()` multiple times, and dispatch multiple `InvalidateCacheEvent` events when invalidation is immediate.
 Delayed invalidation still requires enough capacity to store and process the resulting tags.
 
 ### Moving a category re-indexes its products

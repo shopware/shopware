@@ -82,6 +82,7 @@ class CacheInvalidationSubscriber
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly Connection $connection,
         private readonly bool $productStreamIndexerEnabled,
+        private readonly int $mediaBatchSize = self::MEDIA_BATCH_SIZE,
     ) {
     }
 
@@ -368,16 +369,25 @@ class CacheInvalidationSubscriber
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
         $mediaIds = $event->getIds();
-        foreach ($this->getMediaProductBatches($mediaIds) as $ids) {
-            $productIds = array_map(Uuid::fromBytesToHex(...), array_values(array_unique($ids)));
-            $this->cacheInvalidator->invalidate([
-                ...array_map(ProductDetailRoute::buildName(...), $productIds),
-                ...array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds)),
-                ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $this->getStreamIds($productIds)),
-            ]);
+        if ($mediaIds === []) {
+            return;
         }
 
-        $tags = $this->getMediaUsageTags($mediaIds);
+        $pending = [];
+        foreach ($this->getMediaProductBatches($mediaIds) as $ids) {
+            foreach ($ids as $id) {
+                $pending[Uuid::fromBytesToHex($id)] = true;
+                if (\count($pending) === $this->mediaBatchSize) {
+                    $this->cacheInvalidator->invalidate($this->getMediaProductTags(array_keys($pending)));
+                    $pending = [];
+                }
+            }
+        }
+
+        $tags = [
+            ...$this->getMediaProductTags(array_keys($pending)),
+            ...$this->getMediaUsageTags($mediaIds),
+        ];
         if (Feature::isActive('CACHE_REWORK')) {
             $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $mediaIds));
         }
@@ -497,12 +507,12 @@ class CacheInvalidationSubscriber
         $probe = $this->connection->fetchAllAssociative(
             'SELECT pm.product_id, variant.id AS variant_id
              FROM product_media pm LEFT JOIN product variant ON variant.parent_id = pm.product_id
-             WHERE pm.media_id IN (:ids) LIMIT ' . self::MEDIA_BATCH_SIZE,
+             WHERE pm.media_id IN (:ids) LIMIT ' . $this->mediaBatchSize,
             ['ids' => Uuid::fromHexToBytesList($mediaIds)],
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (\count($probe) < self::MEDIA_BATCH_SIZE) {
+        if (\count($probe) < $this->mediaBatchSize) {
             if ($probe !== []) {
                 yield array_merge(array_column($probe, 'product_id'), array_filter(array_column($probe, 'variant_id')));
             }
@@ -521,7 +531,7 @@ class CacheInvalidationSubscriber
                             EXISTS(SELECT 1 FROM product v WHERE v.parent_id = pm.product_id) AS has_variants
                      FROM product_media pm IGNORE INDEX (PRIMARY)
                      WHERE pm.media_id = :media AND (pm.id > :id OR (pm.id = :id AND pm.version_id > :version))
-                     ORDER BY pm.id, pm.version_id LIMIT ' . self::MEDIA_BATCH_SIZE,
+                     ORDER BY pm.id, pm.version_id LIMIT ' . $this->mediaBatchSize,
                     ['media' => $mediaId, 'id' => $id, 'version' => $version]
                 );
                 if ($rows === []) {
@@ -538,7 +548,7 @@ class CacheInvalidationSubscriber
                 $last = $rows[array_key_last($rows)];
                 $id = $last['id'];
                 $version = $last['version_id'];
-            } while (\count($rows) === self::MEDIA_BATCH_SIZE);
+            } while (\count($rows) === $this->mediaBatchSize);
         }
     }
 
@@ -558,7 +568,7 @@ class CacheInvalidationSubscriber
                  INNER JOIN product_document AS pd ON pdt.product_document_id = pd.id AND pdt.product_document_version_id = pd.version_id
                  INNER JOIN product ON pd.product_id = product.id AND pd.product_version_id = product.version_id
                  WHERE pdt.media_id IN (:ids) AND pd.version_id = :version' . $after . '
-                 ORDER BY owner_id LIMIT ' . self::MEDIA_BATCH_SIZE,
+                 ORDER BY owner_id LIMIT ' . $this->mediaBatchSize,
                 $params,
                 ['ids' => ArrayParameterType::BINARY]
             );
@@ -570,7 +580,7 @@ class CacheInvalidationSubscriber
 
             $params['last'] = $ids[array_key_last($ids)];
             $after = ' AND COALESCE(product.parent_id, product.id) > :last';
-        } while (\count($ids) === self::MEDIA_BATCH_SIZE);
+        } while (\count($ids) === $this->mediaBatchSize);
     }
 
     /**
@@ -585,7 +595,7 @@ class CacheInvalidationSubscriber
         do {
             $rows = $this->connection->fetchAllAssociative(
                 'SELECT parent_id, parent_version_id, id FROM product WHERE parent_id IN (:parents)' . $after .
-                ' ORDER BY parent_id, parent_version_id, id LIMIT ' . self::MEDIA_BATCH_SIZE,
+                ' ORDER BY parent_id, parent_version_id, id LIMIT ' . $this->mediaBatchSize,
                 $params,
                 ['parents' => ArrayParameterType::BINARY]
             );
@@ -601,7 +611,25 @@ class CacheInvalidationSubscriber
             $after = ' AND (parent_id > :parent OR (parent_id = :parent AND (
                 parent_version_id > :version OR (parent_version_id IS NOT NULL AND :version IS NULL)
                 OR (parent_version_id <=> :version AND id > :id))))';
-        } while (\count($rows) === self::MEDIA_BATCH_SIZE);
+        } while (\count($rows) === $this->mediaBatchSize);
+    }
+
+    /**
+     * @param list<string> $productIds
+     *
+     * @return array<string>
+     */
+    private function getMediaProductTags(array $productIds): array
+    {
+        if ($productIds === []) {
+            return [];
+        }
+
+        return [
+            ...array_map(ProductDetailRoute::buildName(...), $productIds),
+            ...array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds)),
+            ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $this->getStreamIds($productIds)),
+        ];
     }
 
     /**

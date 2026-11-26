@@ -303,7 +303,9 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             delete module.childEntities;
         } else {
             module.childEntities.forEach((entity) => {
-                const ownerId = findChildEntityOwnerId(entity);
+                const ownerId = Array.from(modules.keys()).find((id) => {
+                    return modules.get(id)?.manifest.childEntities?.includes(entity);
+                });
 
                 if (ownerId) {
                     warn(
@@ -512,15 +514,9 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
  * It does not match a module's own `entity`, use `getModuleByEntityName` for that.
  */
 function getModuleByChildEntity(childEntity: string): ModuleDefinition | undefined {
-    const ownerId = findChildEntityOwnerId(childEntity);
-
-    return ownerId ? modules.get(ownerId) : undefined;
-}
-
-function findChildEntityOwnerId(childEntity: string): string | undefined {
-    return Array.from(modules.entries()).find(([, { manifest }]) => {
+    return Array.from(modules.values()).find(({ manifest }) => {
         return manifest.childEntities?.includes(childEntity);
-    })?.[0];
+    });
 }
 
 /**

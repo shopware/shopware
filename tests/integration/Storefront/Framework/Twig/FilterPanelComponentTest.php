@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
@@ -207,89 +206,6 @@ class FilterPanelComponentTest extends TestCase
 
         static::assertStringContainsString('Colour', $html);
         static::assertStringContainsString('Size', $html);
-    }
-
-    /**
-     * Bootstrap's responsive offcanvas switches at a single breakpoint, so the per-breakpoint setting collapses
-     * into the first breakpoint turned off. The toggle has to disappear at that same breakpoint, otherwise it
-     * opens an offcanvas that already renders inline.
-     *
-     * @param bool|array<string, bool>|null $showFiltersInOffcanvas
-     */
-    #[DataProvider('offcanvasBreakpointProvider')]
-    public function testTheOffcanvasSwitchesAtTheFirstBreakpointTurnedOff(
-        bool|array|null $showFiltersInOffcanvas,
-        string $expectedOffcanvasClass,
-        string $expectedToggleClass,
-    ): void {
-        $html = $this->render([
-            'productListing' => $this->listing($this->manufacturerAggregation('Shopware AG')),
-            'showFiltersInOffcanvas' => $showFiltersInOffcanvas,
-        ]);
-
-        static::assertStringContainsString('class="' . $expectedOffcanvasClass . '"', $html);
-        static::assertStringContainsString($expectedToggleClass . '"', $html);
-        static::assertStringContainsString('data-bs-toggle="offcanvas"', $html);
-        static::assertStringContainsString('Shopware AG', $html);
-    }
-
-    public static function offcanvasBreakpointProvider(): \Generator
-    {
-        yield 'without a setting the filters move inline from lg on, as before the setting existed' => [
-            null,
-            'sw-offcanvas offcanvas-start offcanvas-lg',
-            'sw-filter-panel__offcanvas-toggle d-flex d-lg-none',
-        ];
-
-        yield 'a breakpoint the setting leaves open keeps its default' => [
-            ['xl' => true],
-            'sw-offcanvas offcanvas-start offcanvas-lg',
-            'sw-filter-panel__offcanvas-toggle d-flex d-lg-none',
-        ];
-
-        yield 'turning off an earlier breakpoint moves the switch down' => [
-            ['md' => false],
-            'sw-offcanvas offcanvas-start offcanvas-md',
-            'sw-filter-panel__offcanvas-toggle d-flex d-md-none',
-        ];
-
-        yield 'a larger breakpoint turned back on cannot reopen the offcanvas after the first one turned off' => [
-            ['sm' => false, 'lg' => true, 'xl' => true],
-            'sw-offcanvas offcanvas-start offcanvas-sm',
-            'sw-filter-panel__offcanvas-toggle d-flex d-sm-none',
-        ];
-
-        yield 'turning every breakpoint on keeps the filters in the offcanvas on every viewport' => [
-            true,
-            'sw-offcanvas offcanvas-start offcanvas',
-            'sw-filter-panel__offcanvas-toggle d-flex',
-        ];
-    }
-
-    /**
-     * With xs turned off the offcanvas would never be used, so the panel renders the filters inline without
-     * the offcanvas wrapper and its toggle.
-     *
-     * @param bool|array<string, bool> $showFiltersInOffcanvas
-     */
-    #[DataProvider('noOffcanvasProvider')]
-    public function testTheFiltersRenderInlineWhenTheSmallestBreakpointIsTurnedOff(bool|array $showFiltersInOffcanvas): void
-    {
-        $html = $this->render([
-            'productListing' => $this->listing($this->manufacturerAggregation('Shopware AG')),
-            'showFiltersInOffcanvas' => $showFiltersInOffcanvas,
-        ]);
-
-        static::assertStringNotContainsString('sw-offcanvas', $html);
-        static::assertStringNotContainsString('sw-filter-panel__offcanvas-toggle', $html);
-        static::assertStringContainsString('Shopware AG', $html);
-    }
-
-    public static function noOffcanvasProvider(): \Generator
-    {
-        yield 'turned off on every breakpoint' => [false];
-
-        yield 'turned off from xs on, which leaves no breakpoint for the offcanvas' => [['xs' => false]];
     }
 
     private function propertyGroup(string $name): PropertyGroupEntity

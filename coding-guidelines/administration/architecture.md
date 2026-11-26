@@ -28,8 +28,7 @@ These rules apply to code under `src/Administration/Resources/app/administration
 - Keep business logic out of templates.
 - Prefer composables for new shared Vue logic. Do not add new mixin-based APIs unless you are extending legacy code.
 - Use BEM-style class names and Meteor design tokens for Administration styling. Avoid inline styles.
-- Build UI from [Meteor](https://meteor.shopware.com) components, tokens and icons, and write copy along its content guidelines.
-  Do not add new usages of deprecated `sw-*` components or of experimental Meteor components.
+- Do not add new usages of deprecated `sw-*` components or of experimental Meteor components.
 
 ## Data access
 

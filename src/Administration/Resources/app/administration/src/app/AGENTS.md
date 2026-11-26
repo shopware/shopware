@@ -98,15 +98,13 @@ export default Shopware.Component.wrapComponentConfig({
 {% block sw_product_detail %}
   <sw-page>
     <template #content>
-      {% block sw_product_detail_content %}
-        {# Meteor components #}
-      {% endblock %}
+      <mt-card position-identifier="sw_product_detail_base">
+        <mt-text-field v-model="product.name" />
+      </mt-card>
     </template>
   </sw-page>
 {% endblock %}
 ```
-
-Take components and tokens from Meteor, see "Meteor design system" in the Administration `AGENTS.md`.
 
 ## State Management
 
@@ -124,6 +122,9 @@ const store = Shopware.Store.get('myStore');
 
 ```scss
 .sw-product-list {
+  padding: var(--scale-size-16);
+  color: var(--color-text-primary-default);
+
   &__header { }
   &__grid { }
 }

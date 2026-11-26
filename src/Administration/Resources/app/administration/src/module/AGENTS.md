@@ -211,7 +211,6 @@ export default Shopware.Component.wrapComponentConfig({
 ## Snippets (i18n)
 
 German (`de-DE`) Administration snippets use the informal "Du" (unlike the Storefront, which uses "Sie").
-Follow the Meteor content guidelines and glossary, see "Meteor design system" in the Administration `AGENTS.md`.
 
 ```json
 {

@@ -48,15 +48,13 @@ Meteor              # Design system
 ## Meteor design system
 
 The UI is built with [Meteor](https://meteor.shopware.com).
-Look up components, tokens, icons and the content guidelines (wording, messaging, glossary) through the Meteor MCP server at `https://meteor.shopware.com/mcp`, not from memory or from the code next to yours.
+Its documentation has the current components, tokens, icons and content guidelines (wording, messaging, glossary), and is available to agents through the Meteor MCP server at `https://meteor.shopware.com/mcp`.
 
 - Use Meteor components; do not add new usages of `sw-*` components that are deprecated in favor of one.
 - Do not use components that Meteor marks as experimental.
 - Use Meteor design tokens instead of hard-coded values and do not override them; prefix Administration-own tokens with `--sw-`.
 - Use icons from the Meteor icon kit.
 - Write snippet text along the content guidelines and use glossary terms exactly.
-
-Migrate existing code that you touch when it is low-risk.
 
 ## Coding guidelines
 - Write Jest tests for all new features and bug fixes

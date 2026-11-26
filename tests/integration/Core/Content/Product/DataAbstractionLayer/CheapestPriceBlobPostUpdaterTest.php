@@ -61,7 +61,7 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         }
         static::assertContains($ids->get('missing'), $iteratedIds);
         static::assertContains($ids->get('different'), $iteratedIds);
-        static::assertNotContains($ids->get('matching'), $iteratedIds);
+        static::assertContains($ids->get('matching'), $iteratedIds);
 
         foreach (['missing', 'different'] as $name) {
             $blob = $connection->fetchOne('SELECT cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes($name)]);
@@ -102,12 +102,12 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         static::assertSame(0, $updater->getTotal());
         $message = $updater->iterate($offset);
         static::assertNotNull($message);
-        static::assertSame([], $message->getData());
+        static::assertSame([$ids->get('already-reconciled')], $message->getData());
         static::assertNotSame($offset, $message->getOffset());
         static::assertNull($updater->iterate($message->getOffset()));
     }
 
-    public function testFiltersOnlyOneBatchAndContinuesAfterAnEmptyBatch(): void
+    public function testHandlesMatchingBatchBeforeRepairingTheNextBatch(): void
     {
         $connection = static::getContainer()->get(Connection::class);
         $offset = ['offset' => (int) $connection->fetchOne('SELECT COALESCE(MAX(auto_increment), 0) FROM product')];
@@ -130,10 +130,13 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         IndexerQueuer::registerIndexer($connection, CheapestPriceBlobPostUpdater::NAME);
         $matchingBatch = $updater->iterate($offset);
         static::assertNotNull($matchingBatch);
-        static::assertSame([], $matchingBatch->getData());
+        static::assertIsArray($matchingBatch->getData());
+        static::assertCount(50, $matchingBatch->getData());
+        static::assertNotContains($ids->get('missing-next-batch'), $matchingBatch->getData());
         static::assertSame(['offset' => $matchingEnd], $matchingBatch->getOffset());
         static::assertArrayHasKey(CheapestPriceBlobPostUpdater::NAME, $queue->getIndexers());
         $updater->handle($matchingBatch);
+        static::assertNull($connection->fetchOne('SELECT cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes('missing-next-batch')]));
 
         $missingBatch = $updater->iterate($matchingBatch->getOffset());
         static::assertNotNull($missingBatch);

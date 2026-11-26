@@ -59,9 +59,11 @@ class CheapestPriceBlobPostUpdaterAfterRemovalTest extends TestCase
             $updater = static::getContainer()->get(CheapestPriceBlobPostUpdater::class);
             $matchingBatch = $updater->iterate($offset);
             static::assertNotNull($matchingBatch);
-            static::assertSame([], $matchingBatch->getData());
+            static::assertIsArray($matchingBatch->getData());
+            static::assertCount(50, $matchingBatch->getData());
             static::assertSame(['offset' => $matchingEnd], $matchingBatch->getOffset());
             $updater->handle($matchingBatch);
+            static::assertNull($connection->fetchOne('SELECT cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes('missing-after-removal')]));
             $offset = $matchingBatch->getOffset();
             while ($message = $updater->iterate($offset)) {
                 $data = $message->getData();

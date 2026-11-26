@@ -54,14 +54,7 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
             return null;
         }
 
-        // Bound payload checks to the fetched rows and advance even when none need repair.
-        $ids = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(id)) FROM product WHERE auto_increment IN (:ids) AND ' . $this->getCondition(),
-            ['ids' => array_keys($ids)],
-            ['ids' => ArrayParameterType::INTEGER]
-        );
-
-        return new EntityIndexingMessage($ids, $iterator->getOffset());
+        return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -71,7 +64,7 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
             return;
         }
 
-        // IDs are shared across versions; recheck to avoid rebuilding matching versions.
+        // IDs are shared across versions; check each version before rebuilding its prices.
         $rows = $this->connection->fetchAllAssociative(
             'SELECT DISTINCT LOWER(HEX(COALESCE(parent_id, id))) AS id, LOWER(HEX(version_id)) AS version_id
              FROM product
@@ -92,7 +85,7 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
 
     public function getTotal(): int
     {
-        // An exact count scans serialized payloads; use unknown progress for this one-off repair.
+        // Avoid counting all products for this one-off repair; progress is unknown.
         return 0;
     }
 

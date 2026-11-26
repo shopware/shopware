@@ -247,7 +247,7 @@ trait IntraCommunitySupplyTrait
     private function assertCategory(string $xml, string $category, string $rate): void
     {
         $categories = self::values($xml, '//ram:CategoryCode');
-        static::assertNotEmpty($categories);
+        static::assertNotSame([], $categories);
         static::assertSame(array_fill(0, \count($categories), $category), $categories);
 
         $rates = self::values($xml, '//ram:RateApplicablePercent');
@@ -305,7 +305,7 @@ trait IntraCommunitySupplyTrait
      */
     private static function values(string $xml, string $query): array
     {
-        static::assertNotEmpty($xml);
+        static::assertNotSame('', $xml);
         $document = new \DOMDocument();
         static::assertTrue($document->loadXML($xml));
 

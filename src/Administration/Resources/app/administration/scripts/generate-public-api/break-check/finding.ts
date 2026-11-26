@@ -42,6 +42,11 @@ export interface Finding {
 }
 
 /** @private */
+export function breaksOf(findings: readonly Finding[]): Finding[] {
+    return findings.filter(({ group }) => group === 'Break');
+}
+
+/** @private */
 export function isMajorOnly(states: readonly FlagState[]): boolean {
     return states.length === 1 && states[0] === 'major';
 }

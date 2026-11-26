@@ -4,7 +4,7 @@
  * Prints the summary of the break check: the verdict, then the findings by group.
  * The summary format is described in `technical-docs/11-code-quality/03-public-api-snapshot.md`.
  */
-import { FINDING_GROUPS } from './finding';
+import { FINDING_GROUPS, breaksOf } from './finding';
 import type { Finding, FindingGroup } from './finding';
 
 function plural(count: number, word: string): string {
@@ -12,21 +12,32 @@ function plural(count: number, word: string): string {
 }
 
 function verdict(findings: Finding[]): string {
-    const breaks = findings.filter(({ group }) => group === 'Break').length;
+    const breaks = breaksOf(findings).length;
 
     return breaks > 0
         ? `Public API check failed: ${plural(breaks, 'unannounced break')}.`
         : 'Public API check passed: no breaks.';
 }
 
-function formatFinding(finding: Finding): string[] {
-    const details = [
+/**
+ * @private
+ *
+ * What a finding says beside its rule, element and location, each detail only when the finding has it.
+ */
+export function findingDetails(finding: Finding): string[] {
+    return [
         finding.explanation,
         finding.fix === undefined ? undefined : `Fix: ${finding.fix}`,
         finding.possibleRename === undefined ? undefined : `Possible rename: ${finding.possibleRename}.`,
         finding.alsoAffects === undefined ? undefined : `Also affects: ${finding.alsoAffects.join(', ')}.`,
-        finding.at === undefined ? undefined : `At: ${finding.at}`,
     ].filter((detail) => detail !== undefined);
+}
+
+function formatFinding(finding: Finding): string[] {
+    const details = [
+        ...findingDetails(finding),
+        ...(finding.at === undefined ? [] : [`At: ${finding.at}`]),
+    ];
 
     return [
         `  ${finding.rule}  ${finding.element}  ${finding.states.join(', ')}`,

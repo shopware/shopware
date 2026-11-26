@@ -2811,8 +2811,7 @@ Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` in
 ## Removed `sw-product-detail.loadLanguage()`
 
 The method `loadLanguage()` of the Administration page `sw-product-detail` was deprecated and is removed.
-The page no longer called it when the content language changed.
-The language auto-fetching service already loads the content language with its locale into `Shopware.Context.api.language`, once when the Administration starts and again every time `Shopware.Context.api.languageId` changes.
+The page no longer called it, because `Shopware.Context.api.language` is already loaded at startup and on every language switch.
 Read `Shopware.Context.api.language` instead, and watch `Shopware.Context.api.languageId` to react to a language switch.
 
 # Storefront

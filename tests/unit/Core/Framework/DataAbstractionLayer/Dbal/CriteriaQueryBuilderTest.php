@@ -99,6 +99,46 @@ class CriteriaQueryBuilderTest extends TestCase
         static::assertSame(['`order`.`name` ASC'], $limitQuery->getOrderByParts());
     }
 
+    public function testNaturalSortingInGroupedQueryAggregatesLength(): void
+    {
+        $definition = $this->returnMockDefinition();
+        $criteria = new Criteria();
+        $ascending = new FieldSorting('name', FieldSorting::ASCENDING, true);
+        $descending = new FieldSorting('name', FieldSorting::DESCENDING, true);
+
+        $helper = static::createStub(EntityDefinitionQueryHelper::class);
+        $helper->method('getFieldAccessor')->willReturn('`order`.`name`');
+
+        $builder = new CriteriaQueryBuilder(
+            static::createStub(SqlQueryParser::class),
+            $helper,
+            static::createStub(SearchTermInterpreter::class),
+            static::createStub(EntityScoreQueryBuilder::class),
+            static::createStub(JoinGroupBuilder::class),
+            static::createStub(CriteriaPartResolver::class)
+        );
+
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+
+        $groupedQuery = new QueryBuilder($connection);
+        $groupedQuery->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
+
+        $builder->addSortings($definition, $criteria, [$ascending, $descending], $groupedQuery, Context::createDefaultContext());
+
+        static::assertSame([
+            'LENGTH(MIN(`order`.`name`)) ASC',
+            'MIN(`order`.`name`) ASC',
+            'LENGTH(MAX(`order`.`name`)) DESC',
+            'MAX(`order`.`name`) DESC',
+        ], $groupedQuery->getOrderByParts());
+
+        $query = new QueryBuilder($connection);
+
+        $builder->addSortings($definition, $criteria, [$ascending], $query, Context::createDefaultContext());
+
+        static::assertSame(['LENGTH(`order`.`name`) ASC', '`order`.`name` ASC'], $query->getOrderByParts());
+    }
+
     private function returnMockDefinition(): EntityDefinition
     {
         return new class extends EntityDefinition {

@@ -130,25 +130,22 @@ class CriteriaQueryBuilder
                 continue;
             }
 
+            if ($this->hasGroupBy($criteria, $query)) {
+                if (!\in_array($sorting->getField(), ['product.cheapestPrice', 'cheapestPrice'], true)) {
+                    if ($sorting->getDirection() === FieldSorting::ASCENDING) {
+                        $accessor = 'MIN(' . $accessor . ')';
+                    } else {
+                        $accessor = 'MAX(' . $accessor . ')';
+                    }
+                } else {
+                    $accessor = 'MIN(' . $accessor . ')';
+                }
+            }
+
             if ($sorting->getNaturalSorting()) {
                 $query->addOrderBy('LENGTH(' . $accessor . ')', $sorting->getDirection());
             }
 
-            if (!$this->hasGroupBy($criteria, $query)) {
-                $query->addOrderBy($accessor, $sorting->getDirection());
-
-                continue;
-            }
-
-            if (!\in_array($sorting->getField(), ['product.cheapestPrice', 'cheapestPrice'], true)) {
-                if ($sorting->getDirection() === FieldSorting::ASCENDING) {
-                    $accessor = 'MIN(' . $accessor . ')';
-                } else {
-                    $accessor = 'MAX(' . $accessor . ')';
-                }
-            } else {
-                $accessor = 'MIN(' . $accessor . ')';
-            }
             $query->addOrderBy($accessor, $sorting->getDirection());
         }
     }

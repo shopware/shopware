@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
@@ -121,6 +122,26 @@ class SchemaBuilderTest extends TestCase
         static::assertCount(1, $pks);
         $firstPk = $pks[0];
         static::assertSame('id', $firstPk->toString());
+    }
+
+    public function testCheapestPricesUseBinaryStorage(): void
+    {
+        $definition = new class extends EntityDefinition {
+            public function getEntityName(): string
+            {
+                return 'cheapest_price_test';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([new CheapestPriceField('cheapest_price_blob', 'cheapestPrice')]);
+            }
+        };
+        $definition->compile($this->registry);
+
+        $table = (new SchemaBuilder())->buildSchemaOfDefinition($definition);
+
+        static::assertSame(Type::getType(Types::BLOB), $table->getColumn('cheapest_price_blob')->getType());
     }
 
     public function testDifferentFieldTypes(): void

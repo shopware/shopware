@@ -352,6 +352,11 @@ class DefinitionValidatorTest extends TestCase
         });
     }
 
+    public function testSalesChannelPriceBlobIsNotReportedAsUnmapped(): void
+    {
+        static::assertSame([], $this->getUnmappedColumnViolations('product', 'cheapest_price_blob'));
+    }
+
     /**
      * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
      *

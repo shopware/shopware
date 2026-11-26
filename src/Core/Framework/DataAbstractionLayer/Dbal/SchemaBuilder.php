@@ -120,7 +120,7 @@ class SchemaBuilder
         ManyToManyIdField::class => Types::JSON,
         SlotConfigField::class => Types::JSON,
         FlowTemplateConfigField::class => Types::JSON,
-        CheapestPriceField::class => Types::JSON,
+        CheapestPriceField::class => Types::BLOB,
         MeasurementUnitsField::class => Types::JSON,
 
         ChildCountField::class => Types::INTEGER,

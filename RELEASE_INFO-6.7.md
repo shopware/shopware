@@ -2,6 +2,13 @@
 
 ## Core
 
+### Cheapest-price blob storage
+
+Product indexing now also writes serialized cheapest prices to `product.cheapest_price_blob`.
+The legacy `cheapest_price` column remains authoritative throughout 6.7 so old and new application instances can share the database during deployment.
+The migration adds the nullable blob column with `ALGORITHM=INSTANT` and fails rather than falling back to a table rebuild when instant DDL is unavailable.
+Operators with customized schemas must arrange the column addition before retrying that migration if their database cannot add it instantly.
+
 ### Faster DAL writes
 
 DAL writes avoid redundant database queries for versioned entities and translations.

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -98,7 +99,8 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             (new OneToOneAssociationField('seoCategory', 'seoCategory', 'id', CategoryDefinition::class))->addFlags(new ApiAware(), new Runtime())->setDescription('Main category used for SEO URL generation in the current sales channel')
         );
         $fields->add(
-            (new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited(), new ApiCriteriaAware())
+            // @deprecated tag:v6.8.0 - Read the blob column after the upgrade reconciliation.
+            (new CheapestPriceField(Feature::isActive('v6.8.0.0') ? 'cheapest_price_blob' : 'cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited(), new ApiCriteriaAware())
         );
         $fields->add(
             (new ObjectField('cheapest_price_container', 'cheapestPriceContainer'))->addFlags(new Runtime())

@@ -11,6 +11,10 @@ component sw-cms-block-image-text-cover  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-cover/component/sw-cms-block-image-text-cover.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  left  {}  block=sw_cms_block_image_text_cover  [private]
+  right  {}  block=sw_cms_block_image_text_cover  [private]
+
 blocks
   sw_cms_block_image_text_cover  [private]
 ```

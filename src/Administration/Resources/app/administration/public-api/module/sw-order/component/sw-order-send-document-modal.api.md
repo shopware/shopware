@@ -10,6 +10,45 @@ component sw-order-send-document-modal  public  js
   source src/module/sw-order/component/sw-order-send-document-modal/index.js
   template src/module/sw-order/component/sw-order-send-document-modal/sw-order-send-document-modal.html.twig
 
+mixins
+  notification
+
+inject
+  mailService
+  repositoryFactory
+
+props
+  document: object
+  order: object
+
+emits
+  document-sent(...args: any[])
+  modal-close(...args: any[])
+
+data
+  a11yDocuments: any
+  content: any
+  isLoading: any
+  mailTemplateId: any
+  recipient: any
+  subject: any
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  mailHeaderFooterRepository: any
+  mailTemplateCriteria: any
+  mailTemplateRepository: any
+  mailTemplateSendCriteria: any
+  primaryActionDisabled: any
+  truncateFilter: any
+
+methods
+  createdComponent(): Promise<any>
+  loadTheLinksForA11y(): any
+  onMailTemplateChange(mailTemplateId: any, mailTemplate: any): Promise<any>
+  onSendDocument(): Promise<any>
+  setEmailTemplateAccordingToDocumentType(): Promise<any>
+
 blocks
   sw_order_send_document_modal
     sw_order_send_document_modal_customer_mail_select

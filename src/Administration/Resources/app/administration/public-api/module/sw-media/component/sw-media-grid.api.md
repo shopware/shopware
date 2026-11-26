@@ -11,6 +11,29 @@ component sw-media-grid  private  js  [private]
   template src/module/sw-media/component/sw-media-grid/sw-media-grid.html.twig  [private]
   visibility-source export  [private]
 
+props
+  presentation?: string  default='medium-preview'  [private]
+
+emits
+  media-grid-selection-clear(...args: any[])  [private]
+
+slots
+  content  {}  block=sw_media_grid  [private]
+  default  {}  block=sw_media_grid_slot_content  [private]
+
+computed
+  mediaColumnDefinitions: any  [private]
+  nonDeselectingComponents: any  [deprecated tag:v6.8.0] [private]
+  presentationClass: any  [private]
+
+methods
+  beforeDestroyComponent(): any  [deprecated tag:v6.8.0] [private]
+  clearSelectionOnClickOutside(event: any): any  [deprecated tag:v6.8.0] [private]
+  createdComponent(): any  [deprecated tag:v6.8.0] [private]
+  emitSelectionCleared(originalDomEvent: any): any  [deprecated tag:v6.8.0] [private]
+  isEmittedFromChildren(target: any): any  [deprecated tag:v6.8.0] [private]
+  originatesFromExcludedComponent(event: any): any  [deprecated tag:v6.8.0] [private]
+
 blocks
   sw_media_grid  [private]
     sw_media_grid_slot_content  [private]

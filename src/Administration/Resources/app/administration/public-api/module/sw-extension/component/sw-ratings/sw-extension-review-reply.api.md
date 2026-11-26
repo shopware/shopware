@@ -11,6 +11,13 @@ component sw-extension-review-reply  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-review-reply/sw-extension-review-reply.html.twig  [private]
   visibility-source export  [private]
 
+props
+  producerName: string  [private]
+  reply: object  [private]
+
+computed
+  creationDate: any  [private]
+
 blocks
   sw_extension_review_reply  [private]
     sw_extension_review_reply_head  [private]

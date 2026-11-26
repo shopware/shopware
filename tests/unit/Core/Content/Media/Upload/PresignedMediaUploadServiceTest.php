@@ -26,6 +26,7 @@ use Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface;
 use Shopware\Core\Content\Media\Upload\PresignedUrlResult;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -961,8 +962,77 @@ class PresignedMediaUploadServiceTest extends TestCase
         $service->finalize($mediaId, $payload, $context);
     }
 
+    public function testFinalizeFindsPrivateMediaThatOnlySystemScopeSees(): void
+    {
+        $mediaId = '0189b0a1-0000-0000-0000-0000000000ee';
+        $path = 'media/ab/cd/label.pdf';
+
+        [$repo, $service] = $this->createService([
+            $this->visibleInSystemScopeOnly($this->buildMedia($mediaId, true)),
+            new MediaCollection(),
+        ]);
+
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
+
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
+        $this->mediaFileCleanup->expects($this->once())->method('dispatchThumbnailGeneration');
+        $this->extensionValidator->expects($this->once())->method('validate');
+
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 2048,
+            lastModified: new \DateTimeImmutable(),
+            etag: 'd41d8cd98f00b204e9800998ecf8427e',
+            contentType: 'application/pdf',
+        ));
+
+        $payload = new PresignedUploadFinalizePayload(
+            fileName: 'label',
+            extension: 'pdf',
+            mimeType: 'application/pdf',
+            path: $path,
+        );
+
+        $service->finalize($mediaId, $payload, Context::createDefaultContext(new AdminApiSource(null)));
+
+        static::assertCount(1, $repo->updates);
+        static::assertSame($mediaId, $repo->updates[0][0]['id']);
+    }
+
+    public function testPrepareReplaceFindsPrivateMediaThatOnlySystemScopeSees(): void
+    {
+        $mediaId = '0189b0a1-0000-0000-0000-0000000000ff';
+
+        [, $service] = $this->createService([
+            $this->visibleInSystemScopeOnly($this->buildMedia($mediaId, true)),
+        ]);
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->extensionValidator->expects($this->once())->method('validate');
+
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('generate')
+            ->with(static::anything(), 'application/pdf', true)
+            ->willReturn(new PresignedUrlResult(
+                url: 'https://private-bucket.s3.example.com/replace',
+                path: 'media/ab/cd/label.pdf',
+                expiresAt: new \DateTimeImmutable('+5 minutes'),
+            ));
+
+        $payload = new PresignedUploadPreparePayload(
+            fileName: 'label',
+            extension: 'pdf',
+            mimeType: 'application/pdf',
+            mediaId: $mediaId,
+        );
+
+        $result = $service->prepare($payload, Context::createDefaultContext(new AdminApiSource(null)));
+
+        static::assertSame($mediaId, $result->mediaId);
+    }
+
     /**
-     * @param list<MediaCollection> $searches
+     * @param list<MediaCollection|\Closure(Criteria, Context): MediaCollection> $searches
      *
      * @return array{StaticEntityRepository<MediaCollection>, PresignedMediaUploadService}
      */
@@ -983,6 +1053,18 @@ class PresignedMediaUploadServiceTest extends TestCase
         );
 
         return [$repo, $service];
+    }
+
+    /**
+     * Stands in for MediaVisibilityRestrictionSubscriber.
+     *
+     * @return \Closure(Criteria, Context): MediaCollection
+     */
+    private function visibleInSystemScopeOnly(MediaEntity $media): \Closure
+    {
+        return static fn (Criteria $criteria, Context $context): MediaCollection => new MediaCollection(
+            $context->getScope() === Context::SYSTEM_SCOPE ? [$media] : []
+        );
     }
 
     private function buildMedia(string $mediaId, bool $private = false): MediaEntity

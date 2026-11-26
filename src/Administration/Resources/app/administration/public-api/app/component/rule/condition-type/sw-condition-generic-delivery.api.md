@@ -12,6 +12,29 @@ component sw-condition-generic-delivery  private  ts  [private]
   template src/app/component/rule/condition-type/sw-condition-generic-delivery/sw-condition-generic-delivery.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  childAssociationField  [private]
+  createCondition  [private]
+  insertNodeIntoTree  [private]
+  removeNodeFromTree  [private]
+  repositoryFactory  [private]
+  restrictedConditions  [private]
+  unwrapDeliveryCondition  [private]
+
+props
+  condition: RuleCondition  [private]
+  parentCondition?: RuleCondition | null  default=null  [private]
+
+computed
+  allowAppliesTo: boolean  [private]
+  appliesTo: AppliesTo  [private]
+  appliesToOptions: AppliesToOption[]  [private]
+  deliveryRestrictions: RestrictedAssignment[]  [private]
+
+methods
+  getOptionTooltip(option: AppliesToOption): { message: string; disabled: boolean; width?: number }  [private]
+  wrapCondition(): void  [private]
+
 blocks
   sw_condition_base  [inherited] [private]
     sw_condition_base_content  [inherited] [private]

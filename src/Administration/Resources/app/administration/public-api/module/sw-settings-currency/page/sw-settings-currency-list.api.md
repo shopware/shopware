@@ -10,6 +10,36 @@ component sw-settings-currency-list  public  js
   source src/module/sw-settings-currency/page/sw-settings-currency-list/index.js
   template src/module/sw-settings-currency/page/sw-settings-currency-list/sw-settings-currency-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  currency: any
+  entityName: any
+  isLoading: any
+  naturalSorting: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  currencyRepository: any
+
+methods
+  getCurrencyColumns(): any
+  getList(): any
+  invalidateCurrencyCaches(): any
+  metaInfo(): any
+  onChangeLanguage(languageId: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  onInlineEditSave(promise: any, currency: any): any
+
 blocks
   sw_settings_list
     sw_settings_currency_index
@@ -31,4 +61,7 @@ blocks
         sw_settings_currency_list_smart_bar_header_title
           sw_settings_currency_list_smart_bar_header_amount
           sw_settings_currency_list_smart_bar_header_title_text
+
+refs
+  swSettingsCurrencyGrid  -> sw-entity-listing  block=sw_settings_currency_list_content
 ```

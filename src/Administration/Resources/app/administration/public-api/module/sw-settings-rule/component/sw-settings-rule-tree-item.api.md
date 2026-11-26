@@ -12,6 +12,18 @@ component sw-settings-rule-tree-item  private  js  [private]
   template src/module/sw-settings-rule/component/sw-settings-rule-tree-item/sw-settings-rule-tree-item.html.twig  [private]
   visibility-source export  [private]
 
+props
+  association: string  [private]
+  hideActions?: boolean  default=false  [private]
+
+slots
+  actions  { add-element, add-sub-element, delete-element, is-disabled, item, on-change-route, on-duplicate, open-tree-item, tool-tip }  block=sw_tree_item_element_actions  [private]
+  content  { ...{ item, openTreeItem, getName } }  block=sw_tree_item_element_content  [private]
+  grip  {}  block=sw_tree_item_element_grip  [private]
+
+methods
+  hasItemAssociation(item: any): any  [private]
+
 blocks
   sw_tree_item  [inherited] [private]
     sw_tree_item_children_transition  [inherited] [private]
@@ -41,4 +53,7 @@ crossings
   v-if  sw_tree_item_children_content -> sw_tree_item_children_transition  [private]
   v-if  sw_tree_item_element_leaf_icon -> sw_tree_item_element_toggle  [private]
   v-if  sw_tree_items_item_content_edit -> sw_tree_items_item_content_default  [private]
+
+refs
+  item  -> div  block=sw_tree_item_element_content  [private]
 ```

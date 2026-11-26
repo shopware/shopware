@@ -11,6 +11,19 @@ component sw-extension-privacy-policy-extensions-modal  private  js  [private]
   template src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal/sw-extension-privacy-policy-extensions-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  extensionName: string  [private]
+  privacyPolicyExtension: string  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+computed
+  title: any  [private]
+
+methods
+  close(): any  [private]
+
 blocks
   sw_extension_privacy_policy_extensions_modal  [private]
     sw_extension_permissions_modal_footer  [private]

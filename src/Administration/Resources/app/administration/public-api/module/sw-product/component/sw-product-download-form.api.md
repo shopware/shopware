@@ -11,6 +11,54 @@ component sw-product-download-form  private  js  [private]
   template src/module/sw-product/component/sw-product-download-form/sw-product-download-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  acl  [private]
+  configService  [private]
+  mediaService  [private]
+  repositoryFactory  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  isInherited?: boolean  default=false  [private]
+
+emits
+  media-open(...args: any[])  [private]
+
+data
+  fileAcceptedExtensions: any  [private]
+  fileAcceptedMimeTypesByExtension: any  [private]
+  isMediaLoading: any  [private]
+
+computed
+  error: any  [private]
+  fileAccept: any  [private]
+  hasError: any  [private]
+  isLoading: any  [private]
+  isStoreLoading: any  [private]
+  mediaRepository: any  [private]
+  product: any  [private]
+  productDownloadRepository: any  [private]
+  productDownloads: any  [private]
+  swFieldClasses: any  [private]
+
+methods
+  createDownloadAssociation(targetId: any): any  [private]
+  createdAt(download: any): any  [private]
+  createdComponent(): Promise<any>  [private]
+  downloadMedia(download: any): any  [private]
+  getFileName(download: any): any  [private]
+  getFileSize(download: any): any  [private]
+  onOpenMedia(): any  [private]
+  onRemoveDownload(download: any): any  [private]
+  onUploadFailed(uploadTask: any): any  [private]
+  removeFile(productMedia: any): any  [private]
+  successfulUpload(arg0: any): Promise<any>  [private]
+  triggerDownload(url: any, fileName?: any = null): any  [private]
+  updateMediaItemPositions(): any  [private]
+
 blocks
   sw_product_download_form  [private]
 ```

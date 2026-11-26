@@ -25,7 +25,6 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
      */
     public function __construct(
         private readonly ProductSearchTermInterpreterInterface $interpreter,
-        private readonly SearchConfigRankingChecker $rankingChecker,
         private readonly LoggerInterface $logger,
         private readonly int $searchTermMaxLength,
         private readonly bool $searchKeywordIndexingEnabled = true,
@@ -83,12 +82,9 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             $keywordFilter = new AndFilter([
                 new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())),
                 new EqualsFilter('product.searchKeywords.languageId', $context->getLanguageId()),
+                new RangeFilter('product.searchKeywords.ranking', [RangeFilter::GT => 0]),
             ]);
-
-            if (!$this->rankingChecker->hasNegativeRanking($context->getLanguageId())) {
-                $keywordFilter->addQuery(new RangeFilter('product.searchKeywords.ranking', [RangeFilter::GT => 0]));
-                $this->markScoredMatches($keywordFilter, $queries);
-            }
+            $this->markScoredMatches($keywordFilter, $queries);
 
             $criteria->addFilter($keywordFilter);
 

@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Content\Product\SearchKeyword\ScoredMatchesMarker;
-use Shopware\Core\Content\Product\SearchKeyword\SearchConfigRankingChecker;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -18,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\Log\Package;
@@ -46,7 +48,7 @@ class ProductSearchListingAggregationTest extends TestCase
         $this->ids = new IdsCollection();
 
         $products = [];
-        foreach (['ranked', 'mixed', 'zero-ranked', 'unmatched'] as $key) {
+        foreach (['ranked', 'mixed', 'zero-ranked', 'negative-ranked', 'unmatched'] as $key) {
             $products[] = (new ProductBuilder($this->ids, $key))
                 ->price(10)
                 ->visibility()
@@ -60,13 +62,14 @@ class ProductSearchListingAggregationTest extends TestCase
         $this->insertKeyword('mixed', 'zorbex', 0);
         $this->insertKeyword('mixed', 'zorbexes', 300);
         $this->insertKeyword('zero-ranked', 'zorbex', 0);
+        $this->insertKeyword('negative-ranked', 'zorbex', -100);
         $this->insertKeyword('unmatched', 'other', 500);
     }
 
     public function testKeywordSearchAggregatesWithoutScoreQueriesAndKeepsResultsAndFacets(): void
     {
-        $optimized = $this->search(negativeRankingConfigured: false);
-        $unoptimized = $this->search(negativeRankingConfigured: true);
+        $optimized = $this->search(trunkKeywordFilter: false);
+        $unoptimized = $this->search(trunkKeywordFilter: true);
 
         static::assertTrue($this->hasMarkedKeywordFilter($optimized));
         static::assertFalse($this->hasMarkedKeywordFilter($unoptimized));
@@ -92,7 +95,7 @@ class ProductSearchListingAggregationTest extends TestCase
     /**
      * @return EntitySearchResult<ProductCollection>
      */
-    private function search(bool $negativeRankingConfigured): EntitySearchResult
+    private function search(bool $trunkKeywordFilter): EntitySearchResult
     {
         $pattern = new SearchPattern(new SearchTerm('zorbex'));
         $pattern->addTerm(new SearchTerm('zorbex', 1.2));
@@ -101,9 +104,6 @@ class ProductSearchListingAggregationTest extends TestCase
         $interpreter = static::createStub(ProductSearchTermInterpreterInterface::class);
         $interpreter->method('interpret')->willReturn($pattern);
 
-        $rankingChecker = static::createStub(SearchConfigRankingChecker::class);
-        $rankingChecker->method('hasNegativeRanking')->willReturn($negativeRankingConfigured);
-
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
@@ -111,8 +111,16 @@ class ProductSearchListingAggregationTest extends TestCase
         $criteria->addAggregation(new TermsAggregation('manufacturer', 'product.manufacturerId'));
         $criteria->addAggregation(new TermsAggregation('properties', 'product.properties.id'));
 
-        (new ProductSearchBuilder($interpreter, $rankingChecker, new NullLogger(), 100))
+        (new ProductSearchBuilder($interpreter, new NullLogger(), 100))
             ->build(new Request(['search' => 'zorbex']), $criteria, $context);
+
+        if ($trunkKeywordFilter) {
+            $criteria->resetFilters();
+            $criteria->addFilter(new AndFilter([
+                new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())),
+                new EqualsFilter('product.searchKeywords.languageId', $context->getLanguageId()),
+            ]));
+        }
 
         return static::getContainer()->get(ProductListingLoader::class)->load($criteria, $context);
     }

@@ -8,7 +8,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Content\Product\SearchKeyword\ScoredMatchesMarker;
-use Shopware\Core\Content\Product\SearchKeyword\SearchConfigRankingChecker;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
@@ -36,7 +35,6 @@ class ProductSearchBuilderTest extends TestCase
         $logger = static::createStub(LoggerInterface::class);
         $searchBuilder = new ProductSearchBuilder(
             $termInterpreter,
-            static::createStub(SearchConfigRankingChecker::class),
             $logger,
             20,
             false
@@ -63,7 +61,6 @@ class ProductSearchBuilderTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $searchBuilder = new ProductSearchBuilder(
             $termInterpreter,
-            static::createStub(SearchConfigRankingChecker::class),
             $logger,
             20
         );
@@ -94,13 +91,7 @@ class ProductSearchBuilderTest extends TestCase
 
     public function testOrLogicRestrictsKeywordFilterToPositiveRankings(): void
     {
-        $rankingChecker = $this->createMock(SearchConfigRankingChecker::class);
-        $rankingChecker->expects($this->once())
-            ->method('hasNegativeRanking')
-            ->with(self::LANGUAGE_ID)
-            ->willReturn(false);
-
-        $criteria = $this->build(new SearchPattern(new SearchTerm('saphir')), $rankingChecker);
+        $criteria = $this->build(new SearchPattern(new SearchTerm('saphir')));
 
         $expectedFilter = new AndFilter([
             new EqualsAnyFilter('product.searchKeywords.keyword', ['saphir', 'saphir ring']),
@@ -117,32 +108,13 @@ class ProductSearchBuilderTest extends TestCase
         }
     }
 
-    public function testOrLogicKeepsKeywordFilterUnchangedWhenSearchConfigHasNegativeRanking(): void
-    {
-        $rankingChecker = static::createStub(SearchConfigRankingChecker::class);
-        $rankingChecker->method('hasNegativeRanking')->willReturn(true);
-
-        $criteria = $this->build(new SearchPattern(new SearchTerm('saphir')), $rankingChecker);
-
-        static::assertEquals([
-            new AndFilter([
-                new EqualsAnyFilter('product.searchKeywords.keyword', ['saphir', 'saphir ring']),
-                new EqualsFilter('product.searchKeywords.languageId', self::LANGUAGE_ID),
-            ]),
-        ], $criteria->getFilters());
-        static::assertFalse(self::hasScoredMatchesMarker($criteria));
-    }
-
     public function testAndLogicKeepsTokenFiltersUnchanged(): void
     {
-        $rankingChecker = $this->createMock(SearchConfigRankingChecker::class);
-        $rankingChecker->expects($this->never())->method('hasNegativeRanking');
-
         $pattern = new SearchPattern(new SearchTerm('saphir'));
         $pattern->setBooleanClause(true);
         $pattern->setTokenTerms([['saphir', 'saphir ring']]);
 
-        $criteria = $this->build($pattern, $rankingChecker);
+        $criteria = $this->build($pattern);
 
         static::assertEquals([
             new AndFilter([
@@ -153,7 +125,7 @@ class ProductSearchBuilderTest extends TestCase
         static::assertFalse(self::hasScoredMatchesMarker($criteria));
     }
 
-    private function build(SearchPattern $pattern, SearchConfigRankingChecker $rankingChecker): Criteria
+    private function build(SearchPattern $pattern): Criteria
     {
         $pattern->addTerm(new SearchTerm('saphir ring', 0.5));
 
@@ -165,7 +137,7 @@ class ProductSearchBuilderTest extends TestCase
         $salesChannelContext->method('getLanguageId')->willReturn(self::LANGUAGE_ID);
 
         $criteria = new Criteria();
-        $searchBuilder = new ProductSearchBuilder($termInterpreter, $rankingChecker, static::createStub(LoggerInterface::class), 20);
+        $searchBuilder = new ProductSearchBuilder($termInterpreter, static::createStub(LoggerInterface::class), 20);
         $searchBuilder->build(new Request(['search' => 'saphir']), $criteria, $salesChannelContext);
 
         return $criteria;

@@ -6,9 +6,9 @@
 
 When the product search runs on MySQL with OR logic, the listing aggregations of the search result no longer repeat the score calculation.
 For this, the search now only matches search keywords with a ranking above 0.
-Keywords from the search configuration with a ranking of 0 never added to the score, so the search results stay the same.
-Keyword rankings of 0 or below that a custom keyword analyzer writes no longer affect the search result.
-If the search configuration of the language has a field with a negative ranking, the search works as before.
+Keywords with a ranking of 0 never added to the score, so for them the search results stay the same.
+Keywords with a negative ranking no longer lower the score, so a negative ranking in the search configuration no longer moves products down or out of the search result.
+This also applies to keyword rankings that a custom keyword analyzer writes.
 
 ### Faster DAL writes
 

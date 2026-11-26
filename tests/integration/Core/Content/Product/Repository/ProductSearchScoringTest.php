@@ -2,14 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Repository;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
-use Shopware\Core\Content\Product\SearchKeyword\SearchConfigRankingChecker;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -145,7 +143,6 @@ class ProductSearchScoringTest extends TestCase
         $logger = static::createStub(LoggerInterface::class);
         $searchBuilder = new ProductSearchBuilder(
             $termInterpreter,
-            new SearchConfigRankingChecker(static::getContainer()->get(Connection::class)),
             $logger,
             20
         );

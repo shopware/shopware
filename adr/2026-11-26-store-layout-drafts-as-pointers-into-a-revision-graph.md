@@ -33,12 +33,13 @@ Affected domains: the content layout storage, the persisted mutation pipeline (`
 Two new tables sit next to `content_layout`; they are no DAL entities and are read and written through `LayoutRevisionStore`.
 
 * `content_layout_revision` holds immutable saved states.
-  Each row has the full tree, a `parent_id`, `created_by_id` (the admin user of the edit), and `published_at` and `published_by_id` for the first time it went live.
+  Each row has the full tree, a `parent_id`, `created_by_id` (the admin user of the edit), `published_at` and `published_by_id` for the first time it went live, and `last_live_at` for the latest.
   The revision the `layout` column holds carries the live pointer `live_content_layout_id`, which is unique, so there is exactly one live revision per layout.
 * `content_layout_draft` holds named pointers into that graph: `base` (the revision the draft was opened from), `head` (its latest revision), `live_at_open` (the live revision when it was opened) and `created_by_id`.
 
 A draft copies no tree when it is created.
 A rollback is a draft opened from an older published revision via `fromRevisionId`.
+The `published-revisions` route lists those revisions, most recently live first, without taking the lock.
 
 ### The `layout` column stays the source of truth for live
 
@@ -62,7 +63,7 @@ The optimistic-concurrency token is `expectedHead` instead of `expectedVersion`.
 Every write (create, edit, publish, discard) runs under `LayoutRowLock`, a transaction with `SELECT … FOR UPDATE` on the layout row, which live persisted mutations take as well.
 Concurrent writers of one layout therefore serialize, and the stale one fails its `expectedHead` or `expectedVersion` check.
 
-Listing and reading drafts take no lock and never reconcile.
+Listing and reading drafts and listing the published revisions take no lock and never reconcile.
 `LayoutRevisionStore::draftWithHead()` reads the draft and its head tree in one statement, so a concurrent write cannot fall between the two.
 
 ### Publishing never replaces a live state the draft has not seen
@@ -75,7 +76,7 @@ publish(draft, expectedHead):
                 and isAncestorOrSelf(live, draft.head)):  # and the draft contains it
                                                        -> 409 LAYOUT_PUBLISH_CONFLICT
     write draft head to content_layout.layout through the DAL
-    move live pointer to draft.head, record published_at and published_by_id
+    move live pointer to draft.head, record published_at and published_by_id once, last_live_at every time
     delete draft
     compact()
 ```
@@ -88,11 +89,12 @@ A draft branched from another draft's head can still be published after that dra
 After every edit, publish and discard, `RevisionGraph::compaction()` decides what stays:
 
 * the live revision,
-* the 20 most recently published revisions,
+* the 20 most recently live revisions,
 * the `base`, `head` and `live_at_open` revision of every open draft.
 
 Everything else is deleted.
 Each survivor is re-parented onto its nearest surviving ancestor, so ancestry among the survivors is exactly what it was, and the publish rule above judges the same graph.
+Ranking by `last_live_at` instead of `published_at` keeps a revision restored by a rollback, so the publish after the rollback can be undone as well.
 
 As a result, a draft holds only its head, a published draft leaves only the published state, and an untouched draft costs at most three revisions.
 Compaction runs inside the write's lock, so no scheduled task is needed.
@@ -106,6 +108,7 @@ The draft routes live under `/api/_action/content-system/layout/{layoutId}`, in 
 |---|---|---|---|
 | GET | `/drafts` | | `content_layout:read` |
 | GET | `/drafts/{draftId}` | | `content_layout:read` |
+| GET | `/published-revisions` | | `content_layout:read` |
 | POST | `/create-draft` | `name`, `fromRevisionId` (both optional) | `content_layout:update` |
 | POST | `/discard-draft` | `draftId` | `content_layout:update` |
 | POST | `/publish-draft` | `draftId`, `expectedHead` | `content_layout:update` |
@@ -132,7 +135,7 @@ A draft in a response is `{id, name, base, head, createdAt, createdById, updated
 
 * Storefront reads and the `content_layout` entity are unchanged.
 * A write to the `layout` column outside publishing, for example through the Sync API, becomes a new live revision on the next draft write, and drafts opened before it can no longer be published.
-* A rollback reaches the last 20 published states.
+* A rollback reaches the last 20 live states.
   An older `fromRevisionId` is a `404` `CONTENT_LAYOUT_REVISION_NOT_FOUND`.
 * A draft can branch from another draft's current head only, because earlier heads are deleted.
 * Who made an intermediate edit is not kept after the next edit; a revision keeps the author of its own edit and its first publisher.

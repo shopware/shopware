@@ -28,9 +28,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * write gate including resolvability, and moves the live pointer onto it. Every write runs under the
  * {@see LayoutRowLock} that persisted mutations take too, and first reconciles the live pointer with the `layout`
  * column, see {@see reconcile()}; concurrent writers of one layout therefore serialize and the stale one fails its
- * head or version check. Listing and reading drafts take neither, since reconciling never changes a draft or a
- * stored tree, so a reader never waits for a writer. Editing, publishing and discarding compact the history, see
- * {@see RevisionGraph::compaction()}: a draft keeps only its head, and the published history its latest entries.
+ * head or version check. Reading drafts and the published history take neither, since reconciling never changes
+ * a draft or a stored tree, so a reader never waits for a writer. Editing, publishing and discarding compact the
+ * history, see {@see RevisionGraph::compaction()}: a draft keeps only its head, and the published history its
+ * latest entries.
  *
  * @internal
  *
@@ -90,9 +91,19 @@ class LayoutRevisionService
         throw ContentSystemException::contentLayoutDraftNotFound($layoutId, $draftId);
     }
 
-    public function history(string $layoutId): RevisionGraph
+    /**
+     * The revisions a draft can be opened from to roll back, see {@see LayoutRevisionStore::publishedRevisions()}.
+     * A layout write that bypassed publishing appears only after the next write through this service adopts it.
+     *
+     * @return list<array{revision: LayoutRevision, live: bool}>
+     */
+    public function publishedRevisions(string $layoutId): array
     {
-        return $this->locked($layoutId, fn (string $live): RevisionGraph => $this->store->graph($layoutId, $live));
+        if (!$this->store->layoutExists($layoutId)) {
+            throw ContentSystemException::contentLayoutNotFound($layoutId);
+        }
+
+        return $this->store->publishedRevisions($layoutId);
     }
 
     public function createDraft(string $layoutId, Context $context, ?string $name = null, ?string $fromRevisionId = null): LayoutDraft

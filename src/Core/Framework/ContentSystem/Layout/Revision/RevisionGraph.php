@@ -41,16 +41,18 @@ final readonly class RevisionGraph
     }
 
     /**
-     * Keeps the live revision, the `$publishedKept` most recently published ones and each draft's base, head and
-     * live-at-open revision, and deletes every other. Each survivor is re-parented onto its nearest surviving
-     * ancestor, which keeps ancestry among the survivors exactly as it was: the publish rule reads only survivors.
+     * Keeps the live revision, the `$publishedKept` most recently live ones and each draft's base, head and
+     * live-at-open revision, and deletes every other. Ranking by the last time live rather than the first keeps a
+     * revision restored by a rollback, so the publish after it can be undone. Each survivor is re-parented onto its
+     * nearest surviving ancestor, which keeps ancestry among the survivors exactly as it was: the publish rule reads
+     * only survivors.
      *
      * @return array{delete: list<string>, reparent: array<string, string|null>}
      */
     public function compaction(int $publishedKept): array
     {
-        $published = array_values(array_filter($this->revisions, static fn (LayoutRevision $revision): bool => $revision->publishedAt !== null));
-        usort($published, static fn (LayoutRevision $a, LayoutRevision $b): int => [$b->publishedAt, $b->id] <=> [$a->publishedAt, $a->id]);
+        $published = array_values(array_filter($this->revisions, static fn (LayoutRevision $revision): bool => $revision->lastLiveAt !== null));
+        usort($published, static fn (LayoutRevision $a, LayoutRevision $b): int => [$b->lastLiveAt, $b->id] <=> [$a->lastLiveAt, $a->id]);
 
         $kept = [$this->live => true];
         foreach (\array_slice($published, 0, $publishedKept) as $revision) {

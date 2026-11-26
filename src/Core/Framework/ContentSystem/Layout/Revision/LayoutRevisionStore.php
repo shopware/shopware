@@ -30,6 +30,11 @@ class LayoutRevisionStore
             `draft`.`created_at`, LOWER(HEX(`draft`.`created_by_id`)) AS `created_by_id`, `draft`.`updated_at`
         SQL;
 
+    private const REVISION_SELECT = <<<'SQL'
+        SELECT LOWER(HEX(`id`)) AS `id`, LOWER(HEX(`parent_id`)) AS `parent_id`, LOWER(HEX(`created_by_id`)) AS `created_by_id`, `created_at`,
+            `published_at`, LOWER(HEX(`published_by_id`)) AS `published_by_id`, `last_live_at`, `live_content_layout_id` IS NOT NULL AS `live`
+        SQL;
+
     public function __construct(
         private readonly Connection $connection,
         private readonly StoredTreeCodec $treeCodec,
@@ -108,7 +113,7 @@ class LayoutRevisionStore
 
     /**
      * Moves the layout's live pointer onto the revision. `published_at` and `published_by_id` keep the first time it
-     * went live.
+     * went live, `last_live_at` moves with every time, so a rollback renews a revision's place in the history.
      */
     public function markPublished(string $layoutId, string $revisionId, \DateTimeImmutable $publishedAt, ?string $publishedBy): void
     {
@@ -124,7 +129,8 @@ class LayoutRevisionStore
                 UPDATE `content_layout_revision`
                 SET `live_content_layout_id` = `content_layout_id`,
                     `published_by_id` = IF(`published_at` IS NULL, :publishedBy, `published_by_id`),
-                    `published_at` = COALESCE(`published_at`, :publishedAt)
+                    `published_at` = COALESCE(`published_at`, :publishedAt),
+                    `last_live_at` = :publishedAt
                 WHERE `id` = :revisionId AND `content_layout_id` = :layoutId
                 SQL,
             [
@@ -140,22 +146,13 @@ class LayoutRevisionStore
     {
         $revisions = [];
         foreach ($this->connection->fetchAllAssociative(
-            <<<'SQL'
-                SELECT LOWER(HEX(`id`)) AS `id`, LOWER(HEX(`parent_id`)) AS `parent_id`, LOWER(HEX(`created_by_id`)) AS `created_by_id`, `created_at`, `published_at`,
-                    LOWER(HEX(`published_by_id`)) AS `published_by_id`
-                FROM `content_layout_revision` WHERE `content_layout_id` = :layoutId
+            self::REVISION_SELECT . <<<'SQL'
+                 FROM `content_layout_revision` WHERE `content_layout_id` = :layoutId
                 SQL,
             ['layoutId' => Uuid::fromHexToBytes($layoutId)],
         ) as $row) {
-            $id = (string) $row['id'];
-            $revisions[$id] = new LayoutRevision(
-                $id,
-                $row['parent_id'] !== null ? (string) $row['parent_id'] : null,
-                $this->date((string) $row['created_at']),
-                $row['created_by_id'] !== null ? (string) $row['created_by_id'] : null,
-                $row['published_at'] !== null ? $this->date((string) $row['published_at']) : null,
-                $row['published_by_id'] !== null ? (string) $row['published_by_id'] : null,
-            );
+            $revision = $this->hydrateRevision($row);
+            $revisions[$revision->id] = $revision;
         }
 
         $drafts = [];
@@ -164,6 +161,26 @@ class LayoutRevisionStore
         }
 
         return new RevisionGraph($revisions, $drafts, $live);
+    }
+
+    /**
+     * The revisions that have been live, most recently live first, each with whether the live pointer is on it.
+     *
+     * @return list<array{revision: LayoutRevision, live: bool}>
+     */
+    public function publishedRevisions(string $layoutId): array
+    {
+        return array_map(
+            fn (array $row): array => ['revision' => $this->hydrateRevision($row), 'live' => (bool) $row['live']],
+            $this->connection->fetchAllAssociative(
+                self::REVISION_SELECT . <<<'SQL'
+                     FROM `content_layout_revision`
+                    WHERE `content_layout_id` = :layoutId AND `last_live_at` IS NOT NULL
+                    ORDER BY `last_live_at` DESC, `id` DESC
+                    SQL,
+                ['layoutId' => Uuid::fromHexToBytes($layoutId)],
+            ),
+        );
     }
 
     /**
@@ -318,6 +335,22 @@ class LayoutRevisionStore
                 ],
             );
         }
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function hydrateRevision(array $row): LayoutRevision
+    {
+        return new LayoutRevision(
+            (string) $row['id'],
+            $row['parent_id'] !== null ? (string) $row['parent_id'] : null,
+            $this->date((string) $row['created_at']),
+            $row['created_by_id'] !== null ? (string) $row['created_by_id'] : null,
+            $row['published_at'] !== null ? $this->date((string) $row['published_at']) : null,
+            $row['published_by_id'] !== null ? (string) $row['published_by_id'] : null,
+            $row['last_live_at'] !== null ? $this->date((string) $row['last_live_at']) : null,
+        );
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Mutation;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -49,7 +50,7 @@ class PersistedDraftMutationTest extends TestCase
     {
         $layoutId = $this->createLayout(['a', 'b']);
         $draft = $this->revisions->createDraft($layoutId, $this->context);
-        $revisionsBefore = \count($this->revisions->history($layoutId)->revisions);
+        $revisionsBefore = $this->revisionRows($layoutId);
 
         $result = $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('a'), $this->context);
 
@@ -57,7 +58,7 @@ class PersistedDraftMutationTest extends TestCase
         static::assertSame($result->revision->id, $result->draft->head);
         static::assertSame(['b'], $this->ids($result->mutation->layout->roots));
         static::assertSame(['b'], $this->ids($this->revisions->getDraft($layoutId, $draft->id)['layout']));
-        static::assertCount($revisionsBefore + 1, $this->revisions->history($layoutId)->revisions);
+        static::assertSame($revisionsBefore + 1, $this->revisionRows($layoutId));
         static::assertSame(['a', 'b'], $this->liveIds($layoutId));
     }
 
@@ -125,7 +126,7 @@ class PersistedDraftMutationTest extends TestCase
         $source = new AdminApiSource(null);
         $source->setPermissions(['content_layout:read', 'content_layout:update']);
 
-        $revisionsBefore = \count($this->revisions->history($layoutId)->revisions);
+        $revisionsBefore = $this->revisionRows($layoutId);
 
         try {
             $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, $mutation, Context::createDefaultContext($source));
@@ -134,7 +135,7 @@ class PersistedDraftMutationTest extends TestCase
             static::assertSame(ContentSystemException::missingPrivileges(['content_layout:translate'])->getMessage(), $exception->getMessage());
         }
 
-        static::assertCount($revisionsBefore, $this->revisions->history($layoutId)->revisions);
+        static::assertSame($revisionsBefore, $this->revisionRows($layoutId));
     }
 
     /**
@@ -142,7 +143,7 @@ class PersistedDraftMutationTest extends TestCase
      */
     private function assertFailsWithoutAppending(string $layoutId, string $errorCode, \Closure $operation): void
     {
-        $revisionsBefore = \count($this->revisions->history($layoutId)->revisions);
+        $revisionsBefore = $this->revisionRows($layoutId);
 
         try {
             $operation();
@@ -151,7 +152,15 @@ class PersistedDraftMutationTest extends TestCase
             static::assertSame($errorCode, $exception->getErrorCode());
         }
 
-        static::assertCount($revisionsBefore, $this->revisions->history($layoutId)->revisions);
+        static::assertSame($revisionsBefore, $this->revisionRows($layoutId));
+    }
+
+    private function revisionRows(string $layoutId): int
+    {
+        return (int) static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT COUNT(*) FROM `content_layout_revision` WHERE `content_layout_id` = :id',
+            ['id' => Uuid::fromHexToBytes($layoutId)],
+        );
     }
 
     private function draft(string $layoutId, string $draftId): LayoutDraft

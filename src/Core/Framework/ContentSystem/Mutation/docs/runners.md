@@ -73,10 +73,12 @@ A rejected operation or admission appends nothing and leaves the head where it w
 
 ### Interim limitations
 
-One known limitation is deferred to the layout draft/versioning system that will supersede this `expectedVersion` token:
+Drafts guard their own edits with `expectedHead` and leave `expectedVersion` in place for live mutations, so one limitation remains:
 
 1. A layout write through the DAL takes neither the lock nor the `expectedVersion` token, so it overwrites a
    persisted mutation that committed after the writer loaded the layout, and neither side gets an error.
+   Drafts only detect such a write: the next draft write adopts the column as the live revision, and drafts opened
+   before it can no longer be published, see `LayoutRevisionService::reconcile()`.
 
 ## MutationResult assembly
 

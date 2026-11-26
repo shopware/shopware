@@ -8,8 +8,9 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * Existing layouts need no backfill: a layout without a live revision gets its first revision from its `layout`
- * column on first access, see `LayoutRevisionService::reconcile()`. `live_content_layout_id` is set on the one
- * revision a layout's column holds and `NULL` on every other, so the unique key allows one live revision per layout.
+ * column on its first write through `LayoutRevisionService`, see `LayoutRevisionService::reconcile()`.
+ * `live_content_layout_id` is set on the one revision a layout's column holds and `NULL` on every other, so the
+ * unique key allows one live revision per layout.
  *
  * @internal
  */
@@ -32,6 +33,7 @@ class Migration1793099454AddContentLayoutRevisionTables extends MigrationStep
                 `created_by_id` BINARY(16) NULL,
                 `published_at` DATETIME(3) NULL,
                 `published_by_id` BINARY(16) NULL,
+                `last_live_at` DATETIME(3) NULL,
                 `live_content_layout_id` BINARY(16) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 PRIMARY KEY (`id`),

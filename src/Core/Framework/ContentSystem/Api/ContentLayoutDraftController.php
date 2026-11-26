@@ -17,8 +17,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
- * Drafts of a content layout, named pointers into its revision graph, see {@see LayoutRevisionService}. A draft is
- * edited through the persisted mutation routes with `draftId` in the body.
+ * Drafts of a content layout, named pointers into its revision graph, see {@see LayoutRevisionService}, and the
+ * published revisions a draft can be opened from. A draft is edited through the persisted mutation routes with
+ * `draftId` in the body.
  *
  * @internal
  *
@@ -53,6 +54,25 @@ class ContentLayoutDraftController
         return new JsonResponse([
             'draft' => LayoutDraftNormalizer::draft($result['draft']),
             'layout' => $this->treeCodec->encode(new StoredTree($result['layout'])),
+        ]);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/{layoutId}/published-revisions', name: 'api.action.content_system.layout.revision.published', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_GET])]
+    public function listPublishedRevisions(string $layoutId): JsonResponse
+    {
+        return new JsonResponse([
+            'revisions' => array_map(
+                static fn (array $published): array => [
+                    'id' => $published['revision']->id,
+                    'live' => $published['live'],
+                    'createdAt' => $published['revision']->createdAt->format(\DATE_ATOM),
+                    'createdById' => $published['revision']->createdBy,
+                    'publishedAt' => $published['revision']->publishedAt?->format(\DATE_ATOM),
+                    'publishedById' => $published['revision']->publishedBy,
+                    'lastLiveAt' => $published['revision']->lastLiveAt?->format(\DATE_ATOM),
+                ],
+                $this->revisionService->publishedRevisions($layoutId),
+            ),
         ]);
     }
 

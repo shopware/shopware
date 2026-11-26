@@ -13,10 +13,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutDraft;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionStore;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\RevisionGraph;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -44,7 +47,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testDraftAndPublicationRecordTheAdminUser(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $initial = $this->service->history($layoutId)->live;
+        $initial = $this->adoptLiveRevision($layoutId);
         $creator = Uuid::randomHex();
         $publisher = Uuid::randomHex();
 
@@ -58,22 +61,23 @@ class LayoutRevisionServiceTest extends TestCase
         $restore = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
         $this->service->publish($layoutId, $restore->id, $restore->head, $this->asUser(Uuid::randomHex()));
 
-        $history = $this->service->history($layoutId);
+        $history = $this->graph($layoutId);
         static::assertSame($publisher, $history->revision($saved['revision']->id)?->publishedBy);
         static::assertNull($history->revision($initial)?->publishedBy);
     }
 
-    #[TestDox('adopts the layout column as the single published revision on first access, however often it is read')]
-    public function testFirstAccessAdoptsTheLayoutColumn(): void
+    #[TestDox('the first write adopts the layout column as the single published revision, however often it is written')]
+    public function testFirstWriteAdoptsTheLayoutColumn(): void
     {
         $layoutId = $this->createLayout(['live-a']);
 
-        $first = $this->service->history($layoutId);
-        $second = $this->service->history($layoutId);
+        $first = $this->adoptLiveRevision($layoutId);
+        $second = $this->adoptLiveRevision($layoutId);
 
-        static::assertCount(1, $second->revisions);
-        static::assertSame($first->live, $second->live);
-        static::assertNotNull($second->revision($second->live)?->publishedAt);
+        $history = $this->graph($layoutId);
+        static::assertSame($first, $second);
+        static::assertCount(1, $history->revisions);
+        static::assertNotNull($history->revision($first)?->publishedAt);
     }
 
     #[TestDox('publishing a draft writes its head to the layout column, moves the live pointer and removes the draft')]
@@ -85,7 +89,7 @@ class LayoutRevisionServiceTest extends TestCase
 
         $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
 
-        $history = $this->service->history($layoutId);
+        $history = $this->graph($layoutId);
         static::assertSame(['draft-a', 'draft-b'], $this->liveIds($layoutId));
         static::assertSame($saved['revision']->id, $history->live);
         static::assertCount(2, $history->revisions);
@@ -130,30 +134,29 @@ class LayoutRevisionServiceTest extends TestCase
     public function testDirectLayoutWriteIsAdopted(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $initial = $this->service->history($layoutId)->live;
+        $initial = $this->adoptLiveRevision($layoutId);
         $draft = $this->service->createDraft($layoutId, $this->context);
         $saved = $this->save($layoutId, $draft->id, ['draft'], $draft->head);
 
         $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(['direct'])]], $this->context);
 
-        $history = $this->service->history($layoutId);
-        $adopted = $history->revision($history->live);
-        static::assertNotSame($initial, $history->live);
-        static::assertSame($initial, $adopted?->parent);
+        $adopted = $this->service->createDraft($layoutId, $this->context)->base;
+        static::assertNotSame($initial, $adopted);
+        static::assertSame($initial, $this->graph($layoutId)->revision($adopted)?->parent);
 
         $this->assertFailsWith(
             ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
             fn () => $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context),
         );
         static::assertSame(['direct'], $this->liveIds($layoutId));
-        static::assertSame($history->live, $this->service->createDraft($layoutId, $this->context)->base);
+        static::assertSame($adopted, $this->graph($layoutId)->live);
     }
 
     #[TestDox('a draft opened from an older revision rolls the layout back and the live pointer follows it')]
     public function testDraftOpenedFromHistoryCanBePublished(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $initial = $this->service->history($layoutId)->live;
+        $initial = $this->adoptLiveRevision($layoutId);
         $draft = $this->service->createDraft($layoutId, $this->context);
         $saved = $this->save($layoutId, $draft->id, ['newer'], $draft->head);
         $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
@@ -161,7 +164,7 @@ class LayoutRevisionServiceTest extends TestCase
         $restore = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
         $this->service->publish($layoutId, $restore->id, $restore->head, $this->context);
 
-        $history = $this->service->history($layoutId);
+        $history = $this->graph($layoutId);
         static::assertSame(['live-a'], $this->liveIds($layoutId));
         static::assertSame($initial, $history->live);
         static::assertCount(2, $history->revisions);
@@ -171,7 +174,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testPublishingADraftOpenedBeforeARollbackConflicts(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $initial = $this->service->history($layoutId)->live;
+        $initial = $this->adoptLiveRevision($layoutId);
         $edit = $this->service->createDraft($layoutId, $this->context);
         $editSaved = $this->save($layoutId, $edit->id, ['newer'], $edit->head);
         $this->service->publish($layoutId, $edit->id, $editSaved['draft']->head, $this->context);
@@ -187,7 +190,7 @@ class LayoutRevisionServiceTest extends TestCase
             fn () => $this->service->publish($layoutId, $stale->id, $staleSaved['draft']->head, $this->context),
         );
         static::assertSame(['live-a'], $this->liveIds($layoutId));
-        static::assertSame($initial, $this->service->history($layoutId)->live);
+        static::assertSame($initial, $this->graph($layoutId)->live);
         static::assertCount(1, $this->service->listDrafts($layoutId));
     }
 
@@ -205,10 +208,10 @@ class LayoutRevisionServiceTest extends TestCase
         $this->service->publish($layoutId, $branched->id, $branchedSaved['draft']->head, $this->context);
 
         static::assertSame(['first', 'second'], $this->liveIds($layoutId));
-        static::assertSame($branchedSaved['revision']->id, $this->service->history($layoutId)->live);
+        static::assertSame($branchedSaved['revision']->id, $this->graph($layoutId)->live);
     }
 
-    #[TestDox('discarding a draft deletes its head and keeps every published revision')]
+    #[TestDox('discarding a draft deletes its head and keeps the published revisions')]
     public function testDiscardingADraftDeletesItsRevisions(): void
     {
         $layoutId = $this->createLayout(['live-a']);
@@ -220,11 +223,11 @@ class LayoutRevisionServiceTest extends TestCase
         $first = $this->save($layoutId, $draft->id, ['one'], $draft->head);
         $this->save($layoutId, $draft->id, ['two'], $first['draft']->head);
 
-        static::assertCount(3, $this->service->history($layoutId)->revisions);
+        static::assertCount(3, $this->graph($layoutId)->revisions);
 
         $this->service->discardDraft($layoutId, $draft->id);
 
-        $history = $this->service->history($layoutId);
+        $history = $this->graph($layoutId);
         static::assertCount(2, $history->revisions);
         static::assertSame($publishedSaved['revision']->id, $history->live);
     }
@@ -239,21 +242,21 @@ class LayoutRevisionServiceTest extends TestCase
             $head = $this->save($layoutId, $draft->id, [$elementId], $head)['draft']->head;
         }
 
-        $history = $this->service->history($layoutId);
+        $history = $this->graph($layoutId);
         static::assertCount(2, $history->revisions);
         static::assertSame($draft->base, $history->revision($head)?->parent);
     }
 
-    #[TestDox('publishing keeps the 20 most recently published revisions, so an older one can no longer be restored')]
+    #[TestDox('publishing keeps the 20 most recently live revisions, so an older one can no longer be restored')]
     public function testPublishingKeepsTheLatestPublishedRevisions(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $initial = $this->service->history($layoutId)->live;
+        $initial = $this->adoptLiveRevision($layoutId);
         for ($i = 1; $i <= 20; ++$i) {
             $this->publishEdit($layoutId, ['edit-' . $i]);
         }
 
-        $history = $this->service->history($layoutId);
+        $history = $this->graph($layoutId);
         static::assertCount(20, $history->revisions);
         static::assertNull($history->revision($initial));
         $this->assertFailsWith(
@@ -262,18 +265,82 @@ class LayoutRevisionServiceTest extends TestCase
         );
     }
 
+    #[TestDox('a revision restored by a rollback counts as recently live, so the publish after the rollback can be undone too')]
+    public function testARollbackRenewsTheRestoredRevision(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $initial = $this->adoptLiveRevision($layoutId);
+        for ($i = 1; $i <= 19; ++$i) {
+            $this->publishEdit($layoutId, ['edit-' . $i]);
+        }
+        $rollback = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
+        $this->service->publish($layoutId, $rollback->id, $rollback->head, $this->context);
+
+        $this->publishEdit($layoutId, ['after-rollback']);
+
+        $restore = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
+        $this->service->publish($layoutId, $restore->id, $restore->head, $this->context);
+        static::assertSame(['live-a'], $this->liveIds($layoutId));
+    }
+
+    #[TestDox('publishing a draft the write gate refuses keeps the draft, the live pointer and the layout column')]
+    public function testPublishingARefusedDraftKeepsTheDraft(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $initial = $this->adoptLiveRevision($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
+        $saved = $this->service->appendRevision(
+            $layoutId,
+            $draft->id,
+            $draft->head,
+            static fn (): StoredTree => new StoredTree([new StoredElement('unresolvable', TestElementTypeLoader::UNRESOLVABLE)]),
+            $this->context,
+        );
+
+        try {
+            $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
+            static::fail('Expected the write gate to refuse the unresolvable tree.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+        }
+
+        static::assertSame($saved['draft']->head, $this->service->getDraft($layoutId, $draft->id)['draft']->head);
+        static::assertSame($initial, $this->graph($layoutId)->live);
+        static::assertSame(['live-a'], $this->liveIds($layoutId));
+    }
+
+    #[TestDox('the published revisions are the rollback targets, most recently live first, read without adopting a direct write')]
+    public function testPublishedRevisionsListTheRollbackTargets(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $initial = $this->adoptLiveRevision($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
+        $saved = $this->save($layoutId, $draft->id, ['newer'], $draft->head);
+        $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
+        $rollback = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
+        $this->service->publish($layoutId, $rollback->id, $rollback->head, $this->context);
+        $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(['direct'])]], $this->context);
+
+        $published = $this->service->publishedRevisions($layoutId);
+
+        static::assertSame([$initial, $saved['revision']->id], array_map(static fn (array $entry): string => $entry['revision']->id, $published));
+        static::assertSame([true, false], array_column($published, 'live'));
+        static::assertGreaterThan($published[0]['revision']->publishedAt, $published[0]['revision']->lastLiveAt);
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_NOT_FOUND, fn () => $this->service->publishedRevisions(Uuid::randomHex()));
+    }
+
     #[TestDox('an open draft keeps the live revision it was opened from beyond the published window, so publishing it still conflicts')]
     public function testAnOpenDraftKeepsItsLiveAtOpenRevision(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $initial = $this->service->history($layoutId)->live;
+        $initial = $this->adoptLiveRevision($layoutId);
         $stale = $this->service->createDraft($layoutId, $this->context);
         $staleSaved = $this->save($layoutId, $stale->id, ['stale'], $stale->head);
         for ($i = 1; $i <= 20; ++$i) {
             $this->publishEdit($layoutId, ['edit-' . $i]);
         }
 
-        static::assertNotNull($this->service->history($layoutId)->revision($initial));
+        static::assertNotNull($this->graph($layoutId)->revision($initial));
         $this->assertFailsWith(
             ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
             fn () => $this->service->publish($layoutId, $stale->id, $staleSaved['draft']->head, $this->context),
@@ -430,6 +497,26 @@ class LayoutRevisionServiceTest extends TestCase
             fn (): StoredTree => new StoredTree($this->storedTree($elementIds)),
             $this->context,
         );
+    }
+
+    /**
+     * Opens and discards a draft: the first write to a layout adopts its column as the live revision.
+     */
+    private function adoptLiveRevision(string $layoutId): string
+    {
+        $draft = $this->service->createDraft($layoutId, $this->context);
+        $this->service->discardDraft($layoutId, $draft->id);
+
+        return $draft->base;
+    }
+
+    private function graph(string $layoutId): RevisionGraph
+    {
+        $store = static::getContainer()->get(LayoutRevisionStore::class);
+        $live = $store->publication($layoutId)['revisionId'] ?? null;
+        static::assertNotNull($live);
+
+        return $store->graph($layoutId, $live);
     }
 
     /**

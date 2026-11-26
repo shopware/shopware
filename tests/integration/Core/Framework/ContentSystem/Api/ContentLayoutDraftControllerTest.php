@@ -62,6 +62,47 @@ class ContentLayoutDraftControllerTest extends TestCase
         static::assertSame([], $this->json('GET', $layoutId . '/drafts')['drafts']);
     }
 
+    #[TestDox('the published revisions list the rollback targets, and a draft opened from one restores it')]
+    public function testPublishedRevisionsAreRollbackTargets(): void
+    {
+        $layoutId = $this->createLayout();
+        $draft = $this->json('POST', $layoutId . '/create-draft')['draft'];
+        $edited = $this->json('POST', $layoutId . '/remove-element', [
+            'elementId' => 'other',
+            'draftId' => $draft['id'],
+            'expectedHead' => $draft['head'],
+        ]);
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
+            'draftId' => $draft['id'],
+            'expectedHead' => $edited['draft']['head'],
+        ]);
+
+        $revisions = $this->json('GET', $layoutId . '/published-revisions')['revisions'];
+        static::assertSame([$edited['draft']['head'], $draft['base']], array_column($revisions, 'id'));
+        static::assertSame([true, false], array_column($revisions, 'live'));
+        static::assertSame(
+            ['id', 'live', 'createdAt', 'createdById', 'publishedAt', 'publishedById', 'lastLiveAt'],
+            array_keys($revisions[0]),
+        );
+
+        $rollback = $this->json('POST', $layoutId . '/create-draft', ['fromRevisionId' => $revisions[1]['id']])['draft'];
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
+            'draftId' => $rollback['id'],
+            'expectedHead' => $rollback['head'],
+        ]);
+
+        static::assertSame(['live', 'other'], $this->liveIds($layoutId));
+        static::assertSame($draft['base'], $this->json('GET', $layoutId . '/published-revisions')['revisions'][0]['id']);
+    }
+
+    #[TestDox('the published revisions of an unknown layout answer 404')]
+    public function testPublishedRevisionsOfAnUnknownLayoutAreNotFound(): void
+    {
+        $this->getBrowser()->jsonRequest('GET', self::BASE_URL . Uuid::randomHex() . '/published-revisions');
+
+        static::assertSame([ContentSystemException::CONTENT_LAYOUT_NOT_FOUND], $this->errorCodes(Response::HTTP_NOT_FOUND));
+    }
+
     #[TestDox('a discarded draft is gone and the live layout is untouched')]
     public function testDiscardDraft(): void
     {

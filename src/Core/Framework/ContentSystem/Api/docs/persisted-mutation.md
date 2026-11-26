@@ -25,6 +25,7 @@ A draft is a named pointer into the layout's revision graph (`Layout/Revision/La
 |----------------------------------------------------------|------------------------------|-------------------------|---------------------------|
 | `GET /api/_action/content-system/layout/{layoutId}/drafts`           | —                            | `content_layout:read`   | `{drafts}`, newest first  |
 | `GET /api/_action/content-system/layout/{layoutId}/drafts/{draftId}` | —                            | `content_layout:read`   | `{draft, layout}`         |
+| `GET /api/_action/content-system/layout/{layoutId}/published-revisions` | —                         | `content_layout:read`   | `{revisions}`, most recently live first |
 | `POST /api/_action/content-system/layout/{layoutId}/create-draft`    | `name?`, `fromRevisionId?`   | `content_layout:update` | `{draft}`                 |
 | `POST /api/_action/content-system/layout/{layoutId}/discard-draft`   | `draftId`                    | `content_layout:update` | `204`                     |
 | `POST /api/_action/content-system/layout/{layoutId}/publish-draft`   | `draftId`, `expectedHead`    | `content_layout:update` | `204`                     |
@@ -32,6 +33,8 @@ A draft is a named pointer into the layout's revision graph (`Layout/Revision/La
 Each `POST` binds its body to a request DTO (`ContentLayoutCreateDraftRequest`, `ContentLayoutDiscardDraftRequest`, `ContentLayoutPublishDraftRequest`) via `#[MapRequestPayload]`, so an unknown field is a `400` `UNKNOWN_REQUEST_FIELD` and a missing or wrongly typed field a `400`.
 A `name` is at most 255 characters and not blank; without one the draft is named `Draft`.
 A new draft starts at the live revision, or at `fromRevisionId` to roll back.
+`published-revisions` lists the revisions a rollback can start from as `{id, live, createdAt, createdById, publishedAt, publishedById, lastLiveAt}`.
+Like the draft reads it takes no lock, so a layout write that bypassed publishing is listed only after the next draft write adopts it.
 Publishing writes the draft head to the live layout through the DAL, which enforces resolvability, and removes the draft.
 If the live revision changed since the draft was opened, publishing is a `409` `LAYOUT_PUBLISH_CONFLICT` unless live only moved forward and the draft contains it.
 Another draft or a direct layout write that went live in the meantime therefore conflicts, and so does a rollback, although every newer draft descends from the restored revision.
@@ -40,10 +43,11 @@ The client reopens a draft from the new live state or discards it; publishing ne
 Rejections: [persisted-mutation-errors.md](persisted-mutation-errors.md#draft-routes).
 
 Every draft edit stores the full tree as a new revision, and every edit, publish and discard then compacts the layout's history.
-It keeps the live revision, the 20 most recently published revisions and each open draft's base, head and live-at-open revision, and deletes every other.
+It keeps the live revision, the 20 most recently live revisions and each open draft's base, head and live-at-open revision, and deletes every other.
+A revision restored by a rollback counts from the rollback, not from its first publication.
 A draft therefore holds only its head, and a published draft leaves only the published state.
 Each surviving revision is re-parented onto its nearest surviving ancestor, so the publish rule above judges the same ancestry as before.
-A `fromRevisionId` that compaction removed is a `404`, so a draft branches from another draft's current head only, and a rollback reaches the last 20 published states.
+A `fromRevisionId` that compaction removed is a `404`, so a draft branches from another draft's current head only, and a rollback reaches the last 20 live states.
 Compaction runs under the layout row lock, so no job is needed and an untouched draft costs at most three revisions.
 
 ## Mutating a draft

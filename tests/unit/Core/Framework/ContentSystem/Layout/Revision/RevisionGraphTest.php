@@ -40,6 +40,25 @@ class RevisionGraphTest extends TestCase
         static::assertSame(['discarded', 'edit-1', 'p3'], $delete);
     }
 
+    #[TestDox('compaction ranks published revisions by the last time they were live, so a revision restored by a rollback outranks one published after it first went live')]
+    public function testCompactionRanksByTheLastTimeLive(): void
+    {
+        $graph = $this->graph(
+            [
+                $this->revision('restored', null, publishedAt: 1, lastLiveAt: 4),
+                $this->revision('p2', 'restored', publishedAt: 2),
+                $this->revision('p3', 'p2', publishedAt: 3),
+                $this->revision('p5', 'p3', publishedAt: 5),
+            ],
+            live: 'p5',
+        );
+
+        $delete = $graph->compaction(2)['delete'];
+        sort($delete);
+
+        static::assertSame(['p2', 'p3'], $delete);
+    }
+
     #[TestDox('compaction re-parents each survivor onto its nearest surviving ancestor, so ancestry among survivors is unchanged')]
     public function testCompactionPreservesAncestryAmongSurvivors(): void
     {
@@ -62,7 +81,7 @@ class RevisionGraphTest extends TestCase
         $after = $this->graph(
             array_map(
                 static fn (LayoutRevision $revision): LayoutRevision => \array_key_exists($revision->id, $compaction['reparent'])
-                    ? new LayoutRevision($revision->id, $compaction['reparent'][$revision->id], $revision->createdAt, null, $revision->publishedAt)
+                    ? new LayoutRevision($revision->id, $compaction['reparent'][$revision->id], $revision->createdAt, null, $revision->publishedAt, lastLiveAt: $revision->lastLiveAt)
                     : $revision,
                 $survivors,
             ),
@@ -118,11 +137,12 @@ class RevisionGraphTest extends TestCase
         return new RevisionGraph($byId, $draftsById, $live);
     }
 
-    private function revision(string $id, ?string $parent, ?int $publishedAt = null): LayoutRevision
+    private function revision(string $id, ?string $parent, ?int $publishedAt = null, ?int $lastLiveAt = null): LayoutRevision
     {
         $createdAt = new \DateTimeImmutable('2026-10-27 10:00:00.000');
+        $minutesLater = static fn (?int $minutes): ?\DateTimeImmutable => $minutes !== null ? $createdAt->add(new \DateInterval('PT' . $minutes . 'M')) : null;
 
-        return new LayoutRevision($id, $parent, $createdAt, null, $publishedAt !== null ? $createdAt->add(new \DateInterval('PT' . $publishedAt . 'M')) : null);
+        return new LayoutRevision($id, $parent, $createdAt, null, $minutesLater($publishedAt), lastLiveAt: $minutesLater($lastLiveAt ?? $publishedAt));
     }
 
     private function draft(string $id, string $base, string $head, string $liveAtOpen): LayoutDraft

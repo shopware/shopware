@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Revision;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -76,20 +77,49 @@ class LayoutRevisionStore
     }
 
     /**
+     * The checksum of the `layout` column when it does not hold the tree of `$revisionId` byte for byte, `null`
+     * when it does.
+     */
+    public function divergentLayoutChecksum(string $layoutId, string $revisionId): ?string
+    {
+        $row = $this->connection->fetchAssociative(
+            <<<'SQL'
+                SELECT SHA2(`layout`.`layout`, 256) AS `checksum`,
+                    SHA2(`revision`.`layout`, 256) = SHA2(`layout`.`layout`, 256) AS `current`
+                FROM `content_layout` `layout`
+                INNER JOIN `content_layout_revision` `revision`
+                    ON `revision`.`content_layout_id` = `layout`.`id` AND `revision`.`id` = :revisionId
+                WHERE `layout`.`id` = :layoutId
+                SQL,
+            [
+                'revisionId' => Uuid::fromHexToBytes($revisionId),
+                'layoutId' => Uuid::fromHexToBytes($layoutId),
+            ],
+        );
+
+        if ($row === false) {
+            throw ContentSystemException::contentLayoutRevisionNotFound($layoutId, $revisionId);
+        }
+
+        return (bool) $row['current'] ? null : (string) $row['checksum'];
+    }
+
+    /**
      * Copies the current `layout` column into a revision. An id that already exists keeps its row: the id is
      * derived from the content, so it already holds this tree.
      */
-    public function adoptLayoutColumn(string $layoutId, string $revisionId, ?string $parentId, \DateTimeImmutable $createdAt): void
+    public function adoptLayoutColumn(string $layoutId, string $revisionId, ?string $parentId, \DateTimeImmutable $createdAt, ?string $createdBy): void
     {
         $this->connection->executeStatement(
             <<<'SQL'
                 INSERT INTO `content_layout_revision` (`id`, `content_layout_id`, `parent_id`, `layout`, `created_by_id`, `created_at`)
-                SELECT :revisionId, `id`, :parentId, `layout`, NULL, :createdAt FROM `content_layout` WHERE `id` = :layoutId
+                SELECT :revisionId, `id`, :parentId, `layout`, :createdBy, :createdAt FROM `content_layout` WHERE `id` = :layoutId
                 ON DUPLICATE KEY UPDATE `content_layout_revision`.`id` = `content_layout_revision`.`id`
                 SQL,
             [
                 'revisionId' => Uuid::fromHexToBytes($revisionId),
                 'parentId' => $parentId !== null ? Uuid::fromHexToBytes($parentId) : null,
+                'createdBy' => $createdBy !== null ? Uuid::fromHexToBytes($createdBy) : null,
                 'createdAt' => $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'layoutId' => Uuid::fromHexToBytes($layoutId),
             ],

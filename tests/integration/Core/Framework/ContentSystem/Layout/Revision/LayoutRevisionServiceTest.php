@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 
@@ -150,6 +152,25 @@ class LayoutRevisionServiceTest extends TestCase
         );
         static::assertSame(['direct'], $this->liveIds($layoutId));
         static::assertSame($adopted, $this->graph($layoutId)->live);
+    }
+
+    #[TestDox('a head the write gate changes on publishing goes live as the column holds it, so the next write adopts nothing')]
+    public function testPublishingAHeadTheWriteGateChangesPublishesTheColumn(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $this->writeColumnPastTheWriteGate($layoutId, [new StoredElement('unseeded', TestElementTypeLoader::DEFAULTED_PRIMITIVE)]);
+        $draft = $this->service->createDraft($layoutId, $this->context);
+        $publisher = Uuid::randomHex();
+
+        $this->service->publish($layoutId, $draft->id, $draft->head, $this->asUser($publisher));
+
+        $history = $this->graph($layoutId);
+        $live = $history->revision($history->live);
+        static::assertNotNull($live);
+        static::assertNotSame($draft->head, $live->id);
+        static::assertSame($draft->head, $live->parent);
+        static::assertSame($publisher, $live->publishedBy);
+        static::assertSame($live->id, $this->service->createDraft($layoutId, $this->context)->base);
     }
 
     #[TestDox('a draft opened from an older revision rolls the layout back and the live pointer follows it')]
@@ -508,6 +529,23 @@ class LayoutRevisionServiceTest extends TestCase
         $this->service->discardDraft($layoutId, $draft->id);
 
         return $draft->base;
+    }
+
+    /**
+     * Writes the column the way a migration or the Sync API with raw SQL could, without the write gate seeding
+     * type defaults into it.
+     *
+     * @param list<StoredElement> $tree
+     */
+    private function writeColumnPastTheWriteGate(string $layoutId, array $tree): void
+    {
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `content_layout` SET `layout` = :layout WHERE `id` = :id',
+            [
+                'layout' => Json::encode(static::getContainer()->get(StoredTreeCodec::class)->encode(new StoredTree($tree))),
+                'id' => Uuid::fromHexToBytes($layoutId),
+            ],
+        );
     }
 
     private function graph(string $layoutId): RevisionGraph

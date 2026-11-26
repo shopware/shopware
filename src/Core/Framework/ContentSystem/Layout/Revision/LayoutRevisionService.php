@@ -164,8 +164,9 @@ class LayoutRevisionService
 
             $this->store->deleteDraft($layoutId, $draftId);
             $this->contentLayoutRepository->update([['id' => $layoutId, 'layout' => $this->tree($layoutId, $draft->head)]], $context);
-            $this->store->markPublished($layoutId, $draft->head, $this->now(), $this->userId($context));
-            $this->compact($layoutId, $draft->head);
+            $published = $this->writtenRevision($layoutId, $draft->head, $context);
+            $this->store->markPublished($layoutId, $published, $this->now(), $this->userId($context));
+            $this->compact($layoutId, $published);
         });
     }
 
@@ -176,6 +177,31 @@ class LayoutRevisionService
             $this->store->deleteDraft($layoutId, $draftId);
             $this->compact($layoutId, $live);
         });
+    }
+
+    /**
+     * The DAL write runs the write boundary again, and its output depends on the registries at publish time: a type
+     * default added since the draft was edited lands in the column but not in the head. Marking the head live
+     * would leave the column looking like a write that bypassed publishing, which the next write adopts and every
+     * other open draft then conflicts with; the column becomes a revision on top of the head instead.
+     */
+    private function writtenRevision(string $layoutId, string $head, Context $context): string
+    {
+        $checksum = $this->store->divergentLayoutChecksum($layoutId, $head);
+
+        if ($checksum === null) {
+            return $head;
+        }
+
+        $revisionId = $this->columnRevisionId($layoutId, $checksum);
+        $this->store->adoptLayoutColumn($layoutId, $revisionId, $head, $this->now(), $this->userId($context));
+
+        return $revisionId;
+    }
+
+    private function columnRevisionId(string $layoutId, string $checksum): string
+    {
+        return Uuid::fromStringToHex('content-layout-revision:' . $layoutId . ':' . $checksum);
     }
 
     private function compact(string $layoutId, string $live): void
@@ -230,6 +256,10 @@ class LayoutRevisionService
         try {
             $tree = $this->writeBoundary->apply($tree);
         } catch (ContentSystemException $exception) {
+            if (!ContentSystemException::isClientDefect($exception)) {
+                throw $exception;
+            }
+
             throw ContentSystemException::layoutWriteRejection($exception, 'layout', $this->treeCodec->encode($tree), '');
         }
 
@@ -272,10 +302,10 @@ class LayoutRevisionService
             return $publication['revisionId'];
         }
 
-        $revisionId = Uuid::fromStringToHex('content-layout-revision:' . $layoutId . ':' . $publication['checksum']);
+        $revisionId = $this->columnRevisionId($layoutId, $publication['checksum']);
         $createdAt = $publication['revisionId'] === null ? $publication['createdAt'] : $this->now();
 
-        $this->store->adoptLayoutColumn($layoutId, $revisionId, $publication['revisionId'], $createdAt);
+        $this->store->adoptLayoutColumn($layoutId, $revisionId, $publication['revisionId'], $createdAt, null);
         $this->store->markPublished($layoutId, $revisionId, $createdAt, null);
 
         return $revisionId;

@@ -9029,7 +9029,8 @@
             "visibility": "private",
             "extends": null,
             "blocks": [
-                "sw_order_create_document_modal"
+                "sw_order_create_document_modal",
+                "sw_order_create_document_modal_type_specific_fields_additional"
             ]
         },
         "sw-order-create-general": {

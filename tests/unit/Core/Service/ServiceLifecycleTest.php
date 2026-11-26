@@ -446,6 +446,10 @@ class ServiceLifecycleTest extends TestCase
             ->method('createFromXmlFile')
             ->willReturn($this->createManifest());
         $this->appManager->expects($this->once())->method('install');
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn ($event) => $event instanceof ServiceInstalledEvent && $event->service === 'MyCoolService'));
+        $this->logger->expects($this->once())->method('debug')->with('Installed service "MyCoolService"');
 
         static::assertTrue($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
     }

@@ -33,6 +33,47 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
         ]));
     }
 
+    public function testAcceptsSeveralFramesForTheSameLayout(): void
+    {
+        $desktop = [...self::frame(), 'id' => str_repeat('c', 32)];
+        $mobile = [...self::frame(), 'id' => str_repeat('d', 32)];
+        $desktop['languageId'] = str_repeat('e', 32);
+        $mobile['languageId'] = str_repeat('f', 32);
+        $mobile['viewport'] = 'mobile';
+        $mobile['width'] = 375;
+        $validator = new ContentWorkspaceWriteValidator(Validation::createValidator());
+
+        static::assertCount(0, $validator->validateConfiguration([
+            'frames' => [$desktop, $mobile], 'previewSalesChannelId' => null,
+            'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1],
+        ]));
+    }
+
+    public function testRejectsTheSameFrameIdentityOnDifferentLayouts(): void
+    {
+        $first = [...self::frame(), 'id' => str_repeat('c', 32)];
+        $second = $first;
+        $second['layoutId'] = str_repeat('d', 32);
+        $validator = new ContentWorkspaceWriteValidator(Validation::createValidator());
+
+        static::assertCount(1, $validator->validateConfiguration([
+            'frames' => [$first, $second], 'previewSalesChannelId' => null,
+            'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1],
+        ]));
+    }
+
+    public function testRejectsAFrameWithoutItsOwnIdentity(): void
+    {
+        $frame = self::frame();
+        unset($frame['id']);
+        $validator = new ContentWorkspaceWriteValidator(Validation::createValidator());
+
+        static::assertCount(1, $validator->validateConfiguration([
+            'frames' => [$frame], 'previewSalesChannelId' => null,
+            'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1],
+        ]));
+    }
+
     #[DataProvider('validZoomProvider')]
     public function testAcceptsPositiveZoomIncludingFitBelowTenPercent(float $zoom): void
     {
@@ -94,9 +135,15 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
      */
     public static function invalidFrameProvider(): \Generator
     {
+        yield 'frame IDs must be UUIDs' => ['id', 'bad'];
+        yield 'frame IDs cannot be null' => ['id', null];
+        yield 'frame IDs cannot be empty' => ['id', ''];
         yield 'layout IDs must be UUIDs' => ['layoutId', 'bad'];
         yield 'layout IDs cannot end with a newline' => ['layoutId', str_repeat('a', 32) . "\n"];
         yield 'preview IDs cannot be empty' => ['previewEntityId', ''];
+        yield 'language IDs must be UUIDs' => ['languageId', 'bad'];
+        yield 'language IDs cannot be empty' => ['languageId', ''];
+        yield 'language IDs cannot be null' => ['languageId', null];
         yield 'frame widths have a minimum' => ['width', 319];
         yield 'frame heights have a maximum' => ['height', 1801];
         yield 'coordinates cannot be numeric strings' => ['x', '5001'];
@@ -105,7 +152,7 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
         yield 'layout content cannot be embedded' => ['layout', []];
     }
 
-    public function testRejectsDuplicateLayoutsAndInvalidCamera(): void
+    public function testRejectsDuplicateFrameIdentitiesAndInvalidCamera(): void
     {
         $validator = new ContentWorkspaceWriteValidator(Validation::createValidator());
         $violations = $validator->validateConfiguration([
@@ -121,6 +168,7 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
     private static function frame(): array
     {
         return [
+            'id' => str_repeat('c', 32),
             'layoutId' => str_repeat('a', 32), 'x' => -40, 'y' => 80, 'width' => 700, 'height' => 900,
             'viewport' => 'custom', 'previewEntityId' => str_repeat('b', 32),
         ];

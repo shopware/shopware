@@ -33,15 +33,15 @@ class StoreApiContextToolTest extends TestCase
         $contextProvider->method('getSalesChannelContext')->willReturn($salesChannelContext);
 
         $tool = new StoreApiContextTool($contextProvider);
-        $data = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool();
 
-        static::assertTrue($data['success']);
-        static::assertSame('sales-channel-id', $data['data']['salesChannelId']);
-        static::assertSame('context-token', $data['data']['token']);
-        static::assertSame('language-id', $data['data']['languageId']);
-        static::assertSame('currency-id', $data['data']['currencyId']);
-        static::assertTrue($data['data']['customerAuthenticated']);
-        static::assertSame('customer-id', $data['data']['customerId']);
+        static::assertFalse($data->isError());
+        static::assertSame('sales-channel-id', $data->data['salesChannelId']);
+        static::assertSame('context-token', $data->data['token']);
+        static::assertSame('language-id', $data->data['languageId']);
+        static::assertSame('currency-id', $data->data['currencyId']);
+        static::assertTrue($data->data['customerAuthenticated']);
+        static::assertSame('customer-id', $data->data['customerId']);
     }
 
     public function testReturnsErrorWithoutStoreApiContext(): void
@@ -50,9 +50,9 @@ class StoreApiContextToolTest extends TestCase
         $contextProvider->method('getSalesChannelContext')->willReturn(null);
 
         $tool = new StoreApiContextTool($contextProvider);
-        $data = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool();
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('No Store API sales-channel context', $data['error']);
+        static::assertTrue($data->isError());
+        static::assertStringContainsString('No Store API sales-channel context', $data->error->message);
     }
 }

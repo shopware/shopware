@@ -132,13 +132,17 @@ class StoredElementListFieldSerializerTest extends TestCase
         $field = $this->createField();
         $data = ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => [12 => 'x']]]];
 
+        $exception = null;
+
         try {
             $this->recordingSerializer($calls)->normalize($field, $data, $this->parameters());
-            static::fail('Expected the decode step to reject the payload.');
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertSame(ContentSystemException::INVALID_MAP_KEY, $exception->getViolations()->get(0)->getCode());
-            static::assertSame([], $calls);
+        } catch (WriteConstraintViolationException $caught) {
+            $exception = $caught;
         }
+
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'Expected the decode step to reject the payload.');
+        static::assertSame(ContentSystemException::INVALID_MAP_KEY, $exception->getViolations()->get(0)->getCode());
+        static::assertSame([], $calls);
     }
 
     #[TestDox('rejects a forest repeating an element id before any write-boundary pass runs')]
@@ -151,13 +155,17 @@ class StoredElementListFieldSerializerTest extends TestCase
             ['id' => 'el', 'component' => 'Sw:Block', 'properties' => []],
         ]];
 
+        $exception = null;
+
         try {
             $this->recordingSerializer($calls)->normalize($field, $data, $this->parameters());
-            static::fail('Expected the tree-global validation step to reject the payload.');
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getViolations()->get(0)->getCode());
-            static::assertSame([], $calls);
+        } catch (WriteConstraintViolationException $caught) {
+            $exception = $caught;
         }
+
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'Expected the tree-global validation step to reject the payload.');
+        static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getViolations()->get(0)->getCode());
+        static::assertSame([], $calls);
     }
 
     #[TestDox('propagates a registry load failure instead of reporting an invalid layout request')]
@@ -224,16 +232,20 @@ class StoredElementListFieldSerializerTest extends TestCase
             $this->treeConstraints(),
         );
 
+        $exception = null;
+
         try {
             $serializer->normalize($this->createField(), [
                 'id' => 'layout-1',
                 'elements' => [['id' => 'el', 'component' => 'text']],
             ], $this->parameters());
-            static::fail('Expected a write rejection.');
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertSame(ContentSystemException::BOX_SPACING_INVALID_VALUE, $exception->getViolations()->get(0)->getCode());
-            static::assertSame('/elements', $exception->getViolations()->get(0)->getPropertyPath());
+        } catch (WriteConstraintViolationException $caught) {
+            $exception = $caught;
         }
+
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'Expected a write rejection.');
+        static::assertSame(ContentSystemException::BOX_SPACING_INVALID_VALUE, $exception->getViolations()->get(0)->getCode());
+        static::assertSame('/elements', $exception->getViolations()->get(0)->getPropertyPath());
     }
 
     #[TestDox('expands a partially specified breakpoint map on a raw-array write that never passed the Administration')]
@@ -254,21 +266,78 @@ class StoredElementListFieldSerializerTest extends TestCase
         );
     }
 
-    #[TestDox('memoizes the boundary-processed tree on the write context under the written row id')]
-    public function testNormalizeMemoizesTheBoundaryProcessedTree(): void
+    #[TestDox('memoizes nothing while normalizing, before the stored value exists')]
+    public function testNormalizeMemoizesNothing(): void
     {
         $context = Context::createDefaultContext();
-        $field = $this->createField();
         $data = ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
 
-        $this->serializerWithRealSeeder()->normalize($field, $data, $this->parametersFor($context));
+        $this->serializerWithRealSeeder()->normalize($this->createField(), $data, $this->parametersFor($context));
+
+        static::assertNull($context->getExtension(LayoutWriteContext::EXTENSION_NAME));
+    }
+
+    #[TestDox('memoizes the encoded tree on the write context under the exact value it yields for the column')]
+    public function testEncodeMemoizesTheTreeUnderTheYieldedValue(): void
+    {
+        $context = Context::createDefaultContext();
+        $kvPair = new KeyValuePair('elements', [['id' => 'elem-1', 'component' => 'text', 'properties' => ['headline' => 'Hi']]], false);
+        $parameters = $this->parametersFor($context);
+
+        $result = iterator_to_array(
+            $this->serializer()->encode($this->createField(), $this->existence(), $kvPair, $parameters)
+        );
 
         $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
         static::assertInstanceOf(LayoutWriteContext::class, $memo);
+        static::assertIsString($result['elements']);
 
-        $tree = $memo->consume('content_layout', 'layout-1');
+        $tree = $memo->treeFor($parameters->getContext(), $result['elements']);
         static::assertNotNull($tree);
         static::assertSame('Hi', $tree->roots[0]->property('headline')?->asString());
+    }
+
+    /**
+     * A write a listener starts on the caller's `Context` while another write is still in flight encodes into the
+     * same memo; the entries of the write in flight must survive it.
+     */
+    #[TestDox('keeps the entries of an earlier write when another write on the same context encodes a layout')]
+    public function testEncodeOfASecondWriteKeepsTheEntriesOfTheFirst(): void
+    {
+        $context = Context::createDefaultContext();
+        $first = $this->parametersFor($context);
+        $second = $this->parametersFor($context);
+
+        $encoded = iterator_to_array($this->serializer()->encode(
+            $this->createField(),
+            $this->existence(),
+            new KeyValuePair('elements', [['id' => 'elem-first', 'component' => 'text', 'properties' => []]], false),
+            $first
+        ));
+        iterator_to_array($this->serializer()->encode(
+            $this->createField(),
+            $this->existence(),
+            new KeyValuePair('elements', [['id' => 'elem-second', 'component' => 'text', 'properties' => []]], false),
+            $second
+        ));
+
+        $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
+        static::assertInstanceOf(LayoutWriteContext::class, $memo);
+        static::assertIsString($encoded['elements']);
+        static::assertSame('elem-first', $memo->treeFor($first->getContext(), $encoded['elements'])?->roots[0]->id);
+    }
+
+    #[TestDox('memoizes nothing for a null layout value')]
+    public function testEncodeOfNullMemoizesNothing(): void
+    {
+        $context = Context::createDefaultContext();
+        $kvPair = new KeyValuePair('elements', null, false);
+
+        iterator_to_array(
+            $this->serializer()->encode($this->createField(), $this->existence(), $kvPair, $this->parametersFor($context))
+        );
+
+        static::assertNull($context->getExtension(LayoutWriteContext::EXTENSION_NAME));
     }
 
     #[TestDox('encodes a single StoredElement wrapped to a list as a JSON string')]
@@ -391,22 +460,23 @@ class StoredElementListFieldSerializerTest extends TestCase
         $field = $this->createField();
         $kvPair = new KeyValuePair('elements', [$payload], false);
 
+        $exception = null;
+
         try {
             iterator_to_array(
                 $this->serializerWithPassthroughValidator()->encode($field, $this->existence(), $kvPair, $this->parameters())
             );
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertCount(1, $exception->getViolations());
-            static::assertSame('/elements', $exception->getViolations()->get(0)->getPropertyPath());
-            static::assertSame(
-                ContentSystemException::INVALID_MAP_KEY,
-                $exception->getViolations()->get(0)->getCode()
-            );
-
-            return;
+        } catch (WriteConstraintViolationException $caught) {
+            $exception = $caught;
         }
 
-        static::fail('Encoding a numeric wiring key did not raise a WriteConstraintViolationException.');
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'Encoding a numeric wiring key did not raise a WriteConstraintViolationException.');
+        static::assertCount(1, $exception->getViolations());
+        static::assertSame('/elements', $exception->getViolations()->get(0)->getPropertyPath());
+        static::assertSame(
+            ContentSystemException::INVALID_MAP_KEY,
+            $exception->getViolations()->get(0)->getCode()
+        );
     }
 
     #[TestDox('propagates an internal codec failure without wrapping it as a layout write rejection')]
@@ -472,17 +542,18 @@ class StoredElementListFieldSerializerTest extends TestCase
 
         $options = [];
 
+        $exception = null;
+
         try {
             iterator_to_array(
                 $serializer->encode($field, $this->existence(), new KeyValuePair('elements', $payload, false), $this->parameters())
             );
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertSame('/elements/0/style/display', $exception->getViolations()->get(0)->getPropertyPath());
-
-            return;
+        } catch (WriteConstraintViolationException $caught) {
+            $exception = $caught;
         }
 
-        static::fail('The second write reused the descriptor built for the first, so the dropped style option stayed admissible.');
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'The second write reused the descriptor built for the first, so the dropped style option stayed admissible.');
+        static::assertSame('/elements/0/style/display', $exception->getViolations()->get(0)->getPropertyPath());
     }
 
     #[TestDox('decodes a JSON string to a stored element list')]

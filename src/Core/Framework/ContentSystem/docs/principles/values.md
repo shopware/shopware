@@ -4,7 +4,7 @@ This area concerns the value that a layout stores under a property key and who o
 
 ## Every rule about a value is the server's, and the client sends the raw value
 
-The [write gate](README.md#terms-that-are-easy-to-confuse) checks the value that the client sent. The [write boundary](README.md#terms-that-are-easy-to-confuse) never sanitizes, repairs, coerces or substitutes that value. Bringing a value into stored shape is the client's job.
+The [write gate](README.md#terms-that-are-easy-to-confuse) checks the value that the client sent, as the layout stores it after the write. The [write boundary](README.md#terms-that-are-easy-to-confuse) never sanitizes, repairs, coerces or substitutes that value. Bringing a value into stored shape is the client's job.
 
 - The editor keeps undo local.
 - The editor saves the whole layout as it is.

@@ -62,10 +62,23 @@ export interface ContentSystemInlineMappingParseResponse {
     tokens: ContentSystemInlineMappingToken[];
 }
 
+interface PendingInlineMappingParse {
+    text: string;
+    revision: number;
+    resolve: (response: ContentSystemInlineMappingParseResponse) => void;
+    reject: (error: unknown) => void;
+}
+
+const MAX_CONCURRENT_INLINE_MAPPING_PARSES = 3;
+
 /**
  * Gateway for the content system mapping candidate catalogue, keyed by root source.
  */
 class ContentSystemMappingCandidateApiService extends ApiService {
+    private pendingInlineMappingParses: PendingInlineMappingParse[] = [];
+
+    private activeInlineMappingParses = 0;
+
     constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system-mapping-candidates') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'contentSystemMappingCandidateService';
@@ -96,13 +109,45 @@ class ContentSystemMappingCandidateApiService extends ApiService {
     }
 
     parseInlineMappingTokens(text: string, revision: number): Promise<ContentSystemInlineMappingParseResponse> {
-        return this.httpClient
-            .post<ContentSystemInlineMappingParseResponse>(
+        return new Promise((resolve, reject) => {
+            this.pendingInlineMappingParses.push({ text, revision, resolve, reject });
+
+            this.processInlineMappingQueue();
+        });
+    }
+
+    private processInlineMappingQueue(): void {
+        while (this.activeInlineMappingParses < MAX_CONCURRENT_INLINE_MAPPING_PARSES) {
+            const request = this.pendingInlineMappingParses.shift();
+            if (!request) {
+                return;
+            }
+
+            this.activeInlineMappingParses += 1;
+            void this.parseInlineMappingRequest(request);
+        }
+    }
+
+    private async parseInlineMappingRequest(request: PendingInlineMappingParse): Promise<void> {
+        try {
+            const response = await this.httpClient.post<ContentSystemInlineMappingParseResponse>(
                 '/_action/content-system/inline-mapping/parse',
-                { text, revision },
+                { text: request.text, revision: request.revision },
                 { headers: this.getBasicHeaders() },
-            )
-            .then((response) => ApiService.handleResponse<ContentSystemInlineMappingParseResponse>(response));
+            );
+            const payload = ApiService.handleResponse<ContentSystemInlineMappingParseResponse>(response);
+
+            if (typeof payload?.revision !== 'number' || !Array.isArray(payload.tokens)) {
+                throw new Error('Invalid inline mapping parse response.');
+            }
+
+            request.resolve(payload);
+        } catch (error) {
+            request.reject(error);
+        } finally {
+            this.activeInlineMappingParses -= 1;
+            this.processInlineMappingQueue();
+        }
     }
 }
 

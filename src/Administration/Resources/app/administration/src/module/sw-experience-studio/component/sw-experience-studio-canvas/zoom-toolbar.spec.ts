@@ -4,7 +4,7 @@ import type { WorkspaceConfiguration } from '../../types/workspace.types';
 
 type Frame = { id: string; x: number; y: number; width: number; height: number };
 
-async function createWrapper(frames: Frame[] = [], width = 1200, height = 800) {
+async function createWrapper(frames: Frame[] = [], width = 1200, height = 800, activeFrameId: string | null = null) {
     const wrapper = shallowMount((await wrapTestComponent('sw-experience-studio-canvas', { sync: true })) as Component, {
         slots: { preview: '<div class="test-preview"></div>' },
         props: {
@@ -14,10 +14,11 @@ async function createWrapper(frames: Frame[] = [], width = 1200, height = 800) {
                 selectedElementId: null,
                 viewport: 'desktop',
                 previewEntityId: null,
-                isActive: false,
+                isActive: frame.id === activeFrameId,
             })),
             workspaceConfiguration: {
                 frames: frames.map(({ id, ...bounds }) => ({
+                    id: id,
                     layoutId: id,
                     ...bounds,
                     viewport: 'desktop',
@@ -132,12 +133,12 @@ describe('Experience Studio canvas zoom toolbar', () => {
         const bottom = Math.max(...projected.map((frame) => frame.bottom));
 
         expect(left).toBeGreaterThanOrEqual(48 - 0.001);
-        expect(top).toBeGreaterThanOrEqual(48 - 0.001);
+        expect(top).toBeGreaterThanOrEqual(148 - 0.001);
         expect(right).toBeLessThanOrEqual(width - 48 + 0.001);
         expect(bottom).toBeLessThanOrEqual(height - 48 + 0.001);
         expect((left + right) / 2).toBeCloseTo(width / 2);
-        expect((top + bottom) / 2).toBeCloseTo(height / 2);
-        expect(Math.min(left, top)).toBeCloseTo(48);
+        expect((top + bottom) / 2).toBeCloseTo(height / 2 + 50);
+        expect(Math.min(left, top - 100)).toBeCloseTo(48);
     });
 
     it('keeps zoom controls usable below 10% and emits a restorable workspace zoom', async () => {
@@ -185,12 +186,40 @@ describe('Experience Studio canvas zoom toolbar', () => {
         expect(wrapper.get('.sw-experience-studio-canvas__world').attributes('style')).toBe(fittedTransform);
     });
 
-    it('smoothly resets zoom to 100% from the existing action', async () => {
-        wrapper = await createWrapper([{ id: 'layout', x: 0, y: 0, width: 1480, height: 900 }]);
+    it.each([
+        { description: 'a short frame', canvasHeight: 1000, frameHeight: 480, expectedTop: 310 },
+        { description: 'a frame taller than the canvas', canvasHeight: 800, frameHeight: 900, expectedTop: 120 },
+        { description: 'a manually enlarged frame', canvasHeight: 600, frameHeight: 1800, expectedTop: 120 },
+    ])(
+        'keeps the toolbar visible when resetting $description to 100%',
+        async ({ canvasHeight, frameHeight, expectedTop }) => {
+            const frame = { id: 'layout', x: 200, y: -150, width: 768, height: frameHeight };
+            wrapper = await createWrapper([frame], 1200, canvasHeight, frame.id);
+            await wrapper.get(`button[aria-label="${resetLabel}"]`).trigger('click');
+
+            expect(wrapper.get('.sw-experience-studio-canvas__zoom-controls > span').text()).toBe('100%');
+            expect(wrapper.get('.sw-experience-studio-canvas__world').classes()).toContain('is--viewport-transitioning');
+            expect(wrapper.find('[data-frame-id="layout"] .sw-experience-studio-canvas__frame-toolbar').exists()).toBe(true);
+            const configuration = wrapper.emitted<[WorkspaceConfiguration]>('configuration-change')?.at(-1)?.[0];
+            expect(configuration).toBeDefined();
+            const { panX, panY } = configuration!.canvas;
+            const frameTop = canvasHeight / 2 + panY + frame.y - frame.height / 2;
+
+            expect(600 + panX + frame.x).toBe(600);
+            expect(frameTop).toBe(expectedTop);
+            // Include the 40px header, 16px gap, and 42px floating toolbar.
+            expect(frameTop - 40 - 16 - 42).toBeGreaterThanOrEqual(20);
+        },
+    );
+
+    it('centers an empty canvas at 100% without reserving room for a toolbar', async () => {
+        wrapper = await createWrapper();
         await wrapper.get(`button[aria-label="${resetLabel}"]`).trigger('click');
 
-        expect(wrapper.get('.sw-experience-studio-canvas__zoom-controls > span').text()).toBe('100%');
-        expect(wrapper.get('.sw-experience-studio-canvas__world').classes()).toContain('is--viewport-transitioning');
+        const configuration = wrapper.emitted<[WorkspaceConfiguration]>('configuration-change')?.at(-1)?.[0];
+        expect(configuration?.canvas.panX).toBeCloseTo(0);
+        expect(configuration?.canvas.panY).toBeCloseTo(0);
+        expect(configuration?.canvas.zoom).toBe(1);
     });
 
     it('disables zoom to fit when there are no open layouts', async () => {

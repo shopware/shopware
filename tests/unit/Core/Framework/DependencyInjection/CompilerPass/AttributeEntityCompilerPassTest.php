@@ -65,6 +65,14 @@ class AttributeEntityCompilerPassTest extends TestCase
 
         static::assertTrue($container->hasDefinition('customer_test_attribute_entity.definition'));
         static::assertTrue($container->getDefinition('customer_test_attribute_entity.definition')->hasTag('shopware.entity.definition'));
+
+        static::assertTrue($container->hasDefinition('customer.testAttributeEntities.reverse_many_to_many_extension'));
+        $extension = $container->getDefinition('customer.testAttributeEntities.reverse_many_to_many_extension');
+        static::assertTrue($extension->hasTag('shopware.entity.extension'));
+        static::assertSame(
+            ['customer', 'testAttributeEntities', 'test_attribute_entity', 'customer_test_attribute_entity', 'customer_id', 'test_attribute_entity_id', null, OnDelete::SET_NULL->value],
+            $extension->getArguments()
+        );
     }
 
     public function testAssociationsKeepResolvingThroughTheDalRegistryOnceTheSalesChannelRegistryIsBuilt(): void
@@ -93,6 +101,13 @@ class AttributeEntityCompilerPassTest extends TestCase
         $customers = $registry->getByEntityName('test_attribute_entity')->getFields()->get('customers');
         static::assertInstanceOf(ManyToManyAssociationField::class, $customers);
         static::assertSame($registry->getByEntityName('customer'), $customers->getToManyReferenceDefinition());
+
+        $reverse = $registry->getByEntityName('customer')->getFields()->get('testAttributeEntities');
+        static::assertInstanceOf(ManyToManyAssociationField::class, $reverse);
+        static::assertSame($registry->getByEntityName('test_attribute_entity'), $reverse->getToManyReferenceDefinition());
+        static::assertSame('customer_test_attribute_entity', $reverse->getMappingDefinition()->getEntityName());
+        static::assertSame('customer_id', $reverse->getMappingLocalColumn());
+        static::assertSame('test_attribute_entity_id', $reverse->getMappingReferenceColumn());
     }
 }
 
@@ -119,6 +134,6 @@ class TestAttributeEntity extends EntityStruct
     /**
      * @var array<string, CustomerEntity>|null
      */
-    #[ManyToMany(entity: 'customer', onDelete: OnDelete::SET_NULL)]
+    #[ManyToMany(entity: 'customer', onDelete: OnDelete::SET_NULL, reversedBy: 'testAttributeEntities')]
     public ?array $customers = null;
 }

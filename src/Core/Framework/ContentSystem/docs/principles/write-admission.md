@@ -36,9 +36,9 @@ In code:
 
 - Only `PreWriteValidationEvent` subscribers read `LayoutGate::SKIP_VALIDATION_STATE`.
 - `StoredElementListFieldSerializer` therefore still passes every tree through `LayoutWriteBoundary` and the `StoredTreeConstraints` descriptor.
-- `ContentLayoutWriteMemoLifetimeTest` shows that a DAL write under the skip state still passes the write boundary and leaves no tree behind in `LayoutWriteContext`.
+- `ContentLayoutWriteMemoLifetimeTest::testAWriteUnderTheSkipStateStillMemoizesTheTreeItEncodes` pins that a DAL write under the skip state still records the tree it encodes in `LayoutWriteContext`.
 - See [layout-write-gates.md](../layout-write-gates.md).
 
 ## Also true by construction
 
-- The [write gate](README.md#terms-that-are-easy-to-confuse) checks the oldest tree that the field serializer recorded for its row in `LayoutWriteContext`. The write gate consumes that tree on the skip path too and never decodes the column: [Layout/Field/README.md](../../Layout/Field/README.md)
+- The [write gate](README.md#terms-that-are-easy-to-confuse) checks the tree behind the layout value each record stores after the write, whatever order the DAL runs writes in: [LayoutWriteContext.php](../../Layout/LayoutWriteContext.php)

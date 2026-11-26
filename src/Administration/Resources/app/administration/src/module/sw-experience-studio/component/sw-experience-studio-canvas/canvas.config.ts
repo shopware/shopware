@@ -3,7 +3,7 @@ export type Viewport = 'mobile' | 'tablet-landscape' | 'desktop' | 'custom';
 /** @private @sw-package discovery */
 export type ViewportPreset = Exclude<Viewport, 'custom'>;
 /** @private @sw-package discovery */
-export type ResizeDirection = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
+export type ResizeDirection = 'w' | 'e' | 's';
 /** @private @sw-package discovery */
 export type GestureType = 'move' | 'resize' | 'pan';
 
@@ -26,10 +26,14 @@ export type CanvasGesture = {
 /** @private @sw-package discovery */
 export type CanvasFrame = {
     id: string;
+    label?: string;
+    languageLabel?: string;
+    ariaLabel?: string;
     layout: Entity<'content_layout'>;
     selectedElementId: string | null;
     viewport: Viewport;
     previewEntityId: string | null;
+    languageId?: string;
     isActive: boolean;
 };
 
@@ -39,10 +43,26 @@ export const VIEWPORT_WIDTHS: Record<ViewportPreset, number> = {
     'tablet-landscape': 768,
     desktop: 1480,
 };
+
+/** @private @sw-package discovery */
+export const VIEWPORT_ICONS: Record<Viewport, string> = {
+    mobile: 'regular-mobile',
+    'tablet-landscape': 'regular-tablet',
+    desktop: 'regular-desktop',
+    custom: 'regular-expand-arrows',
+};
 /** @private @sw-package discovery */
 export const FRAME_GAP = 60;
 /** @private @sw-package discovery */
 export const FRAME_FOCUS_INSET = 20;
+
+/**
+ * Includes the 40px heading, 16px gap, and 42px toolbar, rounded up.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export const FRAME_TOOLBAR_SPACE = 100;
 
 /** @private @sw-package discovery */
 export const DEFAULT_FRAME_HEIGHT = 900;

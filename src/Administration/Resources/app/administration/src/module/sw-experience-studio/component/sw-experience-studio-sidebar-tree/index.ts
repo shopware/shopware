@@ -1,5 +1,6 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type { ContentLayoutEntity } from '../../util/content-layout-repository.util';
+import { anchorLanguageId } from '../../util/element-settings.util';
 
 import template from './sw-experience-studio-sidebar-tree.html.twig';
 import './sw-experience-studio-sidebar-tree.scss';
@@ -33,6 +34,10 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     props: {
+        languageId: {
+            type: String,
+            default: () => anchorLanguageId(),
+        },
         layout: {
             type: Object as PropType<ContentLayoutEntity | null>,
             required: false,

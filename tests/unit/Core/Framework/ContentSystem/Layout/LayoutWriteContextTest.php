@@ -19,136 +19,94 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(LayoutWriteContext::class)]
 class LayoutWriteContextTest extends TestCase
 {
-    #[TestDox('hands back the tree remembered for an entity and primary key')]
-    public function testConsumeReturnsTheRememberedTree(): void
-    {
-        $tree = $this->tree('el-1');
-        $memo = $this->memo();
-
-        $memo->remember('content_layout', 'layout-1', $tree);
-
-        static::assertSame($tree, $memo->consume('content_layout', 'layout-1'));
-    }
-
-    #[TestDox('removes the entry as it hands it out, so a second read finds nothing')]
-    public function testConsumeRemovesTheEntry(): void
-    {
-        $memo = $this->memo();
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
-
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertNull($memo->consume('content_layout', 'layout-1'));
-    }
-
-    #[TestDox('is empty once the only entry has been consumed')]
-    public function testMemoIsEmptyAfterItsOnlyEntryIsConsumed(): void
-    {
-        $memo = $this->memo();
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
-
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertTrue($memo->isEmpty());
-    }
-
-    #[TestDox('reports an absent entry as null rather than as an error')]
-    public function testConsumeOfAnAbsentEntryReturnsNull(): void
-    {
-        $memo = $this->memo();
-
-        static::assertNull($memo->consume('content_layout', 'never-written'));
-    }
-
-    /**
-     * One of the memo-lifetime cases: the serializer memoizes per row and the DAL keeps a command per row, so
-     * a batch that writes the same row twice must find both of its trees here, oldest first.
-     */
-    #[TestDox('hands back both trees in order when the same entity and primary key are remembered twice')]
-    public function testRememberingTheSameKeyTwiceHandsBothBackInOrder(): void
+    #[TestDox('keeps the trees of different encoded values apart')]
+    public function testTreeForKeepsDifferentBytesApart(): void
     {
         $first = $this->tree('el-1');
         $second = $this->tree('el-2');
-        $memo = $this->memo();
+        $write = $this->write();
+        $memo = new LayoutWriteContext();
 
-        $memo->remember('content_layout', 'layout-1', $first);
-        $memo->remember('content_layout', 'layout-1', $second);
+        $memo->remember($write, '[{"id":"el-1"}]', $first);
+        $memo->remember($write, '[{"id":"el-2"}]', $second);
 
-        static::assertSame([$first, $second], [
-            $memo->consume('content_layout', 'layout-1'),
-            $memo->consume('content_layout', 'layout-1'),
-        ]);
+        static::assertSame([$first, $second], [$memo->treeFor($write, '[{"id":"el-1"}]'), $memo->treeFor($write, '[{"id":"el-2"}]')]);
     }
 
-    #[TestDox('stays non-empty until both trees remembered under one key are consumed')]
-    public function testKeyRememberedTwiceIsEmptyOnlyAfterBothTreesAreConsumed(): void
-    {
-        $memo = $this->memo();
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-2'));
-
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertFalse($memo->isEmpty());
-
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertTrue($memo->isEmpty());
-    }
-
-    #[TestDox('reports null on a third read of a key that was remembered twice')]
-    public function testThirdConsumeOfAKeyRememberedTwiceReturnsNull(): void
-    {
-        $memo = $this->memo();
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-2'));
-
-        $memo->consume('content_layout', 'layout-1');
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertNull($memo->consume('content_layout', 'layout-1'));
-    }
-
-    #[TestDox('matches an upper-case primary key against the lower-case one the command decodes')]
-    public function testPrimaryKeyMatchingIgnoresHexCasing(): void
+    /**
+     * A retried write dispatches the validation event again without encoding again, so a lookup must not take
+     * the entry out.
+     */
+    #[TestDox('hands back the same tree on a second lookup of one encoded value')]
+    public function testTreeForLeavesTheEntryInPlace(): void
     {
         $tree = $this->tree('el-1');
-        $memo = $this->memo();
+        $write = $this->write();
+        $memo = new LayoutWriteContext();
+        $memo->remember($write, '[{"id":"el-1"}]', $tree);
 
-        $memo->remember('content_layout', 'AABBCCDD', $tree);
+        $first = $memo->treeFor($write, '[{"id":"el-1"}]');
 
-        static::assertSame($tree, $memo->consume('content_layout', 'aabbccdd'));
+        static::assertSame([$tree, $tree], [$first, $memo->treeFor($write, '[{"id":"el-1"}]')]);
     }
 
-    #[TestDox('keeps entries of different entities apart under the same primary key')]
-    public function testEntriesOfDifferentEntitiesDoNotCollide(): void
-    {
-        $layoutTree = $this->tree('el-1');
-        $memo = $this->memo();
-
-        $memo->remember('content_layout', 'shared-id', $layoutTree);
-        $memo->remember('other_entity', 'shared-id', $this->tree('el-2'));
-
-        static::assertSame($layoutTree, $memo->consume('content_layout', 'shared-id'));
-        static::assertFalse($memo->isEmpty());
-    }
-
-    #[TestDox('belongs to the write that opened it and to no other')]
-    public function testOwnershipIsPerWrite(): void
+    /**
+     * Two writes on one `Context` that encode the same bytes must each find their own tree, and a write that
+     * encoded nothing must find none, although the other write remembered that value.
+     */
+    #[TestDox('keeps the entries of two writes on one context apart, also under the same encoded value')]
+    public function testTwoWritesOnOneContextKeepSeparateEntries(): void
     {
         $context = Context::createDefaultContext();
-        $write = WriteContext::createFromContext($context);
-        $laterWrite = WriteContext::createFromContext($context);
+        $outer = WriteContext::createFromContext($context);
+        $nested = WriteContext::createFromContext($context);
+        $bystander = WriteContext::createFromContext($context);
+        $outerTree = $this->tree('el-outer');
+        $nestedTree = $this->tree('el-nested');
+        $memo = new LayoutWriteContext();
 
-        $memo = new LayoutWriteContext($write);
+        $memo->remember($outer, '[{"id":"el-1"}]', $outerTree);
+        $memo->remember($nested, '[{"id":"el-1"}]', $nestedTree);
 
-        static::assertTrue($memo->ownedBy($write));
-        static::assertFalse($memo->ownedBy($laterWrite));
+        static::assertSame(
+            [$outerTree, $nestedTree, null],
+            [$memo->treeFor($outer, '[{"id":"el-1"}]'), $memo->treeFor($nested, '[{"id":"el-1"}]'), $memo->treeFor($bystander, '[{"id":"el-1"}]')]
+        );
     }
 
-    private function memo(): LayoutWriteContext
+    /**
+     * The entries are held weakly by their `WriteContext`: once nothing references the write any more, its trees
+     * are released, so a `Context` reused across many writes does not accumulate them.
+     */
+    #[TestDox('releases the entries of a write once its write context is gone')]
+    public function testEntriesAreReleasedWithTheirWriteContext(): void
     {
-        return new LayoutWriteContext(WriteContext::createFromContext(Context::createDefaultContext()));
+        $memo = new LayoutWriteContext();
+        $write = $this->write();
+        $tree = $this->tree('el-1');
+        $memo->remember($write, '[{"id":"el-1"}]', $tree);
+        $remembered = \WeakReference::create($tree);
+        unset($tree);
+
+        unset($write);
+        gc_collect_cycles();
+
+        static::assertNull($remembered->get());
+    }
+
+    #[TestDox('reports an encoded value no row yielded as null')]
+    public function testTreeForUnknownBytesReturnsNull(): void
+    {
+        $write = $this->write();
+        $memo = new LayoutWriteContext();
+        $memo->remember($write, '[{"id":"el-1"}]', $this->tree('el-1'));
+
+        static::assertNull($memo->treeFor($write, '[{"id":"el-2"}]'));
+    }
+
+    private function write(): WriteContext
+    {
+        return WriteContext::createFromContext(Context::createDefaultContext());
     }
 
     private function tree(string $elementId): StoredTree

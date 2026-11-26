@@ -1,7 +1,8 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import { editingLanguageChain } from '../../util/element-settings.util';
+import { anchorLanguageId } from '../../util/element-settings.util';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 import { translateContentSystemText } from '../../util/content-system-translation.util';
+import { walkContentElements } from '../../util/content-element.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
 
 import template from './sw-experience-studio-sidebar-tree-node.html.twig';
@@ -32,6 +33,10 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     props: {
+        languageId: {
+            type: String,
+            default: () => anchorLanguageId(),
+        },
         element: {
             type: Object as PropType<ContentElementNode>,
             required: true,
@@ -98,11 +103,16 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('experienceStudioElementType' as never) as ExperienceStudioElementTypeStore;
         },
 
+        typeLabel(): string | undefined {
+            const type = this.elementTypeStore.getByName(this.contentElement.component);
+
+            return type ? translateContentSystemText(type.labelSnippet, type.label, this.$te, this.$t) : undefined;
+        },
+
         label(): string {
             const type = this.elementTypeStore.getByName(this.contentElement.component);
-            const fallback = type ? translateContentSystemText(type.labelSnippet, type.label, this.$te, this.$t) : undefined;
 
-            return getContentElementLabel(this.contentElement, type?.properties, editingLanguageChain(), fallback);
+            return getContentElementLabel(this.contentElement, type?.properties, this.languageId, this.typeLabel);
         },
 
         typeIcon(): string {
@@ -174,13 +184,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         collectSubtreeIds(element: ContentElementNode): string[] {
-            const nestedSlotElements = Object.values(element.slots ?? {}).flatMap((slotElements) => slotElements);
-            const nestedIds = nestedSlotElements.flatMap((childElement) => this.collectSubtreeIds(childElement));
+            const ids: string[] = [];
+            walkContentElements([element], (node) => {
+                ids.push(node.id);
+            });
 
-            return [
-                element.id,
-                ...nestedIds,
-            ];
+            return ids;
         },
 
         dragConfig() {

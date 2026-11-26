@@ -11,6 +11,43 @@ component sw-settings-webhook-roles-modal  private  ts  [private]
   template src/module/sw-settings-webhook/component/sw-settings-webhook-roles-modal/sw-settings-webhook-roles-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  repositoryFactory  [private]
+
+props
+  webhook: Entity<'webhook'>  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  saved(...args: any[])  [private]
+
+data
+  editableWebhook: any  [private]
+  isLoading: any  [private]
+  isOpen: any  [private]
+  isSaving: any  [private]
+  selectedRoles: any  [private]
+
+computed
+  aclRoleRepository: Repository<'acl_role'>  [private]
+  isOwnerAdmin: boolean  [private]
+  isRoleSelectDisabled: boolean  [private]
+  owner: Entity<'user'> | Entity<'integration'> | null  [private]
+  ownerRoleIds: string[]  [private]
+  roleCriteria: any  [private]
+  unheldRoleNames: string  [private]
+  webhookRepository: Repository<'webhook'>  [private]
+
+methods
+  loadSelectedRoles(roleIds: string[]): Promise<EntityCollection<'acl_role'>>  [private]
+  loadWebhook(): Promise<void>  [private]
+  onChangeRoles(roles: EntityCollection<'acl_role'>): void  [private]
+  onModalRootChange(isOpen: boolean): void  [private]
+  onSave(): Promise<void>  [private]
+
 blocks
   sw_settings_webhook_roles_modal  [private]
 ```

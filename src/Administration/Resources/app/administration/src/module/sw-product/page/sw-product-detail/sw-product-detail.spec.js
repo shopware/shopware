@@ -1114,9 +1114,19 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
             expect(api.language).toEqual(expect.objectContaining({ id: 'german' }));
             expect(deprecations).toHaveTriggered('sw-product-detail.loadLanguage() is deprecated');
+            expect(deprecations).toHaveTriggered('sw-product-detail.languageCriteria is deprecated');
         } finally {
             api.language = originalLanguage;
         }
+    });
+
+    it('keeps the deprecated languageCriteria loading the locale until the 6.8 major', async () => {
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- languageCriteria is deprecated and no longer used by the page
+        const criteria = wrapper.vm.languageCriteria;
+
+        expect(criteria.getAssociation('locale')).toBeDefined();
+        expect(criteria.totalCountMode).toBe(0);
+        expect(deprecations).toHaveTriggered('sw-product-detail.languageCriteria is deprecated');
     });
 
     it('should handle success response correctly', async () => {

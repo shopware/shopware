@@ -502,6 +502,22 @@ export default {
             return this.repositoryFactory.create('language');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. The language auto-fetching service loads the content language.
+         */
+        languageCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.languageCriteria is deprecated. Read Shopware.Context.api.language instead.',
+            );
+
+            const criteria = new Criteria();
+            criteria.setTotalCountMode(0);
+            criteria.addAssociation('locale');
+
+            return criteria;
+        },
+
         language() {
             return Shopware.Store.get('context').api.language;
         },
@@ -1619,10 +1635,11 @@ export default {
                 'sw-product-detail.loadLanguage() is deprecated. Read Shopware.Context.api.language instead.',
             );
 
-            Shopware.Store.get('context').api.language = await this.languageRepository.get(newLanguageId, {
-                ...Shopware.Context.api,
-                inheritance: true,
-            });
+            Shopware.Store.get('context').api.language = await this.languageRepository.get(
+                newLanguageId,
+                { ...Shopware.Context.api, inheritance: true },
+                this.languageCriteria,
+            );
         },
 
         async initProductMeasurementUnits() {

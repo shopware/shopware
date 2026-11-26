@@ -17,10 +17,10 @@ The system config key `core.app.shopId` is deprecated, read the shop ID from `co
 
 ## Administration
 
-### Deprecated `sw-product-detail.loadLanguage()`
+### Deprecated `sw-product-detail.loadLanguage()` and `languageCriteria`
 
-The method `loadLanguage()` of the Administration page `sw-product-detail` is deprecated and will be removed in v6.8.0.
-The page no longer calls it, because `Shopware.Context.api.language` is already loaded at startup and on every language switch.
+The method `loadLanguage()` and the computed property `languageCriteria` of the Administration page `sw-product-detail` are deprecated and will be removed in v6.8.0.
+The page no longer uses them, because `Shopware.Context.api.language` is already loaded at startup and on every language switch.
 Read `Shopware.Context.api.language` instead, and watch `Shopware.Context.api.languageId` to react to a language switch.
 
 # 6.7.17.0

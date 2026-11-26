@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
@@ -219,6 +220,69 @@ class ContentLayoutDraftControllerTest extends TestCase
         yield 'a name longer than the 255-character column' => [str_repeat('a', 256)];
     }
 
+    #[DataProvider('writingRoutes')]
+    #[TestDox('$_dataName requires the update privilege and changes nothing without it')]
+    public function testWritingRouteRequiresTheUpdatePrivilege(string $route, bool $sendsDraft): void
+    {
+        $layoutId = $this->createLayout();
+        $draft = $this->json('POST', $layoutId . '/create-draft')['draft'];
+        $this->actAs(['content_layout:read']);
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/' . $route, $sendsDraft ? [
+            'draftId' => $draft['id'],
+            'expectedHead' => $draft['head'],
+        ] : []);
+
+        $this->assertMissingPrivilege('content_layout:update');
+        static::assertSame([$draft], $this->json('GET', $layoutId . '/drafts')['drafts']);
+        static::assertSame(['live', 'other'], $this->liveIds($layoutId));
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function writingRoutes(): iterable
+    {
+        yield 'creating a draft' => ['create-draft', false];
+        yield 'discarding a draft' => ['discard-draft', true];
+        yield 'publishing a draft' => ['publish-draft', true];
+    }
+
+    #[TestDox('the drafts, a draft and the published revisions can be read with the read privilege alone')]
+    public function testReadingRoutesNeedOnlyTheReadPrivilege(): void
+    {
+        $layoutId = $this->createLayout();
+        $draft = $this->json('POST', $layoutId . '/create-draft')['draft'];
+        $this->actAs(['content_layout:read']);
+
+        static::assertSame([$draft], $this->json('GET', $layoutId . '/drafts')['drafts']);
+        static::assertSame($draft['head'], $this->json('GET', $layoutId . '/drafts/' . $draft['id'])['draft']['head']);
+        static::assertSame([$draft['base']], array_column($this->json('GET', $layoutId . '/published-revisions')['revisions'], 'id'));
+    }
+
+    #[DataProvider('readingRoutes')]
+    #[TestDox('reading $_dataName requires the read privilege')]
+    public function testReadingRouteRequiresTheReadPrivilege(string $path): void
+    {
+        $layoutId = $this->createLayout();
+        $draft = $this->json('POST', $layoutId . '/create-draft')['draft'];
+        $this->actAs([]);
+
+        $this->getBrowser()->jsonRequest('GET', self::BASE_URL . $layoutId . str_replace('{draftId}', $draft['id'], $path));
+
+        $this->assertMissingPrivilege('content_layout:read');
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function readingRoutes(): iterable
+    {
+        yield 'the drafts' => ['/drafts'];
+        yield 'a draft' => ['/drafts/{draftId}'];
+        yield 'the published revisions' => ['/published-revisions'];
+    }
+
     /**
      * @return list<string>
      */
@@ -244,6 +308,27 @@ class ContentLayoutDraftControllerTest extends TestCase
         static::assertSame($status, $response->getStatusCode(), (string) $response->getContent());
 
         return json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
+    }
+
+    /**
+     * Replaces the default admin browser with one authenticated as a non-admin user holding exactly $privileges, so
+     * every later request in the test runs through the route ACL.
+     *
+     * @param list<string> $privileges
+     */
+    private function actAs(array $privileges): void
+    {
+        $this->resetBrowser();
+        $this->getBrowser(true, [], $privileges);
+    }
+
+    private function assertMissingPrivilege(string $privilege): void
+    {
+        $error = $this->errors(Response::HTTP_FORBIDDEN)[0];
+        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $error['code']);
+
+        $detail = json_decode($error['detail'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([$privilege], $detail['missingPrivileges']);
     }
 
     /**

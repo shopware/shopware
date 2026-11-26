@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Revision;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
@@ -20,8 +22,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutRowLock;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutDraft;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionStore;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\RevisionGraph;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
@@ -70,12 +74,64 @@ class LayoutRevisionServiceTest extends TestCase
         }
     }
 
+    /**
+     * @param \Closure(LayoutRevisionService): mixed $operation
+     */
+    #[DataProvider('graphOperations')]
+    #[TestDox('$_dataName reads the live state and writes the revision graph only inside the layout row lock')]
+    public function testRunsInsideTheRowLock(\Closure $operation, string $write): void
+    {
+        $events = [];
+
+        $operation($this->service(static::createStub(AttributionReconciler::class), $this->observedRowLock($events), $this->store($events)));
+
+        static::assertSame('enter', array_shift($events));
+        static::assertSame('publication', array_shift($events));
+        static::assertSame('commit', array_pop($events));
+        static::assertContains($write, $events);
+        static::assertNotContains('enter', $events);
+        static::assertNotContains('commit', $events);
+    }
+
+    public static function graphOperations(): \Generator
+    {
+        yield 'creating a draft' => [
+            static fn (LayoutRevisionService $service): LayoutDraft => $service->createDraft(self::LAYOUT_ID, Context::createDefaultContext()),
+            'saveDraft',
+        ];
+
+        yield 'editing a draft' => [
+            static fn (LayoutRevisionService $service): array => $service->appendRevision(
+                self::LAYOUT_ID,
+                self::DRAFT_ID,
+                self::HEAD,
+                static fn (): StoredTree => new StoredTree([StoredElementBuilder::create('Sw:Block', 'el')->build()]),
+                Context::createDefaultContext(),
+            ),
+            'insertRevision',
+        ];
+
+        yield 'publishing a draft' => [
+            static fn (LayoutRevisionService $service) => $service->publish(self::LAYOUT_ID, self::DRAFT_ID, self::HEAD, Context::createDefaultContext()),
+            'markPublished',
+        ];
+
+        yield 'discarding a draft' => [
+            static fn (LayoutRevisionService $service) => $service->discardDraft(self::LAYOUT_ID, self::DRAFT_ID),
+            'deleteDraft',
+        ];
+    }
+
     private function appendThroughBoundaryFailing(ContentSystemException $failure): void
     {
         $reconciler = static::createStub(AttributionReconciler::class);
         $reconciler->method('reconcile')->willThrowException($failure);
 
-        $this->service($reconciler)->appendRevision(
+        $rowLock = static::createStub(LayoutRowLock::class);
+        $rowLock->method('run')->willReturnCallback(static fn (string $layoutId, \Closure $operation): mixed => $operation());
+        $events = [];
+
+        $this->service($reconciler, $rowLock, $this->store($events))->appendRevision(
             self::LAYOUT_ID,
             self::DRAFT_ID,
             self::HEAD,
@@ -84,17 +140,54 @@ class LayoutRevisionServiceTest extends TestCase
         );
     }
 
-    private function service(AttributionReconciler $reconciler): LayoutRevisionService
+    /**
+     * @param list<string> $events
+     */
+    private function observedRowLock(array &$events): LayoutRowLock
     {
         $rowLock = static::createStub(LayoutRowLock::class);
-        $rowLock->method('run')->willReturnCallback(static fn (string $layoutId, \Closure $operation): mixed => $operation());
+        $rowLock->method('run')->willReturnCallback(static function (string $layoutId, \Closure $operation) use (&$events): mixed {
+            $events[] = 'enter';
+            $result = $operation();
+            $events[] = 'commit';
 
+            return $result;
+        });
+
+        return $rowLock;
+    }
+
+    /**
+     * Records the read of the live state and every write to the revision graph.
+     *
+     * @param list<string> $events
+     */
+    private function store(array &$events): LayoutRevisionStore
+    {
         $now = new \DateTimeImmutable();
+        $record = static function (string $event) use (&$events): void {
+            $events[] = $event;
+        };
+
         $store = static::createStub(LayoutRevisionStore::class);
-        $store->method('publication')->willReturn(['revisionId' => self::HEAD, 'current' => true, 'createdAt' => $now, 'checksum' => '']);
+        $store->method('publication')->willReturnCallback(static function () use ($record, $now): array {
+            $record('publication');
+
+            return ['revisionId' => self::HEAD, 'current' => true, 'createdAt' => $now, 'checksum' => ''];
+        });
         $store->method('draft')->willReturn(new LayoutDraft(self::DRAFT_ID, 'Draft', self::HEAD, self::HEAD, self::HEAD, $now, null, $now));
         $store->method('tree')->willReturn([]);
+        $store->method('graph')->willReturn(new RevisionGraph([self::HEAD => new LayoutRevision(self::HEAD, null, $now, null)], [], self::HEAD));
 
+        foreach (['saveDraft', 'insertRevision', 'deleteDraft', 'adoptLayoutColumn', 'markPublished', 'reparent', 'deleteRevisions'] as $write) {
+            $store->method($write)->willReturnCallback(static fn () => $record($write));
+        }
+
+        return $store;
+    }
+
+    private function service(AttributionReconciler $reconciler, LayoutRowLock $rowLock, LayoutRevisionStore $store): LayoutRevisionService
+    {
         $seeder = static::createStub(LayoutDefaultSeeder::class);
         $seeder->method('seed')->willReturnArgument(0);
 
@@ -102,6 +195,9 @@ class LayoutRevisionServiceTest extends TestCase
         $styleOptions->method('all')->willReturn([]);
 
         $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
+
+        $gate = static::createStub(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
 
         return new LayoutRevisionService(
             $rowLock,
@@ -114,7 +210,7 @@ class LayoutRevisionServiceTest extends TestCase
             new StoredTreeCodec(new StoredElementCodec($configProvider)),
             new StoredTreeConstraints($styleOptions, new StyleOptionConstraintDeriver()),
             static::createStub(ValidatorInterface::class),
-            static::createStub(LayoutGate::class),
+            $gate,
             new ViolationConstraintMapper(),
             StaticEntityRepository::of(ContentLayoutCollection::class, []),
             new MockClock(),

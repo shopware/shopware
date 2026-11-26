@@ -232,6 +232,28 @@ class LayoutRevisionServiceTest extends TestCase
         static::assertSame($branchedSaved['revision']->id, $this->graph($layoutId)->live);
     }
 
+    #[TestDox('a draft branched from another draft\'s head conflicts after that draft when the write gate changed the head on publishing it, since live then moved onto a revision the branch does not contain')]
+    public function testDraftBranchedFromAHeadTheWriteGateChangesConflicts(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $first = $this->service->createDraft($layoutId, $this->context);
+        $firstHead = $this->save($layoutId, $first->id, ['first'], $first->head)['draft']->head;
+        $this->writeRevisionPastTheWriteGate($firstHead, [new StoredElement('unseeded', TestElementTypeLoader::DEFAULTED_PRIMITIVE)]);
+
+        $branched = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $firstHead);
+        $branchedHead = $this->save($layoutId, $branched->id, ['first', 'second'], $branched->head)['draft']->head;
+
+        $this->service->publish($layoutId, $first->id, $firstHead, $this->context);
+        static::assertSame($firstHead, $this->graph($layoutId)->revision($this->graph($layoutId)->live)?->parent);
+
+        $this->assertFailsWith(
+            ContentSystemException::LAYOUT_PUBLISH_CONFLICT,
+            fn () => $this->service->publish($layoutId, $branched->id, $branchedHead, $this->context),
+        );
+        static::assertSame(['unseeded'], $this->liveIds($layoutId));
+        static::assertSame($branchedHead, $this->service->getDraft($layoutId, $branched->id)['draft']->head);
+    }
+
     #[TestDox('discarding a draft deletes its head and keeps the published revisions')]
     public function testDiscardingADraftDeletesItsRevisions(): void
     {
@@ -418,6 +440,51 @@ class LayoutRevisionServiceTest extends TestCase
         $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, fn () => $this->service->getDraft($layoutId, Uuid::randomHex()));
     }
 
+    #[TestDox('a draft of another layout is not found through this layout, whether read, edited, published or discarded')]
+    public function testAnotherLayoutsDraftIsNotFound(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $otherLayoutId = $this->createLayout(['live-b']);
+        $otherDraft = $this->service->createDraft($otherLayoutId, $this->context);
+        $otherHead = $this->save($otherLayoutId, $otherDraft->id, ['edited-b'], $otherDraft->head)['draft']->head;
+
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, fn () => $this->service->getDraft($layoutId, $otherDraft->id));
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, fn () => $this->save($layoutId, $otherDraft->id, ['taken-over'], $otherHead));
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, fn () => $this->service->publish($layoutId, $otherDraft->id, $otherHead, $this->context));
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, fn () => $this->service->discardDraft($layoutId, $otherDraft->id));
+
+        static::assertSame(['live-a'], $this->liveIds($layoutId));
+        static::assertSame($otherHead, $this->service->getDraft($otherLayoutId, $otherDraft->id)['draft']->head);
+        static::assertSame(['live-b'], $this->liveIds($otherLayoutId));
+    }
+
+    #[TestDox('a draft cannot be opened from a revision of another layout')]
+    public function testDraftFromAnotherLayoutsRevisionIsNotFound(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $otherLayoutId = $this->createLayout(['live-b']);
+        $otherDraft = $this->service->createDraft($otherLayoutId, $this->context);
+        $otherRevision = $this->save($otherLayoutId, $otherDraft->id, ['edited-b'], $otherDraft->head)['revision']->id;
+
+        $this->assertFailsWith(
+            ContentSystemException::CONTENT_LAYOUT_REVISION_NOT_FOUND,
+            fn () => $this->service->createDraft($layoutId, $this->context, fromRevisionId: $otherRevision),
+        );
+
+        static::assertSame([], $this->service->listDrafts($layoutId));
+    }
+
+    #[TestDox('discarding a draft the layout does not have, or no longer has after publishing it, is a draft not found')]
+    public function testDiscardingAnUnknownOrPublishedDraftIsNotFound(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $draft = $this->service->createDraft($layoutId, $this->context);
+        $this->service->publish($layoutId, $draft->id, $draft->head, $this->context);
+
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, fn () => $this->service->discardDraft($layoutId, Uuid::randomHex()));
+        $this->assertFailsWith(ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND, fn () => $this->service->discardDraft($layoutId, $draft->id));
+    }
+
     #[TestDox('the revision rows of a layout are removed with the layout')]
     public function testRevisionsAreDeletedWithTheLayout(): void
     {
@@ -544,6 +611,23 @@ class LayoutRevisionServiceTest extends TestCase
             [
                 'layout' => Json::encode(static::getContainer()->get(StoredTreeCodec::class)->encode(new StoredTree($tree))),
                 'id' => Uuid::fromHexToBytes($layoutId),
+            ],
+        );
+    }
+
+    /**
+     * Stands in for a revision written before its element types gained a default: the write gate seeds that
+     * default when the revision is published.
+     *
+     * @param list<StoredElement> $tree
+     */
+    private function writeRevisionPastTheWriteGate(string $revisionId, array $tree): void
+    {
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `content_layout_revision` SET `layout` = :layout WHERE `id` = :id',
+            [
+                'layout' => Json::encode(static::getContainer()->get(StoredTreeCodec::class)->encode(new StoredTree($tree))),
+                'id' => Uuid::fromHexToBytes($revisionId),
             ],
         );
     }

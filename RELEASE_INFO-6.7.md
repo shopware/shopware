@@ -101,6 +101,12 @@ The theme is compiled after the commit.
 For that, `ThemeService::updateTheme()` skips the compile when the context has the new state `ThemeService::STATE_SKIP_COMPILE`.
 Classes overriding `updateTheme()` without calling the parent method should handle that state.
 
+### Administration login with cross-origin assets
+
+Administration workers load from the shop origin while retaining the installation's subdirectory.
+This restores Administration login when assets are hosted on a separate S3 or CDN domain.
+Rebuild custom Administration bundles to apply this fix.
+
 ## Core
 
 ### Address-format snippets use Twig whitespace control

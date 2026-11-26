@@ -95,15 +95,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail opening a
         expect(vm.frames).toHaveLength(1);
     });
 
-    it('applies the assigned preview context of the layout', async () => {
-        const vm = createLayoutOpener(jest.fn().mockResolvedValue(['product']));
-
-        await methods.openLayoutById.call(vm, layout.id);
-
-        expect(vm.previewEntityId).toBe('product-id');
-        expect(vm.previewSalesChannelId).toBe('sales-channel-id');
-    });
-
     it('applies the preview context with entity types loaded while the layout was opening', async () => {
         const { getEntityTypes, resolveEntityTypes } = pendingEntityTypes();
         const vm = createLayoutOpener(getEntityTypes);
@@ -114,6 +105,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail opening a
         await open;
 
         expect(vm.previewEntityId).toBe('product-id');
+        expect(vm.previewSalesChannelId).toBe('sales-channel-id');
     });
 
     async function openLayoutAfterFailedEntityTypeRequest() {

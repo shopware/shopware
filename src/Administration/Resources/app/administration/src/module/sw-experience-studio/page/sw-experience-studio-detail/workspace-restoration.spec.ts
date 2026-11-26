@@ -23,6 +23,7 @@ describe('Experience Studio workspace preview reference restoration', () => {
             isSavingAll: false,
             mutationQueue: Promise.resolve(),
             syncActiveLayoutState: jest.fn(),
+            isLayoutDirty: () => false,
             executeWorkspaceAction,
         };
 
@@ -198,11 +199,13 @@ describe('Experience Studio workspace preview reference restoration', () => {
         },
     );
 
-    it('clears a saved preview entity without a missing-reference warning for a non-entity frame', async () => {
+    it('clears and schedules an empty preview entity without a missing-reference warning for a non-entity frame', async () => {
         const { editor, target, entityRepository } = createRestore();
         editor.layoutRepository.search.mockResolvedValue([
             { id: 'layout-a', name: 'Sidebar', rootSource: 'swag-sidebar', layout: [] },
         ]);
+        editor.activeFrameId = 'different-frame';
+        editor.previewEntityId = null;
 
         await methods.openWorkspace.call(editor, target.id);
 
@@ -210,22 +213,19 @@ describe('Experience Studio workspace preview reference restoration', () => {
         expect(editor.createNotificationWarning).not.toHaveBeenCalled();
         expect(editor.repositoryFactory.create).not.toHaveBeenCalled();
         expect(entityRepository.searchIds).not.toHaveBeenCalled();
+
+        editor.workspaceStore.activeWorkspace = target;
+        await methods.scheduleWorkspaceSetup.call(editor);
+
+        expect(editor.workspaceStore.schedule).toHaveBeenCalledWith(
+            expect.objectContaining({
+                frames: [expect.objectContaining({ layoutId: 'layout-a', previewEntityId: null })],
+            }),
+        );
     });
 
-    it('keeps a saved preview entity without a missing-reference warning when entity types failed to load', async () => {
+    it('keeps and schedules a saved preview entity without a missing-reference warning when entity types failed to load', async () => {
         const { editor, target, entityRepository, entityTypeService } = createRestore();
-        entityTypeService.getEntityTypes.mockRejectedValue(new Error('Entity types unavailable'));
-
-        await methods.openWorkspace.call(editor, target.id);
-
-        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
-        expect(editor.createNotificationWarning).not.toHaveBeenCalled();
-        expect(editor.repositoryFactory.create).not.toHaveBeenCalled();
-        expect(entityRepository.searchIds).not.toHaveBeenCalled();
-    });
-
-    it('schedules the saved preview entity after the entity type request fails', async () => {
-        const { editor, target, entityTypeService } = createRestore();
         entityTypeService.getEntityTypes.mockRejectedValue(new Error('Entity types unavailable'));
         editor.activeFrameId = 'different-frame';
         editor.previewEntityId = null;
@@ -236,31 +236,18 @@ describe('Experience Studio workspace preview reference restoration', () => {
         editor.$refs.experienceStudioCanvas.getWorkspaceConfiguration.mockReturnValue(scheduledConfiguration);
 
         await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.frames[0].previewEntityId).toBe('saved-entity');
+        expect(editor.createNotificationWarning).not.toHaveBeenCalled();
+        expect(editor.repositoryFactory.create).not.toHaveBeenCalled();
+        expect(entityRepository.searchIds).not.toHaveBeenCalled();
+
         editor.workspaceStore.activeWorkspace = target;
         await methods.scheduleWorkspaceSetup.call(editor);
 
         expect(editor.workspaceStore.schedule).toHaveBeenCalledWith(
             expect.objectContaining({
                 frames: [expect.objectContaining({ layoutId: 'layout-a', previewEntityId: 'saved-entity' })],
-            }),
-        );
-    });
-
-    it('schedules a cleared preview entity for a non-entity frame as empty', async () => {
-        const { editor, target } = createRestore();
-        editor.layoutRepository.search.mockResolvedValue([
-            { id: 'layout-a', name: 'Sidebar', rootSource: 'swag-sidebar', layout: [] },
-        ]);
-        editor.activeFrameId = 'different-frame';
-        editor.previewEntityId = null;
-
-        await methods.openWorkspace.call(editor, target.id);
-        editor.workspaceStore.activeWorkspace = target;
-        await methods.scheduleWorkspaceSetup.call(editor);
-
-        expect(editor.workspaceStore.schedule).toHaveBeenCalledWith(
-            expect.objectContaining({
-                frames: [expect.objectContaining({ layoutId: 'layout-a', previewEntityId: null })],
             }),
         );
     });

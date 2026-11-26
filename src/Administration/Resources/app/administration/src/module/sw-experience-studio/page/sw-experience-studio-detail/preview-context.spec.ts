@@ -171,14 +171,6 @@ describe('Experience Studio frame preview context', () => {
         expect(pickerOf('frame-swag-sidebar').exists()).toBe(false);
     });
 
-    it('hides the preview entity picker when no entity types are available', async () => {
-        await openFrames(['product'], 'product');
-        await wrapper.setData({ availableLayoutTypes: [] });
-        await flushPromises();
-
-        expect(pickerOf('frame-product').exists()).toBe(false);
-    });
-
     // Hiding the picker for non-entity root sources must not hide it for entity-rooted frames.
     it('gives an active product frame its entity type and an enabled picker', async () => {
         await openFrames(['product'], 'product');

@@ -27,6 +27,17 @@ describe('grid editor invalid layouts', () => {
         expect(wrapper.findAll('.sw-experience-studio-grid-editor__column')).toHaveLength(1);
     });
 
+    it('inherits the base grid for a breakpoint stored as null', async () => {
+        wrapper = createWrapper({ gridLayout: { ...layout('auto auto|a1 a2'), md: null } });
+        await selectBreakpoint(wrapper, 'md');
+        expect(wrapper.getComponent({ name: 'BreakpointSelect' }).props('overrides')).toEqual([]);
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__column')).toHaveLength(2);
+
+        await selectBreakpoint(wrapper, 'lg');
+        await wrapper.findAll('.sw-experience-studio-grid-editor__add button')[1].trigger('click');
+        expect(wrapper.emitted('update:gridLayout')).toEqual([[layout('auto auto|a1 a2;a3 a4')]]);
+    });
+
     it('holds other edits locally until the invalid width is corrected', async () => {
         wrapper = createWrapper({ gridLayout: layout('auto auto|a1 a2') });
         const column = wrapper.findAll('.sw-experience-studio-grid-editor__column')[0];

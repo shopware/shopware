@@ -53,7 +53,7 @@ function encodePattern(pattern: Pattern): LayoutConfiguration {
 function parsePatterns(value: GridLayout = {}): BreakpointPatterns {
     const patterns: BreakpointPatterns = { lg: initialPattern(value.lg) };
     for (const breakpoint of gridBreakpoints) {
-        if (breakpoint !== GRID_BASE_BREAKPOINT && Object.hasOwn(value, breakpoint)) {
+        if (breakpoint !== GRID_BASE_BREAKPOINT && value[breakpoint] != null) {
             patterns[breakpoint] = initialPattern(value[breakpoint]);
         }
     }

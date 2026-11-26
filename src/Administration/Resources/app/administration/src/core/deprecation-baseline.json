@@ -46,9 +46,6 @@
         "sw-condition-unit-menu > sw-popover": [
             "default"
         ],
-        "sw-context-button > sw-popover": [
-            "default"
-        ],
         "sw-media-field > sw-popover": [
             "default"
         ],

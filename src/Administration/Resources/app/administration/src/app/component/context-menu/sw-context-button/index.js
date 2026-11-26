@@ -1,6 +1,9 @@
 import template from './sw-context-button.html.twig';
 import './sw-context-button.scss';
 
+// Distance from the menu edge that carries the arrow to the button's centre.
+const MENU_ARROW_OFFSET = 35;
+
 /**
  * @sw-package framework
  *
@@ -96,12 +99,6 @@ export default {
             },
         },
 
-        zIndex: {
-            type: Number,
-            required: false,
-            default: 1100,
-        },
-
         ariaLabel: {
             type: String,
             required: false,
@@ -116,6 +113,30 @@ export default {
     },
 
     computed: {
+        /**
+         * Places the menu below the button with its arrow under the button's centre, and flips it
+         * to the left or above when there is no room. `data-placement` lets the styles move the arrow along.
+         */
+        menuFloatingUiOptions() {
+            const side = this.menuVerticalAlign === 'top' ? 'top' : 'bottom';
+            const alignment = this.menuHorizontalAlign === 'left' ? 'end' : 'start';
+
+            return {
+                placement: `${side}-${alignment}`,
+                middleware: [
+                    {
+                        name: 'swContextMenuArrow',
+                        fn({ x, placement, rects, elements }) {
+                            elements.floating.dataset.placement = placement;
+                            const fromEdgeToArrow = rects.reference.width / 2 - MENU_ARROW_OFFSET;
+
+                            return { x: placement.endsWith('-end') ? x - fromEdgeToArrow : x + fromEdgeToArrow };
+                        },
+                    },
+                ],
+            };
+        },
+
         menuStyles() {
             return {
                 width: `${this.menuWidth}px`,

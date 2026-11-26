@@ -62,6 +62,24 @@ The system config key `core.app.shopId` is deprecated, read the shop ID from `co
 A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
 Apps that need such a section should require that version in `<compatibility>`.
 
+## Administration
+
+### Context menus render with `mt-floating-ui` before 6.8
+
+The menu of `sw-context-button` renders with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+
+The menu is still teleported to `<body>`, but the markup around it changed.
+Extensions have to be adjusted:
+
+- `.sw-popover__wrapper` around the menu is replaced by `.mt-floating-ui__content`.
+  Update styles and end-to-end selectors that matched the old wrapper.
+- The `--placement-*` modifier classes are gone.
+  `mt-floating-ui` flips the menu itself and marks the side that faces the button with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
+  A menu below its button carries `.mt-floating-ui--top`.
+  The resolved placement, such as `bottom-end`, is in the `data-placement` attribute of `.mt-floating-ui__content`.
+- The menu stacks at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
+  The private `zIndex` prop of `sw-context-button` was removed.
+
 ## Storefront
 
 ### Production Vite builds generate JavaScript SBOMs

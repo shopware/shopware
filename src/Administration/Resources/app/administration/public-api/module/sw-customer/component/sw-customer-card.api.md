@@ -36,6 +36,7 @@ data
 
 computed
   accountTypeOptions: any
+  avatarName: any
   canUseConvertCustomer: any
   canUseCustomerImitation: any
   contactPersonRequired: any

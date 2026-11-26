@@ -45,6 +45,10 @@ export default {
     },
 
     computed: {
+        avatarName() {
+            return Shopware.Utils.string.avatarName(this.customer ?? {});
+        },
+
         customerId: {
             get() {
                 return this.customer ? this.customer.id : '';

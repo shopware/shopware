@@ -48,7 +48,9 @@ computed
   listFilters: any
 
 methods
+  avatarName(customer: any): any
   createdComponent(): Promise<any>  [deprecated tag:v6.8.0]
+  customerName(customer: any): any
   getCustomerColumns(): any
   getList(): Promise<any>
   loadFilterValues(): Promise<any>  [deprecated tag:v6.8.0]

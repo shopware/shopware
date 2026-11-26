@@ -40,6 +40,7 @@ computed
 
 methods
   createdComponent(): any
+  customerName(customer: any): any
   getList(): Promise<any>
   onDelete(option: any): any
   updateCriteria(criteria: any): any

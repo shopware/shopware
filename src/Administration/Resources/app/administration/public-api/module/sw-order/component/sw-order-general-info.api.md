@@ -40,6 +40,7 @@ data
   tagCollection: any
 
 computed
+  buyerName: any
   currencyFilter: any
   dateFilter: any  [deprecated tag:v6.8.0]
   delivery: any

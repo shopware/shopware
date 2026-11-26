@@ -40,6 +40,7 @@ data
 
 computed
   OrderTagRepository: any
+  avatarName: any
   billingAddress: any
   countryRepository: any
   currencyFilter: any

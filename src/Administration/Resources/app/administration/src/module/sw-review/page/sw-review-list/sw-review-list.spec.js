@@ -9,7 +9,7 @@ Shopware.Service().register('filterService', () => {
     };
 });
 
-async function createWrapper() {
+async function createWrapper({ reviews = null, stubs = {} } = {}) {
     return mount(await await wrapTestComponent('sw-review-list', { sync: true }), {
         global: {
             mocks: {
@@ -35,6 +35,10 @@ async function createWrapper() {
                             ]);
                         },
                         search: () => {
+                            if (reviews) {
+                                return Promise.resolve(Object.assign([...reviews], { total: reviews.length }));
+                            }
+
                             return Promise.resolve({
                                 total: 1,
                             });
@@ -71,12 +75,70 @@ async function createWrapper() {
                 'sw-sidebar': true,
                 'sw-sidebar-filter-panel': true,
                 'sw-time-ago': true,
+                ...stubs,
             },
         },
     });
 }
 
 describe('module/sw-review/page/sw-review-list', () => {
+    it('should sort the name column by the company after the person name', async () => {
+        const listing = {
+            props: ['columns'],
+            template: '<div></div>',
+        };
+        const wrapper = await createWrapper({ stubs: { 'sw-entity-listing': listing } });
+
+        const columns = wrapper.findComponent(listing).props('columns');
+        expect(columns.find((column) => column.property === 'user').dataIndex).toBe(
+            'customer.lastName,customer.firstName,customer.company',
+        );
+    });
+
+    it.each([
+        [
+            'a contact person',
+            { firstName: 'Ada', lastName: 'Lovelace', displayName: 'Ada Lovelace' },
+            'Lovelace, Ada',
+        ],
+        [
+            'a company without a contact person',
+            { firstName: '', lastName: '', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a company with whitespace names',
+            { firstName: ' ', lastName: '  ', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a surname alone',
+            { firstName: null, lastName: 'Lovelace', displayName: 'Lovelace' },
+            'Lovelace',
+        ],
+    ])('should name %s in the list', async (_name, customer, expected) => {
+        const wrapper = await createWrapper({
+            reviews: [{ id: '1', customerId: '1', customer }],
+            stubs: {
+                'sw-entity-listing': {
+                    props: ['dataSource'],
+                    template: `
+                        <div>
+                            <div v-for="item in dataSource" class="sw-review-list-test__user">
+                                <slot name="column-user" v-bind="{ item }"></slot>
+                            </div>
+                        </div>`,
+                },
+                'router-link': {
+                    template: '<a><slot></slot></a>',
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-review-list-test__user').text()).toBe(expected);
+    });
+
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ total: 2 });

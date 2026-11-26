@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], customers = null) {
     return mount(await wrapTestComponent('sw-customer-list', { sync: true }), {
         global: {
             mocks: {
@@ -44,6 +44,10 @@ async function createWrapper(privileges = []) {
                             );
                         },
                         search: () => {
+                            if (entity === 'customer' && customers) {
+                                return Promise.resolve(Object.assign([...customers], { total: customers.length }));
+                            }
+
                             return Promise.resolve(
                                 entity === 'customer'
                                     ? {
@@ -104,6 +108,10 @@ async function createWrapper(privileges = []) {
                     template: `
                         <div>
                             <template v-for="item in (dataSource || items)">
+                                <div class="sw-customer-list-test__name">
+                                    <slot name="preview-firstName" v-bind="{ item, compact: false }"></slot>
+                                    <slot name="column-firstName" v-bind="{ item, compact: false, isInlineEdit: false }"></slot>
+                                </div>
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>`,
@@ -111,6 +119,9 @@ async function createWrapper(privileges = []) {
                 'sw-language-switch': true,
                 'sw-context-menu-item': true,
                 'router-link': true,
+                'mt-link': {
+                    template: '<a><slot></slot></a>',
+                },
                 'sw-avatar': true,
                 'sw-text-field': true,
                 'sw-label': true,
@@ -133,6 +144,43 @@ Shopware.Service().register('filterService', () => {
 });
 
 describe('module/sw-customer/page/sw-customer-list', () => {
+    it.each([
+        [
+            'a contact person',
+            { firstName: 'Ada', lastName: 'Lovelace', displayName: 'Ada Lovelace' },
+            'Lovelace, Ada',
+        ],
+        [
+            'a company without a contact person',
+            { firstName: '', lastName: '', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a company with whitespace names',
+            { firstName: ' ', lastName: '  ', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a surname alone',
+            { firstName: null, lastName: 'Lovelace', displayName: 'Lovelace' },
+            'Lovelace',
+        ],
+    ])('should name %s in the list', async (_name, customer, expected) => {
+        const wrapper = await createWrapper([], [{ id: '1', ...customer }]);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-customer-list-test__name').text()).toBe(expected);
+    });
+
+    it('should build the avatar of a company without a contact person from the company', async () => {
+        const wrapper = await createWrapper([], [{ id: '1', firstName: '', lastName: '', displayName: 'Acme GmbH' }]);
+        await flushPromises();
+
+        const avatar = wrapper.find('.sw-customer-list__avatar');
+        expect(avatar.attributes('first-name')).toBe('Acme');
+        expect(avatar.attributes('last-name')).toBe('GmbH');
+    });
+
     it('should not be able to create a new customer', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -49,6 +49,9 @@ test.describe('Commercial accounts without a contact person', () => {
                 await ShopCustomer.expects(StorefrontAccount.personalDataCardTitle).toBeVisible();
                 await ShopCustomer.expects(StorefrontAccount.page.getByText(account.company).first()).toBeVisible();
                 await ShopCustomer.expects(
+                    StorefrontAccount.page.locator('.account-overview-profile').getByText(account.company),
+                ).toHaveCount(1);
+                await ShopCustomer.expects(
                     StorefrontAccount.page.getByText(account.email, {
                         exact: true,
                     }),
@@ -154,20 +157,32 @@ test.describe('Commercial accounts without a contact person', () => {
     );
 
     test(
-        'A commercial customer without a contact person is named by its company in the Store API.',
+        'A commercial customer without a contact person is named by its company in the Storefront, the Store API, the order mail and the Administration.',
         {
             tag: [
                 '@Registration',
                 '@Storefront',
+                '@Checkout',
             ],
         },
         async ({
             ShopCustomer,
+            ShopAdmin,
             StorefrontAccount,
+            StorefrontProductDetail,
+            StorefrontCheckoutFinish,
+            AdminCustomerListing,
             IdProvider,
             RegisterCompanyAccount,
             TestDataService,
             StoreApiContext,
+            MailpitApiContext,
+            AddProductToCart,
+            ProceedFromProductToCheckout,
+            ConfirmTermsAndConditions,
+            SelectPaymentMethod,
+            SelectShippingMethod,
+            SubmitOrder,
         }) => {
             const uuid = IdProvider.getIdPair().uuid;
             const account = {
@@ -180,6 +195,7 @@ test.describe('Commercial accounts without a contact person', () => {
                 [SHOW]: false,
                 [REQUIRED]: false,
             });
+            const product = await TestDataService.createBasicProduct();
 
             await test.step('Register a company account without a contact person', async () => {
                 await ShopCustomer.attemptsTo(RegisterCompanyAccount(account));
@@ -197,6 +213,34 @@ test.describe('Commercial accounts without a contact person', () => {
                 expect(customer.displayName).toBe(account.company);
                 expect(customer.firstName).toBe('');
                 expect(customer.lastName).toBe('');
+            });
+
+            await test.step('Place an order as the company account', async () => {
+                await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+                await ShopCustomer.attemptsTo(AddProductToCart(product));
+                await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
+                await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
+                await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+                await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
+                await ShopCustomer.attemptsTo(SubmitOrder());
+                TestDataService.addCreatedRecord('order', StorefrontCheckoutFinish.getOrderId());
+            });
+
+            await test.step('The order confirmation mail addresses the company', async () => {
+                await expect(async () => {
+                    const headers = await MailpitApiContext.getEmailHeaders(account.email);
+                    expect(headers.toName).toBe(account.company);
+                }).toPass();
+
+                const body = await MailpitApiContext.getEmailBody(account.email);
+                expect(body).toContain(account.company);
+                expect(body).not.toMatch(/Dear\s+Mr\.?\s*,/);
+            });
+
+            await test.step('The Administration lists the account by its company', async () => {
+                await ShopAdmin.goesTo(AdminCustomerListing.url());
+                const row = await AdminCustomerListing.getCustomerByEmail(account.email);
+                await ShopAdmin.expects(row.customerName).toHaveText(account.company);
             });
         },
     );

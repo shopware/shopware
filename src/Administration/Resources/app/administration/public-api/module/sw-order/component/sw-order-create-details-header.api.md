@@ -26,6 +26,7 @@ data
   showNewCustomerModal: any
 
 computed
+  avatarName: any
   currencyFilter: any
   customerCriteria: any
   customerId: any

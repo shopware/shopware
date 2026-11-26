@@ -1772,6 +1772,11 @@ The members that loaded the options for the old selects were removed:
 Use `customerAddressCriteria` instead of `addressCriteria` and `canonicalVariantCriteria` instead of `variantCriteria`.
 The other members have no replacement.
 
+## Product indexing members removed from `sw-category-tree`
+
+The `syncProducts()` and `indexProducts()` methods and the `productRepository` computed property were removed from `sw-category-tree` without replacement.
+The server re-indexes the products of a moved category itself, so extensions should stop calling or overriding these members.
+
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.

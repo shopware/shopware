@@ -11,6 +11,61 @@ component sw-order-create-document-modal  private  ts  [private]
   template src/module/sw-order/component/sw-order-create-document-modal/sw-order-create-document-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  documentV2Service  [private]
+  numberRangeService  [private]
+
+props
+  documentType?: { technicalName: string }  default=null  [private]
+  isLoadingDocument: boolean  [private]
+  isLoadingPreview: boolean  [private]
+  order: Entity<'order'>  [private]
+
+emits
+  document-create(...args: any[])  [private]
+  page-leave(...args: any[])  [private]
+  preview-show(...args: any[])  [private]
+  update:documentType(...args: any[])  [private]
+
+data
+  documentConfig: any  [private]
+  documentNumberPreview: any  [private]
+  documentTypeLoading: any  [private]
+  isLoading: any  [private]
+  referencedDocumentNumber: any  [private]
+  selectedTechnicalName: any  [private]
+  supportedDocumentTypes: any  [private]
+
+computed
+  creditItems: Entity<'order_line_item'>[]  [private]
+  currentTechnicalName: string | null  [private]
+  documentFamily: string | null  [private]
+  documentNumberErrorMessage: { detail: string } | null  [private]
+  documentTypeOptions: { label: string; value: string }[]  [private]
+  fileFormatOptions: { label: string; value: string }[]  [private]
+  invalidInput: boolean  [private]
+  isCreditNoteDocument: boolean  [private]
+  isDeliveryNoteDocument: boolean  [private]
+  isModalLoading: boolean  [private]
+  isReferencingOtherDocument: boolean  [private]
+  isStornoDocument: boolean  [private]
+  previewFileFormatOptions: { label: string; value: string }[]  [private]
+  referencedDocumentNumberErrorMessage: { detail: string } | null  [private]
+  referencedDocumentNumberOptions: { label: string; value: string }[]  [private]
+
+methods
+  createdComponent(): Promise<void>  [private]
+  getReferencedDocumentId(): string | null  [private]
+  onCancel(): void  [private]
+  onCreateDocument(additionalAction?: any = ''): void  [private]
+  onDocumentTypeChange(technicalName: string | null): Promise<void>  [private]
+  onPreview(format?: string | null = null): void  [private]
+  reserveDocumentNumber(technicalName: string, isPreview?: any = false): Promise<string>  [private]
+
 blocks
   sw_order_create_document_modal  [private]
+    sw_order_create_document_modal_type_specific_fields_additional  [private]
 ```

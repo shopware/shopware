@@ -11,6 +11,16 @@ component sw-cms-el-category-name  private  js  [private]
   source src/module/sw-cms/elements/category-name/component/index.js  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+computed
+  isCategoryPage: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  updateDemoValue(): any  [private]
+
 blocks
   sw_cms_element_text  [inherited] [private]
 ```

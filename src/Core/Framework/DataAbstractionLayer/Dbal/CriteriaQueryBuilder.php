@@ -140,7 +140,9 @@ class CriteriaQueryBuilder
                 continue;
             }
 
-            if (!\in_array($sorting->getField(), ['product.cheapestPrice', 'cheapestPrice'], true)) {
+            if (!\in_array($sorting->getField(), ['product.cheapestPrice', 'cheapestPrice'], true)
+                || $criteria->hasState(Criteria::STATE_SORTING_RANKED_GROUPING)
+            ) {
                 if ($sorting->getDirection() === FieldSorting::ASCENDING) {
                     $accessor = 'MIN(' . $accessor . ')';
                 } else {

@@ -11,6 +11,34 @@ component sw-desktop  private  js  [private]
   template src/app/component/structure/sw-desktop/sw-desktop.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  shopIdChangeService  [private]
+  snackbarService  [private]
+  userActivityApiService  [private]
+
+data
+  isShopIdCheckPending: any  [private]
+  noNavigation: any  [private]
+  shopIdCheck: any  [private]
+
+computed
+  currentUser: any  [private]
+  desktopClasses: any  [private]
+  isStaging: any  [private]
+  showUsageDataConsentModalDataProvider: any  [private]
+  showWrongAppUrlModal: any  [private]
+
+methods
+  checkRouteSettings(): any  [private]
+  closeModal(): any  [private]
+  createdComponent(): any  [private]
+  getModuleMetadata(): any  [private]
+  getModuleMetadataWithSearchMatcher(module: any, routeName: any): any  [private]
+  onCycleTheme(): Promise<any>  [private]
+  onUpdateSearchFrequently(): any  [private]
+  updateShopIdChangeModal(): Promise<any>  [private]
+
 blocks
   sw_desktop  [private]
     sw_desktop_content  [after v-if] [private]

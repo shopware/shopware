@@ -10,6 +10,41 @@ component sw-settings-custom-field-set-detail  public  js
   source src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail/index.js
   template src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail/sw-settings-custom-field-set-detail.html.twig
 
+mixins
+  notification, sw-inline-snippet, discard-detail-page-changes
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+  set: any
+  setId: any
+  technicalNameError: any
+
+computed
+  customFieldCriteria: any
+  customFieldRepository: any
+  customFieldSetCriteria: any
+  customFieldSetRepository: any
+  identifier: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  loadEntityData(): Promise<any>
+  onCancel(): any
+  onChangeLanguage(): any
+  onLoadingChanged(loading: any): any
+  onResetErrors(): any
+  onSave(): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+
 blocks
   sw_settings_custom_field_set_detail
     sw_settings_customField_set_detail_header
@@ -19,4 +54,7 @@ blocks
     sw_settings_custom_field_set_detail_content
       sw_settings_custom_field_set_detail_content_detail_base
       sw_settings_custom_field_set_detail_content_detail_custom_field_list
+
+refs
+  customFieldList  -> sw-custom-field-list  block=sw_settings_custom_field_set_detail_content_detail_custom_field_list
 ```

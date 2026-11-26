@@ -11,6 +11,46 @@ component sw-meteor-card  private  js  [private]
   template src/app/component/meteor/sw-meteor-card/sw-meteor-card.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  defaultTab?: string  default=null  [private]
+  hero?: boolean  default=false  [private]
+  isLoading?: boolean  default=false  [private]
+  large?: boolean  default=false  [private]
+  title?: string  default=null  [private]
+
+slots
+  action  {}  block=sw_meteor_card_header_action_inner  [private]
+  default  { ...{ activeTab } }  block=sw_meteor_card_default_inner  [private]
+  footer  {}  block=sw_meteor_card_footer_inner  [private]
+  grid  { title }  block=sw_meteor_card_content  [private]
+  tabs  { ...{ activeTab } }  block=sw_meteor_card_tabs  [private]
+  title  {}  block=sw_meteor_card_title  [private]
+  toolbar  {}  block=sw_meteor_card_toolbar_inner  [private]
+
+data
+  activeTab: any  [private]
+
+computed
+  cardClasses: any  [private]
+  hasContent: any  [private]
+  hasDefaultSlot: any  [private]
+  hasHeader: any  [private]
+  hasTabs: any  [private]
+  hasToolbar: any  [private]
+  isToolbarLastHeaderElement: any  [private]
+  tabItems: any  [private]
+
+methods
+  createTabItem(item: any): any  [private]
+  createdComponent(): any  [private]
+  getTabItemDefaultSlotText(item: any): any  [private]
+  getTabItemsFromSlot(): any  [private]
+  isTabItem(item: any): any  [private]
+  setActiveTab(name: any): any  [private]
+
 blocks
   sw_meteor_card  [private]
     sw_meteor_card_content  [after v-if] [private]

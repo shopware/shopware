@@ -11,6 +11,33 @@ component sw-advanced-selection-product  private  js  [private]
   template src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-product/sw-advanced-selection-product.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  selection-submit(...args: any[])  [private]
+
+data
+  currencies: any  [private]
+
+computed
+  currenciesColumns: any  [private]
+  currencyFilter: any  [private]
+  currencyRepository: any  [private]
+  dateFilter: any  [private]
+  productAssociations: any  [private]
+  productColumns: any  [private]
+  productContext: any  [private]
+  productFilters: any  [private]
+  stockColorVariantFilter: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getCategoryBreadcrumb(item: any): any  [private]
+  getCurrencyPriceByCurrencyId(currencyId: any, prices: any): any  [private]
+  productHasVariants(productEntity: any): any  [private]
+
 blocks
   sw_advanced_selection_product  [private]
     sw_advanced_selection_product_list_grid_columns_active  [private]

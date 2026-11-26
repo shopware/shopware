@@ -11,6 +11,34 @@ component sw-condition-type-select  private  js  [private]
   template src/app/component/rule/sw-condition-type-select/sw-condition-type-select.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  childAssociationField  [private]
+  conditionDataProviderService  [private]
+  removeNodeFromTree  [private]
+  restrictedConditions  [private]
+
+props
+  availableGroups?: any[]  default=factory  [private]
+  availableTypes: any[]  [private]
+  condition: object  [private]
+  disabled?: boolean  default=false  [private]
+
+data
+  typeSearchTerm: any  [private]
+
+computed
+  currentValue: any  [private]
+  typeOptions: any  [private]
+  ucTerm: any  [private]
+  valueProperty: any  [private]
+
+methods
+  changeItem(item: any): any  [private]
+  changeType(type: any): any  [private]
+  createdComponent(): any  [private]
+  getTooltipConfig(item: any): any  [private]
+  groupAssignments(item: any): any  [private]
+
 blocks
   sw_condition_type_select  [private]
 ```

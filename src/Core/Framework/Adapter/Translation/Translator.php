@@ -40,7 +40,15 @@ class Translator extends AbstractTranslator
      */
     private array $isCustomized = [];
 
+    /**
+     * Snippet set configured explicitly via injectSettings()
+     */
     private ?string $snippetSetId = null;
+
+    /**
+     * Snippet set of the last resolved catalogue, used for cache tagging only
+     */
+    private ?string $catalogueSnippetSetId = null;
 
     private ?string $salesChannelId = null;
 
@@ -57,9 +65,11 @@ class Translator extends AbstractTranslator
     private array $traces = [];
 
     /**
-     * @var array<string, string>
+     * Snippet set IDs per locale; the preferred one is chosen on every call, so an earlier lookup cannot override injected settings
+     *
+     * @var array<string, list<string>>
      */
-    private array $snippets = [];
+    private array $snippetSetIdsByLocale = [];
 
     private readonly string $defaultLocale;
 
@@ -174,7 +184,7 @@ class Translator extends AbstractTranslator
 
         $catalogue = $this->getCatalogue($locale);
 
-        $this->cacheTagCollector->addTag(self::tag($this->snippetSetId));
+        $this->cacheTagCollector->addTag(self::tag($this->catalogueSnippetSetId));
 
         /**
          * The formatter expects 2 char locale or underscore locales, `Locale::getFallback()` transforms the codes
@@ -219,10 +229,11 @@ class Translator extends AbstractTranslator
         $this->resetInjection();
 
         $this->isCustomized = [];
-        $this->snippets = [];
+        $this->snippetSetIdsByLocale = [];
         $this->traces = [];
         $this->keys = ['all' => true];
         $this->snippetSetId = null;
+        $this->catalogueSnippetSetId = null;
         $this->salesChannelId = null;
         $this->localeBeforeInject = null;
         $this->locale = null;
@@ -256,6 +267,7 @@ class Translator extends AbstractTranslator
 
         $this->setLocale($this->localeBeforeInject);
         $this->snippetSetId = null;
+        $this->catalogueSnippetSetId = null;
         $this->salesChannelId = null;
     }
 
@@ -269,24 +281,22 @@ class Translator extends AbstractTranslator
             $snippetSetId = $currentRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
         }
 
+        // Do not store resolved snippet sets in $this->snippetSetId, it must only reflect injected settings.
+        // Otherwise, a plain translation (e.g. in CLI) looks like an injection and later injections are skipped.
         if ($locale === null) {
-            return $this->snippetSetId = $snippetSetId;
+            return $snippetSetId;
         }
-        // If locale parameter is using, prioritize it over snippet set of request
-        if (\array_key_exists($locale, $this->snippets)) {
-            return $this->snippets[$locale];
-        }
+        // get snippet set by locale but in case there are more than one sets with a same locale, we should prioritize the injected or domain's snippet set
+        $snippetSetIds = $this->snippetSetIdsByLocale[$locale] ??= array_values(array_map(
+            strval(...),
+            $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale])
+        ));
 
-        // get snippet set by locale but in case there are more than one sets with a same locale, we should prioritize the domain's snippet set
-        $snippetSetIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
-
-        if ($snippetSetIds !== []) {
-            $snippetSetId = \in_array($snippetSetId, $snippetSetIds, true) ? $snippetSetId : $snippetSetIds[0];
+        if ($snippetSetIds === [] || \in_array($snippetSetId, $snippetSetIds, true)) {
+            return $snippetSetId;
         }
 
-        $this->snippets[$locale] = $snippetSetId;
-
-        return $this->snippetSetId = $snippetSetId;
+        return $snippetSetIds[0];
     }
 
     /**
@@ -330,6 +340,8 @@ class Translator extends AbstractTranslator
             // this allows us to use the translator even if there's no db connection yet
             return $catalogue;
         }
+
+        $this->catalogueSnippetSetId = $snippetSetId;
 
         if (!$snippetSetId) {
             return $catalogue;

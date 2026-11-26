@@ -11,10 +11,37 @@ component sw-tabs  private  ts  [private]
   template src/app/component/base/sw-tabs/sw-tabs.html.twig  [private]
   visibility-source export  [private]
 
+props
+  items?: TabItem[]  [private]
+  useMeteorComponent?: boolean  default=false  [private]
+
+slots
+  content  { ...{ active: activeItem } }  block=sw_tabs  [private]
+
+data
+  activeItem: any  [private]
+
+computed
+  itemsBackwardCompatible: TabItem[]  [private]
+  shouldUseMeteorComponent: any  [private]
+
+methods
+  getSlots(): any  [private]
+  mountedComponent(): any  [private]
+  onNewItemActive(item: unknown): any  [private]
+  setActiveItem(item: unknown): any  [private]
+
 blocks
-  sw_tabs  [private]
+  sw_tabs  [deprecated tag:v6.9.0] [private]
   sw_tabs_deprecated  [after v-if] [private]
 
 crossings
   v-if  sw_tabs -> sw_tabs_deprecated  [private]
+
+refs
+  tabComponent  -> mt-tabs  block=sw_tabs  [private]
+  tabComponent  -> sw-tabs-deprecated  block=sw_tabs_deprecated  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

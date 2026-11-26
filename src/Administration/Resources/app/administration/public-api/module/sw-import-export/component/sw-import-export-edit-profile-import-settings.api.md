@@ -10,6 +10,14 @@ component sw-import-export-edit-profile-import-settings  public  js
   source src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/index.js
   template src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/sw-import-export-edit-profile-import-settings.html.twig
 
+props
+  profile: object
+
+methods
+  handleCreateEntities(newUpdateEntitiesValue: any): any
+  handleUpdateEntities(newCreateEntitiesValue: any): any
+  onChange(newValue: any, property: any): any
+
 blocks
   sw_import_export_edit_profile_import_settings
     sw_import_export_edit_profile_import_settings_create_switch

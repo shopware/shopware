@@ -11,6 +11,28 @@ component sw-condition-tree-node  private  js  [private]
   template src/app/component/rule/sw-condition-tree-node/sw-condition-tree-node.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  conditionDataProviderService  [private]
+  createCondition  [private]
+  insertNodeIntoTree  [private]
+  removeNodeFromTree  [private]
+
+props
+  condition: object  [private]
+  disabled?: boolean  default=false  [private]
+  insertAfter?: (...args: any[]) => any  default=null  [private]
+  insertBefore?: (...args: any[]) => any  default=null  [private]
+  level: number  [private]
+  parentCondition?: object  default=null  [private]
+
+computed
+  conditionNodeComponent: any  [private]
+
+methods
+  deleteNode(): any  [private]
+  insertNewNodeAfter(): any  [private]
+  insertNewNodeBefore(): any  [private]
+
 blocks
   sw_condtion_tree_node  [private]
 ```

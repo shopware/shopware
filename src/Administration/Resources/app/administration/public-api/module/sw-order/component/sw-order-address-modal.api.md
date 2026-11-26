@@ -10,6 +10,52 @@ component sw-order-address-modal  public  js
   source src/module/sw-order/component/sw-order-address-modal/index.js
   template src/module/sw-order/component/sw-order-address-modal/sw-order-address-modal.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  address: object  default=factory
+  countries: any[]  default=factory
+  order: object  default=factory
+  versionContext: object  default=factory
+
+emits
+  address-select(...args: any[])
+  reset(...args: any[])
+  save(...args: any[])
+
+data
+  activeTab: any
+  addressCustomFieldSets: any
+  availableAddresses: any
+  isLoading: any
+  selectedAddressId: any
+
+computed
+  addressModalTabs: any
+  customFieldSetCriteria: any
+  customFieldSetRepository: any
+  customerCriteria: any
+  customerRepository: any
+  orderCustomer: any
+  orderRepository: any
+  salutationFilter: any
+
+methods
+  addressButtonClasses(addressId: any): any
+  createdComponent(): any
+  getCustomFieldSetData(): any
+  getCustomerInfo(): any
+  onClose(): any
+  onExistingAddressSelected(address: any): any
+  onNewActiveItem(activeItem: any): any
+  onSave(): any
+
 blocks
   sw_order_address_modal
     sw_order_address_modal_actions

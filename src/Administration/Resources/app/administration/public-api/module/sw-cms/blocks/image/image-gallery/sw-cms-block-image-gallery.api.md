@@ -11,6 +11,9 @@ component sw-cms-block-image-gallery  private  js  [private]
   template src/module/sw-cms/blocks/image/image-gallery/component/sw-cms-block-image-gallery.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  imageGallery  {}  block=sw_cms_block_image_gallery  [private]
+
 blocks
   sw_cms_block_image_gallery  [private]
 ```

@@ -10,10 +10,29 @@ component sw-settings-media  public  js
   source src/module/sw-settings-media/page/sw-settings-media/index.js
   template src/module/sw-settings-media/page/sw-settings-media/sw-settings-media.html.twig
 
+mixins
+  notification
+
+inject
+  systemConfigApiService
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+
+methods
+  createdComponent(): Promise<any>
+  onLoadingChanged(loading: any): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_media_index
     sw_settings_media_content
     sw_settings_media_header
     sw_settings_media_smart_bar_actions
       sw_settings_media_actions_save
+
+refs
+  systemConfig  -> sw-system-config  block=sw_settings_media_content
 ```

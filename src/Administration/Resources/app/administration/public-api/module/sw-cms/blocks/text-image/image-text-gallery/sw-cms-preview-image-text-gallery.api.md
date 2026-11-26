@@ -11,6 +11,9 @@ component sw-cms-preview-image-text-gallery  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-gallery/preview/sw-cms-preview-image-text-gallery.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_text_gallery_preview  [private]
 ```

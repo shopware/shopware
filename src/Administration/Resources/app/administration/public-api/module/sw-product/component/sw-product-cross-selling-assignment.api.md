@@ -10,6 +10,40 @@ component sw-product-cross-selling-assignment  public  js
   source src/module/sw-product/component/sw-product-cross-selling-assignment/index.js
   template src/module/sw-product/component/sw-product-cross-selling-assignment/sw-product-cross-selling-assignment.html.twig
 
+inject
+  repositoryFactory
+
+props
+  allowEdit?: boolean  default=true
+  assignedProducts: any[]
+  crossSellingId: string
+
+slots
+  result-item  { ...{ item, index, isSelected } }  block=sw_product_cross_selling_assignment_select_result_item
+
+data
+  isLoadingData: any
+  variantNames: any
+
+computed
+  assetFilter: any
+  assignedProductColumns: any
+  assignmentRepository: any
+  isLoading: any
+  isLoadingGrid: any
+  product: any
+  productRepository: any
+  searchContext: any
+  searchCriteria: any
+  total: any
+  variantCriteria: any
+  variantProductIds: any
+
+methods
+  isSelected(item: any): any
+  onToggleProduct(productId: any): any
+  removeItem(item: any): any
+
 blocks
   sw_product_cross_selling_assignment_container
     sw_product_cross_selling_assignment_empty_state  [after v-if]
@@ -19,5 +53,8 @@ blocks
     sw_product_cross_selling_assignment_select
       sw_product_cross_selling_assignment_select_result_item
         sw_product_cross_selling_assignment_select_result_item_inner  [scope: index, item]
-          sw_entity_single_select_base_results_list_result_label  [scope: index, item]
+          sw_entity_single_select_base_results_list_result_label  [scope: index, item] [deprecated tag:v6.8.0]
+
+refs
+  columnPosition  -> sw-data-grid-column-position  block=sw_product_cross_selling_assignment_option_grid_column_position
 ```

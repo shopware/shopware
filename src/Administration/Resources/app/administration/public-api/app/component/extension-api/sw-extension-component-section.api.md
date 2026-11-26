@@ -11,6 +11,26 @@ component sw-extension-component-section  private  ts  [private]
   template src/app/component/extension-api/sw-extension-component-section/sw-extension-component-section.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  deprecated?: boolean  default=false  [private]
+  deprecationMessage?: string  default=''  [private]
+  positionIdentifier: string  [private]
+
+data
+  activeTabName: any  [private]
+
+computed
+  componentSectionTabItems: TabItem[][]  [private]
+  componentSections: ComponentSectionEntry[]  [private]
+
+methods
+  getActiveTab(componentSection: ComponentSectionEntry): any  [private]
+  setActiveTab(name: string): any  [private]
+  sortSections(sections: ComponentSectionEntry[]): ComponentSectionEntry[]  [private]
+
 blocks
   sw_extension_component_section  [private]
 ```

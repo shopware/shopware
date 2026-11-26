@@ -213,7 +213,10 @@ readonly class PresignedMediaUploadService
         $criteria = new Criteria([$mediaId]);
         $criteria->addAssociation('thumbnails');
 
-        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->first();
+        $media = $context->scope(
+            Context::SYSTEM_SCOPE,
+            fn (Context $context): ?MediaEntity => $this->mediaRepository->search($criteria, $context)->getEntities()->first()
+        );
 
         if ($media === null) {
             throw MediaException::mediaNotFound($mediaId);
@@ -332,7 +335,10 @@ readonly class PresignedMediaUploadService
 
     private function findMedia(string $mediaId, Context $context): ?MediaEntity
     {
-        return $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->first();
+        return $context->scope(
+            Context::SYSTEM_SCOPE,
+            fn (Context $context): ?MediaEntity => $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->first()
+        );
     }
 
     private function isFileNameTaken(string $mediaId, string $fileName, string $fileExtension, bool $isPrivate, Context $context): bool

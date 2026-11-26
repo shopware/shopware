@@ -28,12 +28,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\PrimaryKeyBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -132,6 +135,60 @@ class EntityWriteGatewayTest extends TestCase
         yield 'true' => [true];
         yield 'zero' => [0];
         yield 'null' => [null];
+    }
+
+    public function testGetExistenceUsesPrefetchedStateForStorageNamedPrimaryKey(): void
+    {
+        $definition = new class extends EntityDefinition {
+            public function getEntityName(): string
+            {
+                return 'prefetch_test';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([
+                    (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
+                    (new IdField('language_id', 'languageId'))->addFlags(new PrimaryKey()),
+                ]);
+            }
+        };
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('createQueryBuilder');
+
+        $gateway = $this->createGateway($connection);
+        new StaticDefinitionInstanceRegistry(
+            [$definition],
+            static::createStub(ValidatorInterface::class),
+            $gateway
+        );
+
+        $id = Uuid::randomHex();
+        $languageId = Uuid::randomHex();
+        $state = ['exists' => '1', 'id' => Uuid::fromHexToBytes($id), 'language_id' => Uuid::fromHexToBytes($languageId)];
+
+        $primaryKeyBag = new PrimaryKeyBag();
+        $primaryKeyBag->addExistenceState($definition, ['id' => $id, 'languageId' => $languageId], $state);
+        $primaryKeyBag->setPrefetchingCompleted(true);
+
+        $gateway->prefetchExistences(new WriteParameterBag(
+            $definition,
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '',
+            new WriteCommandQueue(),
+            $primaryKeyBag,
+        ));
+
+        $existence = $gateway->getExistence(
+            $definition,
+            ['id' => Uuid::fromHexToBytes($id), 'language_id' => Uuid::fromHexToBytes($languageId)],
+            [],
+            new WriteCommandQueue(),
+        );
+
+        static::assertTrue($existence->exists());
+        static::assertSame($state, $existence->getState());
     }
 
     public function testRetryClearsExceptionsFromFailedAttempt(): void

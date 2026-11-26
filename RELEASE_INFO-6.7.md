@@ -10,6 +10,11 @@ Keywords from the search configuration with a ranking of 0 never added to the sc
 Keyword rankings of 0 or below that a custom keyword analyzer writes no longer affect the search result.
 If the search configuration of the language has a field with a negative ranking, the search works as before.
 
+### Faster DAL writes
+
+DAL writes avoid redundant database queries for versioned entities and translations.
+Local benchmarks on a catalogue with three million products showed approximately 20% lower write times without indexing on MySQL and MariaDB.
+
 ### Moving a category re-indexes its products
 
 Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.
@@ -22,6 +27,23 @@ Its `syncProducts()` and `indexProducts()` methods and its `productRepository` c
 Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.
 PHP configuration files also receive the current environment through `$container->env()`.
 Check existing environment-specific configuration that was previously ignored, including Monolog handler levels.
+
+### Regenerating a document keeps its deep link and its stored files
+
+`DocumentGenerator::generate()` with the id of an existing document now keeps the document's deep link code and its stored PDF and HTML files, and renders only the file type that is missing.
+While a stored file is kept, the document also keeps its order version and config.
+The missing file is rendered from the current order.
+To get fresh files for an existing document, generate a new document instead of regenerating it.
+
+### Price sorted listings can display the variant that determines the position
+
+The new listing setting `core.listing.ignoreMainVariantOnPriceSorting` ("Ignore main variant on price sorting") is disabled by default.
+When it is enabled, product listings, search results, cross-sellings and product stream sliders sorted by price ignore the main variant or main product selected in the "Storefront presentation > Product listings" configuration, like `core.listing.findBestVariant` does for search results.
+Each product displays the variant that determines its position instead: the cheapest matching variant when sorted ascending, the most expensive matching variant when sorted descending.
+
+The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPriceSorting`.
+
+The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
 
 ## API
 
@@ -49,6 +71,10 @@ A top-level manifest section the shop's Shopware version doesn't know is now ski
 Apps that need such a section should require that version in `<compatibility>`.
 
 ## Storefront
+
+### Production Vite builds generate JavaScript SBOMs
+
+Production Vite builds now generate CycloneDX JSON inventories at `Resources/sbom/storefront/shopware.cdx.json` for the shared Shopware module and `Resources/sbom/storefront/components.cdx.json` for each bundle's components. The reports are kept outside public assets and are not published by `assets:install`. Extension component builds include bundled npm packages regardless of their development-dependency classification, including when using custom Vite configurations. The reports also include dependencies bundled into Web Workers, including shared and inline workers. Retain these reports when packaging extensions after source cleanup.
 
 ### Paginated category listings are crawlable
 

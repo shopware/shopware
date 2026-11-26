@@ -20,6 +20,25 @@ The SVG is now `aria-hidden`, so headless frontends should render `text` as its 
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+## Administration
+
+### User verification before sensitive actions through `userVerificationService`
+
+The new public service `userVerificationService` verifies the current user before a sensitive action, such as changing users, roles or access keys.
+`verify()` returns a promise that resolves with the API context carrying the verified token.
+It opens the verify user modal: a password session confirms its password, an SSO session signs in again at the identity provider in a separate window.
+The promise rejects with a `UserVerificationError` when the user closes the modal.
+
+```ts
+this.userVerificationService.verify()
+    .then((context) => this.repository.save(this.entity, context))
+    .catch(() => {});
+```
+
+Extensions that render `sw-verify-user-modal` themselves keep working: on an SSO session the modal offers the identity provider instead of the password and emits `verified` after the sign-in.
+New code should request the verification through the service.
+The core pages for users, roles and the profile no longer render the modal in their templates; the Twig blocks that held it stay in place.
+
 ## Storefront
 
 ### Text alternative for the legal guarantee notice
@@ -1104,22 +1123,6 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
-### User verification before sensitive actions through `userVerificationService`
-
-The new public service `userVerificationService` verifies the current user before a sensitive action, such as changing users, roles or access keys.
-`verify()` returns a promise that resolves with the API context carrying the verified token.
-It opens the verify user modal: a password session confirms its password, an SSO session signs in again at the identity provider in a separate window.
-The promise rejects with a `UserVerificationError` when the user closes the modal.
-
-```ts
-this.userVerificationService.verify()
-    .then((context) => this.repository.save(this.entity, context))
-    .catch(() => {});
-```
-
-Extensions that render `sw-verify-user-modal` themselves keep working: on an SSO session the modal offers the identity provider instead of the password and emits `verified` after the sign-in.
-New code should request the verification through the service.
-The core pages for users, roles and the profile no longer render the modal in their templates; the Twig blocks that held it stay in place.
 ### Product list filters by product documents
 
 The product list has a new "Documents" filter, registered as `product-documents-filter`.

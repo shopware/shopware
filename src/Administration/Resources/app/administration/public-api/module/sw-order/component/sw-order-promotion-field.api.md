@@ -10,6 +10,68 @@ component sw-order-promotion-field  public  js
   source src/module/sw-order/component/sw-order-promotion-field/index.js
   template src/module/sw-order/component/sw-order-promotion-field/sw-order-promotion-field.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  orderService
+  repositoryFactory
+  swOrderDetailHandleCartErrors
+  swOrderDetailOnError
+  swOrderDetailOnLoadingChange
+  swOrderDetailOnReloadEntityData
+  swOrderDetailOnSaveAndRecalculate
+  swOrderDetailOnSaveAndReload
+
+props
+  isLoading?: boolean  default=false
+
+emits
+  error(...args: any[])
+  loading-change(...args: any[])
+  reload-entity-data(...args: any[])
+  save-and-recalculate(...args: any[])
+  save-and-reload(...args: any[])
+
+data
+  disabledAutoPromotions: any
+  promotionError: any
+  promotionUpdates: any
+
+computed
+  automaticPromotions: any  [deprecated tag:v6.8.0]
+  changesetGenerator: any  [deprecated tag:v6.8.0]
+  currency: any
+  hasAutomaticPromotions: any  [deprecated tag:v6.8.0]
+  hasLineItem: any
+  hasOrderUnsavedChanges: any  [deprecated tag:v6.8.0]
+  isOrderLoading: any
+  manualPromotions: any
+  order: any
+  orderLineItemRepository: any
+  promotionCodeTags: any
+  promotionsAdded: any
+  promotionsRemoved: any
+  versionContext: any
+
+methods
+  applyAutomaticPromotions(): Promise<any>
+  createdComponent(): any  [deprecated tag:v6.8.0]
+  deleteAutomaticPromotions(): Promise<any>  [deprecated tag:v6.8.0]
+  dismissPromotionUpdates(): any
+  emitEntityData(): any
+  emitLoadingChange(state: any): any  [deprecated tag:v6.8.0]
+  getLineItemByPromotionCode(code: any): any  [deprecated tag:v6.8.0]
+  handleError(error: any): any
+  handlePromotionResponse(response: any): any
+  handleUnsavedOrderChangesResponse(): any  [deprecated tag:v6.8.0]
+  onRemoveExistingCode(removedItem: any): Promise<any>
+  onSubmitCode(code: any): Promise<any>
+  saveAndRecalculate(): Promise<any>
+  saveAndReload(afterSaveFn?: any = null): Promise<any>
+  toggleAutomaticPromotions(state: any): Promise<any>  [deprecated tag:v6.8.0]
+
 blocks
   sw_order_promotion_field
     sw_order_promotion_field_codes

@@ -11,6 +11,9 @@ component sw-cms-block-image-cover  private  js  [private]
   template src/module/sw-cms/blocks/image/image-cover/component/sw-cms-block-image-cover.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  image  {}  block=sw_cms_block_image_cover  [private]
+
 blocks
   sw_cms_block_image_cover  [private]
 ```

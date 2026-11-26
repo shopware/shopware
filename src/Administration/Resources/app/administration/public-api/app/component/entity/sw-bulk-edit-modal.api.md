@@ -11,10 +11,47 @@ component sw-bulk-edit-modal  private  js  [private]
   template src/app/component/entity/sw-bulk-edit-modal/sw-bulk-edit-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  bulkGridEditColumns: any[]  [private]
+  selection?: object  default=factory  [private]
+  steps?: any[]  default=factory  [private]
+
+emits
+  edit-items(...args: any[])  [private]
+  modal-close(...args: any[])  [private]
+
+slots
+  sw-bulk-edit-modal-cancel  {}  block=sw_bulk_edit_modal_grid_footer  [private]
+  sw-bulk-edit-modal-confirm  {}  block=sw_bulk_edit_modal_grid_footer  [private]
+
+data
+  bulkEditSelection: any  [private]
+  identifier: any  [private]
+  limit: any  [private]
+  page: any  [private]
+  records: any  [private]
+
+computed
+  getSlots: any  [private]
+  itemCount: any  [private]
+  paginateRecords: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  editItems(): any  [private]
+  paginate(arg0: any): any  [private]
+  updateBulkEditSelection(selections: any): any  [private]
+
 blocks
   sw_bulk_edit_modal  [private]
     sw_bulk_edit_modal_grid  [private]
       sw_bulk_edit_modal_grid_custom_slot  [private]
       sw_bulk_edit_modal_list_pagination  [private]
     sw_bulk_edit_modal_grid_footer  [private]
+
+refs
+  bulkEditGrid  -> sw-data-grid  block=sw_bulk_edit_modal_grid  [private]
+
+notes
+  dynamic-slot slot  [private]
 ```

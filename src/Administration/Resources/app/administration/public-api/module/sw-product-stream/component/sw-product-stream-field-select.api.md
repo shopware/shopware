@@ -11,6 +11,27 @@ component sw-product-stream-field-select  private  js  [private]
   template src/module/sw-product-stream/component/sw-product-stream-field-select/sw-product-stream-field-select.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  conditionDataProviderService  [private]
+  productCustomFields  [private]
+
+props
+  definition: object  [private]
+  disabled?: boolean  default=false  [private]
+  field?: string  default=null  [private]
+  hasError?: boolean  default=false  [private]
+  index: number  [private]
+
+emits
+  field-changed(...args: any[])  [private]
+
+computed
+  options: any  [private]
+
+methods
+  changeField(value: any): any  [private]
+  getPropertyTranslation(property: any): any  [private]
+
 blocks
   sw_condition_base_field_condition  [private]
 ```

@@ -94,6 +94,8 @@
                 />
             </div>
 
+            {% block sw_order_create_document_modal_type_specific_fields_additional %}{% endblock %}
+
             <mt-textarea
                 v-model="documentConfig.documentComment"
                 class="sw-order-create-document-modal__comment"

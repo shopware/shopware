@@ -10,8 +10,36 @@ component sw-settings-shipping-tax-cost  public  js
   source src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost/index.js
   template src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost/sw-settings-shipping-tax-cost.html.twig
 
+mixins
+  placeholder
+
+props
+  disabled?: boolean  default=false
+
+data
+  isLoading: any
+
+computed
+  currencies: any
+  defaultCurrency: any
+  newPriceMatrixExists: any
+  shippingCostTaxOptions: any
+  shippingMethod: any
+  shippingMethodTaxIdError: any
+  shippingMethodTaxTypeError: any
+  taxCriteria: any
+  taxType: any
+  unrestrictedPriceMatrixExists: any
+  usedRules: any
+
+methods
+  getTaxLabel(tax: any): any
+
 blocks
   sw_settings_shipping_tax_cost
     sw_settings_shipping_detail_shipping_cost_tax_rate_select
     sw_settings_shipping_detail_shipping_cost_tax_select
+
+refs
+  taxIdSelection  -> sw-entity-single-select  block=sw_settings_shipping_detail_shipping_cost_tax_rate_select
 ```

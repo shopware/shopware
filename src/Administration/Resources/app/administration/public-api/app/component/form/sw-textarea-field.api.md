@@ -11,9 +11,27 @@ component sw-textarea-field  private  ts  [private]
   template src/app/component/form/sw-textarea-field/sw-textarea-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  modelValue?: string  default=undefined  [private]
+  placeholder?: string  default=undefined  [private]
+  value?: string  default=undefined  [private]
+
+emits
+  update:modelValue(...args: any[])  [private]
+
+computed
+  realValue: any  [private]
+
+methods
+  getSlots(): any  [private]
+
 blocks
   sw_textarea_field  [private]
 
 crossings
   v-if  sw_textarea_field -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

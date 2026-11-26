@@ -11,6 +11,47 @@ component sw-text-editor-link-menu  private  ts  [private]
   template src/app/component/form/sw-text-editor/sw-text-editor-link-menu/sw-text-editor-link-menu.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  buttonConfig: object  [private]
+
+emits
+  button-click(...args: any[])  [private]
+  mounted(...args: any[])  [private]
+
+data
+  buttonVariant: any  [private]
+  buttonVariantList: any  [private]
+  categoryCollection: any  [private]
+  displayAsButton: any  [private]
+  isHTTPs: any  [private]
+  linkCategory: any  [private]
+  linkTarget: any  [private]
+  linkTitle: any  [private]
+  opensNewTab: any  [private]
+
+computed
+  categoryRepository: RepositoryType<'category'>  [private]
+  entityFilter: CriteriaType  [private]
+  linkCategoryOptions: any  [private]
+  seoUrlReplacePrefix: string  [private]
+
+methods
+  addProtocolToLink(link: string): string  [private]
+  createdComponent(): void  [private]
+  getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollection<'category'>>  [private]
+  getEmptyCategoryCollection(): EntityCollection<'category'>  [private]
+  mountedComponent(): void  [private]
+  onSelectFieldChange(category: LinkCategories): void  [private]
+  parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories; target: string }>  [private]
+  prepareLink(): string  [private]
+  removeCategorySelection(): void  [private]
+  removeLink(): void  [private]
+  replaceCategorySelection(category: { id: EntityKey<'category'> }): void  [private]
+  setLink(): void  [private]
+
 blocks
   sw_text_editor_toolbar_button_link_menu  [private]
     sw_text_editor_toolbar_button_link_menu_buttons  [private]

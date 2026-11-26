@@ -10,6 +10,29 @@ component sw-category-detail-menu  public  js
   source src/module/sw-category/component/sw-category-detail-menu/index.js
   template src/module/sw-category/component/sw-category-detail-menu/sw-category-detail-menu.html.twig
 
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  category: object
+  isLoading?: boolean  default=false
+
+data
+  showMediaModal: any
+
+computed
+  mediaItem: any
+  mediaRepository: any
+  reversedVisibility: any
+
+methods
+  onMediaDropped(dropItem: any): any
+  onMediaSelectionChange(mediaItems: any): any
+  onRemoveMediaItem(): any
+  onSetMediaItem(arg0: any): any
+
 blocks
   sw_category_detail_menu
     sw_category_detail_information_visible

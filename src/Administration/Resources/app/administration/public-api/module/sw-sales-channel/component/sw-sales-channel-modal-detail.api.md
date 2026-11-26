@@ -10,6 +10,9 @@ component sw-sales-channel-modal-detail  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/sw-sales-channel-modal-detail.html.twig
 
+props
+  detailType?: object  default=null
+
 blocks
   sw_sales_channel_modal_detail
     sw_sales_channel_modal_detail_description

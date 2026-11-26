@@ -33,27 +33,40 @@ class CheapestPriceBlobPostUpdaterAfterRemovalTest extends TestCase
         $repository = static::getContainer()->get('product.repository');
         $context = Context::createDefaultContext();
         $ids = new IdsCollection();
-        $products = [
-            (new ProductBuilder($ids, 'missing-after-removal'))->price(100)->build(),
-            (new ProductBuilder($ids, 'populated-after-removal'))->price(100)->build(),
-        ];
+        $offset = ['offset' => (int) $connection->fetchOne('SELECT COALESCE(MAX(auto_increment), 0) FROM product')];
+        $products = [];
+        for ($i = 0; $i < 50; ++$i) {
+            $products[] = (new ProductBuilder($ids, 'populated-after-removal-' . $i))->price(100)->build();
+        }
         $repository->create($products, $context);
+        $matchingEnd = (int) $connection->fetchOne('SELECT MAX(auto_increment) FROM product');
+        $missing = (new ProductBuilder($ids, 'missing-after-removal'))->price(100)->build();
+        $repository->create([$missing], $context);
+        $products[] = $missing;
 
         $storedPrices = $connection->fetchAllAssociative('SELECT id, version_id, cheapest_price FROM product WHERE cheapest_price IS NOT NULL');
         $existingBlob = serialize(new CheapestPriceContainer([]));
         $connection->executeStatement('UPDATE product SET cheapest_price_blob = NULL WHERE id = :id', ['id' => $ids->getBytes('missing-after-removal')]);
-        $connection->executeStatement('UPDATE product SET cheapest_price_blob = :blob WHERE id = :id', ['blob' => $existingBlob, 'id' => $ids->getBytes('populated-after-removal')]);
+        $connection->executeStatement(
+            'UPDATE product SET cheapest_price_blob = :blob WHERE auto_increment > :offset AND auto_increment <= :end',
+            ['blob' => $existingBlob, 'offset' => $offset['offset'], 'end' => $matchingEnd]
+        );
 
         try {
             (new Migration1794234846RemoveLegacyCheapestPrice())->updateDestructive($connection);
             static::assertFalse(TableHelper::columnExists($connection, 'product', 'cheapest_price'));
 
             $updater = static::getContainer()->get(CheapestPriceBlobPostUpdater::class);
-            $offset = null;
+            $matchingBatch = $updater->iterate($offset);
+            static::assertNotNull($matchingBatch);
+            static::assertSame([], $matchingBatch->getData());
+            static::assertSame(['offset' => $matchingEnd], $matchingBatch->getOffset());
+            $updater->handle($matchingBatch);
+            $offset = $matchingBatch->getOffset();
             while ($message = $updater->iterate($offset)) {
                 $data = $message->getData();
                 static::assertIsArray($data);
-                static::assertNotContains($ids->get('populated-after-removal'), $data);
+                static::assertNotContains($ids->get('populated-after-removal-0'), $data);
                 $updater->handle($message);
                 $offset = $message->getOffset();
             }
@@ -65,7 +78,7 @@ class CheapestPriceBlobPostUpdaterAfterRemovalTest extends TestCase
             static::assertIsString($blob);
             $container = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $blob);
             static::assertSame(100.0, $container->resolve($context)?->getPrice()->first()?->getGross());
-            static::assertSame($existingBlob, $connection->fetchOne('SELECT cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes('populated-after-removal')]));
+            static::assertSame($existingBlob, $connection->fetchOne('SELECT cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes('populated-after-removal-0')]));
         } finally {
             // DDL commits implicitly; restore the shared test schema and data without a transaction.
             if (!TableHelper::columnExists($connection, 'product', 'cheapest_price')) {

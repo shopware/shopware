@@ -46,7 +46,6 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
         }
 
         $iterator = $this->iteratorFactory->createIterator('product', $offset);
-        $iterator->getQuery()->andWhere($this->getCondition());
         $ids = $iterator->fetch();
 
         if ($ids === []) {
@@ -55,7 +54,14 @@ class CheapestPriceBlobPostUpdater extends SynchronousPostUpdateIndexer
             return null;
         }
 
-        return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
+        // Bound payload checks to the fetched rows and advance even when none need repair.
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE auto_increment IN (:ids) AND ' . $this->getCondition(),
+            ['ids' => array_keys($ids)],
+            ['ids' => ArrayParameterType::INTEGER]
+        );
+
+        return new EntityIndexingMessage($ids, $iterator->getOffset());
     }
 
     public function handle(EntityIndexingMessage $message): void

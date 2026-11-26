@@ -86,19 +86,62 @@ class CheapestPriceBlobPostUpdaterTest extends TestCase
         static::assertArrayNotHasKey(CheapestPriceBlobPostUpdater::NAME, $queue->getIndexers());
     }
 
-    public function testDoesNotIterateAlreadyReconciledProducts(): void
+    public function testAdvancesPastAlreadyReconciledProducts(): void
     {
+        $connection = static::getContainer()->get(Connection::class);
+        $offset = ['offset' => (int) $connection->fetchOne('SELECT COALESCE(MAX(auto_increment), 0) FROM product')];
         $ids = new IdsCollection();
         $product = (new ProductBuilder($ids, 'already-reconciled'))->price(100)->build();
         static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
-        static::getContainer()->get(Connection::class)->executeStatement(
+        $connection->executeStatement(
             'UPDATE product SET cheapest_price = cheapest_price_blob WHERE id = :id',
             ['id' => $ids->getBytes('already-reconciled')]
         );
 
         $updater = $this->getUpdater();
         static::assertSame(0, $updater->getTotal());
-        static::assertNull($updater->iterate(null));
+        $message = $updater->iterate($offset);
+        static::assertNotNull($message);
+        static::assertSame([], $message->getData());
+        static::assertNotSame($offset, $message->getOffset());
+        static::assertNull($updater->iterate($message->getOffset()));
+    }
+
+    public function testFiltersOnlyOneBatchAndContinuesAfterAnEmptyBatch(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $offset = ['offset' => (int) $connection->fetchOne('SELECT COALESCE(MAX(auto_increment), 0) FROM product')];
+        $context = Context::createDefaultContext();
+        $repository = static::getContainer()->get('product.repository');
+        $ids = new IdsCollection();
+        $products = [];
+        for ($i = 0; $i < 50; ++$i) {
+            $products[] = (new ProductBuilder($ids, 'matching-' . $i))->price(100)->build();
+        }
+        $repository->create($products, $context);
+        $matchingEnd = (int) $connection->fetchOne('SELECT MAX(auto_increment) FROM product');
+        $connection->executeStatement('UPDATE product SET cheapest_price = cheapest_price_blob WHERE auto_increment > :offset', $offset);
+
+        $repository->create([(new ProductBuilder($ids, 'missing-next-batch'))->price(100)->build()], $context);
+        $connection->executeStatement('UPDATE product SET cheapest_price = cheapest_price_blob, cheapest_price_blob = NULL WHERE id = :id', ['id' => $ids->getBytes('missing-next-batch')]);
+
+        $updater = $this->getUpdater();
+        $queue = new IndexerQueuer($connection);
+        IndexerQueuer::registerIndexer($connection, CheapestPriceBlobPostUpdater::NAME);
+        $matchingBatch = $updater->iterate($offset);
+        static::assertNotNull($matchingBatch);
+        static::assertSame([], $matchingBatch->getData());
+        static::assertSame(['offset' => $matchingEnd], $matchingBatch->getOffset());
+        static::assertArrayHasKey(CheapestPriceBlobPostUpdater::NAME, $queue->getIndexers());
+        $updater->handle($matchingBatch);
+
+        $missingBatch = $updater->iterate($matchingBatch->getOffset());
+        static::assertNotNull($missingBatch);
+        static::assertSame([$ids->get('missing-next-batch')], $missingBatch->getData());
+        $updater->handle($missingBatch);
+        static::assertIsString($connection->fetchOne('SELECT cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes('missing-next-batch')]));
+        static::assertNull($updater->iterate($missingBatch->getOffset()));
+        static::assertArrayNotHasKey(CheapestPriceBlobPostUpdater::NAME, $queue->getIndexers());
     }
 
     public function testRebuildsDraftPricesInTheirOwnVersion(): void

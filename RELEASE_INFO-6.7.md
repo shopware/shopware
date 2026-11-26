@@ -15,6 +15,7 @@ An extension that copies them into its own `Required` field needs the flag there
 {{ customer.displayName }}
 {{ order.orderCustomer.displayName }}
 ```
+
 ### Faster DAL writes
 
 DAL writes avoid redundant database queries for versioned entities and translations.

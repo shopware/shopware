@@ -512,7 +512,10 @@ class CacheInvalidationSubscriber
     {
         yield from $this->getDocumentProductBatches($mediaIds);
 
-        // Small updates resolve all media and their variants in one query, avoiding per-media and separate variant lookups.
+        // The paged path fixes one media_id at a time to follow its FK index, and fetches variants separately
+        // so a large variant family cannot multiply an assignment page.
+        // Without this probe, even 500 media IDs with one product each would need 500 assignment queries,
+        // plus variant queries where needed. Resolve small events with one bounded join instead.
         $probe = $this->connection->fetchAllAssociative(
             'SELECT pm.product_id, variant.id AS variant_id
              FROM product_media pm LEFT JOIN product variant ON variant.parent_id = pm.product_id
@@ -532,9 +535,11 @@ class CacheInvalidationSubscriber
         unset($probe);
 
         foreach (Uuid::fromHexToBytesList($mediaIds) as $mediaId) {
-            // The media FK index contains the assignment primary key (id, version_id).
             $base = $this->connection->createQueryBuilder()
                 ->select('pm.id', 'pm.version_id', 'pm.product_id', 'EXISTS(SELECT 1 FROM product v WHERE v.parent_id = pm.product_id) AS has_variants')
+                // InnoDB appends (id, version_id) to the media_id FK index, so it supports this cursor's order.
+                // MySQL may instead scan PRIMARY for ORDER BY, visiting assignments for unrelated media.
+                // Exclude that plan without hard-coding the FK index name.
                 ->from('product_media pm IGNORE INDEX (PRIMARY)')
                 ->where('pm.media_id = :media')
                 ->orderBy('pm.id')

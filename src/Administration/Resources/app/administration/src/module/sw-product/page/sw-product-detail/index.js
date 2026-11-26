@@ -502,7 +502,15 @@ export default {
             return this.repositoryFactory.create('language');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. The language auto-fetching service loads the content language.
+         */
         languageCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.languageCriteria is deprecated. Read Shopware.Context.api.language instead.',
+            );
+
             const criteria = new Criteria();
             criteria.setTotalCountMode(0);
             criteria.addAssociation('locale');
@@ -1172,7 +1180,12 @@ export default {
 
         onChangeLanguage(languageId) {
             Shopware.Store.get('context').setApiLanguageId(languageId);
-            this.loadLanguage(languageId);
+
+            if (!Shopware.Feature.isActive('V6_8_0_0')) {
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    this.loadLanguage(languageId);
+                });
+            }
 
             this.initState();
         },
@@ -1619,7 +1632,15 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. The language auto-fetching service loads the content language.
+         */
         async loadLanguage(newLanguageId) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.loadLanguage() is deprecated. Read Shopware.Context.api.language instead.',
+            );
+
             const language = await this.languageRepository.get(
                 newLanguageId,
                 { ...Shopware.Context.api, inheritance: true },

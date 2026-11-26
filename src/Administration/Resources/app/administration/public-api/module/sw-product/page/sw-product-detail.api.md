@@ -65,7 +65,7 @@ computed
   isLoading: any
   isUploadedFileRequired: any
   language: any
-  languageCriteria: any
+  languageCriteria: any  [deprecated tag:v6.8.0]
   languageRepository: any
   lengthUnit: any
   localMode: any
@@ -122,7 +122,7 @@ methods
   loadAttributeSet(): Promise<any>
   loadCurrencies(): Promise<any>
   loadDefaultFeatureSet(): Promise<any>
-  loadLanguage(newLanguageId: any): Promise<any>
+  loadLanguage(newLanguageId: any): Promise<any>  [deprecated tag:v6.8.0]
   loadParentProduct(): Promise<any>
   loadProduct(): Promise<any>
   loadState(): any

@@ -47,6 +47,14 @@ The system config key `core.app.shopId` is deprecated, read the shop ID from `co
 A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
 Apps that need such a section should require that version in `<compatibility>`.
 
+## Administration
+
+### Deprecated `sw-product-detail.loadLanguage()` and `languageCriteria`
+
+The method `loadLanguage()` and the computed property `languageCriteria` of the Administration page `sw-product-detail` are deprecated and will be removed in v6.8.0.
+`Shopware.Context.api.language` is already loaded at startup and on every language switch, so the page stops calling `loadLanguage()` on a language switch with v6.8.0.
+Read `Shopware.Context.api.language` instead, and watch `Shopware.Context.api.languageId` to react to a language switch.
+
 ## Storefront
 
 ### Production Vite builds generate JavaScript SBOMs

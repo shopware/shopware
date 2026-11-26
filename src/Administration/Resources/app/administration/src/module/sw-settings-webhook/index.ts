@@ -27,6 +27,11 @@ Shopware.Component.register(
 /**
  * @private
  */
+Shopware.Component.register('sw-settings-webhook-roles-modal', () => import('./component/sw-settings-webhook-roles-modal'));
+
+/**
+ * @private
+ */
 Shopware.Module.register('sw-settings-webhook', {
     type: 'core',
     name: 'settings-webhook',

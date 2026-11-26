@@ -12,6 +12,9 @@ component sw-price-preview  private  js  [private]
   template src/app/component/base/sw-price-preview/sw-price-preview.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  currencyFilter: any  [private]
+
 blocks
   sw_price_field  [replaced] [private]
     sw_price_preview  [private]

@@ -10,6 +10,58 @@ component sw-settings-country-detail  public  js
   source src/module/sw-settings-country/page/sw-settings-country-detail/index.js
   template src/module/sw-settings-country/page/sw-settings-country-detail/sw-settings-country-detail.html.twig
 
+mixins
+  notification, placeholder, discard-detail-page-changes
+
+inject
+  acl
+  customFieldDataProviderService
+  feature
+  repositoryFactory
+
+data
+  country: object
+    companyTax: object
+      enabled: any
+    customerTax: object
+      enabled: any
+  countryId: any
+  countryStateRepository: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  previewData: any
+  showPreviewModal: any
+  userConfig: object
+    value: any
+  userConfigValues: any
+
+computed
+  allowSave: any
+  countryNameError: any
+  countryRepository: any
+  countryTabs: any
+  identifier: any
+  isNewCountry: any
+  showCustomFields: any
+  stateColumns: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  getStateColumns(): any
+  loadCustomFieldSets(): any
+  loadEntityData(): any
+  loadUserConfig(): Promise<any>
+  onCancel(): any
+  onChangeLanguage(): any
+  onSave(): Promise<any>
+  onSaveModal(): any
+  onUpdateCountry(path: any, value: any): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+
 blocks
   sw_settings_country_detail
     sw_settings_country_detail_actions

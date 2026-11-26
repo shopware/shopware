@@ -10,6 +10,42 @@ component sw-users-permissions-role-listing  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-role-listing/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-role-listing/sw-users-permissions-role-listing.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+  ssoSettingsService
+
+emits
+  get-list(...args: any[])
+
+data
+  disableRouteParams: any
+  isConfirmDeleteModalOpen: any
+  isConfirmingPasswordModalOpen: any
+  isLoading: any
+  itemToDelete: any
+  roles: any
+
+computed
+  roleCriteria: any
+  roleRepository: any
+  rolesColumns: any
+  showListingResults: any
+
+methods
+  createdComponent(): any
+  deleteRole(context: any): any
+  getItemToDelete(item: any): any
+  getList(): Promise<any>
+  onCloseConfirmPasswordModal(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(): any
+  onDelete(role: any): any
+  onSearch(searchTerm: any): any
+
 blocks
   sw_users_permissions_role_listing
     sw_users_permissions_role_listing_empty_state  [after v-if]

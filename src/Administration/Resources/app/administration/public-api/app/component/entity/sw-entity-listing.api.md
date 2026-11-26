@@ -12,6 +12,95 @@ component sw-entity-listing  private  js  [private]
   template src/app/component/entity/sw-entity-listing/sw-entity-listing.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  allowBulkEdit?: boolean  default=false  [private]
+  allowColumnEdit?: boolean  default=true  [private]
+  allowDelete?: boolean  default=true  [private]
+  allowEdit?: boolean  default=true  [private]
+  allowInlineEdit?: boolean  default=true  [private]
+  allowView?: boolean  default=false  [private]
+  bulkGridEditColumns?: any[]  default=factory  [private]
+  criteriaLimit?: number  default=25  [private]
+  dataSource?: any[] | object  [private]
+  detailRoute?: string  default=null  [private]
+  disableDataFetching?: boolean  default=false  [private]
+  fullPage?: boolean  default=true  [private]
+  items?: any[]  default=null  [deprecated tag:v6.8.0] [private]
+  maximumSelectItems?: number  default=1000  [private]
+  naturalSorting?: boolean  default=false  [private]
+  repository: object  [private]
+  showBulkEditModal?: boolean  default=false  [private]
+  showSettings?: boolean  default=true  [private]
+  steps?: any[]  default=factory  [private]
+
+emits
+  bulk-edit-modal-close(...args: any[])  [private]
+  bulk-edit-modal-open(...args: any[])  [private]
+  column-sort(...args: any[])  [private]
+  delete-item-failed(...args: any[])  [private]
+  delete-item-finish(...args: any[])  [private]
+  delete-items-failed(...args: any[])  [private]
+  inline-edit-cancel(...args: any[])  [private]
+  inline-edit-save(...args: any[])  [private]
+  items-delete-finish(...args: any[])  [private]
+  page-change(...args: any[])  [private]
+  update-records(...args: any[])  [private]
+
+slots
+  action-modals  { item }  block=sw_data_grid_body_cell_action_modals  [private]
+  actions  { item, item-index }  block=sw_data_grid_body_cell_actions_menu  [private]
+  additionalSettings  {}  block=sw_data_grid_settings_additional_settings_inner  [private]
+  bulk  {}  block=sw_data_grid_bulk_selected_actions  [private]
+  bulk-additional  { ...{ selectionCount } }  block=sw_data_grid_bulk_selected_actions_content  [private]
+  bulk-edit-modal  { ...{ selection } }  block=sw_data_grid_bulk_edit_modal  [private]
+  bulk-modal-cancel  {}  block=sw_data_grid_bulk_delete_modal  [private]
+  bulk-modal-delete-confirm-text  { ...{ selectionCount } }  block=sw_data_grid_bulk_delete_modal  [private]
+  bulk-modal-delete-items  { ...{ isBulkLoading, deleteItems } }  block=sw_data_grid_bulk_delete_modal  [private]
+  bulk-modals  { ...{ selection } }  block=sw_data_grid_bulk_modals  [private]
+  bulk-modals-additional  { ...{ selection, ids: Object.keys(selection) } }  block=sw_data_grid_slot_bulk_modals  [private]
+  customSettings  {}  block=sw_data_grid_settings_custom_settings  [private]
+  delete-action  { ...{ item, showDelete, allowDelete } }  block=sw_data_grid_slot_actions  [private]
+  delete-confirm-text  { ...{ item } }  block=sw_data_grid_slot_action_modals  [private]
+  delete-modal-cancel  { ...{ item } }  block=sw_data_grid_slot_action_modals  [private]
+  delete-modal-delete-item  { ...{ item } }  block=sw_data_grid_slot_action_modals  [private]
+  delete-modal-footer  { ...{ item } }  block=sw_data_grid_slot_action_modals  [private]
+  detail-action  { ...{ item } }  block=sw_data_grid_slot_actions  [private]
+  more-actions  { ...{ item } }  block=sw_data_grid_slot_actions  [private]
+  pagination  {}  block=sw_data_grid_pagination_inner  [private]
+  selection-content  { ...{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty } }  block=sw_data_grid_body_cell_selection  [private]
+
+data
+  deleteId: any  [private]
+  isBulkLoading: any  [private]
+  lastSortedColumn: any  [private]
+  limit: any  [private]
+  page: any  [private]
+  showBulkDeleteModal: any  [private]
+  total: any  [private]
+
+computed
+  detailPageLinkText: any  [private]
+  internalDataSource: any  [private]
+
+methods
+  applyResult(result: any): any  [private]
+  closeModal(): any  [private]
+  createdComponent(): any  [private]
+  deleteItem(id: any): Promise<any>  [private]
+  deleteItems(): Promise<any>  [private]
+  deleteItemsFinish(): any  [private]
+  doSearch(): Promise<any>  [private]
+  onClickBulkEdit(): any  [private]
+  onCloseBulkEditModal(): any  [private]
+  paginate(arg0: any): any  [private]
+  revert(): any  [private]
+  save(record: any): any  [private]
+  showDelete(id: any): any  [private]
+  sort(column: any): any  [private]
+
 blocks
   sw_data_grid  [inherited] [private]
     sw_data_grid_pagination  [inherited] [private]
@@ -90,4 +179,14 @@ crossings
   v-if  sw_data_grid_header_columns_icon -> sw_data_grid_header_columns_label  [private]
   v-if  sw_data_grid_inline_edit_actions -> sw_data_grid_body_cell_actions_menu  [private]
   v-if  sw_data_grid_sort_indicator_icon_asc -> sw_data_grid_sort_indicator_icon_desc  [private]
+
+refs
+  column  -> th  list  block=sw_data_grid_header_columns  [private]
+  table  -> table  block=sw_data_grid_table  [private]
+  wrapper  -> div  block=sw_data_grid_wrapper  [private]
+
+notes
+  dynamic-slot `column-${column.property}`  [private]
+  dynamic-slot `column-label-${column.property}`  [private]
+  dynamic-slot `preview-${column.property}`  [private]
 ```

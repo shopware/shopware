@@ -11,6 +11,10 @@ component sw-settings-customer-group-create  private  js  [private]
   source src/module/sw-settings-customer-group/page/sw-settings-customer-group-create/index.js  [private]
   visibility-source export  [private]
 
+methods
+  createdComponent(): any  [private]
+  onSave(): Promise<any>  [private]
+
 blocks
   sw_settings_customer_group_detail  [inherited] [private]
     sw_settings_customer_group_detail_actions  [inherited] [private]
@@ -18,7 +22,7 @@ blocks
       sw_settings_customer_group_detail_actions_save  [inherited] [private]
     sw_settings_customer_group_detail_cardview  [inherited] [private]
       sw_settings_customer_group_detail_content_card  [inherited] [private]
-        sw_settings_customer_group_detail_content_card_display_gross  [inherited] [private]
+        sw_settings_customer_group_detail_content_card_display_gross  [inherited] [deprecated tag:v6.8.0] [private]
         sw_settings_customer_group_detail_content_card_name  [inherited] [private]
         sw_settings_customer_group_detail_content_card_price_basis  [inherited] [private]
         sw_settings_customer_group_detail_content_card_registration_form  [inherited] [private]

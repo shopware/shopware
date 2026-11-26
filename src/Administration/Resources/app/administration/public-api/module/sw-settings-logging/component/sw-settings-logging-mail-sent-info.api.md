@@ -11,6 +11,14 @@ component sw-settings-logging-mail-sent-info  public  js
   source src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/index.js
   template src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/sw-settings-logging-mail-sent-info.html.twig
 
+computed
+  entryInfoTabs: any
+  hasMailContent: any
+  recipientString: any
+
+methods
+  createdComponent(): any
+
 blocks
   sw_settings_logging_entry_info  [inherited]
     sw_settings_logging_entry_info_footer  [inherited]

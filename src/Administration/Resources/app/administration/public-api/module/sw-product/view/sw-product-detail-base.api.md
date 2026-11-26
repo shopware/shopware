@@ -10,6 +10,55 @@ component sw-product-detail-base  public  js
   source src/module/sw-product/view/sw-product-detail-base/index.js
   template src/module/sw-product/view/sw-product-detail-base/sw-product-detail-base.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  mediaDefaultFolderService
+  repositoryFactory
+
+props
+  productId?: string  default=null
+
+data
+  mediaDefaultFolderId: any
+  showMediaModal: any
+
+computed
+  customFieldSets: any
+  isDownloadCardVisible: any
+  isDownloadExternallyManaged: any
+  isLoading: any
+  loading: any
+  mediaDefaultFolderCriteria: any  [deprecated tag:v6.8.0]
+  mediaDefaultFolderRepository: any  [deprecated tag:v6.8.0]
+  mediaFormVisible: any
+  parentProduct: any
+  product: any
+  productMediaRepository: any
+  productStates: any  [deprecated tag:v6.8.0]
+  productType: any
+  showModeSetting: any
+
+methods
+  addMedia(media: any): Promise<any>
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  isExistingMedia(media: any): any
+  isSpatial(productMedia: any): any
+  mediaRemoveInheritanceFunction(newValue: any): any
+  mediaRestoreInheritanceFunction(): any
+  onAddMedia(media: any): any
+  onCloseDownloadMediaModal(): any
+  onCloseMediaModal(): any
+  onDownloadExternalManagementChange(value: any): any
+  onOpenDownloadMediaModal(): any
+  onOpenMediaModal(): any
+  setMediaAsCover(media: any): any
+  showProductCard(key: any): any
+  showRequiredDownloadsError(): any
+
 blocks
   sw_product_detail_base
     sw_product_detail_base_basic_info_card
@@ -34,4 +83,7 @@ blocks
       sw_product_detail_deliverability_downloadable_info_form
     sw_product_detail_deliverability_info_card
       sw_product_detail_deliverability_info_form
+
+refs
+  productMediaInheritance  -> sw-inherit-wrapper  block=sw_product_detail_base_media
 ```

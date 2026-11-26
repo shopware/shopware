@@ -12,14 +12,13 @@ Ask: would a merchant know what to do, and can every user operate it?
 
 - Admin Vue: prefer Meteor `mt-*` components in new or already-Meteor screens. Legacy `sw-*` in legacy-only files is not major unless the PR expands the legacy pattern.
 - No hand-rolled input/button/modal when Meteor provides one.
-- No new usage of a Meteor component that the Meteor docs or the library code mark as experimental.
 - Admin snippets: no hard-coded user-facing strings; new keys need both `en.json` and `de.json`.
 - Storefront Twig: form inputs have labels; actions use buttons, navigation uses links; interactive elements are keyboard-operable.
 - Focus state remains visible; color is not the only state signal.
 - Copy is user-facing, actionable, and not developer/internal language.
-- Admin copy follows the Meteor content guidelines (wording, messaging, glossary); flag terms that deviate from the glossary in `en.json` or `de.json`.
 - Use Meteor design tokens where equivalents exist; avoid new hard-coded colors/spacing/font sizes.
-  Flag token names that do not exist in the Meteor docs.
+- No new usage of Meteor components marked as experimental.
+- Admin copy follows the Meteor content guidelines and glossary.
 - Icons use Meteor icon kit where available.
 
 Absence rule: only flag what this PR adds or changes.

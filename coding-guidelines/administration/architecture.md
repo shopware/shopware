@@ -25,21 +25,11 @@ These rules apply to code under `src/Administration/Resources/app/administration
 - If new privileges must apply to roles that already exist in installations, add a migration that updates stored `acl_role.privileges`; changing the Administration mapping alone only fixes future role evaluation.
 - Reload an entity after saving it through a repository so origin state and change tracking stay in sync.
 - Use snippets for visible text; do not hardcode user-facing strings.
-- Write Administration copy according to the content guidelines in the [Meteor documentation](https://meteor.shopware.com): wording, messaging, and the glossary of approved English and German terms.
-  Check them before writing or changing snippet text, and use glossary terms exactly as listed.
 - Keep business logic out of templates.
 - Prefer composables for new shared Vue logic. Do not add new mixin-based APIs unless you are extending legacy code.
-- Build UI from Meteor components.
-  Do not add new usages of legacy `sw-*` components that are deprecated in favor of a Meteor component, and do not rebuild a control that Meteor provides.
-- Do not use Meteor components that are marked as experimental in the Meteor documentation or with `@experimental` in the library code.
-  Their API can change without notice.
-- Use Meteor components by their globally registered tag name.
-  Do not import them from `@shopware-ag/meteor-component-library` inside a component.
-- Use BEM-style class names and Meteor design tokens for Administration styling.
-  Avoid inline styles and hard-coded colors, spacing, and font sizes.
-- Take component props, slots, events, token names, and icon names from the [Meteor documentation](https://meteor.shopware.com), not from memory or older code.
-  They change between Meteor releases, which is why these guidelines do not list them.
-  AI assistants read the documentation through the Meteor MCP server at `https://meteor.shopware.com/mcp`; setup is described in `src/Administration/Resources/app/administration/technical-docs/06-ui/01-meteor-component-library.md`.
+- Use BEM-style class names and Meteor design tokens for Administration styling. Avoid inline styles.
+- Build UI from [Meteor](https://meteor.shopware.com) components, tokens and icons, and write copy along its content guidelines.
+  Do not add new usages of deprecated `sw-*` components or of experimental Meteor components.
 
 ## Data access
 

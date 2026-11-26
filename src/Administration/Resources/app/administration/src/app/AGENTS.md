@@ -94,23 +94,19 @@ export default Shopware.Component.wrapComponentConfig({
 
 ## Template Patterns (TwigJS)
 
-Templates wrap their markup in Twig blocks, so extensions can override each part.
-
 ```twig
 {% block sw_product_detail %}
   <sw-page>
     <template #content>
       {% block sw_product_detail_content %}
-        {# Meteor components, see below #}
+        {# Meteor components #}
       {% endblock %}
     </template>
   </sw-page>
 {% endblock %}
 ```
 
-Build the UI inside the blocks from Meteor components.
-This file names no components or props on purpose, because they change between Meteor releases.
-Look them up through the Meteor MCP server, see "UI components, styling and UX writing (Meteor)" in the Administration `AGENTS.md`.
+Take components and tokens from Meteor, see "Meteor design system" in the Administration `AGENTS.md`.
 
 ## State Management
 
@@ -133,9 +129,6 @@ const store = Shopware.Store.get('myStore');
 }
 ```
 
-Take every color, spacing, typography and border radius value from a Meteor design token.
-This file names no tokens on purpose; look up the current names through the Meteor MCP server instead of guessing them.
-
 ## Anti-Patterns
 
 ❌ Local component imports
@@ -143,11 +136,6 @@ This file names no tokens on purpose; look up the current names through the Mete
 ❌ Mutating props
 ❌ Business logic in templates
 ❌ Inline styles
-❌ Hard-coded colors, spacing or font sizes where a Meteor token exists
-❌ New usages of deprecated `sw-*` components that have an `mt-*` replacement
-❌ Meteor components marked as experimental
-❌ Component props, token names or icon names written from memory instead of looked up in the Meteor docs
-❌ Snippet text written without checking the Meteor wording, messaging and glossary pages
 ❌ Using mixins for new code (use composables)
 
 **See**: `technical-docs/02-architecture/02-folder-structure.md` for complete structure

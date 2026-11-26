@@ -3,6 +3,9 @@
  */
 import AssetPathPlugin from './index';
 
+const workerBasePath =
+    '(new URL(window.__sw__.assetPath,location.href).origin===location.origin?window.__sw__.assetPath:Shopware.Context.api.basePath)';
+
 describe('build/vite-plugins/asset-path-plugin', () => {
     it('should be a function', () => {
         expect(typeof AssetPathPlugin).toBe('function');
@@ -36,7 +39,7 @@ describe('build/vite-plugins/asset-path-plugin', () => {
         expect(typeof plugin.generateBundle).toBe('function');
     });
 
-    it('should prefix literal SharedWorker script URLs with the request base path', () => {
+    it('should prefix literal SharedWorker script URLs with a same-origin base', () => {
         const plugin = AssetPathPlugin();
 
         const bundle = {
@@ -49,11 +52,11 @@ describe('build/vite-plugins/asset-path-plugin', () => {
         plugin.generateBundle({}, bundle);
 
         expect(bundle['sw-admin-worker.js'].code).toBe(
-            'new SharedWorker(Shopware.Context.api.basePath+"/bundles/administration/administration/assets/adminWorker-abc123.js")',
+            `new SharedWorker(${workerBasePath}+"/bundles/administration/administration/assets/adminWorker-abc123.js")`,
         );
     });
 
-    it('should prefix literal Worker script URLs with the request base path', () => {
+    it('should prefix literal Worker script URLs with a same-origin base', () => {
         const plugin = AssetPathPlugin();
 
         const bundle = {
@@ -66,7 +69,7 @@ describe('build/vite-plugins/asset-path-plugin', () => {
         plugin.generateBundle({}, bundle);
 
         expect(bundle['worker.js'].code).toBe(
-            'new Worker(Shopware.Context.api.basePath+"/bundles/administration/administration/assets/worker-def456.js")',
+            `new Worker(${workerBasePath}+"/bundles/administration/administration/assets/worker-def456.js")`,
         );
     });
 
@@ -83,7 +86,7 @@ describe('build/vite-plugins/asset-path-plugin', () => {
         plugin.generateBundle({}, bundle);
 
         expect(bundle['worker.js'].code).toBe(
-            'new SharedWorker(Shopware.Context.api.basePath+"/bundles/testbundle/administration/assets/worker-ghi789.js")',
+            `new SharedWorker(${workerBasePath}+"/bundles/testbundle/administration/assets/worker-ghi789.js")`,
         );
     });
 
@@ -108,7 +111,7 @@ describe('build/vite-plugins/asset-path-plugin', () => {
         plugin.generateBundle({}, bundle);
 
         expect(bundle['worker.js'].code).toBe(
-            'new SharedWorker(Shopware.Context.api.basePath+"/bundles/my.plugin+name/administration/assets/worker-jkl012.js")',
+            `new SharedWorker(${workerBasePath}+"/bundles/my.plugin+name/administration/assets/worker-jkl012.js")`,
         );
         expect(bundle['other.js'].code).toBe(
             'new SharedWorker("/bundles/myXpluginnname/administration/assets/worker-jkl012.js")',

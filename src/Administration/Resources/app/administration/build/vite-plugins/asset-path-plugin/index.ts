@@ -38,16 +38,18 @@ export default function assetPathPlugin(bundleName = 'administration'): Plugin {
             // Vite bakes Worker/SharedWorker script URLs as literal absolute strings, e.g.
             //   new SharedWorker("/bundles/administration/administration/assets/adminWorker-<hash>.js")
             // Workers must stay on the shop origin, even when assets are hosted on a CDN.
-            // Use the request base path to support installations in a subdirectory.
+            // Keep same-origin asset prefixes; use the request base path for cross-origin assets.
             // This runs on the final, minified output where the literal reliably matches.
             const workerUrlRegex = new RegExp(
                 `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${escapeBundleName(bundleName)}\\/administration\\/[^"]*)"`,
                 'g',
             );
+            const workerBasePath =
+                '(new URL(window.__sw__.assetPath,location.href).origin===location.origin?window.__sw__.assetPath:Shopware.Context.api.basePath)';
 
             for (const output of Object.values(bundle)) {
                 if (output.type === 'chunk' && typeof output.code === 'string') {
-                    output.code = output.code.replace(workerUrlRegex, '$1Shopware.Context.api.basePath+"$2"');
+                    output.code = output.code.replace(workerUrlRegex, `$1${workerBasePath}+"$2"`);
                 }
             }
         },

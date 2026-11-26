@@ -5,6 +5,7 @@
 ### Administration login with cross-origin assets
 
 Administration workers load from the shop origin while retaining the installation's subdirectory.
+Same-origin asset URLs retain their configured path, including S3 proxy prefixes.
 This restores Administration login when assets are hosted on a separate S3 or CDN domain.
 Rebuild custom Administration bundles to apply this fix.
 

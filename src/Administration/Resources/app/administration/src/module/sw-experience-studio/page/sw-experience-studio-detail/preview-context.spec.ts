@@ -179,7 +179,7 @@ describe('Experience Studio frame preview context', () => {
         expect(pickerOf('frame-product').exists()).toBe(false);
     });
 
-    // Regression guard: an entity root source keeps its preview entity type and an enabled picker.
+    // Hiding the picker for non-entity root sources must not hide it for entity-rooted frames.
     it('gives an active product frame its entity type and an enabled picker', async () => {
         await openFrames(['product'], 'product');
         const picker = pickerOf('frame-product');

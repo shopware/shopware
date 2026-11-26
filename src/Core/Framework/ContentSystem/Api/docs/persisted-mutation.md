@@ -19,7 +19,9 @@ A fresh insert with a required `resolvedBy` reference and no compatible mapping 
 ## Drafts
 
 A draft is a named pointer into the layout's revision graph (`Layout/Revision/LayoutRevisionService`); a layout can have several at once.
-`Api/ContentLayoutDraftController` manages them; every draft response carries the draft as `{id, name, base, head, createdAt, createdById, updatedAt}`.
+`Api/ContentLayoutDraftController` manages them; every draft response carries the draft as `{id, name, base, head, liveAtOpen, createdAt, createdById, updatedAt}`.
+`base` is the revision the draft was opened from and `liveAtOpen` the revision live at that moment; they differ only for a rollback or a draft branched from another draft's head.
+Comparing `liveAtOpen` with the live revision is a hint only: the binding answer is the `409` on publish, because a layout write that bypassed publishing moves live only at the next draft write.
 
 | Route                                                    | Body                         | ACL                     | Response                  |
 |----------------------------------------------------------|------------------------------|-------------------------|---------------------------|

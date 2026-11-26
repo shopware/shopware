@@ -6,8 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * A named pointer into the revision graph: `base` is the revision it was opened from, `head` the latest one
- * saved on it, and `liveAtOpen` the live revision when it was opened — publishing the draft is only allowed while
- * that is still the live revision, see {@see LayoutRevisionService::publish()}.
+ * saved on it, and `liveAtOpen` the live revision when it was opened. The publish rule reads `liveAtOpen`, see
+ * {@see LayoutRevisionService::publish()}; `base` keeps the origin of a rollback or branched draft.
  *
  * @internal
  */

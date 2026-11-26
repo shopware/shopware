@@ -36,6 +36,7 @@ class ContentLayoutDraftControllerTest extends TestCase
         $draft = $this->json('POST', $layoutId . '/create-draft', ['name' => 'My draft'])['draft'];
         static::assertSame('My draft', $draft['name']);
         static::assertIsString($draft['createdById']);
+        static::assertSame($draft['base'], $draft['liveAtOpen']);
 
         $edited = $this->json('POST', $layoutId . '/remove-element', [
             'elementId' => 'other',
@@ -86,6 +87,8 @@ class ContentLayoutDraftControllerTest extends TestCase
         );
 
         $rollback = $this->json('POST', $layoutId . '/create-draft', ['fromRevisionId' => $revisions[1]['id']])['draft'];
+        static::assertSame($revisions[1]['id'], $rollback['base']);
+        static::assertSame($revisions[0]['id'], $rollback['liveAtOpen']);
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
             'draftId' => $rollback['id'],
             'expectedHead' => $rollback['head'],

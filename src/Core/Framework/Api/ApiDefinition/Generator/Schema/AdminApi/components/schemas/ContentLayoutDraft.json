@@ -8,7 +8,7 @@
                 "title": "Content layout draft",
                 "type": "object",
                 "description": "A named pointer into the revision graph of a stored layout.",
-                "required": ["id", "name", "base", "head", "createdAt", "createdById", "updatedAt"],
+                "required": ["id", "name", "base", "head", "liveAtOpen", "createdAt", "createdById", "updatedAt"],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -22,13 +22,18 @@
                     },
                     "base": {
                         "type": "string",
-                        "description": "Id of the revision the draft was opened from: the live revision, or `fromRevisionId` for a rollback.",
+                        "description": "Id of the revision the draft was opened from: the live revision, equal to `liveAtOpen`, or `fromRevisionId` for a rollback or a draft branched from another draft's head.",
                         "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3e"
                     },
                     "head": {
                         "type": "string",
                         "description": "Id of the latest revision saved on the draft; the `expectedHead` of the next draft mutation and of `publish-draft`.",
                         "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3d"
+                    },
+                    "liveAtOpen": {
+                        "type": "string",
+                        "description": "Id of the revision that was live when the draft was opened. While it is still live, publishing cannot conflict with live; once live moved, publishing succeeds only if live moved forward into the draft, otherwise it answers `409` `LAYOUT_PUBLISH_CONFLICT`. Comparing it with the live entry of `published-revisions` is a hint only, since a layout write that bypassed publishing moves live only at the next draft write.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3e"
                     },
                     "createdAt": {
                         "type": "string",

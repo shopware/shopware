@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 final class LayoutDraftNormalizer
 {
     /**
-     * @return array{id: string, name: string, base: string, head: string, createdAt: string, createdById: string|null, updatedAt: string}
+     * @return array{id: string, name: string, base: string, head: string, liveAtOpen: string, createdAt: string, createdById: string|null, updatedAt: string}
      */
     public static function draft(LayoutDraft $draft): array
     {
@@ -27,6 +27,7 @@ final class LayoutDraftNormalizer
             'name' => $draft->name,
             'base' => $draft->base,
             'head' => $draft->head,
+            'liveAtOpen' => $draft->liveAtOpen,
             'createdAt' => $draft->createdAt->format(\DATE_ATOM),
             'createdById' => $draft->createdBy,
             'updatedAt' => $draft->updatedAt->format(\DATE_ATOM),

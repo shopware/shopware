@@ -113,10 +113,14 @@ The draft routes live under `/api/_action/content-system/layout/{layoutId}`, in 
 | POST | `/discard-draft` | `draftId` | `content_layout:update` |
 | POST | `/publish-draft` | `draftId`, `expectedHead` | `content_layout:update` |
 
-A draft in a response is `{id, name, base, head, createdAt, createdById, updatedAt}`.
+A draft in a response is `{id, name, base, head, liveAtOpen, createdAt, createdById, updatedAt}`.
+`base` says where the draft came from, `liveAtOpen` which live state its author saw; a client needs both to tell a rollback from a draft whose live state moved on.
 
 ### Decided against
 
+* **Dropping `base`, since it equals `live_at_open` for a normal draft.**
+  The publish rule reads only `live_at_open` and `head`, but for a rollback or a branched draft `base` is the only record of the revision it started from; once the draft is edited and compaction runs, that origin cannot be reconstructed.
+  A diff of what a draft changed and a later merge both need it.
 * **A separate publication table.**
   The live pointer on the revision row, made unique by `live_content_layout_id`, already says which revision is live.
 * **A route that saves a whole tree into a draft.**

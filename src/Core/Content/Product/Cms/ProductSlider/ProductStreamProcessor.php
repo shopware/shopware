@@ -21,6 +21,8 @@ use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -191,7 +193,24 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
             $criteria->addSorting(new FieldSorting($field, $direction));
         }
 
+        if (!$this->shouldSkipGrouping($criteria) && $this->ignoresMainVariantOnPriceSorting($criteria, $context)) {
+            $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('childCount', 0),
+                new EqualsFilter('childCount', null),
+            ]));
+        }
+
         return $criteria;
+    }
+
+    private function ignoresMainVariantOnPriceSorting(Criteria $criteria, SalesChannelContext $context): bool
+    {
+        $sorting = array_values($criteria->getSorting())[0] ?? null;
+
+        return $sorting !== null
+            && \in_array($sorting->getField(), ['cheapestPrice', 'product.cheapestPrice'], true)
+            && $this->systemConfigService->getBool('core.listing.ignoreMainVariantOnPriceSorting', $context->getSalesChannelId());
     }
 
     private function hideUnavailableProducts(SalesChannelContext $context): bool
@@ -207,7 +226,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         SalesChannelContext $context,
         Criteria $originCriteria
     ): ProductCollection {
-        if ($this->shouldSkipGrouping($originCriteria)) {
+        if ($this->shouldSkipGrouping($originCriteria) || $originCriteria->hasState(Criteria::STATE_SORTING_RANKED_GROUPING)) {
             return $streamResult;
         }
 

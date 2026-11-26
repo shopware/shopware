@@ -10,4 +10,12 @@ component sw-user-sso-status-label  private  js  [private]
   source src/module/sw-users-permissions/components/sw-user-sso-status-label/index.js  [private]
   template src/module/sw-users-permissions/components/sw-user-sso-status-label/sw-user-sso-status-label.html.twig  [private]
   visibility-source export  [private]
+
+props
+  user: object  [private]
+
+computed
+  status: any  [private]
+  statusText: any  [private]
+  variant: any  [private]
 ```

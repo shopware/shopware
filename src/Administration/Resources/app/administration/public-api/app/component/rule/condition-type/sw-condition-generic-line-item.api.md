@@ -11,6 +11,12 @@ component sw-condition-generic-line-item  public  js
   source src/app/component/rule/condition-type/sw-condition-generic-line-item/index.js
   template src/app/component/rule/condition-type/sw-condition-generic/sw-condition-generic.html.twig
 
+mixins
+  generic-condition
+
+methods
+  getPlaceholder(fieldType: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]

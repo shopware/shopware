@@ -70,6 +70,7 @@
       "next": "Next page",
       "last": "Last page",
       "page": "Page",
+      "metaPageSuffix": "%content% – Page %page%",
       "title": "Pagination"
     }
   },
@@ -491,6 +492,7 @@
     "confirmRevocationNoticePage": "Please note our <a href=\"%url%\">cancellation policy</a>.",
     "confirmLegalGuaranteeNoticeLink": "Your legal guarantee rights",
     "confirmLegalGuaranteeNotice": "Please note %legalGuaranteeNoticeModalTagOpen%your legal guarantee rights%legalGuaranteeNoticeModalTagClose%.",
+    "confirmLegalGuaranteeNoticeYourEuropeLink": "Information about your legal guarantee rights on Your Europe (opens in a new tab)",
     "confirmTermsText": "I have read and accepted the <a class=\"checkout-confirm-terms-modal\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\">general terms and conditions</a>.",
     "confirmTermsTextModal": "I have read and accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
     "confirmTermsTextPage": "I have read and accepted the <a href=\"%url%\">general terms and conditions</a>.",

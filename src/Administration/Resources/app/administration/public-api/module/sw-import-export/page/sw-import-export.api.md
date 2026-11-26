@@ -11,12 +11,21 @@ component sw-import-export  private  js  [private]
   template src/module/sw-import-export/page/sw-import-export/sw-import-export.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+computed
+  importExportTabs: any  [private]
+
 blocks
   sw_import_export  [private]
-    sw_import_export_language_switch  [private]
+    sw_import_export_language_switch  [deprecated tag:v6.8.0] [private]
     sw_import_export_tabs  [private]
       sw_import_export_mt_tabs  [from v6.8.0] [private]
       sw_import_export_tabs_export  [until v6.8.0] [private]
       sw_import_export_tabs_import  [until v6.8.0] [private]
       sw_import_export_tabs_profiles  [until v6.8.0] [private]
+
+refs
+  tabContent  -> router-view  block=sw_import_export  [private]
 ```

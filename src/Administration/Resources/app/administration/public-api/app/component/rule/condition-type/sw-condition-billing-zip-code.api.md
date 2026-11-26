@@ -11,6 +11,20 @@ component sw-condition-billing-zip-code  public  js
   source src/app/component/rule/condition-type/sw-condition-billing-zip-code/index.js
   template src/app/component/rule/condition-type/sw-condition-billing-zip-code/sw-condition-billing-zip-code.html.twig
 
+data
+  inputKey: any
+  isNumeric: any
+
+computed
+  numericOptions: any
+  operators: any
+  taggedFieldPlaceholder: any
+  zipCodes: any
+
+methods
+  createdComponent(): any
+  onChangeNumeric(value: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]

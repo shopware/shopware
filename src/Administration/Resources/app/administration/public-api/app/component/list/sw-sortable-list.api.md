@@ -11,6 +11,43 @@ component sw-sortable-list  private  ts  [private]
   template src/app/component/list/sw-sortable-list/sw-sortable-list.html.twig  [private]
   visibility-source export  [private]
 
+props
+  dragConf?: DragConfig  default=factory  [private]
+  items: Array<Entity<keyof EntitySchema.EntityKeys>>  [private]
+  scrollOnDrag?: boolean  default=factory  [private]
+  scrollOnDragConf?: ScrollOnDragConf  default=factory  [private]
+  sortable?: boolean  default=factory  [private]
+
+emits
+  items-sorted(...args: any[])  [private]
+
+slots
+  default  { ...{ sortedItems, sortable } }  block=sw_sortable_list  [private]
+  item  { ...{ item, sortable } }  block=sw_sortable_list_item  [private]
+
+data
+  defaultConfig: any  [private]
+  defaultScrollOnDragConf: any  [private]
+  dragElement: any  [private]
+  scrollEventTicking: any  [private]
+  sortedItems: any  [private]
+
+computed
+  hasItems: boolean  [private]
+  isSortable: boolean  [private]
+  mergedDragConfig: DragConfig  [private]
+  mergedScrollOnDragConfig: ScrollOnDragConf  [private]
+  scrollableParent: Element | null  [private]
+
+methods
+  findScrollableParent(node: Element | null): Element | null  [private]
+  hasOrderChanged(): boolean  [private]
+  onDragEnter(draggedComponent: Entity<keyof EntitySchema.EntityKeys>, droppedComponent: Entity<keyof EntitySchema.EntityKeys>): void  [private]
+  onDragStart(dragConfig: DragConfig, draggedElement: Element, dragElement: Element): void  [private]
+  onDrop(): void  [private]
+  onScroll(): void  [private]
+  scroll(): void  [private]
+
 blocks
   sw_sortable_list_container  [private]
     sw_sortable_list  [private]

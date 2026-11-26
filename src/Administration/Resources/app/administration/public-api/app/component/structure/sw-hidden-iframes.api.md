@@ -11,6 +11,10 @@ component sw-hidden-iframes  private  js  [private]
   template src/app/component/structure/sw-hidden-iframes/sw-hidden-iframes.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  MAIN_HIDDEN: any  [private]
+  extensions: any  [private]
+
 blocks
   sw_hidden_iframes  [private]
 ```

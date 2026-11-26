@@ -10,6 +10,73 @@ component sw-media-modal-v2  public  js
   source src/module/sw-media/component/sw-media-modal-v2/index.js
   template src/module/sw-media/component/sw-media-modal-v2/sw-media-modal-v2.html.twig
 
+inject
+  feature
+  mediaService
+  repositoryFactory
+
+props
+  allowMultiSelect?: boolean  default=true
+  defaultTab?: string  default='library'
+  entityContext?: string  default=null
+  extensionBaseUrl?: string  default=null
+  extensionTabs?: any[]  default=factory
+  fileAccept?: string  default='image/*'
+  initialFolderId?: string  default=null
+  isOpen?: boolean  default=true
+
+emits
+  media-modal-selection-change(...args: any[])
+  modal-close(...args: any[])
+
+data
+  activeTab: any
+  compact: any
+  currentFolder: any
+  folderId: any
+  id: any
+  selectedMediaItem: any
+  selection: any
+  term: any
+  uploads: any
+
+computed
+  activeExtensionTab: any
+  hasUploads: any
+  mediaFolderRepository: any
+  mediaModalTabs: any
+  mediaRepository: any
+  tabNameLibrary: any
+  tabNameUpload: any
+  uploadTag: any
+
+methods
+  addResizeListener(): any
+  beforeDestroyComponent(): any
+  checkMediaItem(upload: any): any
+  createdComponent(): any
+  fetchCurrentFolder(): Promise<any>
+  getComponentWidth(): any
+  getExtensionTabName(tab: any): any
+  mountedComponent(): any
+  onActiveTabChanged(activeTab: any): any
+  onEmitModalClosed(): any
+  onEmitSelection(): any
+  onItemsDeleted(ids: any): any
+  onMediaAddSelected(arg0: any): any
+  onMediaFoldersDissolved(folderIds: any): any
+  onMediaItemSelect(arg0: any): any
+  onMediaRemoveSelected(arg0: any): any
+  onModalRootChange(isOpen: any): any
+  onSearchTermChange(searchTerm: any): any
+  onUploadFailed(task: any): any
+  onUploadFinished(arg0: any): Promise<any>
+  onUploadsAdded(): Promise<any>
+  refreshList(): any
+  removeOnResizeListener(): any
+  resetSelection(): any
+  selectMediaItem(upload: any): any
+
 blocks
   sw_media_modal_v2
     sw_media_modal_v2_content
@@ -41,4 +108,9 @@ blocks
     sw_media_modal_v2_modal_footer
       sw_media_modal_v2_button_cancel
       sw_media_modal_v2_button_confirm_selection
+
+refs
+  mediaLibrary  -> sw-media-library  block=sw_media_modal_v2_media_library  [until v6.8.0]
+  mediaLibrary  -> sw-media-library  block=sw_media_modal_v2_mt_media_library  [from v6.8.0]
+  swMediaModal  -> mt-modal  block=sw_media_modal_v2
 ```

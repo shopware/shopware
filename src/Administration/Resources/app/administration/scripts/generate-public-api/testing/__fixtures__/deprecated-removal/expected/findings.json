@@ -1,0 +1,43 @@
+[
+    {
+        "group": "Allowed",
+        "rule": "deprecated_removal",
+        "explanation": "The block carries @deprecated tag:v6.8.0, which announced that it goes away.",
+        "element": "component:sw-example-card/block:sw_example_card_subtitle",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:3"
+    },
+    {
+        "group": "Allowed",
+        "rule": "deprecated_removal",
+        "explanation": "The computed property carries @deprecated tag:v6.8.0, which announced that it goes away.",
+        "element": "component:sw-example-card/computed:hasSubtitle",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-card/index.js:32"
+    },
+    {
+        "group": "Allowed",
+        "rule": "deprecated_removal",
+        "explanation": "The method carries @deprecated tag:v6.8.0, which announced that it goes away.",
+        "element": "component:sw-example-card/method:getSubtitleClasses",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-card/index.js:38"
+    },
+    {
+        "group": "Allowed",
+        "rule": "deprecated_removal",
+        "explanation": "The prop carries @deprecated tag:v6.8.0, which announced that it goes away.",
+        "element": "component:sw-example-card/prop:subtitle",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-card/index.js:12"
+    },
+    {
+        "group": "Info",
+        "rule": "block_if_chain_changed",
+        "explanation": "The v-if chain before the block changed from \"hasSubtitle\" to \"hasTitle\", so plugin overrides that start with v-else-if or v-else may now render under another condition.",
+        "fix": "mention it in the upgrade notes if the block now belongs to another condition.",
+        "element": "component:sw-example-card/block:sw_example_card_toggle",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:14"
+    }
+]

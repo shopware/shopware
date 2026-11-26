@@ -11,6 +11,9 @@ component sw-cms-block-html  private  ts  [private]
   template src/module/sw-cms/blocks/html/html/component/sw-cms-block-html.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=(root)  [private]
+
 blocks
   sw_cms_block_html_slot_html_content  [private]
 ```

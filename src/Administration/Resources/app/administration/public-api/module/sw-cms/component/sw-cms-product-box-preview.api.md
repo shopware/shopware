@@ -11,6 +11,12 @@ component sw-cms-product-box-preview  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-product-box-preview/sw-cms-product-box-preview.html.twig  [private]
   visibility-source export  [private]
 
+props
+  hasText?: boolean  default=factory  [private]
+
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_product_box_preview  [private]
 ```

@@ -11,6 +11,9 @@ component sw-cms-preview-image-simple-grid  private  js  [private]
   template src/module/sw-cms/blocks/image/image-simple-grid/preview/sw-cms-preview-image-simple-grid.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_simple_grid_preview  [private]
 ```

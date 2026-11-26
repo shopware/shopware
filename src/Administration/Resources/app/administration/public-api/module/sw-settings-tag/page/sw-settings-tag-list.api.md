@@ -10,6 +10,72 @@ component sw-settings-tag-list  public  js
   source src/module/sw-settings-tag/page/sw-settings-tag-list/index.js
   template src/module/sw-settings-tag/page/sw-settings-tag-list/sw-settings-tag-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+  tagApiService
+
+slots
+  bulk-modal-merge-confirm-name-input  {}  block=sw_settings_tag_list_merge_modal_confirm_name_input
+  bulk-modal-merge-confirm-text  { ...{ selection, ids } }  block=sw_settings_tag_list_grid_bulk_merge_modal
+  bulk-modal-merge-footer  { ...{ selection } }  block=sw_settings_tag_list_grid_bulk_merge_modal
+  bulk-modal-merge-progress  {}  block=sw_settings_tag_list_merge_modal_progress
+
+data
+  assignmentFilter: any
+  bulkMergeProgress: object
+    currentAssignment: any
+    isRunning: any
+    progress: any
+    total: any
+  detailEntity: any
+  detailProperty: any
+  duplicateFilter: any
+  duplicateName: any
+  emptyFilter: any
+  isLoading: any
+  showBulkMergeModal: any
+  showDeleteModal: any
+  showDetailModal: any
+  showDuplicateModal: any
+  sortBy: any
+  sortDirection: any
+  tags: any
+
+computed
+  assignmentFilterOptions: any
+  assignmentProperties: any
+  filterCount: any
+  hasAssignmentFilter: any
+  tagColumns: any
+  tagCriteria: any
+  tagDefinition: any
+  tagRepository: any
+
+methods
+  getBulkMergeMessageGlue(ids: any, id: any): any
+  getCounts(id: any): any
+  getList(): any
+  getPropertyCounting(propertyName: any, id: any): any
+  onCloseBulkMergeModal(): any
+  onCloseDeleteModal(): any
+  onCloseDetailModal(): any
+  onCloseDuplicateModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onConfirmDuplicate(id: any): Promise<any>
+  onDelete(id: any): any
+  onDetail(id: any, property: any, entity: any): any
+  onDuplicate(item: any): any
+  onFilter(): any
+  onMergeTags(selection: any): Promise<any>
+  onSaveFinish(): any
+  resetFilters(): any
+  setAggregations(criteria: any): any
+  sortByIdsOrder(items: any, ids: any): any
+
 blocks
   sw_settings_list
     sw_settings_tag_index
@@ -59,4 +125,8 @@ blocks
 
 crossings
   v-if  sw_settings_tag_list_grid -> sw_settings_tag_list_empty_state
+
+refs
+  swCardFilter  -> sw-card-filter  block=sw_settings_tag_list_grid_toolbar_search
+  swSettingsTagGrid  -> sw-entity-listing  block=sw_settings_tag_list_grid
 ```

@@ -2,6 +2,11 @@
 
 ## Core
 
+### Faster DAL writes
+
+DAL writes avoid redundant database queries for versioned entities and translations.
+Local benchmarks on a catalogue with three million products showed approximately 20% lower write times without indexing on MySQL and MariaDB.
+
 ### Moving a category re-indexes its products
 
 Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.

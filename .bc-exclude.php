@@ -27,43 +27,6 @@ return [
         // Cannot be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
         'An enum expression .* is not supported in .*',
 
-        // The 6.7.16.1 security release added these symbols on the 6.7.16.x branch; trunk gets them
-        // when the security fixes are merged back. Remove these entries with that merge-back.
-        preg_quote('REMOVED: Class Shopware\\Core\\Framework\\Adapter\\Twig\\Exception\\TwigMethodCallNotAllowedException has been deleted', '/'),
-        preg_quote('REMOVED: Class Shopware\\Core\\Framework\\Util\\XmlParser has been deleted', '/'),
-        preg_quote('REMOVED: Class Shopware\\Core\\System\\Integration\\IntegrationException has been deleted', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Content\\Media\\Exception\\IllegalFileNameException::MEDIA_ILLEGAL_PATH was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Content\\Media\\MediaException::MEDIA_ILLEGAL_PATH was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Adapter\\AdapterException::TWIG_METHOD_CALL_NOT_ALLOWED was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Adapter\\Filesystem\\Exception\\AdapterFactoryNotFoundException::TWIG_METHOD_CALL_NOT_ALLOWED was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Adapter\\Filesystem\\Exception\\DuplicateFilesystemFactoryException::TWIG_METHOD_CALL_NOT_ALLOWED was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Api\\ApiException::API_INVALID_CLONE_OVERWRITE was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Api\\Context\\Exception\\InvalidContextSourceException::API_INVALID_CLONE_OVERWRITE was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\App\\Exception\\AppXmlParsingException::CMS_BLOCK_FILE_MISSING was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\App\\Exception\\AppXmlParsingException::CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Routing\\Exception\\CustomerNotLoggedInRoutingException::APP_USER_NOT_FOUND was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Routing\\Exception\\InvalidRouteScopeException::APP_USER_NOT_FOUND was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Routing\\RoutingException::APP_USER_NOT_FOUND was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Util\\Exception\\Base64DecodingException::XML_PARSING_FAILED was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Util\\Exception\\JsonDecodingException::XML_PARSING_FAILED was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Util\\Exception\\UtilXmlParsingException::XML_PARSING_FAILED was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\Framework\\Util\\UtilException::XML_PARSING_FAILED was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\\Core\\System\\User\\UserException::USER_CHANGE_NOT_ALLOWED was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Content\\Media\\MediaException::illegalPath() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Content\\Media\\MediaException::missingPrivileges() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\Adapter\\AdapterException::twigMethodCallNotAllowed() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\Api\\ApiException::invalidCloneOverwrite() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource#isDirectUser() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource#isSelf() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\App\\AppException::cmsBlockFileMissing() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\App\\AppException::cmsBlockOutsideOfBlocksDirectory() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\DataAbstractionLayer\\DataAbstractionLayerException::accessorNotAllowedInApiScope() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\DataAbstractionLayer\\DataAbstractionLayerException::runtimeFieldInCriteria() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\PreWriteValidationEvent#getExplicitCommandsForEntity() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\Routing\\RoutingException::appUserNotFound() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\Framework\\Util\\UtilException::xmlParsingFailed() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\System\\User\\UserException::userChangeNotAllowed() was removed', '/'),
-
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
@@ -111,6 +74,9 @@ return [
         // AbstractCartLoadRoute::load(), which keeps its signature until the change announced for 6.8.
         // CartLoadRoute is not an extension point, its getDecorated() throws a DecorationPatternException.
         preg_quote('ADDED: Parameter cart was added to Method load() of class Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute', '/'),
+
+        // Optional parameter added with default null; existing callers and subclass constructors are unaffected
+        preg_quote('ADDED: Parameter text was added to Method __construct() of class Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel\LegalGuaranteeNoticeRouteResponse', '/'),
 
         // Promoted properties expose their default on the constructor parameter rather than
         // ReflectionProperty. CustomerZipCode still initializes this property to true.
@@ -179,6 +145,9 @@ return [
         // intended to be internal on release
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
+
+        // AppException is internal, but its methods are still compared through subclasses that are not marked internal
+        preg_quote('Shopware\Core\Framework\App\AppException', '/') . '(::|#|$)',
 
         // Only thrown during the legacy commercial license sync; all services
         // that used it have published versions using the new webhooks instead

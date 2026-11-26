@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Authorization\Ownership;
 
 use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -41,6 +42,7 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
         foreach ($inserts as $insert) {
             if ($owner !== null) {
                 $insert->addPayload(self::ownerColumn($owner), Uuid::fromHexToBytes($owner->id));
+                $insert->addPayload('owner_type', $owner->type->value);
 
                 continue;
             }
@@ -55,8 +57,8 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
     private static function ownerColumn(ApiCaller $owner): string
     {
         return match ($owner->type) {
-            ApiCaller::USER => 'owner_user_id',
-            ApiCaller::INTEGRATION => 'owner_integration_id',
+            IdentityType::User => 'owner_user_id',
+            IdentityType::Integration, IdentityType::AppIntegration => 'owner_integration_id',
         };
     }
 }

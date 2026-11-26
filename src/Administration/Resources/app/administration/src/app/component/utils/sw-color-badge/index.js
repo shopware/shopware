@@ -19,7 +19,6 @@ import './sw-color-badge.scss';
  *     <sw-color-badge color="red" rounded></sw-color-badge>
  * </div>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

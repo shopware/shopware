@@ -14,14 +14,21 @@ on:
       - reopened
       - synchronize
       - ready_for_review
+      - edited
 
 permissions:
   contents: read
   pull-requests: write
 
+# One run per pull request at a time, so two quick pushes cannot add and take back a label in parallel.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+
 jobs:
   label:
     name: Major label
+    # Saves a runner on title and description edits; `shouldDetect` holds the actual rule.
+    if: github.event.action != 'edited' || github.event.changes.base
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -47,8 +54,8 @@ jobs:
             const { readFileSync } = await import('node:fs')
             const { detectMajorLabels, applyMajorLabels } = await import('${{ github.workspace }}/.github/bin/js/major-label.ts')
             const readFile = (path) => readFileSync(`${{ github.workspace }}/${path}`, 'utf8')
-            const labels = await detectMajorLabels({ github, core, context }, readFile)
-            await applyMajorLabels({ github, context }, labels)
+            const changes = await detectMajorLabels({ github, core, context }, readFile)
+            await applyMajorLabels({ github, context }, changes)
       # Auto-apply major-test labels for feature-flag changes and acceptance spec changes, so the
       # matching integration-major or acceptance-major arm runs where it matters.
       # All further run conditions (action, existing labels) live in the module's `shouldDetect`.

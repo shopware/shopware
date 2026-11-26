@@ -11,6 +11,20 @@ component sw-base-filter  private  js  [private]
   template src/app/component/filter/sw-base-filter/sw-base-filter.html.twig  [private]
   visibility-source export  [private]
 
+props
+  active: boolean  [private]
+  showResetButton: boolean  [private]
+  title: string  [private]
+
+emits
+  filter-reset(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_base_filter_content  [private]
+
+methods
+  resetFilter(): any  [private]
+
 blocks
   sw_base_filter  [private]
     sw_base_filter_content  [private]

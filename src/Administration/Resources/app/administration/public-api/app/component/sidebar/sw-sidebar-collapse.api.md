@@ -12,6 +12,24 @@ component sw-sidebar-collapse  private  js  [private]
   template src/app/component/sidebar/sw-sidebar-collapse/sw-sidebar-collapse.html.twig  [private]
   visibility-source export  [private]
 
+props
+  expandChevronDirection?: string  default='right'  [private]
+
+emits
+  change-expanded(...args: any[])  [private]
+
+slots
+  actions  {}  block=sw_sidebar_collapse_buttons  [private]
+  content  {}  block=sw_collapse_panel_content  [private]
+  header  { expanded }  block=sw_sidebar_collapse_title  [private]
+
+computed
+  collapseButtonClass: any  [private]
+  expandButtonClass: any  [private]
+
+methods
+  collapseItem(): any  [private]
+
 blocks
   sw_collapse_panel  [inherited] [private]
     sw_collapse_panel_content  [inherited] [private]

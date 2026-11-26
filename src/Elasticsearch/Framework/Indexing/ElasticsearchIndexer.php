@@ -271,12 +271,15 @@ class ElasticsearchIndexer
 
             // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
             if ($hasAlias) {
+                $total = $iterator->fetchCount();
+
                 $this->connection->insert('elasticsearch_index_task', [
                     'id' => Uuid::randomBytes(),
                     '`entity`' => $definition->getEntityDefinition()->getEntityName(),
                     '`index`' => $index,
                     '`alias`' => $alias,
-                    '`doc_count`' => $iterator->fetchCount(),
+                    '`doc_count`' => $total,
+                    '`total_count`' => $total,
                 ]);
             }
         }

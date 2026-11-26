@@ -11,6 +11,71 @@ component sw-settings-country-address-handling  private  ts  [private]
   template src/module/sw-settings-country/component/sw-settings-country-address-handling/sw-settings-country-address-handling.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  customSnippetApiService  [private]
+
+props
+  country: Entity<'country'>  [private]
+  isLoading: boolean  [private]
+
+emits
+  update:country(...args: any[])  [private]
+
+data
+  advancedPostalCodePattern: any  [private]
+  currentPosition: any  [private]
+  customer: any  [private]
+  customerId: any  [private]
+  draggedItem: any  [private]
+  droppedItem: any  [private]
+  formattingAddress: any  [private]
+  isOpenModal: any  [private]
+  isPreviewLoading: any  [private]
+  previewRenderToken: any  [private]
+  rowDragPreview: any  [private]
+  rowKeyCounter: any  [private]
+  rowKeys: any  [private]
+  snippetDragItem: any  [private]
+  snippetDragPreview: any  [private]
+  snippets: any  [private]
+
+computed
+  addressFormat: Array<string[]>  [private]
+  addressFormatRows: AddressFormatRow[]  [private]
+  customerCriteria: CriteriaType  [private]
+  disabledAdvancedPostalCodePattern: boolean  [private]
+  dragConf: DragConfig<DragItem>  [private]
+  hasDefaultPostalCodePattern: boolean  [private]
+  isDisplayStateInRegistrationActive: boolean  [private]
+  isDisplayStateInRegistrationDisabled: boolean  [private]
+
+methods
+  addNewLineAt(source: number, dest: string | null): void  [private]
+  change(index: number, newSnippet?: string): void  [private]
+  createdComponent(): void  [private]
+  customerLabel(item: Entity<'customer'>): string  [private]
+  getLabelProperty(value: string): string  [private]
+  getRowDropIndex(dragIndex: number, targetIndex: number): number  [private]
+  getRowDropPosition(dropData: DragItem): number  [private]
+  getRowKey(snippet: string[]): string  [private]
+  getRowTargetIndex(dropIndex: number): number  [private]
+  getSnippets(): Promise<unknown>  [private]
+  moveToNewPosition(source: number, dest: number | null): void  [private]
+  onChangeCustomer(customerId: EntityKey<'customer'>, customer: Entity<'customer'>): void  [private]
+  onCloseModal(): any  [private]
+  onDragEnter(dragData: DragItem, dropData: DragItem): void  [private]
+  onDragStart(dragConfig: DragConfig<DragItem>, draggedElement: Element, dragElement: Element): void  [private]
+  onDrop(dragData: DragItem, dropData: DragItem): void  [private]
+  onDropEnd(dragPosition: number, arg1: { dragData: DragItem; dropData: DragItem }): void  [private]
+  onSnippetDragEnter(arg0: { dragData: DragItem; dropData: DragItem }): void  [private]
+  onSnippetDragStart(arg0: { config: DragConfig<DragItem> }): void  [private]
+  openSnippetModal(position: number): any  [private]
+  renderFormattingAddress(address?: Entity<'customer_address'>): Promise<unknown>  [private]
+  resetMarkup(): void  [private]
+  swapPosition(source: number, dest: number, swag: Array<string[]>): Array<string[]> | null  [private]
+  updateCountry(path: string, value: unknown): void  [private]
+
 blocks
   sw_settings_country_address_handling  [private]
     sw_settings_country_address_handling_formatting  [private]

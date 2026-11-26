@@ -1,0 +1,55 @@
+{% block sw_settings_webhook_roles_modal %}
+<mt-modal-root
+    :is-open="isOpen"
+    @change="onModalRootChange"
+>
+    <mt-modal
+        width="m"
+        :title="$t('sw-settings-webhook.roles.title', { name: webhook.name })"
+    >
+        <template #default>
+            <sw-loader v-if="isLoading" />
+
+            <template v-else-if="editableWebhook && selectedRoles">
+                <sw-entity-multi-select
+                    class="sw-settings-webhook-roles-modal__select"
+                    :entity-collection="selectedRoles"
+                    :criteria="roleCriteria"
+                    :disabled="isRoleSelectDisabled"
+                    :label="$t('sw-settings-webhook.roles.label')"
+                    :placeholder="$t('sw-settings-webhook.roles.placeholder')"
+                    :help-text="$t('sw-settings-webhook.roles.helpText')"
+                    @update:entity-collection="onChangeRoles"
+                />
+
+                <mt-banner
+                    v-if="unheldRoleNames"
+                    class="sw-settings-webhook-roles-modal__unheld-roles"
+                    variant="attention"
+                >
+                    {{ $t('sw-settings-webhook.roles.hintUnheldRoles', { roles: unheldRoleNames }) }}
+                </mt-banner>
+            </template>
+        </template>
+
+        <template #footer>
+            <mt-button
+                variant="secondary"
+                @click="$emit('modal-close')"
+            >
+                {{ $t('global.default.cancel') }}
+            </mt-button>
+
+            <mt-button
+                class="sw-settings-webhook-roles-modal__save"
+                variant="primary"
+                :is-loading="isSaving"
+                :disabled="isLoading || !editableWebhook"
+                @click="onSave"
+            >
+                {{ $t('global.default.save') }}
+            </mt-button>
+        </template>
+    </mt-modal>
+</mt-modal-root>
+{% endblock %}

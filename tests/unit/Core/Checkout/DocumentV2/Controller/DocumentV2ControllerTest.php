@@ -54,7 +54,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -1313,7 +1313,7 @@ class DocumentV2ControllerTest extends TestCase
         ];
 
         if ($excludesNumberRange) {
-            $expectedFilters[] = new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $numberRangeId)]);
+            $expectedFilters[] = new NotEqualsFilter('id', $numberRangeId);
         }
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);

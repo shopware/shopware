@@ -10,7 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -114,7 +114,7 @@ class CheckoutDraftRouteTest extends TestCase
 
     public function testCountryStateHasToBelongToTheCountry(): void
     {
-        $criteria = (new Criteria())->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('countryId', $this->germanyId)]))->setLimit(1);
+        $criteria = (new Criteria())->addFilter(new NotEqualsFilter('countryId', $this->germanyId))->setLimit(1);
         $foreignStateId = static::getContainer()->get('country_state.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
         static::assertIsString($foreignStateId);
 

@@ -10,6 +10,14 @@ component sw-users-permissions-role-view-detailed  public  js
   source src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed/index.js
   template src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed/sw-users-permissions-role-view-detailed.html.twig
 
+inject
+  acl
+
+props
+  detailedPrivileges: any[]
+  isLoading?: boolean  default=false
+  role?: object  default=null
+
 blocks
   sw_users_permissions_role_role_view_general_card_view_additional_permissions  [after v-if]
 ```

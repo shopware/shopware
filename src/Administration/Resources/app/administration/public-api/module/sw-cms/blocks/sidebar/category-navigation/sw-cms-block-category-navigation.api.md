@@ -11,6 +11,9 @@ component sw-cms-block-category-navigation  private  js  [private]
   template src/module/sw-cms/blocks/sidebar/category-navigation/component/sw-cms-block-category-navigation.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_sidebar_category_navigation  [private]
+
 blocks
   sw_cms_block_sidebar_category_navigation  [private]
 ```

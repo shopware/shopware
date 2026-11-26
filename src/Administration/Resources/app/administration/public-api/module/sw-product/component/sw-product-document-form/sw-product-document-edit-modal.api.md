@@ -11,6 +11,57 @@ component sw-product-document-edit-modal  private  ts  [private]
   template src/module/sw-product/component/sw-product-document-form/sw-product-document-edit-modal/sw-product-document-edit-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  productDocumentVariantService  [private]
+  repositoryFactory  [private]
+
+props
+  canEdit?: boolean  default=false  [private]
+  document: Entity<'product_document'>  [private]
+  languageName?: string  default=''  [private]
+  mediaFolderId?: string | null  default=undefined  [private]
+  titlePlaceholder?: string  default=''  [private]
+  uploadHint?: string  default=''  [private]
+  uploadRules: DocumentUploadRules  [private]
+  validateMedia: (media: Entity<'media'>, exceptDocument: Entity<'product_document'>) => boolean  [private]
+
+emits
+  apply(...args: any[])  [private]
+  close(...args: any[])  [private]
+
+data
+  applyToVariants: any  [private]
+  hasSubmitted: any  [private]
+  isApplying: any  [private]
+  isFileRemoved: any  [private]
+  replacementMedia: any  [private]
+  showMediaModal: any  [private]
+  title: any  [private]
+
+computed
+  appliedTitle: string  [private]
+  changes: DocumentChanges  [private]
+  editingMedia: Entity<'media'> | undefined  [private]
+  fileError: { code: string; detail: string } | null  [private]
+  fileHint: string  [private]
+  hasChanges: boolean  [private]
+  hasVariants: boolean  [private]
+  isDisabled: boolean  [private]
+  isSystemDefaultLanguage: boolean  [private]
+  mediaRepository: Repository<'media'>  [private]
+  modalTitle: string  [private]
+  newMediaId: EntityKey<'media'> | null | undefined  [private]
+  newTitle: string | null | undefined  [private]
+  titleError: { code: string; detail: string } | null  [private]
+  uploadTag: string  [private]
+  variantOperation: DocumentVariantOperation | null  [private]
+
+methods
+  apply(): Promise<void>  [private]
+  onUploadFinished(arg0: { targetId: EntityKey<'media'> }): Promise<void>  [private]
+  removeFile(): void  [private]
+  selectMedia(mediaItems: Entity<'media'>[]): void  [private]
+
 blocks
   sw_product_document_edit_modal  [private]
     sw_product_document_edit_modal_media_modal  [private]
@@ -18,4 +69,7 @@ blocks
     sw_product_document_form_replace_file  [private]
       sw_product_document_form_file_error  [private]
     sw_product_document_form_title_input  [private]
+
+notes
+  unresolved options setup  [private]
 ```

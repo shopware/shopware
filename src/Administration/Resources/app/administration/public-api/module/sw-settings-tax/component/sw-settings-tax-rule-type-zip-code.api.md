@@ -10,6 +10,12 @@ component sw-settings-tax-rule-type-zip-code  public  js
   source src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code/index.js
   template src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code/sw-settings-tax-rule-type-zip-code.html.twig
 
+props
+  taxRule: object
+
+methods
+  createdComponent(): any
+
 blocks
   sw_settings_tax_rule_type_zip_code
 ```

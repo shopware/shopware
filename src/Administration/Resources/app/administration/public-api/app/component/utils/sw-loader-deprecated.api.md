@@ -11,6 +11,14 @@ component sw-loader-deprecated  private  js  [private]
   template src/app/component/utils/sw-loader-deprecated/sw-loader.html.twig  [private]
   visibility-source export  [private]
 
+props
+  size?: string  default='50px'  [private]
+
+computed
+  borderWidth: any  [private]
+  loaderSize: any  [private]
+  numericSize: any  [private]
+
 blocks
   sw_loader  [private]
     sw_loader_container  [private]

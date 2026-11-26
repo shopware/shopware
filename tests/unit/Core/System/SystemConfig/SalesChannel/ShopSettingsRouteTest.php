@@ -78,6 +78,7 @@ class ShopSettingsRouteTest extends TestCase
                 'core.listing.hideCloseoutProductsWhenOutOfStock' => true,
                 'core.listing.showVariantOptionInSearchSuggestionResult' => true,
                 'core.listing.findBestVariant' => true,
+                'core.listing.ignoreMainVariantOnPriceSorting' => true,
                 'core.listing.autoplayVideoInListing' => true,
                 'core.listing.beforeListPriceSnippetKey' => 'listing.beforePrice',
                 'core.listing.afterListPriceSnippetKey' => 'listing.afterPrice',
@@ -150,6 +151,7 @@ class ShopSettingsRouteTest extends TestCase
         static::assertTrue($listing->hideCloseoutProductsWhenOutOfStock);
         static::assertTrue($listing->showVariantOptionInSearchSuggestionResult);
         static::assertTrue($listing->findBestVariant);
+        static::assertTrue($listing->ignoreMainVariantOnPriceSorting);
         static::assertTrue($listing->autoplayVideoInListing);
         static::assertSame('listing.beforePrice', $listing->beforeListPriceSnippetKey);
         static::assertSame('listing.afterPrice', $listing->afterListPriceSnippetKey);

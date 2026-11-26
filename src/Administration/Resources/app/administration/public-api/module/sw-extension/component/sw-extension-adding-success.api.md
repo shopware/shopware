@@ -11,6 +11,9 @@ component sw-extension-adding-success  private  js  [private]
   template src/module/sw-extension/component/sw-extension-adding-success/sw-extension-adding-success.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  close(...args: any[])  [private]
+
 blocks
   sw_extension_adding_success  [private]
     sw_extension_adding_success_content  [private]

@@ -87,6 +87,8 @@ publish(draft, expectedHead):
 
 Containment alone is not enough: after a rollback, every newer draft contains the restored revision and would undo the rollback.
 A draft branched from another draft's head can still be published after that draft, because live only moved forward into it.
+This does not hold when publishing that draft made the column a new revision on top of its head:
+the branched draft does not contain that revision, so it conflicts and has to be reopened from live.
 
 ### Compaction after every write
 

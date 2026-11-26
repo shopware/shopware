@@ -40,7 +40,8 @@ Like the draft reads it takes no lock, so a layout write that bypassed publishin
 Publishing writes the draft head to the live layout through the DAL, which enforces resolvability, and removes the draft.
 If the live revision changed since the draft was opened, publishing is a `409` `LAYOUT_PUBLISH_CONFLICT` unless live only moved forward and the draft contains it.
 Another draft or a direct layout write that went live in the meantime therefore conflicts, and so does a rollback, although every newer draft descends from the restored revision.
-A draft branched from another draft's head can be published after that draft.
+A draft branched from another draft's head can be published after that draft,
+unless the write gate changed that draft's head on publishing it, for example by seeding a type default added since the edit.
 The client reopens a draft from the new live state or discards it; publishing never replaces a live state the draft has not seen.
 Rejections: [persisted-mutation-errors.md](persisted-mutation-errors.md#draft-routes).
 

@@ -4,10 +4,8 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -57,7 +55,6 @@ class ElasticsearchStatusCommand extends Command
         $table->addRow(['Available Nodes', $health['number_of_nodes']]);
 
         $indexTask = $this->connection->fetchAssociative('SELECT * FROM elasticsearch_index_task WHERE entity = "product" LIMIT 1');
-        $totalProducts = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM product WHERE version_id = :liveVersionId AND child_count = 0 OR parent_id IS NOT NULL', ['liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]);
 
         // No entry in key
         if ($indexTask === false) {
@@ -74,8 +71,13 @@ class ElasticsearchStatusCommand extends Command
             $table->render();
             $output->writeln('');
 
-            $progressBar = new ProgressBar($output, $totalProducts);
-            $progressBar->advance($totalProducts - $indexTask['doc_count']);
+            if ($indexTask['total_count'] !== null && (int) $indexTask['total_count'] > 0) {
+                $total = (int) $indexTask['total_count'];
+                $progressBar = new ProgressBar($output, $total);
+                $progressBar->advance(max(0, $total - (int) $indexTask['doc_count']));
+            } else {
+                $output->writeln(\sprintf('Remaining items: %d', $indexTask['doc_count']));
+            }
             $output->writeln('');
         } else {
             $table->addRow(['Indexing', 'completed']);

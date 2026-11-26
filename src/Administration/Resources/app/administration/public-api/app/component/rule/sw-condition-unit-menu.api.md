@@ -37,4 +37,7 @@ methods
 
 blocks
   sw_condition_unit_menu  [private]
+
+refs
+  unitMenuButton  -> button  block=sw_condition_unit_menu  [private]
 ```

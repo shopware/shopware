@@ -44,7 +44,7 @@ computed
   mediaFieldClasses: any
   mediaId: any
   mediaRepository: any
-  popoverConfig: any
+  popoverConfig: any  [deprecated tag:v6.8.0]
   suggestionCriteria: any
   toggleButtonLabel: any
 
@@ -80,4 +80,7 @@ blocks
 
 crossings
   v-if  sw_media_field_upload_component -> sw_media_field_media_popover
+
+refs
+  toggleButton  -> mt-button  block=sw_media_field_toggle_button
 ```

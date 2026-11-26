@@ -656,7 +656,10 @@ A finding says how plugin code reaches the member, `Shopware.Service('<name>').<
 - A removed unit has no line in the head commit, so its finding has none.
   The finding about a removed member points to the class or object literal of a service, and to the option or the function of a store.
 - A service is compared with the members it inherits from its parent classes.
-  A member that a parent class loses is reported on every service that inherits it.
+  A change that several services share through a class is reported once, on the class closest to the root of the chain, as in `class:ApiService/property:httpClient`, and the finding lists the services under `Also affects`.
+  Its text names the services as `<instance of ApiService>`.
+  A change that only one service has stays on the service, and so does a change to a service that overrides the member.
+  A class has no entry in the snapshot. Two classes of one name report nothing, and their services keep their own findings.
 - A getter that becomes a state property, or the reverse, is a member that is gone and a new one.
 - An object of the `Shopware` object comes, goes and becomes private with the member that holds it, and that member reports it.
   One that is gone is `property_missing` on the object above it, a new one is `property_added` there, and one that becomes private is `visibility_became_private` on the member that holds it.
@@ -702,7 +705,9 @@ The command takes the version the base branch releases next from the major flag:
 
 An extend child inherits the blocks of its parent, so a change to the parent shows up in the child too.
 It is reported once, on the parent, and the finding lists the children under `Also affects`.
+The services of a class are reported the same way, see "Rules for services".
 A public child of a private parent keeps its own finding, because the change is a break for the child only.
+For the same reason a private service keeps its own finding apart from the one of its public class.
 A component that becomes `@private` with the change was public API until then, so its findings keep their group.
 
 An accepted break, which a file in the repository would allow, does not exist yet.
@@ -710,7 +715,7 @@ An accepted break, which a file in the repository would allow, does not exist ye
 ### Summary
 
 `classifyChanges` in `break-check/break-check.ts` returns the findings as data, and `printFindings` in `break-check/print-findings.ts` prints them as the summary of the break check.
-A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename, the extend children it also affects and the location in the head commit.
+A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename, the extend children or services it also affects and the location in the head commit.
 
 ```text
 Public API check failed: 1 unannounced break.

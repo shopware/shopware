@@ -91,3 +91,15 @@ export function storeUse(name: string): PluginUse {
 
     return { ...use, withoutUnit: `plugin code that calls ${use.unit} throws at runtime` };
 }
+
+/**
+ * @private
+ *
+ * Plugin code reaches the members of a class through every service that is an instance of it. A class is never
+ * reported as a whole, so `withoutUnit` only completes the type.
+ */
+export function classUse(name: string): PluginUse {
+    const use = objectUse(`<instance of ${name}>`);
+
+    return { ...use, withoutUnit: `plugin code that uses ${use.unit} breaks` };
+}

@@ -92,15 +92,36 @@ export type RegisteredUnit = UnitMembers & {
 /**
  * @private
  *
+ * A class that services are instances of, with the members an instance of it has. It is public when one of its
+ * services is, and exists in their flag states. `extends` names the nearest class it extends that is a
+ * `ServiceClass` too. An anonymous class, and two classes of one name, are none, because a finding names a class
+ * by its name. The snapshot does not show the classes. The break check reports a change once on the class when
+ * several services share it.
+ */
+export type ServiceClass = UnitMembers & {
+    name: string;
+    extends: string | null;
+    visibility: 'public' | 'private';
+    source: string;
+    at: SourceLine;
+    states: FlagStates;
+};
+
+/**
+ * @private
+ *
  * One registered service, the object that `Shopware.Service('<name>')` returns.
  *
  * - `registration`: `api-service` for a class below `src/core/service/api/`, which registers under the name its
  *   constructor sets, `provider` for a call that names the service and the function that provides it.
  * - `declared`: what `ServiceContainer` says about the name. `any` is an entry without a real type.
+ * - `class`: the nearest class in its chain that a finding can name, see `ServiceClass`. `null` for an object
+ *   literal.
  */
 export type ServiceUnit = RegisteredUnit & {
     registration: 'api-service' | 'provider';
     declared: 'typed' | 'any' | 'untyped';
+    class: string | null;
 };
 
 /**
@@ -153,6 +174,7 @@ export interface Model {
     flags: FlagContext;
     components: ComponentUnit[];
     services: ServiceUnit[];
+    serviceClasses: ServiceClass[];
     stores: StoreUnit[];
     globals: GlobalUnit[];
     droppedBlocks: DroppedBlock[];

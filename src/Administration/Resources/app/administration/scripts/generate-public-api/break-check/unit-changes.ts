@@ -197,7 +197,9 @@ function findingOf({ unit, states, judged, at, announcement }: WholeChange, comp
  */
 export function unitFindings(base: Units, head: Units, flags: FlagContext): Finding[] {
     return [...new Map([...base, ...head]).values()].flatMap((unit) => {
-        if (!UNIT_KINDS[unit.kind].reportedAsWhole || isLeftToHolder(unit, base, head)) {
+        const { role } = UNIT_KINDS[unit.kind];
+
+        if (role.is !== 'api' || !role.reportedAsWhole || isLeftToHolder(unit, base, head)) {
             return [];
         }
 

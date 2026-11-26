@@ -63,7 +63,7 @@ final class ContentLayoutAssignableCompilerPass implements CompilerPassInterface
 
     /**
      * The section ids the registry's section locator is keyed by — the "section" attribute of each
-     * content_system.specification_source tagged service (header/footer; none in a headless deployment).
+     * content_system.specification_source tagged service that carries one.
      *
      * @return list<string>
      */

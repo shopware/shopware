@@ -55,8 +55,6 @@ final class ContentSystemSchemaReferencesResolveTest extends TestCase
         '/content/',
         '/content-data',
         '/content-decomposed',
-        '/content-footer',
-        '/content-header',
         '/content-skeleton',
     ];
 

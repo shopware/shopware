@@ -53,7 +53,7 @@ microseconds.
 
 It runs no consumer mirroring at all, so a persisted mutation commits without mirrored wiring.
 
-The locked layout's `root_source` initializes `StoredTree::$rootSource`. Operations, default seeding, and tree transforms use and preserve that source. Response diagnostics resolve it through `RootSourceRegistry::resolveGated()`; binding checks run for bound sources, including an empty context for `none`/header/footer. The preceding update checks source membership and rejects a de-registered source before commit. Internal `MapProperty` calls without a source fail with `MAPPING_ROOT_SOURCE_MISSING` (500); missing/blank or unknown request sources remain HTTP 400.
+The locked layout's `root_source` initializes `StoredTree::$rootSource`. Operations, default seeding, and tree transforms use and preserve that source. Response diagnostics resolve it through `RootSourceRegistry::resolveGated()`; binding checks run for bound sources: `none` supplies an empty context, and a section source supplies whatever its `providedRootContext()` returns, which is empty by default. The preceding update checks source membership and rejects a de-registered source before commit. Internal `MapProperty` calls without a source fail with `MAPPING_ROOT_SOURCE_MISSING` (500); missing/blank or unknown request sources remain HTTP 400.
 
 Content the op detaches (`orphaned`), wiring it drops (`droppedWiring`), and static property values it cannot carry
 (`droppedProperties`) come back in the `MutationResult`. The caller can then re-place orphans with `Op/AttachElement`, re-wire dropped keys, or re-apply dropped

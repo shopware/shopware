@@ -26,8 +26,6 @@ Extracts specific element subtree via `?elementId` parameter. `SubTreeExtractor`
 
 The pruner and the extractor therefore sit on opposite sides of the render step. `ElementTreePruner` rebuilds the kept path out of `StoredElement`s through `StoredElement::withSlots()`, never through the constructor, the same idiom as `Layout/StoredTree`'s surgery. `ElementTreePruner` reports a root that does not hold the target as `null` rather than as an error, because the forest has other roots to try. `PartialRenderer::extractTarget()` is the one place a genuinely absent target becomes `elementNotFound`.
 
-Header and footer sources never resolve a target element, so those sections never support partial rendering.
-
 Partial rendering is independent of the response format. `SubTreeExtractor` returns the found instance rather than a copy: `RenderedElement` is `final readonly`, so nothing can mutate what the rest of the tree still points at.
 
 ## Subdirectories

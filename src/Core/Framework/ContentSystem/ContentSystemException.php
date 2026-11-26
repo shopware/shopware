@@ -1554,10 +1554,9 @@ class ContentSystemException extends HttpException
         );
     }
 
-    // The assignment-mismatch write violation, shared by the Core entity-assignment validator and the Storefront
-    // header/footer validator: both reject a content-layout assignment whose bound layout's immutable root source
-    // is a different page kind, with the identical ConstraintViolation shape. $assignmentType is the entity type
-    // (Core) or the section id (Storefront); $propertyPath is the assignment's content_layout_id field path.
+    // The assignment-mismatch write violation of an assignment validator: it rejects a content-layout assignment
+    // whose bound layout's immutable root source is a different page kind. $assignmentType is the entity type or
+    // section id the assignment binds; $propertyPath is the assignment's content_layout_id field path.
     public static function rootSourceAssignmentMismatchViolation(string $rootSource, string $assignmentType, string $propertyPath): ConstraintViolation
     {
         $exception = self::rootSourceAssignmentMismatch($rootSource, $assignmentType);

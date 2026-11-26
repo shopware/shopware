@@ -278,7 +278,7 @@ class InfoControllerTest extends TestCase
         $this->shopIdProvider->expects($this->never())->method('getShopId');
 
         $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
-        $rootSourceRegistry->method('knownRootSources')->willReturn(['category', 'none']);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['category', 'header', 'none']);
 
         $mappingCandidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $mappingCandidateRegistry->method('forRootSource')->willReturnCallback(
@@ -326,6 +326,7 @@ class InfoControllerTest extends TestCase
                     'canonicalToken' => '{{map:category.name}}',
                 ]],
                 // Present but empty, so a client never has to tell "offers nothing" apart from "unknown".
+                'header' => [],
                 'none' => [],
             ],
         ], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));

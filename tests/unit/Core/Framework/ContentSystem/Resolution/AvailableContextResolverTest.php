@@ -66,7 +66,7 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame($rootContext, $this->resolver()->resolve('root-1', [$root], $rootContext));
     }
 
-    #[TestDox('returns nothing for a top-level element whose source exposes no root-ambient context (header/footer)')]
+    #[TestDox('returns nothing for a top-level element whose source exposes no root-ambient context (a section source or none)')]
     public function testTopLevelWithoutRootAmbientReceivesNothing(): void
     {
         $root = new StoredElement('root-1', 'Sw:Block');

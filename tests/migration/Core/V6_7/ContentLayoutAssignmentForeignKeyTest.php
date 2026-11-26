@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_7\Migration1758018342ProductContentLayout;
 use Shopware\Core\Migration\V6_7\Migration1758018343CategoryContentLayout;
 use Shopware\Core\Migration\V6_7\Migration1758018344LandingPageContentLayout;
-use Shopware\Core\Migration\V6_7\Migration1758018345HeaderContentLayout;
-use Shopware\Core\Migration\V6_7\Migration1758018346FooterContentLayout;
 
 /**
  * @internal
@@ -25,8 +23,6 @@ use Shopware\Core\Migration\V6_7\Migration1758018346FooterContentLayout;
 #[CoversClass(Migration1758018342ProductContentLayout::class)]
 #[CoversClass(Migration1758018343CategoryContentLayout::class)]
 #[CoversClass(Migration1758018344LandingPageContentLayout::class)]
-#[CoversClass(Migration1758018345HeaderContentLayout::class)]
-#[CoversClass(Migration1758018346FooterContentLayout::class)]
 class ContentLayoutAssignmentForeignKeyTest extends TestCase
 {
     private Connection $connection;
@@ -83,18 +79,6 @@ class ContentLayoutAssignmentForeignKeyTest extends TestCase
             'landing_page_content_layout',
             'fk.landing_page_content_layout.content_layout_id',
             ['fk.landing_page_content_layout.sales_channel_id'],
-        ];
-        yield 'header_content_layout' => [
-            Migration1758018345HeaderContentLayout::class,
-            'header_content_layout',
-            'fk.header_content_layout.content_layout_id',
-            ['fk.header_content_layout.domain_id', 'fk.header_content_layout.sales_channel_id'],
-        ];
-        yield 'footer_content_layout' => [
-            Migration1758018346FooterContentLayout::class,
-            'footer_content_layout',
-            'fk.footer_content_layout.content_layout_id',
-            ['fk.footer_content_layout.domain_id', 'fk.footer_content_layout.sales_channel_id'],
         ];
     }
 

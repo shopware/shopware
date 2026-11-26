@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Computes the context available at an element's position with one formula for every depth: the ancestor-chain
  * exposure plus the root-ambient set appended verbatim, mirroring runtime delivery. Section-agnostic: the
- * root-ambient set is passed in (entity assignment yields the page entity; header/footer yield nothing).
+ * root-ambient set is passed in (entity assignment yields the page entity; none yields nothing).
  *
  * Public Core service so the diagnostics kernel and the future mutation operations share one context walk.
  *

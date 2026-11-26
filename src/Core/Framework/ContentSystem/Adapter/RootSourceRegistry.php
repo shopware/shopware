@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
  *
  * Entity-type ids and section ids must remain disjoint: knownRootSources() flattens them into one namespace and
  * sourceFor() probes the entity branch before the section locator, so a collision would silently resolve to the
- * entity source. This holds today (sections are header/footer; entity types are DAL entity names).
+ * entity source. Entity types are DAL entity names, so a section id must never equal one.
  *
  * @internal
  *
@@ -52,7 +52,7 @@ class RootSourceRegistry
 
     /**
      * The entity-type subset, for the /api/_info/content-system-entity-types.json picker (which stays entity-only;
-     * header/footer/none are not entity types).
+     * section ids and none are not entity types).
      *
      * @return list<string>
      */
@@ -62,7 +62,7 @@ class RootSourceRegistry
     }
 
     /**
-     * The root-ambient context the source supplies, [] for "none" / header / footer. Fail-hard on an id not in
+     * The root-ambient context the source supplies, [] for "none". Fail-hard on an id not in
      * knownRootSources() (it never returns [] for an unknown id, which would be silent degradation); callers gate
      * membership first.
      *

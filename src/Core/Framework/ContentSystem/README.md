@@ -22,15 +22,9 @@ The module is built on a set of written design rules, one file per area under [d
 
 ## Content Sections
 
-Three content sections with different resolution strategies:
+Routes are parameterized by `ContentSection`; the platform ships the main section.
 
 **Main** (`/store-api/content/{path}`) — Entity-based rendering for Products, Categories, and Landing Pages. Layouts assigned per entity with sales channel fallback. See Adapter/.
-
-**Header** (`/store-api/content-header*`) — Domain-aware singleton per domain/sales channel. Three-tier fallback: domain+channel → channel → global. See Adapter/.
-
-**Footer** (`/store-api/content-footer*`) — Same domain-aware resolution as header.
-
-Header and Footer are Storefront-owned sections: the Core ships none of their data wiring. The `ContentSection` enum that names them (`HEADER`, `FOOTER`, `MAIN`) lives in the Core. Their entity definitions, specification sources, and section resolvers are all registered by the Storefront module via `content-system.php`. This is intentional: headless deployments without the Storefront bundle operate without header/footer sections.
 
 Each section supports these response formats: full, decomposed, skeleton, and data. See SalesChannel/ and Output/.
 
@@ -101,7 +95,6 @@ Admin-facing endpoints are documented in [Api/README.md](Api/README.md).
 - **SalesChannel/** - [SalesChannel/README.md](SalesChannel/README.md) - Store API endpoints
 - **Schema/** - Data loader type introspection and schema generation
 - **Validation/** - [Validation/README.md](Validation/README.md) - DAL write-time resolvability gate (`PreWriteValidationEvent` validators)
-- **Storefront/ContentSystem/** - [Storefront/ContentSystem/README.md](../../../Storefront/ContentSystem/README.md) - Header and footer sections, which are Storefront-owned.
 
 ## Reference Documents
 

@@ -40,6 +40,14 @@ class NoneSpecificationSourceTest extends TestCase
         static::assertFalse((new NoneSpecificationSource())->supportsEntityType('product'));
     }
 
+    #[TestDox('fails hard when entity-type resolution is called on the inherited default')]
+    public function testEntityTypeResolutionFailsHard(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::entityTypeResolutionUnsupported());
+
+        (new NoneSpecificationSource())->resolveSpecificationDataForEntity('entity-id', new Request(), static::createStub(SalesChannelContext::class));
+    }
+
     /**
      * @param \Closure(NoneSpecificationSource, Request, SalesChannelContext): mixed $invoke
      */

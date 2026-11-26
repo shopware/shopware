@@ -1706,9 +1706,5 @@
     "category_content_layout.createdAt",
     "category_content_layout.updatedAt",
     "landing_page_content_layout.createdAt",
-    "landing_page_content_layout.updatedAt",
-    "header_content_layout.createdAt",
-    "header_content_layout.updatedAt",
-    "footer_content_layout.createdAt",
-    "footer_content_layout.updatedAt"
+    "landing_page_content_layout.updatedAt"
 ]

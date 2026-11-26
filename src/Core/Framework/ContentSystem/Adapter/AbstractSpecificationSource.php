@@ -32,7 +32,7 @@ abstract class AbstractSpecificationSource
 
     /**
      * Whether this source can resolve a layout-free specification for the given entity type.
-     * Entity sources override this; domain-aware sources (header/footer) keep the default.
+     * Entity sources override this; section sources keep the default.
      */
     public function supportsEntityType(string $entityType): bool
     {
@@ -50,7 +50,7 @@ abstract class AbstractSpecificationSource
 
     /**
      * The root context this source supplies to a layout's top-level elements. Entity sources override it
-     * with their page data requirements; header/footer sources expose no root-ambient context. Typed on
+     * with their page data requirements; the default exposes no root-ambient context. Typed on
      * Context (not SalesChannelContext): the mapping is config/type-only and reads no sales-channel state.
      *
      * @return list<ProvidedContext>

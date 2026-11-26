@@ -99,7 +99,7 @@ Extensions have to be adjusted:
 
 The back button of the variant detail page now leads to its main product and reads "Main product".
 The back link above its content is removed.
-The block `sw_product_detail_content_top` stays, but is empty.
+The block `sw_product_detail_content_top` stays and only holds an empty `v-if` template, so overrides that continue its `v-if` chain keep working.
 
 ### Settings smart bar titles drop the "Settings ›" prefix
 

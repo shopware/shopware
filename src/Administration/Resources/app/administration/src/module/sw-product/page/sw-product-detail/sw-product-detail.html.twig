@@ -138,6 +138,9 @@
         <sw-card-view v-if="!isProductNotFound">
 
             {% block sw_product_detail_content_top %}
+            <template v-if="!isLoading && isChild">
+                <!-- keep the v-if chain alive -->
+            </template>
             {% endblock %}
 
             {% block sw_product_detail_content_language_info %}

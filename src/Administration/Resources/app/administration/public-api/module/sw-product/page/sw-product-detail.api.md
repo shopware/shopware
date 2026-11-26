@@ -164,7 +164,7 @@ blocks
           sw_product_detail_actions_duplicate
     sw_product_detail_content
       sw_product_detail_content_clone_modal
-      sw_product_detail_content_language_info
+      sw_product_detail_content_language_info  [after v-if]
       sw_product_detail_content_open_in_storefront_modal  [after v-if]
       sw_product_detail_content_tabs  [after v-if]
         sw_product_detail_content_mt_tabs  [from v6.8.0]

@@ -1,0 +1,98 @@
+{
+  "sw-settings-webhook": {
+    "general": {
+      "mainMenuItemGeneral": "Webhooks",
+      "descriptionTextModule": "Webhooks von Benutzern, Integrationen und Apps ansehen und verwalten"
+    },
+    "list": {
+      "columnName": "Name",
+      "columnEvent": "Ereignis",
+      "columnUrl": "URL",
+      "columnOwner": "Eigentümer",
+      "columnRoles": "Beschränkt auf",
+      "columnActive": "Aktiv",
+      "columnErrorCount": "Fehler",
+      "ownerUser": "Benutzer",
+      "ownerIntegration": "Integration",
+      "ownerApp": "App",
+      "ownerAppIntegration": "App-Integration",
+      "tooltipAppWebhookNotDeletable": "Dieser Webhook gehört zu einer App.",
+      "tooltipAppInactive": "Die App dieses Webhooks ist inaktiv, daher wird der Webhook nicht gesendet.",
+      "messageSaveError": "Webhook \"{name}\" konnte nicht gespeichert werden.",
+      "messageDeleteError": "Der Webhook konnte nicht gelöscht werden.",
+      "emptyStateHeadline": "Noch keine Webhooks",
+      "emptyStateDescription": "Hier siehst Du Webhooks, die über die API angelegt oder von Apps registriert wurden.",
+      "ownerFilter": "Eigentümer",
+      "ownerFilterUsers": "Benutzer",
+      "ownerFilterApps": "Apps",
+      "ownerFilterServices": "Services",
+      "loadErrorHeadline": "Die Webhooks konnten nicht geladen werden",
+      "loadErrorDescription": "Lade die Seite neu, um es noch einmal zu versuchen.",
+      "actionShowDeliveries": "Zustellungen anzeigen",
+      "messageSaveSuccess": "Webhook \"{name}\" wurde gespeichert.",
+      "placeholderSearchBar": "Webhooks durchsuchen ...",
+      "actionSetSecret": "Signatur-Secret festlegen",
+      "deletedRole": "Gelöschte Rolle",
+      "allOwnerRoles": "Alle Rollen des Eigentümers",
+      "tooltipWebhookNotOwned": "Nur der Besitzer dieses Webhooks oder ein Administrator kann ihn löschen.",
+      "actionEditRoles": "Auf Rollen beschränken",
+      "tooltipAppWebhookNotEditable": "Webhooks von Apps können nicht auf Rollen beschränkt werden.",
+      "tooltipWebhookNotOwnedEdit": "Nur der Besitzer dieses Webhooks oder ein Administrator kann ihn ändern."
+    },
+    "roles": {
+      "title": "\"{name}\" auf Rollen beschränken",
+      "label": "Rollen",
+      "placeholder": "Alle Rollen des Eigentümers",
+      "helpText": "Der Webhook sendet nur Ereignisse, die diese Rollen sehen dürfen. Lass das Feld leer, um alle Rollen des Eigentümers zu verwenden.",
+      "messageEventNotCovered": "Diese Rollen erlauben das Ereignis von \"{name}\" nicht. Wähle Rollen, die es sehen dürfen.",
+      "hintUnheldRoles": "Der Eigentümer hat diese Rollen nicht mehr, daher kann der Webhook sie nicht verwenden: {roles}"
+    },
+    "secret": {
+      "title": "Signatur-Secret von \"{name}\"",
+      "description": "Jede Zustellung erhält einen shopware-shop-signature-Header mit dem HMAC-SHA256 des Request-Bodys, erzeugt mit diesem Secret. Der Empfänger prüft damit, dass die Anfrage von diesem Shop kommt. Beim Speichern wird das aktuelle Secret sofort ersetzt, daher musst Du das neue auch beim Empfänger hinterlegen.",
+      "labelSecret": "Secret",
+      "placeholderSecret": "Secret des Empfängers eingeben oder generieren",
+      "buttonGenerate": "Generieren",
+      "hintShownOnce": "Kopiere das Secret, bevor Du speicherst. Es kann nicht erneut angezeigt werden.",
+      "messageSaveSuccess": "Das Signatur-Secret von \"{name}\" wurde gespeichert.",
+      "messageSaveError": "Das Signatur-Secret von \"{name}\" konnte nicht gespeichert werden."
+    },
+    "deliveries": {
+      "title": "Zustellungen von \"{name}\"",
+      "columnDate": "Datum",
+      "columnStatus": "Status",
+      "columnResponse": "Antwort",
+      "columnDuration": "Dauer",
+      "durationSeconds": "{seconds} s",
+      "durationUnderOneSecond": "< 1 s",
+      "emptyStateHeadline": "Noch keine Zustellungen",
+      "emptyStateDescription": "Zustellungen erscheinen hier, sobald das Ereignis eintritt.",
+      "hiddenHeadline": "Keine Zustellungen sichtbar",
+      "hiddenDescription": "Nur der Besitzer dieses Webhooks oder ein Administrator kann seine Zustellungen sehen.",
+      "loadErrorHeadline": "Die Zustellungen konnten nicht geladen werden",
+      "loadErrorDescription": "Schließe die Zustellungen und öffne sie erneut, um es noch einmal zu versuchen.",
+      "status": {
+        "success": "Zugestellt",
+        "failed": "Fehlgeschlagen",
+        "pending_retry": "Neuer Versuch geplant",
+        "queued": "In Warteschlange",
+        "running": "Wird gesendet",
+        "not_permitted": "Nicht erlaubt"
+      },
+      "columnCode": "Code",
+      "columnPayload": "Payload",
+      "buttonBack": "Zurück zu den Zustellungen",
+      "tabPayload": "Payload",
+      "tabResponse": "Antwort",
+      "noResponse": "Es kam keine Antwort.",
+      "noBody": "Die Antwort hat keinen Body."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "webhook": {
+        "label": "Webhooks"
+      }
+    }
+  }
+}

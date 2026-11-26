@@ -64,6 +64,8 @@ class LegalGuaranteeNoticeRouteTest extends TestCase
 
         static::assertIsString($response['svg']);
         static::assertSame('https://europa.eu/youreurope/garantien', $response['link']);
+        static::assertIsString($response['text']);
+        static::assertStringStartsWith('<div lang="de">', $response['text']);
     }
 
     public function testNoticeIsNullWhenToggleIsDisabled(): void
@@ -80,6 +82,7 @@ class LegalGuaranteeNoticeRouteTest extends TestCase
 
         static::assertNull($response['svg']);
         static::assertNull($response['link']);
+        static::assertNull($response['text']);
     }
 
     public function testNoticeCanBeDisabledPerSalesChannel(): void

@@ -27,8 +27,10 @@ use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
 use Shopware\Core\Content\Category\Validation\EntryPointValidator;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
@@ -85,6 +87,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('cache.object'),
             service('event_dispatcher'),
             service(CachedDefaultCategoryLevelLoader::class . '.inner'),
+            service(Connection::class),
+            service(EntityCacheKeyGenerator::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -125,6 +129,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CategoryBreadcrumbUpdater::class),
             service('event_dispatcher'),
             service('messenger.default_bus'),
+            service(ProductIndexer::class),
         ])
         // Must run before ProductIndexer so ProductCategoryDenormalizer can include parent category paths.
         ->tag('shopware.entity_indexer', ['priority' => 105]);

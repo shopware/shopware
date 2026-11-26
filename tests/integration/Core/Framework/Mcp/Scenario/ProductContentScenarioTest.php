@@ -41,9 +41,9 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
-        $foundIds = array_column($data['data'], 'id');
+        $foundIds = array_column($data->data, 'id');
         static::assertContains($ids->get('without-media'), $foundIds, 'Product without media should appear');
         static::assertNotContains($ids->get('with-media'), $foundIds, 'Product with media should not appear');
     }
@@ -75,16 +75,16 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             dryRun: false,
         );
 
-        $data = $this->decodeToolOutput($output);
-        static::assertFalse($data['_meta']['dryRun']);
+        $data = $this->assertToolSucceeded($output);
+        static::assertFalse($data->meta['dryRun']);
 
         $readOutput = ($this->entityReadTool)(
             entity: 'product',
             id: $ids->get('price-update'),
         );
 
-        $readData = $this->decodeToolOutput($readOutput);
-        static::assertSame(39.99, $readData['data']['price'][0]['gross']);
+        $readData = $this->assertToolSucceeded($readOutput);
+        static::assertSame(39.99, $readData->data['price'][0]['gross']);
     }
 
     public function testUS24CategoryAssignment(): void
@@ -113,7 +113,7 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             dryRun: false,
         );
 
-        $this->decodeToolOutput($output);
+        $this->assertToolSucceeded($output);
 
         $readOutput = ($this->entityReadTool)(
             entity: 'product',
@@ -123,8 +123,8 @@ class ProductContentScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $readData = $this->decodeToolOutput($readOutput);
-        $categoryIds = array_column($readData['data']['categories'], 'id');
+        $readData = $this->assertToolSucceeded($readOutput);
+        $categoryIds = array_column($readData->data['categories'], 'id');
         static::assertContains($categoryId, $categoryIds, 'Product should be assigned to the category');
     }
 }

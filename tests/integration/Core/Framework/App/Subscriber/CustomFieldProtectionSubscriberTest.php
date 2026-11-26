@@ -98,6 +98,26 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
     }
 
+    public function testUserCantDeleteAppCustomFieldSets(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'custom_field_test'));
+
+        $id = $this->customFieldSetRepo->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertNotNull($id);
+
+        $client = $this->createClient();
+
+        $client->jsonRequest('DELETE', '/api/custom-field-set/' . $id, [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        static::assertNotNull($this->customFieldSetRepo->searchIds(new Criteria([$id]), Context::createDefaultContext())->firstId());
+    }
+
     public function testSystemScopeCanAlwaysWrite(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');

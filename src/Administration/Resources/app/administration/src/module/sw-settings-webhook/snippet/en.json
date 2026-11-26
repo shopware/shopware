@@ -1,0 +1,98 @@
+{
+  "sw-settings-webhook": {
+    "general": {
+      "mainMenuItemGeneral": "Webhooks",
+      "descriptionTextModule": "View and manage the webhooks of users, integrations and apps"
+    },
+    "list": {
+      "columnName": "Name",
+      "columnEvent": "Event",
+      "columnUrl": "URL",
+      "columnOwner": "Owner",
+      "columnRoles": "Limited to",
+      "columnActive": "Active",
+      "columnErrorCount": "Errors",
+      "ownerUser": "User",
+      "ownerIntegration": "Integration",
+      "ownerApp": "App",
+      "ownerAppIntegration": "App integration",
+      "tooltipAppWebhookNotDeletable": "This webhook belongs to an app.",
+      "tooltipAppInactive": "The app of this webhook is inactive, so the webhook is not sent.",
+      "messageSaveError": "Webhook \"{name}\" could not be saved.",
+      "messageDeleteError": "The webhook could not be deleted.",
+      "emptyStateHeadline": "No webhooks yet",
+      "emptyStateDescription": "Webhooks created through the API or registered by apps are shown here.",
+      "ownerFilter": "Owner",
+      "ownerFilterUsers": "Users",
+      "ownerFilterApps": "Apps",
+      "ownerFilterServices": "Services",
+      "loadErrorHeadline": "The webhooks could not be loaded",
+      "loadErrorDescription": "Reload the page to try again.",
+      "actionShowDeliveries": "Show deliveries",
+      "messageSaveSuccess": "Webhook \"{name}\" has been saved.",
+      "placeholderSearchBar": "Search webhooks...",
+      "actionSetSecret": "Set signing secret",
+      "deletedRole": "Deleted role",
+      "allOwnerRoles": "All roles of the owner",
+      "tooltipWebhookNotOwned": "Only the owner of this webhook or an administrator can delete it.",
+      "actionEditRoles": "Limit to roles",
+      "tooltipAppWebhookNotEditable": "Webhooks of apps can't be limited to roles.",
+      "tooltipWebhookNotOwnedEdit": "Only the owner of this webhook or an administrator can change it."
+    },
+    "roles": {
+      "title": "Limit \"{name}\" to roles",
+      "label": "Roles",
+      "placeholder": "All roles of the owner",
+      "helpText": "The webhook only sends events that these roles are allowed to see. Leave empty to use all of the owner's roles.",
+      "messageEventNotCovered": "These roles don't allow the event of \"{name}\". Choose roles that can see it.",
+      "hintUnheldRoles": "The owner no longer has these roles, so the webhook can't use them: {roles}"
+    },
+    "secret": {
+      "title": "Signing secret of \"{name}\"",
+      "description": "Each delivery gets a shopware-shop-signature header with the HMAC-SHA256 of the request body, made with this secret. The receiver uses it to check that the request came from this shop. Saving replaces the current secret right away, so the receiver has to be updated with the new one.",
+      "labelSecret": "Secret",
+      "placeholderSecret": "Enter the receiver's secret or generate one",
+      "buttonGenerate": "Generate",
+      "hintShownOnce": "Copy the secret before you save. It can't be shown again.",
+      "messageSaveSuccess": "The signing secret of \"{name}\" has been saved.",
+      "messageSaveError": "The signing secret of \"{name}\" could not be saved."
+    },
+    "deliveries": {
+      "title": "Deliveries of \"{name}\"",
+      "columnDate": "Date",
+      "columnStatus": "Status",
+      "columnResponse": "Response",
+      "columnDuration": "Duration",
+      "durationSeconds": "{seconds} s",
+      "durationUnderOneSecond": "< 1 s",
+      "emptyStateHeadline": "No deliveries yet",
+      "emptyStateDescription": "Deliveries show up here once the event happens.",
+      "hiddenHeadline": "No deliveries to show",
+      "hiddenDescription": "Only the owner of this webhook or an administrator can see its deliveries.",
+      "loadErrorHeadline": "The deliveries could not be loaded",
+      "loadErrorDescription": "Close the deliveries and open them again to retry.",
+      "status": {
+        "success": "Delivered",
+        "failed": "Failed",
+        "pending_retry": "Retrying",
+        "queued": "Queued",
+        "running": "Sending",
+        "not_permitted": "Not permitted"
+      },
+      "columnCode": "Code",
+      "columnPayload": "Payload",
+      "buttonBack": "Back to deliveries",
+      "tabPayload": "Payload",
+      "tabResponse": "Response",
+      "noResponse": "No response was received.",
+      "noBody": "The response has no body."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "webhook": {
+        "label": "Webhooks"
+      }
+    }
+  }
+}

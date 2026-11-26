@@ -385,6 +385,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
 
             foreach ($chunk as $pk) {
+                // Prefetch only queries the context version; other versions must fall back to the database.
+                if ($versionField && $pk[$versionField->getPropertyName()] !== $parameters->getContext()->getContext()->getVersionId()) {
+                    continue;
+                }
+
                 if (!$primaryKeyBag->hasExistence($definition, $pk)) {
                     $primaryKeyBag->addExistenceState($definition, $pk, []);
                 }
@@ -651,7 +656,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $decodedPrimaryKey = [];
         foreach ($primaryKey as $fieldName => $fieldValue) {
-            $field = $definition->getField($fieldName);
+            $field = $definition->getField($fieldName) ?? $definition->getFields()->getByStorageName($fieldName);
             $decodedPrimaryKey[$fieldName] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
         }
 
@@ -820,7 +825,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 }
 
                 // if the value did not change, we can ignore it
-                if (!$changeset->getAfter($immutableField)) {
+                if (!$changeset->hasChanged($immutableField)) {
                     continue;
                 }
 

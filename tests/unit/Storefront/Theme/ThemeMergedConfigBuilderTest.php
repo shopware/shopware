@@ -280,6 +280,41 @@ class ThemeMergedConfigBuilderTest extends TestCase
         static::assertEquals($expectedStructured, $config);
     }
 
+    public function testGetThemeConfigurationFieldStructureAlwaysContainsDefaultTab(): void
+    {
+        $themeId = Uuid::randomHex();
+        $baseThemeId = Uuid::randomHex();
+
+        $this->mockThemeRepositorySearch(new ThemeCollection([
+            (new ThemeEntity())->assign([
+                'id' => $themeId,
+                '_uniqueIdentifier' => $themeId,
+                'technicalName' => 'Test',
+                'baseConfig' => [
+                    'fields' => [
+                        'sw-color-brand-primary' => [
+                            'type' => 'color',
+                            'value' => '#008490',
+                            'tab' => 'colors',
+                        ],
+                    ],
+                ],
+            ]),
+            (new ThemeEntity())->assign([
+                'id' => $baseThemeId,
+                '_uniqueIdentifier' => $baseThemeId,
+                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+            ]),
+        ]));
+
+        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
+
+        $config = $this->mergedConfigBuilder->getThemeConfigurationFieldStructure($themeId, $this->context);
+
+        static::assertArrayHasKey('colors', $config['tabs']);
+        static::assertSame(['labelSnippetKey' => 'default.label'], $config['tabs']['default']);
+    }
+
     private function mockThemeRepositorySearch(ThemeCollection $themeCollection): void
     {
         // Set up the mock to handle both the main search and the parent theme search

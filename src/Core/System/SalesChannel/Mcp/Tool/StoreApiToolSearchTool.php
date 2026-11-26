@@ -3,8 +3,10 @@
 namespace Shopware\Core\System\SalesChannel\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
 
 /**
@@ -13,7 +15,7 @@ use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
  * @internal
  */
 #[Package('framework')]
-#[McpTool(name: self::NAME, title: 'Tool Search', description: 'Search the Store API MCP tool catalogue by free-text query and return the most relevant tool definitions inline. Use this when a needed tool is not visible in tools/list.')]
+#[McpTool(name: self::NAME, title: 'Tool Search', annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false), description: 'Search the Store API MCP tool catalogue by free-text query and return the most relevant tool definitions inline. Use this when a needed tool is not visible in tools/list.')]
 #[McpToolGroup('discovery')]
 class StoreApiToolSearchTool extends AbstractToolSearchTool
 {
@@ -22,7 +24,7 @@ class StoreApiToolSearchTool extends AbstractToolSearchTool
      * binds the tool to this class instead of the (non-instantiable) abstract base.
      */
     #[\Override]
-    public function __invoke(string $query, int $maxResults = 3): string
+    public function __invoke(string $query, int $maxResults = 3): McpToolResult
     {
         return parent::__invoke($query, $maxResults);
     }

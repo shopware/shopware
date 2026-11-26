@@ -106,6 +106,10 @@ class DefinitionValidator
         'one_time_tasks',
         'invalidation_tags',
         'deleted_apps',
+        'cms_page_media_usage',
+        'category_translation_media_usage',
+        'product_translation_media_usage',
+        'landing_page_translation_media_usage',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

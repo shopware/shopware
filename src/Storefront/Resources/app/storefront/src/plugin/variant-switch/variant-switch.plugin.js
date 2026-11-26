@@ -17,6 +17,7 @@ export default class VariantSwitchPlugin extends Plugin {
         url: '',
         elementId: '',
         pageType: '',
+        variantUrl: '',
         radioFieldSelector: '.product-detail-configurator-option-input',
         selectFieldSelector: '.product-detail-configurator-select-input',
         focusHandlerKey: 'variant-switch',
@@ -33,6 +34,7 @@ export default class VariantSwitchPlugin extends Plugin {
         this._pageType = this.options.pageType;
 
         this._ensureFormElement();
+        this._showVariantUrl();
         this._preserveCurrentValues();
         this._registerEvents();
         this._resumeFocusState();
@@ -65,6 +67,23 @@ export default class VariantSwitchPlugin extends Plugin {
                 }
             });
         }
+    }
+
+    /**
+     * shows the URL of the variant displayed on the URL of its parent
+     *
+     * @private
+     */
+    _showVariantUrl() {
+        if (!this.options.variantUrl) {
+            return;
+        }
+
+        const url = new URL(this.options.variantUrl, window.location.origin);
+        url.search = window.location.search;
+        url.hash = window.location.hash;
+
+        window.history.replaceState(window.history.state, '', url.toString());
     }
 
     /**

@@ -11,10 +11,15 @@
                 url: url('frontend.detail.switch', { productId: product.parentId }),
                 pageType: pageType
             } %}
+
+            {% if app.request.attributes.get('productId') == product.parentId %}
+                {% set config = config|merge({ variantUrl: seoUrl('frontend.detail.page', { productId: product.id }) }) %}
+            {% endif %}
         {% endif %}
 
         {% block buy_widget_configurator_form %}
-            <form data-variant-switch="true" data-variant-switch-options="{{ config|json_encode }}">
+            {# unescaped slashes keep the SEO URL placeholder of the variant replaceable #}
+            <form data-variant-switch="true" data-variant-switch-options="{{ config|json_encode(constant('JSON_UNESCAPED_SLASHES')) }}">
                 {% block buy_widget_configurator_groups %}
                     {% for group in configuratorSettings %}
                         {% block buy_widget_configurator_group %}

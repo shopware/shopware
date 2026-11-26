@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\ProductExport\Api\ProductExportController;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
 use Shopware\Core\Content\ProductExport\DataAbstractionLayer\ProductExportExceptionHandler;
@@ -103,6 +104,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LanguageLocaleCodeProvider::class),
             service(TwigVariableParserFactory::class),
             service(CategoryBreadcrumbBuilder::class),
+            service(SystemConfigService::class),
+            service(ProductCloseoutFilterFactory::class),
         ]);
 
     $services->set(ProductExportGenerateCommand::class)

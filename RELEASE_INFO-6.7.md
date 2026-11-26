@@ -22,6 +22,12 @@ While a stored file is kept, the document also keeps its order version and confi
 The missing file is rendered from the current order.
 To get fresh files for an existing document, generate a new document instead of regenerating it.
 
+### Product comparison exports leave out hidden clearance products
+
+When "Hide products after clearance" (`core.listing.hideCloseoutProductsWhenOutOfStock`) is enabled for the storefront sales channel of a product comparison export, the export now leaves out sold-out clearance products and variants.
+Their product pages return 404 in that storefront, so the feed linked to pages that do not exist.
+Feeds of shops with this setting enabled contain fewer products after the next generation.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

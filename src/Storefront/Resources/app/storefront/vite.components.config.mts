@@ -8,6 +8,7 @@ import { extensionModuleResolverPlugin } from './build/vite/extension-module-res
 import { plainCssShimPlugin } from './build/vite/plain-css-shim-plugin';
 import { scopedSubpathExportsPlugin } from './build/vite/scoped-subpath-exports-plugin';
 import { themeScssWatcherPlugin } from './build/vite/theme-scss-watcher-plugin';
+import { storefrontSbomPlugin } from './build/vite/storefront-sbom.mjs';
 import {
     extensionComponentAliasesPlugin,
     loadExtensionComponentAliases,
@@ -117,6 +118,11 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
             },
         },
         plugins: [
+            storefrontSbomPlugin({
+                bundleName: 'Storefront',
+                bundleRoot: path.resolve(import.meta.dirname, '../../..'),
+                target: 'components',
+            }),
             extensionComponentAliasesPlugin(extensionAliases, coreAliases),
             componentMapPlugin(),
             devImportMapPlugin(projectRoot, scssLoadPaths),

@@ -1,0 +1,11 @@
+parameters:
+    unit_test.bundle.services.base: loaded
+    unit_test.bundle.services.yaml_environment: default
+
+when@prod:
+    parameters:
+        unit_test.bundle.services.yaml_environment: prod
+
+when@test:
+    parameters:
+        unit_test.bundle.services.yaml_environment: test

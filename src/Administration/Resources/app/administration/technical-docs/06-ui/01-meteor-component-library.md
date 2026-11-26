@@ -135,7 +135,6 @@ Add a missing token with the `--sw-` prefix instead.
 ### Component Mapping
 
 Legacy `sw-*` components that Meteor replaces are marked `@deprecated` and name their replacement.
-The Meteor [migration page](https://meteor.shopware.com/documentation/getting-started/migration) has the full mapping.
 Do not add new usages of them.
 
 ### Breaking Changes

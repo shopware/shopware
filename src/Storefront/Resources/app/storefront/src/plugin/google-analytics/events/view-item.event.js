@@ -6,12 +6,10 @@ import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 export default class ViewItemEvent extends AnalyticsEvent
 {
     /**
-     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} activeRoute
+     * @param {AnalyticsEventContext} context
      * @returns {boolean}
      */
-    supports(controllerName, actionName, activeRoute) {
+    supports({ activeRoute }) {
         return activeRoute === 'frontend.detail.page';
     }
 

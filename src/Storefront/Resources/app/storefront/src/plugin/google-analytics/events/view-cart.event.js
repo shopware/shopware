@@ -3,7 +3,7 @@ import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class ViewCartEvent extends AnalyticsEvent
 {
-    supports(controllerName, actionName, activeRoute) {
+    supports({ activeRoute }) {
         // Always support if on cart page
         if (activeRoute === 'frontend.checkout.cart.page') {
             return true;

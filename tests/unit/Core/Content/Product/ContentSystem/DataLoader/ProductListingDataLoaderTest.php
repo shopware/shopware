@@ -420,6 +420,23 @@ class ProductListingDataLoaderTest extends TestCase
         }
     }
 
+    #[TestDox('lets a requested listing page beyond the last one propagate instead of degrading')]
+    public function testLoadLetsPageOutOfRangePropagate(): void
+    {
+        $exception = ProductException::pageOutOfRange(99, 1);
+
+        $this->listingRoute->method('load')->willThrowException($exception);
+
+        $this->expectExceptionObject($exception);
+
+        $this->loader->load(
+            new LoaderInputs(['property' => Uuid::randomHex(), 'associations' => []]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(['p' => 99]),
+        );
+    }
+
     /**
      * Sample domain exceptions off the listing chain, not one row per catch arm: the loader catches the
      * single covering ancestor `ShopwareHttpException`, so no row maps to a clause of its own.

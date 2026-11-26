@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Product\Exception\ProductListingPageOutOfRangeException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
@@ -79,8 +80,12 @@ class ProductListingDataLoader extends AbstractContentDataLoader
         // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // Known local throws: a category assigned to a deleted or filterless product stream surfaces as
         // EntityNotFoundException or NoFilterException out of ProductStreamBuilder.
+        // A requested page beyond the last one is not a broken element but a nonexistent page, so it propagates
+        // and answers the request with 404, like a CMS listing.
         try {
             $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
+        } catch (ProductListingPageOutOfRangeException $e) {
+            throw $e;
         } catch (ShopwareHttpException) {
             return ContentDataLoaderResult::notFound();
         }

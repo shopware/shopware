@@ -10,8 +10,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
@@ -710,5 +712,33 @@ class StorefrontControllerTest extends TestCase
 
         $this->controller->setContainer($container);
         $this->controller->testRedirectToRoute('test_route', ['test' => 'param']);
+    }
+
+    public function testLoadContentPageReturnsNullWhenTheContentRouteFails(): void
+    {
+        $contentRoute = static::createStub(AbstractContentRoute::class);
+        $contentRoute->method('load')->willThrowException(ProductException::categoryNotFound('category-id'));
+
+        $container = new ContainerBuilder();
+        $container->set(AbstractContentRoute::class, $contentRoute);
+        $this->controller->setContainer($container);
+
+        static::assertNull($this->controller->testLoadContentPage('/category/id', new Request(), static::createStub(SalesChannelContext::class)));
+    }
+
+    public function testLoadContentPageThrowsWhenTheListingPageIsOutOfRange(): void
+    {
+        $exception = ProductException::pageOutOfRange(99, 1);
+
+        $contentRoute = static::createStub(AbstractContentRoute::class);
+        $contentRoute->method('load')->willThrowException($exception);
+
+        $container = new ContainerBuilder();
+        $container->set(AbstractContentRoute::class, $contentRoute);
+        $this->controller->setContainer($container);
+
+        $this->expectExceptionObject($exception);
+
+        $this->controller->testLoadContentPage('/category/id', new Request(), static::createStub(SalesChannelContext::class));
     }
 }

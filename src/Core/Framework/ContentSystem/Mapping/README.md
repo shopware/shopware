@@ -62,7 +62,7 @@ Provider faults, inline parser failures, and inline-output exhaustion abort the 
 
 - Store API content requests propagate the failure through normal error handling. Inline-output exhaustion returns HTTP 500 with `CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE`, and parser failures return HTTP 500 with `CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED`; provider faults retain their normal error status and code.
 - Preview URL creation and preview rendering propagate the same failures. A failed build during URL creation stores no preview token.
-- Storefront content loading through `StorefrontController::loadContentPage()` catches `\Exception` from the content route and returns a null content page. Callers such as `NavigationController::content()` can then render a successful HTTP response without the content page. This catch includes parser failures, the output-limit exception, and provider exceptions, but does not catch PHP `Error` or `TypeError`.
+- Storefront content loading through `StorefrontController::loadContentPage()` catches `\Exception` from the content route, except an out-of-range listing page, and returns a null content page. Callers such as `NavigationController::content()` can then render a successful HTTP response without the content page. This catch includes parser failures, the output-limit exception, and provider exceptions, but does not catch PHP `Error` or `TypeError`.
 
 The rendering rules are shared across these paths, while their outer HTTP handling differs. Missing source data continues to use the whole-field fallback and inline-token omission rules above.
 

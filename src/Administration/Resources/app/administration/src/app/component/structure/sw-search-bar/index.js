@@ -239,6 +239,7 @@ export default {
                 this.currentSearchType = this.initialSearchType;
             }
 
+            // Clear the term when the same route drops it, e.g. browser back after a search or a click on the active menu item
             if (
                 newValue.query.term === undefined &&
                 newValue.name === oldValue?.name &&

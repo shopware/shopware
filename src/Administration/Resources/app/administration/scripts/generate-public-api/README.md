@@ -99,7 +99,7 @@ What the reader cannot resolve becomes a note in the report, because a member th
 
 `read/declarations.ts` finds what a name in a script stands for: a `const`, a function or a class of an enclosing scope or of the file, or what an import brings in.
 `read/services/service-registry.ts` finds the registrations with it, and `provided-object.ts` follows a provider to the class or object literal behind the service.
-`object-members.ts` reads the members of that class or literal, and `service-units.ts` puts the units together.
+`object-members.ts` reads the members of that class or literal, and `service-units.ts` puts the units together, with the classes that services are instances of.
 `read/member-reading.ts` holds what the readers of members share: the name, line and comment of a member, and the signature of a function.
 A service has the member kinds `property` and `method`, so the printers and the rules for a method are those of a component.
 `read/stores/store-registry.ts` finds the `Store.register` calls, `store-members.ts` reads the state, getters and actions of an options store and of a setup store, and `store-units.ts` puts the units together.
@@ -139,8 +139,9 @@ flowchart TD
 A rule knows nothing about flag states, markers or visibility.
 It gets the facts of one unit in one state at the base and at the head, and returns the changes with the element each one is about.
 `units.ts` turns the components, the services and the stores of a model into units, so the rules run on all of them.
+It also makes a unit of each class that services are instances of, which only reports a change that several of its services share.
 A service or a store has no template, so its facts hold no blocks and the block rules find nothing.
-`break-check.ts` joins what a rule found in both states, and then decides whether the unit is private and whether an extend child only inherits the finding.
+`break-check.ts` joins what a rule found in both states, and then decides whether the unit is private and whether an extend child or a service only inherits the finding.
 `announcements.ts` decides whether a marker announced the change.
 The text of a finding gets the wording for its kind of unit from `plugin-use.ts`: a plugin reaches a method of a component through `$super`, one of a service through `Shopware.Service('<name>')`, and an action of a store through `Shopware.Store.get('<id>')`.
 `unit-changes.ts` compares the units themselves and reports a service or a store that only one commit has, or that became private.

@@ -204,7 +204,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
     return {
         flags,
         components,
-        services: serviceUnits(tree, declarations, flags),
+        ...serviceUnits(tree, declarations, flags),
         stores: storeUnits(tree, declarations, flags),
         droppedBlocks,
         unusedBlocks: unusedBlocks(calls, templates),

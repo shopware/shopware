@@ -174,8 +174,9 @@ export function unitFindings(
     return [...ids].flatMap((id) => {
         const comparison: Comparison = { base: base.get(id), head: head.get(id), flags };
         const kind = (comparison.base ?? comparison.head)?.kind;
+        const role = kind === undefined ? undefined : UNIT_KINDS[kind].role;
 
-        return kind !== undefined && UNIT_KINDS[kind].reportedAsWhole
+        return role?.is === 'api' && role.reportedAsWhole
             ? WHOLE_CHANGES.flatMap((change) => change(comparison)).map((change) => findingOf(change, comparison))
             : [];
     });

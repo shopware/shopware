@@ -194,35 +194,53 @@ function parentOf({ node }: Located<ts.ClassLikeDeclaration>): ts.Expression | u
 /**
  * @private
  *
- * The members an instance of the class has, with those it inherits along its `extends` chain. An own member
- * comes before an inherited one of its name. A parent that is no class of the source tree is noted.
+ * A class with the members an instance of it has.
  */
-export function instanceMembers(
+export interface ClassMembers extends ObjectMembers {
+    declaration: Located<ts.ClassLikeDeclaration>;
+}
+
+/**
+ * @private
+ *
+ * The class and the classes along its `extends` chain, nearest first. Each comes with the members an instance
+ * of it has, its own and those it inherits, and an own member comes before an inherited one of its name. A
+ * parent that is no class of the source tree is noted and ends the chain.
+ */
+export function classChain(
     declaration: Located<ts.ClassLikeDeclaration>,
     declarations: Declarations,
     seen: readonly ts.Node[] = [],
-): ObjectMembers {
+): [ClassMembers, ...ClassMembers[]] {
     const reading = new Reading(declaration.source);
     const own = ownMembers(declaration, reading);
     const parent = parentOf(declaration);
     const parentClass = parent && declarations.valueOf(parent, declaration.source);
 
     if (parent === undefined || parentClass === undefined) {
-        return { members: own, notes: reading.notes };
+        return [{ declaration, members: own, notes: reading.notes }];
     }
 
     if (!ts.isClassLike(parentClass.node) || seen.includes(parentClass.node)) {
         reading.unresolved('parent', parent);
 
-        return { members: own, notes: reading.notes };
+        return [{ declaration, members: own, notes: reading.notes }];
     }
 
-    const inherited = instanceMembers({ node: parentClass.node, source: parentClass.source }, declarations, [
+    const inherited = classChain({ node: parentClass.node, source: parentClass.source }, declarations, [
         ...seen,
         declaration.node,
     ]);
+    const [nearest] = inherited;
 
-    return { members: uniqueByName([...own, ...inherited.members]), notes: [...reading.notes, ...inherited.notes] };
+    return [
+        {
+            declaration,
+            members: uniqueByName([...own, ...nearest.members]),
+            notes: [...reading.notes, ...nearest.notes],
+        },
+        ...inherited,
+    ];
 }
 
 /** The member of an object literal under a literal name. */

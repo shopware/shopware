@@ -101,10 +101,27 @@ function sameChange(a: Finding, b: Finding): boolean {
     return a.group === b.group && a.rule === b.rule && a.element === b.element && a.states.join() === b.states.join();
 }
 
+function reportedOn({ unit, finding }: UnitFinding, reached: UnitFinding[]): Finding {
+    const alsoAffects = reached.map((other) => other.unit.name).sort(byCodePoint);
+
+    return {
+        ...finding,
+        element: `${unit.id}/${finding.element}`,
+        ...(alsoAffects.length === 0 ? {} : { alsoAffects }),
+    };
+}
+
+/** The unit that reports a change its chain shares: the owner, and a grouping only when two units share it. */
+function reporterOf(owner: UnitFinding, affected: UnitFinding[]): UnitFinding | undefined {
+    return UNIT_KINDS[owner.unit.kind].role.is === 'api' || affected.length > 1 ? owner : undefined;
+}
+
 /**
- * An extend child inherits the elements of its parent, so a change to the parent shows up in the child too.
- * It is reported once, on the unit closest to the root of the chain that has it, with the children it reaches.
- * A public child of a private parent keeps its finding, because the two differ in their group.
+ * A unit inherits the elements of its parent: an extend child those of the component it extends, and a service
+ * those of its class. A change to the parent shows up in the child too. It is reported once, on the unit closest
+ * to the root of the chain that has it, with the units it reaches. A class is no API of its own, so it only
+ * reports a change that at least two services share, see `reporterOf`. A child keeps its own finding when its group differs from
+ * the one of its parent, such as a public child of a private parent.
  */
 function reportedOnce(findings: UnitFinding[]): Finding[] {
     const inherited = (reported: UnitFinding): UnitFinding | undefined =>
@@ -114,22 +131,27 @@ function reportedOnce(findings: UnitFinding[]): Finding[] {
 
         return fromParent === undefined ? reported : ownerOf(fromParent);
     };
-    const children = new Map<UnitFinding, string[]>();
+    const shared = new Map<UnitFinding, UnitFinding[]>();
 
     findings.forEach((reported) => {
         const owner = ownerOf(reported);
 
-        children.set(owner, [
-            ...(children.get(owner) ?? []),
-            ...(owner === reported ? [] : [reported.unit.name]),
-        ]);
+        shared.set(owner, [...(shared.get(owner) ?? []), reported]);
     });
 
-    return [...children].map(([{ unit, finding }, alsoAffects]) => ({
-        ...finding,
-        element: `${unit.id}/${finding.element}`,
-        ...(alsoAffects.length === 0 ? {} : { alsoAffects: alsoAffects.sort(byCodePoint) }),
-    }));
+    return [...shared].flatMap(([owner, reached]) => {
+        const affected = reached.filter(({ unit }) => UNIT_KINDS[unit.kind].role.is === 'api');
+        const reporter = reporterOf(owner, affected);
+
+        return reporter === undefined
+            ? affected.map((reported) => reportedOn(reported, []))
+            : [
+                  reportedOn(
+                      reporter,
+                      affected.filter((reported) => reported !== reporter),
+                  ),
+              ];
+    });
 }
 
 function inSummaryOrder(a: Finding, b: Finding): number {

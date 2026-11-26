@@ -76,6 +76,56 @@ class StockStorage extends AbstractStockStorage
     }
 
     /**
+     * Locks closeout products only, normal products may be oversold.
+     *
+     * @param array<string, int> $quantities
+     *
+     * @return list<string>
+     */
+    public function lockForOrder(array $quantities, Context $context): array
+    {
+        if ($quantities === [] || $context->getVersionId() !== Defaults::LIVE_VERSION) {
+            return [];
+        }
+
+        $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $closeoutIds = $this->connection->fetchFirstColumn(
+            <<<'SQL'
+                SELECT product.id
+                FROM product
+                LEFT JOIN product parent
+                    ON parent.id = product.parent_id
+                    AND parent.version_id = product.version_id
+                WHERE product.id IN (:ids)
+                    AND product.version_id = :version
+                    AND COALESCE(product.is_closeout, parent.is_closeout, 0) = 1
+            SQL,
+            ['ids' => Uuid::fromHexToBytesList(array_keys($quantities)), 'version' => $version],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        if ($closeoutIds === []) {
+            return [];
+        }
+
+        $stocks = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), stock FROM product WHERE id IN (:ids) AND version_id = :version FOR UPDATE',
+            ['ids' => $closeoutIds, 'version' => $version],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $insufficient = [];
+        foreach ($stocks as $id => $stock) {
+            if ((int) $stock < $quantities[(string) $id]) {
+                $insufficient[] = (string) $id;
+            }
+        }
+
+        return $insufficient;
+    }
+
+    /**
      * @param list<string> $productIds
      */
     public function index(array $productIds, Context $context): void

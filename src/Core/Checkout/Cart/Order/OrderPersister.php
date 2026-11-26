@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -13,9 +12,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableWriteTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
@@ -34,7 +33,8 @@ class OrderPersister implements OrderPersisterInterface
         private readonly EntityRepository $orderRepository,
         private readonly OrderConverter $converter,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
-        private readonly ?Connection $connection = null,
+        private readonly Connection $connection,
+        private readonly AbstractStockStorage $stockStorage,
     ) {
     }
 
@@ -63,33 +63,21 @@ class OrderPersister implements OrderPersisterInterface
 
         $order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
 
-        $create = function () use ($order, $cart, $context): void {
-            $this->assertCloseoutStock($cart);
+        // Stock is locked and checked in the transaction that writes the order and decrements the stock,
+        // so concurrent checkouts cannot take the same last units.
+        RetryableWriteTransaction::retryable($this->connection, function () use ($order, $cart, $context): void {
+            $this->assertStock($cart, $context->getContext());
 
             $context->getContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($order): void {
                 $this->orderRepository->create([$order], $context);
             });
-        };
-
-        if ($this->connection === null || $context->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
-            $create();
-        } else {
-            // Closeout stock is locked and re-checked in the same transaction that writes the order and, through
-            // OrderStockSubscriber, decrements the stock. Concurrent checkouts can therefore not both take the
-            // last units of a closeout product.
-            $connection = $this->connection;
-            RetryableTransaction::retryable($connection, static fn () => $connection->transactional($create));
-        }
+        });
 
         return $order['id'];
     }
 
-    private function assertCloseoutStock(Cart $cart): void
+    private function assertStock(Cart $cart, Context $context): void
     {
-        if ($this->connection === null) {
-            return;
-        }
-
         $quantities = [];
         $labels = [];
         foreach ($cart->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE) as $lineItem) {
@@ -106,31 +94,9 @@ class OrderPersister implements OrderPersisterInterface
             return;
         }
 
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                SELECT LOWER(HEX(product.id)) AS id, product.stock
-                FROM product
-                LEFT JOIN product parent
-                    ON parent.id = product.parent_id
-                    AND parent.version_id = product.version_id
-                WHERE product.id IN (:ids)
-                    AND product.version_id = :version
-                    AND COALESCE(product.is_closeout, parent.is_closeout, 0) = 1
-                FOR UPDATE
-            SQL,
-            [
-                'ids' => Uuid::fromHexToBytesList(array_keys($quantities)),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-
         $errors = new ErrorCollection();
-        foreach ($rows as $row) {
-            $id = (string) $row['id'];
-            if ((int) $row['stock'] < $quantities[$id]) {
-                $errors->add(new ProductOutOfStockError($id, $labels[$id]));
-            }
+        foreach ($this->stockStorage->lockForOrder($quantities, $context) as $productId) {
+            $errors->add(new ProductOutOfStockError($productId, $labels[$productId] ?? $productId));
         }
 
         if ($errors->count() > 0) {

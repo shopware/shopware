@@ -2,6 +2,16 @@
 
 ## Core
 
+### Closeout stock is locked when an order is placed
+
+Two checkouts could both order the last units of a closeout product and drive its stock below zero.
+`OrderPersister` now writes the order in a transaction and calls the new `AbstractStockStorage::lockForOrder()` before the order is written.
+The default `StockStorage` locks the closeout products of the cart and rejects the order with a `ProductOutOfStockError` when their stock is too low.
+Normal products are not locked and can still be oversold.
+Decorators of `AbstractStockStorage` inherit the behaviour from the decorated storage.
+Replacements that do not decorate the core storage can override `lockForOrder()` to reserve stock in their own inventory.
+Clients placing orders should handle this error by reloading the cart.
+
 ### Moving a category re-indexes its products
 
 Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.

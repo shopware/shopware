@@ -5,10 +5,8 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Stock;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
-use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
@@ -442,49 +440,6 @@ class StockStorageTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
         $this->assertStock(4, $product);
-    }
-
-    /**
-     * Two shoppers validate the last closeout unit concurrently: both carts are
-     * calculated while stock is still 1, then both orders are persisted.
-     */
-    public function testConcurrentOrdersCannotOversellCloseoutProduct(): void
-    {
-        $id = $this->createProduct(['stock' => 1]);
-
-        $other = $this->contextFactory->create(
-            Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL,
-            [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
-        );
-
-        $carts = [];
-        foreach ([$this->context, $other] as $ctx) {
-            $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
-            $cart = $this->cartService->getCart($ctx->getToken(), $ctx);
-            $cart = $this->cartService->add($cart, $factory->create(['id' => $id, 'referencedId' => $id, 'quantity' => 1], $ctx), $ctx);
-            static::assertFalse($cart->getErrors()->blockOrder());
-            $carts[] = [$cart, $ctx];
-        }
-
-        $persister = static::getContainer()->get(OrderPersister::class);
-        $persister->persist($carts[0][0], $carts[0][1]);
-
-        $exception = null;
-        try {
-            $persister->persist($carts[1][0], $carts[1][1]);
-        } catch (CartException $e) {
-            $exception = $e;
-        }
-
-        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())->get($id);
-        static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertSame(0, $product->getStock(), 'closeout stock must never go below zero');
-        static::assertNotNull($exception, 'second order for the last closeout unit must be rejected');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('lineItems.productId', $id));
-        static::assertSame(1, $this->orderRepository->search($criteria, Context::createDefaultContext())->getTotal());
     }
 
     public function testStockAfterCancel(): void

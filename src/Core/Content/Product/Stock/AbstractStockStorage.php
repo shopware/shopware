@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Stock;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('inventory')]
@@ -36,4 +37,23 @@ abstract class AbstractStockStorage
      * @param list<string> $productIds
      */
     abstract public function index(array $productIds, Context $context): void;
+
+    /**
+     * Called inside the transaction that writes an order, before the order is written.
+     * Implementations lock the stock of the given products until that transaction ends and return the ids of
+     * the products whose stock does not cover the ordered quantity. The order is rejected for these products.
+     *
+     * @param array<string, int> $quantities ordered quantity per product id
+     *
+     * @return list<string>
+     */
+    public function lockForOrder(array $quantities, Context $context): array
+    {
+        try {
+            return $this->getDecorated()->lockForOrder($quantities, $context);
+        } catch (DecorationPatternException) {
+            // Replacements of the core storage manage their stock on their own
+            return [];
+        }
+    }
 }

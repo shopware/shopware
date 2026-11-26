@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -52,7 +53,7 @@ class OrderPersisterTest extends TestCase
             ->method('create')
             ->with([['id' => $order->getId()]], $context->getContext());
 
-        $persister = new OrderPersister($repo, $orderConverter, static::createStub(CartSerializationCleaner::class));
+        $persister = new OrderPersister($repo, $orderConverter, static::createStub(CartSerializationCleaner::class), $this->createTransactionalConnection(), static::createStub(AbstractStockStorage::class));
         $id = $persister->persist($cart, $context);
 
         static::assertSame('test-id', $id);
@@ -80,6 +81,8 @@ class OrderPersisterTest extends TestCase
             static::createStub(EntityRepository::class),
             static::createStub(OrderConverter::class),
             static::createStub(CartSerializationCleaner::class),
+            $this->createTransactionalConnection(),
+            static::createStub(AbstractStockStorage::class),
         );
 
         $this->expectException(CartException::class);
@@ -99,6 +102,8 @@ class OrderPersisterTest extends TestCase
             static::createStub(EntityRepository::class),
             static::createStub(OrderConverter::class),
             static::createStub(CartSerializationCleaner::class),
+            $this->createTransactionalConnection(),
+            static::createStub(AbstractStockStorage::class),
         );
 
         $this->expectExceptionObject(CartException::customerNotLoggedIn());
@@ -116,6 +121,8 @@ class OrderPersisterTest extends TestCase
             static::createStub(EntityRepository::class),
             static::createStub(OrderConverter::class),
             static::createStub(CartSerializationCleaner::class),
+            $this->createTransactionalConnection(),
+            static::createStub(AbstractStockStorage::class),
         );
 
         $this->expectExceptionObject(new EmptyCartException());
@@ -157,6 +164,8 @@ class OrderPersisterTest extends TestCase
             static::createStub(EntityRepository::class),
             $orderConverter,
             $cartSerializationCleaner,
+            $this->createTransactionalConnection(),
+            static::createStub(AbstractStockStorage::class),
         );
 
         $persister->persist($cart, $context);
@@ -164,5 +173,13 @@ class OrderPersisterTest extends TestCase
         static::assertNotNull($cart->getLineItems()->first());
 
         static::assertSame($cart->getLineItems()->first()->getPayloadValue('customFields'), []);
+    }
+
+    private function createTransactionalConnection(): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure($connection));
+
+        return $connection;
     }
 }

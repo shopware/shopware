@@ -44,6 +44,7 @@ use Shopware\Core\Checkout\Order\Subscriber\OrderTransactionVersionMergeSubscrib
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
+use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
@@ -124,6 +125,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderConverter::class),
             service(CartSerializationCleaner::class),
             service(Connection::class),
+            service(StockStorage::class),
         ]);
 
     $services->set(LineItemDownloadLoader::class)

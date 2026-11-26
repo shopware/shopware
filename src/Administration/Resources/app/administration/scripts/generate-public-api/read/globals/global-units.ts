@@ -70,39 +70,55 @@ function publicMembers({ declaration }: GlobalObject): Set<string> {
     return new Set(names.filter((name) => name !== null));
 }
 
-/** A unit as its parent sees it: where the parent holds it, and what the parent says about it. */
+/**
+ * Why an object or a member is private: `export` by its own comment, `parent` because the object above it is.
+ * `null` is public.
+ */
+type PrivateThrough = UnitParts['privateThrough'] | null;
+
+/**
+ * A unit as its parent sees it: where the parent holds it, and what the parent says about it. `privateThrough`
+ * is `export` for a private member, which comments on the object it holds.
+ */
 interface Place {
     path: string;
     depth: number;
-    isPrivate: boolean;
+    privateThrough: PrivateThrough;
     markers: UnitDoc['markers'];
     heldBy: GlobalUnit['heldBy'];
     /** The file that builds the `Shopware` object, whose report holds every unit. */
     builtIn: string;
 }
 
-/** What is public of an object: whether the unit is, and which of its members are hidden although it is. */
+/**
+ * What is public of an object: why the unit is private, and why a member is private although the unit is not.
+ * `privateThrough` names the comment of the object itself before the one of the object above.
+ */
 interface Exposure {
-    doc: UnitDoc;
-    privateThrough: UnitParts['privateThrough'];
-    hides: (member: Member) => boolean;
+    markers: UnitDoc['markers'];
+    privateThrough: PrivateThrough;
+    hides: (member: Member) => PrivateThrough;
 }
 
 /**
- * An object is private below a private member, and with a private class or declaration. In a private class
- * with `@public` members the object is public, and every other member stays private.
+ * An object is private below a private object or member, and with a private class or declaration. In a private
+ * class with `@public` members the object is public, and every other member stays private through that class.
  */
 function exposureOf(place: Place, object: GlobalObject): Exposure {
     const own = objectDoc(object);
     const exposed = publicMembers(object);
+    const privateThrough = own.isPrivate && exposed.size === 0 ? 'export' : place.privateThrough;
 
     return {
-        doc: {
-            isPrivate: place.isPrivate || (own.isPrivate && exposed.size === 0),
-            markers: distinctMarkers([...place.markers, ...own.markers]),
+        markers: distinctMarkers([...place.markers, ...own.markers]),
+        privateThrough,
+        hides(member) {
+            if (member.isPrivate) {
+                return 'export';
+            }
+
+            return own.isPrivate && exposed.size > 0 && !exposed.has(member.name) ? 'parent' : null;
         },
-        privateThrough: place.isPrivate ? 'parent' : 'export',
-        hides: (member) => member.isPrivate || (own.isPrivate && exposed.size > 0 && !exposed.has(member.name)),
     };
 }
 
@@ -111,7 +127,7 @@ function childrenOf(
     place: Place,
     object: GlobalObject,
     members: Member[],
-    { doc, hides }: Exposure,
+    { privateThrough, hides }: Exposure,
     declarations: Declarations,
 ): Map<string, GlobalUnit[]> {
     if (place.depth >= MAX_DEPTH) {
@@ -125,7 +141,7 @@ function childrenOf(
                 ...place,
                 path: `${place.path}.${member.name}`,
                 depth: place.depth + 1,
-                isPrivate: doc.isPrivate || hides(member),
+                privateThrough: hides(member) ?? (privateThrough === null ? null : 'parent'),
                 markers: member.markers,
                 heldBy: { unit: place.path, kind: member.kind, name: member.name },
             };
@@ -135,12 +151,17 @@ function childrenOf(
     );
 }
 
-/** The unit of the object and the units below it. A member that holds a private object is private as a whole. */
+/**
+ * The unit of the object and the units below it. A member that holds an object private by its own comment is
+ * private as a whole. One that holds an object private only through this one is not, so an object that becomes
+ * private is one change, as one that is gone is.
+ */
 function unitsAt(place: Place, object: GlobalObject, declarations: Declarations): GlobalUnit[] {
     const read = membersOf(object, declarations);
     const exposure = exposureOf(place, object);
     const children = childrenOf(place, object, read.members, exposure, declarations);
-    const holdsPrivate = ({ name }: Member): boolean => children.get(name)?.[0].visibility === 'private';
+    const isPrivate = (member: Member): boolean =>
+        exposure.hides(member) !== null || children.get(member.name)?.[0].visibilitySource === 'export';
     const { node, source } = object.declaration;
     const unit = unitOf({
         name: place.path,
@@ -151,11 +172,11 @@ function unitsAt(place: Place, object: GlobalObject, declarations: Declarations)
         at: lineOf(node, source),
         members: read.members.map((member) => ({
             ...member,
-            isPrivate: exposure.hides(member) || holdsPrivate(member),
+            isPrivate: isPrivate(member),
         })),
         notes: read.notes,
-        doc: exposure.doc,
-        privateThrough: exposure.privateThrough,
+        doc: { isPrivate: exposure.privateThrough !== null, markers: exposure.markers },
+        privateThrough: exposure.privateThrough ?? 'export',
         sections: {},
     });
 
@@ -185,7 +206,7 @@ export function globalUnits(declarations: Declarations): GlobalUnit[] {
     const root: Place = {
         path: SHOPWARE,
         depth: 0,
-        isPrivate: false,
+        privateThrough: null,
         markers: [],
         heldBy: null,
         builtIn: object.declaration.source.fileName,

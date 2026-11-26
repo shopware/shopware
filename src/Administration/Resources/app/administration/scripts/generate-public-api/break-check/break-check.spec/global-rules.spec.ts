@@ -103,6 +103,35 @@ describe('scripts/generate-public-api/break-check/break-check global rules', () 
         ]);
     });
 
+    it.each([
+        [
+            'is removed',
+            '',
+            'property_missing',
+        ],
+        [
+            'gets a private tag on the member that holds it',
+            '    /** @private */\n    public Utils = utils;',
+            'visibility_became_private',
+        ],
+        [
+            'gets a private tag on its declaration',
+            '    public Utils = privateUtils;',
+            'visibility_became_private',
+        ],
+    ])('reports an object with objects below it once when it %s', (_, after, rule) => {
+        const utils = '{ string: { camelCase() {} }, array: { flatten() {} }, createId() {} }';
+        const declarations = `const utils = ${utils};\n/** @private */\nconst privateUtils = ${utils};`;
+
+        expect(
+            summary(
+                check(shopwareTree('    public Utils = utils;', {}, declarations), shopwareTree(after, {}, declarations)),
+            ),
+        ).toEqual([
+            `Break  ${rule}  global:Shopware/property:Utils  current, major`,
+        ]);
+    });
+
     it('reports a method that loses its public tag in a private class as a member that became private', () => {
         const application = (tag: string) =>
             shopwareTree(

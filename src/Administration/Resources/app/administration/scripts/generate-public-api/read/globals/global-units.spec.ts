@@ -216,6 +216,38 @@ describe('scripts/generate-public-api/read/globals/global-units', () => {
             ]);
         });
 
+        it.each([
+            ['its member', '    /** @private */\n    public Telemetry = { track() {} };', ''],
+            ['its declaration', '    public Telemetry = Telemetry;', '/** @private */\nconst Telemetry = { track() {} };'],
+            [
+                'its class',
+                '    public Telemetry = Telemetry;',
+                '/** @private */\nclass Tracker { track() {} }\nconst Telemetry = new Tracker();',
+            ],
+        ])('names its own comment as the source of a private object when %s carries the tag', (_, member, before) => {
+            const tree = shopwareTree(`${member}\n    public Defaults = {};`, {}, before);
+
+            expect(outlines(tree)['Shopware.Telemetry']).toContain('  visibility-source export  [private]');
+        });
+
+        it('names the object above as the source of a private object that a private class holds without a public tag', () => {
+            const tree = shopwareTree(
+                '    public Application = application;',
+                {},
+                [
+                    '/** @private */',
+                    'class Bootstrapper {',
+                    '    /** @public */',
+                    '    getContainer() {}',
+                    '    helpers = { format() {} };',
+                    '}',
+                    'const application = new Bootstrapper();',
+                ].join('\n'),
+            );
+
+            expect(outlines(tree)['Shopware.Application.helpers']).toContain('  visibility-source parent  [private]');
+        });
+
         it('takes the private tag and the markers of the declaration that a member names', () => {
             const tree = shopwareTree(
                 '    public Example = { build: ExampleFactory.build, load: ExampleFactory.load, Helper };',

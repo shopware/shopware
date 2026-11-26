@@ -148,25 +148,32 @@ const WHOLE_CHANGES: readonly ((comparison: Comparison) => WholeChange[])[] = [
 
 type Units = ReadonlyMap<string, CheckedUnit>;
 
-/** The member that holds the unit in a commit, in every flag state that has it. */
-function holdingMembers({ heldBy }: CheckedUnit, units: Units): Member[] {
+/** The member that holds the unit in a commit, in every flag state that has it, with the unit that has the member. */
+function holderOf({ heldBy }: CheckedUnit, units: Units): { unit: CheckedUnit | undefined; members: Member[] } {
     if (heldBy === null) {
-        return [];
+        return { unit: undefined, members: [] };
     }
 
     const { kind, name } = heldBy;
     const holder = units.get(heldBy.unit);
 
-    return FLAG_STATES.flatMap((state): Member[] => holder?.facts[state].members[kind].get(name) ?? []);
+    return {
+        unit: holder,
+        members: FLAG_STATES.flatMap((state): Member[] => holder?.facts[state].members[kind].get(name) ?? []),
+    };
 }
 
 /**
- * A unit that a member of another unit holds comes, goes and becomes private with that member, which reports
- * it. A finding of its own is due when both commits have the member as public API: the snapshot can no longer
- * read the object behind it, or it can now.
+ * A unit that a member of another unit holds comes, goes and becomes private with that member or with that
+ * unit, which reports it. A finding of its own is due when both commits have the member as public API of a
+ * public unit: the snapshot can no longer read the object behind it, or it can now.
  */
 function isLeftToHolder(unit: CheckedUnit, base: Units, head: Units): boolean {
-    const isPublicIn = (units: Units): boolean => holdingMembers(unit, units).some(({ isPrivate }) => !isPrivate);
+    const isPublicIn = (units: Units): boolean => {
+        const holder = holderOf(unit, units);
+
+        return holder.unit?.visibility === 'public' && holder.members.some(({ isPrivate }) => !isPrivate);
+    };
 
     return unit.heldBy !== null && !(isPublicIn(base) && isPublicIn(head));
 }
@@ -207,7 +214,7 @@ export function unitFindings(base: Units, head: Units, flags: FlagContext): Find
             base: base.get(unit.id),
             head: head.get(unit.id),
             flags,
-            heldAt: holdingMembers(unit, head).at(0)?.at,
+            heldAt: holderOf(unit, head).members.at(0)?.at,
         };
 
         return WHOLE_CHANGES.flatMap((change) => change(comparison)).map((change) => findingOf(change, comparison));

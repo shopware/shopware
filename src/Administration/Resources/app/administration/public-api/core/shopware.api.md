@@ -209,7 +209,7 @@ properties
 global Shopware.Constants.FLOW  private  js  object  [private]
   registered src/core/shopware.ts  [private]
   source src/module/sw-flow/constant/flow.constant.js  [private]
-  visibility-source parent  [private]
+  visibility-source export  [private]
 
 properties
   ACTION: any  [private] [private]
@@ -376,7 +376,7 @@ methods
 global Shopware.InAppPurchase  private  ts  instance  [private]
   registered src/core/shopware.ts  [private]
   source src/core/in-app-purchase.ts  [private]
-  visibility-source parent  [private]
+  visibility-source export  [private]
 
 methods
   all(): Record<string, string[]>  [private]
@@ -455,7 +455,7 @@ methods
 global Shopware.Telemetry  private  ts  instance  [private]
   registered src/core/shopware.ts  [private]
   source src/core/telemetry/index.ts  [private]
-  visibility-source parent  [private]
+  visibility-source export  [private]
 
 properties
   debug: boolean  [private]
@@ -509,7 +509,7 @@ methods
 global Shopware.Utils.VueHelper  private  ts  object  [private]
   registered src/core/shopware.ts  [private]
   source src/core/service/utils/vue-helper.utils.ts  [private]
-  visibility-source parent  [private]
+  visibility-source export  [private]
 
 methods
   getCompatChildren(): any  [private]
@@ -546,7 +546,7 @@ methods
 global Shopware.Utils.extension  private  ts  object  [private]
   registered src/core/shopware.ts  [private]
   source src/core/service/util.service.ts  [private]
-  visibility-source parent  [private]
+  visibility-source export  [private]
 
 properties
   getExtensionNameByOrigin: any  [private]
@@ -578,7 +578,7 @@ methods
 global Shopware.Utils.genericRuleCondition  private  ts  object  [private]
   registered src/core/shopware.ts  [private]
   source src/core/service/util.service.ts  [private]
-  visibility-source parent  [private]
+  visibility-source export  [private]
 
 methods
   getPlaceholderSnippet(fieldType: string): string  [private]
@@ -652,7 +652,7 @@ methods
 global Shopware.Utils.unitConversion  private  ts  object  [private]
   registered src/core/shopware.ts  [private]
   source src/core/service/util.service.ts  [private]
-  visibility-source parent  [private]
+  visibility-source export  [private]
 
 methods
   convert(value: number, fromUnit: Unit, toUnit: Unit, precision?: number = 2): number  [private]
@@ -678,7 +678,7 @@ methods
 global Shopware._state  private  ts  instance  [private]
   registered src/core/shopware.ts  [private]
   source src/core/factory/state.factory.ts  [private]
-  visibility-source parent  [private]
+  visibility-source export  [private]
 
 methods
   _registerGetterMethod(name: string, getMethod: $TSFixMeFunction, setMethod?: $TSFixMeFunction): this  [private]

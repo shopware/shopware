@@ -399,11 +399,12 @@ A `@deprecated` or `@bc-change` marker in the same comment is the marker of the 
 A store is private when the comment directly above the constant that holds it has an `@private` tag, as in `const exampleStore = Shopware.Store.register(...)`, or the comment above the `export default` of that constant.
 The tag on the exported type of a store says nothing about the store.
 An object of the `Shopware` object is private when the member that holds it is private, when an object above it is, or when one of the comments that make a service private has the tag.
-A member that holds a private object is private too.
+A member that holds an object that is private by its own comment is private too.
+A member of a private object that holds an object below it stays as it is, because that object is only private through the one above.
 A comment speaks for a value when it stands directly above the declaration that holds the value: the class or the function itself, a `const`, a property of an object literal or a field of a class.
 The comment above the class or the object literal around such a member says nothing about the value, and neither does the comment above a list of exports such as `export { a, b }`.
 A getter hands out what it returns, so the comment above it is about reading the getter: `Shopware.Store` is public although `Store.instance` is `@private`.
-The report of a private object says where that comes from: `visibility-source export` is the comment of its own class or declaration, and `visibility-source parent` the object above it.
+The report of a private object says where that comes from: `visibility-source export` is its own comment, on its class, its declaration or the member that holds it, and `visibility-source parent` the object above it, which applies only when the object has no such comment.
 A private class can make single members public with a `@public` tag in the comment of the member.
 The object is public then, and every member without the tag stays private.
 `Shopware.Application` is such an object: `getContainer`, `addServiceProvider` and `addServiceProviderDecorator` are public, because plugins cannot avoid them.
@@ -663,7 +664,8 @@ A finding says how plugin code reaches the member, `Shopware.Service('<name>').<
 - A getter that becomes a state property, or the reverse, is a member that is gone and a new one.
 - An object of the `Shopware` object comes, goes and becomes private with the member that holds it, and that member reports it.
   One that is gone is `property_missing` on the object above it, a new one is `property_added` there, and one that becomes private is `visibility_became_private` on the member that holds it.
-  The object is reported as a whole only when both commits have that member as public API.
+  The object is reported as a whole only when both commits have that member as public API of a public object.
+  An object that becomes private takes the objects below it along, so it is one finding, as an object that is gone is.
   That is the case when the snapshot can no longer read the object, for example after `string: Object.assign({}, { ... })`, so its members would drop out of the check.
   The members of an object are compared when both commits have the object.
 - A member of a private class that loses its `@public` tag is `visibility_became_private`.

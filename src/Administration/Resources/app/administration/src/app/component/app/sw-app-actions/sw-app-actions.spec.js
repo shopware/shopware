@@ -77,7 +77,8 @@ describe('sw-app-actions', () => {
             'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
             'sw-checkbox-field': true,
             'mt-floating-ui': {
-                template: '<div><slot /></div>',
+                props: ['isOpened'],
+                template: '<div><slot v-if="isOpened"></slot></div>',
             },
         };
 

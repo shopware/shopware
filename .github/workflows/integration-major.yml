@@ -109,7 +109,7 @@ jobs:
     if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     runs-on: ubuntu-24.04
     env:
-      NODE_VERSION: 'lts/*'
+      NODE_VERSION: '26'
       JEST_MAX_WORKERS: 100%
     steps:
       - name: Checkout

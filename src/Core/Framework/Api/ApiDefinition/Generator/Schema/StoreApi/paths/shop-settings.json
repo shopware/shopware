@@ -299,6 +299,7 @@
                         "hideCloseoutProductsWhenOutOfStock",
                         "showVariantOptionInSearchSuggestionResult",
                         "findBestVariant",
+                        "ignoreMainVariantOnPriceSorting",
                         "autoplayVideoInListing",
                         "beforeListPriceSnippetKey",
                         "afterListPriceSnippetKey"
@@ -343,6 +344,10 @@
                         "findBestVariant": {
                           "type": "boolean",
                           "description": "Whether the best matching variant is previewed in search results"
+                        },
+                        "ignoreMainVariantOnPriceSorting": {
+                          "type": "boolean",
+                          "description": "Whether price sorted listings display the variant which determines the position instead of the configured main variant or main product"
                         },
                         "autoplayVideoInListing": {
                           "type": "boolean",

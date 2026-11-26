@@ -46,7 +46,7 @@ computed
   criteria: any
   criteriaWithChildren: any
   disableContextMenu: any
-  productRepository: any
+  productRepository: any  [deprecated tag:v6.8.0]
 
 methods
   addCategories(categories: any): any
@@ -63,7 +63,7 @@ methods
   getChildrenFromParent(parentId: any): any
   getDeletedIds(idToDelete: any): any
   getNextCategory(category: any, key?: any = 'id'): any
-  indexProducts(ids: any): any
+  indexProducts(ids: any): any  [deprecated tag:v6.8.0]
   isErrorNavigationEntryPoint(category: any): any
   isHighlighted(arg0: any): any
   loadActiveCategory(): Promise<any>
@@ -73,7 +73,7 @@ methods
   onUpdatePositions(arg0: any): any
   openInitialTree(): any
   removeFromStore(id: any): any
-  syncProducts(categoryId: any): any
+  syncProducts(categoryId: any): any  [deprecated tag:v6.8.0]
   syncSiblings(arg0: any): Promise<any>
 
 blocks

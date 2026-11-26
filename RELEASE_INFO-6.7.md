@@ -30,7 +30,7 @@ Theme overrides of the notice templates should keep the link's `aria-label` and 
 
 ### YouTube and Vimeo cookie entries can be hidden per sales channel
 
-Two new settings in Basic information > Legal and compliance hide the "YouTube video" and "Vimeo video" entries from the cookie consent of a sales channel: `core.basicInformation.disableYoutubeVideoCookie` and `core.basicInformation.disableVimeoVideoCookie`.
+Two new settings in Basic information > Legal and compliance hide the "YouTube video" and "Vimeo video" entries from the cookie consent of a sales channel: `core.basicInformation.hideYoutubeVideoCookieEntry` and `core.basicInformation.hideVimeoVideoCookieEntry`.
 Both default to `false`, so existing shops keep both entries.
 Enable them when the matching CMS element is not used, so customers are not asked for consent to unused services.
 The CMS elements are not changed and still ask for consent in their own overlay.

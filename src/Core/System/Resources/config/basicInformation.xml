@@ -341,7 +341,7 @@
         </input-field>
 
         <input-field type="bool">
-            <name>disableYoutubeVideoCookie</name>
+            <name>hideYoutubeVideoCookieEntry</name>
             <label>Hide YouTube video cookie entry</label>
             <label lang="de-DE">Cookie-Eintrag für YouTube-Videos ausblenden</label>
             <helpText>If active, customers are not asked for consent to YouTube videos in the cookie notification. Activate this only if you do not use YouTube video elements in this sales channel.</helpText>
@@ -350,7 +350,7 @@
         </input-field>
 
         <input-field type="bool">
-            <name>disableVimeoVideoCookie</name>
+            <name>hideVimeoVideoCookieEntry</name>
             <label>Hide Vimeo video cookie entry</label>
             <label lang="de-DE">Cookie-Eintrag für Vimeo-Videos ausblenden</label>
             <helpText>If active, customers are not asked for consent to Vimeo videos in the cookie notification. Activate this only if you do not use Vimeo video elements in this sales channel.</helpText>

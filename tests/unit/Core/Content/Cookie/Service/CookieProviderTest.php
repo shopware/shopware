@@ -405,6 +405,88 @@ class CookieProviderTest extends TestCase
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('videoEntryProvider')]
+    public function testHiddenVideoEntriesAreRemoved(bool $hideYoutube, bool $hideVimeo, array $expected): void
+    {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(CookieGroupCollectEvent::class, static function (CookieGroupCollectEvent $event): void {
+            $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries()?->add(new CookieEntry('other'));
+        });
+        $context = Generator::generateSalesChannelContext();
+        $config = new StaticSystemConfigService([
+            $context->getSalesChannelId() => [
+                'core.basicInformation.hideYoutubeVideoCookieEntry' => $hideYoutube,
+                'core.basicInformation.hideVimeoVideoCookieEntry' => $hideVimeo,
+            ],
+        ]);
+
+        $groups = (new CookieProvider($dispatcher, $translator, static::createStub(ScriptExecutor::class), $config))
+            ->getCookieGroups(new Request(), $context);
+
+        $entries = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries();
+        static::assertNotNull($entries);
+        static::assertSame($expected, array_values(array_map(static fn (CookieEntry $e): string => $e->cookie, $entries->getElements())));
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool, list<string>}>
+     */
+    public static function videoEntryProvider(): iterable
+    {
+        yield 'none hidden' => [false, false, ['youtube-video', 'vimeo-video', 'other']];
+        yield 'youtube hidden' => [true, false, ['vimeo-video', 'other']];
+        yield 'vimeo hidden' => [false, true, ['youtube-video', 'other']];
+        yield 'both hidden' => [true, true, ['other']];
+    }
+
+    public function testComfortGroupIsDroppedWhenAllEntriesAreHidden(): void
+    {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $context = Generator::generateSalesChannelContext();
+        $config = new StaticSystemConfigService([
+            $context->getSalesChannelId() => [
+                'core.basicInformation.hideYoutubeVideoCookieEntry' => true,
+                'core.basicInformation.hideVimeoVideoCookieEntry' => true,
+            ],
+        ]);
+
+        $groups = (new CookieProvider(new EventDispatcher(), $translator, static::createStub(ScriptExecutor::class), $config))
+            ->getCookieGroups(new Request(), $context);
+
+        static::assertNull($groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES));
+    }
+
+    public function testHiddenVideoEntriesAreRemovedFromLegacyProviderGroups(): void
+    {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $context = Generator::generateSalesChannelContext();
+        $config = new StaticSystemConfigService([
+            $context->getSalesChannelId() => [
+                'core.basicInformation.hideYoutubeVideoCookieEntry' => true,
+            ],
+        ]);
+
+        $groups = (new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            static::createStub(ScriptExecutor::class),
+            $config,
+            [],
+            new LegacyCookieProvider(),
+        ))->getCookieGroups(new Request(), $context);
+
+        $entries = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries();
+        static::assertNotNull($entries);
+        static::assertSame(['vimeo-video'], array_values(array_map(static fn (CookieEntry $e): string => $e->cookie, $entries->getElements())));
+    }
 }
 
 /**
@@ -496,61 +578,5 @@ class CompatibilityCookieDecorator implements CookieProviderInterface
         ];
 
         return $groups;
-    }
-
-    /**
-     * @param list<string> $expected
-     */
-    #[DataProvider('videoEntryProvider')]
-    public function testDisabledVideoEntriesAreRemoved(bool $disableYoutube, bool $disableVimeo, array $expected): void
-    {
-        $translator = static::createStub(TranslatorInterface::class);
-        $translator->method('trans')->willReturnArgument(0);
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(CookieGroupCollectEvent::class, static function (CookieGroupCollectEvent $event): void {
-            $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries()?->add(new CookieEntry('other'));
-        });
-        $context = Generator::generateSalesChannelContext();
-        $config = new StaticSystemConfigService([
-            $context->getSalesChannelId() => [
-                'core.basicInformation.disableYoutubeVideoCookie' => $disableYoutube,
-                'core.basicInformation.disableVimeoVideoCookie' => $disableVimeo,
-            ],
-        ]);
-
-        $groups = (new CookieProvider($dispatcher, $translator, static::createStub(ScriptExecutor::class), $config))
-            ->getCookieGroups(new Request(), $context);
-
-        $entries = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries();
-        static::assertNotNull($entries);
-        static::assertSame($expected, array_values(array_map(static fn (CookieEntry $e): string => $e->cookie, $entries->getElements())));
-    }
-
-    /**
-     * @return iterable<string, array{bool, bool, list<string>}>
-     */
-    public static function videoEntryProvider(): iterable
-    {
-        yield 'both enabled' => [false, false, ['youtube-video', 'vimeo-video', 'other']];
-        yield 'youtube disabled' => [true, false, ['vimeo-video', 'other']];
-        yield 'both disabled' => [true, true, ['other']];
-    }
-
-    public function testComfortGroupIsDroppedWhenAllEntriesAreDisabled(): void
-    {
-        $translator = static::createStub(TranslatorInterface::class);
-        $translator->method('trans')->willReturnArgument(0);
-        $context = Generator::generateSalesChannelContext();
-        $config = new StaticSystemConfigService([
-            $context->getSalesChannelId() => [
-                'core.basicInformation.disableYoutubeVideoCookie' => true,
-                'core.basicInformation.disableVimeoVideoCookie' => true,
-            ],
-        ]);
-
-        $groups = (new CookieProvider(new EventDispatcher(), $translator, static::createStub(ScriptExecutor::class), $config))
-            ->getCookieGroups(new Request(), $context);
-
-        static::assertNull($groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES));
     }
 }

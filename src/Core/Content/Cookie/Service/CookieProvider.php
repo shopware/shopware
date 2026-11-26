@@ -68,8 +68,8 @@ class CookieProvider
             $cookieGroups->add($this->getCookieGroupMarketing());
         }
 
-        // @TODO v6.9.0 - Move this into getCookieGroupComfortFeatures() once the legacy provider conversion is removed.
-        $this->removeDisabledVideoEntries($cookieGroups, $salesChannelContext->getSalesChannelId());
+        // @deprecated tag:v6.9.0 - Move this into getCookieGroupComfortFeatures() once the legacy provider conversion is removed.
+        $this->removeHiddenVideoEntries($cookieGroups, $salesChannelContext->getSalesChannelId());
 
         $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $request, $salesChannelContext));
 
@@ -174,18 +174,18 @@ class CookieProvider
         return $entryVimeoVideo;
     }
 
-    private function removeDisabledVideoEntries(CookieGroupCollection $cookieGroups, string $salesChannelId): void
+    private function removeHiddenVideoEntries(CookieGroupCollection $cookieGroups, string $salesChannelId): void
     {
         $entries = $cookieGroups->get(self::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries();
         if ($entries === null) {
             return;
         }
 
-        if ($this->systemConfigService->getBool('core.basicInformation.disableYoutubeVideoCookie', $salesChannelId)) {
+        if ($this->systemConfigService->getBool('core.basicInformation.hideYoutubeVideoCookieEntry', $salesChannelId)) {
             $entries->remove('youtube-video');
         }
 
-        if ($this->systemConfigService->getBool('core.basicInformation.disableVimeoVideoCookie', $salesChannelId)) {
+        if ($this->systemConfigService->getBool('core.basicInformation.hideVimeoVideoCookieEntry', $salesChannelId)) {
             $entries->remove('vimeo-video');
         }
     }

@@ -7,9 +7,12 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\LockWaitTimeoutException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -38,11 +41,18 @@ class ProductCategoryDenormalizerLockTest extends TestCase
         $this->ids = new IdsCollection();
         $parentNumber = Uuid::randomHex();
         $variantNumber = Uuid::randomHex();
-        (new ProductBuilder($this->ids, $parentNumber))
-            ->price(100)
-            ->category('category')
-            ->variant((new ProductBuilder($this->ids, $variantNumber))->price(100)->build())
-            ->write(static::getContainer());
+
+        // these fixtures are committed, and deleting products leaves their search words in the keyword dictionary
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_SKIP, new ArrayEntity(['skips' => [ProductIndexer::SEARCH_KEYWORD_UPDATER]]));
+
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($this->ids, $parentNumber))
+                ->price(gross: 100)
+                ->category('category')
+                ->variant((new ProductBuilder($this->ids, $variantNumber))->price(gross: 100)->build())
+                ->build(),
+        ], $context);
 
         $this->parentId = $this->ids->get($parentNumber);
         $this->variantId = $this->ids->get($variantNumber);

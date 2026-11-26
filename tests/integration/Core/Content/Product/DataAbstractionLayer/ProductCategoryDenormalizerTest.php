@@ -80,9 +80,12 @@ class ProductCategoryDenormalizerTest extends TestCase
             ],
         ], $this->context);
 
+        $withoutIndexing = Context::createDefaultContext();
+        $withoutIndexing->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         static::getContainer()->get('product_category.repository')->delete([
             ['productId' => $parentId, 'categoryId' => $removedCategoryId],
-        ], $this->context);
+        ], $withoutIndexing);
+        static::assertSame(1, $this->getCountRowsInProductCategoryTree($parentId, [$removedCategoryId]));
 
         static::getContainer()->get(ProductCategoryDenormalizer::class)->update([$parentId], $this->context);
 

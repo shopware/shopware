@@ -27,11 +27,6 @@ class ProductCategoryDenormalizerTest extends TestCase
 
     private const CATEGORY_ID = '2cc3b1c9e1b44a43a8a4c0b7f1d2e3f4';
 
-    /**
-     * A parent write rewrites the tree of every variant that inherits its categories.
-     * Other connections must never see those variants without category rows, or
-     * category based product streams drop the variants that are written meanwhile.
-     */
     public function testRewritesTheCategoryTreeInOneTransaction(): void
     {
         $parentId = Uuid::randomHex();
@@ -43,8 +38,8 @@ class ProductCategoryDenormalizerTest extends TestCase
                 ['product_id' => Uuid::randomHex(), 'paths' => '|' . Uuid::randomHex() . '|', 'ids' => $categoryId, 'category_tree' => null],
                 ['product_id' => Uuid::randomHex(), 'paths' => '|' . Uuid::randomHex() . '|', 'ids' => $categoryId, 'category_tree' => null],
             ],
-            [],
-            static fn (ProductCategoryDenormalizer $denormalizer) => $denormalizer->update([$parentId], Context::createDefaultContext())
+            storedRows: [],
+            action: static fn (ProductCategoryDenormalizer $denormalizer) => $denormalizer->update([$parentId], Context::createDefaultContext())
         );
 
         $transactions = array_column($writes, 'transaction');
@@ -81,6 +76,32 @@ class ProductCategoryDenormalizerTest extends TestCase
             $products,
             self::productsWrittenWith(Uuid::fromHexToBytes(self::CATEGORY_ID), $products, $writes),
             'The removed category was not deleted for every product.'
+        );
+    }
+
+    public function testWritesEachProductItsOwnTree(): void
+    {
+        $productId = Uuid::randomHex();
+        $otherProductId = Uuid::randomHex();
+
+        $writes = $this->captureWrites(
+            [
+                ['product_id' => $productId, 'paths' => null, 'ids' => self::ROOT_CATEGORY_ID, 'category_tree' => null],
+                ['product_id' => $otherProductId, 'paths' => '|' . self::ROOT_CATEGORY_ID . '|', 'ids' => self::CATEGORY_ID, 'category_tree' => null],
+            ],
+            storedRows: [],
+            action: static fn (ProductCategoryDenormalizer $denormalizer) => $denormalizer->update([$productId, $otherProductId], Context::createDefaultContext())
+        );
+
+        $product = Uuid::fromHexToBytes($productId);
+        $otherProduct = Uuid::fromHexToBytes($otherProductId);
+        static::assertSame(
+            [$product],
+            self::productsWrittenWith('["' . self::ROOT_CATEGORY_ID . '"]', [$product, $otherProduct], $writes)
+        );
+        static::assertSame(
+            [$otherProduct],
+            self::productsWrittenWith('["' . self::ROOT_CATEGORY_ID . '","' . self::CATEGORY_ID . '"]', [$product, $otherProduct], $writes)
         );
     }
 

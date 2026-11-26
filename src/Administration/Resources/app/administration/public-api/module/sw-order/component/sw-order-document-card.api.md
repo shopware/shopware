@@ -76,6 +76,7 @@ methods
   availableFormatsFilter(item: any): any
   convertStoreEventToVueEvent(arg0: any): any  [deprecated tag:v6.9.0]
   createDocument(orderId: any, documentTypeName: any, params: any, referencedDocumentId: any, file: any): any  [deprecated tag:v6.9.0]
+  createDocumentV2(params: any, referencedDocumentId: any): any
   createdComponent(): any
   documentTypeAvailable(documentType: any): any  [deprecated tag:v6.8.0]
   documentTypeLabel(document: any): any
@@ -114,6 +115,7 @@ methods
   onShowUploadDocumentModal(): any
   onUploadDocument(params: any, additionalAction: any, file?: any = null): Promise<any>
   openDocument(documentId: any, documentDeepLink: any, fileType: any): any  [deprecated tag:v6.9.0]
+  previewDocumentV2(params: any, fileType: any): any
   resolveDownloadFileType(document: any): any
   resolveOpenFileType(document: any): any
   sendDocumentAction(documentId: any): Promise<any>

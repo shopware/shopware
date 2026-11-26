@@ -214,22 +214,171 @@ describe('scripts/generate-public-api/break-check/break-check service rules', ()
             ]);
         });
 
-        it('reports a member that the parent class of a service lost on the service', () => {
-            const child =
-                "import ApiService from './api.service';\nexport default class ExampleService extends ApiService {}";
-            const parent = (body: string) => ({
-                'src/app/service/api.service.ts': `export default class ApiService { ${body} }`,
-            });
-
-            expect(summary(check(serviceTree(child, parent('getHeaders() {}')), serviceTree(child, parent(''))))).toEqual([
-                'Break  method_missing  service:exampleService/method:getHeaders  current, major',
-            ]);
-        });
-
         it('reports nothing for a change inside a method', () => {
             expect(
                 check(classTree('    load(id) { return 1; }'), classTree('    load(id) { return this.find(id); }')),
             ).toEqual([]);
+        });
+    });
+
+    describe('services that share a class', () => {
+        const API_SERVICE = 'src/core/service/api.service.ts';
+
+        function apiService(body: string): Record<string, string> {
+            return { [API_SERVICE]: `export default class ApiService {\n${body}\n}` };
+        }
+
+        function subclass(name: string, body = '', parent = 'ApiService', from = 'src/core/service/api.service'): string {
+            return `import ${parent} from '${from}';\nexport default class ${name} extends ${parent} {\n${body}\n}`;
+        }
+
+        /** `main.ts` registers `<name>Service` as an instance of `src/app/service/<name>.service.ts`. */
+        function services(classes: Record<string, string>, files: Record<string, string>): SourceTree {
+            const names = Object.keys(classes);
+
+            return treeOf({
+                [MAIN]: [
+                    ...names.map((name) => `import ${name}Class from 'src/app/service/${name}.service';`),
+                    ...names.map(
+                        (name) => `Shopware.Application.addServiceProvider('${name}Service', () => new ${name}Class());`,
+                    ),
+                ].join('\n'),
+                ...Object.fromEntries(names.map((name) => [`src/app/service/${name}.service.ts`, classes[name]])),
+                ...files,
+            });
+        }
+
+        const ORDER_AND_TAG = { order: subclass('OrderService'), tag: subclass('TagService') };
+
+        it('reports a change to a class that several services inherit once, on the class', () => {
+            const findings = check(
+                services(ORDER_AND_TAG, apiService('    httpClient: AxiosInstance;\n    getHeaders() {}')),
+                services(ORDER_AND_TAG, apiService('    httpClient: HttpClient;')),
+            );
+
+            expect(findings).toEqual([
+                {
+                    group: 'Break',
+                    rule: 'method_missing',
+                    element: 'class:ApiService/method:getHeaders',
+                    states: ['current', 'major'],
+                    explanation:
+                        'The method is gone, so plugin code that calls <instance of ApiService>.getHeaders() throws at runtime.',
+                    fix: 'pattern "Removal". Keep the method and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.',
+                    alsoAffects: ['orderService', 'tagService'],
+                    at: 'src/core/service/api.service.ts:1',
+                },
+                expect.objectContaining({
+                    group: 'Break',
+                    rule: 'type_changed',
+                    element: 'class:ApiService/property:httpClient',
+                    alsoAffects: ['orderService', 'tagService'],
+                    at: 'src/core/service/api.service.ts:2',
+                }),
+            ]);
+        });
+
+        it('reports a member that the class of a single service lost on the service', () => {
+            const order = { order: subclass('OrderService') };
+
+            expect(
+                summary(check(services(order, apiService('    getHeaders() {}')), services(order, apiService('')))),
+            ).toEqual([
+                'Break  method_missing  service:orderService/method:getHeaders  current, major',
+            ]);
+        });
+
+        it('leaves out a service that overrides the changed member, and keeps the change it makes itself', () => {
+            const overriding = (type: string) => ({
+                ...ORDER_AND_TAG,
+                media: subclass('MediaService', `    httpClient: ${type};`),
+            });
+            const findings = check(
+                services(overriding('AxiosInstance'), apiService('    httpClient: AxiosInstance;')),
+                services(overriding('AxiosInstance'), apiService('    httpClient: HttpClient;')),
+            );
+
+            expect(summary(findings)).toEqual(['Break  type_changed  class:ApiService/property:httpClient  current, major']);
+            expect(findings[0].alsoAffects).toEqual(['orderService', 'tagService']);
+            expect(
+                summary(
+                    check(
+                        services(overriding('AxiosInstance'), apiService('    httpClient: AxiosInstance;')),
+                        services(overriding('HttpClient'), apiService('    httpClient: AxiosInstance;')),
+                    ),
+                ),
+            ).toEqual(['Break  type_changed  service:mediaService/property:httpClient  current, major']);
+        });
+
+        it('reports a change once on the class closest to the root of a longer chain', () => {
+            const chain = (syncBody: string) => ({
+                sync: subclass('SyncApiService', syncBody),
+                bulk: subclass('BulkService', '', 'SyncApiService', 'src/app/service/sync.service'),
+                order: subclass('OrderService'),
+            });
+            const findings = check(
+                services(chain('    sync() {}'), apiService('    getHeaders() {}')),
+                services(chain(''), apiService('')),
+            );
+
+            expect(summary(findings)).toEqual([
+                'Break  method_missing  class:ApiService/method:getHeaders  current, major',
+                'Break  method_missing  class:SyncApiService/method:sync  current, major',
+            ]);
+            expect(findings.map(({ alsoAffects }) => alsoAffects)).toEqual([
+                ['bulkService', 'orderService', 'syncService'],
+                ['bulkService', 'syncService'],
+            ]);
+        });
+
+        it('reports a change to a class that two service names share on the class', () => {
+            const shared = (body: string) =>
+                treeOf({
+                    [MAIN]: [
+                        "import SharedService from 'src/app/service/shared.service';",
+                        "Shopware.Application.addServiceProvider('firstService', () => new SharedService());",
+                        "Shopware.Application.addServiceProvider('secondService', () => new SharedService());",
+                    ].join('\n'),
+                    'src/app/service/shared.service.ts': `export default class SharedService {\n${body}\n}`,
+                });
+            const findings = check(shared('    load() {}'), shared(''));
+
+            expect(summary(findings)).toEqual(['Break  method_missing  class:SharedService/method:load  current, major']);
+            expect(findings[0].alsoAffects).toEqual(['firstService', 'secondService']);
+        });
+
+        it('groups nothing under two classes of one name, but still under the class they extend', () => {
+            const sameName = (body: string) => ({
+                first: subclass('Gateway', body),
+                second: subclass('Gateway', body),
+            });
+            const findings = check(
+                services(sameName('    load() {}'), apiService('    getHeaders() {}')),
+                services(sameName(''), apiService('')),
+            );
+
+            expect(summary(findings)).toEqual([
+                'Break  method_missing  class:ApiService/method:getHeaders  current, major',
+                'Break  method_missing  service:firstService/method:load  current, major',
+                'Break  method_missing  service:secondService/method:load  current, major',
+            ]);
+            expect(findings[0].alsoAffects).toEqual(['firstService', 'secondService']);
+        });
+
+        it('keeps the finding of a private service apart from the one of the class', () => {
+            const withPrivate = {
+                ...ORDER_AND_TAG,
+                media: subclass('MediaService').replace('export default', '/** @private */\nexport default'),
+            };
+
+            expect(
+                summary(
+                    check(services(withPrivate, apiService('    getHeaders() {}')), services(withPrivate, apiService(''))),
+                ),
+            ).toEqual([
+                'Break  method_missing  class:ApiService/method:getHeaders  current, major',
+                'Private  method_missing  service:mediaService/method:getHeaders  current, major',
+            ]);
         });
     });
 });

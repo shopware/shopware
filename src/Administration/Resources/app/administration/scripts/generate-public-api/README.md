@@ -13,15 +13,15 @@ A run goes through the folders in this order.
 A source file only imports from its own folder and from the folders above it in the table.
 A spec also imports from `testing/` and from the step it observes the result through, mostly `snapshot/`.
 
-| Folder | What it holds |
-|---|---|
-| `helpers/` | Small pure functions that every step may use, such as the code point order. It imports from no other folder |
-| `source/` | Lists and reads the source files, from a checkout or from a commit in git, and knows where this checkout is |
-| `model/` | The public API as data: the types every later step works on, without a parser and without file access |
-| `read/` | Turns the sources into the model, with `template/` for Twig and Vue templates, `options/` for the options object of a component and `services/` for the registered services |
-| `snapshot/` | Prints the model into the files of `public-api/` |
-| `break-check/` | Compares two models, with `facts/` for what the rules compare about a unit and `rules/` for the rules |
-| `testing/` | The fixture cases, their runner, and the example components and services the specs share |
+| Folder         | What it holds                                                                                                                                                               |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `helpers/`     | Small pure functions that every step may use, such as the code point order. It imports from no other folder                                                                 |
+| `source/`      | Lists and reads the source files, from a checkout or from a commit in git, and knows where this checkout is                                                                 |
+| `model/`       | The public API as data: the types every later step works on, without a parser and without file access                                                                       |
+| `read/`        | Turns the sources into the model, with `template/` for Twig and Vue templates, `options/` for the options object of a component and `services/` for the registered services |
+| `snapshot/`    | Prints the model into the files of `public-api/`                                                                                                                            |
+| `break-check/` | Compares two models, with `facts/` for what the rules compare about a unit and `rules/` for the rules                                                                       |
+| `testing/`     | The fixture cases, their runner, and the example components and services the specs share                                                                                    |
 
 `generate.ts` and `check.ts` are the two commands.
 `snapshot/` and `break-check/` take one thing from `read/`: `buildModel` with its options, which they call to get a model.
@@ -98,7 +98,7 @@ What the reader cannot resolve becomes a note in the report, because a member th
 
 `read/declarations.ts` finds what a name in a script stands for: a `const`, a function or a class of an enclosing scope or of the file, or what an import brings in.
 `read/services/service-registry.ts` finds the registrations with it, and `provided-object.ts` follows a provider to the class or object literal behind the service.
-`object-members.ts` reads the members of that class or literal, and `service-units.ts` puts the units together.
+`object-members.ts` reads the members of that class or literal, and `service-units.ts` puts the units together, with the classes that services are instances of.
 `read/member-reading.ts` holds what the readers of members share: the name, line and comment of a member, and the signature of a function.
 A service has the member kinds `property` and `method`, so the printers and the rules for a method are those of a component.
 
@@ -134,8 +134,9 @@ flowchart TD
 A rule knows nothing about flag states, markers or visibility.
 It gets the facts of one unit in one state at the base and at the head, and returns the changes with the element each one is about.
 `units.ts` turns the components and the services of a model into units, so the rules run on both.
+It also makes a unit of each class that services are instances of, which only reports a change that several of its services share.
 A service has no template, so its facts hold no blocks and the block rules find nothing.
-`break-check.ts` joins what a rule found in both states, and then decides whether the unit is private and whether an extend child only inherits the finding.
+`break-check.ts` joins what a rule found in both states, and then decides whether the unit is private and whether an extend child or a service only inherits the finding.
 `announcements.ts` decides whether a marker announced the change.
 The text of a finding gets the wording for its kind of unit from `plugin-use.ts`: a plugin reaches a method of a component through `$super`, and one of a service through `Shopware.Service('<name>')`.
 `unit-changes.ts` compares the units themselves and reports a service that only one commit has, or that became private.
@@ -157,25 +158,25 @@ Its facts get a file of their own in `facts/` and join `UnitFacts` in `facts/uni
 
 ## Tests
 
-| Spec | What it checks |
-|---|---|
-| `testing/fixtures.spec.ts` | Every case in `testing/__fixtures__/` against its hand-written expected output |
-| `snapshot/snapshot.spec.ts` | Single behaviours of the generator on small source trees given as strings |
-| `read/template/extend-chain.spec/snapshot.spec.ts` | How the snapshot shows extend children and core overrides, and the chains the generator rejects |
-| `read/template/extend-chain.spec/runtime.spec.ts` | The merged blocks against the runtime: one case per merge rule, and every component of the real Administration |
-| `read/template/block-structure.spec/snapshot.spec.ts` | How the snapshot shows the context of a block and the crossings, also for extend children |
-| `read/template/block-structure.spec/compiler.spec.ts` | The context and the crossings against the Vue compiler, for every block of the real Administration |
-| `read/options/option-members.spec/snapshot.spec.ts` | How the snapshot shows each kind of member, in every form the sources write one |
-| `read/options/option-members.spec/runtime.spec.ts` | The member names against the options objects at runtime, for every component of the real Administration |
-| `read/services/service-units.spec.ts` | How the snapshot shows a service, for every way the sources register and declare one, and the registrations the generator rejects |
-| `break-check/break-check.spec/block-rules.spec.ts` | What each rule of the break check reports for a change to the blocks |
-| `break-check/break-check.spec/member-rules.spec.ts` | What each rule of the break check reports for a change to the members |
-| `break-check/break-check.spec/method-rules.spec.ts` | What each rule of the break check reports for a change to the parameters, the result and the return type of a method |
-| `break-check/break-check.spec/service-rules.spec.ts` | What the break check reports for a service that is gone, new or private, and for a change to its members |
-| `break-check/break-check.spec/verdict.spec.ts` | What the break check reports as announced, private or inherited by an extend child |
-| `break-check/commit-check.spec.ts` | The break check on the commits of a repository that the spec creates |
-| `snapshot/committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |
-| `testing/fixture-runner.spec/`, `break-check/print-findings.spec.ts` | The fixture comparison and the summary of the break check |
+| Spec                                                                 | What it checks                                                                                                                    |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `testing/fixtures.spec.ts`                                           | Every case in `testing/__fixtures__/` against its hand-written expected output                                                    |
+| `snapshot/snapshot.spec.ts`                                          | Single behaviours of the generator on small source trees given as strings                                                         |
+| `read/template/extend-chain.spec/snapshot.spec.ts`                   | How the snapshot shows extend children and core overrides, and the chains the generator rejects                                   |
+| `read/template/extend-chain.spec/runtime.spec.ts`                    | The merged blocks against the runtime: one case per merge rule, and every component of the real Administration                    |
+| `read/template/block-structure.spec/snapshot.spec.ts`                | How the snapshot shows the context of a block and the crossings, also for extend children                                         |
+| `read/template/block-structure.spec/compiler.spec.ts`                | The context and the crossings against the Vue compiler, for every block of the real Administration                                |
+| `read/options/option-members.spec/snapshot.spec.ts`                  | How the snapshot shows each kind of member, in every form the sources write one                                                   |
+| `read/options/option-members.spec/runtime.spec.ts`                   | The member names against the options objects at runtime, for every component of the real Administration                           |
+| `read/services/service-units.spec.ts`                                | How the snapshot shows a service, for every way the sources register and declare one, and the registrations the generator rejects |
+| `break-check/break-check.spec/block-rules.spec.ts`                   | What each rule of the break check reports for a change to the blocks                                                              |
+| `break-check/break-check.spec/member-rules.spec.ts`                  | What each rule of the break check reports for a change to the members                                                             |
+| `break-check/break-check.spec/method-rules.spec.ts`                  | What each rule of the break check reports for a change to the parameters, the result and the return type of a method              |
+| `break-check/break-check.spec/service-rules.spec.ts`                 | What the break check reports for a service that is gone, new or private, and for a change to its members                          |
+| `break-check/break-check.spec/verdict.spec.ts`                       | What the break check reports as announced, private or inherited by an extend child                                                |
+| `break-check/commit-check.spec.ts`                                   | The break check on the commits of a repository that the spec creates                                                              |
+| `snapshot/committed-snapshot.spec.ts`                                | The real Administration: the committed snapshot is up to date and holds nothing machine-specific                                  |
+| `testing/fixture-runner.spec/`, `break-check/print-findings.spec.ts` | The fixture comparison and the summary of the break check                                                                         |
 
 `testing/example-components.ts` and `testing/example-services.ts` build the small source trees that the specs share.
 

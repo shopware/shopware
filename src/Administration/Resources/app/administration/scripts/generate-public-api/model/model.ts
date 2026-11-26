@@ -73,6 +73,8 @@ export type ComponentUnit = Registration &
  * - `file`: the path of the snapshot files of `source` below `public-api/`, without extension. Services that
  *   share a source share a report.
  * - `markers`: the `@deprecated` and `@bc-change` markers above the declaration.
+ * - `class`: the nearest class in its chain that a finding can name, see `ServiceClass`. `null` for an object
+ *   literal.
  */
 export type ServiceUnit = UnitMembers & {
     name: string;
@@ -86,6 +88,25 @@ export type ServiceUnit = UnitMembers & {
     source: string;
     at: SourceLine;
     file: string;
+    states: FlagStates;
+    class: string | null;
+};
+
+/**
+ * @private
+ *
+ * A class that services are instances of, with the members an instance of it has. It is public when one of its
+ * services is, and exists in their flag states. `extends` names the nearest class it extends that is a
+ * `ServiceClass` too. An anonymous class, and two classes of one name, are none, because a finding names a class
+ * by its name. The snapshot does not show the classes. The break check reports a change once on the class when
+ * several services share it.
+ */
+export type ServiceClass = UnitMembers & {
+    name: string;
+    extends: string | null;
+    visibility: 'public' | 'private';
+    source: string;
+    at: SourceLine;
     states: FlagStates;
 };
 
@@ -109,6 +130,7 @@ export interface Model {
     flags: FlagContext;
     components: ComponentUnit[];
     services: ServiceUnit[];
+    serviceClasses: ServiceClass[];
     droppedBlocks: DroppedBlock[];
     unusedBlocks: UnusedBlock[];
 }

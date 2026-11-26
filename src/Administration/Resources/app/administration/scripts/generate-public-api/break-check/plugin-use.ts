@@ -46,9 +46,8 @@ export function componentUse(name: string): PluginUse {
     };
 }
 
-/** @private */
-export function serviceUse(name: string): PluginUse {
-    const unit = `Shopware.Service('${name}')`;
+/** Plugin code calls the members of an object from outside, through `unit`. */
+function objectUse(unit: string): PluginUse {
     const member = (memberName: string): string => `${unit}.${memberName}`;
 
     return {
@@ -61,4 +60,18 @@ export function serviceUse(name: string): PluginUse {
         withoutParameter: (method) => `the value that plugin calls of ${member(method)}() pass for it is ignored`,
         newOptionalParameter: null,
     };
+}
+
+/** @private */
+export function serviceUse(name: string): PluginUse {
+    return objectUse(`Shopware.Service('${name}')`);
+}
+
+/**
+ * @private
+ *
+ * Plugin code reaches the members of a class through every service that is an instance of it.
+ */
+export function classUse(name: string): PluginUse {
+    return objectUse(`<instance of ${name}>`);
 }

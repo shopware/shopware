@@ -28,7 +28,8 @@ export type FindingGroup = (typeof FINDING_GROUPS)[number];
  * @private
  *
  * One change the break check reports. `element` is the element id, for example
- * `component:sw-card/block:sw_card_header`. `alsoAffects` names the extend children that inherit the change.
+ * `component:sw-card/block:sw_card_header`. `alsoAffects` names the extend children that inherit the change, or
+ * the services that share the change of their class.
  */
 export interface Finding {
     group: FindingGroup;

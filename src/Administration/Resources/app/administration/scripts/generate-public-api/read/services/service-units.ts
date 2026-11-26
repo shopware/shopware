@@ -6,9 +6,10 @@
  */
 import ts from 'typescript';
 import type { Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
-import { existingIn, mergeStates } from '../../model/flag-states';
+import { byCodePoint } from '../../helpers/code-point-order';
+import { existingIn, mergeStates, perState } from '../../model/flag-states';
 import type { FlagContext } from '../../model/flag-states';
-import type { ServiceUnit } from '../../model/model';
+import type { Model, ServiceClass, ServiceUnit } from '../../model/model';
 import type { SourceLine } from '../../model/source-line';
 import type { SourceTree } from '../../source/source-tree';
 import { Declarations } from '../declarations';
@@ -16,8 +17,8 @@ import type { Located } from '../declarations';
 import { markersIn, Reading } from '../member-reading';
 import { scriptLanguage, withoutScriptExtension } from '../modules';
 import { declarationDoc, isPrivateDoc, lineOf, statementOf, withoutTypeSyntax } from '../script-nodes';
-import { instanceMembers, objectMembers } from './object-members';
-import type { ObjectMembers } from './object-members';
+import { classChain, objectMembers } from './object-members';
+import type { ClassMembers, ObjectMembers } from './object-members';
 import { isSameObject } from './provided-object';
 import type { ProvidedObject } from './provided-object';
 import { serviceRegistrations } from './service-registry';
@@ -64,21 +65,24 @@ interface ServiceObject extends ObjectMembers {
     home: Located | null;
     /** The declaration whose comment is about the service as a whole: its class, or the factory that builds it. */
     holder: Located | null;
+    /** The class of an instance and the classes it extends, nearest first. */
+    classes: ClassMembers[];
 }
 
-const NO_MEMBERS: ObjectMembers = { members: [], notes: [] };
+const NO_MEMBERS: Pick<ServiceObject, 'members' | 'notes' | 'classes'> = { members: [], notes: [], classes: [] };
 
 function serviceObject(provided: ProvidedObject, declarations: Declarations): ServiceObject {
     switch (provided.kind) {
-        case 'instance':
-            return {
-                ...instanceMembers(provided.declaration, declarations),
-                home: provided.declaration,
-                holder: provided.declaration,
-            };
+        case 'instance': {
+            const classes = classChain(provided.declaration, declarations);
+            const [{ members, notes }] = classes;
+
+            return { members, notes, classes, home: provided.declaration, holder: provided.declaration };
+        }
         case 'object':
             return {
                 ...objectMembers(provided.declaration, declarations),
+                classes: [],
                 home: provided.declaration,
                 holder: provided.factory,
             };
@@ -91,7 +95,7 @@ function serviceObject(provided: ProvidedObject, declarations: Declarations): Se
 
             reading.unresolved('provider', provided.expression.node);
 
-            return { members: [], notes: reading.notes, home: null, holder: null };
+            return { ...NO_MEMBERS, notes: reading.notes, home: null, holder: null };
         }
         default:
             return provided satisfies never;
@@ -134,32 +138,117 @@ function snapshotFile(source: string): string {
     return withoutScriptExtension(source).replace(/^src\//, '');
 }
 
+/** A service as the reader finds it, before the classes of all services are known. */
+interface ReadService {
+    unit: Omit<ServiceUnit, 'class'>;
+    chain: ClassMembers[];
+}
+
 function serviceUnit(
     registration: ServiceRegistration,
     declared: ServiceUnit['declared'],
     declarations: Declarations,
-): ServiceUnit {
-    const { members, notes, home, holder } = serviceObject(registration.provided, declarations);
+): ReadService {
+    const { members, notes, home, holder, classes } = serviceObject(registration.provided, declarations);
     const { isPrivate, markers } = serviceDoc(holder);
     const source = home?.source.fileName ?? registration.registeredIn;
     const at: SourceLine = home === null ? registration.at : lineOf(home.node, home.source);
 
     return {
-        name: registration.name,
-        registration: registration.registration,
-        declared,
-        language: scriptLanguage(source),
-        visibility: isPrivate ? 'private' : 'public',
-        visibilitySource: isPrivate ? 'export' : 'default',
-        markers,
-        registeredIn: registration.registeredIn,
-        source,
+        unit: {
+            name: registration.name,
+            registration: registration.registration,
+            declared,
+            language: scriptLanguage(source),
+            visibility: isPrivate ? 'private' : 'public',
+            visibilitySource: isPrivate ? 'export' : 'default',
+            markers,
+            registeredIn: registration.registeredIn,
+            source,
+            at,
+            file: snapshotFile(source),
+            states: registration.states,
+            members: existingIn(registration.states, members),
+            notes,
+            sections: { method: at, property: at },
+        },
+        chain: classes,
+    };
+}
+
+interface NamedClass {
+    name: string;
+    read: ClassMembers;
+}
+
+/**
+ * The classes of a chain that a finding can name, nearest first. A finding names a class by its name, so an
+ * anonymous class is left out, and so are two classes of one name.
+ */
+function namedChains(services: ReadService[]): (chain: ClassMembers[]) => NamedClass[] {
+    const declarationsByName = new Map<string, Set<ts.Node>>();
+    const named = (chain: ClassMembers[]): NamedClass[] =>
+        chain.flatMap((read) => {
+            const name = read.declaration.node.name?.text;
+
+            return name === undefined ? [] : [{ name, read }];
+        });
+
+    named(services.flatMap(({ chain }) => chain)).forEach(({ name, read }) => {
+        declarationsByName.set(name, (declarationsByName.get(name) ?? new Set()).add(read.declaration.node));
+    });
+
+    return (chain) => named(chain).filter(({ name }) => declarationsByName.get(name)?.size === 1);
+}
+
+interface ClassOfServices extends NamedClass {
+    parent: NamedClass | undefined;
+    instances: ServiceUnit[];
+}
+
+/** A class is public when one of its services is, and it exists in the flag states of its services. */
+function serviceClass({ name, read, parent, instances }: ClassOfServices): ServiceClass {
+    const { declaration, members, notes } = read;
+    const states = perState((state) => instances.some((service) => service.states[state]));
+    const at = lineOf(declaration.node, declaration.source);
+
+    return {
+        name,
+        extends: parent === undefined ? null : parent.name,
+        visibility: instances.some(({ visibility }) => visibility === 'public') ? 'public' : 'private',
+        source: declaration.source.fileName,
         at,
-        file: snapshotFile(source),
-        states: registration.states,
-        members: existingIn(registration.states, members),
+        states,
+        members: existingIn(states, members),
         notes,
         sections: { method: at, property: at },
+    };
+}
+
+/** Each service with the nearest class a finding can name, and those classes, each linked to the one it extends. */
+function withClasses(read: ReadService[]): Pick<Model, 'services' | 'serviceClasses'> {
+    const namedChain = namedChains(read);
+    const byDeclaration = new Map<ts.Node, ClassOfServices>();
+    const services = read.map(({ unit, chain }) => {
+        const classes = namedChain(chain);
+        const service: ServiceUnit = { ...unit, class: classes.length === 0 ? null : classes[0].name };
+
+        classes.forEach((named, index) => {
+            const known = byDeclaration.get(named.read.declaration.node);
+
+            byDeclaration.set(named.read.declaration.node, {
+                ...named,
+                parent: classes[index + 1],
+                instances: [...(known?.instances ?? []), service],
+            });
+        });
+
+        return service;
+    });
+
+    return {
+        services,
+        serviceClasses: [...byDeclaration.values()].map(serviceClass).sort((a, b) => byCodePoint(a.name, b.name)),
     };
 }
 
@@ -187,16 +276,18 @@ function assertOneObjectPerName(registrations: ServiceRegistration[]): void {
 /**
  * @private
  *
- * The services of the tree, sorted by name.
+ * The services of the tree, sorted by name, and the classes they are instances of.
  */
-export function serviceUnits(tree: SourceTree, flags: FlagContext): ServiceUnit[] {
+export function serviceUnits(tree: SourceTree, flags: FlagContext): Pick<Model, 'services' | 'serviceClasses'> {
     const declarations = new Declarations(tree);
     const registrations = serviceRegistrations(tree, declarations, flags);
     const declared = declaredServices(tree, declarations);
 
     assertOneObjectPerName(registrations);
 
-    return mergeStates(registrations, ({ name }) => name).map((registration) =>
-        serviceUnit(registration, declared.get(registration.name) ?? 'untyped', declarations),
+    return withClasses(
+        mergeStates(registrations, ({ name }) => name).map((registration) =>
+            serviceUnit(registration, declared.get(registration.name) ?? 'untyped', declarations),
+        ),
     );
 }

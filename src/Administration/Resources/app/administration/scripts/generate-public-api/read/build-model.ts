@@ -200,7 +200,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
     return {
         flags,
         components,
-        services: serviceUnits(tree, flags),
+        ...serviceUnits(tree, flags),
         droppedBlocks,
         unusedBlocks: unusedBlocks(calls, templates),
     };

@@ -45,4 +45,5 @@ methods
 
 blocks
   sw_order_customer_address_select
+    sw_order_customer_address_select_entity_select  [from v6.8.0]
 ```

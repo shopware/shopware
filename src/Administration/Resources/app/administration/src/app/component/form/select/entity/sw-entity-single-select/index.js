@@ -299,7 +299,7 @@ export default {
                 .get(
                     this.value,
                     { ...this.context, inheritance: true },
-                    Criteria.fromCriteria(this.criteria),
+                    Criteria.fromCriteria(this.criteria).setPage(1).setTerm(null),
                     this.getCacheOptions(['selected', this.value]),
                 )
                 .then((item) => {

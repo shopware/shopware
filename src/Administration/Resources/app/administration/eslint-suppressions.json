@@ -8497,11 +8497,6 @@
       "count": 1
     }
   },
-  "src/module/sw-order/component/sw-order-customer-address-select/sw-order-customer-address-select.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 6
-    }
-  },
   "src/module/sw-order/component/sw-order-customer-comment/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1

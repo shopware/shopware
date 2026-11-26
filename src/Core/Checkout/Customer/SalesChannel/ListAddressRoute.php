@@ -8,7 +8,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Extension\ListAddressRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -65,6 +67,14 @@ class ListAddressRoute extends AbstractListAddressRoute
             ->addAssociation('salutation')
             ->addAssociation('country')
             ->addAssociation('countryState');
+
+        if (
+            Feature::isActive('v6.8.0.0')
+            && $criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)
+            && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NONE
+        ) {
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        }
 
         $this->eventDispatcher->dispatch(new AddressListingCriteriaEvent($criteria, $context));
 

@@ -94,42 +94,87 @@
         />
         {% endblock %}
 
-        {% block sw_product_seo_form_canonical_url_select %}
-        <sw-single-select
-            ref="canonicalProductSelect"
-            v-model:value="product.canonicalProductId"
-            :options="variants"
-            :disabled="!canonicalProductSwitchEnabled"
-            value-property="id"
-            :label="$t('sw-product.seoForm.labelCanonicalProduct')"
-            :placeholder="$t('sw-product.seoForm.placeholderCanonicalProduct')"
-            show-clearable-button
-            @search="onSearch"
-        >
+        <template v-if="feature.isActive('v6.8.0.0')">
+            {% block sw_product_seo_form_canonical_url_entity_select %}
+            <sw-entity-single-select
+                ref="canonicalProductSelect"
+                v-model:value="product.canonicalProductId"
+                entity="product"
+                :criteria="canonicalVariantCriteria"
+                :disabled="!canonicalProductSwitchEnabled"
+                :label="$t('sw-product.seoForm.labelCanonicalProduct')"
+                :placeholder="$t('sw-product.seoForm.placeholderCanonicalProduct')"
+                show-clearable-button
+                @search-term-change="onCanonicalVariantSearchTermChange"
+                @select-collapsed="onCanonicalVariantSelectCollapsed"
+            >
 
-            <template #selection-label-property="{ item }">
-                {% block sw_product_seo_form_canonical_url_select_selection %}
-                <sw-product-variant-info
-                    :variations="item.variation"
-                    :show-tooltip="false"
-                >
-                    {{ getItemName(item) }}
-                </sw-product-variant-info>
-                {% endblock %}
-            </template>
+                <template #selection-label-property="{ item }">
+                    {% block sw_product_seo_form_canonical_url_entity_select_selection %}
+                    <sw-product-variant-info
+                        :variations="item.variation"
+                        :show-tooltip="false"
+                    >
+                        {{ getItemName(item) }}
+                    </sw-product-variant-info>
+                    {% endblock %}
+                </template>
 
-            <template #result-label-property="{ item }">
-                {% block sw_product_seo_form_canonical_url_select_result %}
-                <sw-product-variant-info
-                    :variations="item.variation"
-                    :show-tooltip="false"
-                >
-                    {{ getItemName(item) }}
-                </sw-product-variant-info>
-                {% endblock %}
-            </template>
-        </sw-single-select>
-        {% endblock %}
+                <template #result-label-property="{ item }">
+                    {% block sw_product_seo_form_canonical_url_entity_select_result %}
+                    <sw-product-variant-info
+                        :variations="item.variation"
+                        :show-tooltip="false"
+                    >
+                        {{ getItemName(item) }}
+                    </sw-product-variant-info>
+                    {% endblock %}
+                </template>
+            </sw-entity-single-select>
+            {% endblock %}
+        </template>
+
+        <template v-else>
+            {# @deprecated tag:v6.8.0 - Use `sw_product_seo_form_canonical_url_entity_select` instead. #}
+            {% block sw_product_seo_form_canonical_url_select %}
+            <sw-single-select
+                ref="canonicalProductSelect"
+                v-model:value="product.canonicalProductId"
+                :options="variants"
+                :disabled="!canonicalProductSwitchEnabled"
+                value-property="id"
+                :label="$t('sw-product.seoForm.labelCanonicalProduct')"
+                :placeholder="$t('sw-product.seoForm.placeholderCanonicalProduct')"
+                show-clearable-button
+                @search="onSearch"
+            >
+
+                <template #selection-label-property="{ item }">
+                    {# @deprecated tag:v6.8.0 - Use `sw_product_seo_form_canonical_url_entity_select_selection` instead. #}
+                    {% block sw_product_seo_form_canonical_url_select_selection %}
+                    <sw-product-variant-info
+                        :variations="item.variation"
+                        :show-tooltip="false"
+                    >
+                        {{ getItemName(item) }}
+                    </sw-product-variant-info>
+                    {% endblock %}
+                </template>
+
+                <template #result-label-property="{ item }">
+                    {# @deprecated tag:v6.8.0 - Use `sw_product_seo_form_canonical_url_entity_select_result` instead. #}
+                    {% block sw_product_seo_form_canonical_url_select_result %}
+                    <sw-product-variant-info
+                        :variations="item.variation"
+                        :show-tooltip="false"
+                    >
+                        {{ getItemName(item) }}
+                    </sw-product-variant-info>
+                    {% endblock %}
+                </template>
+            </sw-single-select>
+            {% endblock %}
+        </template>
     </template>
     {% endblock %}
 

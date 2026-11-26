@@ -1,45 +1,9 @@
 import { mount } from '@vue/test-utils';
-import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 
 /**
  * @sw-package checkout
  */
-
-const addresses = [
-    {
-        id: '1',
-        city: 'San Francisco',
-        zipcode: '10332',
-        street: 'Summerfield 27',
-        country: {
-            translated: {
-                name: 'USA',
-            },
-        },
-        countryState: {
-            translated: {
-                name: 'California',
-            },
-        },
-    },
-    {
-        id: '2',
-        city: 'London',
-        zipcode: '48624',
-        street: 'Ebbinghoff 10',
-        country: {
-            translated: {
-                name: 'United Kingdom',
-            },
-        },
-        countryState: {
-            translated: {
-                name: 'Nottingham',
-            },
-        },
-    },
-];
 
 const customerData = {
     id: '123',
@@ -48,7 +12,6 @@ const customerData = {
     },
     billingAddressId: '1',
     shippingAddressId: '2',
-    addresses: new EntityCollection('/customer-address', 'customer-address', null, null, []),
 };
 
 const context = {
@@ -120,32 +83,25 @@ async function createWrapper() {
             },
         },
         global: {
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(addresses),
-                        };
-                    },
-                },
-            },
             stubs: {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-popover': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
+                'sw-order-customer-address-select': {
+                    props: [
+                        'value',
+                        'sameAddressValue',
+                        'sameAddressLabel',
+                        'disabled',
+                    ],
+                    emits: ['update:value'],
+                    template: `
+                        <button
+                            class="sw-order-customer-address-select"
+                            :disabled="disabled"
+                            @click="$emit('update:value', sameAddressValue)"
+                        ></button>`,
                 },
-                'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
-                'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
-                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', {
-                    sync: true,
-                }),
-                'sw-order-customer-address-select': await wrapTestComponent('sw-order-customer-address-select', {
-                    sync: true,
-                }),
 
                 'sw-text-field': true,
                 'sw-entity-single-select': {
@@ -173,27 +129,13 @@ async function createWrapper() {
                         },
                     },
                 },
-                'sw-highlight-text': true,
-                'sw-loader': true,
-                'sw-field-error': true,
-                'sw-select-result': {
-                    props: ['item', 'index'],
-                    template: `
-                        <li class="sw-select-result" @click.stop="onClickResult">
-                            <slot></slot>
-                        </li>`,
-                    methods: {
-                        onClickResult() {
-                            Shopware.Utils.EventBus.emit('item-select', this.item);
-                        },
-                    },
-                },
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
             },
         },
     });
+}
+
+function getShippingAddressSelect(wrapper) {
+    return wrapper.findComponent('.sw-order-create-options__shipping-address');
 }
 
 describe('src/module/sw-order/view/sw-order-create-options', () => {
@@ -222,17 +164,19 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         Shopware.Store.register(contextStore);
     });
 
-    it('should show address option correctly', async () => {
+    it('should pass the addresses to the address selects', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
-        // Click to open result list
-        await billingAddressSelect.trigger('click');
-
-        expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
-        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe(
-            'Ebbinghoff 10, 48624, London, Nottingham, United Kingdom',
+        expect(wrapper.findComponent('.sw-order-create-options__billing-address').props()).toEqual(
+            expect.objectContaining({ value: '1', sameAddressValue: '2' }),
+        );
+        expect(wrapper.findComponent('.sw-order-create-options__shipping-address').props()).toEqual(
+            expect.objectContaining({
+                value: '2',
+                sameAddressValue: '1',
+                sameAddressLabel: 'sw-order.initialModal.options.textSameAsBillingAddress',
+            }),
         );
     });
 
@@ -240,18 +184,20 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let shippingSelectionText = wrapper.find(
-            '.sw-order-create-options__shipping-address .sw-single-select__selection-text',
-        );
-        expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(getShippingAddressSelect(wrapper).props('value')).toBe('2');
 
         const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         await switchSameAddress.setChecked(true);
 
         expect(wrapper.vm.context.shippingAddressId).toBe('1');
 
-        shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
-        expect(shippingSelectionText.text()).toBe('sw-order.initialModal.options.textSameAsBillingAddress');
+        expect(getShippingAddressSelect(wrapper).props()).toEqual(
+            expect.objectContaining({
+                value: '1',
+                sameAddressValue: '1',
+                sameAddressLabel: 'sw-order.initialModal.options.textSameAsBillingAddress',
+            }),
+        );
 
         expect(wrapper.findComponent('.sw-order-create-options__shipping-address').vm.disabled).toBe(true);
     });
@@ -292,20 +238,17 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let shippingSelectionText = wrapper.find(
-            '.sw-order-create-options__shipping-address .sw-single-select__selection-text',
+        expect(getShippingAddressSelect(wrapper).props('value')).toBe('2');
+
+        await wrapper.find('.sw-order-create-options__billing-address').trigger('click');
+
+        expect(getShippingAddressSelect(wrapper).props()).toEqual(
+            expect.objectContaining({
+                value: '2',
+                sameAddressValue: '2',
+                sameAddressLabel: 'sw-order.initialModal.options.textSameAsBillingAddress',
+            }),
         );
-        expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
-
-        const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
-        // Click to open result list
-        await billingAddressSelect.trigger('click');
-
-        const addressOptions = wrapper.findAll('.sw-select-result');
-        await addressOptions.at(1).trigger('click');
-
-        shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
-        expect(shippingSelectionText.text()).toBe('sw-order.initialModal.options.textSameAsBillingAddress');
 
         expect(wrapper.vm.context.billingAddressId).toBe('2');
     });

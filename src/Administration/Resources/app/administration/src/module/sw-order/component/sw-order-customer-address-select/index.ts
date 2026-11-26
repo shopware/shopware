@@ -10,18 +10,21 @@ import type Repository from '../../../../core/data/repository.data';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+const DEPRECATION_MESSAGE_SUFFIX = 'The address select loads the addresses itself, page by page.';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['update:value'],
 
     props: {
         customer: {
-            type: Object as PropType<Entity<'customer'>>,
-            required: true,
+            type: Object as PropType<Entity<'customer'> | null>,
+            required: false,
+            default: null,
         },
 
         value: {
@@ -48,8 +51,17 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the address select loads the addresses itself.
+         */
         customerAddresses: Entity<'customer_address'>[];
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the address select shows its own loading state.
+         */
         isLoading: boolean;
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the address select keeps its own search term.
+         */
         addressSearchTerm: string;
     } {
         return {
@@ -77,14 +89,44 @@ export default Component.wrapComponentConfig({
             return this.value === this.sameAddressValue;
         },
 
+        customerAddressCriteria(): CriteriaType {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equals('customerId', this.customer?.id ?? null));
+            criteria.addAssociation('salutation');
+            criteria.addAssociation('country');
+            criteria.addAssociation('countryState');
+
+            criteria.addSorting(Criteria.sort('_score', 'DESC'));
+            criteria.addSorting(Criteria.sort('createdAt', 'ASC'));
+            criteria.addSorting(Criteria.sort('id', 'ASC'));
+
+            return criteria;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         addressRepository(): Repository<'customer_address'> {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                `sw-order-customer-address-select.addressRepository is deprecated. ${DEPRECATION_MESSAGE_SUFFIX}`,
+            );
+
             return this.repositoryFactory.create(
                 this.customer?.addresses?.entity ?? 'customer_address',
                 this.customer?.addresses?.source,
             );
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. Use customerAddressCriteria instead.
+         */
         addressCriteria(): CriteriaType {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-customer-address-select.addressCriteria is deprecated. Use customerAddressCriteria instead.',
+            );
+
             const criteria = new Criteria(1, null);
             criteria.addAssociation('salutation');
             criteria.addAssociation('country');
@@ -101,7 +143,11 @@ export default Component.wrapComponentConfig({
     watch: {
         'customer.id': {
             handler(): void {
-                void this.getCustomerAddresses();
+                if (!this.feature.isActive('V6_8_0_0')) {
+                    Shopware.Feature.silence('V6_8_0_0', () => {
+                        void this.getCustomerAddresses();
+                    });
+                }
             },
         },
     },
@@ -112,7 +158,11 @@ export default Component.wrapComponentConfig({
 
     methods: {
         createdComponent(): void {
-            void this.getCustomerAddresses();
+            if (!this.feature.isActive('V6_8_0_0')) {
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    void this.getCustomerAddresses();
+                });
+            }
         },
 
         getSelectionLabel(item: Entity<'customer_address'>): string {
@@ -159,40 +209,73 @@ export default Component.wrapComponentConfig({
             return result.join(', ');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         getCustomerAddresses(): Promise<void> {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                `sw-order-customer-address-select.getCustomerAddresses() is deprecated. ${DEPRECATION_MESSAGE_SUFFIX}`,
+            );
+
             this.isLoading = true;
 
             // Get the latest addresses from customer's db
             return this.addressRepository
                 .search(this.addressCriteria)
                 .then((addresses: EntityCollection<'customer_address'>): void => {
-                    this.customerAddresses = this.getDisplayedCustomerAddresses(addresses);
+                    this.customerAddresses = Shopware.Feature.silence('V6_8_0_0', () =>
+                        this.getDisplayedCustomerAddresses(addresses),
+                    );
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- the select without the v6.8.0.0 flag calls it on every search
         searchAddress(searchTerm: string): Promise<void> {
             this.isLoading = true;
 
             this.addressSearchTerm = searchTerm;
 
-            return this.addressRepository
-                .search(this.addressCriteria)
+            const [addressRepository, addressCriteria] = Shopware.Feature.silence(
+                'V6_8_0_0',
+                () => [this.addressRepository, this.addressCriteria] as const,
+            );
+
+            return addressRepository
+                .search(addressCriteria)
                 .then((addresses: EntityCollection<'customer_address'>) => {
-                    this.customerAddresses = this.getDisplayedCustomerAddresses(addresses);
+                    this.customerAddresses = Shopware.Feature.silence('V6_8_0_0', () =>
+                        this.getDisplayedCustomerAddresses(addresses),
+                    );
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- the select without the v6.8.0.0 flag calls it on every search
         searchAddressResults() {
             return this.customerAddresses;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         getDisplayedCustomerAddresses(addresses: EntityCollection<'customer_address'>): Entity<'customer_address'>[] {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                `sw-order-customer-address-select.getDisplayedCustomerAddresses() is deprecated. ${DEPRECATION_MESSAGE_SUFFIX}`,
+            );
+
             const customerAddresses = [...addresses];
 
             if (!this.addressId || customerAddresses.some((address) => address.id === this.addressId)) {

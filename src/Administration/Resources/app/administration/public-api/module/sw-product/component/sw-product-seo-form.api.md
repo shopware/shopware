@@ -66,9 +66,12 @@ methods
 blocks
   sw_product_seo_form
     sw_product_seo_form_canonical_url
-      sw_product_seo_form_canonical_url_select
-        sw_product_seo_form_canonical_url_select_result  [scope: item]
-        sw_product_seo_form_canonical_url_select_selection  [scope: item]
+      sw_product_seo_form_canonical_url_entity_select  [from v6.8.0]
+        sw_product_seo_form_canonical_url_entity_select_result  [scope: item] [from v6.8.0]
+        sw_product_seo_form_canonical_url_entity_select_selection  [scope: item] [from v6.8.0]
+      sw_product_seo_form_canonical_url_select  [until v6.8.0]
+        sw_product_seo_form_canonical_url_select_result  [scope: item] [until v6.8.0]
+        sw_product_seo_form_canonical_url_select_selection  [scope: item] [until v6.8.0]
       sw_product_seo_form_canonical_url_switch
     sw_product_seo_form_keywords
     sw_product_seo_form_meta_description

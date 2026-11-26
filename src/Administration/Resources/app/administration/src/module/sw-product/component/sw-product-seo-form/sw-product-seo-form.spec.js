@@ -2,109 +2,9 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { createWrapper } from './sw-product-seo-form.spec/create-wrapper';
 
 describe('module/sw-product/component/sw-product-seo-form', () => {
-    async function createWrapper(productEntityOverride, parentProductOverride) {
-        const productEntity = productEntityOverride || {
-            metaTitle: 'test',
-        };
-
-        const parentProduct = parentProductOverride || {
-            id: null,
-        };
-
-        const productVariants = [
-            {
-                id: 'first',
-                name: 'first',
-                translated: {
-                    name: 'first',
-                },
-            },
-        ];
-
-        const mediaEntities = {
-            'parent-media-id': {
-                id: 'parent-media-id',
-                url: 'https://example.com/parent-image.jpg',
-            },
-            'child-media-id': {
-                id: 'child-media-id',
-                url: 'https://example.com/child-image.jpg',
-            },
-        };
-
-        Shopware.Store.get('swProductDetail').product = productEntity;
-        Shopware.Store.get('swProductDetail').parentProduct = parentProduct;
-
-        return mount(await wrapTestComponent('sw-product-seo-form', { sync: true }), {
-            global: {
-                directives: {
-                    tooltip: {},
-                },
-                provide: {
-                    repositoryFactory: {
-                        create: (entityName) => {
-                            if (entityName === 'media') {
-                                return {
-                                    get: (id) => {
-                                        return Promise.resolve(mediaEntities[id] || null);
-                                    },
-                                };
-                            }
-
-                            return {
-                                search: () => {
-                                    return Promise.resolve(productVariants);
-                                },
-                            };
-                        },
-                    },
-                    validationService: {},
-                },
-                stubs: {
-                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-single-select': await wrapTestComponent('sw-single-select'),
-                    'sw-select-base': await wrapTestComponent('sw-select-base'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
-                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-popover': true,
-                    'sw-help-text': true,
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-inheritance-switch': true,
-                    'sw-field-copyable': true,
-                    'sw-textarea-field-deprecated': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-highlight-text': true,
-                    'sw-loader': true,
-                    'sw-media-modal-v2': true,
-                    'sw-upload-listener': true,
-                    'sw-media-upload-v2': {
-                        name: 'sw-media-upload-v2',
-                        template: '<div class="sw-media-upload-v2"></div>',
-                        props: [
-                            'source',
-                            'disabled',
-                            'uploadTag',
-                            'allowMultiSelect',
-                            'caption',
-                            'fileAccept',
-                        ],
-                    },
-                },
-            },
-        });
-    }
-
     /** @tupe Wrapper */
     let wrapper;
 
@@ -119,7 +19,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         await flushPromises();
 
         const switchComponent = wrapper.find('.sw-field--switch');
-        const singleSelectComponent = wrapper.find('.sw-single-select');
+        const singleSelectComponent = wrapper.find('.sw-entity-single-select');
 
         expect(switchComponent.exists()).toBe(false);
         expect(singleSelectComponent.exists()).toBe(false);
@@ -140,56 +40,62 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         await flushPromises();
 
         const switchComponent = wrapper.find('.sw-field--switch');
-        const singleSelectComponent = wrapper.find('.sw-single-select');
+        const singleSelectComponent = wrapper.find('.sw-entity-single-select');
 
         expect(switchComponent.exists()).toBe(false);
         expect(singleSelectComponent.exists()).toBe(false);
     });
 
-    it('should have a disabled select and a turned off switch if there is no canonical url', async () => {
-        const productEntity = {
-            canonicalProductId: null,
-            childCount: 3,
-            metaTitle: 'title',
-        };
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should have a disabled select and a turned off switch if there is no canonical url',
+        async () => {
+            const productEntity = {
+                canonicalProductId: null,
+                childCount: 3,
+                metaTitle: 'title',
+            };
 
-        wrapper = await createWrapper(productEntity);
-        await flushPromises();
+            wrapper = await createWrapper(productEntity);
+            await flushPromises();
 
-        const switchComponent = wrapper.getComponent('.mt-switch');
-        const singleSelectComponent = wrapper.find('.sw-single-select');
+            const switchComponent = wrapper.getComponent('.mt-switch');
+            const singleSelectComponent = wrapper.find('.sw-entity-single-select');
 
-        // check if switch is off
-        expect(switchComponent.vm.checked).toBe(false);
+            // check if switch is off
+            expect(switchComponent.vm.checked).toBe(false);
 
-        // check if single select is disabled
-        expect(singleSelectComponent.classes('is--disabled')).toBe(true);
-    });
+            // check if single select is disabled
+            expect(singleSelectComponent.classes('is--disabled')).toBe(true);
+        },
+    );
 
-    it('should have a selected value if there is a canonical url in the Vuex store', async () => {
-        const productEntity = {
-            id: 'product-id',
-            canonicalProductId: 'first',
-            childCount: 3,
-            metaTitle: 'title',
-        };
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should have a selected value if there is a canonical url in the Vuex store',
+        async () => {
+            const productEntity = {
+                id: 'product-id',
+                canonicalProductId: 'first',
+                childCount: 3,
+                metaTitle: 'title',
+            };
 
-        wrapper = await createWrapper(productEntity);
-        await flushPromises();
+            wrapper = await createWrapper(productEntity);
+            await flushPromises();
 
-        const switchComponent = wrapper.getComponent('.mt-switch');
-        const singleSelectComponent = wrapper.get('.sw-single-select');
+            const switchComponent = wrapper.getComponent('.mt-switch');
+            const singleSelectComponent = wrapper.get('.sw-entity-single-select');
 
-        // check if switch is turned on
-        expect(switchComponent.vm.modelValue).toBe(true);
+            // check if switch is turned on
+            expect(switchComponent.vm.modelValue).toBe(true);
 
-        // check if single select is enabled
-        expect(singleSelectComponent.attributes('disabled')).toBeUndefined();
+            // check if single select is enabled
+            expect(singleSelectComponent.attributes('disabled')).toBeUndefined();
 
-        // check value of select field
-        const textOfSelectField = singleSelectComponent.find('.sw-product-variant-info__product-name').text();
-        expect(textOfSelectField).toBe('first');
-    });
+            // check value of select field
+            const textOfSelectField = singleSelectComponent.find('.sw-product-variant-info__product-name').text();
+            expect(textOfSelectField).toBe('first');
+        },
+    );
 
     it('should show the inherited OG image for variants', async () => {
         const parentMedia = {

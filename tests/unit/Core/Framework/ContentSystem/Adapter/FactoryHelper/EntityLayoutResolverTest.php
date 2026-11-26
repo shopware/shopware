@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
-use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEntity;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\SectionContentLayoutAssignmentCollection;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\SectionContentLayoutAssignmentEntity;
 
 /**
  * @internal
@@ -65,18 +65,18 @@ class EntityLayoutResolverTest extends TestCase
     }
 
     /**
-     * @return StaticEntityRepository<HeaderContentLayoutCollection>
+     * @return StaticEntityRepository<SectionContentLayoutAssignmentCollection>
      */
-    private function createRepository(HeaderContentLayoutEntity ...$entities): StaticEntityRepository
+    private function createRepository(SectionContentLayoutAssignmentEntity ...$entities): StaticEntityRepository
     {
-        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [$entities]);
+        $repository = StaticEntityRepository::of(SectionContentLayoutAssignmentCollection::class, [$entities]);
 
         return $repository;
     }
 
-    private function createAssignmentEntity(string $layoutId): HeaderContentLayoutEntity
+    private function createAssignmentEntity(string $layoutId): SectionContentLayoutAssignmentEntity
     {
-        $entity = new HeaderContentLayoutEntity();
+        $entity = new SectionContentLayoutAssignmentEntity();
         $entity->setId($this->ids->get('assignment'));
         $entity->setContentLayoutId($layoutId);
 

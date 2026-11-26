@@ -15,8 +15,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
-use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEntity;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\SectionContentLayoutAssignmentCollection;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\SectionContentLayoutAssignmentEntity;
 
 /**
  * @internal
@@ -36,13 +36,13 @@ class DomainAwareLayoutResolverTest extends TestCase
     #[TestDox('returns assignment when domain ID is known and repository returns entity')]
     public function testReturnsAssignmentWhenDomainIsKnown(): void
     {
-        $entity = new HeaderContentLayoutEntity();
+        $entity = new SectionContentLayoutAssignmentEntity();
         $entity->setId($this->ids->get('assignment'));
         $entity->setContentLayoutId($this->ids->get('layout'));
 
         $context = Generator::generateSalesChannelContext();
 
-        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [
+        $repository = StaticEntityRepository::of(SectionContentLayoutAssignmentCollection::class, [
             static function (Criteria $criteria) use ($entity): array {
                 $filters = $criteria->getFilters();
                 static::assertCount(1, $filters);
@@ -64,7 +64,7 @@ class DomainAwareLayoutResolverTest extends TestCase
     #[TestDox('returns assignment when domain ID is null using salesChannel-only filter')]
     public function testReturnsAssignmentWhenDomainIsNull(): void
     {
-        $entity = new HeaderContentLayoutEntity();
+        $entity = new SectionContentLayoutAssignmentEntity();
         $entity->setId($this->ids->get('assignment'));
         $entity->setContentLayoutId($this->ids->get('layout'));
 
@@ -76,7 +76,7 @@ class DomainAwareLayoutResolverTest extends TestCase
         $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [
+        $repository = StaticEntityRepository::of(SectionContentLayoutAssignmentCollection::class, [
             static function (Criteria $criteria) use ($entity): array {
                 $filters = $criteria->getFilters();
                 static::assertCount(1, $filters);
@@ -100,13 +100,13 @@ class DomainAwareLayoutResolverTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $domainSpecific = new HeaderContentLayoutEntity();
+        $domainSpecific = new SectionContentLayoutAssignmentEntity();
         $domainSpecific->setId($this->ids->get('domainAssignment'));
         $domainSpecific->setContentLayoutId('layout-domain');
         $domainSpecific->setDomainId($context->getDomainId());
         $domainSpecific->setSalesChannelId($context->getSalesChannel()->getId());
 
-        $channelOnly = new HeaderContentLayoutEntity();
+        $channelOnly = new SectionContentLayoutAssignmentEntity();
         $channelOnly->setId($this->ids->get('channelAssignment'));
         $channelOnly->setContentLayoutId('layout-channel');
         $channelOnly->setSalesChannelId($context->getSalesChannel()->getId());
@@ -133,11 +133,11 @@ class DomainAwareLayoutResolverTest extends TestCase
     }
 
     /**
-     * @return StaticEntityRepository<HeaderContentLayoutCollection>
+     * @return StaticEntityRepository<SectionContentLayoutAssignmentCollection>
      */
-    private function createRepository(HeaderContentLayoutEntity ...$entities): StaticEntityRepository
+    private function createRepository(SectionContentLayoutAssignmentEntity ...$entities): StaticEntityRepository
     {
-        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [$entities]);
+        $repository = StaticEntityRepository::of(SectionContentLayoutAssignmentCollection::class, [$entities]);
 
         return $repository;
     }

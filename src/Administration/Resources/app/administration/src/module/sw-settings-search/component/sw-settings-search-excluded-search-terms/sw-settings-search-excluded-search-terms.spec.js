@@ -90,12 +90,9 @@ async function createWrapper(privileges = [], resetError = false) {
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-select-field': true,
-                    'sw-popover': {
-                        props: ['popoverClass'],
-                        template: `
-                    <div class="sw-popover" :class="popoverClass">
-                        <slot></slot>
-                    </div>`,
+                    'mt-floating-ui': {
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-data-grid-skeleton': true,

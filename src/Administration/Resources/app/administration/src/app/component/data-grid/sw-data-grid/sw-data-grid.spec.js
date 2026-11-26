@@ -99,7 +99,8 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-help-text': true,
             'sw-loader': true,
             'mt-floating-ui': {
-                template: '<div><slot /></div>',
+                props: ['isOpened'],
+                template: '<div><slot v-if="isOpened"></slot></div>',
             },
             'mt-switch': true,
             'sw-provide': true,
@@ -162,7 +163,8 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-help-text': true,
             'sw-loader': true,
             'mt-floating-ui': {
-                template: '<div><slot /></div>',
+                props: ['isOpened'],
+                template: '<div><slot v-if="isOpened"></slot></div>',
             },
             'mt-switch': true,
         };

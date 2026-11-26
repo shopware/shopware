@@ -145,6 +145,7 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             breakpoint: GRID_BASE_BREAKPOINT as GridBreakpoint,
             patterns,
+            syncedLayoutJson: JSON.stringify(encodePatterns(patterns)),
             selected: [] as number[],
             nextId: nextAreaId(patterns.lg),
             nextColumnId: patterns.lg.columns.length + 1,
@@ -241,7 +242,11 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         syncPattern(): void {
             const incoming = parsePatterns(this.gridLayout ?? {});
-            if (JSON.stringify(encodePatterns(this.patterns)) === JSON.stringify(encodePatterns(incoming))) return;
+            const incomingJson = JSON.stringify(encodePatterns(incoming));
+            // WHY: Each layout edit clones the whole layout, so an unchanged grid arrives as a new object.
+            // Comparing with local state instead would discard drafts that are held while a width is invalid.
+            if (incomingJson === this.syncedLayoutJson) return;
+            this.syncedLayoutJson = incomingJson;
             this.removeDragListeners();
             this.draggingColumnId = null;
             this.patterns = incoming;
@@ -264,7 +269,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
         emitPatterns(): void {
             if (Object.values(this.patterns).some((pattern) => pattern.columns.some(invalidWidth))) return;
-            this.$emit('update:gridLayout', encodePatterns(this.patterns));
+            const layout = encodePatterns(this.patterns);
+            this.syncedLayoutJson = JSON.stringify(layout);
+            this.$emit('update:gridLayout', layout);
         },
         focusArea(id: number | undefined): void {
             if (id === undefined) return;

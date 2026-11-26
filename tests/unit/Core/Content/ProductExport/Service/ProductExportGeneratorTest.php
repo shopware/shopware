@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -11,7 +12,9 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -35,7 +38,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -672,6 +677,76 @@ class ProductExportGeneratorTest extends TestCase
         $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
 
         static::assertNotNull($result);
+    }
+
+    /**
+     * @param list<list<Filter>> $expectedAvailableFilterQueries
+     */
+    #[DataProvider('includeInactiveProductsProvider')]
+    public function testGenerateAddsAvailableFilterWithoutActiveCheckWhenInactiveProductsAreIncluded(
+        bool $includeInactiveProducts,
+        array $expectedAvailableFilterQueries
+    ): void {
+        $productExport = $this->getProductExportEntity();
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeInactiveProducts($includeInactiveProducts);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id');
+
+        $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+
+        $results = [
+            $this->createProductSearchResult($product, $context),
+            $this->createEmptyProductSearchResult($context),
+        ];
+        $searchedCriteria = [];
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$results, &$searchedCriteria): EntitySearchResult {
+                $searchedCriteria[] = $criteria;
+
+                $next = array_shift($results);
+                \assert($next instanceof EntitySearchResult);
+
+                return $next;
+            });
+
+        $this->productExportRender->expects($this->once())->method('renderBody')->willReturn('product');
+        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->expects($this->once())->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+        $this->breadcrumbBuilder->expects($this->never())->method('getProductSeoCategory');
+
+        $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertCount(2, $searchedCriteria);
+        foreach ($searchedCriteria as $criteria) {
+            $availableFilterQueries = array_map(
+                static fn (ProductAvailableFilter $filter): array => $filter->getQueries(),
+                array_values(array_filter($criteria->getFilters(), static fn (Filter $filter): bool => $filter instanceof ProductAvailableFilter))
+            );
+
+            static::assertEquals($expectedAvailableFilterQueries, $availableFilterQueries);
+        }
+    }
+
+    public static function includeInactiveProductsProvider(): \Generator
+    {
+        yield 'switch off leaves the default available filter, which requires active products, to the sales channel repository' => [
+            'includeInactiveProducts' => false,
+            'expectedAvailableFilterQueries' => [],
+        ];
+
+        yield 'switch on keeps the visibility conditions for the storefront sales channel and drops the active check' => [
+            'includeInactiveProducts' => true,
+            'expectedAvailableFilterQueries' => [[
+                new RangeFilter('product.visibilities.visibility', [RangeFilter::GTE => ProductVisibilityDefinition::VISIBILITY_LINK]),
+                new EqualsFilter('product.visibilities.salesChannelId', 'storefrontSalesChannelId'),
+            ]],
+        ];
     }
 
     public function testGenerateJsonlSkipsParentProductsAndAddsLineSeparators(): void

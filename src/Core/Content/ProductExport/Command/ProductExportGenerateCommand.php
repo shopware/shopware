@@ -48,7 +48,7 @@ class ProductExportGenerateCommand extends Command
     {
         $this
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Ignore cache and force generation')
-            ->addOption('include-inactive', 'i', InputOption::VALUE_NONE, 'Include inactive exports')
+            ->addOption('include-inactive', 'i', InputOption::VALUE_NONE, 'Include exports of inactive sales channels')
             ->addArgument('sales-channel-id', InputArgument::REQUIRED, 'Sales channel ID of the corresponding Storefront sales channel to generate exports for')
             ->addArgument('product-export-id', InputArgument::OPTIONAL, 'Generate specific export ID');
     }

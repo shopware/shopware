@@ -43,6 +43,7 @@ blocks
       sw_sales_channel_detail_base_general_input_product_comparison_file_format  [inherited] [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_filename  [inherited]
       sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob  [inherited]
+      sw_sales_channel_detail_base_general_input_product_comparison_include_inactive_products  [inherited]
       sw_sales_channel_detail_base_general_input_product_comparison_include_variants  [inherited] [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_interval  [inherited]
       sw_sales_channel_detail_base_general_input_product_comparison_last_generation  [inherited]

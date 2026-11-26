@@ -189,6 +189,7 @@ blocks
       sw_sales_channel_detail_base_general_input_product_comparison_file_format  [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_filename
       sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob
+      sw_sales_channel_detail_base_general_input_product_comparison_include_inactive_products
       sw_sales_channel_detail_base_general_input_product_comparison_include_variants  [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_interval
       sw_sales_channel_detail_base_general_input_product_comparison_last_generation

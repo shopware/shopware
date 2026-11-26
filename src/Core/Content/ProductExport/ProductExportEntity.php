@@ -67,6 +67,8 @@ class ProductExportEntity extends Entity
 
     protected bool $includeVariants;
 
+    protected bool $includeInactiveProducts = false;
+
     protected bool $generateByCronjob;
 
     protected ?\DateTimeInterface $generatedAt = null;
@@ -253,6 +255,16 @@ class ProductExportEntity extends Entity
     public function setIncludeVariants(bool $includeVariants): void
     {
         $this->includeVariants = $includeVariants;
+    }
+
+    public function isIncludeInactiveProducts(): bool
+    {
+        return $this->includeInactiveProducts;
+    }
+
+    public function setIncludeInactiveProducts(bool $includeInactiveProducts): void
+    {
+        $this->includeInactiveProducts = $includeInactiveProducts;
     }
 
     public function isGenerateByCronjob(): bool

@@ -123,6 +123,7 @@ class ProductExportController extends AbstractController
         $entity->setFooterTemplate($dataBag->get('footerTemplate') ?? '');
         $entity->setProductStreamId($dataBag->get('productStreamId'));
         $entity->setIncludeVariants($dataBag->get('includeVariants'));
+        $entity->setIncludeInactiveProducts((bool) $dataBag->get('includeInactiveProducts'));
         $entity->setEncoding($dataBag->get('encoding'));
         $entity->setFileFormat($dataBag->get('fileFormat'));
         $entity->setFileName($dataBag->get('fileName'));

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\Api;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -349,6 +351,56 @@ TWIG,
         static::assertIsString($response);
         static::assertStringContainsString('SUMMER-2026', $response);
         static::assertStringNotContainsString('none', $response);
+    }
+
+    public function testPreviewRendersInactiveProductsWhenRequestPayloadIncludesThem(): void
+    {
+        $ids = new IdsCollection();
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'inactive-product'))
+                ->price(10)
+                ->active(false)
+                ->visibility($this->getSalesChannelDomain()->getSalesChannelId())
+                ->build(),
+        ], $this->context);
+
+        static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $ids->get('stream'),
+                'name' => 'inactive product stream',
+                'filters' => [['type' => 'equals', 'field' => 'id', 'value' => $ids->get('inactive-product')]],
+            ],
+        ], $this->context);
+
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => $ids->get('stream'),
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ product.productNumber }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'includeInactiveProducts' => true,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/product-export/preview',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
+        static::assertStringContainsString('inactive-product', $response);
     }
 
     public function testPreviewFalseDomain(): void

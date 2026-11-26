@@ -385,6 +385,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
 
             foreach ($chunk as $pk) {
+                // Prefetch only queries the context version; other versions must fall back to the database.
                 if ($versionField && $pk[$versionField->getPropertyName()] !== $parameters->getContext()->getContext()->getVersionId()) {
                     continue;
                 }

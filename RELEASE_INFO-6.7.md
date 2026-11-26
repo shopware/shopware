@@ -1,5 +1,12 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### Faster DAL writes
+
+DAL writes avoid redundant database queries for versioned entities and translations.
+Local benchmarks on a catalogue with three million products showed approximately 20% lower write times without indexing on MySQL and MariaDB.
+
 ## App System
 
 ### Deprecated the old shop ID format

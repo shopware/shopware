@@ -532,16 +532,17 @@ class CacheInvalidationSubscriber
         unset($probe);
 
         foreach (Uuid::fromHexToBytesList($mediaIds) as $mediaId) {
-            $id = $version = '';
+            $params = ['media' => $mediaId];
+            $after = '';
             do {
                 // The media FK index contains the assignment primary key (id, version_id).
                 $rows = $this->connection->fetchAllAssociative(
                     'SELECT pm.id, pm.version_id, pm.product_id,
                             EXISTS(SELECT 1 FROM product v WHERE v.parent_id = pm.product_id) AS has_variants
                      FROM product_media pm IGNORE INDEX (PRIMARY)
-                     WHERE pm.media_id = :media AND (pm.id > :id OR (pm.id = :id AND pm.version_id > :version))
+                     WHERE pm.media_id = :media' . $after . '
                      ORDER BY pm.id, pm.version_id LIMIT ' . $this->mediaBatchSize,
-                    ['media' => $mediaId, 'id' => $id, 'version' => $version]
+                    $params
                 );
                 if ($rows === []) {
                     break;
@@ -555,8 +556,8 @@ class CacheInvalidationSubscriber
                 }
 
                 $last = $rows[array_key_last($rows)];
-                $id = $last['id'];
-                $version = $last['version_id'];
+                $params = ['media' => $mediaId, 'id' => $last['id'], 'version' => $last['version_id']];
+                $after = ' AND (pm.id > :id OR (pm.id = :id AND pm.version_id > :version))';
             } while (\count($rows) === $this->mediaBatchSize);
         }
     }

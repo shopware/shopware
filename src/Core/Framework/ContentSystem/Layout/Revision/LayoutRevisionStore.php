@@ -27,7 +27,7 @@ class LayoutRevisionStore
     private const DRAFT_SELECT = <<<'SQL'
         SELECT LOWER(HEX(`draft`.`id`)) AS `id`, `draft`.`name`, LOWER(HEX(`draft`.`base_revision_id`)) AS `base`,
             LOWER(HEX(`draft`.`head_revision_id`)) AS `head`, LOWER(HEX(`draft`.`live_at_open_revision_id`)) AS `live_at_open`,
-            `draft`.`created_at`, `draft`.`updated_at`
+            `draft`.`created_at`, LOWER(HEX(`draft`.`created_by_id`)) AS `created_by_id`, `draft`.`updated_at`
         SQL;
 
     public function __construct(
@@ -107,9 +107,10 @@ class LayoutRevisionStore
     }
 
     /**
-     * Moves the layout's live pointer onto the revision. `published_at` keeps the first time it went live.
+     * Moves the layout's live pointer onto the revision. `published_at` and `published_by_id` keep the first time it
+     * went live.
      */
-    public function markPublished(string $layoutId, string $revisionId, \DateTimeImmutable $publishedAt): void
+    public function markPublished(string $layoutId, string $revisionId, \DateTimeImmutable $publishedAt, ?string $publishedBy): void
     {
         $this->connection->executeStatement(
             <<<'SQL'
@@ -121,11 +122,14 @@ class LayoutRevisionStore
         $this->connection->executeStatement(
             <<<'SQL'
                 UPDATE `content_layout_revision`
-                SET `live_content_layout_id` = `content_layout_id`, `published_at` = COALESCE(`published_at`, :publishedAt)
+                SET `live_content_layout_id` = `content_layout_id`,
+                    `published_by_id` = IF(`published_at` IS NULL, :publishedBy, `published_by_id`),
+                    `published_at` = COALESCE(`published_at`, :publishedAt)
                 WHERE `id` = :revisionId AND `content_layout_id` = :layoutId
                 SQL,
             [
                 'publishedAt' => $publishedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'publishedBy' => $publishedBy !== null ? Uuid::fromHexToBytes($publishedBy) : null,
                 'revisionId' => Uuid::fromHexToBytes($revisionId),
                 'layoutId' => Uuid::fromHexToBytes($layoutId),
             ],
@@ -137,7 +141,8 @@ class LayoutRevisionStore
         $revisions = [];
         foreach ($this->connection->fetchAllAssociative(
             <<<'SQL'
-                SELECT LOWER(HEX(`id`)) AS `id`, LOWER(HEX(`parent_id`)) AS `parent_id`, LOWER(HEX(`created_by_id`)) AS `created_by_id`, `created_at`, `published_at`
+                SELECT LOWER(HEX(`id`)) AS `id`, LOWER(HEX(`parent_id`)) AS `parent_id`, LOWER(HEX(`created_by_id`)) AS `created_by_id`, `created_at`, `published_at`,
+                    LOWER(HEX(`published_by_id`)) AS `published_by_id`
                 FROM `content_layout_revision` WHERE `content_layout_id` = :layoutId
                 SQL,
             ['layoutId' => Uuid::fromHexToBytes($layoutId)],
@@ -149,6 +154,7 @@ class LayoutRevisionStore
                 $this->date((string) $row['created_at']),
                 $row['created_by_id'] !== null ? (string) $row['created_by_id'] : null,
                 $row['published_at'] !== null ? $this->date((string) $row['published_at']) : null,
+                $row['published_by_id'] !== null ? (string) $row['published_by_id'] : null,
             );
         }
 
@@ -249,14 +255,15 @@ class LayoutRevisionStore
     {
         $this->connection->executeStatement(
             <<<'SQL'
-                INSERT INTO `content_layout_draft` (`id`, `content_layout_id`, `name`, `base_revision_id`, `head_revision_id`, `live_at_open_revision_id`, `created_at`, `updated_at`)
-                VALUES (:id, :layoutId, :name, :base, :head, :liveAtOpen, :createdAt, :updatedAt)
+                INSERT INTO `content_layout_draft` (`id`, `content_layout_id`, `name`, `created_by_id`, `base_revision_id`, `head_revision_id`, `live_at_open_revision_id`, `created_at`, `updated_at`)
+                VALUES (:id, :layoutId, :name, :createdBy, :base, :head, :liveAtOpen, :createdAt, :updatedAt)
                 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `head_revision_id` = VALUES(`head_revision_id`), `updated_at` = VALUES(`updated_at`)
                 SQL,
             [
                 'id' => Uuid::fromHexToBytes($draft->id),
                 'layoutId' => Uuid::fromHexToBytes($layoutId),
                 'name' => $draft->name,
+                'createdBy' => $draft->createdBy !== null ? Uuid::fromHexToBytes($draft->createdBy) : null,
                 'base' => Uuid::fromHexToBytes($draft->base),
                 'head' => Uuid::fromHexToBytes($draft->head),
                 'liveAtOpen' => Uuid::fromHexToBytes($draft->liveAtOpen),
@@ -325,6 +332,7 @@ class LayoutRevisionStore
             (string) $row['head'],
             (string) $row['live_at_open'],
             $this->date((string) $row['created_at']),
+            $row['created_by_id'] !== null ? (string) $row['created_by_id'] : null,
             $this->date((string) $row['updated_at']),
         );
     }

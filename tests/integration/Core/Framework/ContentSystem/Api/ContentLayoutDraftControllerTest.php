@@ -35,6 +35,7 @@ class ContentLayoutDraftControllerTest extends TestCase
 
         $draft = $this->json('POST', $layoutId . '/create-draft', ['name' => 'My draft'])['draft'];
         static::assertSame('My draft', $draft['name']);
+        static::assertIsString($draft['createdById']);
 
         $edited = $this->json('POST', $layoutId . '/remove-element', [
             'elementId' => 'other',

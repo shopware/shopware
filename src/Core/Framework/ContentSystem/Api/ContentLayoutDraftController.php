@@ -59,10 +59,11 @@ class ContentLayoutDraftController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/create-draft', name: 'api.action.content_system.layout.draft.create', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function createDraft(
         string $layoutId,
+        Context $context,
         #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ?ContentLayoutCreateDraftRequest $payload = null,
     ): JsonResponse {
-        $draft = $this->revisionService->createDraft($layoutId, $payload?->name, $payload?->fromRevisionId);
+        $draft = $this->revisionService->createDraft($layoutId, $context, $payload?->name, $payload?->fromRevisionId);
 
         return new JsonResponse(['draft' => LayoutDraftNormalizer::draft($draft)]);
     }

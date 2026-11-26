@@ -343,7 +343,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $now = new \DateTimeImmutable();
         $revision = new LayoutRevision('revision-2', 'revision-1', $now, null);
-        $draft = new LayoutDraft('draft', 'Draft', 'revision-0', 'revision-2', 'revision-0', $now, $now);
+        $draft = new LayoutDraft('draft', 'Draft', 'revision-0', 'revision-2', 'revision-0', $now, null, $now);
         $revisions = $this->createMock(LayoutRevisionService::class);
         $revisions->expects($this->once())->method('appendRevision')
             ->with($id, 'draft', 'revision-1', static::anything(), static::identicalTo($context))

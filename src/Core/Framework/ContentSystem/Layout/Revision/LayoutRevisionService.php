@@ -95,9 +95,9 @@ class LayoutRevisionService
         return $this->locked($layoutId, fn (string $live): RevisionGraph => $this->store->graph($layoutId, $live));
     }
 
-    public function createDraft(string $layoutId, ?string $name = null, ?string $fromRevisionId = null): LayoutDraft
+    public function createDraft(string $layoutId, Context $context, ?string $name = null, ?string $fromRevisionId = null): LayoutDraft
     {
-        return $this->locked($layoutId, function (string $live) use ($layoutId, $name, $fromRevisionId): LayoutDraft {
+        return $this->locked($layoutId, function (string $live) use ($layoutId, $context, $name, $fromRevisionId): LayoutDraft {
             $base = $fromRevisionId ?? $live;
 
             if ($this->store->graph($layoutId, $live)->revision($base) === null) {
@@ -105,7 +105,7 @@ class LayoutRevisionService
             }
 
             $now = $this->now();
-            $draft = new LayoutDraft(Uuid::randomHex(), $name ?? self::DEFAULT_DRAFT_NAME, $base, $base, $live, $now, $now);
+            $draft = new LayoutDraft(Uuid::randomHex(), $name ?? self::DEFAULT_DRAFT_NAME, $base, $base, $live, $now, $this->userId($context), $now);
 
             $this->store->saveDraft($layoutId, $draft);
 
@@ -153,7 +153,7 @@ class LayoutRevisionService
 
             $this->store->deleteDraft($layoutId, $draftId);
             $this->contentLayoutRepository->update([['id' => $layoutId, 'layout' => $this->tree($layoutId, $draft->head)]], $context);
-            $this->store->markPublished($layoutId, $draft->head, $this->now());
+            $this->store->markPublished($layoutId, $draft->head, $this->now(), $this->userId($context));
             $this->compact($layoutId, $draft->head);
         });
     }
@@ -265,7 +265,7 @@ class LayoutRevisionService
         $createdAt = $publication['revisionId'] === null ? $publication['createdAt'] : $this->now();
 
         $this->store->adoptLayoutColumn($layoutId, $revisionId, $publication['revisionId'], $createdAt);
-        $this->store->markPublished($layoutId, $revisionId, $createdAt);
+        $this->store->markPublished($layoutId, $revisionId, $createdAt, null);
 
         return $revisionId;
     }

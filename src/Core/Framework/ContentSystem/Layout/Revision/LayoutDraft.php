@@ -21,12 +21,13 @@ final readonly class LayoutDraft
         public string $head,
         public string $liveAtOpen,
         public \DateTimeImmutable $createdAt,
+        public ?string $createdBy,
         public \DateTimeImmutable $updatedAt,
     ) {
     }
 
     public function withHead(string $head, \DateTimeImmutable $updatedAt): self
     {
-        return new self($this->id, $this->name, $this->base, $head, $this->liveAtOpen, $this->createdAt, $updatedAt);
+        return new self($this->id, $this->name, $this->base, $head, $this->liveAtOpen, $this->createdAt, $this->createdBy, $updatedAt);
     }
 }

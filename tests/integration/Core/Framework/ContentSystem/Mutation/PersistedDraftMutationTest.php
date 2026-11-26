@@ -48,7 +48,7 @@ class PersistedDraftMutationTest extends TestCase
     public function testMutationAppendsOneRevisionOnTheDraft(): void
     {
         $layoutId = $this->createLayout(['a', 'b']);
-        $draft = $this->revisions->createDraft($layoutId);
+        $draft = $this->revisions->createDraft($layoutId, $this->context);
         $revisionsBefore = \count($this->revisions->history($layoutId)->revisions);
 
         $result = $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('a'), $this->context);
@@ -65,7 +65,7 @@ class PersistedDraftMutationTest extends TestCase
     public function testConsecutiveMutationsChainOnTheReturnedHead(): void
     {
         $layoutId = $this->createLayout(['a', 'b', 'c']);
-        $draft = $this->revisions->createDraft($layoutId);
+        $draft = $this->revisions->createDraft($layoutId, $this->context);
 
         $first = $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('a'), $this->context);
         $second = $this->mutator->mutateDraft($layoutId, $draft->id, $first->draft->head, new RemoveElement('b'), $this->context);
@@ -78,7 +78,7 @@ class PersistedDraftMutationTest extends TestCase
     public function testStaleHeadConflicts(): void
     {
         $layoutId = $this->createLayout(['a', 'b']);
-        $draft = $this->revisions->createDraft($layoutId);
+        $draft = $this->revisions->createDraft($layoutId, $this->context);
         $this->mutator->mutateDraft($layoutId, $draft->id, $draft->head, new RemoveElement('a'), $this->context);
 
         $this->assertFailsWithoutAppending(
@@ -92,7 +92,7 @@ class PersistedDraftMutationTest extends TestCase
     public function testRejectedOperationAppendsNothing(): void
     {
         $layoutId = $this->createLayout(['a']);
-        $draft = $this->revisions->createDraft($layoutId);
+        $draft = $this->revisions->createDraft($layoutId, $this->context);
 
         $this->assertFailsWithoutAppending(
             $layoutId,
@@ -118,7 +118,7 @@ class PersistedDraftMutationTest extends TestCase
     public function testDeclaredWritePrivilegeIsRequired(): void
     {
         $layoutId = $this->createLayout(['a']);
-        $draft = $this->revisions->createDraft($layoutId);
+        $draft = $this->revisions->createDraft($layoutId, $this->context);
         $mutation = $this->createMock(LayoutMutation::class);
         $mutation->method('writePrivilege')->willReturn('content_layout:translate');
         $mutation->expects($this->never())->method('apply');

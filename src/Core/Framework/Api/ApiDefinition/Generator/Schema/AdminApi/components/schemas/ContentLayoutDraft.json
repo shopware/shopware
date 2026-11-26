@@ -8,7 +8,7 @@
                 "title": "Content layout draft",
                 "type": "object",
                 "description": "A named pointer into the revision graph of a stored layout.",
-                "required": ["id", "name", "base", "head", "createdAt", "updatedAt"],
+                "required": ["id", "name", "base", "head", "createdAt", "createdById", "updatedAt"],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -34,6 +34,11 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2026-06-22T10:00:00+00:00"
+                    },
+                    "createdById": {
+                        "type": ["string", "null"],
+                        "description": "Id of the admin user who created the draft, `null` when an integration or the system created it.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3f"
                     },
                     "updatedAt": {
                         "type": "string",

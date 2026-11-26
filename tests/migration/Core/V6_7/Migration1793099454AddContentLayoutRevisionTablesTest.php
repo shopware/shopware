@@ -19,8 +19,8 @@ use Shopware\Core\Migration\V6_7\Migration1793099454AddContentLayoutRevisionTabl
 class Migration1793099454AddContentLayoutRevisionTablesTest extends TestCase
 {
     private const TABLES = [
-        'content_layout_revision' => ['id', 'content_layout_id', 'parent_id', 'layout', 'created_by_id', 'published_at', 'live_content_layout_id', 'created_at'],
-        'content_layout_draft' => ['id', 'content_layout_id', 'name', 'base_revision_id', 'head_revision_id', 'live_at_open_revision_id', 'created_at', 'updated_at'],
+        'content_layout_revision' => ['id', 'content_layout_id', 'parent_id', 'layout', 'created_by_id', 'published_at', 'published_by_id', 'live_content_layout_id', 'created_at'],
+        'content_layout_draft' => ['id', 'content_layout_id', 'name', 'created_by_id', 'base_revision_id', 'head_revision_id', 'live_at_open_revision_id', 'created_at', 'updated_at'],
     ];
 
     private Connection $connection;

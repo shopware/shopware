@@ -129,6 +129,6 @@ class RevisionGraphTest extends TestCase
     {
         $now = new \DateTimeImmutable('2026-10-27 10:00:00.000');
 
-        return new LayoutDraft($id, $id, $base, $head, $liveAtOpen, $now, $now);
+        return new LayoutDraft($id, $id, $base, $head, $liveAtOpen, $now, null, $now);
     }
 }

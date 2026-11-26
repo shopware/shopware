@@ -19,7 +19,7 @@ A fresh insert with a required `resolvedBy` reference and no compatible mapping 
 ## Drafts
 
 A draft is a named pointer into the layout's revision graph (`Layout/Revision/LayoutRevisionService`); a layout can have several at once.
-`Api/ContentLayoutDraftController` manages them; every draft response carries the draft as `{id, name, base, head, createdAt, updatedAt}`.
+`Api/ContentLayoutDraftController` manages them; every draft response carries the draft as `{id, name, base, head, createdAt, createdById, updatedAt}`.
 
 | Route                                                    | Body                         | ACL                     | Response                  |
 |----------------------------------------------------------|------------------------------|-------------------------|---------------------------|

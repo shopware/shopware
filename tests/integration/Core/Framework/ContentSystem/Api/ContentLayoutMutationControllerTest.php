@@ -1066,7 +1066,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftInsertAppendsARevision(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $draft = $this->revisions()->createDraft($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
 
         $body = $this->mutate('insert-element', $layoutId, [
             'draftId' => $draft->id,
@@ -1086,7 +1086,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftMutationWithStaleHeadIs409(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $draft = $this->revisions()->createDraft($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
         $this->mutate('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $draft->head]);
 
         $this->request('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $draft->head]);
@@ -1109,7 +1109,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftMutationWithoutExpectedHeadIsABadRequest(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $draft = $this->revisions()->createDraft($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
 
         $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a']);
 
@@ -1133,7 +1133,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftTranslateKeepsTheTranslateAcl(): void
     {
         $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
-        $draft = $this->revisions()->createDraft($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
         $this->actAs(['content_layout:read', 'content_layout:translate']);
 
         $body = $this->mutate('translate-element', $layoutId, [
@@ -1152,7 +1152,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     public function testDraftMutationRejectsExpectedVersion(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $draft = $this->revisions()->createDraft($layoutId);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
 
         $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHead' => $draft->head]);
 

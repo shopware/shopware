@@ -6,7 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * An immutable saved state of a layout. Its tree lives in its own row and is read only where a caller needs
- * it, see {@see LayoutRevisionStore::tree()}. `publishedAt` is the first time it went live, `null` if never.
+ * it, see {@see LayoutRevisionStore::tree()}. `publishedAt` and `publishedBy` describe the first time it went
+ * live, `null` if never; `publishedBy` is also `null` for a layout write that bypassed publishing.
  *
  * @internal
  */
@@ -19,6 +20,7 @@ final readonly class LayoutRevision
         public \DateTimeImmutable $createdAt,
         public ?string $createdBy,
         public ?\DateTimeImmutable $publishedAt = null,
+        public ?string $publishedBy = null,
     ) {
     }
 }

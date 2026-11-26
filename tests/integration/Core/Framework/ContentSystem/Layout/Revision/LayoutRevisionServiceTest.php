@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout\Revisio
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
@@ -39,6 +40,29 @@ class LayoutRevisionServiceTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
+    #[TestDox('a draft records the admin user who created it, and a revision the one who first published it')]
+    public function testDraftAndPublicationRecordTheAdminUser(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $initial = $this->service->history($layoutId)->live;
+        $creator = Uuid::randomHex();
+        $publisher = Uuid::randomHex();
+
+        $draft = $this->service->createDraft($layoutId, $this->asUser($creator));
+        static::assertSame($creator, $draft->createdBy);
+        static::assertSame($creator, $this->service->listDrafts($layoutId)[0]->createdBy);
+
+        $saved = $this->save($layoutId, $draft->id, ['draft'], $draft->head);
+        $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->asUser($publisher));
+
+        $restore = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
+        $this->service->publish($layoutId, $restore->id, $restore->head, $this->asUser(Uuid::randomHex()));
+
+        $history = $this->service->history($layoutId);
+        static::assertSame($publisher, $history->revision($saved['revision']->id)?->publishedBy);
+        static::assertNull($history->revision($initial)?->publishedBy);
+    }
+
     #[TestDox('adopts the layout column as the single published revision on first access, however often it is read')]
     public function testFirstAccessAdoptsTheLayoutColumn(): void
     {
@@ -56,7 +80,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testPublishingADraft(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $saved = $this->save($layoutId, $draft->id, ['draft-a', 'draft-b'], $draft->head);
 
         $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
@@ -72,7 +96,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testPublishingAStaleHeadConflicts(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $this->save($layoutId, $draft->id, ['draft'], $draft->head);
 
         $this->assertFailsWith(
@@ -87,8 +111,8 @@ class LayoutRevisionServiceTest extends TestCase
     public function testPublishingAStaleDraftConflicts(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $first = $this->service->createDraft($layoutId);
-        $second = $this->service->createDraft($layoutId);
+        $first = $this->service->createDraft($layoutId, $this->context);
+        $second = $this->service->createDraft($layoutId, $this->context);
         $firstSaved = $this->save($layoutId, $first->id, ['first'], $first->head);
         $secondSaved = $this->save($layoutId, $second->id, ['second'], $second->head);
 
@@ -107,7 +131,7 @@ class LayoutRevisionServiceTest extends TestCase
     {
         $layoutId = $this->createLayout(['live-a']);
         $initial = $this->service->history($layoutId)->live;
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $saved = $this->save($layoutId, $draft->id, ['draft'], $draft->head);
 
         $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(['direct'])]], $this->context);
@@ -122,7 +146,7 @@ class LayoutRevisionServiceTest extends TestCase
             fn () => $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context),
         );
         static::assertSame(['direct'], $this->liveIds($layoutId));
-        static::assertSame($history->live, $this->service->createDraft($layoutId)->base);
+        static::assertSame($history->live, $this->service->createDraft($layoutId, $this->context)->base);
     }
 
     #[TestDox('a draft opened from an older revision rolls the layout back and the live pointer follows it')]
@@ -130,11 +154,11 @@ class LayoutRevisionServiceTest extends TestCase
     {
         $layoutId = $this->createLayout(['live-a']);
         $initial = $this->service->history($layoutId)->live;
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $saved = $this->save($layoutId, $draft->id, ['newer'], $draft->head);
         $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
 
-        $restore = $this->service->createDraft($layoutId, fromRevisionId: $initial);
+        $restore = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
         $this->service->publish($layoutId, $restore->id, $restore->head, $this->context);
 
         $history = $this->service->history($layoutId);
@@ -148,14 +172,14 @@ class LayoutRevisionServiceTest extends TestCase
     {
         $layoutId = $this->createLayout(['live-a']);
         $initial = $this->service->history($layoutId)->live;
-        $edit = $this->service->createDraft($layoutId);
+        $edit = $this->service->createDraft($layoutId, $this->context);
         $editSaved = $this->save($layoutId, $edit->id, ['newer'], $edit->head);
         $this->service->publish($layoutId, $edit->id, $editSaved['draft']->head, $this->context);
 
-        $stale = $this->service->createDraft($layoutId);
+        $stale = $this->service->createDraft($layoutId, $this->context);
         $staleSaved = $this->save($layoutId, $stale->id, ['newer', 'stale'], $stale->head);
 
-        $restore = $this->service->createDraft($layoutId, fromRevisionId: $initial);
+        $restore = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
         $this->service->publish($layoutId, $restore->id, $restore->head, $this->context);
 
         $this->assertFailsWith(
@@ -171,10 +195,10 @@ class LayoutRevisionServiceTest extends TestCase
     public function testDraftBranchedFromAnotherDraftCanBePublishedAfterIt(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $first = $this->service->createDraft($layoutId);
+        $first = $this->service->createDraft($layoutId, $this->context);
         $firstSaved = $this->save($layoutId, $first->id, ['first'], $first->head);
 
-        $branched = $this->service->createDraft($layoutId, fromRevisionId: $firstSaved['draft']->head);
+        $branched = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $firstSaved['draft']->head);
         $branchedSaved = $this->save($layoutId, $branched->id, ['first', 'second'], $branched->head);
 
         $this->service->publish($layoutId, $first->id, $firstSaved['draft']->head, $this->context);
@@ -188,11 +212,11 @@ class LayoutRevisionServiceTest extends TestCase
     public function testDiscardingADraftDeletesItsRevisions(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $published = $this->service->createDraft($layoutId);
+        $published = $this->service->createDraft($layoutId, $this->context);
         $publishedSaved = $this->save($layoutId, $published->id, ['published'], $published->head);
         $this->service->publish($layoutId, $published->id, $publishedSaved['draft']->head, $this->context);
 
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $first = $this->save($layoutId, $draft->id, ['one'], $draft->head);
         $this->save($layoutId, $draft->id, ['two'], $first['draft']->head);
 
@@ -209,7 +233,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testADraftKeepsOnlyItsHead(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $head = $draft->head;
         foreach (['one', 'two', 'three'] as $elementId) {
             $head = $this->save($layoutId, $draft->id, [$elementId], $head)['draft']->head;
@@ -234,7 +258,7 @@ class LayoutRevisionServiceTest extends TestCase
         static::assertNull($history->revision($initial));
         $this->assertFailsWith(
             ContentSystemException::CONTENT_LAYOUT_REVISION_NOT_FOUND,
-            fn () => $this->service->createDraft($layoutId, fromRevisionId: $initial),
+            fn () => $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial),
         );
     }
 
@@ -243,7 +267,7 @@ class LayoutRevisionServiceTest extends TestCase
     {
         $layoutId = $this->createLayout(['live-a']);
         $initial = $this->service->history($layoutId)->live;
-        $stale = $this->service->createDraft($layoutId);
+        $stale = $this->service->createDraft($layoutId, $this->context);
         $staleSaved = $this->save($layoutId, $stale->id, ['stale'], $stale->head);
         for ($i = 1; $i <= 20; ++$i) {
             $this->publishEdit($layoutId, ['edit-' . $i]);
@@ -260,13 +284,13 @@ class LayoutRevisionServiceTest extends TestCase
     public function testBranchingFromASupersededHeadIsNotFound(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $first = $this->save($layoutId, $draft->id, ['one'], $draft->head);
         $this->save($layoutId, $draft->id, ['two'], $first['draft']->head);
 
         $this->assertFailsWith(
             ContentSystemException::CONTENT_LAYOUT_REVISION_NOT_FOUND,
-            fn () => $this->service->createDraft($layoutId, fromRevisionId: $first['draft']->head),
+            fn () => $this->service->createDraft($layoutId, $this->context, fromRevisionId: $first['draft']->head),
         );
     }
 
@@ -274,7 +298,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testReadingDraftsDoesNotReconcile(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(['direct'])]], $this->context);
         $rowsBefore = $this->revisionRows($layoutId);
 
@@ -285,7 +309,7 @@ class LayoutRevisionServiceTest extends TestCase
         static::assertSame(['live-a'], array_map(static fn (StoredElement $element): string => $element->id, $read['layout']));
         static::assertSame($rowsBefore, $this->revisionRows($layoutId));
 
-        $this->service->createDraft($layoutId);
+        $this->service->createDraft($layoutId, $this->context);
         static::assertSame($rowsBefore + 1, $this->revisionRows($layoutId));
     }
 
@@ -310,7 +334,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testRevisionsAreDeletedWithTheLayout(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $this->save($layoutId, $draft->id, ['draft'], $draft->head);
 
         $this->repository()->delete([['id' => $layoutId]], $this->context);
@@ -328,7 +352,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testAppendRevisionDerivesFromTheHead(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $saved = $this->save($layoutId, $draft->id, ['draft-a'], $draft->head);
         $seen = null;
 
@@ -355,7 +379,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testAppendRevisionWithStaleHeadNeverDerives(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $this->save($layoutId, $draft->id, ['draft-a'], $draft->head);
 
         $this->assertFailsWith(
@@ -374,7 +398,7 @@ class LayoutRevisionServiceTest extends TestCase
     public function testAppendRevisionAdmitsTheDerivedTree(): void
     {
         $layoutId = $this->createLayout(['live-a']);
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
 
         try {
             $this->service->appendRevision(
@@ -413,9 +437,14 @@ class LayoutRevisionServiceTest extends TestCase
      */
     private function publishEdit(string $layoutId, array $elementIds): void
     {
-        $draft = $this->service->createDraft($layoutId);
+        $draft = $this->service->createDraft($layoutId, $this->context);
         $saved = $this->save($layoutId, $draft->id, $elementIds, $draft->head);
         $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
+    }
+
+    private function asUser(string $userId): Context
+    {
+        return Context::createDefaultContext(new AdminApiSource($userId));
     }
 
     private function revisionRows(string $layoutId): int

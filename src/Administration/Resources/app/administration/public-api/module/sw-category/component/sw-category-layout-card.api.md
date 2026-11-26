@@ -10,6 +10,32 @@ component sw-category-layout-card  public  js
   source src/module/sw-category/component/sw-category-layout-card/index.js
   template src/module/sw-category/component/sw-category-layout-card/sw-category-layout-card.html.twig
 
+inject
+  acl
+  cmsPageTypeService
+
+props
+  category: object
+  cmsPage?: object  default=null
+  headline?: string  default=''
+  isLoading?: boolean  default=false
+  pageTypes?: any[]  default=factory
+
+data
+  showLayoutSelectionModal: any
+
+computed
+  pageName: any
+  pageTypeTitle: any
+
+methods
+  closeLayoutModal(): any
+  onLayoutReset(): any
+  onLayoutSelect(selectedLayout: any): any
+  openInPagebuilder(): any
+  openLayoutModal(): any
+  resetSlotConfig(): any
+
 blocks
   sw_category_layout_card
     sw_category_detail_layout_desc  [after v-if]

@@ -11,6 +11,38 @@ component sw-select-result  private  js  [private]
   template src/app/component/form/select/base/sw-select-result/sw-select-result.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  setActiveItemIndex  [private]
+
+props
+  ariaLabel?: string  default=undefined  [private]
+  descriptionPosition?: string  default='right'  [private]
+  disabled?: boolean  default=false  [private]
+  index: number  [private]
+  item: object  [private]
+  selected?: boolean  default=false  [private]
+
+slots
+  default  {}  block=sw_select_result_item_text  [private]
+  description  {}  block=sw_select_result_item_description  [private]
+  preview  {}  block=sw_select_result_item_preview  [private]
+
+data
+  active: any  [private]
+
+computed
+  hasDescriptionSlot: any  [private]
+  resultClasses: any  [private]
+
+methods
+  checkIfActive(activeItemIndex: any, arg1?: any = { shouldFocus: false }): any  [private]
+  checkIfSelected(selectedItemIndex: any): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  onClickResult(): any  [private]
+  onMouseEnter(): any  [private]
+
 blocks
   sw_select_result  [private]
     sw_select_result_item_description_holder  [private]

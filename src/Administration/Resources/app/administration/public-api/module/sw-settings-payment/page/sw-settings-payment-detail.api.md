@@ -10,6 +10,60 @@ component sw-settings-payment-detail  public  js
   source src/module/sw-settings-payment/page/sw-settings-payment-detail/index.js
   template src/module/sw-settings-payment/page/sw-settings-payment-detail/sw-settings-payment-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+data
+  customFieldSets: any
+  deletionInProcess: any
+  isLoading: any
+  isSaveSuccessful: any
+  mediaItem: any
+  paymentMethod: any
+  showDeleteModal: any
+  uploadTag: any
+
+computed
+  forbidDelete: any
+  identifier: any
+  isNewPaymentMethod: any
+  mediaRepository: any
+  paymentMethodCriteria: any
+  paymentMethodNameError: any
+  paymentMethodRepository: any
+  paymentMethodTechnicalNameError: any
+  ruleFilter: any
+  ruleRepository: any
+  showCustomFields: any
+  technicalNameIsProvided: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  deletePaymentMethod(): Promise<any>
+  loadCustomFieldSets(): any
+  loadEntityData(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onDismissRule(): any
+  onDropMedia(mediaItem: any): any
+  onError(error: any): any
+  onSave(): Promise<any>
+  onSaveRule(ruleId: any): any
+  onUnlinkLogo(): any
+  openMediaSidebar(): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  setMediaFromSidebar(mediaEntity: any): any
+  setMediaItem(arg0: any): any
+
 blocks
   sw_settings_payment_detail
     sw_settings_payment_detail_actions
@@ -37,4 +91,7 @@ blocks
         sw_settings_payment_detail_top_rule_select
     sw_settings_payment_detail_header
     sw_settings_payment_detail_language_switch
+
+refs
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_settings_payment_detail
 ```

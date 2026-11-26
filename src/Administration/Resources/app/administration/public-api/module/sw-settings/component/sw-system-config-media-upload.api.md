@@ -10,4 +10,21 @@ component sw-system-config-media-upload  private  js  [private]
   source src/module/sw-settings/component/sw-system-config-media-upload/index.js  [private]
   template src/module/sw-settings/component/sw-system-config-media-upload/sw-system-config-media-upload.html.twig  [private]
   visibility-source export  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  label?: string  default=null  [private]
+  name?: string  default=null  [private]
+  value?: string  default=null  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+data
+  uploadTag: any  [private]
+
+methods
+  removeMedia(): any  [private]
+  setMedia(selection: any): any  [private]
+  successfulUpload(arg0: any): any  [private]
 ```

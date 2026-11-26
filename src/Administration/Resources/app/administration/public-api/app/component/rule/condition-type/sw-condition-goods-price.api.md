@@ -11,6 +11,13 @@ component sw-condition-goods-price  public  js
   source src/app/component/rule/condition-type/sw-condition-goods-price/index.js
   template src/app/component/rule/condition-type/sw-condition-goods-price/sw-condition-goods-price.html.twig
 
+data
+  showFilterModal: any
+
+computed
+  amount: any
+  operators: any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]

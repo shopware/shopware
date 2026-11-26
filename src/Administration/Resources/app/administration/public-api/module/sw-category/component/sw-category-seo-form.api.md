@@ -10,6 +10,22 @@ component sw-category-seo-form  public  js
   source src/module/sw-category/component/sw-category-seo-form/index.js
   template src/module/sw-category/component/sw-category-seo-form/sw-category-seo-form.html.twig
 
+inject
+  acl
+
+props
+  category: object
+
+computed
+  metaDescriptionLength: any
+  metaTitleLength: any
+  recommendedMetaDescriptionLength: any
+  recommendedMetaTitleLength: any
+
+methods
+  getRecommendedLengthClass(count: any, max: any): any
+  getRecommendedLengthHint(count: any, max: any): any
+
 blocks
   sw_category_seo_form
     sw_category_seo_form_keywords

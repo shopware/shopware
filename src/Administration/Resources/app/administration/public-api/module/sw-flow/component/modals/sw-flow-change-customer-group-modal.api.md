@@ -11,6 +11,30 @@ component sw-flow-change-customer-group-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-change-customer-group-modal/sw-flow-change-customer-group-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  customerGroupId: any  [private]
+  fieldError: any  [private]
+
+computed
+  customerGroupCriteria: any  [private]
+  customerGroupRepository: any  [private]
+  customerGroups: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onAddAction(): any  [private]
+  onClose(): any  [private]
+
 blocks
   sw_flow_change_customer_group_modal  [private]
     sw_flow_change_customer_group_modal_content_custom  [private]

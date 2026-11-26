@@ -10,6 +10,64 @@ component sw-customer-detail-addresses  public  js
   source src/module/sw-customer/view/sw-customer-detail-addresses/index.js
   template src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.html.twig
 
+mixins
+  notification
+
+inject
+  customFieldDataProviderService
+  repositoryFactory
+
+props
+  customer: object
+  customerEditMode: boolean
+
+data
+  activeCustomer: any
+  addressSortDirection: any
+  addressSortProperty: any
+  currentAddress: any
+  customerAddressCustomFieldSets: any
+  isLoading: any
+  showAddAddressModal: any
+  showDeleteAddressModal: any
+  showEditAddressModal: any
+
+computed
+  addressColumns: any
+  addressRepository: any
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+  customerAddressRepository: any
+  customerRepository: any
+  salutationCriteria: any
+  salutationRepository: any
+  sortedAddresses: any
+
+methods
+  clearAddressErrors(address: any): any
+  createNewCustomerAddress(): Promise<any>
+  createPrefix(string: any, replace: any): any
+  createdComponent(): any
+  getAddressColumns(): any
+  getDefaultSalutation(): Promise<any>
+  getLoadedAddress(id: any): any
+  isDefaultAddress(addressId: any): any
+  isValidAddress(address: any): any
+  onChange(term: any): any
+  onChangeDefaultAddress(data: any): any
+  onChangeDefaultBillingAddress(billingAddressId: any): any
+  onChangeDefaultShippingAddress(shippingAddressId: any): any
+  onCloseAddressModal(): any
+  onCloseDeleteAddressModal(): any
+  onConfirmDeleteAddress(id: any): Promise<any>
+  onCreateNewAddress(): any
+  onDeleteAddress(id: any): any
+  onDuplicateAddress(addressId: any): Promise<any>
+  onEditAddress(id: any): any
+  onSaveAddress(): any
+  refreshList(): any
+  removeRequiredFieldError(addressId: any, field: any): any
+  setAddressSorting(column: any): any
+
 blocks
   sw_customer_detail_addresses
     sw_customer_detail_addresses_card
@@ -38,4 +96,7 @@ blocks
           sw_customer_detail_addresses_grid_columns_actions_edit  [scope: item]
       sw_customer_detail_addresses_toolbar
         sw_customer_detail_addresses_add_button
+
+refs
+  addressGrid  -> sw-one-to-many-grid  block=sw_customer_detail_addresses_grid
 ```

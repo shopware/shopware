@@ -10,6 +10,33 @@ component sw-media-breadcrumbs  public  js
   source src/module/sw-media/component/sw-media-breadcrumbs/index.js
   template src/module/sw-media/component/sw-media-breadcrumbs/sw-media-breadcrumbs.html.twig
 
+inject
+  feature
+  repositoryFactory
+
+props
+  currentFolderId?: string  default=null
+  disabled?: boolean  default=false
+  small?: boolean  default=false
+
+emits
+  update:currentFolderId(...args: any[])
+
+data
+  currentFolder: any
+  parentFolder: any
+
+computed
+  assetFilter: any
+  mediaFolderRepository: any
+  rootFolder: any
+  swMediaBreadcrumbsClasses: any
+
+methods
+  createdComponent(): any
+  onBreadcrumbsItemClicked(id: any): any
+  updateFolder(): Promise<any>
+
 blocks
   sw_media_breadcrumbs
     sw_media_breadcrumbs_current_folder  [after v-if]

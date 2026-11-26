@@ -389,7 +389,7 @@ export default {
         },
 
         paginate() {
-            if (!this.resultCollection || this.resultCollection.total < this.criteria.page * this.criteria.limit) {
+            if (!this.resultCollection || this.resultCollection.length < this.criteria.page * this.criteria.limit) {
                 return;
             }
 

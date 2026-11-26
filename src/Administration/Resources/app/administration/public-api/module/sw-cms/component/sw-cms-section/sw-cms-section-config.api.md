@@ -10,6 +10,36 @@ component sw-cms-section-config  public  ts
   source src/module/sw-cms/component/sw-cms-section/sw-cms-section-config/index.ts
   template src/module/sw-cms/component/sw-cms-section/sw-cms-section-config/sw-cms-section-config.html.twig
 
+mixins
+  cms-state
+
+inject
+  repositoryFactory
+
+props
+  section: Entity<'cms_section'>
+
+emits
+  section-delete(...args: any[])
+  section-duplicate(...args: any[])
+
+computed
+  backgroundMediaModeOptions: any
+  cmsPageState: any
+  mediaRepository: any
+  mobileBehaviorOptions: any
+  quickactionClasses: any
+  quickactionsDisabled: any
+  sizingModeOptions: any
+  uploadTag: any
+
+methods
+  onSectionDelete(sectionId: EntityKey<'cms_section'>): any
+  onSectionDuplicate(section: Entity<'cms_section'>): any
+  onSetBackgroundMedia(arg0: Entity<'media'>[]): any
+  removeMedia(): any
+  successfulUpload(media: MediaUploadResult): Promise<any>
+
 blocks
   sw_cms_section_config
     sw_cms_section_config__quickactions

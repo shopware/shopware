@@ -11,6 +11,45 @@ component sw-sidebar  private  js  [private]
   template src/app/component/sidebar/sw-sidebar/sw-sidebar.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  removeSwPageSidebarOffset  [private]
+  setSwPageSidebarOffset  [private]
+
+provide
+  registerSidebarItem: any  [private]
+
+props
+  propagateWidth?: boolean  default=false  [private]
+
+emits
+  item-click(...args: any[])  [private]
+  item-register(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_sidebar_content  [private]
+
+data
+  _parent: any  [private]
+  isOpened: any  [private]
+  items: any  [private]
+  resizeNavigationKey: any  [private]
+
+computed
+  sections: any  [private]
+  sidebarClasses: any  [private]
+
+methods
+  _isAnyItemActive(): any  [private]
+  _isItemRegistered(itemToCheck: any): any  [private]
+  closeSidebar(): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  mountedComponent(): any  [private]
+  onResize(): any  [private]
+  registerSidebarItem(item: any): any  [private]
+  setItemActive(clickedItem: any): any  [private]
+  updateSidebarOffset(): any  [private]
+
 blocks
   sw_sidebar  [private]
     sw_sidebar_content  [private]

@@ -11,6 +11,32 @@ component sw-import-export-edit-profile-modal-identifiers  private  js  [private
   template src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers/sw-import-export-edit-profile-modal-identifiers.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  importExportUpdateByMapping  [private]
+  repositoryFactory  [private]
+
+props
+  profile?: object  default=null  [private]
+
+data
+  currencies: any  [private]
+  customFieldSets: any  [private]
+  languages: any  [private]
+
+computed
+  currencyCriteria: any  [private]
+  currencyRepository: any  [private]
+  customFieldSetCriteria: any  [private]
+  customFieldSetRepository: any  [private]
+  identifierColumns: any  [private]
+  identifiers: any  [private]
+  languageCriteria: any  [private]
+  languageRepository: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onChangeIdentifier(mappedKey: any, entityName: any): any  [private]
+
 blocks
   sw_import_export_edit_profile_modal_identifiers  [private]
     sw_import_export_edit_profile_modal_identifiers_empty_state  [after v-if] [private]

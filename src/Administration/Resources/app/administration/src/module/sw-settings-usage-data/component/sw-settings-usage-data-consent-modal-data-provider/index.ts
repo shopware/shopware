@@ -138,7 +138,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            if (isFirstRunWizardActive() || isWrongAppUrlModalVisible() || isShopIdChangeModalVisible()) {
+            if (
+                isFirstRunWizardActive() ||
+                (this.acl.isAdmin() && isWrongAppUrlModalVisible()) ||
+                isShopIdChangeModalVisible()
+            ) {
                 return false;
             }
 

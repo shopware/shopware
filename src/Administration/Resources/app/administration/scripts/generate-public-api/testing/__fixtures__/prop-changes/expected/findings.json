@@ -1,0 +1,48 @@
+[
+    {
+        "group": "Break",
+        "rule": "prop_missing",
+        "explanation": "The prop is gone, so a value that plugin templates pass as placeholder falls through as an HTML attribute, and plugin overrides that read this.placeholder get undefined.",
+        "fix": "pattern \"Rename\". Keep placeholder and mark it /** @deprecated tag:v6.8.0 - Use {@link placeholderText} instead. */.",
+        "possibleRename": "placeholderText",
+        "element": "component:sw-example-entity-select/prop:placeholder",
+        "states": ["current", "major"],
+        "at": "src/app/component/form/sw-example-entity-select/index.js:16"
+    },
+    {
+        "group": "Break",
+        "rule": "prop_missing",
+        "explanation": "The prop is gone, so a value that plugin templates pass as showClearableButton falls through as an HTML attribute, and plugin overrides that read this.showClearableButton get undefined.",
+        "fix": "pattern \"Removal\". Keep the prop and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.",
+        "element": "component:sw-example-entity-select/prop:showClearableButton",
+        "states": ["current", "major"],
+        "at": "src/app/component/form/sw-example-entity-select/index.js:16"
+    },
+    {
+        "group": "Break",
+        "rule": "prop_now_required",
+        "explanation": "The prop is now required, so plugin templates that render sw-example-entity-select without entity fail prop validation.",
+        "fix": "pattern \"Prop becomes required\". Keep entity optional, call triggerDeprecationOrThrow when it is missing, and mark it @bc-change PropBecomesRequired version:v6.8.0.",
+        "element": "component:sw-example-entity-select/prop:entity",
+        "states": ["current", "major"],
+        "at": "src/app/component/form/sw-example-entity-select/index.js:23"
+    },
+    {
+        "group": "Addition",
+        "rule": "prop_added",
+        "explanation": "A new public prop that plugins can rely on from now on.",
+        "fix": "mark it @private if it is not meant for plugins.",
+        "element": "component:sw-example-entity-select/prop:placeholderText",
+        "states": ["current", "major"],
+        "at": "src/app/component/form/sw-example-entity-select/index.js:28"
+    },
+    {
+        "group": "Info",
+        "rule": "block_if_chain_changed",
+        "explanation": "The v-if chain before the block changed from \"showClearableButton && value\" to \"value\", so plugin overrides that start with v-else-if or v-else may now render under another condition.",
+        "fix": "mention it in the upgrade notes if the block now belongs to another condition.",
+        "element": "component:sw-example-entity-select/block:sw_example_entity_select_results",
+        "states": ["current", "major"],
+        "at": "src/app/component/form/sw-example-entity-select/sw-example-entity-select.html.twig:26"
+    }
+]

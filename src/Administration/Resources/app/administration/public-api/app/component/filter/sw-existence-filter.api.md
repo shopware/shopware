@@ -11,6 +11,22 @@ component sw-existence-filter  private  js  [private]
   template src/app/component/filter/sw-existence-filter/sw-existence-filter.html.twig  [private]
   visibility-source export  [private]
 
+props
+  active: boolean  [private]
+  filter: object  [private]
+
+emits
+  filter-reset(...args: any[])  [private]
+  filter-update(...args: any[])  [private]
+
+computed
+  filterOptions: any  [private]
+  value: any  [private]
+
+methods
+  changeValue(newValue: any): any  [private]
+  resetFilter(): any  [private]
+
 blocks
   sw_existence_filter  [private]
     sw_existence_filter_content  [private]

@@ -10,6 +10,94 @@ component sw-product-variants-overview  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/sw-product-variants-overview.html.twig
 
+mixins
+  notification, listing
+
+inject
+  acl
+  feature
+  mediaService
+  repositoryFactory
+
+props
+  productEntity: object
+  productStates?: any[]  default=factory  [deprecated tag:v6.8.0]
+  productType?: string  default='all'
+  selectedGroups: any[]
+
+emits
+  delivery-open(...args: any[])
+  generator-open(...args: any[])
+  variants-finish-update(...args: any[])
+
+data
+  activeFilter: any
+  filterOptions: any
+  filterWindowOpen: any
+  includeOptions: any
+  modalLoading: any
+  priceEdit: any
+  productDownloadFolderId: any
+  showBulkEditModal: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  toBeDeletedVariantIds: any
+
+computed
+  canBeDeletedCriteria: any
+  currencies: any
+  currencyColumns: any
+  defaultCurrency: any
+  defaultPrice: any
+  isLoading: any
+  mediaRepository: any
+  product: any
+  productDownloadRepository: any
+  productMediaRepository: any
+  productRepository: any
+  productTaxRate: any
+  taxes: any
+  variantColumns: any
+  variants: any
+
+methods
+  buildSearchQuery(criteria: any): any
+  canVariantBeDeleted(): Promise<any>
+  createdComponent(): Promise<any>
+  filterOptionChecked(option: any): any
+  getDefaultPriceForVariant(variant: any): any
+  getDownloadsSource(item: any): any
+  getFilterCriteria(): any
+  getFilterOptions(): any
+  getList(): Promise<any>
+  getOptionsForGroup(groupId: any): any
+  isActiveFieldInherited(variant: any): any
+  isMediaFieldInherited(variant: any): any
+  isPriceEditing(value: any): any
+  isPriceFieldInherited(variant: any, currency: any): any
+  mediaExists(files: any, targetId: any): any
+  onActiveInheritanceRemove(variant: any): any
+  onActiveInheritanceRestore(variant: any): any
+  onClickBulkDelete(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(): any
+  onEditItems(): Promise<any>
+  onInheritanceRemove(variant: any, currency: any): any
+  onInheritanceRestore(variant: any, currency: any): any
+  onInlineEditCancel(): any
+  onInlineEditSave(variation: any): any
+  onMediaInheritanceRemove(variant: any, isInlineEdit: any): any
+  onMediaInheritanceRestore(variant: any, isInlineEdit: any): any
+  onOptionEdit(variant: any): any
+  onVariationDelete(item: any): any
+  removeFile(fileName: any, item: any): any
+  resetFilterOptions(): any
+  successfulUpload(event: any, item: any): any
+  toggleBulkEditModal(): any
+  updateVariantListingConfig(variantIds: any): any
+  variantIsDigital(variant: any): any
+
 blocks
   sw_product_variants_overview
     sw_product_variants_overview_data_grid
@@ -61,4 +149,7 @@ crossings
   v-if  sw_product_variants_overview_data_grid_column_price_inline_edit -> sw_product_variants_overview_data_grid_column_price_preview
   v-if  sw_product_variants_overview_data_grid_column_product_number_inline_edit -> sw_product_variants_overview_data_grid_column_product_number_preview
   v-if  sw_product_variants_overview_data_grid_column_stock_inline_edit_field -> sw_product_variants_overview_data_grid_column_stock_preview
+
+refs
+  variantGrid  -> sw-data-grid  block=sw_product_variants_overview_data_grid
 ```

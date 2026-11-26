@@ -170,11 +170,20 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateTillLastMsgCreatesIndicesAndIndexTaskInDB(): void
     {
+        $iterator = $this->createMock(IterableQuery::class);
+        $iterator->expects($this->once())->method('fetchCount')->willReturn(100);
+        $this->iteratorFactory->method('createIterator')->willReturn($iterator);
+
+        $task = [];
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
             ->method('insert')
-            ->with('elasticsearch_index_task');
+            ->willReturnCallback(static function (string $table, array $data) use (&$task): int {
+                $task = $data;
+
+                return 1;
+            });
 
         $indexCreator = $this->createMock(IndexCreator::class);
         $indexCreator
@@ -190,6 +199,8 @@ class ElasticsearchIndexerTest extends TestCase
         $msg = $indexer->iterate();
 
         static::assertNull($msg);
+        static::assertSame(100, $task['`doc_count`']);
+        static::assertSame(100, $task['`total_count`']);
     }
 
     public function testIterateWithMessage(): void

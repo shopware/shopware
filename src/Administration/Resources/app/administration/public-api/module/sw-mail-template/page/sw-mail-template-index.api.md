@@ -10,10 +10,29 @@ component sw-mail-template-index  public  js
   source src/module/sw-mail-template/page/sw-mail-template-index/index.js
   template src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  feature
+
+data
+  term: any  [deprecated tag:v6.8.0]
+
+computed
+  mailTemplateTabs: any
+  searchType: any
+
+methods
+  getList(): any  [deprecated tag:v6.8.0]
+  onChangeLanguage(languageId: any): any
+  onCreateMailTemplate(): any
+
 blocks
   sw_mail_template_list
     sw_mail_template_list_content
-      sw_mail_template_list_content_card  [after v-if]
+      sw_mail_template_list_content_card  [after v-if] [deprecated tag:v6.8.0]
       sw_mail_template_list_router_view  [from v6.8.0]
       sw_mail_template_list_tabs  [from v6.8.0]
         sw_mail_template_list_mt_tabs  [from v6.8.0]
@@ -25,4 +44,9 @@ blocks
       sw_mail_template_list_smart_bar_header_title
         sw_mail_template_list_smart_bar_header_title_text
     sw_mail_templates_list_search_bar
+
+refs
+  mailHeaderFooterList  -> sw-mail-header-footer-list  block=sw_mail_template_list_content_card  [until v6.8.0]
+  mailTemplateList  -> sw-mail-template-list  block=sw_mail_template_list_content_card  [until v6.8.0]
+  tabContent  -> component  block=sw_mail_template_list_router_view  [from v6.8.0]
 ```

@@ -11,6 +11,10 @@ component sw-wizard-dot-navigation  private  js  [private]
   template src/app/component/wizard/sw-wizard-dot-navigation/sw-wizard-dot-navigation.html.twig  [private]
   visibility-source export  [private]
 
+props
+  activePage: number  [private]
+  pages: any[]  [private]
+
 blocks
   sw_wizard_dot_navigation  [private]
     sw_wizard_dot_navigation_item  [private]

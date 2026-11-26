@@ -11,6 +11,84 @@ component sw-grid  private  js  [private]
   template src/app/component/grid/sw-grid/sw-grid.html.twig  [private]
   visibility-source export  [private]
 
+provide
+  swGridColumns: any  [private]
+  swGridInlineEditCancel: any  [private]
+  swGridInlineEditStart: any  [private]
+  swGridSetColumns: any  [private]
+  swOnInlineEditStart: any  [private]
+  swRegisterGridDisableInlineEditListener: any  [private]
+  swUnregisterGridDisableInlineEditListener: any  [private]
+
+props
+  allowInlineEdit?: boolean  default=true  [private]
+  header?: boolean  default=true  [private]
+  isFullpage?: boolean  default=false  [private]
+  items?: any[]  default=null  [private]
+  selectable?: boolean  default=true  [private]
+  sortBy?: string  default=null  [private]
+  sortDirection?: string  default='ASC'  [private]
+  table?: boolean  default=false  [private]
+  variant?: string  default='normal'  [private]
+
+emits
+  inline-edit-cancel(...args: any[])  [private]
+  inline-edit-finish(...args: any[])  [private]
+  inline-edit-start(...args: any[])  [private]
+  sort-column(...args: any[])  [private]
+  sw-grid-disable-inline-editing(...args: any[])  [private]
+  sw-grid-select-all(...args: any[])  [private]
+  sw-grid-select-item(...args: any[])  [private]
+
+slots
+  body  {}  block=sw_grid_slot_content  [private]
+  columns  { item }  block=sw_grid_body_slot_items  [private]
+  content  {}  block=sw_grid  [private]
+  empty  {}  block=sw_grid_slot_empty_columns  [private]
+  header  {}  block=sw_grid_slot_content  [private]
+  items  { key }  block=sw_grid_slot_body  [private]
+  pagination  {}  block=sw_grid_pagination  [private]
+
+data
+  allSelectedChecked: any  [private]
+  columns: any  [private]
+  editing: any  [private]
+  rowRefs: any  [private]
+  scrollbarOffset: any  [private]
+  selection: any  [private]
+  swGridDisableInlineEditListener: any  [private]
+
+computed
+  columnFlex: any  [private]
+  gridClasses: any  [private]
+  gridContentClasses: any  [private]
+  hasPaginationSlot: any  [private]
+  sizeClass: any  [private]
+  sort: any  [private]
+  sortDir: any  [private]
+
+methods
+  checkSelection(): any  [private]
+  createdComponent(): any  [private]
+  disableActiveInlineEditing(item: any, index: any): any  [private]
+  getKey(item: any): any  [private]
+  getScrollBarWidth(): any  [private]
+  getSelection(): any  [private]
+  inlineEditingStart(id: any): any  [private]
+  isSelected(itemId: any): any  [private]
+  onGridCellClick(event: any, column: any): any  [private]
+  onInlineEditFinish(item: any): any  [private]
+  onInlineEditStart(item: any): any  [private]
+  registerGridDisableInlineEditListener(listener: any): any  [private]
+  registerInlineEditingEvents(): any  [private]
+  selectAll(selected: any): any  [private]
+  selectItem(selected: any, item: any): any  [private]
+  setColumns(columns: any): any  [private]
+  setScrollbarOffset(): any  [private]
+  startInlineEditing(): any  [private]
+  unregisterGridDisableInlineEditListener(listener: any): any  [private]
+  updatedComponent(): any  [private]
+
 blocks
   sw_grid  [private]
     sw_grid_slot_content  [private]
@@ -32,4 +110,8 @@ blocks
 
 crossings
   v-if  sw_grid_slot_header_cell_icon_label -> sw_grid_slot_header_cell_label  [private]
+
+refs
+  rowRefs  -> sw-grid-row  list  block=sw_grid_body_slot_items  [private]
+  swGridBody  -> div  block=sw_grid_slot_body  [private]
 ```

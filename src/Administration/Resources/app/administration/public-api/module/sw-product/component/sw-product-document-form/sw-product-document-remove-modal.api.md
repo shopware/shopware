@@ -11,6 +11,36 @@ component sw-product-document-remove-modal  private  ts  [private]
   template src/module/sw-product/component/sw-product-document-form/sw-product-document-remove-modal/sw-product-document-remove-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  productDocumentVariantService  [private]
+
+props
+  canEdit?: boolean  default=false  [private]
+  documents: Entity<'product_document'>[]  [private]
+  languageName?: string  default=''  [private]
+
+emits
+  close(...args: any[])  [private]
+  remove(...args: any[])  [private]
+
+data
+  isRemoving: any  [private]
+  removeFromVariants: any  [private]
+
+computed
+  documentName: string  [private]
+  hasVariants: boolean  [private]
+  isBulk: boolean  [private]
+  isDisabled: boolean  [private]
+  isSystemDefaultLanguage: boolean  [private]
+  modalDescription: string  [private]
+  modalTitle: string  [private]
+  operations: Record<string, DocumentVariantOperation>  [private]
+
+methods
+  getSuccessMessage(variantCount: number): string  [private]
+  remove(): Promise<void>  [private]
+
 blocks
   sw_product_document_remove_modal  [private]
     sw_product_document_form_remove_description  [private]

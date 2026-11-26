@@ -12,7 +12,7 @@ use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -309,7 +309,7 @@ class AppSeoUrlSynchronizerTest extends TestCase
                 static::assertEquals(
                     [
                         new EqualsFilter('active', true),
-                        new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]),
+                        new NotEqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API),
                     ],
                     $criteria->getFilters()
                 );

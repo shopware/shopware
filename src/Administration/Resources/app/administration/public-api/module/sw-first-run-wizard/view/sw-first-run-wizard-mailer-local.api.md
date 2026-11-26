@@ -11,6 +11,33 @@ component sw-first-run-wizard-mailer-local  private  js  [private]
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-local/sw-first-run-wizard-mailer-local.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  systemConfigApiService  [private]
+
+emits
+  buttons-update(...args: any[])  [private]
+  frw-redirect(...args: any[])  [private]
+  frw-set-title(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  mailerSettings: object  [private]
+        emailAgent: any  [private]
+        sendMailOptions: any  [private]
+
+computed
+  buttonConfig: any  [private]
+  emailSendmailOptions: any  [private]
+  nextAction: any  [private]
+  requiredFieldsFilled: any  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+  loadMailerSettings(): Promise<any>  [private]
+  saveMailerSettings(): Promise<any>  [private]
+  setTitle(): any  [private]
+  updateButtons(): any  [private]
+
 blocks
   sw_first_run_wizard_mailer_local  [private]
 ```

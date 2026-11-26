@@ -11,6 +11,19 @@ component sw-settings-store  private  js  [private]
   template src/module/sw-settings-store/page/sw-settings-store/sw-settings-store.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+data
+  isLoading: any  [private]
+  isSaveSuccessful: any  [private]
+
+methods
+  onLoadingChanged(loading: any): any  [private]
+  onSave(): any  [private]
+  saveFinish(): any  [private]
+  trimHost(): any  [private]
+
 blocks
   sw_settings_store_index  [private]
     sw_settings_store_content  [private]
@@ -20,4 +33,7 @@ blocks
     sw_settings_store_smart_bar_header  [private]
       sw_settings_store_smart_bar_header_title  [private]
         sw_settings_store_smart_bar_header_title_text  [private]
+
+refs
+  systemConfig  -> sw-system-config  block=sw_settings_store_content  [private]
 ```

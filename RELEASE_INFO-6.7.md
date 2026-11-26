@@ -1,5 +1,42 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### Faster DAL writes
+
+DAL writes avoid redundant database queries for versioned entities and translations.
+Local benchmarks on a catalogue with three million products showed approximately 20% lower write times without indexing on MySQL and MariaDB.
+
+### Moving a category re-indexes its products
+
+Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.
+Before, `product.categoryTree` and `product.categoriesRo` kept the old parents, so listings and "line item in category" rules were wrong until the products were re-indexed.
+Integrations that called `POST /api/_action/index-products` after moving a category no longer need to.
+The Administration category tree no longer sends these requests after a drag and drop.
+Its `syncProducts()` and `indexProducts()` methods and its `productRepository` computed property are deprecated and will be removed in 6.8.
+### Environment-specific bundle and plugin configuration
+
+Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.
+PHP configuration files also receive the current environment through `$container->env()`.
+Check existing environment-specific configuration that was previously ignored, including Monolog handler levels.
+
+### Regenerating a document keeps its deep link and its stored files
+
+`DocumentGenerator::generate()` with the id of an existing document now keeps the document's deep link code and its stored PDF and HTML files, and renders only the file type that is missing.
+While a stored file is kept, the document also keeps its order version and config.
+The missing file is rendered from the current order.
+To get fresh files for an existing document, generate a new document instead of regenerating it.
+
+### Price sorted listings can display the variant that determines the position
+
+The new listing setting `core.listing.ignoreMainVariantOnPriceSorting` ("Ignore main variant on price sorting") is disabled by default.
+When it is enabled, product listings, search results, cross-sellings and product stream sliders sorted by price ignore the main variant or main product selected in the "Storefront presentation > Product listings" configuration, like `core.listing.findBestVariant` does for search results.
+Each product displays the variant that determines its position instead: the cheapest matching variant when sorted ascending, the most expensive matching variant when sorted descending.
+
+The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPriceSorting`.
+
+The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it
@@ -9,11 +46,21 @@ The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for t
 The responses are unchanged.
 If you generate types from the schema, regenerate them and handle `null` for these fields.
 
+### Legal guarantee notice text in the Store API
+
+`GET /store-api/legal-guarantee-notice` also returns `text`, the notice as HTML in the language of `svg`.
+The SVG is now `aria-hidden`, so headless frontends should render `text` as its text alternative.
+
 ## App System
 
 ### Deprecated the old shop ID format
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
+### App manifests can contain sections from newer Shopware versions
+
+A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
+Apps that need such a section should require that version in `<compatibility>`.
 
 ## Administration
 
@@ -42,6 +89,28 @@ Extensions have to be adjusted:
   Scope a rule with `.mt-floating-ui__content` to keep it on the picker.
 - `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
   Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
+
+## Storefront
+
+### Production Vite builds generate JavaScript SBOMs
+
+Production Vite builds now generate CycloneDX JSON inventories at `Resources/sbom/storefront/shopware.cdx.json` for the shared Shopware module and `Resources/sbom/storefront/components.cdx.json` for each bundle's components. The reports are kept outside public assets and are not published by `assets:install`. Extension component builds include bundled npm packages regardless of their development-dependency classification, including when using custom Vite configurations. The reports also include dependencies bundled into Web Workers, including shared and inline workers. Retain these reports when packaging extensions after source cleanup.
+
+### Paginated category listings are crawlable
+
+The default storefront `robots.txt` now contains `Allow: /*?p=` and `Disallow: /*?p=*&` alongside the existing rule `Disallow: /*?`, so search engines can crawl paginated category listings like `/category/?p=2`.
+The default rules still block sorted, filtered, and search pagination URLs such as `/category/?p=2&order=price-asc`, `/category/?p=2&properties=…`, and `/search?p=2&search=…`.
+Shops that want to keep pagination out of crawling can override the `robots_txt_content_default_rules` block.
+
+A category page only gets a paginated canonical like `/category/?p=2` when it shows a product listing on that page, other pages keep their clean canonical.
+From the second listing page on, the meta title ends with the page number, for example `Seasonal decoration – Page 2`.
+The format comes from the new snippet `general.pagination.metaPageSuffix`, set it to `%content%` to keep the title unchanged.
+
+### Text alternative for the legal guarantee notice
+
+The notice SVGs are now `aria-hidden`, and the notice link is described by the notice's text, visually hidden and rendered by the new Twig filter `sw_legal_guarantee_notice_text`.
+The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
+Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
 # 6.7.17.0
 
@@ -1931,6 +2000,16 @@ elasticsearch:
 ```
 
 Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
+
+# 6.7.16.2
+
+## Critical Fixes
+
+### Shopware can be installed with Composer again
+
+Twig 3.31.1 fixes security issues in the Twig sandbox, and Composer now refuses to install older Twig versions. Together with the Twig version cap in `shopware/conflicts` 0.6.3, no installable Twig version was left, so installing or updating Shopware 6.7.15.0 to 6.7.16.1 with Composer failed.
+
+Shopware now requires `shopware/conflicts` 0.6.4 and `twig/twig` ^3.31.1, so it can be installed and updated again.
 
 # 6.7.16.1
 

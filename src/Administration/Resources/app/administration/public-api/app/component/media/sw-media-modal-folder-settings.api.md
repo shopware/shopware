@@ -11,6 +11,65 @@ component sw-media-modal-folder-settings  private  js  [private]
   template src/app/component/media/sw-media-modal-folder-settings/sw-media-modal-folder-settings.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  mediaFolderId: string  [private]
+
+emits
+  media-settings-modal-close(...args: any[])  [private]
+  media-settings-modal-save(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+  configuration: any  [private]
+  mediaFolder: any  [private]
+  mediaFolderConfigurationThumbnailSizeRepository: any  [private]
+  modalClass: any  [private]
+  originalConfiguration: any  [private]
+  parent: any  [private]
+  thumbnailSizes: any  [private]
+  unusedThumbnailSizes: any  [private]
+
+computed
+  mediaDefaultFolderRepository: any  [private]
+  mediaFolderConfigurationRepository: any  [private]
+  mediaFolderNameError: any  [private]
+  mediaFolderRepository: any  [private]
+  mediaThumbnailSizeCriteria: any  [private]
+  mediaThumbnailSizeRepository: any  [private]
+  notEditable: any  [private]
+  tabs: any  [private]
+  thumbnailSizeFilter: any  [private]
+  unusedMediaThumbnailSizeCriteria: any  [private]
+
+methods
+  addThumbnail(arg0: any): Promise<any>  [private]
+  checkIfThumbnailExists(arg0: any): any  [private]
+  closeModal(originalDomEvent: any): any  [private]
+  createdComponent(): Promise<any>  [private]
+  deleteThumbnail(thumbnailSize: any): Promise<any>  [private]
+  ensureUniqueDefaultFolder(folderId: any, defaultFolderId: any): Promise<any>  [private]
+  getItemName(item: any): any  [private]
+  getThumbnailSizes(): Promise<any>  [private]
+  getUnusedThumbnailSizes(): Promise<any>  [private]
+  invalidateMediaDefaultFolderCache(): Promise<any>  [private]
+  isThumbnailSizeActive(size: any): any  [private]
+  loadMediaFolder(): any  [private]
+  onActiveTabChanged(activeTab: any): any  [private]
+  onChangeInheritance(value: any): Promise<any>  [private]
+  onChangeThumbnailSize(value: any, size: any): any  [private]
+  onClickCancel(originalDomEvent: any): any  [private]
+  onClickSave(): Promise<any>  [private]
+  onInputDefaultFolder(defaultFolderId: any): any  [private]
+  thumbnailSizeCheckboxName(size: any): any  [private]
+
 blocks
   sw_media_modal_folder_settings  [private]
     sw_media_modal_folder_settings_footer  [private]

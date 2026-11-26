@@ -11,6 +11,23 @@ component sw-user-sso-access-key-create-modal  private  js  [private]
   template src/module/sw-users-permissions/components/sw-user-sso-access-key-create-modal/sw-user-sso-access-key-create-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  accessKey: string  [private]
+  isLoading: boolean  [private]
+  isOpen: boolean  [private]
+  mode?: any  [private]
+  secretAccessKey: string  [private]
+
+emits
+  access-key-modal-create:cancel(...args: any[])  [private]
+  access-key-modal-create:generate(...args: any[])  [private]
+  access-key-modal-create:save(...args: any[])  [private]
+
+methods
+  onCancel(): any  [private]
+  onGenerateNewAccessKey(): any  [private]
+  onSave(): any  [private]
+
 blocks
   sw_settings_sso_user_create_access_key_modal  [private]
     sw_settings_sso_user_create_access_key_modal_inner  [private]

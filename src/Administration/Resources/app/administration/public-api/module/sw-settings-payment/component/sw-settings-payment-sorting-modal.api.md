@@ -10,6 +10,40 @@ component sw-settings-payment-sorting-modal  public  js
   source src/module/sw-settings-payment/component/sw-settings-payment-sorting-modal/index.js
   template src/module/sw-settings-payment/component/sw-settings-payment-sorting-modal/sw-settings-payment-sorting-modal.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  paymentMethods: any[]
+
+emits
+  modal-close(...args: any[])
+  modal-save(...args: any[])
+
+data
+  isSaving: any
+  originalPaymentMethods: any
+  scrollOnDragConf: object
+    accelerationMargin: any
+    margin: any
+    speed: any
+  sortedPaymentMethods: any
+
+computed
+  assetFilter: any
+  paymentMethodRepository: any
+
+methods
+  applyChanges(): Promise<any>
+  closeModal(): any
+  isShopwareDefaultPaymentMethod(paymentMethod: any): any
+  onSort(sortedItems: any): any
+
 blocks
   sw_settings_payment_sorting_modal
     sw_settings_payment_sorting_modal_content

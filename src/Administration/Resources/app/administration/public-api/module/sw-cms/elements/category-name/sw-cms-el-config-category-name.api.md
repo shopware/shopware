@@ -11,6 +11,12 @@ component sw-cms-el-config-category-name  private  js  [private]
   source src/module/sw-cms/elements/category-name/config/index.js  [private]
   visibility-source export  [private]
 
+computed
+  isCategoryPage: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_el_config_text  [inherited] [private]
     sw_cms_el_config_text_mt_tabs  [inherited] [from v6.8.0] [private]
@@ -23,4 +29,7 @@ blocks
     sw_cms_el_text_config_settings  [inherited] [after v-if] [scope: active] [until v6.8.0] [private]
       sw_cms_el_text_config_settings_vertical_align  [inherited] [scope: active] [until v6.8.0] [private]
     sw_cms_el_text_config_tab_options  [inherited] [scope: active] [until v6.8.0] [private]
+
+refs
+  swCmsTextEditor  -> mt-text-editor  block=sw_cms_el_text_config_mt_content_field  [from v6.8.0] [private]
 ```

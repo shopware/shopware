@@ -11,6 +11,21 @@ component sw-app-action-button  private  js  [private]
   template src/app/component/app/sw-app-action-button/sw-app-action-button.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+
+props
+  action: object  [private]
+
+emits
+  run-app-action(...args: any[])  [private]
+
+computed
+  buttonLabel: any  [private]
+
+methods
+  runAction(): any  [private]
+
 blocks
   sw_connect_action_button  [private]
 ```

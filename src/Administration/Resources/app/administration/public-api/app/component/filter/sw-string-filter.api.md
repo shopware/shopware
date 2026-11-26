@@ -11,6 +11,19 @@ component sw-string-filter  private  ts  [private]
   template src/app/component/filter/sw-string-filter/sw-string-filter.html.twig  [private]
   visibility-source export  [private]
 
+props
+  active: boolean  [private]
+  criteriaFilterType?: 'contains' | 'equals' | 'equalsAny' | 'prefix' | 'suffix'  default='contains'  [private]
+  filter: object  [private]
+
+emits
+  filter-reset(...args: any[])  [private]
+  filter-update(...args: any[])  [private]
+
+methods
+  resetFilter(): void  [private]
+  updateFilter(newValue: string): void  [private]
+
 blocks
   sw_string_filter  [private]
     sw_string_filter_content  [private]

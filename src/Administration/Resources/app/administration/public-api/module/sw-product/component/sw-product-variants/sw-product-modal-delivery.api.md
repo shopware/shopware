@@ -10,6 +10,33 @@ component sw-product-modal-delivery  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/sw-product-modal-delivery.html.twig
 
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  product: object
+  selectedGroups: any[]
+
+emits
+  configuration-close(...args: any[])
+  modal-close(...args: any[])
+
+data
+  activeTab: any
+  isLoading: any
+
+computed
+  deliveryTabs: any
+  productRepository: any
+
+methods
+  cancelDeliveryConfiguration(): any
+  createdComponent(): any
+  handleExpandedListing(product: any): any
+  saveDeliveryConfiguration(): any
+
 blocks
   sw_product_modal_delivery
     sw_product_modal_delivery_footer

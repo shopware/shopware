@@ -11,6 +11,32 @@ component sw-cms-page-form  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-page-form/sw-cms-page-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-state  [private]
+
+inject
+  cmsService  [private]
+
+props
+  elementUpdate?: (...args: any[]) => any  default=factory  [private]
+  page: Entity<'cms_page'>  [private]
+
+computed
+  cmsBlocks: any  [private]
+  cmsElements: any  [private]
+  slotPositions: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  displayNotification(section: Entity<'cms_section'>, block: Entity<'cms_block'>): any  [private]
+  displaySectionType(block: Entity<'cms_block'>): boolean  [private]
+  getBlockTitle(block: Entity<'cms_block'>): string  [private]
+  getDeviceActive(viewport: string, section: Entity<'cms_section'>, block?: Entity<'cms_block'> | null = null): any  [private]
+  getSectionName(section: Entity<'cms_section'>): any  [private]
+  getSectionPosition(block: Entity<'cms_block'>): any  [private]
+  initVisibility(entity: Entity<'cms_section'> | Entity<'cms_block'>): any  [private]
+  sortSlots(block: Entity<'cms_block'>): any  [private]
+
 blocks
   sw_cms_page_form  [private]
     sw_cms_page_form_content  [after v-if] [private]

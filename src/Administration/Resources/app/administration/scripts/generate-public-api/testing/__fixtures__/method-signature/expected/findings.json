@@ -1,0 +1,28 @@
+[
+    {
+        "group": "Break",
+        "rule": "method_signature_changed",
+        "explanation": "The method now returns a Promise, so plugin overrides that use the return value of $super('validateSelection') get a Promise instead.",
+        "fix": "keep the method sync and add an async method under a new name.",
+        "element": "component:sw-example-list/method:validateSelection",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-list/index.js:36"
+    },
+    {
+        "group": "Break",
+        "rule": "param_now_required",
+        "explanation": "The method has a new required parameter itemIndex, so plugin calls and $super('onDeleteItem', ...) calls that pass the old arguments leave it undefined.",
+        "fix": "pattern \"New required parameter\". Keep itemIndex optional, call triggerDeprecationOrThrow when it is missing, and mark the method @bc-change NewRequiredParameter version:v6.8.0 parameter:itemIndex.",
+        "element": "component:sw-example-list/method:onDeleteItem/param:itemIndex",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-list/index.js:27"
+    },
+    {
+        "group": "Addition",
+        "rule": "param_added",
+        "explanation": "A new optional parameter limit. Plugin overrides that call $super with explicit arguments do not pass it on.",
+        "element": "component:sw-example-list/method:onPageChange/param:limit",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-list/index.js:32"
+    }
+]

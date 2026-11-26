@@ -6,6 +6,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -518,6 +519,114 @@ class EntitySearcherTest extends TestCase
 
         static::assertSame(3, $result->getTotal());
         static::assertSame([$ids->get('a3'), $ids->get('a2')], $result->getIds());
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('sortingRankingProvider')]
+    public function testSortingRankingPositionsAndRepresentsGroupsByTheirFirstEntity(string $direction, array $expected): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+        $criteria->addSorting(new FieldSorting('name', $direction));
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame(array_values($ids->getList($expected)), array_values($result->getIds()));
+    }
+
+    /**
+     * @return iterable<string, array{string, list<string>}>
+     */
+    public static function sortingRankingProvider(): iterable
+    {
+        yield 'ascending' => [FieldSorting::ASCENDING, ['a1', 'b2']];
+        yield 'descending' => [FieldSorting::DESCENDING, ['b1', 'a2']];
+    }
+
+    public function testSortingRankingKeepsTheRepresentativeForLimitOne(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::DESCENDING));
+        $criteria->setLimit(1);
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame([$ids->get('b1')], array_values($result->getIds()));
+    }
+
+    public function testSortingRankingOfScoredSearchesCountsEveryGroup(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::DESCENDING));
+        $criteria->setLimit(1);
+        $criteria->setOffset(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame([$ids->get('a2')], $result->getIds());
+        static::assertArrayNotHasKey('_total', $result->getDataOfId($ids->get('a2')));
+    }
+
+    public function testSortingRankingDoesNotLeakItsHelperColumnsIntoTheResult(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+
+        $result = $this->searchProducts($criteria);
+
+        $data = $result->getDataOfId($ids->get('a1'));
+
+        static::assertIsArray($data);
+        static::assertArrayNotHasKey('_group_0', $data);
+    }
+
+    public function testSortingRankingSupportsCombinedPrimaryKeys(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create(
+            [
+                (new ProductBuilder($ids, 'first'))->price(100)->name('Sport Bottle')->category('sports')->build(),
+                (new ProductBuilder($ids, 'second'))->price(100)->name('Sport Gear')->category('sports')->build(),
+            ],
+            Context::createDefaultContext(),
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('categoryId', $ids->get('sports')));
+        $criteria->addGroupField(new FieldGrouping('categoryId'));
+        $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+        $criteria->addSorting(new FieldSorting('productId', FieldSorting::DESCENDING));
+
+        $result = $this->entitySearcher->search(
+            static::getContainer()->get(ProductCategoryDefinition::class),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+
+        $expected = max($ids->get('first'), $ids->get('second'));
+
+        static::assertSame(
+            [['productId' => $expected, 'categoryId' => $ids->get('sports')]],
+            array_values($result->getIds())
+        );
     }
 
     private function searchProducts(Criteria $criteria): IdSearchResult

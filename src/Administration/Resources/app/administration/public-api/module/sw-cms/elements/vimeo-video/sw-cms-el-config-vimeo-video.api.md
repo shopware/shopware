@@ -11,6 +11,32 @@ component sw-cms-el-config-vimeo-video  private  js  [private]
   template src/module/sw-cms/elements/vimeo-video/config/sw-cms-el-config-vimeo-video.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  initialFolderId: any  [private]
+  mediaModalIsOpen: any  [private]
+
+computed
+  mediaRepository: any  [private]
+  previewSource: any  [private]
+  uploadTag: any  [private]
+  videoID: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onCloseModal(): any  [private]
+  onImageRemove(): any  [private]
+  onImageUpload(arg0: any): Promise<any>  [private]
+  onOpenMediaModal(): any  [private]
+  onSelectionChanges(mediaEntity: any): any  [private]
+  shortenLink(link: any): any  [private]
+  updateElementData(media?: any = null): any  [private]
+
 blocks
   sw_cms_element_vimeo_video_config  [private]
     sw_cms_element_vimeo_video_config_artist_information  [private]

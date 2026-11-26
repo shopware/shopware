@@ -11,6 +11,46 @@ component sw-sidebar-item  private  js  [private]
   template src/app/component/sidebar/sw-sidebar-item/sw-sidebar-item.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  registerSidebarItem  [private]
+
+props
+  badge?: number  default=0  [private]
+  badgeType?: string  default='info'  [private]
+  disabled?: boolean  default=false  [private]
+  hasSimpleBadge?: boolean  default=false  [private]
+  icon: string  [private]
+  position?: string  default='top'  [private]
+  title: string  [private]
+  tooltipShortcut?: any[]  default=factory  [private]
+
+emits
+  click(...args: any[])  [private]
+  close-content(...args: any[])  [private]
+  toggle-active(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_sidebar_item_content  [private]
+  headline-content  {}  block=sw_sidebar_item_headline  [private]
+
+data
+  closeContentListener: any  [private]
+  isActive: any  [private]
+  toggleActiveListener: any  [private]
+
+computed
+  hasDefaultSlot: any  [private]
+  showContent: any  [private]
+  sidebarItemClasses: any  [private]
+
+methods
+  closeContent(): any  [private]
+  createdComponent(): any  [private]
+  openContent(): any  [private]
+  registerCloseContentListener(listener: any): any  [private]
+  registerToggleActiveListener(listener: any): any  [private]
+  sidebarButtonClick(sidebarItem: any): any  [private]
+
 blocks
   sw_sidebar_item  [private]
     sw_sidebar_item_content  [private]

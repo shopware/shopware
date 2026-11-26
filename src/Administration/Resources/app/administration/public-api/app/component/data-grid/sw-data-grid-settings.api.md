@@ -11,6 +11,41 @@ component sw-data-grid-settings  private  js  [private]
   template src/app/component/data-grid/sw-data-grid-settings/sw-data-grid-settings.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  translate-with-fallback  [private]
+
+props
+  columns: any[]  default=factory  [private]
+  compact: boolean  default=false  [private]
+  disabled: boolean  default=false  [private]
+  enablePreviews: boolean  default=false  [private]
+  previews: boolean  default=false  [private]
+
+emits
+  change-column-order(...args: any[])  [private]
+  change-column-visibility(...args: any[])  [private]
+  change-compact-mode(...args: any[])  [private]
+  change-preview-images(...args: any[])  [private]
+
+slots
+  additionalSettings  {}  block=sw_data_grid_settings_additional_settings  [private]
+
+data
+  currentColumns: any  [private]
+  currentCompact: any  [private]
+  currentPreviews: any  [private]
+
+computed
+  contextMenuClasses: any  [private]
+
+methods
+  getColumnLabel(column: any): any  [private]
+  onChangeColumnVisibility(value: any, index: any): any  [private]
+  onChangeCompactMode(value: any): any  [private]
+  onChangePreviews(value: any): any  [private]
+  onClickChangeColumnOrderDown(column: any): any  [private]
+  onClickChangeColumnOrderUp(column: any): any  [private]
+
 blocks
   sw_data_grid_settings  [private]
     sw_data_grid_settings_content  [private]

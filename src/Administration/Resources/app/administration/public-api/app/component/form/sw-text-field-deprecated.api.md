@@ -11,6 +11,45 @@ component sw-text-field-deprecated  private  js  [private]
   template src/app/component/form/sw-text-field-deprecated/sw-text-field-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-form-field, remove-api-error, validation  [private]
+
+inject
+  feature  [private]
+
+props
+  ariaLabel?: string  default=factory  [private]
+  copyable?: boolean  default=false  [private]
+  copyableTooltip?: boolean  default=false  [private]
+  idSuffix?: string  default=factory  [private]
+  placeholder?: string  default=''  [private]
+  value?: any  [private]
+
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_text_field  [private]
+  label  {}  block=sw_text_field  [private]
+  prefix  { ...{ disabled, identification } }  block=sw_text_field  [private]
+  suffix  { ...{ identification } }  block=sw_text_field  [private]
+
+data
+  currentValue: any  [private]
+
+computed
+  filteredInputAttributes: any  [private]
+  hasPrefix: any  [private]
+  hasSuffix: any  [private]
+
+methods
+  createInputId(identification: any): any  [private]
+  onChange(event: any): any  [private]
+  onInput(event: any): any  [private]
+  restoreInheritance(): any  [private]
+
 blocks
   sw_text_field  [private]
 ```

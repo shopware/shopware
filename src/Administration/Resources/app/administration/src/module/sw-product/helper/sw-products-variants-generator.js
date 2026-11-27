@@ -9,9 +9,9 @@ import RetryHelper from '../../../core/helper/retry.helper';
 const { deepCopyObject, hasOwnProperty } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
-const SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' };
+const SYNC_HEADERS = { 'indexing-behavior': 'use-queue-indexing' };
 
-const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'disable-indexing' };
+const RESTRICTIONS_SYNC_HEADERS = { 'indexing-behavior': 'disable-indexing' };
 
 const CHUNK_SIZE = 100;
 
@@ -21,10 +21,18 @@ export default class VariantsGenerator extends EventEmitter {
         super();
 
         this.product = null;
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         this.productIds = [];
 
         // set dependencies
         this.syncService = Shopware.Service('syncService');
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         this.cacheService = Shopware.Service('cacheApiService');
         this.httpClient = this.syncService.httpClient;
 
@@ -185,22 +193,18 @@ export default class VariantsGenerator extends EventEmitter {
 
             // send api calls for delete
             this.processQueue('delete', mapped, 0, CHUNK_SIZE, resolveDelete, rejectDelete);
-        })
-            .then(() => {
-                // notify view to refresh progress
-                this.emit('progress-max', {
-                    type: 'upsert',
-                    progress: queues.createQueue.length,
-                });
-
-                return new Promise((resolve, reject) => {
-                    // send api calls for create
-                    this.processQueue('upsert', queues.createQueue, 0, CHUNK_SIZE, resolve, reject);
-                });
-            })
-            .then(() => {
-                this.indexProducts(this.productIds);
+        }).then(() => {
+            // notify view to refresh progress
+            this.emit('progress-max', {
+                type: 'upsert',
+                progress: queues.createQueue.length,
             });
+
+            return new Promise((resolve, reject) => {
+                // send api calls for create
+                this.processQueue('upsert', queues.createQueue, 0, CHUNK_SIZE, resolve, reject);
+            });
+        });
     }
 
     generateVariants(currencies, product, isAddOnly = false) {
@@ -594,14 +598,22 @@ export default class VariantsGenerator extends EventEmitter {
         RetryHelper.retry(() => {
             return this.syncService.sync(payload, {}, SYNC_HEADERS);
         })
-            .then((response) => {
-                this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
+            .then(() => {
                 this.processQueue(type, queue, offset + limit, limit, resolve, reject);
             })
             .catch(reject);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, the sync requests of the generator already queue
+     * the indexing of the products they write
+     */
     indexProducts(productIds) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'VariantsGenerator.indexProducts() is deprecated. Will be removed without replacement.',
+        );
+
         if (productIds.length <= 0) {
             return;
         }

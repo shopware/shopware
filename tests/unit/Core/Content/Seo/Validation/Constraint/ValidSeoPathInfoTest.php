@@ -58,6 +58,9 @@ class ValidSeoPathInfoTest extends TestCase
         // by the resolver, which only ever sees the space as %20 from the frontend.
         yield 'space in query value encoded' => ['product?colo=red blue', 'product?colo=red%20blue'];
         yield 'multiple spaces encoded' => ['product?a=b c d', 'product?a=b%20c%20d'];
+        // raw non-ASCII characters are stored percent-encoded, like rawurlencode(slugify(...)) output (#17830)
+        yield 'non-ascii character encoded' => ['Babyöl', 'Baby%C3%B6l'];
+        yield 'non-ascii next to percent-escape' => ['caf%C3%A9/Babyöl', 'caf%C3%A9/Baby%C3%B6l'];
     }
 
     #[DataProvider('sanitizeProvider')]

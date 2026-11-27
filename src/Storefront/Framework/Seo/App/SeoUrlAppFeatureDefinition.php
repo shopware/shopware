@@ -82,7 +82,8 @@ final class SeoUrlAppFeatureDefinition extends AppFeatureDefinition
 
         foreach ($configs as $config) {
             foreach (array_unique($config->getPaths()) as $path) {
-                if (ValidSeoPathInfo::sanitize($path) !== $path) {
+                // non-ASCII characters are allowed, the persister stores them percent-encoded
+                if (ValidSeoPathInfo::sanitize($path) !== ValidSeoPathInfo::encodeNonAscii($path)) {
                     throw SeoException::appSeoUrlPathInvalid($config->getName(), $path);
                 }
 

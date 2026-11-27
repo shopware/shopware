@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Seo\Validation;
 
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
+use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -18,6 +19,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * Ensures that SEO paths written through the DAL (e.g. via the Admin API)
  * pass the same character-allowlist that the admin form and SEO controller
  * already enforce, so that values such as "seo/url%/1" cannot be persisted.
+ * Valid paths get their non-ASCII characters percent-encoded, the same form
+ * the {@see SeoUrlPersister} stores and the frontend requests.
  *
  * @internal
  */
@@ -69,6 +72,11 @@ class SeoUrlWriteValidator implements EventSubscriberInterface
             }
 
             if (!ValidSeoPathInfo::containsDisallowedCharacters($seoPathInfo)) {
+                $encodedSeoPathInfo = ValidSeoPathInfo::encodeNonAscii($seoPathInfo);
+                if ($encodedSeoPathInfo !== $seoPathInfo) {
+                    $command->addPayload('seo_path_info', $encodedSeoPathInfo);
+                }
+
                 continue;
             }
 

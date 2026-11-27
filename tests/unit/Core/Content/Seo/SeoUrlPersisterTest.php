@@ -190,6 +190,31 @@ class SeoUrlPersisterTest extends TestCase
         static::assertNotContains('template-path', $writtenValues, 'Expected no SEO URL row to be written for "template-path".');
     }
 
+    public function testANonAsciiSeoPathIsWrittenPercentEncoded(): void
+    {
+        $writtenValues = $this->persistSeoUrlUpdate(
+            ['seoPathInfo' => 'old-path', 'isModified' => false],
+            ['seoPathInfo' => 'Babyöl', 'isModified' => true],
+            overwrite: true
+        );
+
+        static::assertContains('Baby%C3%B6l', $writtenValues);
+        static::assertNotContains('Babyöl', $writtenValues);
+    }
+
+    public function testAnUnchangedNonAsciiSeoPathIsNotWrittenAgain(): void
+    {
+        $writtenValues = $this->persistSeoUrlUpdate(
+            ['seoPathInfo' => 'Baby%C3%B6l', 'isModified' => false],
+            ['seoPathInfo' => 'Babyöl', 'isModified' => false],
+            overwrite: false
+        );
+
+        $message = 'The generated path equals the stored one once encoded, so no new row may be written.';
+        static::assertNotContains('Baby%C3%B6l', $writtenValues, $message);
+        static::assertNotContains('Babyöl', $writtenValues, $message);
+    }
+
     public function testForceUpdateSeoUrlsPersistsNewSeoPaths(): void
     {
         $connection = $this->createMock(Connection::class);

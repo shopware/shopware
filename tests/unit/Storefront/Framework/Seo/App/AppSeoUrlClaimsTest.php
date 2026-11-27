@@ -67,7 +67,12 @@ class AppSeoUrlClaimsTest extends TestCase
 
     public function testNormalizePathDropsLeadingSlashesAndLowercases(): void
     {
-        static::assertSame('legal/über-uns', AppSeoUrlClaims::normalizePath('//Legal/Über-Uns'));
+        static::assertSame('legal/%c3%bcber-uns', AppSeoUrlClaims::normalizePath('//Legal/Über-Uns'));
+    }
+
+    public function testNormalizePathMatchesRawAndPercentEncodedForms(): void
+    {
+        static::assertSame(AppSeoUrlClaims::normalizePath('über-uns'), AppSeoUrlClaims::normalizePath('%C3%BCber-uns'));
     }
 
     /**

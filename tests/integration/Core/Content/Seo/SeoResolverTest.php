@@ -340,6 +340,44 @@ class SeoResolverTest extends TestCase
         static::assertNull($resolved->canonicalPathInfo);
     }
 
+    public function testResolveSeoPathWithNonAsciiCharacterWrittenUnencoded(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/babyoel',
+                'seoPathInfo' => 'Babyöl',
+                'isCanonical' => true,
+            ],
+        ], $context);
+
+        $resolved = $this->seoResolver->resolveUrl(new SeoUrlRequestContext(
+            $context->getLanguageId(),
+            $salesChannelId,
+            '/Baby%C3%B6l',
+        ));
+
+        static::assertSame('/detail/babyoel', $resolved->pathInfo);
+        static::assertTrue($resolved->isCanonical);
+        static::assertNull($resolved->canonicalPathInfo);
+
+        $resolved = $this->seoResolver->resolveUrl(new SeoUrlRequestContext(
+            $context->getLanguageId(),
+            $salesChannelId,
+            '/Baby%C3%B6l/',
+            'foo=bar',
+        ));
+
+        static::assertSame('/detail/babyoel', $resolved->pathInfo);
+        static::assertTrue($resolved->isCanonical);
+    }
+
     public function testResolveSeoPathWithPercentEncodedQueryValue(): void
     {
         // A query-bearing SEO URL whose value contains a valid percent-escape ("ref=a%20b") must

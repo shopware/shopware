@@ -414,7 +414,7 @@ For EU deliveries with *Tax-free (B2B)* enabled for the delivery country:
 *Tax-free (B2C)* is unaffected.
 
 Digital products are not physically shipped.
-For a cart whose products are all digital (`product.type` is `digital`), the rules above therefore read the billing address instead of the shipping address, if the shop owner's country is in the EU and a business customer's billing country is an EU member state with *Tax-free (B2B)* enabled.
+For a cart whose products are all digital (`product.type` is `digital`), the rules above therefore read the billing address instead of the shipping address, if the shop owner's country is in the EU and a business customer's billing country is the shop owner's country or an EU member state with *Tax-free (B2B)* enabled.
 Such a cart is taxed with the tax rules and the *Tax-free (B2B)* setting of the billing country.
 All other carts keep the shipping address, also those of private customers.
 The order recalculation in the Administration decides such orders by the order's billing address.

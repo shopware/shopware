@@ -147,74 +147,8 @@ class CartRuleLoader implements ResetInterface
         $salesChannelContext->setRuleIds($rules->getIds());
         $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
 
-        // a cart of only digital products is taxed by the billing address
-        $shippingTaxRules = $salesChannelContext->getTaxRules();
-        $shippingTaxState = $salesChannelContext->getTaxState();
-        $shippingCountry = $salesChannelContext->getShippingLocation()->getCountry();
-        $billingTaxRules = $salesChannelContext->getBillingTaxRules();
-        // billing tax rules are only set for a customer with a billing address
-        $billingCountry = $salesChannelContext->getCustomer()?->getActiveBillingAddress()?->getCountry() ?? $shippingCountry;
-        $usesBillingTaxes = false;
-
-        try {
-            // stored products already know their type, so their data context hash stays valid and they are not loaded again
-            if ($billingTaxRules !== null && $this->isDigitalOnly($originalCart)) {
-                $usesBillingTaxes = true;
-                $this->useTaxes($salesChannelContext, $billingTaxRules, $this->getBillingTaxState($salesChannelContext, $billingCountry));
-            }
-
-            // start first cart calculation to have all objects enriched
-            $cart = $this->processor->process($originalCart, $salesChannelContext, $cartBehavior);
-
-            // new products know their type only after the first calculation
-            if ($billingTaxRules !== null && $this->isDigitalOnly($cart) !== $usesBillingTaxes) {
-                $usesBillingTaxes = !$usesBillingTaxes;
-                if ($usesBillingTaxes) {
-                    $this->useTaxes($salesChannelContext, $billingTaxRules, $this->getBillingTaxState($salesChannelContext, $billingCountry));
-                } else {
-                    $this->useTaxes($salesChannelContext, $shippingTaxRules, $shippingTaxState);
-                }
-            }
-
-            $iteration = 1;
-            do {
-                $compare = $cart;
-
-                if ($iteration > self::MAX_ITERATION) {
-                    break;
-                }
-
-                // filter rules which matches to current scope
-                $rules = $rules->filterMatchingRules($cart, $salesChannelContext);
-
-                // update matching rules in context
-                $salesChannelContext->setRuleIds($rules->getIds());
-                $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
-
-                // calculate cart again
-                $cart = $this->processor->process($cart, $salesChannelContext, $cartBehavior);
-
-                // check if the cart changed, in this case we have to recalculate the cart again
-                $recalculate = $this->cartChanged($cart, $compare);
-
-                // check if rules changed for the last calculated cart, in this case we have to recalculate
-                $ruleCompare = $all->filterMatchingRules($cart, $salesChannelContext);
-
-                if (!$rules->equals($ruleCompare)) {
-                    $recalculate = true;
-                    $rules = $ruleCompare;
-                }
-
-                ++$iteration;
-            } while ($recalculate);
-
-            $cart = $this->validateTaxFree($salesChannelContext, $cart, $cartBehavior, $usesBillingTaxes ? $billingCountry : $shippingCountry);
-        } finally {
-            // product prices outside the cart keep the taxes of the shipping address, also when the calculation fails
-            if ($usesBillingTaxes) {
-                $this->useTaxes($salesChannelContext, $shippingTaxRules, $shippingTaxState);
-            }
-        }
+        $result = $this->calculateWithBillingTaxesIfDigitalOnly($salesChannelContext, $originalCart, $cartBehavior, $rules, $all);
+        $rules = $result->getMatchingRules();
 
         $index = 0;
         foreach ($rules as $rule) {
@@ -226,6 +160,88 @@ class CartRuleLoader implements ResetInterface
 
         $salesChannelContext->setRuleIds($rules->getIds());
         $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
+
+        return $result;
+    }
+
+    /**
+     * A cart whose products are all digital is taxed by the billing address, any other cart by the shipping address.
+     * Afterwards the context gets the shipping taxes back, also when the calculation fails, so product prices outside the cart keep them.
+     */
+    private function calculateWithBillingTaxesIfDigitalOnly(SalesChannelContext $salesChannelContext, Cart $originalCart, CartBehavior $cartBehavior, RuleCollection $rules, RuleCollection $all): RuleLoaderResult
+    {
+        $shippingTaxRules = $salesChannelContext->getTaxRules();
+        $shippingTaxState = $salesChannelContext->getTaxState();
+        $billingTaxRules = $salesChannelContext->getBillingTaxRules();
+        $usesBillingTaxes = false;
+
+        try {
+            // stored products already know their type, so their data context hash stays valid and they are not loaded again
+            if ($billingTaxRules !== null && $this->isDigitalOnly($originalCart)) {
+                $usesBillingTaxes = true;
+                $this->useBillingTaxes($salesChannelContext, $billingTaxRules);
+            }
+
+            // start first cart calculation to have all objects enriched
+            $cart = $this->processor->process($originalCart, $salesChannelContext, $cartBehavior);
+
+            // new products know their type only after the first calculation
+            if ($billingTaxRules !== null && $this->isDigitalOnly($cart) !== $usesBillingTaxes) {
+                $usesBillingTaxes = !$usesBillingTaxes;
+                if ($usesBillingTaxes) {
+                    $this->useBillingTaxes($salesChannelContext, $billingTaxRules);
+                } else {
+                    $this->useTaxes($salesChannelContext, $shippingTaxRules, $shippingTaxState);
+                }
+            }
+
+            $result = $this->calculateUntilRulesMatch($salesChannelContext, $cart, $cartBehavior, $rules, $all);
+            $taxCountry = $usesBillingTaxes ? $this->getBillingCountry($salesChannelContext) : $salesChannelContext->getShippingLocation()->getCountry();
+
+            return new RuleLoaderResult(
+                $this->validateTaxFree($salesChannelContext, $result->getCart(), $cartBehavior, $taxCountry),
+                $result->getMatchingRules(),
+            );
+        } finally {
+            if ($usesBillingTaxes) {
+                $this->useTaxes($salesChannelContext, $shippingTaxRules, $shippingTaxState);
+            }
+        }
+    }
+
+    private function calculateUntilRulesMatch(SalesChannelContext $salesChannelContext, Cart $cart, CartBehavior $cartBehavior, RuleCollection $rules, RuleCollection $all): RuleLoaderResult
+    {
+        $iteration = 1;
+        do {
+            $compare = $cart;
+
+            if ($iteration > self::MAX_ITERATION) {
+                break;
+            }
+
+            // filter rules which matches to current scope
+            $rules = $rules->filterMatchingRules($cart, $salesChannelContext);
+
+            // update matching rules in context
+            $salesChannelContext->setRuleIds($rules->getIds());
+            $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
+
+            // calculate cart again
+            $cart = $this->processor->process($cart, $salesChannelContext, $cartBehavior);
+
+            // check if the cart changed, in this case we have to recalculate the cart again
+            $recalculate = $this->cartChanged($cart, $compare);
+
+            // check if rules changed for the last calculated cart, in this case we have to recalculate
+            $ruleCompare = $all->filterMatchingRules($cart, $salesChannelContext);
+
+            if (!$rules->equals($ruleCompare)) {
+                $recalculate = true;
+                $rules = $ruleCompare;
+            }
+
+            ++$iteration;
+        } while ($recalculate);
 
         return new RuleLoaderResult($cart, $rules);
     }
@@ -263,13 +279,26 @@ class CartRuleLoader implements ResetInterface
         $context->setTaxState($taxState);
     }
 
+    private function useBillingTaxes(SalesChannelContext $context, TaxCollection $billingTaxRules): void
+    {
+        $this->useTaxes($context, $billingTaxRules, $this->getBillingTaxState($context));
+    }
+
+    /**
+     * Billing tax rules are only set for a customer with a billing address
+     */
+    private function getBillingCountry(SalesChannelContext $context): CountryEntity
+    {
+        return $context->getCustomer()?->getActiveBillingAddress()?->getCountry() ?? $context->getShippingLocation()->getCountry();
+    }
+
     /**
      * Decided like TaxDetector::getTaxState() decides the one of the shipping country, so the rules match the billing tax state.
      * Only business customers get billing taxes.
      */
-    private function getBillingTaxState(SalesChannelContext $context, CountryEntity $billingCountry): string
+    private function getBillingTaxState(SalesChannelContext $context): string
     {
-        if ($this->taxDetector->isCompanyTaxFree($context, $billingCountry)) {
+        if ($this->taxDetector->isCompanyTaxFree($context, $this->getBillingCountry($context))) {
             return CartPrice::TAX_STATE_FREE;
         }
 

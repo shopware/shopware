@@ -89,17 +89,21 @@ class IntraCommunityTaxResolver implements ResetInterface
      *
      * Digital products are not shipped, so a cart of only digital products reads the billing country instead
      * opt-in like the intra EU exemption: a seller in the EU and a business customer billed in a member state
-     * with Tax-free (B2B) enabled.
+     * with Tax-free (B2B) enabled, or billed in the seller's own country, which is never exempt.
      */
     public function isTaxedByBillingCountry(?CustomerEntity $customer, CountryEntity $billingCountry, string $salesChannelId): bool
     {
-        if (!$this->appliesTo($customer, $billingCountry) || !$billingCountry->getIsEu()) {
+        if ($customer?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS || !$billingCountry->getIsEu()) {
             return false;
         }
 
-        return $this->vatIdPatternProvider->getMemberStateOfCountry(
-            $this->resolveDispatchCountryId($salesChannelId, $billingCountry, $customer, null)
-        ) !== null;
+        $dispatchCountryId = $this->resolveDispatchCountryId($salesChannelId, $billingCountry, $customer, null);
+        if ($this->vatIdPatternProvider->getMemberStateOfCountry($dispatchCountryId) === null) {
+            return false;
+        }
+
+        // Tax-free (B2B) is usually off for the seller's own country, and a domestic supply must not follow an exempt shipping address
+        return $billingCountry->getCompanyTax()->getEnabled() || $billingCountry->getId() === $dispatchCountryId;
     }
 
     public function isIntraCommunityDelivery(OrderEntity $order): bool

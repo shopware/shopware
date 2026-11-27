@@ -131,13 +131,13 @@ class DigitalOnlyCartTaxTest extends TestCase
     {
         yield '1: foreign VAT ID billed outside the EU pays the VAT of the shipping address' => [[self::FOREIGN_VAT_ID], 'CH', 'DE', 'net', [[19.0, 19.0]], 119.0];
         yield '2: foreign VAT ID billed in another member state is exempt' => [[self::FOREIGN_VAT_ID], 'FR', 'DE', 'tax-free', [], 100.0];
-        yield '3: foreign VAT ID billed in the seller country without Tax-free (B2B) keeps the exempt shipping address' => [[self::FOREIGN_VAT_ID], 'DE', 'CH', 'tax-free', [], 100.0];
+        yield '3: foreign VAT ID billed in the seller country pays seller VAT' => [[self::FOREIGN_VAT_ID], 'DE', 'CH', 'net', [[19.0, 19.0]], 119.0];
         yield '4: seller VAT ID billed outside the EU pays the VAT of the shipping address' => [[self::SELLER_VAT_ID], 'CH', 'DE', 'net', [[19.0, 19.0]], 119.0];
         yield '5: seller VAT ID billed in another member state pays seller VAT' => [[self::SELLER_VAT_ID], 'FR', 'CH', 'net', [[19.0, 19.0]], 119.0];
-        yield '6: seller VAT ID billed in the seller country without Tax-free (B2B) keeps the exempt shipping address' => [[self::SELLER_VAT_ID], 'DE', 'CH', 'tax-free', [], 100.0];
+        yield '6: seller VAT ID billed in the seller country pays seller VAT' => [[self::SELLER_VAT_ID], 'DE', 'CH', 'net', [[19.0, 19.0]], 119.0];
         yield '7: no VAT ID billed outside the EU pays the VAT of the shipping address' => [[], 'CH', 'DE', 'net', [[19.0, 19.0]], 119.0];
         yield '8: no VAT ID billed in another member state pays its VAT' => [[], 'FR', 'CH', 'net', [[20.0, 20.0]], 120.0];
-        yield '9: no VAT ID billed in the seller country without Tax-free (B2B) keeps the exempt shipping address' => [[], 'DE', 'CH', 'tax-free', [], 100.0];
+        yield '9: no VAT ID billed in the seller country pays seller VAT' => [[], 'DE', 'CH', 'net', [[19.0, 19.0]], 119.0];
         yield '10: malformed VAT ID billed in another member state pays its VAT' => [['DEINVALID'], 'FR', 'CH', 'net', [[20.0, 20.0]], 120.0];
     }
 

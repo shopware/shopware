@@ -195,6 +195,7 @@ class IntraCommunityTaxResolverTest extends TestCase
 
         yield 'business customer billed in another member state with Tax-free (B2B)' => [self::business(null), self::FR_ID, true, self::DE_ID, true];
         yield 'business customer billed in the seller country with Tax-free (B2B)' => [self::business(null), self::DE_ID, true, self::DE_ID, true];
+        yield 'business customer billed in the seller country without Tax-free (B2B)' => [self::business(null), self::DE_ID, false, self::DE_ID, true];
         yield 'billing country without Tax-free (B2B)' => [self::business(null), self::FR_ID, false, self::DE_ID, false];
         yield 'billing country outside the EU' => [self::business(null), self::CH_ID, true, self::DE_ID, false];
         yield 'seller outside the EU' => [self::business(null), self::FR_ID, true, self::CH_ID, false];

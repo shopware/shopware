@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\ImportExport\Util\FormulaEscaper;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -26,9 +27,10 @@ class CsvFileWriter extends AbstractFileWriter
         $this->loadConfig($config);
 
         if ($index === 0) {
+            // The header row holds the column keys used to map the data back on import, so it must not be escaped.
             $this->writeToBuffer(array_keys($data));
         }
-        $this->writeToBuffer(array_values($data));
+        $this->writeToBuffer(array_map(FormulaEscaper::escape(...), array_values($data)));
     }
 
     /**
@@ -36,7 +38,9 @@ class CsvFileWriter extends AbstractFileWriter
      */
     private function writeToBuffer(array $data): void
     {
-        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure, '\\') === false) {
+        // Spreadsheet applications read CSV as defined in RFC 4180, which has no escape character.
+        // With one, a value containing a backslash before a quote would end its cell early and start new cells.
+        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure, '') === false) {
             throw ImportExportException::couldNotWriteToBuffer();
         }
     }

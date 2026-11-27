@@ -15,7 +15,7 @@ type LayoutConfiguration = { columns: LayoutColumn[]; areas: string[][] };
 type GridLayout = Partial<Record<ContentSystemBreakpoint, LayoutConfiguration>>;
 type BreakpointPatterns = Partial<Record<ContentSystemBreakpoint, Pattern>> & Record<typeof BASE_BREAKPOINT, Pattern>;
 
-function initialPattern(value?: LayoutConfiguration | null): Pattern {
+function parsePattern(value?: LayoutConfiguration | null): Pattern {
     if (!value || !Array.isArray(value.columns) || !Array.isArray(value.areas)) {
         return { columns: [{ id: 1, type: 'auto', value: null }], cells: [[1]] };
     }
@@ -50,10 +50,10 @@ function encodePattern(pattern: Pattern): LayoutConfiguration {
 }
 
 function parsePatterns(value: GridLayout = {}): BreakpointPatterns {
-    const patterns: BreakpointPatterns = { [BASE_BREAKPOINT]: initialPattern(value[BASE_BREAKPOINT]) };
+    const patterns: BreakpointPatterns = { [BASE_BREAKPOINT]: parsePattern(value[BASE_BREAKPOINT]) };
     for (const breakpoint of orderedBreakpoints) {
         if (breakpoint !== BASE_BREAKPOINT && value[breakpoint] != null) {
-            patterns[breakpoint] = initialPattern(value[breakpoint]);
+            patterns[breakpoint] = parsePattern(value[breakpoint]);
         }
     }
 
@@ -168,7 +168,7 @@ export default Shopware.Component.wrapComponentConfig({
             return orderedBreakpoints.filter((breakpoint) => this.patterns[breakpoint]?.columns.some(invalidWidth));
         },
         pattern(): Pattern {
-            return resolveBreakpointValue(this.patterns, this.breakpoint, this.breakpointFallbacks) ?? initialPattern();
+            return resolveBreakpointValue(this.patterns, this.breakpoint, this.breakpointFallbacks) ?? parsePattern();
         },
         areas(): { id: number; number: number; row: number; column: number; rowSpan: number; columnSpan: number }[] {
             const bounds = new Map<

@@ -15380,6 +15380,14 @@
                 "sw_settings_system_health_section"
             ]
         },
+        "sw-settings-system-health-shop-id": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-shop-id",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_shop_id"
+            ]
+        },
         "sw-settings-system-health-storefront-pages": {
             "file": "module/sw-settings-system-health/component/sw-settings-system-health-storefront-pages",
             "visibility": "private",

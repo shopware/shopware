@@ -51,7 +51,8 @@
             "SalesChannelsReadiness": "Verkaufskanäle",
             "ProductDetailReadiness": "Produktseiten",
             "ProductListingReadiness": "Kategorieseiten",
-            "AppUrlVerification": "App-URL"
+            "AppUrlVerification": "App-URL",
+            "ShopId": "Shop-Identität"
         },
         "storefront-pages": {
             "summary": "{failed} von {total} Seiten wurden nicht geladen."
@@ -147,6 +148,24 @@
         },
         "tag": {
             "apps": "Apps"
+        },
+        "shop-id": {
+            "app-url-missing": "APP_URL ist nicht konfiguriert oder ungültig, daher lassen sich keine Apps verbinden.",
+            "changed": {
+                "app_url": "APP_URL hat sich von {stored} zu {current} geändert. Meist wurde der Shop kopiert, zum Beispiel auf ein Staging-System, oder ist unter eine neue Adresse umgezogen.",
+                "installation_path": "Der Installationspfad hat sich von {stored} zu {current} geändert. Meist wurde der Shop kopiert oder auf einen anderen Server oder in einen anderen Ordner verschoben.",
+                "other": "Deine Verkaufskanal-Domains haben sich geändert, seit deine Apps verbunden wurden."
+            },
+            "apps-on-hold": "Diese Apps erhalten keine Daten, bis du die Änderung bestätigst: {apps}",
+            "no-apps-on-hold": "Noch ist keine verbundene App betroffen. Kläre, ob dieser Shop umgezogen ist oder eine Kopie eines anderen Shops ist, bevor du Apps verbindest.",
+            "match": "Stimmt überein",
+            "mismatch": "Abweichung",
+            "column": {
+                "identifier": "Fingerprint",
+                "storedValue": "Gespeicherter Wert",
+                "currentValue": "Aktueller Wert",
+                "matches": "Status"
+            }
         }
     },
     "sw-privileges": {

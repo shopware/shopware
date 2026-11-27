@@ -51,7 +51,8 @@
             "SalesChannelsReadiness": "Sales channels",
             "ProductDetailReadiness": "Product pages",
             "ProductListingReadiness": "Category pages",
-            "AppUrlVerification": "App URL"
+            "AppUrlVerification": "App URL",
+            "ShopId": "Shop identity"
         },
         "storefront-pages": {
             "summary": "{failed} of {total} pages did not load."
@@ -147,6 +148,24 @@
         },
         "tag": {
             "apps": "Apps"
+        },
+        "shop-id": {
+            "app-url-missing": "APP_URL is not configured or invalid, so apps cannot be connected.",
+            "changed": {
+                "app_url": "APP_URL changed from {stored} to {current}. This usually means the shop was copied, for example to staging, or moved to a new address.",
+                "installation_path": "The installation path changed from {stored} to {current}. This usually means the shop was copied or moved to a different server or folder.",
+                "other": "Your sales channel domains changed since your apps were connected."
+            },
+            "apps-on-hold": "These apps receive no data until you confirm the change: {apps}",
+            "no-apps-on-hold": "No connected app is affected yet. Confirm whether this shop was moved or is a copy of another shop before you connect apps.",
+            "match": "Match",
+            "mismatch": "Mismatch",
+            "column": {
+                "identifier": "Fingerprint",
+                "storedValue": "Stored value",
+                "currentValue": "Current value",
+                "matches": "State"
+            }
         }
     },
     "sw-privileges": {

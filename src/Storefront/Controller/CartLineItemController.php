@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -354,18 +355,33 @@ class CartLineItemController extends StorefrontController
         ],
         methods: ['POST']
     )]
-    public function reorder(string $orderId, Cart $cart, Request $request, SalesChannelContext $context): Response
+    public function reorder(string $orderId, Cart $cart, Request $request, RequestDataBag $requestDataBag, SalesChannelContext $context): Response
     {
-        return Profiler::trace('cart::reorder', function () use ($orderId, $cart, $request, $context) {
+        return Profiler::trace('cart::reorder', function () use ($orderId, $cart, $request, $requestDataBag, $context) {
             $quantityBefore = $cart->getLineItems()->getTotalQuantity();
 
             try {
+                $postedLineItems = [];
+                if (!Feature::isActive('v6.8.0.0')) {
+                    // built first, so a posted line item that fails adds nothing
+                    $postedLineItems = $this->createPostedReorderLineItems($requestDataBag, $context);
+                }
+
                 $cart = $this->cartReorderRoute->reorder($orderId, $request, $cart, $context)->getCart();
 
+                if ($postedLineItems !== []) {
+                    $cart = $this->cartService->add($cart, $postedLineItems, $context);
+                }
+
+                $added = $cart->getLineItems()->getTotalQuantity() - $quantityBefore;
+
                 if (!$this->traceErrors($cart)) {
-                    $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', [
-                        '%count%' => $cart->getLineItems()->getTotalQuantity() - $quantityBefore,
-                    ]));
+                    if ($added > 0) {
+                        $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => $added]));
+                    } else {
+                        // an order of only line items that nothing re-adds
+                        $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
+                    }
                 }
             } catch (RateLimitExceededException $exception) {
                 $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]));
@@ -375,6 +391,38 @@ class CartLineItemController extends StorefrontController
 
             return $this->createActionResponse($request);
         });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, the reorder form posts no line items anymore
+     *
+     * @return list<LineItem>
+     */
+    private function createPostedReorderLineItems(RequestDataBag $requestDataBag, SalesChannelContext $context): array
+    {
+        $lineItems = [];
+
+        foreach ($requestDataBag->get('lineItems') ?? [] as $lineItemData) {
+            // the route already adds the order's products
+            if (!$lineItemData instanceof RequestDataBag || $lineItemData->get('type') === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                continue;
+            }
+
+            $lineItems[] = $this->lineItemFactoryRegistry->create($this->getLineItemArray($lineItemData, [
+                'quantity' => 1,
+                'stackable' => true,
+                'removable' => true,
+            ]), $context);
+        }
+
+        if ($lineItems !== []) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Posting `lineItems` to `frontend.checkout.cart.reorder` is deprecated and ignored from v6.8.0.0 on. Use the `checkout.cart.collect-reorder-line-items` extension instead.'
+            );
+        }
+
+        return $lineItems;
     }
 
     private function traceErrors(Cart $cart): bool

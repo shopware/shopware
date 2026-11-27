@@ -60,7 +60,7 @@ class ValueFingerprinterTest extends TestCase
     }
 
     /**
-     * A loader's `notFound()` records a fingerprint like any other produced value, so null needs one that
+     * A loader result without data records a fingerprint like any other produced value, so null needs one that
      * still matches when it is recomputed at finalization.
      */
     #[TestDox('fingerprints null to a stable value that no scalar shares')]

@@ -570,7 +570,7 @@ class ResolvedValueIndexFactoryTest extends TestCase
     }
 
     /**
-     * Null is the one value whose dedup does not follow its origin. A loader's `notFound()` and an
+     * Null is the one value whose dedup does not follow its origin. A loader result without data and an
      * under-supplied context delivery are two different producers of an explicit null, and the response
      * carries the pair as one entry: what separates "a resolution ran and found nothing" from "nothing wrote
      * here" is the presence of the assignment entry, not which null-valued ref it names.

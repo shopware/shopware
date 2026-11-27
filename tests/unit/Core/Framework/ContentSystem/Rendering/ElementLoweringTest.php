@@ -153,8 +153,8 @@ class ElementLoweringTest extends TestCase
         $product = new StubStruct();
         $loader = $this->loader();
         $loader->expects($this->exactly(2))->method('load')->willReturnOnConsecutiveCalls(
-            ContentDataLoaderResult::cached($settings),
-            ContentDataLoaderResult::cached($product),
+            ContentDataLoaderResult::cachedExternally($settings),
+            ContentDataLoaderResult::cachedExternally($product),
         );
         $candidate = new MappingCandidate('product.name', 'Product name', '', 'basic', 'string');
         $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
@@ -419,7 +419,7 @@ class ElementLoweringTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $tree = $this->lower($this->loaderReturning(ContentDataLoaderResult::cached($loaded)), [$root]);
+        $tree = $this->lower($this->loaderReturning(ContentDataLoaderResult::cachedExternally($loaded)), [$root]);
 
         static::assertSame(
             ['product' => $loaded],
@@ -446,7 +446,7 @@ class ElementLoweringTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $tree = $this->lower($this->loaderReturning(ContentDataLoaderResult::cached($loaded)), [$parent]);
+        $tree = $this->lower($this->loaderReturning(ContentDataLoaderResult::cachedExternally($loaded)), [$parent]);
 
         static::assertSame(['product' => $loaded], $tree[0]->slots['main'][0]->properties);
     }
@@ -490,7 +490,7 @@ class ElementLoweringTest extends TestCase
         $loader = $this->loader();
         $loader->expects($this->once())
             ->method('load')
-            ->willReturn(ContentDataLoaderResult::cached($pageData));
+            ->willReturn(ContentDataLoaderResult::cachedExternally($pageData));
 
         $consumer = StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
@@ -598,7 +598,7 @@ class ElementLoweringTest extends TestCase
         $loader = $this->loader();
         $loader->expects($this->once())
             ->method('load')
-            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+            ->willReturn(ContentDataLoaderResult::cachedExternally(new StubStruct()));
 
         $root = StoredElementBuilder::create('Sw:Section', 'root-1')
             ->withSlot('main', [
@@ -623,7 +623,7 @@ class ElementLoweringTest extends TestCase
         $loader = $this->loader();
         $loader->expects($this->once())
             ->method('load')
-            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+            ->willReturn(ContentDataLoaderResult::cachedExternally(new StubStruct()));
 
         $text = StoredElementBuilder::create('Sw:Content:Text', 'text-1')
             ->withProperty('text', '{{map:product.name}}')
@@ -712,7 +712,7 @@ class ElementLoweringTest extends TestCase
         $loader = $this->loader();
         $loader->expects($this->once())
             ->method('load')
-            ->willReturn(ContentDataLoaderResult::cached($consumed));
+            ->willReturn(ContentDataLoaderResult::cachedExternally($consumed));
 
         $root = StoredElementBuilder::create('Sw:Section', 'root-1')
             ->withSlot('main', [
@@ -756,7 +756,7 @@ class ElementLoweringTest extends TestCase
             static function (LoaderInputs $inputs) use (&$captured): ContentDataLoaderResult {
                 $captured = $inputs;
 
-                return ContentDataLoaderResult::cached(new StubStruct());
+                return ContentDataLoaderResult::cachedExternally(new StubStruct());
             }
         );
 

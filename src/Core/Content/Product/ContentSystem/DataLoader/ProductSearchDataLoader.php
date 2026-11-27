@@ -57,7 +57,7 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         $searchTerm = $inputs->stringOrNull('searchTermProperty');
 
         if ($searchTerm === null || $searchTerm === '') {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $criteria = $this->buildCriteria($inputs);
@@ -65,7 +65,7 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         $searchRequest = new Request();
         $searchRequest->request->set('search', $searchTerm);
 
-        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // Any ShopwareHttpException degrades the element to failedExternally(); everything else, such as a \TypeError
         // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
         // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // Known local throws: a stored term that survives the empty-string check above ("0", or whitespace
@@ -75,7 +75,7 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         try {
             $response = $this->searchRoute->load($searchRequest, $context, $criteria);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::failedExternally();
         }
 
         return ContentDataLoaderResult::cachedExternally($response->getListingResult());

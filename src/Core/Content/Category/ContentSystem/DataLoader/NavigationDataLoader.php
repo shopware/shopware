@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
@@ -60,16 +61,24 @@ class NavigationDataLoader extends AbstractContentDataLoader
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $rootId = $this->aliasResolver->resolve($inputs->string('rootId'), $context);
-        $rootId = u($rootId)->lower()->toString();
+        $configuredRootId = $inputs->string('rootId');
+        $rootId = u($this->aliasResolver->resolve($configuredRootId, $context))->lower()->toString();
 
         // A recognized alias still resolves to itself when the sales channel has no such category
         // (service and footer navigation are both optional). Passing that on would reach
         // Uuid::fromHexToBytes() in NavigationRoute and abort the whole render. Guard after the lowercase
         // (Uuid::VALID_PATTERN is lowercase-only): NavigationLoaderConfigSerializer::decode() preserves the
         // configured case, and an uppercase configured id works against the database.
+        // The alias resolution read the sales channel, so that empty result carries the tag that a change of its
+        // navigation category ids invalidates. A value that is neither a recognized alias nor a valid id is a
+        // stored literal this loader looks nothing up for, so the result records no tag and the layout tags
+        // cover it.
         if (!Uuid::isValid($rootId)) {
-            return ContentDataLoaderResult::notFound();
+            if (!$this->aliasResolver->isRecognizedAlias($configuredRootId)) {
+                return ContentDataLoaderResult::noInput();
+            }
+
+            return ContentDataLoaderResult::foundNothing(NavigationRoute::ALL_TAG);
         }
 
         // The referenced property carries the "{{categoryId}}" placeholder by default, which stays literal on a
@@ -86,7 +95,7 @@ class NavigationDataLoader extends AbstractContentDataLoader
         // not the specification, supplies it.
         $depth = $inputs->intOrNull('depth') ?? $context->getSalesChannel()->getNavigationCategoryDepth();
 
-        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // Any ShopwareHttpException degrades the element to failedExternally(); everything else, such as a \TypeError
         // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
         // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // Known local throws: NavigationLoader delegates through TreeBuildingNavigationRoute to
@@ -95,7 +104,7 @@ class NavigationDataLoader extends AbstractContentDataLoader
         try {
             $tree = $this->navigationLoader->load($activeId, $context, $rootId, $depth);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::failedExternally();
         }
 
         return ContentDataLoaderResult::cachedExternally($tree);

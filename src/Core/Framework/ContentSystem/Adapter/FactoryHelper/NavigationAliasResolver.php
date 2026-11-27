@@ -37,4 +37,17 @@ class NavigationAliasResolver
             default => $alias,
         };
     }
+
+    /**
+     * Whether the value names one of the built-in aliases, matched exactly as resolve() matches them. A
+     * recognized alias that resolve() hands back unchanged is a category its sales channel does not configure;
+     * any other unresolved value is an unrecognized literal.
+     */
+    public function isRecognizedAlias(string $alias): bool
+    {
+        return match ($alias) {
+            self::ALIAS_MAIN_NAVIGATION, self::ALIAS_SERVICE_NAVIGATION, self::ALIAS_FOOTER_NAVIGATION => true,
+            default => false,
+        };
+    }
 }

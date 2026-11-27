@@ -48,7 +48,7 @@ Subscribers can add cache tags or disable caching via `$event->cacheContext`:
 // Add invalidation tags for external data
 $event->cacheContext->addTags(['my-plugin-weather-' . $location]);
 
-// Disable caching entirely (use sparingly)
+// A value that no tag covers disables the cache context for the whole render
 $event->cacheContext->disable();
 ```
 

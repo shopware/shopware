@@ -6,10 +6,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * The data a loader returns for one requirement, and the cache dependency of that data.
+ * Each factory names one fact about how the loader reached its result; the cache dependency follows from it.
+ *
  * Cache tag semantics:
- * - cacheTags = null  → Loader is not cache-aware, page must not be cached
- * - cacheTags = []    → Cache-aware, no tags needed (e.g., data already tagged elsewhere)
- * - cacheTags = [...] → Cache-aware with specific invalidation tags
+ * - cacheTags = null  → not cache-aware, the render must not be cached
+ * - cacheTags = []    → cache-aware, the loader records no tag of its own
+ * - cacheTags = [...] → cache-aware, these tags cover the result
  */
 #[Package('framework')]
 final class ContentDataLoaderResult
@@ -24,34 +27,51 @@ final class ContentDataLoaderResult
     }
 
     /**
-     * Data not found, but lookup was cache-aware.
-     * Page remains cacheable, no tags added.
+     * The loader read nothing outside the stored layout, so it records no tag.
+     * The layout tags of the render cover the result.
      */
-    public static function notFound(): self
+    public static function noInput(?Struct $data = null): self
+    {
+        return new self(data: $data, cacheTags: []);
+    }
+
+    /**
+     * The loader's own lookup produced no data, either because it found nothing or because it threw a
+     * `ShopwareHttpException` that the loader caught.
+     * The given tags cover the requested data, so a later change of that data invalidates the empty result.
+     */
+    public static function foundNothing(string $tag, string ...$tags): self
+    {
+        return new self(data: null, cacheTags: [$tag, ...array_values($tags)]);
+    }
+
+    /**
+     * A delegate, such as a Store API route or a platform loader, threw a `ShopwareHttpException`.
+     * The delegate owns the caching of that outcome, so the loader records no tag.
+     */
+    public static function failedExternally(): self
     {
         return new self(data: null, cacheTags: []);
     }
 
     /**
-     * Data loaded but cannot be cache-tracked.
-     * Page will not be cached.
+     * No tag covers the result, so the render must not be cached.
      */
-    public static function uncacheable(Struct $data): self
+    public static function uncacheable(?Struct $data = null): self
     {
         return new self(data: $data, cacheTags: null);
     }
 
     /**
-     * Data loaded and cache-trackable with specific tags.
+     * The loader read its own data, and the given tags cover it.
      */
-    public static function cached(Struct $data, string ...$tags): self
+    public static function cached(Struct $data, string $tag, string ...$tags): self
     {
-        return new self(data: $data, cacheTags: array_values($tags));
+        return new self(data: $data, cacheTags: [$tag, ...array_values($tags)]);
     }
 
     /**
-     * Data loaded, cache-aware, but tags already collected elsewhere.
-     * Use when delegating to routes that handle their own cache tags.
+     * A delegate, such as a Store API route, provided the data and owns its caching, so the loader records no tag.
      */
     public static function cachedExternally(Struct $data): self
     {

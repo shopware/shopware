@@ -517,7 +517,7 @@ class GenericStubLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -542,7 +542,7 @@ class NoDocblockStubLoader extends AbstractContentDataLoader // @phpstan-ignore 
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -560,7 +560,7 @@ class MissingAnnotationStubLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -580,7 +580,7 @@ class NonStructTypeStubLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -606,7 +606,7 @@ class DuplicateKeyLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -631,7 +631,7 @@ class NonStringPropertyReferenceLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -656,7 +656,7 @@ class UnknownKeyTypeLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -681,7 +681,7 @@ class RequiredKeyWithDefaultLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -706,7 +706,7 @@ class MixedListDefaultLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -731,7 +731,7 @@ class DefaultWithoutHasDefaultLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -756,7 +756,7 @@ class MismatchedDefaultTypeLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -774,7 +774,7 @@ class ReservedLoaderSourceLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -792,7 +792,7 @@ class ReservedConfigSourceLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -817,7 +817,7 @@ class ReservedLoaderKeyLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -842,7 +842,7 @@ class ReservedConfigKeyLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -876,7 +876,7 @@ class ValidSpecificationLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -901,7 +901,7 @@ class UnknownReferencedTypeLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -926,7 +926,7 @@ class ReferencedTypeOnLiteralLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -952,7 +952,7 @@ class MergeFromLiteralLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -978,7 +978,7 @@ class MergeFromStringReferenceLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -1003,7 +1003,7 @@ class SelfMergeLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -1028,7 +1028,7 @@ class UnknownMergeTargetLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -1054,7 +1054,7 @@ class NonLiteralMergeTargetLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -1075,7 +1075,7 @@ class FirstDuplicateSourceLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -1093,7 +1093,7 @@ class SecondDuplicateSourceLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }
 
@@ -1120,6 +1120,6 @@ class DuplicateMergeTargetLoader extends AbstractContentDataLoader
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }

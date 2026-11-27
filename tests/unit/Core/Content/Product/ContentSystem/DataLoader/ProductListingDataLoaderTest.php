@@ -270,7 +270,7 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame(['manufacturer', 'cover', 'media'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('degrades an empty-string navigationId to notFound without calling the listing route')]
+    #[TestDox('returns no data and no tag for an empty-string navigationId without calling the listing route')]
     public function testLoadDegradesEmptyStringNavigationIdWithoutCallingRoute(): void
     {
         $context = Generator::generateSalesChannelContext();
@@ -323,8 +323,8 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('returns notFound result when the navigation ID input is unresolved')]
-    public function testLoadReturnsNotFoundWhenNavigationIdInputIsUnresolved(): void
+    #[TestDox('returns no data and no tag when the navigation ID input is unresolved')]
+    public function testLoadReturnsNoInputWhenNavigationIdInputIsUnresolved(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -344,8 +344,8 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when the resolved property is not a valid uuid')]
-    public function testLoadReturnsNotFoundWhenPropertyIsNotValidUuid(): void
+    #[TestDox('returns no data and no tag when the resolved property is not a valid uuid')]
+    public function testLoadReturnsNoInputWhenPropertyIsNotValidUuid(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -366,8 +366,8 @@ class ProductListingDataLoaderTest extends TestCase
     }
 
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the listing route throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenListingRouteThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the listing route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenListingRouteThrows(\Throwable $exception): void
     {
         $navigationId = Uuid::randomHex();
         $context = Generator::generateSalesChannelContext();
@@ -414,7 +414,7 @@ class ProductListingDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }

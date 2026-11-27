@@ -31,7 +31,9 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 ## Degradation boundary
 
-A loader degrades a broken element to `notFound()` instead of failing the whole render. Its imperative form lives in [AGENTS.md](AGENTS.md). See [A loader degrades on a named domain outcome and lets every other fault propagate](../../docs/principles/data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate).
+A loader degrades a broken element instead of failing the whole render: a `Uuid::isValid()` guard that rejects an entity id returns `ContentDataLoaderResult::noInput()`.
+For an ordinary unmapped property, the requirement's key stays on the rendered element and carries a present `null`.
+Its imperative form lives in [AGENTS.md](AGENTS.md). See [A loader degrades on a named domain outcome and lets every other fault propagate](../../docs/principles/data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate).
 
 An entity id read off a `PropertyReference` is guarded with `Uuid::isValid()` after lowercasing and before first use. `EntityLoader::load()` and every other built-in loader that reads an id run the guard. Rule and reason: [A loader degrades on a named domain outcome and lets every other fault propagate](../../docs/principles/data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate).
 

@@ -267,8 +267,8 @@ class ProductSearchDataLoaderTest extends TestCase
         static::assertSame(['manufacturer', 'cover', 'media'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('returns notFound result when the search term resolves to an empty string')]
-    public function testLoadReturnsNotFoundWhenSearchTermIsEmptyString(): void
+    #[TestDox('returns no data and no tag when the search term resolves to an empty string')]
+    public function testLoadReturnsNoInputWhenSearchTermIsEmptyString(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -288,8 +288,8 @@ class ProductSearchDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when the search term input is unresolved')]
-    public function testLoadReturnsNotFoundWhenSearchTermInputIsUnresolved(): void
+    #[TestDox('returns no data and no tag when the search term input is unresolved')]
+    public function testLoadReturnsNoInputWhenSearchTermInputIsUnresolved(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -310,8 +310,8 @@ class ProductSearchDataLoaderTest extends TestCase
     }
 
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the search route throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenSearchRouteThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the search route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenSearchRouteThrows(\Throwable $exception): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -356,7 +356,7 @@ class ProductSearchDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }

@@ -12,6 +12,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuDataLoader;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuLoaderConfig;
+use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
@@ -166,9 +167,10 @@ class ServiceMenuDataLoaderTest extends TestCase
         // unchanged instead of resolving to the sales channel's service category. The early return above the
         // normalization call also requires the raw configured value to equal the lowercase literal
         // 'service-navigation', so it does not fire either. The value is then normalized to lowercase, which
-        // is not a valid uuid, so the loader degrades to notFound() without ever reaching the navigation
-        // loader. Normalizing before alias resolution would instead turn this into the recognized alias and
-        // take the early-return branch.
+        // is not a valid uuid, so the loader returns no data without ever reaching the navigation loader. It is
+        // not a recognized alias either, so the loader looked nothing up and records no tag. Normalizing before
+        // alias resolution would instead turn this into the recognized alias and take the early-return branch,
+        // which returns an empty collection.
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
         $navigationLoader->expects($this->never())->method('load');
 
@@ -185,7 +187,7 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns an empty cached CategoryCollection when the service category is not configured, an unset rootId input included')]
+    #[TestDox('returns an empty CategoryCollection tagged with the navigation route when the service category is not configured, an unset rootId input included')]
     public function testLoadReturnsEmptyCollectionWhenServiceCategoryNotConfigured(): void
     {
         $context = Generator::generateSalesChannelContext();
@@ -205,16 +207,14 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
         static::assertCount(0, $result->data);
+        // The alias was resolved against the sales channel, so configuring a service category later must
+        // invalidate the empty collection through the navigation route tag.
         static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        static::assertSame([NavigationRoute::ALL_TAG], $result->getCacheTags());
     }
 
-    /**
-     * @param non-empty-string $rootId
-     */
-    #[DataProvider('nonUuidRootIdProvider')]
-    #[TestDox('returns notFound result when the resolved rootId is not a valid uuid because $_dataName')]
-    public function testLoadReturnsNotFoundWhenResolvedRootIdIsNotValidUuid(string $rootId): void
+    #[TestDox('returns no data tagged with the navigation route when the unconfigured footer alias resolves to itself')]
+    public function testLoadTagsTheNavigationRouteWhenFooterAliasIsNotConfigured(): void
     {
         $context = Generator::generateSalesChannelContext();
         static::assertNull($context->getSalesChannel()->getFooterCategoryId());
@@ -223,37 +223,48 @@ class ServiceMenuDataLoaderTest extends TestCase
         $navigationLoader->expects($this->never())->method('load');
 
         $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
+        // NavigationAliasResolver hands the footer alias back unchanged when the sales channel has no footer
+        // category, so this value sits outside the `service-navigation` early return.
         $result = $dataLoader->load(
-            new LoaderInputs(['rootId' => $rootId]),
+            new LoaderInputs(['rootId' => 'footer-navigation']),
             self::requirement(),
             $context,
             new Request(),
         );
 
+        // The alias resolution read the sales channel, so a later write of its footer category must invalidate
+        // the empty result through the navigation route tag.
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([NavigationRoute::ALL_TAG], $result->getCacheTags());
+    }
+
+    #[TestDox('returns a no-input result for a rootId that is neither a recognized alias nor a valid uuid')]
+    public function testLoadReturnsNoInputForAnUnrecognizedNonUuidRootId(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader->expects($this->never())->method('load');
+
+        $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
+        // An unrecognized literal is returned unchanged by the resolver's default arm.
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => 'not-a-navigation-alias']),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        // Neither an alias nor an id: the loader looked nothing up, so the layout tags cover the result.
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }
 
-    /**
-     * Both rows sit outside the `service-navigation` early return, which is what makes them the guard's own
-     * cases rather than that branch's.
-     *
-     * @return iterable<string, array{non-empty-string}>
-     */
-    public static function nonUuidRootIdProvider(): iterable
-    {
-        // NavigationAliasResolver hands the footer alias back unchanged when the sales channel has no footer
-        // category.
-        yield 'the optional footer alias resolves to itself' => ['footer-navigation'];
-
-        // An unrecognized literal is returned unchanged by the resolver's default arm.
-        yield 'an unrecognized configured literal passes through' => ['not-a-navigation-alias'];
-    }
-
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the navigation loader throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenNavigationLoaderThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the navigation loader throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenNavigationLoaderThrows(\Throwable $exception): void
     {
         $serviceCategoryId = Uuid::randomHex();
 
@@ -302,7 +313,7 @@ class ServiceMenuDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }

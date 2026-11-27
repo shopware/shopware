@@ -60,7 +60,7 @@ class CurrencyDataLoader extends AbstractContentDataLoader
             $criteria->addAssociation($association);
         }
 
-        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // Any ShopwareHttpException degrades the element to failedExternally(); everything else, such as a \TypeError
         // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
         // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // No domain exception is reachable through this chain today (CurrencyRoute::load() collects a cache
@@ -69,7 +69,7 @@ class CurrencyDataLoader extends AbstractContentDataLoader
         try {
             $response = $this->currencyRoute->load($request, $context, $criteria);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::failedExternally();
         }
 
         // CurrencyRoute handles its own caching internally

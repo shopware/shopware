@@ -10,7 +10,7 @@ The module marks a render that shows one value without a covering tag as uncache
 An empty result is a value.
 An element renders differently when its loader found nothing, and that difference depends on what the loader requested.
 The empty result of a lookup therefore needs a covering tag like a loaded value does.
-A loader that returns with no lookup needs no tag of its own, because the layout tags of the render cover the stored layout.
+A loader that returns with no input needs no tag of its own, because the layout tags of the render cover the stored layout.
 A loader result states its cache dependency separately from whether it carries data.
 For a tag that the platform defines, the module relies on the invalidation of the platform.
 A change that invalidates none of the tags the platform records for a value is a defect of the platform.
@@ -29,6 +29,8 @@ A delete, a translation write or a write that skips the indexer then leaves the 
 In code:
 
 - `ElementDataResolver::processCacheTags()` calls `RenderingCacheContext::disable()` for a loader result that carries no cache tag list.
+- `ContentDataLoaderResult::noInput()` returns a cache-aware result with an empty tag list for a loader that read nothing outside the stored layout.
+- `ContentDataLoaderResult::foundNothing()` returns a result without data after a lookup that found nothing or threw a caught `ShopwareHttpException`, with tags covering the request.
 - `CacheFinalizer::finalize()` sets `PlatformRequest::ATTRIBUTE_HTTP_CACHE` to `false` on the request when the cache context is disabled.
 - `EntityCacheTagResolver::resolve()` returns null for an entity without a tag pattern.
 - `EntityLoader::load()` returns `ContentDataLoaderResult::uncacheable()` when `EntityCacheTagResolver::resolve()` returns null.
@@ -37,7 +39,10 @@ In code:
 - `CacheFinalizerTest::testFinalizeSetsCacheDisabledAttribute` pins that a disabled cache context sets the request attribute to `false`.
 - `EntityCacheTagResolverTest::testReturnsNullForUnsupportedEntity` pins the null for an entity without a tag pattern.
 - `EntityLoaderTest::testLoadReturnsUncacheableWhenCacheTagResolverReturnsNull` pins the uncacheable result of `EntityLoader::load()`.
-- No test pins that the empty result of a lookup records a covering tag or disables the cache context.
+- `EntityLoaderTest::testLoadTagsTheRequestedIdWhenEntityNotFoundInRepository` and `testLoadTagsTheRequestedIdWhenRepositoryThrows` pin that a lookup without an entity records the tag of the requested id on a result without data.
+- `EntityCollectionLoaderTest::testLoadTagsEveryRequestedIdWhenRepositoryThrows` pins that a lookup that throws records the tag of every requested id on a result without data.
+- `EntityLoaderTest::testLoadReturnsNoInputWhenPropertyInputIsUnresolved` pins that a loader that read nothing outside the stored layout records no tag.
+- No test pins that a result without data and without a tag disables the cache context.
 - See [Cache/README.md](../../Cache/README.md#cache-tag-patterns).
 
 ## The component that adds a value to a render records its tag or disables the cache context
@@ -47,6 +52,7 @@ A mapping source provider, a registry override of `resolveAdmittedSource()` and 
 A specification source returns the tags of its [root source](README.md#glossary) from `resolveCacheTags()`.
 A loader returns `ContentDataLoaderResult::cachedExternally()` only on a path where a delegate ran.
 The delegate then owns the caching of that data.
+A loader returns `ContentDataLoaderResult::failedExternally()` when the delegate threw a `ShopwareHttpException`.
 The module relies on the delegate and does not check or test the delegate's invalidation.
 
 Why: Only the component that reads a value has the identity of the data it read.
@@ -56,11 +62,13 @@ The invalidation of a platform route belongs to the platform.
 In code:
 
 - `ContentDataLoaderResult::cachedExternally()` returns a cache-aware result with an empty tag list.
+- `ContentDataLoaderResult::failedExternally()` returns a cache-aware result with an empty tag list.
 - `MappingSourceResolutionContext::$cacheContext` gives a mapping source provider the cache context of the render.
 - `RenderedTreeFinalizationEvent::$cacheContext` gives a listener the cache context of the render.
 - `AbstractSpecificationSource::resolveCacheTags()` returns the tags that `ContentRoute::load()` adds to the cache context.
 - `CategoryMappingCandidateProviderTest::testOnlyReadingTheCategoryMediaAddsItsDependency` pins that `CategoryMappingCandidateProvider` adds the tag of a mapped media.
 - `ProductVariantSelectionSubscriberTest::testOptionsFollowTheEffectiveProductInsteadOfThePageProduct` and `testAParentProductLoadsItsOwnConfiguratorSettings` pin that `ProductVariantSelectionSubscriber` adds the product tag of the variant and of its parent.
+- `NavigationDataLoaderTest::testLoadReturnsFailedExternallyWhenNavigationLoaderThrows` pins that a throwing navigation loader leaves a cache-aware result without data and without a tag.
 - No test pins that a listener or a mapping source provider disables the cache context.
 - See [custom-loaders.md](../../Hydration/DataLoader/docs/custom-loaders.md#cache-awareness).
 

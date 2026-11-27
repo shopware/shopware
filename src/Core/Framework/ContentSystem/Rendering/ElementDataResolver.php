@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  * `$resolvedLoaderValues`.
  *
  * Every requirement key appears in the returned map — with the loaded data when the loader found some, and
- * with `null` when it did not. A {@see ContentDataLoaderResult::notFound()} still writes its key, and that
+ * with `null` when it did not. A {@see ContentDataLoaderResult::foundNothing()} still writes its key, and that
  * is the point: on the rendered side a present `null` means "a loader ran and found nothing" while an
  * absent key means the property never existed. The factory reads this map with `array_key_exists`, so a key
  * omitted here is a property that never renders and a key held here at `null` is one that renders as null.

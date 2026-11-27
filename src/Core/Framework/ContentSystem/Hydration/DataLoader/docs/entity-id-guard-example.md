@@ -27,7 +27,7 @@ final class ProductDetailLoader extends AbstractContentDataLoader
         $productId = $inputs->stringOrNull('property');
 
         if ($productId === null) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $productId = u($productId)->lower()->toString();
@@ -35,13 +35,13 @@ final class ProductDetailLoader extends AbstractContentDataLoader
         // Guard after the lowercase: Uuid::VALID_PATTERN is lowercase-only. An unsubstituted
         // placeholder fails this guard instead of the route's own id lookup.
         if (!Uuid::isValid($productId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         try {
             $response = $this->productRoute->load($productId, $request, $context, new Criteria());
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::failedExternally();
         }
 
         // A Store API route returns a StoreApiResponse that wraps the struct rather than being one, and

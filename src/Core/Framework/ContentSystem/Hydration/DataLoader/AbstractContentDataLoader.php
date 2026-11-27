@@ -20,9 +20,12 @@ use Symfony\Component\TypeInfo\TypeContext\TypeContextFactory;
 
 /**
  * Return values:
- * - ContentDataLoaderResult::notFound() → No data, page cacheable
- * - ContentDataLoaderResult::cached($data, ...$tags) → Data with cache tags
- * - ContentDataLoaderResult::cachedExternally($data) → Data, tags handled elsewhere
+ * - ContentDataLoaderResult::noInput($data = null) → The loader read nothing outside the stored layout, no tags
+ * - ContentDataLoaderResult::foundNothing($tag, ...$tags) → The loader's own lookup found nothing or threw a caught ShopwareHttpException, tags cover the request
+ * - ContentDataLoaderResult::failedExternally() → A delegate threw a ShopwareHttpException, no data, no tags
+ * - ContentDataLoaderResult::cached($data, $tag, ...$tags) → Own data, the tags cover it
+ * - ContentDataLoaderResult::cachedExternally($data) → A delegate provided the data and owns its caching
+ * - ContentDataLoaderResult::uncacheable($data = null) → No tag covers the result, the render is not cached
  *
  * @template TData of Struct
  */

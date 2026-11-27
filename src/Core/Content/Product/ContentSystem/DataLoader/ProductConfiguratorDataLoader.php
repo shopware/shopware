@@ -80,7 +80,7 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
     ): ContentDataLoaderResult {
         $productId = $inputs->stringOrNull('productId');
         if ($productId === null) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $productId = u($productId)->lower()->toString();
@@ -89,7 +89,7 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
         // LoaderInputResolver::dereference() untouched; guard after the lowercase (Uuid::VALID_PATTERN is
         // lowercase-only) instead of reaching Uuid::fromHexToBytes() in the product search.
         if (!Uuid::isValid($productId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $criteria = (new Criteria([$productId]))->addFields([
@@ -99,17 +99,18 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
             'variantListingConfig',
         ]);
 
-        // Any ShopwareHttpException degrades the element to notFound(); everything else propagates, matching the
+        // Any ShopwareHttpException degrades the element to foundNothing() with the product tag, so a later
+        // change of the product invalidates the empty result; everything else propagates, matching the
         // degradation boundary in Framework/ContentSystem/Hydration/DataLoader/README.md.
         try {
             /** @var PartialEntity|null $entity */
             $entity = $this->productRepository->search($criteria, $context)->getEntities()->first();
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::foundNothing(EntityCacheKeyGenerator::buildProductTag($productId));
         }
 
         if (!$entity instanceof PartialEntity) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::foundNothing(EntityCacheKeyGenerator::buildProductTag($productId));
         }
 
         /** @var ?string $parentId */
@@ -127,10 +128,11 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
             $variantListingConfig,
         );
 
+        // The product was found, so the empty result carries the same tag as the success path below.
         try {
             $groups = $this->configuratorLoader->load($productData, $context);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::foundNothing(EntityCacheKeyGenerator::buildProductTag($parentId));
         }
 
         return ContentDataLoaderResult::cached(

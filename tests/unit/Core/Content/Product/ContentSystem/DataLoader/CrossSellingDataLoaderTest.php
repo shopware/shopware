@@ -232,8 +232,8 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame(['manufacturer', 'cover', 'media'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('returns notFound result when the product ID input is unresolved')]
-    public function testLoadReturnsNotFoundWhenProductIdInputIsUnresolved(): void
+    #[TestDox('returns no data and no tag when the product ID input is unresolved')]
+    public function testLoadReturnsNoInputWhenProductIdInputIsUnresolved(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -253,8 +253,8 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when the resolved property is not a valid uuid')]
-    public function testLoadReturnsNotFoundWhenPropertyIsNotValidUuid(): void
+    #[TestDox('returns no data and no tag when the resolved property is not a valid uuid')]
+    public function testLoadReturnsNoInputWhenPropertyIsNotValidUuid(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -275,8 +275,8 @@ class CrossSellingDataLoaderTest extends TestCase
     }
 
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the cross-selling route throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenCrossSellingRouteThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the cross-selling route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenCrossSellingRouteThrows(\Throwable $exception): void
     {
         $productId = Uuid::randomHex();
 
@@ -324,7 +324,7 @@ class CrossSellingDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }

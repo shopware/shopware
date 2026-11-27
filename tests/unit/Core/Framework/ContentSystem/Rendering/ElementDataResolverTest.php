@@ -54,7 +54,7 @@ class ElementDataResolverTest extends TestCase
             static function (LoaderInputs $inputs) use (&$captured): ContentDataLoaderResult {
                 $captured = $inputs;
 
-                return ContentDataLoaderResult::notFound();
+                return ContentDataLoaderResult::noInput();
             }
         );
 
@@ -69,7 +69,7 @@ class ElementDataResolverTest extends TestCase
     public function testLoadedValueIsCarriedUnderItsRequirementKey(): void
     {
         $data = new StubStruct();
-        $loader = $this->loaderReturning(ContentDataLoaderResult::cached($data));
+        $loader = $this->loaderReturning(ContentDataLoaderResult::cachedExternally($data));
 
         $resolved = $this->resolveWith($loader, $this->elementWithRequirement('product'));
 
@@ -85,7 +85,7 @@ class ElementDataResolverTest extends TestCase
     public function testResolvedValueCarriesItsDedupIdentity(): void
     {
         $data = new StubStruct();
-        $loader = $this->loaderReturning(ContentDataLoaderResult::cached($data));
+        $loader = $this->loaderReturning(ContentDataLoaderResult::cachedExternally($data));
 
         $identity = $this->resolveWith($loader, $this->elementWithRequirement('product'))['product']->identity;
 
@@ -110,8 +110,8 @@ class ElementDataResolverTest extends TestCase
     public function testDifferentInputsYieldDifferentIdentities(): void
     {
         $loader = $this->loaderReturning(
-            ContentDataLoaderResult::cached(new StubStruct()),
-            ContentDataLoaderResult::cached(new StubStruct()),
+            ContentDataLoaderResult::cachedExternally(new StubStruct()),
+            ContentDataLoaderResult::cachedExternally(new StubStruct()),
         );
 
         $first = $this->resolveWith($loader, $this->elementWithRequirement('product', 'the-first-active-id'))['product']->identity;
@@ -124,14 +124,14 @@ class ElementDataResolverTest extends TestCase
     }
 
     /**
-     * A `notFound()` writes its key rather than omitting it, which is deliberate. The rendered side reads
+     * A `foundNothing()` writes its key rather than omitting it, which is deliberate. The rendered side reads
      * this map with `array_key_exists`, so an omitted key would render nothing at all while a present null
      * renders as the null that means "a loader ran and found nothing".
      */
     #[TestDox('carries an explicit null under the requirement key of a loader that found nothing')]
-    public function testNotFoundYieldsAPresentNull(): void
+    public function testFoundNothingYieldsAPresentNull(): void
     {
-        $loader = $this->loaderReturning(ContentDataLoaderResult::notFound());
+        $loader = $this->loaderReturning(ContentDataLoaderResult::foundNothing('product-1'));
 
         $resolved = $this->resolveWith($loader, $this->elementWithRequirement('product'));
 
@@ -216,7 +216,7 @@ class ElementDataResolverTest extends TestCase
             static function (LoaderInputs $inputs) use (&$captured): ContentDataLoaderResult {
                 $captured = $inputs;
 
-                return ContentDataLoaderResult::cached(new StubStruct());
+                return ContentDataLoaderResult::cachedExternally(new StubStruct());
             }
         );
 
@@ -254,7 +254,7 @@ class ElementDataResolverTest extends TestCase
         ]));
         $loader->expects($this->once())
             ->method('load')
-            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+            ->willReturn(ContentDataLoaderResult::cachedExternally(new StubStruct()));
 
         $inputSource = $this->elementWithRequirement('product');
 

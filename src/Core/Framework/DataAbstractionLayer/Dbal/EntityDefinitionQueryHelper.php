@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Projected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -844,6 +845,10 @@ class EntityDefinitionQueryHelper
         Context $context,
         string $original
     ): string {
+        if ($field->is(Projected::class)) {
+            throw DataAbstractionLayerException::cannotBuildAccessor($original, $root);
+        }
+
         if ($field instanceof TranslatedField) {
             $translationChain = self::buildTranslationChain(
                 $root,

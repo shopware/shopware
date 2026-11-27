@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetri
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -299,6 +300,11 @@ class EntityIndexerRegistry
         $indexer = $this->getIndexer($name);
 
         if (!$indexer instanceof EntityIndexer) {
+            // @deprecated tag:v6.9.0 - Remove once workers no longer need to drain iterations queued by 6.7.
+            if ($name === 'media.indexer' && (!Feature::has('v6.9.0.0') || !Feature::isActive('v6.9.0.0'))) {
+                return null;
+            }
+
             throw DataAbstractionLayerException::entityIndexerNotFound($name);
         }
 

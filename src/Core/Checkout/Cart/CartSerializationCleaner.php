@@ -51,7 +51,7 @@ class CartSerializationCleaner
     private function cleanupLineItem(LineItem $lineItem, array $customFieldAllowList): void
     {
         if ($lineItem->getCover()) {
-            $lineItem->getCover()->setThumbnailsRo('');
+            $lineItem->getCover()->setThumbnailsRo(null);
         }
 
         $this->cleanupCustomFields($lineItem, $customFieldAllowList);

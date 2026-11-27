@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Projected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -248,6 +249,13 @@ class EntityReader implements EntityReaderInterface
         foreach ($filtered as $field) {
             // skip fields excluded via Criteria::excludeFields() (primary keys are always kept)
             if ($excludedFields !== [] && !$field->getFlag(PrimaryKey::class) && \in_array($field->getPropertyName(), $excludedFields, true)) {
+                continue;
+            }
+
+            $projected = $field->getFlag(Projected::class);
+            if ($projected !== null) {
+                $projected->projection->project($criteria, $definition, $field, $root, $query);
+
                 continue;
             }
 

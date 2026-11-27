@@ -121,8 +121,6 @@ class DeleteThumbnailsCommand extends Command
         $ids = array_map(static fn (string $id) => ['id' => $id], $thumbnailIds);
 
         $this->thumbnailRepository->delete($ids, Context::createCLIContext());
-
-        $this->connection->executeStatement('UPDATE `media` SET `thumbnails_ro` = NULL;');
     }
 
     /**

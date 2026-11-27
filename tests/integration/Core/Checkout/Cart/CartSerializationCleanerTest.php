@@ -120,8 +120,8 @@ class CartSerializationCleanerTest extends TestCase
     public static function cleanupCoversProvider(): \Generator
     {
         yield 'Test cover thumbnailRo cleanup' => [
-            self::coverCart('foo', 'test'),
-            self::coverItem('foo', '')->getCover(),
+            self::coverCart('foo', [['width' => 200]]),
+            self::coverItem('foo', null)->getCover(),
         ];
 
         yield 'Test cover thumbnailRo cleanup without ro data' => [
@@ -151,7 +151,10 @@ class CartSerializationCleanerTest extends TestCase
         return $item;
     }
 
-    private static function coverItem(string $id, ?string $thumbnailString, bool $skipCover = false): LineItem
+    /**
+     * @param list<array<string, mixed>>|null $thumbnailRows
+     */
+    private static function coverItem(string $id, ?array $thumbnailRows, bool $skipCover = false): LineItem
     {
         $item = new LineItem($id, 'foo');
         $childItem = new LineItem($id . 'child', 'foo');
@@ -163,15 +166,15 @@ class CartSerializationCleanerTest extends TestCase
         }
 
         $cover = new MediaEntity();
-        if ($thumbnailString !== null) {
-            $cover->setThumbnailsRo($thumbnailString);
+        if ($thumbnailRows !== null) {
+            $cover->setThumbnailsRo($thumbnailRows);
         }
 
         $item->setCover($cover);
 
         $coverChild = new MediaEntity();
-        if ($thumbnailString !== null) {
-            $coverChild->setThumbnailsRo($thumbnailString);
+        if ($thumbnailRows !== null) {
+            $coverChild->setThumbnailsRo($thumbnailRows);
         }
 
         $childItem->setCover($cover);
@@ -190,10 +193,13 @@ class CartSerializationCleanerTest extends TestCase
         return $cart;
     }
 
-    private static function coverCart(string $id, ?string $thumbnailString, bool $skipCover = false): Cart
+    /**
+     * @param list<array<string, mixed>>|null $thumbnailRows
+     */
+    private static function coverCart(string $id, ?array $thumbnailRows, bool $skipCover = false): Cart
     {
-        $cart = (new Cart('test'))->add(self::coverItem($id, $thumbnailString, $skipCover));
-        $cart->addDeliveries(self::itemDelivery(self::coverItem($id, $thumbnailString, $skipCover)));
+        $cart = (new Cart('test'))->add(self::coverItem($id, $thumbnailRows, $skipCover));
+        $cart->addDeliveries(self::itemDelivery(self::coverItem($id, $thumbnailRows, $skipCover)));
 
         return $cart;
     }

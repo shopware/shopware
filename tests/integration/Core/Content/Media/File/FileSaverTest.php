@@ -7,8 +7,6 @@ use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -616,10 +614,6 @@ SVG;
         static::getContainer()->get('event_dispatcher')
             ->dispatch(new UpdateThumbnailPathEvent([$thumbnailId]));
 
-        static::getContainer()->get(MediaIndexer::class)->handle(
-            new MediaIndexingMessage([$png->getId()])
-        );
-
         $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
         static::assertInstanceOf(MediaEntity::class, $png);
 
@@ -697,8 +691,6 @@ SVG;
         $dispatcher->dispatch(new UpdateMediaPathEvent([$png->getId()]));
         $dispatcher->dispatch(new UpdateThumbnailPathEvent([$thumbnail1Id]));
         $dispatcher->dispatch(new UpdateThumbnailPathEvent([$thumbnail2Id]));
-
-        static::getContainer()->get(MediaIndexer::class)->handle(new MediaIndexingMessage([$png->getId()]));
 
         $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
         static::assertInstanceOf(MediaEntity::class, $png);

@@ -9,7 +9,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
-use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
@@ -200,6 +199,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheInvalidator::class),
             service(Connection::class),
             param('shopware.product_stream.indexing'),
+            service('messenger.default_bus'),
         ])
         ->tag('kernel.event_listener', ['event' => CategoryIndexerEvent::class, 'method' => 'invalidateCategoryRouteByCategoryIds', 'priority' => 2000])
         ->tag('kernel.event_listener', ['event' => LandingPageIndexerEvent::class, 'method' => 'invalidateIndexedLandingPages', 'priority' => 2000])
@@ -235,7 +235,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_listener', ['event' => PluginPostDeactivateEvent::class, 'method' => 'invalidateConfig', 'priority' => 2001])
         ->tag('kernel.event_listener', ['event' => SystemConfigChangedHook::class, 'method' => 'invalidateConfigKey', 'priority' => 2000])
         ->tag('kernel.event_listener', ['event' => SitemapGeneratedEvent::class, 'method' => 'invalidateSitemap', 'priority' => 2000])
-        ->tag('kernel.event_listener', ['event' => MediaIndexerEvent::class, 'method' => 'invalidateMedia', 'priority' => 2000]);
+        ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'onMediaWritten', 'priority' => 2000])
+        ->tag('messenger.message_handler', ['method' => 'handleInvalidateMediaCache']);
 
     $services->set(CacheTagCollector::class)
         ->args([

@@ -126,6 +126,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // region Entity definitions
     $services->set(MediaDefinition::class)
+        ->call('setRemoteThumbnailsEnabled', [param('shopware.media.remote_thumbnails.enable')])
         ->tag('shopware.entity.definition')
         ->tag('shopware.entity.hookable');
 
@@ -442,7 +443,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.private'),
             service('media_folder.repository'),
             service('event_dispatcher'),
-            service(MediaIndexer::class),
+            service('messenger.default_bus'),
             service(ThumbnailSizeCalculator::class),
             service(Connection::class),
             service(ThumbnailProcessorInterface::class),
@@ -600,15 +601,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // region DBAL
     $services->set(MediaIndexer::class)
-        ->tag('shopware.entity_indexer')
-        ->args([
-            service(IteratorFactory::class),
-            service('media.repository'),
-            service('media_thumbnail.repository'),
-            service(Connection::class),
-            service('event_dispatcher'),
-            param('shopware.media.remote_thumbnails.enable'),
-        ]);
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0'])
+        ->tag('shopware.entity_indexer');
 
     $services->set('shopware.cms.element_media_ids_provider.image', CmsElementMediaIdsProvider::class)
         ->args([service(ImageCmsElementResolver::class), ['media']])

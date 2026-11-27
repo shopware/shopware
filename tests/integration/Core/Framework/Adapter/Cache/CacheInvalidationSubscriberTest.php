@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -14,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
+use Shopware\Core\Framework\Adapter\Cache\Message\InvalidateMediaCache;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -70,6 +70,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             $cacheInvalidator,
             static::getContainer()->get(Connection::class),
             true,
+            static::getContainer()->get('messenger.default_bus'),
         );
     }
 
@@ -181,8 +182,8 @@ class CacheInvalidationSubscriberTest extends TestCase
             $tags = $invalidated;
         });
 
-        $subscriber = new CacheInvalidationSubscriber($cacheInvalidator, static::getContainer()->get(Connection::class), productStreamIndexerEnabled: true);
-        $subscriber->invalidateMedia(new MediaIndexerEvent([$this->ids->get($file)], Context::createDefaultContext(), []));
+        $subscriber = new CacheInvalidationSubscriber($cacheInvalidator, static::getContainer()->get(Connection::class), true, static::getContainer()->get('messenger.default_bus'));
+        $subscriber->handleInvalidateMediaCache(new InvalidateMediaCache([$this->ids->get($file)]));
 
         return array_values(array_filter($tags, static fn (string $tag): bool => str_starts_with($tag, 'product-')));
     }

@@ -458,6 +458,14 @@ Previously, these routes could return unrelated records or fail because the unde
 
 # Core
 
+## Removed the denormalized media thumbnail column
+
+The destructive migration removed `media.thumbnails_ro`.
+Use the DAL thumbnails association or query `media_thumbnail` by `media_id`.
+Remove calls and decorators targeting the deprecated `MediaIndexer` and remove `media.indexer` from indexing jobs.
+Replace subscriptions to `MediaIndexerEvent` with `media.written`, `media.deleted` or `ThumbnailGeneratedEvent` as appropriate.
+Replace direct calls to `CacheInvalidationSubscriber::invalidateMedia()` with `handleInvalidateMediaCache()` and pass an `InvalidateMediaCache` message containing the media IDs.
+
 ## Recovery entity accessors
 
 `UserEntity::getRecoveryUser()`, `UserEntity::setRecoveryUser()`, `CustomerEntity::getRecoveryCustomer()`, and `CustomerEntity::setRecoveryCustomer()` were removed.

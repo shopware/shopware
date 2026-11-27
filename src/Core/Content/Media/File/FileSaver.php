@@ -213,7 +213,6 @@ class FileSaver
 
         try {
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($updateData): void {
-                // also triggers the indexing, so that the thumbnails_ro is recalculated
                 $this->mediaRepository->update([$updateData], $context);
             });
 

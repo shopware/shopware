@@ -13,7 +13,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
-use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
@@ -24,12 +24,14 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\Message\InvalidateMediaCache;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -39,6 +41,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -102,11 +106,31 @@ class CacheInvalidationSubscriberTest extends TestCase
         ));
     }
 
+    public function testQueuedMediaWriteDefersProductLookup(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
+        $id = Uuid::randomHex();
+        $write = new EntityWriteResult($id, [], MediaDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE);
+        $event = new EntityWrittenContainerEvent($context, new NestedEventCollection([
+            new EntityWrittenEvent(MediaDefinition::ENTITY_NAME, [$write], $context),
+        ]), []);
+
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+        $bus = static::createMock(MessageBusInterface::class);
+        $bus->expects($this->once())->method('dispatch')
+            ->with(new InvalidateMediaCache([$id]), [])
+            ->willReturn(new Envelope(new InvalidateMediaCache([$id])));
+
+        $this->createSubscriber($bus)->onMediaWritten($event);
+    }
+
     public function testInvalidateMediaWithoutVariantsWillInvalidateOnlyProducts(): void
     {
         $productId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
-        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
+        $event = new InvalidateMediaCache([$mediaId]);
 
         $subscriber = $this->createSubscriber();
         $this->connection->expects($this->once())
@@ -123,7 +147,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 false
             );
 
-        $subscriber->invalidateMedia($event);
+        $subscriber->handleInvalidateMediaCache($event);
     }
 
     public function testInvalidateMediaWithVariantsWillInvalidateProductsAndVariants(): void
@@ -131,7 +155,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $productId = Uuid::randomHex();
         $variants = [Uuid::randomHex(), Uuid::randomHex()];
         $mediaId = Uuid::randomHex();
-        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
+        $event = new InvalidateMediaCache([$mediaId]);
 
         $subscriber = $this->createSubscriber();
         $this->connection->expects($this->once())
@@ -153,7 +177,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 false
             );
 
-        $subscriber->invalidateMedia($event);
+        $subscriber->handleInvalidateMediaCache($event);
     }
 
     public function testInvalidateMediaInvalidatesEveryPageShowingTheMedia(): void
@@ -206,7 +230,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             $tags = $invalidated;
         });
 
-        $this->createSubscriber()->invalidateMedia(new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []));
+        $this->createSubscriber()->handleInvalidateMediaCache(new InvalidateMediaCache([Uuid::randomHex()]));
 
         foreach ([
             EntityCacheKeyGenerator::buildProductTag($ids['product']),
@@ -958,12 +982,13 @@ class CacheInvalidationSubscriberTest extends TestCase
         );
     }
 
-    private function createSubscriber(): CacheInvalidationSubscriber
+    private function createSubscriber(?MessageBusInterface $bus = null): CacheInvalidationSubscriber
     {
         return new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
             $this->connection,
             true,
+            $bus ?? static::createStub(MessageBusInterface::class),
         );
     }
 }

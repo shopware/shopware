@@ -23,6 +23,9 @@ class MediaEvents
 
     final public const MEDIA_AGGREGATION_LOADED_EVENT = 'media.aggregation.result.loaded';
 
+    /**
+     * @deprecated tag:v6.8.0 - Shopware no longer dispatches MediaIndexerEvent. Subscribe to media.written, media.deleted or ThumbnailGeneratedEvent as appropriate.
+     */
     final public const MEDIA_INDEXER_EVENT = MediaIndexerEvent::class;
 
     final public const MEDIA_FOLDER_CONFIGURATION_INDEXER_EVENT = MediaFolderConfigurationIndexerEvent::class;

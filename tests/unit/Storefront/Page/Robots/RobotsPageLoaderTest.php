@@ -463,7 +463,7 @@ class RobotsPageLoaderTest extends TestCase
         $this->assertDirectivePaths($directives, RobotsDirectiveType::CONTENT_USAGE, ['/de/blog/ train-ai=n', 'search=y']);
     }
 
-    public function testSearchesDomainsByTheBareRequestHost(): void
+    public function testSearchesActiveStorefrontDomainsByTheBareRequestHost(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com:443']);
 
@@ -472,6 +472,7 @@ class RobotsPageLoaderTest extends TestCase
                 static::assertEquals([
                     new ContainsFilter('url', 'example.com'),
                     new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                    new EqualsFilter('salesChannel.active', true),
                 ], $criteria->getFilters());
 
                 return new SalesChannelDomainCollection();

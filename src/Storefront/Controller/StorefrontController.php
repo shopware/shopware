@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Product\Exception\ProductListingPageOutOfRangeException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -72,6 +73,8 @@ abstract class StorefrontController extends AbstractController
     {
         try {
             $contentPageResponse = $this->container->get(AbstractContentRoute::class)->load($path, $request, $context);
+        } catch (ProductListingPageOutOfRangeException $e) {
+            throw $e;
         } catch (\Exception) {
             return null;
         }

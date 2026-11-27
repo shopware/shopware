@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Content\Product\Exception\ProductListingPageOutOfRangeException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
@@ -53,12 +54,7 @@ class ProductException extends HttpException
 
     public static function pageOutOfRange(int $requestedPage, int $lastPage): self
     {
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::LISTING_PAGE_OUT_OF_RANGE,
-            'Requested listing page {{ requestedPage }} is out of range (last page: {{ lastPage }}).',
-            ['requestedPage' => $requestedPage, 'lastPage' => $lastPage]
-        );
+        return new ProductListingPageOutOfRangeException($requestedPage, $lastPage);
     }
 
     public static function invalidPriceDefinition(): self

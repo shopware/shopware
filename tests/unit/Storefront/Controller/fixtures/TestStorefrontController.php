@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Unit\Storefront\Controller\fixtures;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,5 +80,10 @@ class TestStorefrontController extends StorefrontController
     public function testHook(Hook $hook): void
     {
         $this->hook($hook);
+    }
+
+    public function testLoadContentPage(string $path, Request $request, SalesChannelContext $context): ?ContentPage
+    {
+        return $this->loadContentPage($path, $request, $context);
     }
 }

@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -57,22 +56,32 @@ class LandingPageLoader
         $page->setLandingPage($landingPage);
         $page->setNavigationId($landingPage->getId());
 
-        $metaTitle = $landingPage->getTranslation('metaTitle') ?? $landingPage->getTranslation('name');
-        $metaDescription = $landingPage->getTranslation('metaDescription');
-        $metaKeywords = $landingPage->getTranslation('keywords');
-        $canonical = $this->seoUrlReplacer->generate(LandingPageSeoUrlRoute::ROUTE_NAME, ['landingPageId' => $landingPage->getId()]);
-
-        $metaInformation = new MetaInformation();
-        $metaInformation->setMetaTitle((string) $metaTitle);
-        $metaInformation->setMetaDescription((string) $metaDescription);
-        $metaInformation->setMetaKeywords((string) $metaKeywords);
-        $metaInformation->setCanonical($canonical);
-        $page->setMetaInformation($metaInformation);
+        $this->loadMetaData($page);
 
         $this->eventDispatcher->dispatch(
             new LandingPageLoadedEvent($page, $context, $request)
         );
 
         return $page;
+    }
+
+    private function loadMetaData(LandingPage $page): void
+    {
+        $metaInformation = $page->getMetaInformation();
+        $landingPage = $page->getLandingPage();
+
+        if ($metaInformation === null || $landingPage === null) {
+            return;
+        }
+
+        $metaTitle = $landingPage->getTranslation('metaTitle') ?? $landingPage->getTranslation('name');
+        $metaDescription = $landingPage->getTranslation('metaDescription');
+        $metaKeywords = $landingPage->getTranslation('keywords');
+        $canonical = $this->seoUrlReplacer->generate(LandingPageSeoUrlRoute::ROUTE_NAME, ['landingPageId' => $landingPage->getId()]);
+
+        $metaInformation->setMetaTitle((string) $metaTitle);
+        $metaInformation->setMetaDescription((string) $metaDescription);
+        $metaInformation->setMetaKeywords((string) $metaKeywords);
+        $metaInformation->setCanonical($canonical);
     }
 }

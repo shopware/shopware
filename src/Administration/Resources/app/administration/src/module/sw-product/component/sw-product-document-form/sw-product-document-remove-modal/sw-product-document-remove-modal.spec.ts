@@ -237,6 +237,21 @@ describe('sw-product-document-remove-modal', () => {
             expect(getVariantOperations()).toEqual({});
         });
 
+        it('matches a saved document by its saved values after an edit that was not applied to the variants', async () => {
+            const document = createDocument('Manual v2');
+            Object.assign(document, { _isNew: false });
+            Object.assign(document.getOrigin(), { translated: { title: 'Manual', mediaId: document.mediaId } });
+            const modal = await createWrapper({ documents: [document], hasVariants: true });
+
+            await confirmRemoval(modal);
+
+            expect(variantSync).toHaveBeenCalledWith(
+                product.id,
+                [{ type: 'remove', mediaId: document.mediaId, title: 'Manual' }],
+                true,
+            );
+        });
+
         it('matches a document by its queued operation and drops the queued changes', async () => {
             const document = createDocument('Manual');
             const queued = {

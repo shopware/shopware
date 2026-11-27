@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentRequest;
@@ -118,7 +118,7 @@ class SalesChannelProductAssignerTest extends TestCase
 
         foreach ($searchedCriteria as $criteria) {
             static::assertContainsEquals(
-                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('visibilities.salesChannelId', self::SALES_CHANNEL_ID)]),
+                new NotEqualsFilter('visibilities.salesChannelId', self::SALES_CHANNEL_ID),
                 $criteria->getFilters(),
             );
         }

@@ -18,13 +18,19 @@ props
   isLoading?: boolean  default=false
   role?: object  default=null
 
+data
+  includedAccessModal: any
+
 computed
+  hiddenAccessByKey: any
   parentOrder: any
   parentSnippetKeys: any
   parents: any
   permissions: any
   permissionsWithParents: any
+  roleIncludedAccess: any
   roles: any
+  selectedPrivilegeKeys: any
   usedDependencies: any
 
 methods
@@ -38,18 +44,27 @@ methods
   areSomeChildrenWithAllRolesSelected(parentKey: any): any
   changeAllPermissionsForKey(permissionKey: any): any
   changePermission(permissionKey: any, permissionRole: any): any
+  closeIncludedAccess(): any
   compareParents(a: any, b: any): any
   entityAllTooltip(permissionKey: any): any
   getPermissionsForParent(parentKey: any): any
+  hiddenAccess(permissionKey: any): any
+  includedAccessButtonTooltip(permission: any): any
   isParentRoleDisabled(parentKey: any, roleKey: any): any
   isPermissionDisabled(permissionKey: any, permissionRole: any): any
   isPermissionSelected(permissionKey: any, permissionRole: any): any
+  isRowSelected(permission: any): any
+  openRoleIncludedAccess(): any
+  openRowIncludedAccess(permission: any): any
   parentAllTooltip(parentValue: any): any
   parentLabel(parentValue: any): any
   parentRoleHasChildRoles(parentKey: any, roleKey: any): any
   parentRoleTooltip(parentValue: any, role: any): any
   privilegeTooltip(permissionKey: any, permissionRole: any): any
   removePermission(identifier: any): any
+  rowPreviewKeys(permission: any): any
+  rowPreviewRoleLabel(permission: any): any
+  selectedRowKeys(permission: any): any
   toggleAllChildrenWithAllRoles(parentKey: any): any
   toggleAllChildrenWithRole(parentKey: any, roleKey: any): any
 
@@ -62,6 +77,8 @@ blocks
         sw_users_permissions_permissions_grid_header_roles_name  [scope: role]
       sw_users_permissions_permissions_grid_header_title
         sw_users_permissions_permissions_grid_header_title_content
+    sw_users_permissions_permissions_grid_included_access
+    sw_users_permissions_permissions_grid_included_access_modal  [after v-if]
     sw_users_permissions_permissions_grid_permissions
       sw_users_permissions_permissions_grid_parent_all_roles  [scope: permission]
         sw_users_permissions_permissions_grid_parent_all_roles_field  [scope: permission]
@@ -74,5 +91,6 @@ blocks
       sw_users_permissions_permissions_grid_permissions_roles  [scope: permission]
         sw_users_permissions_permissions_grid_permissions_roles_field  [scope: permission, role]
       sw_users_permissions_permissions_grid_permissions_title  [scope: permission]
+        sw_users_permissions_permissions_grid_permissions_included_access_button  [scope: permission]
         sw_users_permissions_permissions_grid_permissions_title_content  [scope: permission]
 ```

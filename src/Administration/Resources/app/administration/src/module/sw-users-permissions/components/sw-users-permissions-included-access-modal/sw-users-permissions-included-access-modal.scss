@@ -1,0 +1,111 @@
+.sw-users-permissions-included-access-modal {
+    // Every section uses the same three columns, so tables and the read list stay aligned
+    --included-access-gap: var(--scale-size-16);
+
+    font-size: var(--font-size-s);
+    line-height: var(--font-line-height-s);
+
+    .sw-users-permissions-included-access-modal__description {
+        margin: 0 0 var(--scale-size-16);
+        color: var(--color-text-secondary-default);
+    }
+
+    .sw-users-permissions-included-access-modal__section {
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-card);
+        margin-bottom: var(--scale-size-12);
+        overflow: hidden;
+    }
+
+    .sw-users-permissions-included-access-modal__section-header {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        padding: var(--scale-size-10) var(--scale-size-16);
+        font-weight: var(--font-weight-semi-bold);
+        background: var(--color-elevation-surface-raised);
+    }
+
+    .sw-users-permissions-included-access-modal__section-title {
+        flex: 1;
+    }
+
+    .sw-users-permissions-included-access-modal__row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: var(--included-access-gap);
+        align-items: baseline;
+        padding: var(--scale-size-10) var(--scale-size-16);
+        border-top: 1px solid var(--color-border-secondary-default);
+    }
+
+    .sw-users-permissions-included-access-modal__row--head {
+        padding-top: var(--scale-size-6);
+        padding-bottom: var(--scale-size-6);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semi-bold);
+        color: var(--color-text-secondary-default);
+    }
+
+    .sw-users-permissions-included-access-modal__area-cell {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-2);
+    }
+
+    .sw-users-permissions-included-access-modal__area {
+        font-weight: var(--font-weight-semi-bold);
+    }
+
+    // Operations and entities span two of the shared columns and split them the same way,
+    // so they line up with the columns of the read list below
+    .sw-users-permissions-included-access-modal__column-access,
+    .sw-users-permissions-included-access-modal__access {
+        grid-column: span 2;
+    }
+
+    .sw-users-permissions-included-access-modal__access {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--scale-size-4) var(--included-access-gap);
+    }
+
+    .sw-users-permissions-included-access-modal__operations {
+        font-weight: var(--font-weight-semi-bold);
+    }
+
+    .sw-users-permissions-included-access-modal__entities,
+    .sw-users-permissions-included-access-modal__area-hint,
+    .sw-users-permissions-included-access-modal__sources {
+        color: var(--color-text-secondary-default);
+    }
+
+    .sw-users-permissions-included-access-modal__area-hint,
+    .sw-users-permissions-included-access-modal__sources {
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+    }
+
+    .sw-users-permissions-included-access-modal__read-list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--scale-size-4) var(--included-access-gap);
+        margin: 0;
+        padding: var(--scale-size-10) var(--scale-size-16);
+        border-top: 1px solid var(--color-border-secondary-default);
+        list-style: none;
+    }
+
+    .sw-users-permissions-included-access-modal__read-area {
+        // Keeps the tooltip anchored to the name instead of the whole column
+        justify-self: start;
+    }
+}
+
+// The footer slot renders outside the content wrapper
+.sw-users-permissions-included-access-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+}

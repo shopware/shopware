@@ -68,7 +68,38 @@
                 "disabledCheckboxMessage": "To disable this option, you must first disable other active options.",
                 "tooltipParentRole": "All {role} rights for {parent}",
                 "tooltipParentAll": "All rights for {parent} ({roles})",
-                "tooltipEntityAll": "All rights for {entity} ({roles})"
+                "tooltipEntityAll": "All rights for {entity} ({roles})",
+                "includedAccessHint": "Some permissions need access to other areas to work.",
+                "reviewIncludedAccess": "Review included access ({count} area) | Review included access ({count} areas)",
+                "includedAccessTooltip": "Also includes access to {count} other area | Also includes access to {count} other areas",
+                "includedAccessPreviewTooltip": "If you select {role}, this also includes access to {count} other area | If you select {role}, this also includes access to {count} other areas",
+                "rowModalTitle": "{area} also includes",
+                "rowModalSubtitleSelected": "Selected: {roles}",
+                "rowModalSubtitlePreview": "If you select {role}",
+                "rowModalDescription": "{area} needs this access to work. Users with this role get it automatically.",
+                "roleModalTitle": "This role also includes",
+                "roleModalSubtitle": "{count} permission selected | {count} permissions selected",
+                "roleModalDescription": "The selected permissions need access to these areas to work. Users with this role get it automatically."
+            },
+            "included-access": {
+                "tiers": {
+                    "personal": "View personal data",
+                    "write": "Change data in",
+                    "read": "View data in"
+                },
+                "columnArea": "Area",
+                "columnAccess": "Access",
+                "grantedBy": "Granted by {count} permission | Granted by {count} permissions",
+                "fullAccess": "Full access",
+                "operations": {
+                    "read": "view",
+                    "update": "edit",
+                    "create": "create",
+                    "delete": "delete"
+                },
+                "sourceEntry": "{area} › {role}",
+                "sharedData": "Shared data",
+                "sharedDataDescription": "Used by several areas"
             },
             "additional-permissions": {
                 "title": "Additional permissions"
@@ -77,7 +108,8 @@
                 "title": "Additional permissions"
             },
             "detailed-grid": {
-                "coveredByGeneralMessage": "Already granted via the General tab."
+                "coveredByGeneralMessage": "Already granted via the General tab.",
+                "grantedVia": "Granted via: {sources}"
             },
             "view": {
                 "detailed": {

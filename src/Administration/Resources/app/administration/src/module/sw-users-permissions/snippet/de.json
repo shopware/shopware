@@ -68,7 +68,38 @@
                 "disabledCheckboxMessage": "Um diese Option deaktivieren zu können, musst Du zuerst andere aktive Optionen deaktivieren.",
                 "tooltipParentRole": "Alle {role}-Rechte für {parent}",
                 "tooltipParentAll": "Alle Rechte für {parent} ({roles})",
-                "tooltipEntityAll": "Alle Rechte für {entity} ({roles})"
+                "tooltipEntityAll": "Alle Rechte für {entity} ({roles})",
+                "includedAccessHint": "Einige Berechtigungen brauchen Zugriff auf andere Bereiche, um zu funktionieren.",
+                "reviewIncludedAccess": "Enthaltenen Zugriff prüfen ({count} Bereich) | Enthaltenen Zugriff prüfen ({count} Bereiche)",
+                "includedAccessTooltip": "Enthält auch Zugriff auf {count} weiteren Bereich | Enthält auch Zugriff auf {count} weitere Bereiche",
+                "includedAccessPreviewTooltip": "Wenn Du {role} auswählst, ist auch Zugriff auf {count} weiteren Bereich enthalten | Wenn Du {role} auswählst, ist auch Zugriff auf {count} weitere Bereiche enthalten",
+                "rowModalTitle": "{area} enthält auch",
+                "rowModalSubtitleSelected": "Ausgewählt: {roles}",
+                "rowModalSubtitlePreview": "Wenn Du {role} auswählst",
+                "rowModalDescription": "{area} braucht diesen Zugriff, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn automatisch.",
+                "roleModalTitle": "Diese Rolle enthält auch",
+                "roleModalSubtitle": "{count} Berechtigung ausgewählt | {count} Berechtigungen ausgewählt",
+                "roleModalDescription": "Die ausgewählten Berechtigungen brauchen Zugriff auf diese Bereiche, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn automatisch."
+            },
+            "included-access": {
+                "tiers": {
+                    "personal": "Persönliche Daten ansehen",
+                    "write": "Daten ändern in",
+                    "read": "Daten ansehen in"
+                },
+                "columnArea": "Bereich",
+                "columnAccess": "Zugriff",
+                "grantedBy": "Erteilt durch {count} Berechtigung | Erteilt durch {count} Berechtigungen",
+                "fullAccess": "Vollzugriff",
+                "operations": {
+                    "read": "ansehen",
+                    "update": "bearbeiten",
+                    "create": "erstellen",
+                    "delete": "löschen"
+                },
+                "sourceEntry": "{area} › {role}",
+                "sharedData": "Gemeinsame Daten",
+                "sharedDataDescription": "Von mehreren Bereichen genutzt"
             },
             "additional-permissions": {
                 "title": "Zusätzliche Berechtigungen"
@@ -77,7 +108,8 @@
                 "title": "Zusätzliche Berechtigungen"
             },
             "detailed-grid": {
-                "coveredByGeneralMessage": "Bereits über den Tab \"Allgemein\" gewährt."
+                "coveredByGeneralMessage": "Bereits über den Tab \"Allgemein\" gewährt.",
+                "grantedVia": "Gewährt über: {sources}"
             },
             "view": {
                 "detailed": {

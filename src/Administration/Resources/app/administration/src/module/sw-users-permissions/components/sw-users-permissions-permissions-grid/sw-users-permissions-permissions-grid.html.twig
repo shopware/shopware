@@ -5,6 +5,27 @@
     :is-loading="isLoading"
     :title="$t('sw-users-permissions.roles.grid.title')"
 >
+    {% block sw_users_permissions_permissions_grid_included_access %}
+    <div
+        v-if="role"
+        class="sw-users-permissions-permissions-grid__included-access"
+    >
+        <p class="sw-users-permissions-permissions-grid__included-access-hint">
+            {{ $t('sw-users-permissions.roles.grid.includedAccessHint') }}
+        </p>
+
+        <mt-button
+            class="sw-users-permissions-permissions-grid__included-access-button"
+            size="small"
+            variant="secondary"
+            :disabled="roleIncludedAccess.length === 0"
+            @click="openRoleIncludedAccess"
+        >
+            {{ $t('sw-users-permissions.roles.grid.reviewIncludedAccess', { count: roleIncludedAccess.length }, roleIncludedAccess.length) }}
+        </mt-button>
+    </div>
+    {% endblock %}
+
     <div
         v-if="role"
         class="sw-users-permissions-permissions-grid__grid"
@@ -105,6 +126,20 @@
                     {% block sw_users_permissions_permissions_grid_permissions_title_content %}
                     {{ $t('sw-privileges.permissions.' + permission.key + '.label') }}
                     {% endblock %}
+
+                    {% block sw_users_permissions_permissions_grid_permissions_included_access_button %}
+                    <mt-button
+                        v-if="hiddenAccess(permission.key).length > 0"
+                        v-tooltip="{ message: includedAccessButtonTooltip(permission) }"
+                        class="sw-users-permissions-permissions-grid__included-access-row-button"
+                        :class="{ 'is--muted': !isRowSelected(permission) }"
+                        size="x-small"
+                        variant="secondary"
+                        @click="openRowIncludedAccess(permission)"
+                    >
+                        +{{ hiddenAccess(permission.key).length }}
+                    </mt-button>
+                    {% endblock %}
                 </div>
                 {% endblock %}
 
@@ -150,5 +185,17 @@
         </template>
         {% endblock %}
     </div>
+
+    {% block sw_users_permissions_permissions_grid_included_access_modal %}
+    <sw-users-permissions-included-access-modal
+        v-if="includedAccessModal"
+        :privilege-keys="includedAccessModal.privilegeKeys"
+        :title="includedAccessModal.title"
+        :subtitle="includedAccessModal.subtitle"
+        :description="includedAccessModal.description"
+        :with-sources="includedAccessModal.withSources"
+        @close="closeIncludedAccess"
+    />
+    {% endblock %}
 </mt-card>
 {% endblock %}

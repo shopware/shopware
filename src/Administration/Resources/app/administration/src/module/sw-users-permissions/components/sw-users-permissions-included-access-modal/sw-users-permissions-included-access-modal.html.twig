@@ -1,0 +1,136 @@
+{% block sw_users_permissions_included_access_modal %}
+<mt-modal-root
+    :is-open="true"
+    @change="onModalChange"
+>
+    <mt-modal
+        width="l"
+        :title="title"
+        :subtitle="subtitle"
+    >
+        <div class="sw-users-permissions-included-access-modal">
+            {% block sw_users_permissions_included_access_modal_description %}
+            <p
+                v-if="description"
+                class="sw-users-permissions-included-access-modal__description"
+            >
+                {{ description }}
+            </p>
+            {% endblock %}
+
+            {% block sw_users_permissions_included_access_modal_table_sections %}
+            <section
+                v-for="section in tableSections"
+                :key="section.tier"
+                class="sw-users-permissions-included-access-modal__section"
+                :class="`sw-users-permissions-included-access-modal__section--${section.tier}`"
+            >
+                <header class="sw-users-permissions-included-access-modal__section-header">
+                    <mt-icon
+                        :name="section.icon"
+                        size="16px"
+                    />
+                    <span class="sw-users-permissions-included-access-modal__section-title">
+                        {{ $t(`sw-users-permissions.roles.included-access.tiers.${section.tier}`) }}
+                    </span>
+                    <mt-badge
+                        :variant="section.badgeVariant"
+                        size="s"
+                    >
+                        {{ section.areas.length }}
+                    </mt-badge>
+                </header>
+
+                <div
+                    class="sw-users-permissions-included-access-modal__row sw-users-permissions-included-access-modal__row--head"
+                >
+                    <span>{{ $t('sw-users-permissions.roles.included-access.columnArea') }}</span>
+                    <span class="sw-users-permissions-included-access-modal__column-access">{{ $t('sw-users-permissions.roles.included-access.columnAccess') }}</span>
+                </div>
+
+                <div
+                    v-for="area in section.areas"
+                    :key="area.key"
+                    class="sw-users-permissions-included-access-modal__row"
+                >
+                    <span class="sw-users-permissions-included-access-modal__area-cell">
+                        <span class="sw-users-permissions-included-access-modal__area">{{ area.label }}</span>
+                        <span
+                            v-if="area.isShared"
+                            class="sw-users-permissions-included-access-modal__area-hint"
+                        >
+                            {{ $t('sw-users-permissions.roles.included-access.sharedDataDescription') }}
+                        </span>
+                        <span
+                            v-if="area.sources.length > 0"
+                            v-tooltip="{ message: area.sourceTooltip }"
+                            class="sw-users-permissions-included-access-modal__sources"
+                        >
+                            {{ $t('sw-users-permissions.roles.included-access.grantedBy', { count: area.sources.length }, area.sources.length) }}
+                        </span>
+                    </span>
+
+                    <span class="sw-users-permissions-included-access-modal__access">
+                        <template
+                            v-for="entry in area.entries"
+                            :key="entry.operations"
+                        >
+                            <span class="sw-users-permissions-included-access-modal__operations">{{ entry.operations }}</span>
+                            <span class="sw-users-permissions-included-access-modal__entities">{{ entry.entities }}</span>
+                        </template>
+                    </span>
+                </div>
+            </section>
+            {% endblock %}
+
+            {% block sw_users_permissions_included_access_modal_read_section %}
+            <section
+                v-if="readAreas.length > 0"
+                class="sw-users-permissions-included-access-modal__section sw-users-permissions-included-access-modal__section--read"
+            >
+                <header class="sw-users-permissions-included-access-modal__section-header">
+                    <mt-icon
+                        name="regular-eye"
+                        size="16px"
+                    />
+                    <span class="sw-users-permissions-included-access-modal__section-title">
+                        {{ $t('sw-users-permissions.roles.included-access.tiers.read') }}
+                    </span>
+                    <mt-badge
+                        variant="neutral"
+                        size="s"
+                    >
+                        {{ readAreas.length }}
+                    </mt-badge>
+                </header>
+
+                <ul class="sw-users-permissions-included-access-modal__read-list">
+                    <li
+                        v-for="area in readAreas"
+                        :key="area.key"
+                        v-tooltip="{ message: readAreaTooltip(area) }"
+                        class="sw-users-permissions-included-access-modal__read-area"
+                    >
+                        {{ area.label }}
+                    </li>
+                </ul>
+            </section>
+            {% endblock %}
+        </div>
+
+        <template #footer>
+            {% block sw_users_permissions_included_access_modal_footer %}
+            <div class="sw-users-permissions-included-access-modal__footer">
+                <mt-modal-close
+                    as="mt-button"
+                    size="small"
+                    variant="secondary"
+                >
+                    {{ $t('global.default.close') }}
+                </mt-modal-close>
+            </div>
+            {% endblock %}
+        </template>
+    </mt-modal>
+</mt-modal-root>
+{% endblock %}

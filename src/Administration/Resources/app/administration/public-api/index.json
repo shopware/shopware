@@ -16424,6 +16424,18 @@
                 "sw_users_permissions_detailed_permissions_grid_permissions_title"
             ]
         },
+        "sw-users-permissions-included-access-modal": {
+            "file": "module/sw-users-permissions/components/sw-users-permissions-included-access-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_users_permissions_included_access_modal",
+                "sw_users_permissions_included_access_modal_description",
+                "sw_users_permissions_included_access_modal_footer",
+                "sw_users_permissions_included_access_modal_read_section",
+                "sw_users_permissions_included_access_modal_table_sections"
+            ]
+        },
         "sw-users-permissions-permissions-grid": {
             "file": "module/sw-users-permissions/components/sw-users-permissions-permissions-grid",
             "visibility": "public",
@@ -16437,6 +16449,8 @@
                 "sw_users_permissions_permissions_grid_header_roles_name",
                 "sw_users_permissions_permissions_grid_header_title",
                 "sw_users_permissions_permissions_grid_header_title_content",
+                "sw_users_permissions_permissions_grid_included_access",
+                "sw_users_permissions_permissions_grid_included_access_modal",
                 "sw_users_permissions_permissions_grid_parent_all_roles",
                 "sw_users_permissions_permissions_grid_parent_all_roles_field",
                 "sw_users_permissions_permissions_grid_parent_roles",
@@ -16446,6 +16460,7 @@
                 "sw_users_permissions_permissions_grid_permissions",
                 "sw_users_permissions_permissions_grid_permissions_all_roles",
                 "sw_users_permissions_permissions_grid_permissions_all_roles_field",
+                "sw_users_permissions_permissions_grid_permissions_included_access_button",
                 "sw_users_permissions_permissions_grid_permissions_roles",
                 "sw_users_permissions_permissions_grid_permissions_roles_field",
                 "sw_users_permissions_permissions_grid_permissions_title",

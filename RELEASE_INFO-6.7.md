@@ -99,6 +99,31 @@ The SVG is now `aria-hidden`, so headless frontends should render `text` as its 
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+## Administration
+
+### Roles show the access they grant on other modules
+
+The role permission grid in *Settings > Users & permissions* now shows the access a module grants on data of other modules through its ACL dependencies.
+Each row gets a button with the number of these areas, and the card offers a review of everything the selected permissions include beyond what the owning modules already grant.
+Both open a modal that lists the areas by sensitivity: personal data first, then changes, then plain reads.
+Link tables that only connect two entities are left out.
+The *Detailed privileges* tab names the General tab selections a disabled privilege comes from.
+All of this is computed from the registered privilege mappings, so the mappings of plugins and apps are included without changes.
+
+A module owns an entity when one of its roles grants `<entity>:create` or `<entity>:delete` directly.
+To mark the owned entities of your module as personal data, add the optional `containsPersonalData` flag to its privilege mapping:
+
+```js
+Shopware.Service('privileges').addPrivilegeMappingEntry({
+    category: 'permissions',
+    parent: 'customers',
+    key: 'swag_loyalty',
+    containsPersonalData: ['swag_loyalty_member'], // or `true` for every owned entity
+    roles: { /* ... */ },
+});
+```
+
+An entity counts as personal data only when every module owning it flags it.
 ### App manifests can contain sections from newer Shopware versions
 
 A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.

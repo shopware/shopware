@@ -88,7 +88,7 @@ class CacheInvalidationSubscriber
             $definition = $this->definitionRegistry->get($definitionClass);
 
             foreach ($this->fetchIdsFromAssignments($ids, $entityName, $column) as $entityId) {
-                $tags[] = $this->cacheTagResolver->resolve($definition, $entityId);
+                array_push($tags, ...$this->cacheTagResolver->resolve($definition, $entityId) ?? []);
             }
         }
 
@@ -157,10 +157,10 @@ class CacheInvalidationSubscriber
         }
 
         $definition = $this->definitionRegistry->get($definitionClass);
-        $tags = array_filter(array_map(
-            fn (string $id) => $this->cacheTagResolver->resolve($definition, $id),
-            $entityIds
-        ));
+        $tags = [];
+        foreach ($entityIds as $id) {
+            array_push($tags, ...$this->cacheTagResolver->resolve($definition, $id) ?? []);
+        }
 
         $this->cacheInvalidator->invalidate($tags);
     }

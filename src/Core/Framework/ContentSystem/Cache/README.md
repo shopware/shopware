@@ -21,8 +21,9 @@ HTTP cache integration for content system routes. Manages cache tag collection d
 | product_stream | `product-stream-{id}`     |
 
 Unsupported entities return null → page becomes uncacheable.
+A media resolves to no tags but stays cacheable, the layout storing its id is evicted through the media usage table, see Invalidation.
 
-Category `category.media` mappings additionally record `content-system-mapped-media-{id}` for the media entity actually returned by the provider. The tag is added to the caller's rendering cache context and forwarded by `CacheFinalizer`. Reading only category text does not add it, even if the loaded category also has media. This does not add generic media support to `EntityCacheTagResolver` or make standalone media loaders cacheable.
+Category `category.media` mappings additionally record `content-system-mapped-media-{id}` for the media entity actually returned by the provider. The tag is added to the caller's rendering cache context and forwarded by `CacheFinalizer`. Reading only category text does not add it, even if the loaded category also has media. This does not add a tag pattern for media to `EntityCacheTagResolver`.
 
 ## Invalidation
 
@@ -35,6 +36,12 @@ the Storefront hands those two to the subscriber through the container parameter
 `shopware.content_system.section_assignment_entities`; Core declares it empty.
 
 `MappedMediaCacheInvalidator` invalidates the corresponding per-media tags for media and media-translation writes/deletions, including direct translation operations identified by their composite primary keys. It also listens to `MediaIndexerEvent` for index-time updates. DAL handling works when remote thumbnails skip indexing and does not depend on the cache-rework flags. It uses the normal immediate/delayed invalidation policy. A render records the tag of a media only when its layout maps that media, so this invalidator evicts no page that does not map it.
+
+Media stored in a layout are found through the usage table instead of a tag per media.
+`MediaUsage/ContentLayoutMediaUsageIndexer` reads every data requirement of the `entity` or `entity_collection` loader for the `media` entity and maps the id, or ids, stored under its `property` to the layout.
+It runs on every write of the layout tree and on a full reindex.
+On a media replace, `Framework/Adapter/Cache/CacheInvalidationSubscriber::invalidateMedia()` looks up the layouts and invalidates their tags of all three sections, because a layout rendered in a header or footer only carries the tag of its section.
+Mapped media are no stored ids, they keep their per-media tag.
 
 Custom-field mapping metadata uses a separate dependency: `content-system-custom-field-mapping-metadata`. The provider attaches it only when a render attempts a mapping under a supported root's `customFields` path, including an unavailable field. Whole-field and inline mappings share this policy. Literal mapping-looking text outside supported positions creates no dependency.
 

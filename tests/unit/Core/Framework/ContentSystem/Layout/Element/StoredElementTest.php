@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -165,6 +166,39 @@ class StoredElementTest extends TestCase
     }
 
     #[TestDox('property returns null for a key the element does not carry')]
+    public function testEntityIdsAreReadFromTheElementAndItsDescendants(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $galleryIds = [Uuid::randomHex(), Uuid::randomHex()];
+
+        $gallery = new StoredElement(
+            'gallery',
+            'Sw:Media:Gallery',
+            ['mediaItems' => new DataRequirement('mediaItems', 'entity_collection', new EntityLoaderConfig('media', 'mediaIds', []))],
+            ['mediaIds' => StoredValue::ofList(array_map(StoredValue::ofString(...), $galleryIds))],
+        );
+        $mapped = new StoredElement(
+            'mapped-image',
+            'Sw:Media:Image',
+            ['media' => new DataRequirement('media', 'entity', new EntityLoaderConfig('media', 'mediaId', []))],
+        );
+        $slider = new StoredElement(
+            'slider',
+            'Sw:Product:Slider',
+            ['products' => new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', []))],
+            ['productIds' => StoredValue::ofList([StoredValue::ofString(Uuid::randomHex())])],
+        );
+        $container = new StoredElement(
+            'container',
+            'Sw:Grid:Container',
+            ['backgroundImage' => new DataRequirement('backgroundImage', 'entity', new EntityLoaderConfig('media', 'backgroundImageId', []))],
+            ['backgroundImageId' => StoredValue::ofString($mediaId)],
+            ['content' => [$gallery, $mapped, $slider]],
+        );
+
+        static::assertSame([$mediaId, ...$galleryIds], $container->getEntityIds('media'), 'a mapped value stores no id, other entities are ignored');
+    }
+
     public function testPropertyReturnsNullForAnAbsentKey(): void
     {
         $element = StoredElementBuilder::create('core:text', 'element-1')->build();

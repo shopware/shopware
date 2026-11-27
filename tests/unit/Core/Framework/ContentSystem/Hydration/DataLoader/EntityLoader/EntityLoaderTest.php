@@ -260,6 +260,20 @@ class EntityLoaderTest extends TestCase
         static::assertFalse($result->isCacheAware());
     }
 
+    #[TestDox('returns a cached media without tags, the tags of the rendered layout evict it')]
+    public function testLoadReturnsCachedMediaWithoutTags(): void
+    {
+        $mediaId = $this->ids->get('media');
+        $entity = $this->createEntityWithId($mediaId);
+
+        $loader = $this->createLoaderWithSalesChannelRepo('media', new EntityCollection([$entity]), new EntityCacheTagResolver());
+        $result = $this->loadEntity($loader, 'media', $mediaId);
+
+        static::assertSame($entity, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
     #[TestDox('lowercases entity ID before passing it to the repository')]
     public function testLoadLowercasesEntityId(): void
     {

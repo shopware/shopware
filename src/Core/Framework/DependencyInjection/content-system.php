@@ -102,6 +102,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
+use Shopware\Core\Framework\ContentSystem\MediaUsage\ContentLayoutMediaUsageIndexer;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
@@ -142,6 +143,7 @@ use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceDefinition;
 use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceWriteValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
@@ -308,6 +310,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(MappedMediaCacheInvalidator::class)
         ->args([service(CacheInvalidator::class)])
         ->tag('kernel.event_subscriber');
+
+    $services->set(ContentLayoutMediaUsageIndexer::class)
+        ->args([
+            service(IteratorFactory::class),
+            service(Connection::class),
+            service(StoredTreeCodec::class),
+        ])
+        ->tag('shopware.entity_indexer');
 
     $services->set(CacheFinalizer::class)
         ->args([

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element;
 
+use Shopware\Core\Framework\ContentSystem\Binding\ResolvedByLoaderBranch;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
@@ -10,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * One authored element on the storage side: what the admin edits, what validation and mutation operate on,
@@ -59,6 +62,44 @@ final readonly class StoredElement implements \JsonSerializable
     public function property(string $key): ?StoredValue
     {
         return $this->properties[$key] ?? null;
+    }
+
+    /**
+     * The ids of an entity this element and its descendants store: a data requirement of the `entity` or
+     * `entity_collection` loader for the entity names the stored key holding an id, or a list of ids.
+     * A mapped value stores no id and is not returned.
+     *
+     * @internal
+     *
+     * @return list<string>
+     */
+    public function getEntityIds(string $entity): array
+    {
+        $ids = [];
+        foreach ($this->dataRequirements as $requirement) {
+            $config = $requirement->config;
+            if (!$config instanceof EntityLoaderConfig || $config->entity !== $entity) {
+                continue;
+            }
+
+            $value = $this->property($config->property);
+            $branch = ResolvedByLoaderBranch::fromLoaderSource($requirement->source);
+            if ($value === null || $branch === null || !$branch->matchesStoredValueShape($value)) {
+                continue;
+            }
+
+            // a single id for the entity loader, a list of ids for the entity collection loader
+            $stored = (array) $value->jsonSerialize();
+            array_push($ids, ...array_filter($stored, static fn (mixed $id): bool => \is_string($id) && Uuid::isValid($id)));
+        }
+
+        foreach ($this->slots as $children) {
+            foreach ($children as $child) {
+                array_push($ids, ...$child->getEntityIds($entity));
+            }
+        }
+
+        return $ids;
     }
 
     /**

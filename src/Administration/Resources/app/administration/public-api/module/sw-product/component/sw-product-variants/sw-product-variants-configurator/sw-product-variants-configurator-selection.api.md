@@ -27,6 +27,9 @@ slots
   toolbar  {}  block=sw_property_search_field
   toolbar-search-field  {}  block=sw_property_search_field
 
+data
+  removedOptions: any  [private]
+
 computed
   configuratorSettingsRepository: any
 

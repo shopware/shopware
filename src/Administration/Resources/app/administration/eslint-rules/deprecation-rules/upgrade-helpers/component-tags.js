@@ -171,6 +171,7 @@ function walk(root, visit) {
 
 module.exports = {
     walk,
+    stringValue,
     readComponentCall,
     elementName,
     attributeName,

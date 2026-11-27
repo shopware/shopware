@@ -13,8 +13,8 @@ The empty result of a lookup therefore needs a covering tag like a loaded value 
 A loader that returns with no lookup needs no tag of its own, because the layout tags of the render cover the stored layout.
 A loader result states its cache dependency separately from whether it carries data.
 For a tag that the platform defines, the module relies on the invalidation of the platform.
-A change of a value that the platform does not invalidate the tag for is a defect of the platform.
-The module records each tag that the platform records for the same data.
+A change that invalidates none of the tags the platform records for a value is a defect of the platform.
+For a tag that the module defines, the module invalidates the tag on every change of the value.
 
 Why: The HTTP cache stores the whole response.
 After a change of data, only the invalidation of a recorded tag removes the stored response before it expires.

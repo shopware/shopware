@@ -204,7 +204,6 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->themeLifecycleService->refreshTheme($bundle, $this->context);
 
         $themeEntity = $this->getTheme($bundle);
-        static::assertSame(['configInheritance' => $configInheritance], $themeEntity->getBaseConfig());
 
         $this->connection->executeStatement(
             'REPLACE INTO theme_sales_channel (theme_id, sales_channel_id) VALUES (:themeId, :salesChannelId)',

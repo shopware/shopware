@@ -81,6 +81,16 @@ export default {
             return { name: 'sw.settings.snippet.index' };
         },
 
+        backLabel() {
+            const setIds = [this.$route.query?.ids ?? []].flat();
+
+            if (setIds.length !== 1) {
+                return this.$t('sw-settings-snippet.general.mainMenuItemGeneral');
+            }
+
+            return this.sets.get?.(setIds[0])?.name ?? '';
+        },
+
         invalidKeyError() {
             if (this.isInvalidKey) {
                 return new ShopwareError({

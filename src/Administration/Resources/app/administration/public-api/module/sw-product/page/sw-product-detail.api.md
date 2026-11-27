@@ -74,6 +74,8 @@ computed
   mediaRepository: any
   modeSettings: any
   parentProduct: any
+  parentProductBackLabel: any
+  parentProductRoute: any
   product: any
   productApiContext: any
   productCriteria: any

@@ -257,6 +257,21 @@ export default {
             return this.placeholder(this.product, 'name', this.$t('sw-product.detail.textHeadline'));
         },
 
+        parentProductRoute() {
+            if (!this.isChild || !this.product?.parentId) {
+                return null;
+            }
+
+            return {
+                name: this.advanceModeEnabled ? 'sw.product.detail.variants' : 'sw.product.detail.base',
+                params: { id: this.product.parentId },
+            };
+        },
+
+        parentProductBackLabel() {
+            return this.parentProductRoute ? this.$t('sw-product.general.backToMainProduct') : '';
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },

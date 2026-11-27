@@ -1,32 +1,11 @@
 {% block sw_settings_snippet_detail %}
-<sw-page class="sw-settings-snippet-detail">
+<sw-page
+    class="sw-settings-snippet-detail"
+    :back-route="backPath"
+    :back-label="backLabel"
+>
 
     {% block sw_settings_snippet_detail_smart_bar %}
-    <template #smart-bar-back>
-        <router-link
-            v-slot="{ href, navigate }"
-            :to="backPath"
-            custom
-        >
-            <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
-            <mt-button
-                is="a"
-                class="smart-bar__back-btn"
-                variant="secondary"
-                size="default"
-                square
-                :href="href"
-                :aria-label="$t('global.sw-page.backButton')"
-                :title="$t('global.sw-page.backButton')"
-                @click="navigate"
-            >
-                <mt-icon
-                    name="solid-long-arrow-left"
-                    size="12px"
-                />
-            </mt-button>
-        </router-link>
-    </template>
     {% endblock %}
 
     {% block sw_settings_snippet_detail_header %}

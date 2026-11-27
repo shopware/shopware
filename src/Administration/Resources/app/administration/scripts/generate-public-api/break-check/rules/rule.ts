@@ -9,7 +9,7 @@ import type { Marker } from '../../../../eslint-rules/deprecation-rules/utils/ap
 import type { FlagContext, FlagState } from '../../model/flag-states';
 import type { SourceLine } from '../../model/source-line';
 import type { UnitFacts } from '../facts/unit-facts';
-import type { Finding, FindingGroup } from '../finding';
+import type { FindingGroup, Judgement, PluginExample } from '../finding';
 import type { PluginUse } from '../plugin-use';
 
 /**
@@ -25,8 +25,26 @@ export interface TextContext {
     flags: FlagContext;
 }
 
-/** @private */
-export type FindingTexts = Pick<Finding, 'explanation' | 'fix' | 'possibleRename'>;
+/**
+ * @private
+ *
+ * What a rule words about a change.
+ */
+export type FindingTexts = Omit<Judgement, 'group' | 'rule' | 'example'>;
+
+/**
+ * @private
+ *
+ * A break is shown one at a time, so it says what changed in a headline.
+ */
+export type BreakTexts = FindingTexts & { headline: string };
+
+/**
+ * @private
+ *
+ * Plugin code that uses an element the usual way for its kind of unit, `undefined` when there is none.
+ */
+export type ElementExample = (use: PluginUse) => PluginExample | undefined;
 
 /**
  * @private
@@ -48,14 +66,17 @@ export interface Announcement {
  * One change a rule found in one flag state. `element` is the element id below the unit, for example
  * `block:sw_card_title/scope:item`. Two flag states with the same `element` and `variant` are one finding,
  * so `variant` holds everything the texts are made of. `isPrivate` says that the element itself is `@private`
- * inside a public unit.
+ * inside a public unit. `atBase` is the line of the element at the base commit, and `isGone` says that it has
+ * none at the head commit. The texts of a break come with the plugin code that it breaks.
  */
 export interface Detection {
     element: string;
     at?: SourceLine;
+    atBase?: SourceLine;
+    isGone?: true;
     isPrivate?: boolean;
     variant: string;
-    texts: (context: TextContext) => FindingTexts;
+    texts: (context: TextContext) => Omit<Judgement, 'group' | 'rule'>;
     announcement?: Announcement;
 }
 
@@ -78,8 +99,8 @@ export function worded<Change>(phrase: Worded<Change>, change: Change): string {
     return typeof phrase === 'string' ? phrase : phrase(change);
 }
 
-/** The element a change is about. */
-type Element = Pick<Detection, 'element' | 'at' | 'isPrivate'>;
+/** The element a change is about, with how plugin code uses it. */
+type Element = Pick<Detection, 'element' | 'at' | 'atBase' | 'isGone' | 'isPrivate'> & { example?: ElementExample };
 
 /**
  * @private
@@ -87,11 +108,11 @@ type Element = Pick<Detection, 'element' | 'at' | 'isPrivate'>;
  * A rule as it is written down: `changes` finds the changes with the element each one is about, and `texts`
  * words one of them. `announcement` names the marker that allows the change.
  */
-export interface RuleDefinition<Change> {
+export interface RuleDefinition<Change, Group extends FindingGroup = FindingGroup> {
     id: string;
-    group: FindingGroup;
+    group: Group;
     changes: (base: UnitFacts, head: UnitFacts) => (Change & Element)[];
-    texts: (change: Change, context: TextContext) => FindingTexts;
+    texts: (change: Change, context: TextContext) => Group extends 'Break' ? BreakTexts : FindingTexts;
     announcement?: Pick<Announcement, 'rule'> & {
         /** What the text says carries the marker. */
         subject: Worded<Change>;
@@ -101,20 +122,31 @@ export interface RuleDefinition<Change> {
 }
 
 /** @private */
-export function rule<Change>({ id, group, changes, texts, announcement }: RuleDefinition<Change>): Rule {
+export function rule<Change, Group extends FindingGroup>({
+    id,
+    group,
+    changes,
+    texts,
+    announcement,
+}: RuleDefinition<Change, Group>): Rule {
     return {
         id,
         group,
         detect: (base, head) =>
             changes(base, head).map((change) => {
-                const { element, at, isPrivate, ...detail } = change;
+                const { element, at, atBase, isGone, isPrivate, example, ...detail } = change;
 
                 return {
                     element,
                     at,
+                    atBase,
+                    isGone,
                     isPrivate,
                     variant: JSON.stringify(detail),
-                    texts: (context) => texts(change, context),
+                    texts: (context) => ({
+                        ...texts(change, context),
+                        example: group === 'Break' ? example?.(context.use) : undefined,
+                    }),
                     announcement: announcement && {
                         rule: announcement.rule,
                         subject: worded(announcement.subject, change),

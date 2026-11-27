@@ -7,17 +7,38 @@
 import type { Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import { blockLabel, crossingId } from '../../model/blocks';
 import type { Crossing } from '../../model/blocks';
-import type { FlagContext } from '../../model/flag-states';
 import { sourceLabel } from '../facts/block-facts';
 import type { BlockFacts } from '../facts/block-facts';
 import type { UnitFacts } from '../facts/unit-facts';
 import { isMajorOnly } from '../finding';
+import { blockOverride } from '../plugin-use';
 import { rule } from './rule';
 import type { Rule } from './rule';
+import { bcChangeTag, inMajorState, removalTag, renameTag, twigComment } from './texts';
 
-/** The block as the element of a change, or something `below` it such as `/scope:item`. */
+/** The block as the element of a change, or something `below` it such as `/scope:item`. A plugin overrides it. */
 function blockElement({ name, at }: BlockFacts, below = '') {
-    return { element: `block:${name}${below}`, at, block: name };
+    return { element: `block:${name}${below}`, at, block: name, example: () => blockOverride(name) };
+}
+
+/** A block that both commits have. */
+interface KeptBlock {
+    was: BlockFacts;
+    now: BlockFacts;
+}
+
+/** The block of a change that both commits have, with its line at each of them. */
+function keptBlock({ was, now }: KeptBlock, below = '') {
+    return { ...blockElement(now, below), atBase: was.at };
+}
+
+/** A variable of the scope of the block, which an override of the block uses. */
+function scopeElement(block: KeptBlock, variable: string) {
+    return {
+        ...keptBlock(block, `/scope:${variable}`),
+        variable,
+        example: () => blockOverride(block.now.name, `<my-plugin-content :value="${variable}" />`),
+    };
 }
 
 /** The markers in the comments before the block of a change, which can announce it. */
@@ -33,7 +54,7 @@ function quoted(values: string[]): string {
     return `"${values.join('" or "')}"`;
 }
 
-function inBoth(base: UnitFacts, head: UnitFacts): { was: BlockFacts; now: BlockFacts }[] {
+function inBoth(base: UnitFacts, head: UnitFacts): KeptBlock[] {
     return [...base.blocks.values()].flatMap((was) => {
         const now = head.blocks.get(was.name);
 
@@ -72,10 +93,6 @@ function droppedWith(removed: BlockFacts, base: UnitFacts, head: UnitFacts): Blo
     );
 }
 
-function deprecation(flags: FlagContext, text: string): string {
-    return `{# @deprecated tag:${flags.majorVersion} - ${text} #}`;
-}
-
 const blockMissing = rule({
     id: 'block_missing',
     group: 'Break',
@@ -90,34 +107,42 @@ const blockMissing = rule({
                     ...blockElement(removed),
                     // The block has no line at the head, so the finding points to the block that held it.
                     at: (dropped ?? parent)?.at,
+                    atBase: removed.at,
+                    isGone: true as const,
                     rename: possibleRename(removed, base, head),
                     droppedWith: dropped?.name,
                 };
             }),
     texts: ({ block: name, rename, droppedWith: parent }, { flags, unit: component, states }) => {
         const majorOnly = isMajorOnly(states);
+        const headline = `The block ${name} is gone${inMajorState(states)}`;
         const explanation = majorOnly
             ? `The block is gone in the major state, so plugin template overrides of ${name} render nothing with ${flags.majorFlag} on.`
             : `The block is gone, so plugin template overrides of ${name} render nothing.`;
 
         if (rename !== undefined) {
             const keep = majorOnly ? `Keep ${name} in the branch for ${flags.majorFlag} off` : `Keep ${name}`;
+            const marker = twigComment(renameTag(rename, flags));
 
             return {
+                headline,
                 explanation,
-                fix: `pattern "Rename". ${keep} and mark it ${deprecation(flags, `Use {@link ${rename}} instead.`)}.`,
+                fix: `pattern "Rename". ${keep} and mark it ${marker}.`,
+                marker,
                 possibleRename: rename,
             };
         }
 
-        const mark = `mark it ${deprecation(flags, 'Will be removed.')}`;
+        const marker = twigComment(removalTag(flags));
 
         return {
+            headline,
             explanation,
             fix:
                 parent === undefined
-                    ? `pattern "Removal". Keep the block, even empty, and ${mark}.`
-                    : `pattern "Removal". Keep {% parent %} in ${parent}, so ${component} still inherits ${name}, or keep the block and ${mark}.`,
+                    ? `pattern "Removal". Keep the block, even empty, and mark it ${marker}.`
+                    : `pattern "Removal". Keep {% parent %} in ${parent}, so ${component} still inherits ${name}, or keep the block and mark it ${marker}.`,
+            marker,
         };
     },
     announcement: {
@@ -181,13 +206,30 @@ const blockMovedParent = rule({
         inBoth(base, head)
             .filter(({ was, now }) => !hasSameParents(was, now))
             .filter(({ was, now }) => onlyAround(was, now, base, head).length + onlyAround(now, was, base, head).length > 0)
-            .map(({ was, now }) => ({ ...blockElement(now), from: was.parents, to: now.parents })),
-    texts: ({ from, to }, { flags }) => ({
-        explanation: `The block moved from ${listed(from)} to ${listed(to)}, so ${movedOverrideEffects(from, to)}.`,
-        fix:
-            `pattern "Block move". Keep the block under ${listed(from)} while ${flags.majorFlag} is off, move it only ` +
-            `with the flag on, and mark it {# @bc-change BlockMoved version:${flags.majorVersion} parent:${listed(to)} #}.`,
-    }),
+            .map((block) => {
+                const [from, to] = [block.was.parents, block.now.parents];
+                // An override of the block itself still works, the one of a block it left or entered does not.
+                const [overridden] = [...overridable(from), ...overridable(to)];
+
+                return {
+                    ...keptBlock(block),
+                    from,
+                    to,
+                    example: () => (overridden === undefined ? undefined : blockOverride(overridden)),
+                };
+            }),
+    texts: ({ block: name, from, to }, { flags }) => {
+        const marker = twigComment(bcChangeTag('BlockMoved', flags, `parent:${listed(to)}`));
+
+        return {
+            headline: `The block ${name} moved to ${listed(to)}`,
+            explanation: `The block moved from ${listed(from)} to ${listed(to)}, so ${movedOverrideEffects(from, to)}.`,
+            fix:
+                `pattern "Block move". Keep the block under ${listed(from)} while ${flags.majorFlag} is off, move it only ` +
+                `with the flag on, and mark it ${marker}.`,
+            marker,
+        };
+    },
     announcement: {
         rule: 'announced_change',
         subject: 'The block',
@@ -210,8 +252,12 @@ const blockIfContextLost = rule({
     changes: (base, head) =>
         lostIfContext(base, head)
             .filter(({ was }) => was.continuesChain)
-            .map(({ now }) => blockElement(now)),
-    texts: () => ({
+            .map((block) => ({
+                ...keptBlock(block),
+                example: () => blockOverride(block.now.name, '<my-plugin-content v-else />'),
+            })),
+    texts: ({ block: name }) => ({
+        headline: `The block ${name} no longer follows a v-if`,
         explanation:
             'The block no longer follows an open v-if chain, so plugin overrides that start with v-else-if or v-else ' +
             'no longer compile.',
@@ -229,7 +275,7 @@ const blockIfNeighbourLost = rule({
     changes: (base, head) =>
         lostIfContext(base, head)
             .filter(({ was }) => !was.continuesChain)
-            .map(({ now }) => blockElement(now)),
+            .map((block) => keptBlock(block)),
     texts: () => ({
         explanation:
             'The block no longer stands behind an element with v-if. Its content did not continue that chain, so only ' +
@@ -245,7 +291,7 @@ const blockIfChainChanged = rule({
     changes: (base, head) =>
         inBoth(base, head)
             .filter(({ was, now }) => was.afterIf && now.afterIf && was.chains.some((chain) => !now.chains.includes(chain)))
-            .map(({ was, now }) => ({ ...blockElement(now), from: was.chains, to: now.chains })),
+            .map((block) => ({ ...keptBlock(block), from: block.was.chains, to: block.now.chains })),
     texts: ({ from, to }) => ({
         explanation:
             `The v-if chain before the block changed from ${quoted(from)} to ${quoted(to)}, so plugin overrides ` +
@@ -258,19 +304,25 @@ const blockScopeMissing = rule({
     id: 'block_scope_missing',
     group: 'Break',
     changes: (base, head) =>
-        inBoth(base, head).flatMap(({ was, now }) =>
-            [...was.scope]
-                .filter(([variable]) => !now.scope.has(variable))
-                .map(([variable, [{ kind }]]) => ({ ...blockElement(now, `/scope:${variable}`), variable, kind })),
+        inBoth(base, head).flatMap((block) =>
+            [...block.was.scope]
+                .filter(([variable]) => !block.now.scope.has(variable))
+                .map(([variable, [{ kind }]]) => ({ ...scopeElement(block, variable), kind })),
         ),
-    texts: ({ block: name, variable, kind }, { flags }) => ({
-        explanation:
-            `The template variable ${variable} from a ${kind} is no longer available in block ${name}, so plugin ` +
-            `overrides that use ${variable} fail at render time.`,
-        fix:
-            `pattern "Scope variable removal". Keep ${variable} available in the block while ${flags.majorFlag} is off, ` +
-            `and mark the block {# @bc-change ScopeVariableRemoval version:${flags.majorVersion} variable:${variable} #}.`,
-    }),
+    texts: ({ block: name, variable, kind }, { flags }) => {
+        const marker = twigComment(bcChangeTag('ScopeVariableRemoval', flags, `variable:${variable}`));
+
+        return {
+            headline: `The template variable ${variable} is no longer available`,
+            explanation:
+                `The template variable ${variable} from a ${kind} is no longer available in block ${name}, so plugin ` +
+                `overrides that use ${variable} fail at render time.`,
+            fix:
+                `pattern "Scope variable removal". Keep ${variable} available in the block while ${flags.majorFlag} is off, ` +
+                `and mark the block ${marker}.`,
+            marker,
+        };
+    },
     announcement: {
         rule: 'announced_change',
         subject: 'The block',
@@ -285,14 +337,14 @@ const blockScopeSourceChanged = rule({
     id: 'block_scope_source_changed',
     group: 'Info',
     changes: (base, head) =>
-        inBoth(base, head).flatMap(({ was, now }) =>
-            [...was.scope].flatMap(([variable, sources]) => {
+        inBoth(base, head).flatMap((block) =>
+            [...block.was.scope].flatMap(([variable, sources]) => {
                 const from = sources.map(sourceLabel);
-                const to = (now.scope.get(variable) ?? []).map(sourceLabel);
+                const to = (block.now.scope.get(variable) ?? []).map(sourceLabel);
 
                 return to.length === 0 || from.every((source) => to.includes(source))
                     ? []
-                    : [{ ...blockElement(now, `/scope:${variable}`), variable, from, to }];
+                    : [{ ...scopeElement(block, variable), from, to }];
             }),
         ),
     texts: ({ block: name, variable, from, to }) => ({
@@ -307,11 +359,15 @@ function crossingsOnlyIn(commit: UnitFacts, other: UnitFacts): Crossing[] {
     return [...commit.crossings.values()].filter((crossing) => !other.crossings.has(crossingId(crossing)));
 }
 
+/** A crossing breaks the override of one of its two blocks. */
 function crossingElement(crossing: Crossing) {
+    const [overridden] = overridable([crossing.opens, crossing.closes]);
+
     return {
         element: `crossing:${crossingId(crossing)}`,
         opens: blockLabel(crossing.opens),
         closes: blockLabel(crossing.closes),
+        example: () => (overridden === undefined ? undefined : blockOverride(overridden)),
     };
 }
 
@@ -323,6 +379,7 @@ const elementCrossesBlock = rule({
             crossing.kind === 'element' ? [{ ...crossingElement(crossing), at: crossing.at, tag: crossing.tag }] : [],
         ),
     texts: ({ tag, opens, closes }) => ({
+        headline: `A <${tag}> element opens in block ${opens} and closes in block ${closes}`,
         explanation:
             `The <${tag}> element opens in block ${opens} and closes in block ${closes}, so plugin overrides of ` +
             'either block without {% parent %} break the markup.',
@@ -338,6 +395,7 @@ const ifChainCrossesBlock = rule({
             .filter(({ kind }) => kind === 'chain')
             .map((crossing) => ({ ...crossingElement(crossing), at: crossing.at })),
     texts: ({ opens, closes }) => ({
+        headline: `A v-if chain starts in block ${opens} and continues in block ${closes}`,
         explanation:
             `The v-if chain of block ${opens} continues in block ${closes}, so overriding ${opens} without ` +
             `{% parent %} leaves the v-else-if or v-else in ${closes} without its v-if.`,

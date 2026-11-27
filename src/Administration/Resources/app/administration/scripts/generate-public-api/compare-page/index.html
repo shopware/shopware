@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Administration public API check</title>
+    <style>
+        :root {
+            --bg: #f4f6f9; --surface: #fff; --sunken: #ebeef3; --ink: #151a23; --muted: #586273; --line: #dce1e9;
+            --accent: #1c58c7; --accent-ink: #fff;
+            --break: #b0271f; --break-soft: #fbe4e2; --addition: #14744a; --addition-soft: #def2e7;
+            --allowed: #8f5b00; --allowed-soft: #faefd6;
+            color-scheme: light dark;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #10131a; --surface: #181c25; --sunken: #1f2430; --ink: #e7eaf0; --muted: #9ca5b5; --line: #2a303c;
+                --accent: #86adf7; --accent-ink: #10131a;
+                --break: #f29188; --break-soft: #3a1a18; --addition: #62c794; --addition-soft: #142e20;
+                --allowed: #e2b458; --allowed-soft: #33290f;
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; background: var(--bg); color: var(--ink);
+            font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+        main { max-width: 1000px; margin: 0 auto; padding: 32px 16px 64px; display: flex; flex-direction: column; gap: 20px; }
+        h1 { margin: 0; font-size: 1.6rem; }
+        h2 { margin: 0; font-size: 1.2rem; }
+        p { margin: 0; }
+        a { color: var(--accent); }
+        code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.85em; }
+        .lead, footer { color: var(--muted); max-width: 70ch; }
+        footer { font-size: 0.85rem; }
+
+        #compare-form {
+            display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end;
+            background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px;
+        }
+        #compare-form label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); }
+        #compare-form .or { align-self: center; color: var(--muted); padding-top: 18px; }
+        #compare-form details { flex-basis: 100%; font-size: 0.85rem; color: var(--muted); }
+        #compare-form details label { margin-top: 8px; max-width: 420px; }
+        input, button { font: inherit; }
+        input {
+            padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px;
+            background: var(--bg); color: var(--ink); min-width: 0;
+        }
+        input[name="pr"] { width: 9em; }
+        button { cursor: pointer; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 7px 14px; }
+        #compare-submit { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+        #compare-submit:disabled { opacity: 0.5; cursor: progress; }
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        #compare-status { min-height: 1.5em; }
+        #compare-status.is-error { color: var(--break); }
+        #compare-progress { width: 100%; accent-color: var(--accent); }
+
+        #compare-report { display: flex; flex-direction: column; gap: 14px; }
+        .report-groups { display: flex; flex-wrap: wrap; gap: 8px; }
+        .report-group[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+        .report-filter { width: 100%; }
+        .report-count { color: var(--muted); font-size: 0.85rem; }
+        .report-findings { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+        .finding {
+            background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--muted);
+            border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+        }
+        .finding[data-group="Break"] { border-left-color: var(--break); }
+        .finding[data-group="Addition"] { border-left-color: var(--addition); }
+        .finding[data-group="Allowed"] { border-left-color: var(--allowed); }
+        .finding-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+        .finding-rule { font-weight: 600; }
+        .finding-element { overflow-wrap: anywhere; }
+        .finding-states { color: var(--muted); font-size: 0.85rem; }
+        .finding-detail { overflow-wrap: anywhere; }
+        .finding-source { font-size: 0.85rem; overflow-wrap: anywhere; }
+        .report-summary pre { overflow-x: auto; background: var(--sunken); padding: 12px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Administration public API check</h1>
+    <p class="lead">
+        Compares two states of the Administration and lists what changed for plugins: breaks, new public API,
+        announced changes. The check runs in your browser on sources it loads from GitHub.
+    </p>
+
+    <form id="compare-form">
+        <label>Pull request <input name="pr" inputmode="numeric" placeholder="23448"></label>
+        <span class="or">or</span>
+        <label>Base <input name="base" placeholder="v6.7.0.0"></label>
+        <label>Head <input name="head" placeholder="trunk"></label>
+        <button id="compare-submit" type="submit">Compare</button>
+        <details>
+            <summary>GitHub token, optional</summary>
+            <p>
+                GitHub allows 60 requests per hour without a login, and a comparison takes two to four. A token lifts
+                that limit. It stays in this tab and is only sent to api.github.com.
+            </p>
+            <label>Token <input name="token" type="password" autocomplete="off"></label>
+        </details>
+    </form>
+
+    <p id="compare-status" role="status" aria-live="polite"></p>
+    <progress id="compare-progress" hidden></progress>
+    <section id="compare-report" aria-label="Report"></section>
+
+    <footer>
+        Computed with the generator of commit <code>%GENERATOR%</code>. A pull request is compared with the commit
+        it branched off its base branch. The check in the pipeline decides whether a pull request may merge.
+    </footer>
+</main>
+<script src="compare-page.js"></script>
+</body>
+</html>

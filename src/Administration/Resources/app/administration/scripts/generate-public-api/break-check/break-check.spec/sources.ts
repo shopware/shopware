@@ -7,8 +7,8 @@ import type { Model } from '../../model/model';
 import { buildModel } from '../../read/build-model';
 import { cardTree, exampleTree, OPTIONS } from '../../testing/example-components';
 import type { Card, ExampleSources } from '../../testing/example-components';
-import { classifyChanges } from '../break-check';
-import type { Finding } from '../finding';
+import { classifyChanges, explainChanges } from '../break-check';
+import type { ExplainedFinding, Finding } from '../finding';
 
 /** A string is the template of the card. */
 type Sources = ExampleSources | Card | string;
@@ -28,6 +28,15 @@ function modelOf(sources: Sources): Model {
  */
 export function check(before: Sources, after: Sources): Finding[] {
     return classifyChanges(modelOf(before), modelOf(after));
+}
+
+/**
+ * @private
+ *
+ * The same findings with what a view says about each one beyond the summary.
+ */
+export function explain(before: Sources, after: Sources): ExplainedFinding[] {
+    return explainChanges(modelOf(before), modelOf(after));
 }
 
 /**

@@ -12,7 +12,7 @@ import type { SourceLine } from '../model/source-line';
 import { announcedBy } from './announcements';
 import type { MarkerSources } from './announcements';
 import { findingFor } from './finding';
-import type { Finding, Judgement } from './finding';
+import type { ExplainedFinding, Judgement } from './finding';
 import type { PluginUse } from './plugin-use';
 import {
     ADDITION_FIX,
@@ -21,6 +21,8 @@ import {
     becamePrivateTexts,
     inMajorState,
     removalFix,
+    removalTag,
+    scriptComment,
 } from './rules/texts';
 import { UNIT_KINDS } from './units';
 import type { CheckedUnit } from './units';
@@ -38,13 +40,16 @@ interface Comparison {
 
 /**
  * A change to a unit as a whole. `at` is its line at the head commit. A unit that is gone has none, so it
- * points to the member that still holds it. `announcement` names the marker on the unit that allows the change.
+ * points to the member that still holds it, which `isGone` says. `atBase` is its line at the base commit.
+ * `announcement` names the marker on the unit that allows the change.
  */
 interface WholeChange {
     unit: CheckedUnit;
     states: FlagState[];
     judged: Judgement;
     at?: SourceLine;
+    atBase?: SourceLine;
+    isGone?: true;
     announcement?: { rule: string; markers: MarkerSources; matches: (marker: Marker) => boolean };
 }
 
@@ -71,6 +76,8 @@ function goneUnit({ base, head, flags, heldAt }: Comparison): WholeChange[] {
         return [];
     }
 
+    const removalComment = scriptComment(removalTag(flags));
+
     return [
         {
             unit: base,
@@ -78,10 +85,15 @@ function goneUnit({ base, head, flags, heldAt }: Comparison): WholeChange[] {
             judged: {
                 group: 'Break',
                 rule: `${base.kind}_missing`,
+                headline: `The ${base.kind} ${base.name} is gone${inMajorState(states)}`,
                 explanation: `The ${base.kind} is gone${inMajorState(states)}, so ${useOf(base).withoutUnit}.`,
-                fix: removalFix(base.kind, flags),
+                fix: removalFix(base.kind, removalComment),
+                marker: removalComment,
+                example: useOf(base).unitExample,
             },
             at: heldAt,
+            atBase: base.at,
+            isGone: true,
             announcement: {
                 rule: 'deprecated_removal',
                 markers: markersOf(base, head),
@@ -127,9 +139,11 @@ function unitBecamePrivate({ base, head, flags }: Comparison): WholeChange[] {
             judged: {
                 group: 'Break',
                 rule: 'visibility_became_private',
-                ...becamePrivateTexts(head.kind, useOf(head).unit, flags),
+                ...becamePrivateTexts(head.kind, { name: head.name, used: useOf(head).unit }, flags),
+                example: useOf(head).unitExample,
             },
             at: head.at,
+            atBase: base.at,
             announcement: {
                 rule: 'announced_change',
                 markers: markersOf(base, head),
@@ -183,7 +197,10 @@ function isPrivateChange({ base, head }: Comparison): boolean {
     return (base ?? head)?.visibility === 'private';
 }
 
-function findingOf({ unit, states, judged, at, announcement }: WholeChange, comparison: Comparison): Finding {
+function findingOf(
+    { unit, states, judged, at, atBase, isGone, announcement }: WholeChange,
+    comparison: Comparison,
+): ExplainedFinding {
     const announced =
         announcement &&
         announcedBy(
@@ -193,7 +210,14 @@ function findingOf({ unit, states, judged, at, announcement }: WholeChange, comp
             comparison.flags,
         );
 
-    return findingFor(announced ?? judged, { element: unit.id, states, isPrivate: isPrivateChange(comparison), at });
+    return findingFor(announced ?? judged, {
+        element: unit.id,
+        states,
+        isPrivate: isPrivateChange(comparison),
+        at,
+        atBase,
+        isGone,
+    });
 }
 
 /**
@@ -202,7 +226,7 @@ function findingOf({ unit, states, judged, at, announcement }: WholeChange, comp
  * The findings about the units that one commit has and the other has not, or has as private API only, for
  * the kinds that report a unit as a whole.
  */
-export function unitFindings(base: Units, head: Units, flags: FlagContext): Finding[] {
+export function unitFindings(base: Units, head: Units, flags: FlagContext): ExplainedFinding[] {
     return [...new Map([...base, ...head]).values()].flatMap((unit) => {
         const { role } = UNIT_KINDS[unit.kind];
 

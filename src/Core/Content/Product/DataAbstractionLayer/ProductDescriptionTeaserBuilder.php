@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * Single source of truth for deriving the `descriptionTeaser` from a product description: the
- * description is stripped of HTML via the configurable html_sanitizer (field key
- * `product_translation.descriptionTeaser`, by default removing all tags) and then truncated.
+ * description is passed through the html_sanitizer (field key `product_translation.descriptionTeaser`),
+ * stripped of any remaining tags, also when the sanitizer is disabled, and then truncated.
  *
  * @internal
  */

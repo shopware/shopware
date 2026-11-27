@@ -8,7 +8,7 @@ const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  * @sw-package discovery
  */
 export default {
@@ -769,7 +769,9 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - `fallback` will be removed and method will return `null` instead, since theme config labels & helpTexts will be removed entirely.
+         * @bc-change ParameterRemoval version:v6.8.0 parameter:fallback
+         * @bc-change ReturnTypeWidening version:v6.8.0 type:string|null
+         * Theme config labels and help texts will be removed entirely, so a missing snippet returns `null`.
          *
          * @param {string} key - The key of the snippet to retrieve.
          * @param {string} [fallback=''] - DEPRECATED: The fallback value to return if the snippet is not found.
@@ -852,7 +854,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
+         * @bc-change ParameterRemoval version:v6.8.0 parameter:fallback
          */
         // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, getSnippet triggers it when a fallback is used
         getTabLabel(key, fallback = '') {

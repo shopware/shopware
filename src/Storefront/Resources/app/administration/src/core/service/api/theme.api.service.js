@@ -115,6 +115,6 @@ class ThemeApiService extends ApiService {
 }
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  */
 export default ThemeApiService;

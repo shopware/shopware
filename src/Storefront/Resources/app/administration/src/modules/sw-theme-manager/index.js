@@ -8,22 +8,22 @@ import './acl';
 const { Module } = Shopware;
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  */
 Shopware.Component.register('sw-theme-manager-detail', () => import('./page/sw-theme-manager-detail'));
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  */
 Shopware.Component.register('sw-theme-manager-list', () => import('./page/sw-theme-manager-list'));
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  */
 Shopware.Component.register('sw-theme-list-item', () => import('./component/sw-theme-list-item'));
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  */
 Shopware.Component.register('sw-theme-modal', () => import('./component/sw-theme-modal'));
 

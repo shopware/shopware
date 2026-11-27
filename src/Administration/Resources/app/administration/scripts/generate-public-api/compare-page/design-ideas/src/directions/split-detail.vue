@@ -7,16 +7,19 @@
                     :text="cluster.unit.name"
                 />
                 <h3 class="detail__title">
-                    <template v-if="example">
-                        {{ example.headline }}
-                    </template>
-                    <code-name
-                        v-else-if="line.type === 'fix'"
-                        :text="line.title"
-                    />
-                    <template v-else>
+                    <template v-if="line.type === 'names'">
                         {{ line.size }} {{ line.label ?? (line.size === 1 ? 'new element' : 'new elements') }}
                     </template>
+                    <template v-else-if="line.headline">
+                        <template
+                            v-for="(piece, index) in line.headline.split(/(?<=_)/)"
+                            :key="index"
+                        >{{ piece }}<wbr></template>
+                    </template>
+                    <code-name
+                        v-else
+                        :text="line.title"
+                    />
                 </h3>
                 <p
                     v-if="line.type === 'fix'"
@@ -54,56 +57,72 @@
             />
         </template>
 
-        <!-- The break check reports no code for this entry yet, so its texts stand alone. -->
+        <!-- The break check has neither code nor a plugin example for this entry, so its texts stand alone. -->
         <fix-detail
-            v-else-if="!example"
+            v-else-if="parts.length === 1"
             :line="line"
             :head="head"
+            :base="base"
         />
 
         <template v-else>
-            <p>{{ example.summary }}</p>
+            <p>
+                <template v-if="line.places.length > 1">
+                    For example:
+                </template>
+                {{ first.explanation }}
+                <template v-if="stateNote(first)">
+                    Holds {{ stateNote(first) }}.
+                </template>
+            </p>
             <mt-tabs
                 class="detail__tabs"
                 small
-                :items="TABS"
-                :default-item="tab"
+                :items="tabs"
+                :default-item="parts[0]"
                 @new-item-active="tab = $event"
             />
 
             <code-diff
-                v-if="tab === 'changed'"
-                :block="example.changed"
+                v-if="shown === 'changed' && first.code?.changed"
+                :block="first.code.changed"
             />
 
-            <section
-                v-else-if="tab === 'plugin'"
-                class="detail__section"
-            >
-                <p>{{ example.pluginEffect }}</p>
-                <code-diff :block="example.plugin" />
-            </section>
+            <code-diff
+                v-else-if="shown === 'plugin' && example"
+                :block="example.block"
+                :marked="example.broken"
+            />
 
             <template v-else>
-                <section class="detail__section">
-                    <ol class="detail__steps">
-                        <li
-                            v-for="step in example.steps"
-                            :key="step"
-                        >
-                            {{ step }}
-                        </li>
-                    </ol>
+                <section
+                    v-if="first.fix || first.code?.fix"
+                    class="detail__section"
+                >
+                    <p v-if="first.fix">
+                        <fix-text
+                            :fix="first.fix"
+                            :copyable="!first.code?.fix"
+                        />
+                    </p>
                     <code-diff
-                        :block="example.fix"
+                        v-if="first.code?.fix"
+                        :block="first.code.fix"
                         copyable
+                        wrapped
                     />
                 </section>
-                <section class="detail__section">
-                    <h4>Where</h4>
+                <section
+                    v-if="hasPlaces"
+                    class="detail__section"
+                >
+                    <h4 v-if="first.fix">
+                        Where
+                    </h4>
                     <fix-places
                         :places="line.places"
                         :head="head"
+                        :base="base"
                     />
                 </section>
             </template>
@@ -116,42 +135,65 @@
 /**
  * @sw-package framework
  *
- * The detail side of layout "Split" for one entry. A break says what is changing in a sentence, and shows the
- * changed code, what a plugin runs into and the fix one at a time.
+ * The detail side of layout "Split" for one entry. A break says what changed in a sentence, and shows the changed
+ * code, plugin code that it breaks and the fix one at a time, each only when the break check has it.
  */
 import { MtButton, MtIcon, MtTabs } from '@shopware-ag/meteor-component-library';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import type { Cluster, ClusterLine } from '../shared/clusters';
 import CodeDiff from '../shared/code-diff.vue';
 import CodeName from '../shared/code-name.vue';
-import { detailExampleOf } from '../shared/detail-examples';
 import FixDetail from '../shared/fix-detail.vue';
 import FixPlaces from '../shared/fix-places.vue';
+import FixText from '../shared/fix-text.vue';
 import KindNames from '../shared/kind-names.vue';
+import { stateNote } from '../shared/report';
+import type { CodeBlock } from '../shared/report';
 
 type Part = 'changed' | 'plugin' | 'fix';
 
-const props = defineProps<{ cluster: Cluster; line: ClusterLine; head: string }>();
+const props = defineProps<{ cluster: Cluster; line: ClusterLine; base: string; head: string }>();
 const emit = defineEmits<{ close: [] }>();
 
-const TABS: Array<{ name: Part; label: string }> = [
-    { name: 'changed', label: 'What changed' },
-    { name: 'plugin', label: 'In a plugin' },
-    { name: 'fix', label: 'Fix' },
-];
 
-const tab = ref<Part>('changed');
+/** A line of several places shows the code of its first place, and lists all of them with the fix. */
+const first = computed(() => (props.line.type === 'fix' ? props.line.places[0].finding : undefined));
 
-watch(
-    () => props.line,
-    () => {
-        tab.value = 'changed';
-    },
+const example = computed((): { block: CodeBlock; broken: number } | undefined => {
+    const code = first.value?.detail.example;
+
+    return (
+        code && {
+            block: {
+                file: `${code.language === 'twig' ? 'Plugin template' : 'Plugin script'} · the marked line breaks`,
+                lines: code.lines.map((text) => ({ type: ' ', text })),
+            },
+            broken: code.broken,
+        }
+    );
+});
+
+/** The last part is always there, because it lists the places. A change that a marker announced has no fix. */
+const parts = computed((): Part[] => [
+    ...(first.value?.code?.changed ? (['changed'] as const) : []),
+    ...(example.value ? (['plugin'] as const) : []),
+    'fix',
+]);
+
+const LABELS: Record<Part, string> = { changed: 'What changed', plugin: 'In a plugin', fix: 'Fix' };
+
+const tabs = computed(() =>
+    parts.value.map((name) => ({ name, label: name === 'fix' && !first.value?.fix ? 'Where' : LABELS[name] })),
 );
 
-const example = computed(() =>
-    props.line.type === 'fix' ? detailExampleOf(props.cluster.unit.id, props.line.rule) : undefined,
+const hasPlaces = computed(
+    () =>
+        props.line.type === 'fix' &&
+        props.line.places.some(({ name, finding }) => name || finding.at || finding.detail.atBase || finding.possibleRename),
 );
+
+const tab = ref<Part | null>(null);
+const shown = computed(() => tab.value ?? parts.value[0]);
 </script>
 
 <style>
@@ -187,6 +229,12 @@ const example = computed(() =>
     overflow-wrap: anywhere;
 }
 
+/* A name of the sources may be longer than a line. It breaks behind an underscore, and anywhere only as a last resort. */
+.detail p,
+.detail .fix-text {
+    overflow-wrap: anywhere;
+}
+
 .detail .detail__title code {
     line-height: var(--font-line-height-m);
     vertical-align: top;
@@ -210,13 +258,13 @@ const example = computed(() =>
     padding-left: 0;
 }
 
-/* A marker of the break check is long, so it stands below its sentence and breaks between its words. */
-.detail .fix-text__marker {
+/* Without code below it, a marker of the break check stands below its sentence and breaks between its words. */
+.detail .fix-detail .fix-text__marker {
     display: block;
     margin-top: 4px;
 }
 
-.detail .fix-text__marker code {
+.detail .fix-detail .fix-text__marker code {
     overflow-wrap: break-word;
 }
 
@@ -226,23 +274,15 @@ const example = computed(() =>
     gap: 8px;
 }
 
+/* With the code of the fix below it, a marker is a part of its sentence and wraps with it. */
+.detail__section .fix-text__marker {
+    display: inline;
+}
+
 .detail__section h4 {
     margin: 0;
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     line-height: var(--font-line-height-xs);
-}
-
-.detail .detail__steps {
-    margin: 0;
-    padding-left: 16px;
-    list-style: decimal;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.detail .detail__steps li::marker {
-    font-variant-numeric: tabular-nums;
 }
 </style>

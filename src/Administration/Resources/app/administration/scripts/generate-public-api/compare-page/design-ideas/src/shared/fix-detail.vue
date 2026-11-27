@@ -15,6 +15,7 @@
         <fix-places
             :places="line.places"
             :head="head"
+            :base="base"
         />
     </div>
 </template>
@@ -32,7 +33,7 @@ import FixPlaces from './fix-places.vue';
 import FixText from './fix-text.vue';
 import { stateNote } from './report';
 
-const props = defineProps<{ line: FixLine; head: string }>();
+const props = defineProps<{ line: FixLine; head: string; base?: string }>();
 
 const first = computed(() => props.line.places[0].finding);
 </script>

@@ -1,7 +1,7 @@
 <template>
     <figure class="code-diff">
         <figcaption class="code-diff__file">
-            <span>{{ block.file }}</span>
+            <span :title="block.file">{{ block.file.slice(block.file.lastIndexOf('/') + 1) }}</span>
             <span class="code-diff__sizes">
                 <span
                     v-if="removed > 0"
@@ -24,33 +24,24 @@
         <div class="code-diff__scroll">
             <div
                 class="code-diff__lines"
-                :class="{ 'is--numbered': numbered }"
+                :class="{ 'is--numbered': numbered, 'is--wrapped': wrapped }"
             >
-                <template
+                <div
                     v-for="(line, index) in block.lines"
                     :key="index"
+                    class="code-diff__line"
+                    :class="index === marked ? 'is--marked' : LINE_CLASS[line.type]"
                 >
-                    <div
-                        class="code-diff__line"
-                        :class="LINE_CLASS[line.type]"
-                    >
-                        <template v-if="numbered">
-                            <span class="code-diff__number">{{ line.before ?? '' }}</span>
-                            <span class="code-diff__number">{{ line.after ?? '' }}</span>
-                        </template>
-                        <span
-                            class="code-diff__sign"
-                            aria-hidden="true"
-                        >{{ SIGN[line.type] }}</span>
-                        <code class="code-diff__text">{{ line.text }}</code>
-                    </div>
-                    <div
-                        v-if="line.note"
-                        class="code-diff__note"
-                    >
-                        <p>{{ line.note }}</p>
-                    </div>
-                </template>
+                    <template v-if="numbered">
+                        <span class="code-diff__number">{{ line.before ?? '' }}</span>
+                        <span class="code-diff__number">{{ line.after ?? '' }}</span>
+                    </template>
+                    <span
+                        class="code-diff__sign"
+                        aria-hidden="true"
+                    >{{ index === marked ? '!' : SIGN[line.type] }}</span>
+                    <code class="code-diff__text">{{ line.text.slice(indent) }}</code>
+                </div>
             </div>
         </div>
     </figure>
@@ -61,21 +52,29 @@
 /**
  * @sw-package framework
  *
- * Code with its changes: removed and added lines are tinted and signed, both line numbers stand beside a line,
- * and a note stands below the line it is about.
+ * A block of code with its changes: removed and added lines are tinted and signed, and both line numbers stand
+ * beside a line. `marked` is the index of a line that the block points out, as the line of a plugin that breaks.
+ * A block of a few lines that are there to be copied wraps them instead of scrolling sideways.
  */
 import { MtButton } from '@shopware-ag/meteor-component-library';
 import { computed, ref } from 'vue';
-import type { CodeBlock, DiffLine } from './detail-examples';
+import type { CodeBlock } from './report';
 
-const props = defineProps<{ block: CodeBlock; copyable?: boolean }>();
+type LineType = CodeBlock['lines'][number]['type'];
 
-const SIGN: Record<DiffLine['type'], string> = { ' ': '', '-': '−', '+': '+', '!': '!' };
-const LINE_CLASS: Record<DiffLine['type'], string> = { ' ': '', '-': 'is--removed', '+': 'is--added', '!': 'is--marked' };
+const props = defineProps<{ block: CodeBlock; marked?: number; copyable?: boolean; wrapped?: boolean }>();
+
+const SIGN: Record<LineType, string> = { ' ': '', '-': '−', '+': '+', '…': '⋯' };
+const LINE_CLASS: Record<LineType, string> = { ' ': '', '-': 'is--removed', '+': 'is--added', '…': 'is--left-out' };
 
 const removed = computed(() => props.block.lines.filter(({ type }) => type === '-').length);
 const added = computed(() => props.block.lines.filter(({ type }) => type === '+').length);
 const numbered = computed(() => props.block.lines.some(({ before, after }) => before !== undefined || after !== undefined));
+
+/** The lines stand deep inside their file, and the block shows them without the indentation they all share. */
+const indent = computed(() =>
+    Math.min(...props.block.lines.filter(({ text }) => text.trim() !== '').map(({ text }) => text.search(/\S/))),
+);
 const copied = ref(false);
 
 function copy(): void {
@@ -148,7 +147,7 @@ function copy(): void {
  * starts its numbers where the file name starts.
  */
 .code-diff__lines {
-    --first-column: 23px;
+    --first-column: 28px;
     --second-column: 41px;
 
     display: grid;
@@ -164,8 +163,17 @@ function copy(): void {
     grid-template-columns: var(--first-column) var(--second-column) 20px auto;
 }
 
-.code-diff__line,
-.code-diff__note {
+.code-diff__lines.is--wrapped {
+    grid-template-columns: var(--first-column) minmax(0, 1fr);
+    width: auto;
+}
+
+.code-diff__lines.is--wrapped .code-diff__text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.code-diff__line {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: subgrid;
@@ -185,11 +193,12 @@ function copy(): void {
     border-left: 3px solid var(--line-bar, transparent);
 }
 
+/* The numbers are set in the type of the code, so four digits are as wide as the column expects. */
 .code-diff__number {
     padding: 0 8px 0 4px;
     text-align: right;
     color: var(--color-text-secondary-default);
-    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 .code-diff__number:first-child {
@@ -207,6 +216,12 @@ function copy(): void {
 .code-diff__sign {
     text-align: center;
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Without numbers the sign starts where the file name starts. */
+.code-diff__lines:not(.is--numbered) .code-diff__sign {
+    padding-left: 9px;
+    text-align: left;
 }
 
 .code-diff .code-diff__text {
@@ -231,22 +246,9 @@ function copy(): void {
     --line-bar: var(--color-border-attention-default);
 }
 
-/* A note is a remark on the lines above it, not code: it starts where the code starts, in the type of the page. */
-.code-diff__note {
+.code-diff__line.is--left-out {
     --line-tint: var(--color-background-tertiary-default);
 
-    border-left: 3px solid var(--color-border-primary-default);
-}
-
-.code-diff__note p {
-    grid-column: -2;
-    position: sticky;
-    left: 0;
-    margin: 0;
-    padding: 6px 12px 6px 0;
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-xs);
-    line-height: var(--font-line-height-xs);
-    white-space: normal;
+    color: var(--color-text-secondary-default);
 }
 </style>

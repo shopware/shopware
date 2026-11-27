@@ -19,6 +19,8 @@ export interface FixLine {
     rule: string;
     /** What the places have in common, for example `5 blocks › scope itemIndex`. */
     title: string;
+    /** What changed in plain words, `null` when the break check has no words that hold for all places. */
+    headline: string | null;
     /** `name` tells a place from the others of the line. A line with one place needs none beside its title. */
     places: Array<{ finding: Finding; name: string | null }>;
 }
@@ -178,17 +180,39 @@ function isShared(places: readonly Part[][], index: number): boolean {
     return places.every((parts) => parts[index]?.name === places[0][index]?.name);
 }
 
-/** The parts all places share stay, and a part that differs becomes its number: `5 blocks › scope itemIndex`. */
+/** A part all places share stays, and a part that differs becomes its number: `5 blocks`. */
+function sharedParts(places: readonly Part[][]): string[] {
+    return places[0].map((part, index) =>
+        isShared(places, index) ? partText(part) : plural(places.length, part.kind, manyOf(part.kind)),
+    );
+}
+
+/** `5 blocks › scope itemIndex` */
 function titleOf(places: readonly Part[][], unit: Unit): string {
-    if (places[0].length === 0) {
-        return `the whole ${unit.kind}`;
+    return places[0].length === 0 ? `the whole ${unit.kind}` : sharedParts(places).join(' › ');
+}
+
+/**
+ * The headline of the break check is about the element itself, the last part. When all places share that part,
+ * it holds for all of them and only needs where they are: `In 5 blocks, the template variable …`. When each
+ * place has an element of its own, the first one stands for the others.
+ */
+function headlineOf(findings: readonly Finding[], places: readonly Part[][]): string | null {
+    const { headline } = findings[0].detail;
+
+    if (headline === undefined) {
+        return null;
     }
 
-    return places[0]
-        .map((part, index) =>
-            isShared(places, index) ? partText(part) : plural(places.length, part.kind, manyOf(part.kind)),
-        )
-        .join(' › ');
+    if (!isShared(places, places[0].length - 1)) {
+        return `${headline}, and ${findings.length === 2 ? '1 other' : `${findings.length - 1} others`}`;
+    }
+
+    const around = sharedParts(places).slice(0, -1);
+
+    return around.length === 0
+        ? headline
+        : `In ${around.join(' › ')}, ${headline.charAt(0).toLowerCase()}${headline.slice(1)}`;
 }
 
 /** The parts that tell this place from the others, for example `block sw_card_header`. */
@@ -209,6 +233,7 @@ function fixLines(findings: readonly Finding[], unit: Unit): FixLine[] {
                 group: places[0].group,
                 rule: places[0].rule,
                 title: titleOf(parts, unit),
+                headline: headlineOf(places, parts),
                 places: places.map((finding, index) => ({ finding, name: placeName(parts[index], parts) })),
             };
         })

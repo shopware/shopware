@@ -3,10 +3,19 @@
  *
  * The findings the design ideas show, and the ways the directions slice them.
  */
-import type { Finding, FindingGroup } from '../../../../break-check/finding';
+import type { ExplainedFinding, FindingGroup } from '../../../../break-check/finding';
+import type { CodeBlock } from '../../../finding-code';
+
+/**
+ * @private
+ *
+ * A finding with what the detail of a break shows: what the break check says about it beyond the summary, and
+ * the code that `data/dump-findings.ts` cut out of the sources of both commits.
+ */
+export type Finding = ExplainedFinding & { code?: { changed?: CodeBlock; fix?: CodeBlock } };
 
 /** @private */
-export type { Finding, FindingGroup };
+export type { CodeBlock, FindingGroup };
 
 /** @private */
 export interface Report {

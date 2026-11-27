@@ -37,8 +37,10 @@
         >
             <split-detail
                 v-if="selected"
+                :key="`${selected.cluster.unit.id}|${selected.line.key}`"
                 :cluster="selected.cluster"
                 :line="selected.line"
+                :base="base"
                 :head="head"
                 @close="picked = null"
             />

@@ -104,5 +104,7 @@ function fileTargets(context) {
 }
 
 module.exports = {
+    unwrapOptions,
+    findOverrides,
     fileTargets,
 };

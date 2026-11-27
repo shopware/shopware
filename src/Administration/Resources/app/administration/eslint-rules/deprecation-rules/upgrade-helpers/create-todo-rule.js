@@ -17,6 +17,24 @@
 const { reportTodo } = require('./todo-comment');
 const { readComponentCall, elementName } = require('./component-tags');
 
+/**
+ * Where a template TODO goes: above the element for an expression in an attribute (a comment may not sit inside
+ * a start tag), above the expression for interpolations in text.
+ */
+function templateAnchor(node) {
+    for (let current = node; current; current = current.parent) {
+        if (current.type === 'VStartTag') {
+            return current.parent;
+        }
+
+        if (current.type === 'VExpressionContainer' && current.parent?.type === 'VElement') {
+            return current;
+        }
+    }
+
+    return node;
+}
+
 function createTodoRule(spec) {
     const components = new Map(Object.entries(spec.components ?? {}));
 
@@ -67,4 +85,5 @@ function createTodoRule(spec) {
 
 module.exports = {
     createTodoRule,
+    templateAnchor,
 };

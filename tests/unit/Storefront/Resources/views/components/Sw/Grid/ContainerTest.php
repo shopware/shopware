@@ -61,7 +61,7 @@ class ContainerTest extends TestCase
 
         static::assertSame(24, $first->gap);
         static::assertSame($second->getPresentation(), $first->getPresentation());
-        static::assertStringContainsString('--sw-grid-item-column-xs:1 / span 1;--sw-grid-item-row-xs:span 1;', $first->getPresentation()['placementRules']);
+        static::assertSame('', $first->getPresentation()['placementRules']);
 
         $first->gridLayout = ['lg' => ['columns' => [['type' => 'auto'], ['type' => 'auto']], 'areas' => [['a', 'b']]]];
         $first->gap = 12;
@@ -74,7 +74,7 @@ class ContainerTest extends TestCase
         $layout = [
             'xs' => ['columns' => [['type' => 'auto'], ['type' => 'auto']], 'areas' => [['a', 'a'], ['b', 'c'], ['b', 'd']]],
             'sm' => ['columns' => [['type' => 'auto']], 'areas' => [['mobile']]],
-            'lg' => ['columns' => [['type' => 'px', 'value' => 200], ['type' => 'fraction', 'value' => 6]], 'areas' => [['e', 'f']]],
+            'lg' => ['columns' => [['type' => 'px', 'value' => 200], ['type' => 'fraction', 'value' => 6]], 'areas' => [['e', 'e'], ['f', 'g']]],
         ];
         $component = new Container(new UrlEncodingTwigFilter());
         $component->gridLayout = $layout;
@@ -84,7 +84,8 @@ class ContainerTest extends TestCase
         static::assertStringContainsString('--sw-grid-item-column-xs:1 / span 1;--sw-grid-item-row-xs:span 2;', $result['placementRules']);
         static::assertStringContainsString('.display-md', $result['placementRules']);
         static::assertStringContainsString(':not(.d-md-hidden):not(:has(> .grid-column.d-md-hidden))', $result['placementRules']);
-        static::assertStringContainsString(':nth-child(2n + 1 of ', $result['placementRules']);
+        static::assertStringContainsString(':nth-child(3n + 1 of ', $result['placementRules']);
+        static::assertStringNotContainsString('--sw-grid-item-column-sm', $result['placementRules']);
         static::assertStringContainsString('--sw-grid-columns-sm: minmax(0, 1fr);', $result['inner']['style'] ?? '');
         static::assertStringContainsString('--sw-grid-columns-md: min(200px', $result['inner']['style'] ?? '');
         static::assertStringContainsString('--sw-grid-columns-xxl: min(200px', $result['inner']['style'] ?? '');
@@ -118,8 +119,7 @@ class ContainerTest extends TestCase
         $component->gridLayout = $layout;
         $result = $component->getPresentation();
         static::assertStringContainsString('--sw-grid-columns-xs: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);', $result['inner']['style'] ?? '');
-        static::assertStringContainsString(':nth-child(1n + 1 of ', $result['placementRules']);
-        static::assertStringContainsString('--sw-grid-item-column-xs:1 / span 1;--sw-grid-item-row-xs:span 1;', $result['placementRules']);
+        static::assertSame('', $result['placementRules']);
     }
 
     public function testAutoFitUsesVariablesWithoutGeneratingPlacementRules(): void
@@ -179,13 +179,41 @@ class ContainerTest extends TestCase
         static::assertStringNotContainsString('--sw-grid-container-background', $presentation['inner']['style']);
     }
 
+    public function testEmitsNoPlacementRulesForAnAllSingleCellPattern(): void
+    {
+        $component = new Container(new UrlEncodingTwigFilter());
+        $component->gridLayout = ['lg' => [
+            'columns' => array_fill(0, 3, ['type' => 'auto']),
+            'areas' => [['a1', 'a2', 'a3'], ['a4', 'a5', 'a6']],
+        ]];
+
+        static::assertSame('', $component->getPresentation()['placementRules']);
+    }
+
+    public function testEmitsPlacementRulesOnlyForBreakpointsWithSpanningAreas(): void
+    {
+        $component = new Container(new UrlEncodingTwigFilter());
+        $component->gridLayout = [
+            'lg' => ['columns' => array_fill(0, 2, ['type' => 'auto']), 'areas' => [['a1', 'a2']]],
+            'sm' => ['columns' => array_fill(0, 2, ['type' => 'auto']), 'areas' => [['a1', 'a1'], ['a2', 'a3']]],
+        ];
+
+        $rules = $component->getPresentation()['placementRules'];
+
+        static::assertStringContainsString('--sw-grid-item-column-sm:1 / span 2;', $rules);
+        static::assertStringContainsString('--sw-grid-item-column-xs:1 / span 2;', $rules);
+        foreach (['md', 'lg', 'xl', 'xxl'] as $breakpoint) {
+            static::assertStringNotContainsString('--sw-grid-item-column-' . $breakpoint, $rules);
+        }
+    }
+
     public function testOutputGrowsLinearlyWithDistinctAreas(): void
     {
         $component = new Container(new UrlEncodingTwigFilter());
         $sizes = [];
         foreach ([4, 8, 16] as $count) {
-            $cells = array_map(static fn (int $i): string => 'a' . $i, range(1, $count));
-            $layout = ['lg' => ['columns' => array_fill(0, $count, ['type' => 'auto']), 'areas' => [$cells]]];
+            $cells = ['a1', ...array_map(static fn (int $i): string => 'a' . $i, range(1, $count))];
+            $layout = ['lg' => ['columns' => array_fill(0, $count + 1, ['type' => 'auto']), 'areas' => [$cells]]];
             $component->gridLayout = $layout;
             $sizes[] = \strlen($component->getPresentation()['placementRules']);
         }

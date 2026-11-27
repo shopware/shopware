@@ -6,7 +6,7 @@
 {% set grid = this.presentation(attributes.all()['style'] ?? '') %}
 
 {% if grid.placementRules %}
-    {# Each breakpoint needs an :nth-child() selector with its pattern length and visibility filter. #}
+    {# A breakpoint with spanning areas needs an :nth-child() selector with its pattern length and visibility filter. #}
     <style>{{ grid.placementRules|raw }}</style>
 {% endif %}
 

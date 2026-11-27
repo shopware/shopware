@@ -12,6 +12,17 @@
         syntax: '*';
         inherits: false;
     }
+
+    // WHY: A container without placement rules must not pass the span of its own grid item to its children.
+    @property --sw-grid-item-column-#{$breakpoint} {
+        syntax: '*';
+        inherits: false;
+    }
+
+    @property --sw-grid-item-row-#{$breakpoint} {
+        syntax: '*';
+        inherits: false;
+    }
 }
 
 @property --sw-grid-container-max-width {

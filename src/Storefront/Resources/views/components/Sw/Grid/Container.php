@@ -359,6 +359,11 @@ class Container
      */
     private function buildPlacementRules(string $class, string $breakpoint, array $areas): string
     {
+        // WHY: Auto-placement already puts each visible child into the next single cell, so only spans need rules.
+        if (!$this->hasSpanningArea($areas)) {
+            return '';
+        }
+
         // WHY: Hidden children must not consume a position in the repeating pattern.
         $displayClasses = '.display-xs, .display-sm, .display-md, .display-lg, .display-xl, .display-xxl';
         $visible = ':is(:not(' . $displayClasses . '), .display-' . $breakpoint . '):not(.d-none):not(.d-' . $breakpoint . '-hidden):not(:has(> .grid-column.d-' . $breakpoint . '-hidden)):not(style)';
@@ -373,5 +378,19 @@ class Container
         }
 
         return $breakpointRules;
+    }
+
+    /**
+     * @param array<string|int, array{column: int, columns: int, rows: int, firstRow: int}> $areas
+     */
+    private function hasSpanningArea(array $areas): bool
+    {
+        foreach ($areas as $area) {
+            if ($area['columns'] > 1 || $area['rows'] > 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

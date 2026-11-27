@@ -61,11 +61,15 @@ export default class VariantsGenerator extends EventEmitter {
 
                 return newOptionIds.has(setting.optionId);
             })
-            .map((setting) => {
-                const settingData = deepCopyObject(setting);
-                settingData.productId = this.product.id;
-                return settingData;
-            });
+            .map((setting) => ({
+                id: setting.id,
+                productId: this.product.id,
+                optionId: setting.optionId,
+                mediaId: setting.mediaId,
+                price: setting.price,
+                position: setting.position ?? 0,
+                customFields: setting.customFields,
+            }));
 
         if (payload.length === 0) {
             return Promise.resolve();
@@ -161,7 +165,7 @@ export default class VariantsGenerator extends EventEmitter {
      * Saves the variants to the database via sync api.
      */
     saveVariants(queues) {
-        return new Promise((resolveDelete) => {
+        return new Promise((resolveDelete, rejectDelete) => {
             // notify view to refresh progress
             this.emit('progress-max', {
                 type: 'delete',
@@ -174,7 +178,7 @@ export default class VariantsGenerator extends EventEmitter {
             });
 
             // send api calls for delete
-            this.processQueue('delete', mapped, 0, 10, resolveDelete);
+            this.processQueue('delete', mapped, 0, 10, resolveDelete, rejectDelete);
         })
             .then(() => {
                 // notify view to refresh progress
@@ -183,9 +187,9 @@ export default class VariantsGenerator extends EventEmitter {
                     progress: queues.createQueue.length,
                 });
 
-                return new Promise((resolve) => {
+                return new Promise((resolve, reject) => {
                     // send api calls for create
-                    this.processQueue('upsert', queues.createQueue, 0, 10, resolve);
+                    this.processQueue('upsert', queues.createQueue, 0, 10, resolve, reject);
                 });
             })
             .then(() => {
@@ -562,7 +566,7 @@ export default class VariantsGenerator extends EventEmitter {
         return all;
     }
 
-    processQueue(type, queue, offset, limit, resolve) {
+    processQueue(type, queue, offset, limit, resolve, reject) {
         // Create a chunk
         const chunk = queue.slice(offset, offset + limit);
         if (chunk.length <= 0) {
@@ -583,10 +587,12 @@ export default class VariantsGenerator extends EventEmitter {
 
         RetryHelper.retry(() => {
             return this.syncService.sync(payload, {}, SYNC_HEADERS);
-        }).then((response) => {
-            this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
-            this.processQueue(type, queue, offset + limit, limit, resolve);
-        });
+        })
+            .then((response) => {
+                this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
+                this.processQueue(type, queue, offset + limit, limit, resolve, reject);
+            })
+            .catch(reject);
     }
 
     indexProducts(productIds) {

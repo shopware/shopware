@@ -9,7 +9,6 @@ import {
     MtLink,
     MtStatusDot,
 } from '@shopware-ag/meteor-component-library';
-import type { PropType } from 'vue';
 import type { ContentSystemBreakpoint } from 'src/core/service/api/content-system-element-type.api.service';
 import template from './sw-experience-studio-breakpoint-select.html.twig';
 import './sw-experience-studio-breakpoint-select.scss';

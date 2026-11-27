@@ -1,6 +1,22 @@
 # 6.7.18.0 (upcoming)
 
+## Critical Fixes
+
+### Administration login with cross-origin assets
+
+Administration workers load from the shop origin while retaining the installation's subdirectory.
+Same-origin asset URLs retain their configured path, including S3 proxy prefixes.
+This restores Administration login when assets are hosted on a separate S3 or CDN domain.
+Rebuild custom Administration bundles to apply this fix.
+Rebuilt bundles receive new filenames to invalidate cached worker URL handling.
+
 ## Core
+
+### Media cache invalidation uses bounded batches
+
+Reindexing or updating media shared by many products uses bounded batches to reduce worker memory usage.
+Large updates can call `CacheInvalidator::invalidate()` multiple times, and dispatch multiple `InvalidateCacheEvent` events when invalidation is immediate.
+Delayed invalidation still requires enough capacity to store and process the resulting tags.
 
 ### Search config cache is kept per language
 
@@ -94,6 +110,23 @@ Extensions have to be adjusted:
   The private `zIndex` prop of `sw-context-button` was removed.
 - `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
   Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
+
+### Modules can declare child entities
+
+A module manifest can now list entities that belong to its `entity` and have no module of their own in `childEntities`.
+The media manager shows default folders of those child entities with the module's icon and color.
+
+```js
+Shopware.Module.register('swag-example', {
+    entity: 'swag_example',
+    childEntities: ['swag_example_attachment'],
+    // ...
+});
+```
+
+The Product module now lists `product_document` as a child entity.
+If two modules list the same child entity, the first registered module wins.
+The warning about it is only logged in development builds.
 
 ## Storefront
 

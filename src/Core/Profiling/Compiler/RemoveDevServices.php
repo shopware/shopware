@@ -5,7 +5,9 @@ namespace Shopware\Core\Profiling\Compiler;
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Profiling\Command\DebugProfileCommand;
 use Shopware\Core\Profiling\Controller\ProfilerController;
+use Shopware\Core\Profiling\Export\ProfileExporter;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -17,6 +19,11 @@ class RemoveDevServices implements CompilerPassInterface
     {
         if (!InstalledVersions::isInstalled('symfony/web-profiler-bundle') || !$container->hasDefinition('profiler')) {
             $container->removeDefinition(ProfilerController::class);
+        }
+
+        if (!$container->hasDefinition('profiler')) {
+            $container->removeDefinition(ProfileExporter::class);
+            $container->removeDefinition(DebugProfileCommand::class);
         }
     }
 }

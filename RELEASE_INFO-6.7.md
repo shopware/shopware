@@ -46,6 +46,14 @@ The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPr
 
 The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
 
+### Export profiler profiles as JSON
+
+In the `dev` environment, the new command `bin/console debug:profile` lists the stored Symfony profiler profiles, and `bin/console debug:profile <token|latest>` exports one profile as JSON.
+By default, the export has a compact summary of every panel, for example SQL statements with counts, times and repeated runs.
+`--panel=db,time` selects panels, and `--full` exports the raw collector data with size limits.
+Credentials, tokens, cookies and session values are redacted unless you pass `--keep-secrets`.
+This lets scripts and AI agents read profiling data without the web profiler.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

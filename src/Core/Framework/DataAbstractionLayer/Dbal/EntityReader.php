@@ -995,7 +995,10 @@ class EntityReader implements EntityReaderInterface
             $query->resetOrderBy();
         }
 
-        $limitQuery = clone $query;
+        $limitQuery = null;
+        if ($fieldCriteria->getLimit() !== null) {
+            $limitQuery = $this->buildManyToManyLimitQuery(clone $query, $root, $localColumn, $referenceColumn, $parts);
+        }
 
         // order by is handled in group_concat
         // Order of IDs in criteria will determine result order, when no order by is given
@@ -1008,9 +1011,7 @@ class EntityReader implements EntityReaderInterface
 
         $query->addGroupBy($root . '.' . $localColumn);
 
-        if ($fieldCriteria->getLimit() !== null) {
-            $limitQuery = $this->buildManyToManyLimitQuery($limitQuery, $root, $localColumn, $referenceColumn, $parts);
-
+        if ($limitQuery !== null) {
             $params = [
                 '#source_column#' => EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn()),
                 '#reference_column#' => EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn()),
@@ -1287,12 +1288,21 @@ class EntityReader implements EntityReaderInterface
         $windowOrderBy = implode(', ', [...$orderByParts, $referenceAccessor]);
 
         $query->select(
-            "DENSE_RANK() OVER (PARTITION BY {$sourceAccessor} ORDER BY {$windowOrderBy}) as id_count",
+            "ROW_NUMBER() OVER (PARTITION BY {$sourceAccessor} ORDER BY {$windowOrderBy}) as position",
             $referenceAccessor,
             $sourceAccessor,
         );
 
-        return $query;
+        $limitQuery = new QueryBuilder($this->connection);
+        $limitQuery->select(
+            "ROW_NUMBER() OVER (PARTITION BY ranked.{$sourceColumn} ORDER BY MIN(ranked.position)) as id_count",
+            'ranked.' . $referenceColumn,
+            'ranked.' . $sourceColumn,
+        );
+        $limitQuery->from('(' . $query . ')', 'ranked');
+        $limitQuery->groupBy('ranked.' . $sourceColumn, 'ranked.' . $referenceColumn);
+
+        return $limitQuery;
     }
 
     private function buildOneToManyPropertyAccessor(EntityDefinition $definition, OneToManyAssociationField $association): string

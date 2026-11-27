@@ -131,7 +131,8 @@ The warning about it is only logged in development builds.
 ### Overrides of deprecated component members report a deprecation
 
 A `Component.override()` of a deprecated `computed` or method now triggers a deprecation itself, when the component is built in a development build of the Administration.
-Like any deprecation, it throws once the major flag is active.
+So does a `Component.extend()` that redefines one of its parent.
+Once the major flag is active, it logs an error instead of throwing.
 
 ## Storefront
 

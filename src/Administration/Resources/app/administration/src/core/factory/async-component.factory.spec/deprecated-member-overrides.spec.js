@@ -6,6 +6,7 @@ import deprecationBaseline from 'src/core/deprecation-baseline.json';
 import swUploadListener from 'src/app/component/utils/sw-upload-listener';
 import { deprecations, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 import { ComponentFactory, mount, setupComponentFactoryHooks } from './native-block-condition.fixtures';
+import { registerComponentWithDeprecatedMembers } from './deprecated-members.fixtures';
 
 describe('core/factory/async-component.factory.ts - overrides of deprecated members', () => {
     setupComponentFactoryHooks();
@@ -17,59 +18,6 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
             delete deprecationBaseline[key];
         });
     });
-
-    /**
-     * Registers `componentName` with a deprecated computed `oldFilter`, a deprecated getter/setter computed
-     * `oldValue`, a deprecated method `oldMethod` and the not deprecated computed `filter`.
-     */
-    function registerComponentWithDeprecatedMembers(componentName) {
-        ComponentFactory.register(componentName, {
-            template: '<div>{{ oldFilter }}</div>',
-            computed: {
-                filter() {
-                    return 'filter';
-                },
-
-                /**
-                 * @deprecated tag:v6.8.0 - Will be removed, use `filter` instead.
-                 */
-                oldFilter() {
-                    Shopware.Feature.triggerDeprecationOrThrow(
-                        'V6_8_0_0',
-                        `${this.$options.name}.oldFilter is deprecated, use filter instead.`,
-                    );
-
-                    return 'oldFilter';
-                },
-
-                /**
-                 * @deprecated tag:v6.8.0 - Will be removed, use `value` instead.
-                 */
-                oldValue: {
-                    get() {
-                        Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldValue is deprecated.');
-
-                        return this._oldValue;
-                    },
-                    set(value) {
-                        Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldValue is deprecated.');
-
-                        this._oldValue = value;
-                    },
-                },
-            },
-            methods: {
-                /**
-                 * @deprecated tag:v6.8.0 - Will be removed, use `newMethod` instead.
-                 */
-                oldMethod() {
-                    Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod is deprecated, use newMethod.');
-
-                    return 'oldMethod';
-                },
-            },
-        });
-    }
 
     it('reports an override of a deprecated computed without $super', async () => {
         registerComponentWithDeprecatedMembers('sw-replaced-computed');
@@ -268,6 +216,9 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         await ComponentFactory.build('sw-child');
 
         expect(deprecations).toHaveTriggered('Component.override(\'sw-child\') overrides the deprecated method "oldMethod"');
+        expect(deprecations).toHaveTriggered(
+            "Component.extend('sw-child', 'sw-deprecated-parent') redefines the deprecated method \"oldMethod\"",
+        );
     });
 
     it('does not take a guard behind a condition for the deprecation of the member', async () => {
@@ -370,53 +321,56 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
             );
         });
 
-        it.activeFeatureFlags(['v7.0.0.0'])('throws for a silenced override once the major flag is active', async () => {
-            useProductionDeprecationGuard();
-            overrideInsideSilence('sw-silenced-active-major', 'V7_0_0_0');
+        it.activeFeatureFlags(['v7.0.0.0'])(
+            'logs an error for a silenced override once the major flag is active',
+            async () => {
+                useProductionDeprecationGuard();
+                const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+                overrideInsideSilence('sw-silenced-active-major', 'V7_0_0_0');
 
-            await expect(ComponentFactory.build('sw-silenced-active-major')).rejects.toThrow(
-                'Tried to access deprecated functionality: Component.override(\'sw-silenced-active-major\') overrides the deprecated method "oldMethod"',
-            );
-        });
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('throws once the major flag is active', async () => {
-        useProductionDeprecationGuard();
-        registerComponentWithDeprecatedMembers('sw-active-major');
-        ComponentFactory.override('sw-active-major', {
-            methods: {
-                oldMethod() {
-                    return 'overridden';
-                },
+                await expect(ComponentFactory.build('sw-silenced-active-major')).resolves.toBeTruthy();
+                expect(error).toHaveBeenCalledWith(
+                    '[Deprecation]',
+                    expect.stringContaining(
+                        'Tried to access deprecated functionality: Component.override(\'sw-silenced-active-major\') overrides the deprecated method "oldMethod"',
+                    ),
+                );
             },
-        });
-
-        await expect(ComponentFactory.build('sw-active-major')).rejects.toThrow(
-            'Tried to access deprecated functionality: Component.override(\'sw-active-major\') overrides the deprecated method "oldMethod"',
         );
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])('throws once for all overridden members once the major flag is active', async () => {
-        useProductionDeprecationGuard();
-        registerComponentWithDeprecatedMembers('sw-active-major-members');
-        ComponentFactory.override('sw-active-major-members', {
-            computed: {
-                oldFilter() {
-                    return 'overridden';
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'logs an error for every overridden member instead of throwing once the major flag is active',
+        async () => {
+            useProductionDeprecationGuard();
+            const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+            registerComponentWithDeprecatedMembers('sw-active-major');
+            ComponentFactory.override('sw-active-major', {
+                computed: {
+                    oldFilter() {
+                        return 'overridden';
+                    },
                 },
-            },
-            methods: {
-                oldMethod() {
-                    return 'overridden';
+                methods: {
+                    oldMethod() {
+                        return 'overridden';
+                    },
                 },
-            },
-        });
+            });
 
-        const error = await ComponentFactory.build('sw-active-major-members').catch((reason) => reason);
-
-        expect(error.message).toContain('overrides the deprecated computed "oldFilter"');
-        expect(error.message).toContain('overrides the deprecated method "oldMethod"');
-    });
+            await expect(ComponentFactory.build('sw-active-major')).resolves.toBeTruthy();
+            expect(error).toHaveBeenCalledWith(
+                '[Deprecation]',
+                expect.stringContaining(
+                    'Tried to access deprecated functionality: Component.override(\'sw-active-major\') overrides the deprecated computed "oldFilter"',
+                ),
+            );
+            expect(error).toHaveBeenCalledWith(
+                '[Deprecation]',
+                expect.stringContaining('overrides the deprecated method "oldMethod"'),
+            );
+        },
+    );
 
     it.activeFeatureFlags(['v6.8.0.0'])('logs an error instead of throwing for a baselined override', async () => {
         useProductionDeprecationGuard();

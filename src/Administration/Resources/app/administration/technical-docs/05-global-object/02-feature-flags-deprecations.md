@@ -226,10 +226,13 @@ every call site is reported once and stays actionable. See `src/core/helper/i18n
 A `Component.override()` of a guarded `computed` or method reports a deprecation of its own when a development build
 builds the component, with or without `this.$super()`, because the override stops working once the member is removed.
 The component factory finds the guard as the first statement of the overridden member.
-Once the major is active, the build throws one error that lists every overridden member, unless the message is in
-the baseline.
-An override registered inside `Feature.silence()` of the member's major is not reported, so an extension can keep a
-backward compatible override for older versions:
+A `Component.extend()` that redefines a guarded `computed` or method of its parent reports one as well, because the
+redefinition keeps the name of a removed member that overrides of the extending component rely on.
+Rename the redefinition, or deprecate it with a guard of its own, which ends the report.
+Once the major is active, each report logs an error instead of throwing, as a throw would keep the whole component
+from rendering.
+An override or extension registered inside `Feature.silence()` of the member's major is not reported, so an
+extension can keep a backward compatible override for older versions:
 
 ```typescript
 if (!Shopware.Feature.isActive('V6_8_0_0')) {
@@ -238,8 +241,6 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
     });
 }
 ```
-
-`Component.extend()` is not checked, as an extending component often uses the members it redefines itself.
 
 `sw-deprecation-rules/require-deprecation-guard` keeps every `@deprecated tag:vX.Y.Z` declaration on this
 lifecycle. What the marker sits on decides what it requires:

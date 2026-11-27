@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnableToLoadPathException;
@@ -166,6 +167,8 @@ class WriteContext
 
         $mapping = [];
         $languages = $this->getLanguages();
+        // Child languages may share the locale of their parent. Later entries win, so the system language is mapped last.
+        uasort($languages, static fn (array $a, array $b): int => self::localeMappingPriority($a) <=> self::localeMappingPriority($b));
         foreach ($languages as $language) {
             if (!$language['code']) {
                 continue;
@@ -174,6 +177,18 @@ class WriteContext
         }
 
         return $this->languageCodeIdMapping = $mapping;
+    }
+
+    /**
+     * @param array{id: string, code: string, parentId?: ?string, parentCode?: ?string} $language
+     */
+    private static function localeMappingPriority(array $language): int
+    {
+        if ($language['id'] === Defaults::LANGUAGE_SYSTEM) {
+            return 2;
+        }
+
+        return ($language['parentId'] ?? null) === null ? 1 : 0;
     }
 
     private function buildPathName(string $className, string $propertyName): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Util\Hasher;
@@ -17,6 +18,12 @@ class ErrorCollection extends Collection
      */
     public function add($error): void
     {
+        $replaced = $this->get($error->getId());
+
+        if ($error instanceof ShippingMethodBlockedError && $replaced instanceof ShippingMethodBlockedError) {
+            $error->addDeliveryIdentifiersOf($replaced);
+        }
+
         $this->set($error->getId(), $error);
     }
 

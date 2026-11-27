@@ -869,6 +869,16 @@ On delivery transitions, `order.deliveries` now also contains the state and posi
 The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
 They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
 
+### Blocked shipping method errors reference their deliveries
+
+`ShippingMethodBlockedError` now lists the identifiers of the cart deliveries blocked for its shipping method.
+Read them with `getDeliveryIdentifiers()`, or as `deliveryIdentifiers` in the error parameters of the Store API cart, and match them against the `identifier` of the cart deliveries.
+The error id does not change, so a shipping method blocked for several deliveries raises one error that lists all of them.
+When several raisers block the same shipping method, like the delivery calculator, a cart validator and the checkout gateway, the `ErrorCollection` keeps one error with the deliveries of all of them.
+Deliveries without an identifier and deliveries with negative shipping costs, like shipping discounts, are left out of the list.
+The list is empty when the error is not tied to a delivery.
+When your extension raises this error for specific deliveries, build it with `ShippingMethodBlockedError::forDeliveries()`, which leaves out the same deliveries, or pass `deliveryIdentifiers` yourself.
+
 ### Orders with several deliveries keep their shipping costs and addresses
 
 When the Administration recalculated an order with several deliveries, every delivery got the shipping costs of the primary delivery.

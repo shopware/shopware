@@ -92,18 +92,24 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
             );
         }
 
+        $blockedShippingMethods = [];
+        $blockedDeliveries = [];
+
         foreach ($cart->getDeliveries() as $delivery) {
             $shippingMethod = $delivery->getShippingMethod();
 
-            if (!\in_array($shippingMethod->getId(), $response->getAvailableShippingMethods()->getIds(), true)) {
-                $response->getCartErrors()->add(
-                    new ShippingMethodBlockedError(
-                        id: $shippingMethod->getId(),
-                        name: (string) $shippingMethod->getTranslation('name'),
-                        reason: 'not allowed',
-                    )
-                );
+            if (\in_array($shippingMethod->getId(), $response->getAvailableShippingMethods()->getIds(), true)) {
+                continue;
             }
+
+            $blockedShippingMethods[$shippingMethod->getId()] = $shippingMethod;
+            $blockedDeliveries[$shippingMethod->getId()][] = $delivery;
+        }
+
+        foreach ($blockedShippingMethods as $shippingMethodId => $shippingMethod) {
+            $response->getCartErrors()->add(
+                ShippingMethodBlockedError::forDeliveries($shippingMethod, 'not allowed', $blockedDeliveries[$shippingMethodId])
+            );
         }
     }
 }

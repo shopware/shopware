@@ -52,12 +52,31 @@ class DeliveryCalculator
 
     public function calculate(CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries, SalesChannelContext $context): void
     {
+        $unpricedShippingMethods = [];
+        $unpricedDeliveries = [];
+
         foreach ($deliveries as $delivery) {
-            $this->calculateDelivery($data, $cart, $delivery, $context);
+            $foundShippingCosts = $this->calculateDelivery($data, $cart, $delivery, $context);
+
+            if ($foundShippingCosts) {
+                continue;
+            }
+
+            /** @var ShippingMethodEntity $shippingMethod */
+            $shippingMethod = $data->get(DeliveryProcessor::buildKey($delivery->getShippingMethod()->getId()));
+
+            $unpricedShippingMethods[$shippingMethod->getId()] = $shippingMethod;
+            $unpricedDeliveries[$shippingMethod->getId()][] = $delivery;
+        }
+
+        foreach ($unpricedShippingMethods as $shippingMethodId => $shippingMethod) {
+            $cart->addErrors(
+                ShippingMethodBlockedError::forDeliveries($shippingMethod, 'no shipping costs found', $unpricedDeliveries[$shippingMethodId])
+            );
         }
     }
 
-    private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): void
+    private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): bool
     {
         if ($cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION)) {
             $delivery->setShippingCosts($this->calculateShippingCosts(
@@ -66,7 +85,7 @@ class DeliveryCalculator
                 $context
             ));
 
-            return;
+            return true;
         }
 
         $costs = null;
@@ -85,7 +104,7 @@ class DeliveryCalculator
 
             $delivery->setShippingCosts($costs);
 
-            return;
+            return true;
         }
 
         if ($this->hasDeliveryWithOnlyShippingFreeItems($delivery)) {
@@ -96,7 +115,7 @@ class DeliveryCalculator
             );
             $delivery->setShippingCosts($costs);
 
-            return;
+            return true;
         }
 
         $key = DeliveryProcessor::buildKey($delivery->getShippingMethod()->getId());
@@ -128,18 +147,12 @@ class DeliveryCalculator
         }
 
         if (!$costs) {
-            $cart->addErrors(
-                new ShippingMethodBlockedError(
-                    id: $shippingMethod->getId(),
-                    name: (string) $shippingMethod->getTranslation('name'),
-                    reason: 'no shipping costs found',
-                )
-            );
-
-            return;
+            return false;
         }
 
         $delivery->setShippingCosts($costs);
+
+        return true;
     }
 
     private function hasDeliveryWithOnlyShippingFreeItems(Delivery $delivery): bool

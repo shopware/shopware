@@ -53,4 +53,14 @@ describe('src/app/component/form/select/entity/sw-entity-tag-select', () => {
         expect(context.repository.searchIds).not.toHaveBeenCalled();
         expect(context.tagExists).toBe(true);
     });
+
+    it('should not fail to filter while a search is still loading', () => {
+        const { filterSearchGeneratedTags } = swEntityTagSelect.methods as {
+            filterSearchGeneratedTags: (this: { resultCollection: null }) => void;
+        };
+        const context = { resultCollection: null };
+
+        expect(() => filterSearchGeneratedTags.call(context)).not.toThrow();
+        expect(context.resultCollection).toBeNull();
+    });
 });

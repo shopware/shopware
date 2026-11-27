@@ -91,6 +91,10 @@ export default {
         },
 
         filterSearchGeneratedTags() {
+            if (!this.resultCollection) {
+                return;
+            }
+
             this.resultCollection = this.resultCollection.filter((entity) => {
                 return entity.id !== -1;
             });

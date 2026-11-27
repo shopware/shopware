@@ -56,21 +56,15 @@ use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 #[CoversClass(AvailableContextResolver::class)]
 class AvailableContextResolverTest extends TestCase
 {
-    #[TestDox('returns the bound source root-ambient context for a top-level element')]
+    #[TestDox('returns the bound source root-ambient context for a top-level element, and nothing when the source exposes none')]
     public function testTopLevelReceivesRootAmbient(): void
     {
         $root = new StoredElement('root-1', 'Sw:Block');
 
-        $rootContext = $this->rootAmbientProductContext();
+        $rootContext = self::rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolver()->resolve('root-1', [$root], $rootContext));
-    }
-
-    #[TestDox('returns nothing for a top-level element whose source exposes no root-ambient context (a section source or none)')]
-    public function testTopLevelWithoutRootAmbientReceivesNothing(): void
-    {
-        $root = new StoredElement('root-1', 'Sw:Block');
-
+        // A section source or none exposes no root-ambient context, so the same formula contributes nothing.
         static::assertSame([], $this->resolver()->resolve('root-1', [$root], []));
     }
 
@@ -139,7 +133,7 @@ class AvailableContextResolverTest extends TestCase
         $intermediate = new StoredElement('level-2', 'Sw:Block', [], [], ['content' => [$child]]);
         $root = new StoredElement('root-1', 'Sw:Block', [], [], ['content' => [$intermediate]]);
 
-        $rootContext = $this->rootAmbientProductContext();
+        $rootContext = self::rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolver()->resolve('child-1', [$root], $rootContext));
         static::assertSame($rootContext, $this->resolver()->resolve('root-1', [$root], $rootContext));
@@ -239,7 +233,7 @@ class AvailableContextResolverTest extends TestCase
             new ContextDefinitions([], ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)]),
         );
 
-        $rootContext = $this->rootAmbientProductContext();
+        $rootContext = self::rootAmbientProductContext();
 
         $available = $this->resolver()->resolve('deep-1', [$root], $rootContext);
 
@@ -273,7 +267,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $available = $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $this->rootAmbientProductContext());
+        $available = $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], self::rootAmbientProductContext());
 
         static::assertCount(2, $available);
         static::assertSame('root-1', $available[0]->providerElementId);
@@ -302,7 +296,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $rootContext = $this->rootAmbientProductContext();
+        $rootContext = self::rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
     }
@@ -327,7 +321,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $rootContext = $this->rootAmbientProductContext();
+        $rootContext = self::rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
     }
@@ -351,7 +345,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $rootContext = $this->rootAmbientProductContext();
+        $rootContext = self::rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
     }
@@ -376,7 +370,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $rootContext = $this->rootAmbientProductContext();
+        $rootContext = self::rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
     }
@@ -400,7 +394,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $available = $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $this->rootAmbientProductContext());
+        $available = $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], self::rootAmbientProductContext());
 
         static::assertCount(2, $available);
         static::assertSame('root-1', $available[0]->providerElementId);
@@ -427,7 +421,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $rootContext = $this->rootAmbientProductContext();
+        $rootContext = self::rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
     }
@@ -452,7 +446,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $rootContext = [...$this->rootAmbientProductContext(), new ProvidedContext(
+        $rootContext = [...self::rootAmbientProductContext(), new ProvidedContext(
             contextKey: 'featuredProduct',
             fqcn: SalesChannelProductEntity::class,
             contextType: ContextType::Single,
@@ -476,7 +470,7 @@ class AvailableContextResolverTest extends TestCase
         // cannot produce the same [] as the not-found return under test.
         $root = new StoredElement('root-1', 'Sw:Block');
 
-        static::assertSame([], $this->resolver()->resolve('missing', [$root], $this->rootAmbientProductContext()));
+        static::assertSame([], $this->resolver()->resolve('missing', [$root], self::rootAmbientProductContext()));
     }
 
     #[TestDox('rejects a top-level target whose own provider set collides on a child-facing key')]
@@ -526,23 +520,233 @@ class AvailableContextResolverTest extends TestCase
         }
     }
 
-    #[DataProvider('mappedProviderBacking')]
-    public function testMappedProviderBackingUsesAdmittedMetadata(MappingSourceReference $source, bool $offered, string $valueType, ContextType $consumerType, ?string $rootSource, bool $expected): void
+    #[TestDox('rejects an authored provider and a redistribute consumer that deliver to children under the same key')]
+    public function testRejectsCollidingAuthoredAndRedistributedChildFacingKeys(): void
     {
-        $collection = $valueType === MediaCollection::class;
-        $contextType = $collection ? ContextType::Collection : ContextType::Single;
+        // Collision axis: an authored provider aliased to 'item' plus a redistribute consumer of another context
+        // key aliased to the same key. The provider pass alone accepts the set, so only the pass over the derived
+        // broadcast providers can reject it.
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            [],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item'))],
+                ['category' => new ContextConsumer(ContextType::Single, required: false, redistribute: true, consumerAlias: 'item')],
+            ),
+        );
+
+        try {
+            $this->resolver()->resolve('root-1', [$root], []);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
+        }
+    }
+
+    #[TestDox('rejects two redistribute consumers that deliver to children under the same key')]
+    public function testRejectsCollidingRedistributedChildFacingKeys(): void
+    {
+        // Collision axis: two redistribute consumers of different context keys, both aliased to 'item'. No
+        // authored provider is involved, so the first derived key has to be indexed for the second to collide
+        // on it, and a check that only compares against authored providers accepts the set.
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            [],
+            new ContextDefinitions([], [
+                'product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true, consumerAlias: 'item'),
+                'category' => new ContextConsumer(ContextType::Single, required: false, redistribute: true, consumerAlias: 'item'),
+            ]),
+        );
+
+        try {
+            $this->resolver()->resolve('root-1', [$root], []);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
+        }
+    }
+
+    /**
+     * @param array<string, MappingCandidate> $offered
+     * @param list<ProvidedContext> $ambient
+     */
+    #[DataProvider('admittedProviderBacking')]
+    #[TestDox('exposes the mapped provider under its consumer alias: $_dataName')]
+    public function testMappedProviderBackingExposesAdmittedMetadata(
+        MappingSourceReference $source,
+        array $offered,
+        string $valueType,
+        string $propertyType,
+        ContextType $providerType,
+        ContextType $consumerType,
+        ?string $rootSource,
+        array $ambient,
+    ): void {
+        $provided = $this->resolveMappedProvider($source, $offered, $propertyType, $providerType, $consumerType, $rootSource, $ambient);
+
+        static::assertCount(1, $provided);
+        static::assertSame($valueType, $provided[0]->fqcn);
+        static::assertSame($providerType, $provided[0]->contextType);
+        static::assertSame('image', $provided[0]->contextKey);
+        static::assertSame('parent', $provided[0]->providerElementId);
+    }
+
+    /**
+     * @param array<string, MappingCandidate> $offered
+     * @param list<ProvidedContext> $ambient
+     */
+    #[DataProvider('withheldProviderBacking')]
+    #[TestDox('withholds the provider a mapping does not back: $_dataName')]
+    public function testMappedProviderBackingWithholdsUnadmittedMetadata(
+        MappingSourceReference $source,
+        array $offered,
+        string $propertyType,
+        ContextType $providerType,
+        ContextType $consumerType,
+        ?string $rootSource,
+        array $ambient,
+    ): void {
+        static::assertSame([], $this->resolveMappedProvider($source, $offered, $propertyType, $providerType, $consumerType, $rootSource, $ambient));
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference, array<string, MappingCandidate>, string, string, ContextType, ContextType, string|null, list<ProvidedContext>}>
+     */
+    public static function admittedProviderBacking(): iterable
+    {
+        $root = MappingSourceReference::root('product', 'cover');
+        $plugin = new MappingSourceReference('AcmePlugin', 'image', ['size' => 'large'], 'media');
+
+        yield 'reshaped root media under another destination key' => [
+            $root,
+            self::offeredCandidates($root, MediaEntity::class, ContextType::Single),
+            MediaEntity::class,
+            Struct::class,
+            ContextType::Single,
+            ContextType::Single,
+            'product',
+            self::rootAmbientProductContext(),
+        ];
+        yield 'plugin media without ambient entries' => [
+            $plugin,
+            self::offeredCandidates($plugin, MediaEntity::class, ContextType::Single),
+            MediaEntity::class,
+            Struct::class,
+            ContextType::Single,
+            ContextType::Single,
+            'product',
+            [],
+        ];
+        yield 'plugin collection retains cardinality' => [
+            $plugin,
+            self::offeredCandidates($plugin, MediaCollection::class, ContextType::Collection),
+            MediaCollection::class,
+            MediaCollection::class,
+            ContextType::Collection,
+            ContextType::Collection,
+            'product',
+            [],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference, array<string, MappingCandidate>, string, ContextType, ContextType, string|null, list<ProvidedContext>}>
+     */
+    public static function withheldProviderBacking(): iterable
+    {
+        $root = MappingSourceReference::root('product', 'cover');
+        $plugin = new MappingSourceReference('AcmePlugin', 'image', ['size' => 'large'], 'media');
+
+        yield 'unavailable mapping' => [
+            $plugin,
+            [],
+            Struct::class,
+            ContextType::Single,
+            ContextType::Single,
+            'product',
+            [],
+        ];
+        yield 'configuration mismatch' => [
+            new MappingSourceReference('AcmePlugin', 'image', ['size' => 'small'], 'media'),
+            self::offeredCandidates($plugin, MediaEntity::class, ContextType::Single),
+            Struct::class,
+            ContextType::Single,
+            ContextType::Single,
+            'product',
+            [],
+        ];
+        yield 'incompatible effective type' => [
+            $plugin,
+            self::offeredCandidates($plugin, 'string', ContextType::Single),
+            Struct::class,
+            ContextType::Single,
+            ContextType::Single,
+            'product',
+            [],
+        ];
+        yield 'stored cardinality mismatch' => [
+            $root,
+            self::offeredCandidates($root, MediaEntity::class, ContextType::Single),
+            Struct::class,
+            ContextType::Single,
+            ContextType::Collection,
+            'product',
+            self::rootAmbientProductContext(),
+        ];
+        yield 'missing source identifier beside ambient entries' => [
+            $root,
+            self::offeredCandidates($root, MediaEntity::class, ContextType::Single),
+            Struct::class,
+            ContextType::Single,
+            ContextType::Single,
+            null,
+            self::rootAmbientProductContext(),
+        ];
+    }
+
+    /**
+     * The catalogue entry a registry offering $catalogued under $valueType and $contextType yields.
+     *
+     * @return array<string, MappingCandidate>
+     */
+    private static function offeredCandidates(MappingSourceReference $catalogued, string $valueType, ContextType $contextType): array
+    {
+        return [
+            $catalogued->displayName() => new MappingCandidate($catalogued->displayName(), 'Image', '', 'media', $valueType, $contextType, source: $catalogued),
+        ];
+    }
+
+    /**
+     * Resolves the child of a mapped provider whose stored mapping is admitted against $offered, and returns the
+     * element-provided context only, so the root-ambient entries never answer for a backing.
+     *
+     * @param array<string, MappingCandidate> $offered
+     * @param list<ProvidedContext> $ambient
+     *
+     * @return list<ProvidedContext>
+     */
+    private function resolveMappedProvider(
+        MappingSourceReference $source,
+        array $offered,
+        string $propertyType,
+        ContextType $providerType,
+        ContextType $consumerType,
+        ?string $rootSource,
+        array $ambient,
+    ): array {
         $registry = TestElementTypeRegistry::of([
             'Sw:MappedProvider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:MappedProvider')
-                ->reference('picture', $collection ? MediaCollection::class : Struct::class, mappable: true)
+                ->reference('picture', $propertyType, mappable: true)
                 ->build(),
         ]);
-        $catalogued = $source->type === 'root'
-            ? MappingSourceReference::root('product', 'cover')
-            : new MappingSourceReference('AcmePlugin', 'image', ['size' => 'large'], 'media');
         $candidates = $this->createPartialMock(AbstractContentSystemMappingCandidateRegistry::class, ['getDecorated', 'forRootSource', 'cacheTagsForMapping', 'reset', 'resolveAdmittedSource']);
-        $candidates->method('forRootSource')->willReturn($offered ? [
-            $catalogued->displayName() => new MappingCandidate($catalogued->displayName(), 'Image', '', 'media', $valueType, $contextType, source: $catalogued),
-        ] : []);
+        $candidates->method('forRootSource')->willReturn($offered);
         $candidates->expects($this->never())->method('resolveAdmittedSource');
         $map = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $map->method('resolve')->willReturn(new ContentSystemDataLoaderMap([], []));
@@ -556,38 +760,13 @@ class AvailableContextResolverTest extends TestCase
         $child = new StoredElement('child', 'Sw:Block');
         $parent = StoredElementBuilder::create('Sw:MappedProvider', 'parent')
             ->withConsumer('picture', $consumerType, scope: ConsumerScope::Root, source: $source)
-            ->withProvider('picture', BroadcastDistributionConfig::aliased('image'), $contextType)
+            ->withProvider('picture', BroadcastDistributionConfig::aliased('image'), $providerType)
             ->withSlot('content', [$child])
             ->build();
-        $ambient = $source->type === 'root' ? $this->rootAmbientProductContext() : [];
 
         $available = $resolver->resolve('child', [$parent], $ambient, $rootSource);
-        $provided = array_values(array_filter($available, static fn (ProvidedContext $context): bool => !$context->root));
 
-        static::assertCount($expected ? 1 : 0, $provided);
-        if ($expected) {
-            static::assertSame($valueType, $provided[0]->fqcn);
-            static::assertSame($contextType, $provided[0]->contextType);
-            static::assertSame('image', $provided[0]->contextKey);
-            static::assertSame('parent', $provided[0]->providerElementId);
-        }
-    }
-
-    /**
-     * @return iterable<string, array{MappingSourceReference, bool, string, ContextType, string|null, bool}>
-     */
-    public static function mappedProviderBacking(): iterable
-    {
-        $root = MappingSourceReference::root('product', 'cover');
-        $plugin = new MappingSourceReference('AcmePlugin', 'image', ['size' => 'large'], 'media');
-        yield 'reshaped root media under another destination key' => [$root, true, MediaEntity::class, ContextType::Single, 'product', true];
-        yield 'plugin media without ambient entries' => [$plugin, true, MediaEntity::class, ContextType::Single, 'product', true];
-        yield 'plugin collection retains cardinality' => [$plugin, true, MediaCollection::class, ContextType::Collection, 'product', true];
-        yield 'unavailable mapping does not back the provider' => [$plugin, false, MediaEntity::class, ContextType::Single, 'product', false];
-        yield 'configuration mismatch does not back the provider' => [new MappingSourceReference('AcmePlugin', 'image', ['size' => 'small'], 'media'), true, MediaEntity::class, ContextType::Single, 'product', false];
-        yield 'incompatible effective type does not back the provider' => [$plugin, true, 'string', ContextType::Single, 'product', false];
-        yield 'stored cardinality mismatch does not back the provider' => [$root, true, MediaEntity::class, ContextType::Collection, 'product', false];
-        yield 'ambient entries cannot replace a missing source identifier' => [$root, true, MediaEntity::class, ContextType::Single, null, false];
+        return array_values(array_filter($available, static fn (ProvidedContext $context): bool => !$context->root));
     }
 
     /**
@@ -595,7 +774,7 @@ class AvailableContextResolverTest extends TestCase
      *
      * @return list<ProvidedContext>
      */
-    private function rootAmbientProductContext(): array
+    private static function rootAmbientProductContext(): array
     {
         return [new ProvidedContext(
             contextKey: 'product',

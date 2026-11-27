@@ -95,7 +95,7 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
                 await ShopCustomer.expects(StorefrontProductDetail.offCanvasLineItemGaranLabel).toBeVisible();
 
                 await ShopCustomer.presses(StorefrontProductDetail.offCanvasLineItemGaranLabel.getByRole('button'));
-                await ShopCustomer.expects(garanLabelModal).toBeFocused();
+                await ShopCustomer.expects(garanLabelModal.locator('.btn-close')).toBeFocused();
                 await ShopCustomer.expects(garanLabelModal).toContainText('GARAN-ACME');
                 await ShopCustomer.expects(garanLabelModal).toContainText('ACME-36');
                 await ShopCustomer.expects(garanLabelModal.getByRole('link')).toHaveAttribute('href', garanLabelInfoUrl);

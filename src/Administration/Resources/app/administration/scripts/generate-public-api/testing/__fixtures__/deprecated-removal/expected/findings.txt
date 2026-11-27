@@ -1,0 +1,21 @@
+Public API check passed: no breaks.
+
+Allowed (4)
+  deprecated_removal  component:sw-example-card/block:sw_example_card_subtitle  current, major
+    The block carries @deprecated tag:v6.8.0, which announced that it goes away.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:3
+  deprecated_removal  component:sw-example-card/computed:hasSubtitle  current, major
+    The computed property carries @deprecated tag:v6.8.0, which announced that it goes away.
+    At: src/app/component/base/sw-example-card/index.js:32
+  deprecated_removal  component:sw-example-card/method:getSubtitleClasses  current, major
+    The method carries @deprecated tag:v6.8.0, which announced that it goes away.
+    At: src/app/component/base/sw-example-card/index.js:38
+  deprecated_removal  component:sw-example-card/prop:subtitle  current, major
+    The prop carries @deprecated tag:v6.8.0, which announced that it goes away.
+    At: src/app/component/base/sw-example-card/index.js:12
+
+Info (1)
+  block_if_chain_changed  component:sw-example-card/block:sw_example_card_toggle  current, major
+    The v-if chain before the block changed from "hasSubtitle" to "hasTitle", so plugin overrides that start with v-else-if or v-else may now render under another condition.
+    Fix: mention it in the upgrade notes if the block now belongs to another condition.
+    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:14

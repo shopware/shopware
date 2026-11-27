@@ -11,6 +11,71 @@ component sw-flow-trigger  private  js  [private]
   template src/module/sw-flow/component/sw-flow-trigger/sw-flow-trigger.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  businessEventService  [private]
+  repositoryFactory  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  eventName: string  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
+  overlay?: boolean  default=true  [private]
+
+emits
+  option-select(...args: any[])  [private]
+
+data
+  isExpanded: any  [private]
+  isLoading: any  [private]
+  removeInputFocusClass: any  [private]
+  searchResult: any  [private]
+  searchResultFocusItem: any  [private]
+  searchTerm: any  [private]
+  selectedTreeItem: any  [private]
+  setInputFocusClass: any  [private]
+  showConfirmModal: any  [private]
+  triggerSelect: any  [private]
+
+computed
+  eventTree: any  [private]
+  flow: any  [private]
+  flowEventNameError: any  [private]
+  formatEventName: any  [private]
+  isSequenceEmpty: any  [private]
+  isTemplate: any  [private]
+  showTreeView: any  [private]
+  swFlowTriggerClasses: any  [private]
+  triggerEvents: any  [private]
+  triggerNamePlaceholder: any  [private]
+
+methods
+  beforeDestroyComponent(): any  [private]
+  changeSearchSelection(type?: any = 'next'): any  [private]
+  changeTrigger(item: any): any  [private]
+  closeDropdown(): any  [private]
+  createdComponent(): any  [private]
+  findTreeItemVNodeById(itemId?: any = this.selectedTreeItem.id, children?: any = this.$refs.flowTriggerTree?.$?.subTree?.children): any  [private]
+  getBreadcrumb(eventName: any): any  [private]
+  getClosestSiblingAncestor(parentId: any): any  [private]
+  getClosestSiblingDescendant(item: any): any  [private]
+  getDataByEvent(event: any): any  [private]
+  getEventName(eventName: any): any  [private]
+  getEventNameTranslated(eventName: any): any  [private]
+  getEventTree(events: any): any  [private]
+  getFirstChildById(itemId: any, children?: any = this.$refs.flowTriggerTree.treeItems): any  [private]
+  getLastEventName(arg0: any): any  [private]
+  getSibling(isNext: any, item: any, children?: any = this.$refs.flowTriggerTree.treeItems): any  [private]
+  handleArrowKeyEvents(event: any): any  [private]
+  handleClickEvent(event: any): any  [private]
+  handleGeneralKeyEvents(event: any): any  [private]
+  hasOnlyStopFlow(event: any): any  [private]
+  isSearchResultInFocus(item: any): any  [private]
+  onClickSearchItem(item: any): any  [private]
+  onCloseConfirm(): any  [private]
+  onConfirm(): any  [private]
+  openDropdown(arg0: any): any  [private]
+  toggleSelectedTreeItem(shouldOpen: any): any  [private]
+
 blocks
   sw_flow_trigger  [private]
     sw_flow_event_change_confirm_modal  [private]
@@ -35,4 +100,8 @@ blocks
 crossings
   v-if  sw_flow_trigger_search_list -> sw_flow_trigger_search_empty  [private]
   v-if  sw_flow_trigger_select_tree -> sw_flow_trigger_search_list  [private]
+
+refs
+  flowTriggerTree  -> sw-tree  block=sw_flow_trigger_select_tree  [private]
+  searchInput  -> input  block=sw_flow_trigger_select_field_input  [private]
 ```

@@ -10,6 +10,39 @@ component sw-settings-customer-group-list  public  js
   source src/module/sw-settings-customer-group/page/sw-settings-customer-group-list/index.js
   template src/module/sw-settings-customer-group/page/sw-settings-customer-group-list/sw-settings-customer-group-list.html.twig
 
+mixins
+  listing, placeholder, notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  customerGroups: any
+  isLoading: any
+  limit: any
+  searchConfigEntity: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  allCustomerGroupsCriteria: any
+  columns: any
+  customerGroupRepository: any
+  showEmptyState: any
+
+methods
+  createErrorNotification(): any
+  createdComponent(): any
+  customerGroupCanBeDeleted(customerGroup: any): any
+  customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups: any): any
+  deleteCustomerGroup(customerGroup: any): any
+  deleteCustomerGroups(): any
+  getColumns(): any
+  getList(): Promise<any>
+  getPriceBasisLabel(customerGroup: any): any
+  onContextMenuDelete(customerGroup: any): any
+
 blocks
   sw_settings_customer_group_list
     sw_settings_customer_group_list_actions
@@ -30,4 +63,7 @@ blocks
       sw_settings_customer_group_list_smart_bar_header_title
         sw_settings_customer_group_list_smart_bar_header_amount
         sw_settings_customer_group_list_smart_bar_header_title_text
+
+refs
+  listing  -> sw-entity-listing  block=sw_settings_customer_group_list_grid
 ```

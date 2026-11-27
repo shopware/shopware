@@ -10,6 +10,21 @@ component sw-product-settings-form  public  js
   source src/module/sw-product/component/sw-product-settings-form/index.js
   template src/module/sw-product/component/sw-product-settings-form/sw-product-settings-form.html.twig
 
+props
+  allowEdit?: boolean  default=true
+
+computed
+  parentProduct: any
+  product: any
+  productEanError: any
+  productManufacturerNumberError: any
+  productMarkAsTopsellerError: any
+  productMaxPurchaseError: any
+  productMinPurchaseError: any
+  productReleaseDateError: any
+  productShippingFreeError: any
+  productStockError: any
+
 blocks
   sw_product_settings_form
     sw_product_settings_form_content

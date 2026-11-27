@@ -11,6 +11,55 @@ component sw-import-export-edit-profile-modal-mapping  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping/sw-import-export-edit-profile-modal-mapping.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+props
+  profile?: object  default=null  [private]
+  systemRequiredFields?: object  default=factory  [private]
+
+emits
+  update-mapping(...args: any[])  [private]
+
+data
+  addMappingEnabled: any  [private]
+  currencies: any  [private]
+  customFieldSets: any  [private]
+  languages: any  [private]
+  mappings: any  [private]
+  searchTerm: any  [private]
+
+computed
+  currencyCriteria: any  [private]
+  currencyRepository: any  [private]
+  customFieldSetCriteria: any  [private]
+  customFieldSetRepository: any  [private]
+  languageCriteria: any  [private]
+  languageRepository: any  [private]
+  mappingColumns: any  [private]
+  mappingsExist: any  [private]
+  sortedMappings: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  debouncedSearch(): any  [private]
+  isDefaultValueCheckboxDisabled(): any  [private]
+  isDefaultValueTextFieldDisabled(item: any): any  [private]
+  isFirstMapping(item: any): any  [private]
+  isLastMapping(item: any): any  [private]
+  isRequiredBySystem(item: any): any  [private]
+  loadMappings(): any  [private]
+  onAddMapping(): any  [private]
+  onDeleteMapping(id: any): any  [private]
+  onSearch(): any  [private]
+  swapItems(firstItem: any, secondItems: any): any  [private]
+  toggleAddMappingActionState(sourceEntity: any): any  [private]
+  updateSorting(index: any, direction: any): any  [private]
+
 blocks
   sw_import_export_edit_profile_modal_mapping  [private]
     sw_import_export_edit_profile_modal_mapping_empty_state  [after v-if] [private]

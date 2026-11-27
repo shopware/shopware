@@ -11,6 +11,10 @@ component sw-cms-block-text-two-column  private  js  [private]
   template src/module/sw-cms/blocks/text/text-two-column/component/sw-cms-block-text-two-column.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  left  {}  block=sw_cms_block_text_two_column  [private]
+  right  {}  block=sw_cms_block_text_two_column  [private]
+
 blocks
   sw_cms_block_text_two_column  [private]
 ```

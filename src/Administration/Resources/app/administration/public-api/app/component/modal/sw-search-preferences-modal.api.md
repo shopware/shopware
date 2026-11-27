@@ -11,6 +11,39 @@ component sw-search-preferences-modal  private  js  [private]
   template src/app/component/modal/sw-search-preferences-modal/sw-search-preferences-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  searchPreferencesService  [private]
+  searchRankingService  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  searchPreferences: any  [private]
+  userSearchPreferences: any  [private]
+
+computed
+  defaultSearchPreferences: any  [private]
+  searchPreferencesColumns: any  [private]
+
+methods
+  addEventListeners(): any  [private]
+  beforeDestroyComponent(): any  [private]
+  createdComponent(): any  [private]
+  getDataSource(): Promise<any>  [private]
+  getModuleName(entityName: any): any  [private]
+  mountedComponent(): any  [private]
+  onCancel(): any  [private]
+  onChangeSearchPreference(searchPreference: any): any  [private]
+  onClose(): any  [private]
+  onOpenSearchSettings(): any  [private]
+  onSave(): Promise<any>  [private]
+  removeEventListeners(): any  [private]
+
 blocks
   sw_search_preferences_modal  [private]
     sw_search_preferences_modal_button_cancel  [private]

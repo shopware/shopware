@@ -10,6 +10,30 @@ component sw-product-detail-specifications  public  js
   source src/module/sw-product/view/sw-product-detail-specifications/index.js
   template src/module/sw-product/view/sw-product-detail-specifications/sw-product-detail-specifications.html.twig
 
+inject
+  acl
+  feature
+  repositoryFactory
+
+data
+  showMediaModal: any
+
+computed
+  customFieldSets: any
+  customFieldsExists: any
+  isDigitalProduct: any
+  isLoading: any
+  loading: any
+  parentProduct: any
+  product: any
+  productStates: any  [deprecated tag:v6.8.0]
+  productType: any
+  showCustomFieldsCard: any
+  showModeSetting: any
+
+methods
+  showProductCard(key: any): any
+
 blocks
   sw_product_detail_specifications
     sw_product_detail_specifications_custom_fields

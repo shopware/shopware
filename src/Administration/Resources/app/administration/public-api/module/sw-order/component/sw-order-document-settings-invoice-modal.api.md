@@ -11,6 +11,19 @@ component sw-order-document-settings-invoice-modal  public  js
   source src/module/sw-order/component/sw-order-document-settings-invoice-modal/index.js
   template src/module/sw-order/component/sw-order-document-settings-invoice-modal/sw-order-document-settings-invoice-modal.html.twig
 
+mixins
+  notification
+
+emits
+  loading-preview(...args: any[])
+
+computed
+  documentNumber: any
+
+methods
+  addAdditionalInformationToDocument(): any
+  onPreview(fileType?: any = 'pdf'): any
+
 blocks
   sw_order_document_settings_modal  [inherited]
     sw_order_document_settings_modal_form_additional_content  [inherited] [after v-if]
@@ -29,6 +42,9 @@ blocks
       sw_order_document_settings_modal_form_file_upload_toggle  [inherited]
     sw_order_document_settings_modal_form_first_row  [inherited]
       sw_order_document_settings_modal_form_document_date  [inherited]
-      sw_order_document_settings_modal_form_document_number  [replaced]
+      sw_order_document_settings_modal_form_document_number  [replaced] [deprecated tag:v6.9.0]
     sw_order_document_settings_modal_media_modal  [inherited] [after v-if]
+
+refs
+  fileInput  -> sw-media-upload-v2  block=sw_order_document_settings_modal_form_file_upload_input
 ```

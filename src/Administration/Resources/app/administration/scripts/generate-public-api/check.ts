@@ -7,11 +7,10 @@
  *
  * It prints the findings of the change and fails when it has unannounced breaks.
  */
-import { loadFeatureConfig, majorFlagsOf } from '../feature-flags';
-import { compareCommits } from './commit-check';
-import { ADMINISTRATION_ROOT } from './committed-snapshot';
-import { formatFindings } from './findings';
-import { repositoryOf } from './git-source-tree';
+import { compareCommits } from './break-check/commit-check';
+import { printFindings } from './break-check/print-findings';
+import { ADMINISTRATION_ROOT, currentMajorFlags } from './source/checkout';
+import { repositoryOf } from './source/git-source-tree';
 
 const [base, head, ...rest] = process.argv.slice(2);
 
@@ -19,8 +18,8 @@ if (base === undefined || head === undefined || rest.length > 0) {
     process.stderr.write('Usage: composer admin:check-public-api -- <base> <head>\n');
     process.exitCode = 2;
 } else {
-    const findings = compareCommits(repositoryOf(ADMINISTRATION_ROOT), majorFlagsOf(loadFeatureConfig()), base, head);
+    const findings = compareCommits(repositoryOf(ADMINISTRATION_ROOT), currentMajorFlags(), base, head);
 
-    process.stdout.write(formatFindings(findings));
+    process.stdout.write(printFindings(findings));
     process.exitCode = findings.some(({ group }) => group === 'Break') ? 1 : 0;
 }

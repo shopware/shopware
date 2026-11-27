@@ -20,6 +20,9 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class ShopIdProvider implements ResetInterface
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with every read of it, a migration converts the old shop ID format
+     */
     final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
     final public const SHOP_ID_SYSTEM_CONFIG_KEY_V2 = 'core.app.shopIdV2';
 

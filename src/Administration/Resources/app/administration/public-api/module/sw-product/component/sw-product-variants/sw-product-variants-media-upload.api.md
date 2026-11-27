@@ -11,6 +11,47 @@ component sw-product-variants-media-upload  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/sw-product-variants-media-upload.html.twig
 
+mixins
+  notification
+
+inject
+  mediaDefaultFolderService
+  repositoryFactory
+
+props
+  isInherited?: boolean  default=false
+  parentProduct: object
+  source: object
+
+data
+  activeItemId: any
+  mediaDefaultFolderId: any
+  showMediaModal: any
+  showPreviewModal: any
+
+computed
+  cover: any
+  coverImageSource: any
+  mediaSource: any
+  product: any
+  productMediaRepository: any
+
+methods
+  addMedia(media: any): Promise<any>
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  isCover(productMedia: any): any
+  isExistingMedia(media: any): any
+  isReplacedMedia(targetId: any): any
+  markMediaAsCover(productMedia: any): any
+  onAddMedia(media: any): any
+  onClosePreviewModal(): any
+  onUploadMediaFailed(arg0: any): any
+  onUploadMediaSuccessful(arg0: any): any
+  previewMedia(item: any): any
+  removeMedia(productMedia: any): any
+  updateMediaItemPositions(): any
+
 blocks
   sw_media_upload_v2  [replaced]
     sw_product_variants_media_upload_actions_media_modal
@@ -40,4 +81,9 @@ blocks
 
 crossings
   v-if  sw_product_variants_media_upload_actions_regular -> sw_product_variants_media_upload_actions_compact
+
+refs
+  dropzone  -> div  block=sw_product_variants_media_upload_drop_zone
+  fileForm  -> form  block=sw_product_variants_media_upload_file_input
+  fileInput  -> input  block=sw_product_variants_media_upload_file_input
 ```

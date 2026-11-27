@@ -11,6 +11,10 @@ component sw-condition-not-found  public  js
   source src/app/component/rule/condition-type/sw-condition-not-found/index.js
   template src/app/component/rule/condition-type/sw-condition-not-found/sw-condition-not-found.html.twig
 
+computed
+  extendedTypes: any
+  value: any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]

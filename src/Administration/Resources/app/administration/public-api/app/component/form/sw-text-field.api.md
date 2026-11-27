@@ -11,9 +11,27 @@ component sw-text-field  private  ts  [private]
   template src/app/component/form/sw-text-field/sw-text-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  modelValue?: string  default=null  [private]
+  value?: string  default=null  [private]
+
+slots
+  default  {}  block=sw_text_field  [private]
+
+computed
+  compatValue: any  [private]
+
+methods
+  getSlots(): any  [private]
+  handleUpdateModelValue(event: unknown): any  [private]
+
 blocks
   sw_text_field  [private]
 
 crossings
   v-if  sw_text_field -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

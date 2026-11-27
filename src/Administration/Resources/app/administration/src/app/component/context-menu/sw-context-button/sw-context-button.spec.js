@@ -4,18 +4,20 @@
 
 import { mount } from '@vue/test-utils';
 
+const floatingUiStub = {
+    props: [
+        'isOpened',
+        'floatingUiOptions',
+    ],
+    template: '<div><slot v-if="isOpened"></slot></div>',
+};
+
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-context-button', { sync: true }), {
         global: {
             stubs: {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                'sw-popover': {
-                    template: `
-                        <div class="sw-popover">
-                            <slot></slot>
-                        </div>
-                    `,
-                },
+                'mt-floating-ui': floatingUiStub,
             },
         },
         ...customOptions,
@@ -34,6 +36,16 @@ describe('src/app/component/context-menu/sw-context-button', () => {
         expect(wrapper.find('.sw-context-menu').exists()).toBeTruthy();
         expect(wrapper.find('.sw-context-menu').isVisible()).toBeTruthy();
         expect(wrapper.emitted('on-open-change')[0]).toEqual([true]);
+    });
+
+    it('mounts the floating menu only while it is open', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.findComponent(floatingUiStub).exists()).toBe(false);
+
+        await wrapper.trigger('click');
+
+        expect(wrapper.findComponent(floatingUiStub).exists()).toBe(true);
     });
 
     it('should close the context menu', async () => {
@@ -116,5 +128,33 @@ describe('src/app/component/context-menu/sw-context-button', () => {
         await wrapper.trigger('click');
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
+    });
+
+    it.each([
+        ['bottom-start', 190, 'bottom-start'],
+        ['bottom-end', 110, 'bottom-end'],
+        ['top-end', 110, 'top-end'],
+    ])('keeps the menu arrow under the button centre when placed %s', async (placement, expectedX, expectedPlacement) => {
+        const wrapper = await createWrapper();
+        await wrapper.trigger('click');
+        const { middleware } = wrapper.getComponent(floatingUiStub).props('floatingUiOptions');
+        const floating = document.createElement('div');
+
+        const result = middleware[0].fn({
+            x: 150,
+            placement,
+            rects: { reference: { width: 150 } },
+            elements: { floating },
+        });
+
+        expect(result).toEqual({ x: expectedX });
+        expect(floating.dataset.placement).toBe(expectedPlacement);
+    });
+
+    it('starts above the button when the menu is aligned to the top', async () => {
+        const wrapper = await createWrapper({ props: { menuVerticalAlign: 'top', menuHorizontalAlign: 'left' } });
+        await wrapper.trigger('click');
+
+        expect(wrapper.getComponent(floatingUiStub).props('floatingUiOptions').placement).toBe('top-end');
     });
 });

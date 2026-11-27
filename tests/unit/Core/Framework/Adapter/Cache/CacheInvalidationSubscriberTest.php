@@ -14,10 +14,11 @@ use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
-use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -99,60 +101,6 @@ class CacheInvalidationSubscriberTest extends TestCase
         ));
     }
 
-    public function testInvalidateMediaWithoutVariantsWillInvalidateOnlyProducts(): void
-    {
-        $productId = Uuid::randomHex();
-        $mediaId = Uuid::randomHex();
-        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
-
-        $subscriber = $this->createSubscriber();
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['product_id' => $productId, 'version_id' => null]]);
-
-        $this->cacheInvalidator->expects($this->once())
-            ->method('invalidate')
-            ->with(
-                [
-                    EntityCacheKeyGenerator::buildProductTag($productId),
-                    MediaRoute::buildName($mediaId),
-                ],
-                false
-            );
-
-        $subscriber->invalidateMedia($event);
-    }
-
-    public function testInvalidateMediaWithVariantsWillInvalidateProductsAndVariants(): void
-    {
-        $productId = Uuid::randomHex();
-        $variants = [Uuid::randomHex(), Uuid::randomHex()];
-        $mediaId = Uuid::randomHex();
-        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
-
-        $subscriber = $this->createSubscriber();
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                ['product_id' => $productId, 'variant_id' => $variants[0]],
-                ['product_id' => $productId, 'variant_id' => $variants[1]],
-            ]);
-
-        $this->cacheInvalidator->expects($this->once())
-            ->method('invalidate')
-            ->with(
-                [
-                    EntityCacheKeyGenerator::buildProductTag($productId),
-                    EntityCacheKeyGenerator::buildProductTag($variants[0]),
-                    EntityCacheKeyGenerator::buildProductTag($variants[1]),
-                    MediaRoute::buildName($mediaId),
-                ],
-                false
-            );
-
-        $subscriber->invalidateMedia($event);
-    }
-
     public function testInvalidateMediaInvalidatesEveryPageShowingTheMedia(): void
     {
         $ids = [
@@ -187,7 +135,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             'FROM product_manufacturer WHERE media_id' => [$ids['manufacturer']],
         ];
 
-        $this->connection->expects($this->once())->method('fetchAllAssociative')->willReturn([['product_id' => $ids['product'], 'variant_id' => null]]);
+        $this->connection->expects($this->once())->method('fetchAllAssociative')->willReturn([['product_id' => Uuid::fromHexToBytes($ids['product']), 'variant_id' => null]]);
         $this->connection->method('fetchFirstColumn')->willReturnCallback(static function (string $sql) use ($results): array {
             foreach ($results as $table => $result) {
                 if (str_contains($sql, $table)) {
@@ -199,8 +147,8 @@ class CacheInvalidationSubscriberTest extends TestCase
         });
 
         $tags = [];
-        $this->cacheInvalidator->expects($this->once())->method('invalidate')->willReturnCallback(static function (array $invalidated) use (&$tags): void {
-            $tags = $invalidated;
+        $this->cacheInvalidator->expects($this->atLeastOnce())->method('invalidate')->willReturnCallback(static function (array $invalidated) use (&$tags): void {
+            $tags = array_merge($tags, $invalidated);
         });
 
         $this->createSubscriber()->invalidateMedia(new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []));
@@ -618,6 +566,39 @@ class CacheInvalidationSubscriberTest extends TestCase
         $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], $salesChannelId, false));
     }
 
+    #[DataProvider('providerSearchConfigEntities')]
+    public function testInvalidateSearchConfig(string $entityName): void
+    {
+        $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([CachedSearchConfigLoader::CACHE_KEY], true);
+
+        $subscriber->invalidateSearchConfig($this->createWrittenEvent($entityName));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function providerSearchConfigEntities(): iterable
+    {
+        yield 'search config' => [ProductSearchConfigDefinition::ENTITY_NAME];
+
+        yield 'search config field' => [ProductSearchConfigFieldDefinition::ENTITY_NAME];
+    }
+
+    public function testInvalidateSearchConfigIgnoresOtherEntities(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $subscriber->invalidateSearchConfig($this->createWrittenEvent(SalesChannelDefinition::ENTITY_NAME));
+    }
+
     public function testInvalidateStreamIdsWithProductStreamFilterWrites(): void
     {
         $streamId = Uuid::randomHex();
@@ -890,6 +871,28 @@ class CacheInvalidationSubscriberTest extends TestCase
                                 'translationKey' => 'test',
                             ],
                             SnippetDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        );
+    }
+
+    private function createWrittenEvent(string $entityName): EntityWrittenContainerEvent
+    {
+        return new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    $entityName,
+                    [
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            [],
+                            $entityName,
                             EntityWriteResult::OPERATION_UPDATE,
                         ),
                     ],

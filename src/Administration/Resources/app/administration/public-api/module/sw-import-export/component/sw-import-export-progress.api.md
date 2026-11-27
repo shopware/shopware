@@ -11,6 +11,17 @@ component sw-import-export-progress  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-progress/sw-import-export-progress.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  activityType?: string  default='import'  [private]
+  disableButton?: boolean  default=true  [private]
+
+emits
+  process-start(...args: any[])  [private]
+  process-start-dryrun(...args: any[])  [private]
+
 blocks
   sw_import_export_progress  [private]
     sw_import_export_progress_start_process  [private]

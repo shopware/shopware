@@ -35,6 +35,7 @@ readonly class ShopId implements \Stringable
         return $this->fingerprints[$identifier] ?? null;
     }
 
+    // @deprecated tag:v6.8.0 - remove, the old shop ID format is no longer read
     public static function v1(string $id, string $appUrl): self
     {
         return new self($id, [AppUrl::IDENTIFIER => $appUrl], 1);
@@ -53,6 +54,7 @@ readonly class ShopId implements \Stringable
      */
     public static function fromSystemConfig(array $config): self
     {
+        // @deprecated tag:v6.8.0 - remove the old shop ID format together with isV1()
         if (self::isV1($config)) {
             return self::v1($config['value'], $config['app_url']);
         }

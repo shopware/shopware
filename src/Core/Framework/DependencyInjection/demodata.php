@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Demodata\Generator\MailTemplateGenerator;
 use Shopware\Core\Framework\Demodata\Generator\MediaGenerator;
 use Shopware\Core\Framework\Demodata\Generator\NewsletterRecipientGenerator;
 use Shopware\Core\Framework\Demodata\Generator\OrderGenerator;
+use Shopware\Core\Framework\Demodata\Generator\ProductDocumentFileProvider;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductReviewGenerator;
@@ -52,6 +53,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Filesystem;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -137,12 +139,23 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.demodata_generator', ['option-name' => 'reviews', 'option-default' => 20, 'option_name' => 'reviews', 'option_default' => 20]);
 
+    $services->set(ProductDocumentFileProvider::class)
+        ->args([
+            service(EntityWriter::class),
+            service(MediaDefinition::class),
+            service(FileSaver::class),
+            service(FileNameProvider::class),
+            service(Filesystem::class),
+            service(Connection::class),
+        ]);
+
     $services->set(ProductGenerator::class)
         ->args([
             service(Connection::class),
             service(DefinitionInstanceRegistry::class),
             service(InheritanceUpdater::class),
             service(StatesUpdater::class)->nullOnInvalid(),
+            service(ProductDocumentFileProvider::class),
         ])
         ->tag('shopware.demodata_generator', ['option-name' => 'products', 'option-default' => 1000, 'option_name' => 'products', 'option_default' => 1000]);
 

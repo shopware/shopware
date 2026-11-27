@@ -11,9 +11,22 @@ component sw-select-field  private  ts  [private]
   template src/app/component/form/sw-select-field/sw-select-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  options?: any[]  [private]
+
+slots
+  default  {}  block=(root)  [private]
+
+methods
+  getSlots(): any  [private]
+
 blocks
   sw_select_field  [private]
 
 crossings
   v-if  sw_select_field -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

@@ -11,6 +11,23 @@ component sw-cms-el-product-box  private  js  [private]
   template src/module/sw-cms/elements/product-box/component/sw-cms-el-product-box.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element, placeholder  [private]
+
+computed
+  altTag: any  [private]
+  assetFilter: any  [private]
+  currencyFilter: any  [private]
+  displayModeClass: any  [private]
+  displaySkeleton: any  [private]
+  mediaUrl: any  [private]
+  product: any  [private]
+  truncateFilter: any  [private]
+  verticalAlignStyle: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_element_product_box  [private]
     sw_cms_element_product_box_content  [private]

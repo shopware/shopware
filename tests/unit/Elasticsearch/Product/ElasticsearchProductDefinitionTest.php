@@ -474,6 +474,25 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 'coverId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'documents' => [
+                    'type' => 'nested',
+                    'properties' => [
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                        '_count' => [
+                            'type' => 'long',
+                        ],
+                        'translations' => [
+                            'type' => 'nested',
+                            'properties' => [
+                                'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                                '_count' => [
+                                    'type' => 'long',
+                                ],
+                                'languageId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                            ],
+                        ],
+                    ],
+                ],
                 'weight' => [
                     'type' => 'double',
                 ],
@@ -943,6 +962,82 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             $document['properties']
         );
+    }
+
+    public function testFetchingIncludesTheDocumentsOfTheProductThatOwnsThem(): void
+    {
+        $definition = $this->getDefinitionRegistry()->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $productId = $this->ids->get('product-1');
+        $ownerId = $this->ids->get('parent-1');
+        $connection = $this->getConnection();
+        $connection
+            ->method('fetchAllKeyValue')
+            ->willReturn([$productId => $ownerId]);
+        $connection
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['ownerId' => $ownerId, 'id' => $this->ids->get('document-1'), 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                ['ownerId' => $ownerId, 'id' => $this->ids->get('document-1'), 'languageId' => $this->ids->get('language-de')],
+                ['ownerId' => $ownerId, 'id' => $this->ids->get('document-2'), 'languageId' => null],
+            ]);
+
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $connection,
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
+            new StaticSalesChannelLanguageLoader([Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL]]),
+            false,
+            'dev',
+            static::createStub(LanguageLoaderInterface::class)
+        );
+
+        $documents = $definition->fetch([$productId], Context::createDefaultContext());
+
+        static::assertSame(
+            [
+                [
+                    'id' => $this->ids->get('document-1'),
+                    '_count' => 1,
+                    'translations' => [
+                        ['languageId' => Defaults::LANGUAGE_SYSTEM, '_count' => 1],
+                        ['languageId' => $this->ids->get('language-de'), '_count' => 1],
+                    ],
+                ],
+                [
+                    'id' => $this->ids->get('document-2'),
+                    '_count' => 1,
+                    'translations' => [],
+                ],
+            ],
+            $documents[$productId]['documents']
+        );
+    }
+
+    public function testFetchingWithoutDocumentsIndexesAnEmptyList(): void
+    {
+        $definition = $this->getDefinitionRegistry()->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $this->getConnection(),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
+            new StaticSalesChannelLanguageLoader([Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL]]),
+            false,
+            'dev',
+            static::createStub(LanguageLoaderInterface::class)
+        );
+
+        $productId = $this->ids->get('product-1');
+        $documents = $definition->fetch([$productId], Context::createDefaultContext());
+
+        static::assertSame([], $documents[$productId]['documents']);
     }
 
     public function testFetchingSkipsPriceNotKeyedByCurrency(): void

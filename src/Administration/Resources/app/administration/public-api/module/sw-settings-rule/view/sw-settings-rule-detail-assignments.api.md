@@ -11,6 +11,62 @@ component sw-settings-rule-detail-assignments  private  js  [private]
   template src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments/sw-settings-rule-detail-assignments.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  acl  [private]
+  feature  [private]
+  repositoryFactory  [private]
+  ruleConditionDataProviderService  [private]
+
+props
+  conditions?: any[]  default=null  [private]
+  detailPageLoading?: boolean  default=false  [private]
+  rule: object  [private]
+
+data
+  addEntityContext: any  [private]
+  addModal: any  [private]
+  associationEntities: any  [private]
+  associationLimit: any  [private]
+  associationSteps: any  [private]
+  deleteEntity: any  [private]
+  deleteItem: any  [private]
+  deleteModal: any  [private]
+  isLoading: any  [private]
+  paymentMethods: any  [private]
+  products: any  [private]
+  promotions: any  [private]
+  ruleAssociationsLoaded: any  [private]
+  shippingMethods: any  [private]
+
+computed
+  assetFilter: any  [private]
+  associationEntitiesConfig: any  [private]
+  getRuleAssignmentConfiguration: any  [private]
+
+methods
+  allowDeletion(entity: any): any  [private]
+  createdComponent(): any  [private]
+  disableAdd(entity: any): any  [private]
+  doDeleteItem(): Promise<any>  [private]
+  getRouterLink(item: any, detailRoute: any, column?: any = null): any  [private]
+  getTooltipConfig(entity: any): any  [private]
+  hasRoute(item: any, column: any): any  [private]
+  loadAssociationData(): Promise<any>  [private]
+  loadNotAssignedDataTotals(item: any, api: any): Promise<any>  [private]
+  onCloseAddModal(): any  [private]
+  onCloseDeleteModal(): any  [private]
+  onDelete(): Promise<any>  [private]
+  onDeleteItems(entity: any, selection: any): Promise<any>  [private]
+  onEntitiesSaved(): any  [private]
+  onFilterEntity(item: any, term: any): Promise<any>  [private]
+  onOpenAddModal(entityContext: any): any  [private]
+  onOpenDeleteModal(entity: any, item: any): any  [private]
+  prepareAssociationEntitiesList(): any  [private]
+  refreshAssignmentData(entity: any): Promise<any>  [private]
+
 blocks
   sw_settings_rule_detail_assignments  [private]
     sw_settings_rule_detail_assignments_add_modal  [after v-if] [private]

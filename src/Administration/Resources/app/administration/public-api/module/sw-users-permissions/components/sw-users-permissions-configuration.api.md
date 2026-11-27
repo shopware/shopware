@@ -10,6 +10,18 @@ component sw-users-permissions-configuration  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-configuration/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-configuration/sw-users-permissions-configuration.html.twig
 
+inject
+  acl
+
+emits
+  loading-change(...args: any[])
+
+methods
+  onChangeLoading(loading: any): any
+
 blocks
   sw_users_permissions_configuration
+
+refs
+  systemConfig  -> sw-system-config  block=sw_users_permissions_configuration
 ```

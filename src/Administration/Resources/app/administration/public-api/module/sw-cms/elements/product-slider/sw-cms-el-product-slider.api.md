@@ -11,6 +11,32 @@ component sw-cms-el-product-slider  private  js  [private]
   template src/module/sw-cms/elements/product-slider/component/sw-cms-el-product-slider.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+
+data
+  sliderBoxLimit: any  [private]
+
+computed
+  classes: any  [private]
+  currentDeviceView: any  [private]
+  demoProductElement: any  [private]
+  hasNavigationArrows: any  [private]
+  navArrowsClasses: any  [deprecated tag:v6.8.0] [private]
+  sliderBoxMinWidth: any  [private]
+  verticalAlignStyle: any  [private]
+
+methods
+  beforeUnmountComponent(): any  [private]
+  createdComponent(): any  [private]
+  getProductEl(product: any): any  [private]
+  mountedComponent(): any  [private]
+  registerProductHolderResizeObserver(): any  [private]
+  setSliderRowLimit(): any  [private]
+
 blocks
   sw_cms_element_product_slider  [private]
     sw_cms_element_product_slider_content  [after v-if] [private]
@@ -20,4 +46,7 @@ blocks
         sw_cms_element_product_slider_demo_data  [private]
         sw_cms_element_product_slider_products  [private]
     sw_cms_element_product_slider_title  [private]
+
+refs
+  productHolder  -> div  block=sw_cms_element_product_slider_product_holder  [private]
 ```

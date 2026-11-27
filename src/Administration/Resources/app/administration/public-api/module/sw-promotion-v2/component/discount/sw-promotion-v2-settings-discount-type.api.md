@@ -10,6 +10,45 @@ component sw-promotion-v2-settings-discount-type  public  js
   source src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type/index.js
   template src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type/sw-promotion-v2-settings-discount-type.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  discount: object
+  discountScope: string
+  preselectedApplyDiscountTo?: string  default=factory
+  preselectedDiscountType?: string  default=factory
+
+data
+  currencies: any
+  currencySymbol: any
+  defaultCurrency: any
+  displayAdvancedPricesModal: any
+
+computed
+  advancedPricesRepo: any
+  applierOptions: any
+  currencyCriteria: any
+  currencyPriceColumns: any
+  currencyRepository: any
+  discountTypeOptions: any
+  isPercentageType: any
+  labelValue: any
+  showAdvancedPricesLink: any
+  showMaxValueAdvancedPrices: any
+
+methods
+  clearAdvancedPrices(): any
+  createdComponent(): any
+  getApplyDiscountToSelection(): any
+  getDiscountTypeSelection(): any
+  onClickAdvancedPrices(): any
+  onCloseAdvancedPricesModal(): any
+  onMaxValueChanged(value: any): any
+  prepareAdvancedPrices(currency: any, basePrice?: any = 0.0): any
+  setCurrencyForDiscountPrices(currency: any): any
+
 blocks
   sw_promotion_v2_settings_discount_type
     sw_promotion_v2_settings_discount_type_advanced_prices_link

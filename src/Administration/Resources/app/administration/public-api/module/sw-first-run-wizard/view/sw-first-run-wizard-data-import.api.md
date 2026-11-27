@@ -11,6 +11,47 @@ component sw-first-run-wizard-data-import  private  js  [private]
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-data-import/sw-first-run-wizard-data-import.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  extensionStoreActionService  [private]
+  repositoryFactory  [private]
+
+emits
+  buttons-update(...args: any[])  [private]
+  extension-activated(...args: any[])  [private]
+  frw-set-title(...args: any[])  [private]
+
+data
+  demoDataPluginName: any  [private]
+  installationError: any  [private]
+  isInstallingPlugin: any  [private]
+  isPluginAlreadyInstalled: any  [private]
+  migrationPluginName: any  [private]
+  pluginError: any  [private]
+  pluginInstalledSuccessfully: object  [private]
+    demodata: any  [private]
+    migration: any  [private]
+  plugins: object  [private]
+    demodata: object  [private]
+      isInstalled: any  [private]
+      name: any  [private]
+    migration: object  [private]
+      isInstalled: any  [private]
+      name: any  [private]
+
+computed
+  assetFilter: any  [private]
+  buttonConfig: any  [private]
+  pluginRepository: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  findPluginKeyByName(name: any): any  [private]
+  getInstalledPlugins(): any  [private]
+  notInstalled(pluginKey: any): any  [private]
+  onInstall(pluginKey: any): Promise<any>  [private]
+  setTitle(): any  [private]
+  updateButtons(): any  [private]
+
 blocks
   sw_first_run_wizard_data_import  [private]
 ```

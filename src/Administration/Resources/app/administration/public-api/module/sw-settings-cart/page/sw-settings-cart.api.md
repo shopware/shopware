@@ -10,6 +10,18 @@ component sw-settings-cart  public  js
   source src/module/sw-settings-cart/page/sw-settings-cart/index.js
   template src/module/sw-settings-cart/page/sw-settings-cart/sw-settings-cart.html.twig
 
+mixins
+  notification
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+
+methods
+  onLoadingChanged(loading: any): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_cart_index
     sw_settings_cart_content
@@ -20,4 +32,7 @@ blocks
       sw_settings_cart_smart_bar_header_title
         sw_settings_cart_smart_bar_header_amount
         sw_settings_cart_smart_bar_header_title_text
+
+refs
+  systemConfig  -> sw-system-config  block=sw_settings_cart_content
 ```

@@ -10,6 +10,12 @@ component sw-custom-field-type-text  public  js
   registered src/module/sw-settings-custom-field/index.js
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-text/index.js
 
+data
+  propertyNames: object
+    helpText: any
+    label: any
+    placeholder: any
+
 blocks
   sw_custom_field_type_base  [inherited]
     sw_custom_field_type_base_content  [inherited]

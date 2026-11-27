@@ -10,4 +10,13 @@ component sw-settings-usage-data-consent-modal-data-provider  private  ts  [priv
   source src/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal-data-provider/index.ts  [private]
   template src/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal-data-provider/sw-settings-usage-data-consent-modal-data-provider.html.twig  [private]
   visibility-source export  [private]
+
+inject
+  acl  [private]
+
+computed
+  areConsentsLoaded: any  [private]
+  showConsentModal: any  [private]
+  storeDataConsent: any  [private]
+  userDataConsent: any  [private]
 ```

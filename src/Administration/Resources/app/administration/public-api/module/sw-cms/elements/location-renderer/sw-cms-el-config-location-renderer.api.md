@@ -11,6 +11,26 @@ component sw-cms-el-config-location-renderer  private  ts  [private]
   template src/module/sw-cms/elements/location-renderer/config/sw-cms-el-config-location-renderer.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+props
+  elementData: ElementDataProp  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+computed
+  configLocation: string  [private]
+  publishingKey: string  [private]
+  src: string  [private]
+
+methods
+  createdComponent(): any  [private]
+  emitChanges(content: unknown): any  [private]
+  onBlur(content: unknown): any  [private]
+  onInput(content: unknown): any  [private]
+
 blocks
   sw_cms_el_config_location_renderer  [private]
 ```

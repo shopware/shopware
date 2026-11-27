@@ -26,7 +26,7 @@ Administration flags and deprecations decide whether extension developers can te
 
 ### CI covers
 
-- Jest `src/meta/meta.spec.js` and `scripts/generate-public-api/committed-snapshot.spec.ts`: fail when the templates and the committed position identifier list or block snapshot disagree. They cannot see a removal that also regenerates the list or the snapshot; that is ADMF-008.
+- Jest `src/meta/meta.spec.js` and `scripts/generate-public-api/snapshot/committed-snapshot.spec.ts`: fail when the templates and the committed position identifier list or block snapshot disagree. They cannot see a removal that also regenerates the list or the snapshot; that is ADMF-008.
 - ESLint `sw-deprecation-rules/no-deprecated-components`, `no-sw-tabs-usage` and `private-feature-declarations` (core using deprecated components, new exports not `@private`), `sw-test-rules/stabilize-feature-flag` (tests activating shipped flags).
 
 ### Legitimate patterns

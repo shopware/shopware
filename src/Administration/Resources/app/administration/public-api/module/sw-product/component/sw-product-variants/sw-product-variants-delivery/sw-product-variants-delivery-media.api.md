@@ -10,6 +10,30 @@ component sw-product-variants-delivery-media  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/sw-product-variants-delivery-media.html.twig
 
+inject
+  mediaService
+  repositoryFactory
+
+props
+  product: object
+  selectedGroups: any[]
+
+data
+  activeGroup: any
+  isLoading: any
+
+computed
+  activeOptions: any
+  optionColumns: any
+  selectedGroupsSorted: any
+
+methods
+  onChangeGroupListing(value: any): any
+  onUploadsAdded(arg0: any): Promise<any>
+  removeMedia(option: any): any
+  setMedia(selection: any, optionId: any): any
+  successfulUpload(): Promise<any>
+
 blocks
   sw_product_variants_delivery_media
     sw_product_variants_delivery_media_groups
@@ -20,4 +44,7 @@ blocks
         sw_product_variants_delivery_media_data_grid_column_option_media
           sw_product_variants_delivery_media_data_grid_column_option_media_listener  [scope: compact, isInlineEdit, item]
           sw_product_variants_delivery_media_data_grid_column_option_media_upload  [scope: compact, isInlineEdit, item]
+
+refs
+  variantsMedia  -> sw-data-grid  block=sw_product_variants_delivery_media_data_grid
 ```

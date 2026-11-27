@@ -11,6 +11,25 @@ component sw-extension-removal-modal  private  js  [private]
   template src/module/sw-extension/component/sw-extension-removal-modal/sw-extension-removal-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  extensionName: string  [private]
+  hasDeletableFiles?: boolean  default=true  [private]
+  isLicensed: boolean  [private]
+  isLoading: boolean  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  remove-extension(...args: any[])  [private]
+
+computed
+  alert: any  [private]
+  btnLabel: any  [private]
+  title: any  [private]
+
+methods
+  emitClose(): any  [private]
+  emitRemoval(): any  [private]
+
 blocks
   sw_extension_removal_modal  [private]
     sw_extension_removal_modal_content  [private]

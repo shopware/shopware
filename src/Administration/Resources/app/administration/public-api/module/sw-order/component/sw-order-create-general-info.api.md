@@ -11,6 +11,23 @@ component sw-order-create-general-info  private  ts  [private]
   template src/module/sw-order/component/sw-order-create-general-info/sw-order-create-general-info.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  acl  [private]
+
+props
+  cart: Cart  [private]
+  context: SalesChannelContext  [private]
+  isLoading: boolean  [private]
+
+computed
+  currencyFilter: any  [private]
+  paymentMethodName: string  [private]
+  shippingMethodName: string  [private]
+  summaryMainHeader: string  [private]
+
 blocks
   sw_order_create_general_info  [private]
     sw_order_create_general_info_order_states  [private]

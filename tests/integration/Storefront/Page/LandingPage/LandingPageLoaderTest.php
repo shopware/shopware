@@ -7,11 +7,13 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageException;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPage;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedEvent;
@@ -103,6 +105,62 @@ class LandingPageLoaderTest extends TestCase
         $this->createData(true, false);
 
         $this->getPageLoader()->load($request, $context);
+    }
+
+    public function testItDoesHaveCanonicalTag(): void
+    {
+        $this->ids = new IdsCollection();
+
+        $request = new Request([], [], [
+            'landingPageId' => $this->ids->get('landing-page'),
+        ]);
+
+        $context = $this->createSalesChannelContextWithNavigation();
+        $this->ids->set('sales-channel', $context->getSalesChannelId());
+        $this->createData();
+
+        $seoUrlHandler = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
+
+        $event = null;
+        $this->catchEvent(LandingPageLoadedEvent::class, $event);
+
+        $metaInformation = $this->getPageLoader()->load($request, $context)->getMetaInformation();
+        static::assertNotNull($metaInformation);
+        $meta = $metaInformation->getVars();
+        $canonical = $meta['canonical'];
+
+        static::assertIsString($canonical);
+        static::assertNotSame('', $canonical);
+
+        $seoUrl = $seoUrlHandler->replace($canonical, $request->getHost(), $context);
+
+        static::assertSame('/myUrl', $seoUrl);
+    }
+
+    public function testItDoesHaveGenericMetaInformation(): void
+    {
+        $locale = 'en-GB';
+
+        $this->ids = new IdsCollection();
+
+        $request = new Request([], [], [
+            'landingPageId' => $this->ids->get('landing-page'),
+            SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE => $locale,
+        ]);
+
+        $context = $this->createSalesChannelContextWithNavigation();
+        $this->ids->set('sales-channel', $context->getSalesChannelId());
+        $this->createData();
+
+        $event = null;
+        $this->catchEvent(LandingPageLoadedEvent::class, $event);
+
+        $metaInformation = $this->getPageLoader()->load($request, $context)->getMetaInformation();
+
+        static::assertNotNull($metaInformation);
+        static::assertSame('15 days', $metaInformation->getRevisit());
+        static::assertSame('index,follow', $metaInformation->getRobots());
+        static::assertSame($locale, $metaInformation->getXmlLang());
     }
 
     /**

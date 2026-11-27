@@ -11,6 +11,28 @@ component sw-container  private  js  [private]
   template src/app/component/base/sw-container/sw-container.html.twig  [private]
   visibility-source export  [private]
 
+props
+  align?: string  default='stretch'  [private]
+  breakpoints?: object  default=factory  [private]
+  columns?: string  default=''  [private]
+  gap?: string  default=''  [private]
+  justify?: string  default='stretch'  [private]
+  rows?: string  default=''  [private]
+
+slots
+  default  {}  block=sw_container  [private]
+
+data
+  currentCssGrid: any  [private]
+
+methods
+  buildCssGrid(): any  [private]
+  buildCssGridProps(currentBreakpoint?: any = {}): any  [private]
+  createdComponent(): any  [private]
+  cssGridDefaults(): any  [private]
+  registerResizeListener(): any  [private]
+  updateCssGrid(): any  [private]
+
 blocks
   sw_container  [private]
     sw_container_slot_default  [private]

@@ -11,6 +11,54 @@ component sw-flow-sequence-condition  private  js  [private]
   template src/module/sw-flow/component/sw-flow-sequence-condition/sw-flow-sequence-condition.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  flowBuilderService  [private]
+  repositoryFactory  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  sequence: object  [private]
+
+data
+  fieldError: any  [private]
+  selectedRuleId: any  [private]
+  showAddButton: any  [private]
+  showCreateRuleModal: any  [private]
+  showRuleSelection: any  [private]
+
+computed
+  advanceSelectionParameters: any  [private]
+  flow: any  [private]
+  invalidSequences: any  [private]
+  modalName: any  [private]
+  restrictedRules: any  [private]
+  ruleCriteria: any  [private]
+  ruleDescription: any  [private]
+  ruleRepository: any  [private]
+  sequenceRepository: any  [private]
+  sequences: any  [private]
+  showHelpElement: any  [private]
+
+methods
+  addIfCondition(trueCase: any): any  [private]
+  addThenAction(trueCase: any): any  [private]
+  arrowClasses(trueCase: any): any  [private]
+  createSequence(params: any): any  [private]
+  deleteRule(): any  [private]
+  disabledAddSequence(trueCase: any): any  [private]
+  isRuleDisabled(rule: any): any  [private]
+  onCloseModal(): any  [private]
+  onCreateNewRule(): any  [private]
+  onEditRule(): any  [private]
+  onRuleChange(rule: any): any  [private]
+  onSaveRuleSuccess(rule: any): any  [private]
+  removeCondition(): any  [private]
+  removeFieldError(): any  [private]
+  setFieldError(): any  [private]
+  showArrowIcon(trueCase: any): any  [private]
+  toggleAddButton(): any  [private]
+
 blocks
   sw_flow_sequence_condition  [private]
     sw_flow_sequence_condition_container  [after v-if] [private]

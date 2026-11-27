@@ -11,6 +11,22 @@ component sw-flow-sequence-selector  private  js  [private]
   template src/module/sw-flow/component/sw-flow-sequence-selector/sw-flow-sequence-selector.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+  sequence: object  [private]
+
+slots
+  helpText  {}  block=sw_flow_sequence_selector_help_text  [private]
+  title  {}  block=sw_flow_sequence_selector_title  [private]
+
+computed
+  helpText: any  [private]
+  title: any  [private]
+
+methods
+  addIfCondition(): any  [private]
+  addThenAction(): any  [private]
+
 blocks
   sw_flow_sequence_selector  [private]
     sw_flow_sequence_selector_actions  [private]

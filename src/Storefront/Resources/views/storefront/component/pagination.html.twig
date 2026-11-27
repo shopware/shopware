@@ -28,7 +28,7 @@
 
     {% set searchQuery = '' %}
     {% if searchResult.currentFilters.search %}
-        {% set searchQuery = '&search=' ~ searchResult.currentFilters.search %}
+        {% set searchQuery = '&search=' ~ searchResult.currentFilters.search|url_encode %}
     {% endif %}
 
     {% if totalPages > 1 %}

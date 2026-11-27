@@ -8,6 +8,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 class RobotsControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     public function testRobotsTxtOnTopLevelDomainWithMatchingSalesChannelUrl(): void
     {
@@ -106,6 +108,28 @@ class RobotsControllerTest extends TestCase
         );
     }
 
+    public function testRobotsTxtExcludesInactiveSalesChannelOnTheSameHost(): void
+    {
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+
+        $inactiveUrl = $appUrl . '/inactive';
+        $this->createSalesChannel([
+            'active' => false,
+            'domains' => [['url' => $inactiveUrl]],
+        ]);
+
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request('GET', $appUrl . '/robots.txt');
+
+        $html = $browser->getResponse()->getContent();
+
+        static::assertIsString($html);
+        $this->assertRobotsTxt($html, parse_url($appUrl)['path'] ?? '', $appUrl);
+        static::assertStringNotContainsString($inactiveUrl, $html);
+        static::assertStringNotContainsString('/inactive/', $html);
+    }
+
     private function assertRobotsTxt(string $html, string $domainPath, string $domainUrl): void
     {
         // plugins may append their own User-agent blocks via RobotsPageLoadedEvent, so assert
@@ -116,6 +140,9 @@ class RobotsControllerTest extends TestCase
         Allow: /
 
         Disallow: /*?
+
+        Allow: /*?p=
+        Disallow: /*?p=*&
 
         Allow: /*referringSalesChannel=
 

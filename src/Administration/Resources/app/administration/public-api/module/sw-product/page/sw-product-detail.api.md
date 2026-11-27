@@ -10,6 +10,148 @@ component sw-product-detail  public  js
   source src/module/sw-product/page/sw-product-detail/index.js
   template src/module/sw-product/page/sw-product-detail/sw-product-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  entityValidationService
+  feature
+  mediaService
+  numberRangeService
+  repositoryFactory
+  seoUrlService
+  systemConfigApiService
+
+provide
+  swProductDetailLoadAll: any
+
+props
+  creationStates?: any[]  default=null  [deprecated tag:v6.8.0]
+  creationType?: string  default='physical'
+  productId?: string  default=null
+
+data
+  cloning: any
+  defaultSalesChannelVisibility: any
+  isProductNotFound: any
+  isSaveSuccessful: any
+  lastViewedProductId: any
+  openInStorefrontHasUnsavedChanges: any
+  previousLengthUnit: any
+  previousWeightUnit: any
+  productNumberPreview: any
+  showOpenInStorefrontModal: any
+  updateSeoPromises: any
+
+computed
+  advanceModeEnabled: any
+  advancedModeSetting: any  [deprecated tag:v6.8.0]
+  cmsPageState: any
+  currencyRepository: any
+  currentPage: any
+  currentUser: any
+  defaultCurrency: any
+  defaultFeatureSetCriteria: any
+  documentVariantOperations: any  [private]
+  featureSetRepository: any
+  getDefaultFeatureSet: any
+  getModeSettingGeneralTab: any  [deprecated tag:v6.8.0]
+  getModeSettingSpecificationsTab: any  [deprecated tag:v6.8.0]
+  hasUnsavedVariantDocuments: any  [private]
+  identifier: any
+  ignoreFieldsValidation: any
+  isChild: any
+  isLoading: any
+  isUploadedFileRequired: any
+  language: any
+  languageCriteria: any
+  languageRepository: any
+  lengthUnit: any
+  localMode: any
+  measurementUnitsChanged: any
+  mediaRepository: any
+  modeSettings: any
+  parentProduct: any
+  product: any
+  productApiContext: any
+  productCriteria: any
+  productDetailTabs: any
+  productDocumentVariantService: any  [private]
+  productRepository: any
+  productStates: any  [deprecated tag:v6.8.0]
+  productTitle: any
+  productType: any
+  productVisibilityRepository: any
+  propertyRepository: any
+  salesChannelRepository: any
+  showAdvanceModeSetting: any  [deprecated tag:v6.8.0]
+  showModeSetting: any
+  syncRepository: any
+  taxRepository: any
+  tooltipCancel: any
+  tooltipSave: any
+  translateFields: any
+  visibleStorefrontSalesChannels: any
+  weightUnit: any
+
+methods
+  abortOnLanguageChange(): any
+  adjustProductAccordingToType(): any
+  changeModeSettings(): any  [deprecated tag:v6.8.0]
+  createProductVisibilityEntity(visibility: any, salesChannel: any): any
+  createState(): Promise<any>
+  createUserModeSetting(): any  [deprecated tag:v6.8.0]
+  createdComponent(): Promise<any>
+  customValidate(errors: any, product: any): any
+  deleteSpecifcKeys(sections: any): any  [deprecated tag:v6.8.0]
+  fetchSalesChannelByIds(ids: any): any
+  getAdvancedModeDefaultSetting(): any  [deprecated tag:v6.8.0]
+  getAdvancedModeSetting(): Promise<any>  [deprecated tag:v6.8.0]
+  getCmsPageOverrides(): any  [deprecated tag:v6.8.0]
+  getDefaultPurchasePrices(): any
+  getDefaultSalesChannels(): Promise<any>
+  getDefaultTaxRate(): any
+  getDocumentVariantsSaver(): any  [private]
+  getInheritTitle(): any
+  getPreferredMeasurementUnits(): Promise<any>
+  initAdvancedModeSettings(): any  [deprecated tag:v6.8.0]
+  initProductMeasurementUnits(): Promise<any>
+  initState(): any
+  loadAll(): Promise<any>
+  loadAttributeSet(): Promise<any>
+  loadCurrencies(): Promise<any>
+  loadDefaultFeatureSet(): Promise<any>
+  loadLanguage(newLanguageId: any): Promise<any>
+  loadParentProduct(): Promise<any>
+  loadProduct(): Promise<any>
+  loadState(): any
+  loadTaxes(): Promise<any>
+  onCancel(): any
+  onChangeLanguage(languageId: any): any
+  onChangeSetting(): any  [deprecated tag:v6.8.0]
+  onChangeSettingItem(): any  [deprecated tag:v6.8.0]
+  onCloseOpenInStorefrontModal(): any
+  onCoverChange(mediaId: any): any
+  onDuplicate(): Promise<any>
+  onDuplicateFinish(duplicate: any): any
+  onOpenInStorefront(): any
+  onProductNotFound(): Promise<any>
+  onSave(): Promise<any>
+  onSaveFinished(response: any): any
+  removeMediaItem(state: any, mediaId: any): any
+  saveAdvancedMode(): Promise<any>  [deprecated tag:v6.8.0]
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  savePreferenceUnits(): any
+  saveProduct(): Promise<any>
+  syncVariantPriceInheritance(): any
+  trackProductSaveEvents(productType: any, productIsNew: any, productWasActivated: any): any
+  validatePrices(priceLabel: any, prices: any): any
+  validateProductPrices(): any
+  validateProductPurchase(): any
+
 blocks
   sw_product_detail
     sw_product_detail_actions
@@ -38,8 +180,11 @@ blocks
       sw_product_detail_content_top
       sw_product_detail_content_view
       sw_product_detail_inheritance_warning
-      sw_product_settings_mode  [after v-if]
+      sw_product_settings_mode  [after v-if] [deprecated tag:v6.8.0]
     sw_product_detail_header
     sw_product_detail_language_switch
     sw_product_detail_sidebar
+
+notes
+  unresolved computed ...mapPageErrors(errorConfiguration)
 ```

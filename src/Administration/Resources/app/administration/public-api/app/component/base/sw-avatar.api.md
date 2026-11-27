@@ -11,8 +11,42 @@ component sw-avatar  private  js  [private]
   template src/app/component/base/sw-avatar/sw-avatar.html.twig  [private]
   visibility-source export  [private]
 
+props
+  color?: string  default=''  [private]
+  firstName?: string  default=''  [private]
+  imageUrl?: string  default=null  [private]
+  lastName?: string  default=''  [private]
+  placeholder?: boolean  default=false  [private]
+  size?: string  default=null  [private]
+  sourceContext?: object  default=null  [private]
+  variant?: string  default='circle'  [private]
+
+slots
+  default  {}  block=sw_avatar  [private]
+
+data
+  fontSize: any  [private]
+  lineHeight: any  [private]
+
+computed
+  avatarColor: any  [private]
+  avatarImage: any  [private]
+  avatarInitials: any  [private]
+  avatarInitialsSize: any  [private]
+  avatarSize: any  [private]
+  hasAvatarImage: any  [private]
+  showInitials: any  [private]
+  showPlaceholder: any  [private]
+
+methods
+  generateAvatarInitialsSize(): any  [private]
+  mountedComponent(): any  [private]
+
 blocks
   sw_avatar  [private]
     sw_avatar_slot_imageUrl  [private]
     sw_avatar_slot_placeholder  [after v-if] [private]
+
+refs
+  swAvatar  -> span  block=sw_avatar  [private]
 ```

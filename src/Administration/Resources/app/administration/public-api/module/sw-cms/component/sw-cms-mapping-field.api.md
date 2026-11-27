@@ -11,6 +11,41 @@ component sw-cms-mapping-field  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-mapping-field/sw-cms-mapping-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  cmsService  [private]
+  repositoryFactory  [private]
+
+props
+  config: { source: 'static' | 'mapped' | 'default'; value: unknown; [key: string]: unknown; }  default=factory  [private]
+  disabled?: boolean  default=false  [private]
+  entity?: Extract<keyof EntitySchema.EntityKeys, string> | null  default=null  [private]
+  label?: string  default=''  [private]
+  valueTypes?: any[] | string  default='string'  [private]
+
+slots
+  default  {}  block=sw_cms_mapping_field_content  [private]
+  preview  { demo-value }  block=sw_cms_mapping_field_preview  [private]
+
+data
+  allowedMappingTypes: any  [private]
+  demoValue: any  [private]
+  demoValueFetchId: any  [private]
+  mappingTypes: any  [private]
+
+computed
+  cmsPageState: any  [private]
+  hasPreview: any  [private]
+  isMapped: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getAllowedMappingTypes(): any  [private]
+  getDemoValue(mappingPath: string): unknown  [private]
+  onMappingRemove(): any  [private]
+  onMappingSelect(property: string): any  [private]
+  updateDemoValue(): Promise<any>  [private]
+  updateMappingTypes(): any  [private]
+
 blocks
   sw_cms_mapping_field  [private]
     sw_cms_mapping_field_content  [private]

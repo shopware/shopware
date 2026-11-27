@@ -11,6 +11,52 @@ component sw-code-editor  private  js  [private]
   template src/app/component/form/sw-code-editor/sw-code-editor.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  userInputSanitizeService  [private]
+
+props
+  completerFunction?: (...args: any[]) => any  default=null  [private]
+  completionMode?: string  default='text'  [private]
+  disabled?: boolean  default=false  [private]
+  editorConfig?: object  default=factory  [private]
+  error?: object  default=null  [private]
+  label?: string  default=''  [private]
+  mode?: string  default='twig'  [private]
+  placeholder?: string  default=''  [private]
+  required?: boolean  default=false  [private]
+  sanitizeFieldName?: string  default=null  [private]
+  sanitizeInfoWarn?: boolean  default=false  [private]
+  sanitizeInput?: boolean  default=false  [private]
+  setFocus?: boolean  default=false  [private]
+  softWraps?: boolean  default=true  [private]
+  value?: string  default=''  [private]
+
+emits
+  blur(...args: any[])  [private]
+  mounted(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+data
+  contentWasSanitized: any  [private]
+  editor: any  [private]
+  editorId: any  [private]
+
+computed
+  aceConfig: any  [private]
+  attrsWithoutClass: any  [private]
+  classes: any  [private]
+  enableHtmlSanitizer: any  [private]
+
+methods
+  beforeUnmountedComponent(): any  [private]
+  defineAutocompletion(completerFunction: any): any  [private]
+  destroyedComponent(): any  [private]
+  mountedComponent(): any  [private]
+  onBlur(): Promise<any>  [private]
+  onInput(): any  [private]
+  sanitizeEditorInput(value: any): Promise<any>  [private]
+
 blocks
   sw_code_editor  [private]
     sw_code_editor_editor  [private]
@@ -20,4 +66,7 @@ blocks
         sw_code_editor_sanitize_info_content_sanitized  [private]
       sw_code_editor_sanitize_info_content_hint  [private]
     sw_text_editor_label  [private]
+
+notes
+  dynamic-ref `editor${editorId}`  [private]
 ```

@@ -11,6 +11,21 @@ component sw-settings-rule-tree  private  js  [private]
   source src/module/sw-settings-rule/component/sw-settings-rule-tree/index.js  [private]
   visibility-source export  [private]
 
+emits
+  check-item(...args: any[])  [private]
+
+slots
+  headline  {}  block=sw_tree_actions_headline  [private]
+  items  { allow-drop-into-folder, check-item, checked-item-ids, disable-context-menu, dragged-item, new-element-id, on-change-route, selected-items-path-ids, sortable, translation-context, tree-items }  block=sw_tree_items  [private]
+  search  {}  block=sw_tree_search  [private]
+
+data
+  selection: any  [private]
+
+methods
+  checkItem(item: any): any  [private]
+  getTreeItems(parentId: any): any  [private]
+
 blocks
   sw_tree  [inherited] [private]
     sw_tree_actions_headline  [inherited] [private]

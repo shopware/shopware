@@ -10,6 +10,36 @@ component sw-promotion-v2-cart-condition-form  public  js
   source src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/index.js
   template src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/sw-promotion-v2-cart-condition-form.html.twig
 
+inject
+  acl
+  promotionSyncService
+  repositoryFactory
+
+props
+  promotion?: object  default=null
+  restrictedRules?: any[]  default=factory
+
+data
+  packagerKeys: any
+  sorterKeys: any
+
+computed
+  isEditingDisabled: any
+  packagerOptions: any
+  packagers: any
+  promotionGroupRepository: any
+  ruleFilter: any  [deprecated tag:v6.8.0]
+  ruleFilterDeprecated: any  [deprecated tag:v6.8.0] [private]
+  setGroupCriteria: any
+  sorterOptions: any
+  sorters: any
+
+methods
+  addSetGroup(): any
+  createdComponent(): any
+  deleteSetGroup(group: any): any
+  duplicateSetGroup(group: any): any
+
 blocks
   sw_promotion_v2_cart_condition_form
     sw_promotion_v2_cart_condition_add_group_button

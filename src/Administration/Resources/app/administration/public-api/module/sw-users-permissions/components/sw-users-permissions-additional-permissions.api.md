@@ -10,6 +10,23 @@ component sw-users-permissions-additional-permissions  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions/sw-users-permissions-additional-permissions.html.twig
 
+inject
+  privileges
+
+props
+  disabled?: boolean  default=false
+  isLoading?: boolean  default=false
+  role?: object  default=null
+
+computed
+  additionalPermissions: any
+  appPermissions: any
+
+methods
+  changeAllAppPermissionsForKey(permissionKey: any, isSelected: any): any
+  isPrivilegeSelected(privilegeKey: any): any
+  onSelectPrivilege(privilegeKey: any, isSelected: any): any
+
 blocks
   sw_users_permissions_additional_permissions
     sw_users_permissions_additional_permissions_additional_privileges

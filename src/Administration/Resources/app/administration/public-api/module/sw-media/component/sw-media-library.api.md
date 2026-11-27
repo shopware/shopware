@@ -10,6 +10,85 @@ component sw-media-library  public  js
   source src/module/sw-media/component/sw-media-library/index.js
   template src/module/sw-media/component/sw-media-library/sw-media-library.html.twig
 
+mixins
+  media-grid-listener
+
+inject
+  acl
+  feature
+  repositoryFactory
+  searchRankingService
+
+props
+  allowCreateFolder?: boolean  default=false
+  allowMultiSelect?: boolean  default=true
+  compact?: boolean  default=false
+  disabled?: boolean  default=false
+  editable?: boolean  default=false
+  folderId?: string  default=null
+  limit?: number  default=100
+  pendingUploads?: any[]  default=factory
+  selection: any[]
+  term?: string  default=''
+
+emits
+  media-folder-change(...args: any[])
+  update:selection(...args: any[])
+
+data
+  currentFolder: any
+  folderLoaderDone: any
+  folderTotal: any
+  isLoading: any
+  itemLoaderDone: any
+  itemTotal: any
+  items: any
+  pageFolder: any
+  pageItem: any
+  parentFolder: any
+  presentation: any
+  selectedItems: any
+  sorting: any
+  subFolders: any
+
+computed
+  adminEsEnable: any
+  allLoaded: any
+  assetFilter: any
+  gridPresentation: any
+  loadMoreLoadsEverything: any
+  mediaFolderConfigurationRepository: any
+  mediaFolderRepository: any
+  mediaRepository: any
+  nextFoldersCriteria: any
+  nextMediaCriteria: any
+  rootFolder: any
+  selectableItems: any
+  shouldDisplayEmptyState: any
+  showItemsAsList: any
+  showLoadAllButton: any
+  showLoadMoreButton: any
+
+methods
+  beforeUnmountedComponent(): any
+  clearSelection(): any
+  createFolder(): Promise<any>
+  createdComponent(): any
+  fetchAssociatedFolders(): Promise<any>
+  goToParentFolder(): any
+  injectItem(item: any): any
+  injectMedia(mediaEntity: any): any
+  isLoaderDone(criteria: any, data: any): any
+  isValidTerm(term: any): any
+  loadAll(): Promise<any>
+  loadItems(): Promise<any>
+  loadNextItems(): any
+  nextFolders(): Promise<any>
+  nextMedia(): Promise<any>
+  refreshItem(mediaId: any): Promise<any>
+  refreshList(): Promise<any>
+  removeNewFolder(): any
+
 blocks
   sw_media_library
     sw_media_library_display_options
@@ -22,4 +101,8 @@ blocks
           sw_media_library_load_all_button  [after v-if]
           sw_media_library_load_more_button
         sw_media_library_media_item_list  [after v-if]
+
+refs
+  mediaGrid  -> sw-media-grid  block=sw_media_library_media_grid
+  scrollContainer  -> div  block=sw_media_library_scroll_container
 ```

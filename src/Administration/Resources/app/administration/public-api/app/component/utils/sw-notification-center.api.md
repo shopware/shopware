@@ -11,6 +11,35 @@ component sw-notification-center  private  js  [private]
   template src/app/component/utils/sw-notification-center/sw-notification-center.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+
+data
+  isBellRinging: any  [private]
+  isOpened: any  [private]
+  optionsMenuOpen: any  [private]
+  showDeleteModal: any  [private]
+  unsubscribeFromStore: any  [private]
+
+computed
+  additionalContextButtonClass: any  [private]
+  hasNotifications: any  [private]
+  notifications: any  [private]
+
+methods
+  changeVisibility(visible: any): any  [private]
+  createNotificationFromSystemError(arg0: any): any  [private]
+  onCloseDeleteModal(): any  [private]
+  onConfirmDelete(): any  [private]
+  onEmptyStateBellClick(): any  [private]
+  onPanelClose(): any  [private]
+  onVisibilityChange(isOpened: any): any  [private]
+  openDeleteModal(): any  [private]
+  togglePanel(): any  [private]
+
 blocks
   sw_notification_center  [private]
     sw_notification_center_content  [private]

@@ -11,6 +11,16 @@ component sw-extension-floating-section  private  ts  [private]
   template src/app/component/extension-api/sw-extension-floating-section/sw-extension-floating-section.html.twig  [private]
   visibility-source export  [private]
 
+data
+  isEmpty: any  [private]
+  resizeObserver: any  [private]
+
+computed
+  hasSections: boolean  [private]
+
 blocks
   sw_extension_floating_section  [private]
+
+refs
+  content  -> div  block=sw_extension_floating_section  [private]
 ```

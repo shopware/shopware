@@ -11,6 +11,12 @@ component sw-settings-custom-field-set-create  public  js
   source src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create/index.js
   template src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create/sw-settings-custom-field-set-create.html.twig
 
+methods
+  createNameNotUniqueNotification(): any
+  createdComponent(): Promise<any>
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_custom_field_set_detail  [inherited]
     sw_settings_customField_set_detail_header  [inherited]

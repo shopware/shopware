@@ -8,10 +8,15 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
+use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeywordCollection;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
+use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -144,6 +149,81 @@ class SearchKeywordUpdaterTest extends TestCase
         // even when custom fields are configured but have no values
         $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, ['p1']);
         $this->assertKeywords($ids->get('p2'), Defaults::LANGUAGE_SYSTEM, ['p2']);
+    }
+
+    #[DataProvider('existingDictionaryEntriesProvider')]
+    public function testDictionaryPreservesExistingEntriesAcrossBatches(int $existingCount): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        $this->productRepository->create([(new ProductBuilder($ids, 'dictionary-batches'))->price(10)->build()], $context);
+
+        $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $otherLanguageId = Uuid::fromHexToBytes($this->getDeDeLanguageId());
+        $otherDictionaryId = Uuid::randomBytes();
+        $this->connection->insert('product_keyword_dictionary', [
+            'id' => $otherDictionaryId,
+            'language_id' => $otherLanguageId,
+            'keyword' => 'term0000',
+        ]);
+
+        $keywords = new AnalyzedKeywordCollection();
+        $expectedIds = [];
+        $queue = new MultiInsertQueryQueue($this->connection, 500);
+        for ($i = 0; $i < 1001; ++$i) {
+            $keyword = \sprintf('term%04d', $i);
+            $keywords->add(new AnalyzedKeyword($keyword, 100));
+            if ($i < $existingCount) {
+                $expectedIds[$keyword] = Uuid::randomBytes();
+                $queue->addInsert('product_keyword_dictionary', [
+                    'id' => $expectedIds[$keyword],
+                    'language_id' => $languageId,
+                    'keyword' => $keyword,
+                ]);
+            }
+        }
+        $queue->execute();
+
+        $analyzer = static::createStub(ProductSearchKeywordAnalyzerInterface::class);
+        $analyzer->method('analyze')->willReturnCallback(
+            static fn (ProductEntity $product, Context $context): AnalyzedKeywordCollection => $context->getLanguageId() === Defaults::LANGUAGE_SYSTEM ? $keywords : new AnalyzedKeywordCollection()
+        );
+        $updater = new SearchKeywordUpdater(
+            $this->connection,
+            static::getContainer()->get('language.repository'),
+            $this->productRepository,
+            $analyzer,
+            new MockClock()
+        );
+
+        $updater->update([$ids->get('dictionary-batches')], Context::createDefaultContext());
+
+        $dictionary = $this->connection->fetchAllKeyValue(
+            'SELECT keyword, id FROM product_keyword_dictionary WHERE language_id = :languageId ORDER BY keyword',
+            ['languageId' => $languageId]
+        );
+        static::assertCount(1001, $dictionary);
+        static::assertSame($expectedIds, array_intersect_key($dictionary, $expectedIds));
+        static::assertSame($otherDictionaryId, $this->connection->fetchOne(
+            'SELECT id FROM product_keyword_dictionary WHERE language_id = :languageId AND keyword = :keyword',
+            ['languageId' => $otherLanguageId, 'keyword' => 'term0000']
+        ));
+        $this->assertKeywords($ids->get('dictionary-batches'), Defaults::LANGUAGE_SYSTEM, array_keys($dictionary));
+
+        $updater->update([$ids->get('dictionary-batches')], Context::createDefaultContext());
+
+        static::assertSame($dictionary, $this->connection->fetchAllKeyValue(
+            'SELECT keyword, id FROM product_keyword_dictionary WHERE language_id = :languageId ORDER BY keyword',
+            ['languageId' => $languageId]
+        ));
+    }
+
+    public static function existingDictionaryEntriesProvider(): \Generator
+    {
+        yield 'all terms are missing' => [0];
+        yield 'existing and missing terms span batches' => [501];
+        yield 'all terms already exist' => [1001];
     }
 
     /**

@@ -312,6 +312,11 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         loadShopName() {
+            if (!this.acl.can('system_config:read')) {
+                this.shopName = 'Shopware';
+                return;
+            }
+
             this.systemConfigApiService
                 .getValues('core.basicInformation')
                 .then((values) => {

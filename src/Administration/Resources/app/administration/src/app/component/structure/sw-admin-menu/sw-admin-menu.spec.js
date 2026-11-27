@@ -63,6 +63,23 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm.shopName).toBe('Shopware');
     });
 
+    it('should not load the shop name without the system config read privilege', async () => {
+        const getValues = jest.fn(() => Promise.resolve({ 'core.basicInformation.shopName': 'My Shop' }));
+
+        wrapper = await createWrapper({
+            provide: {
+                acl: {
+                    can: (privilege) => privilege !== 'system_config:read',
+                },
+                systemConfigApiService: { getValues },
+            },
+        });
+        await flushPromises();
+
+        expect(getValues).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-admin-menu__shop-name').text()).toBe('Shopware');
+    });
+
     it('should keep the branch with the active child open when another branch is opened', async () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
         expect(branches.length).toBeGreaterThanOrEqual(2);

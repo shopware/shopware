@@ -3,8 +3,11 @@
 // Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
 // workflow, because zizmor cannot audit a file whose whole `strategy:` is an expression.
 //
-// argv[1] is the run profile: '' (PR), 'nightly' or 'release'. Only nightly widens the matrix.
-$nightly = ($_SERVER['argv'][1] ?? '') === 'nightly';
+// argv[1] is the run profile: '' (PR), 'nightly' or 'release'. Nightly widens the whole matrix,
+// release only adds the PHP 8.2 arm.
+$profile = $_SERVER['argv'][1] ?? '';
+$nightly = $profile === 'nightly';
+$release = $profile === 'release';
 $major = filter_var($_SERVER['argv'][2] ?? false, \FILTER_VALIDATE_BOOLEAN);
 
 // Integration shards: the paths + framework batches together cover the whole tests/integration tree.
@@ -32,12 +35,13 @@ if ($major) {
     return;
 }
 
-// PHP 8.5 resolves PHPUnit 13 from the root composer constraint; PHP 8.2 keeps PHPUnit 11
-// and runs in the nightly only.
+// PHP 8.5 resolves PHPUnit 13 from the root composer constraint; PHP 8.2 keeps PHPUnit 11.
+// Pull requests run 8.5 only. The nightly and the release gate add 8.2, the declared floor,
+// so no release is tagged without a run on it.
 $php = ['8.5'];
 $db = ['mysql:8.0'];
 
-if ($nightly) {
+if ($nightly || $release) {
     $php = ['8.2', '8.5'];
 }
 

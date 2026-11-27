@@ -32,6 +32,17 @@ class MajorMatrixTest extends TestCase
         static::assertContains('8.2', \array_column($nightly['include'], 'php'));
     }
 
+    public function testPhpunitReleaseMatrixAddsOnlyPhp82ToThePullRequestMatrix(): void
+    {
+        $pullRequest = $this->generateMatrix('generate-phpunit-matrix.php', '');
+        $release = $this->generateMatrix('generate-phpunit-matrix.php', 'release');
+
+        static::assertSame(['8.2', '8.5'], $release['php']);
+
+        unset($pullRequest['php'], $release['php']);
+        static::assertSame($pullRequest, $release);
+    }
+
     public function testAcceptanceMatrixHasOneMajorVariant(): void
     {
         static::assertSame([''], $this->generateMatrix('generate-acceptance-matrix.php', '', 'false')['major']);

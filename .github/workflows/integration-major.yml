@@ -87,6 +87,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+          expected-phpunit: "13"
       - name: Run PHPUnit
         uses: ./.github/actions/phpunit-run
         with:

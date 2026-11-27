@@ -2,8 +2,9 @@ name: PHPUnit 11
 
 # The unit and migration suites on PHP 8.2, where composer resolves PHPUnit 11 from the root
 # constraint: the version an install on PHP 8.2 or 8.3 gets. Pull requests run the suites on
-# PHPUnit 13 in php.yml; this workflow runs from nightly.yml only, so a PR run lists no skipped
-# job for it. Delete it together with the PHPUnit 11 constraint once 6.8 raises the floor.
+# PHPUnit 13 in php.yml; this workflow runs from nightly.yml and release-gate.yml only, so a PR
+# run lists no skipped job for it. Delete it together with the PHPUnit 11 constraint once 6.8
+# raises the floor.
 
 on:
   workflow_dispatch:

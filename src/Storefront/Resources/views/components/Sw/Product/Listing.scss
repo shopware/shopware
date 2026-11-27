@@ -7,7 +7,7 @@
 }
 
 // The filter panel takes the remaining width next to the sorting actions instead of an equal column.
-.sw-product-listing__toolbar > .sw-grid-container__inner.columns-lg-2 {
+.sw-product-listing .sw-product-listing__toolbar > .sw-product-listing__toolbar-grid {
     @include media-breakpoint-up(lg) {
         grid-template-columns: minmax(0, 1fr) auto;
     }

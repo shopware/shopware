@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Profiler\DataCollector;
 use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
+use Shopware\Elasticsearch\Profiler\ElasticsearchRequestLog;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -33,6 +34,18 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
         $compilerPass->process($container);
 
         static::assertFalse($container->hasDefinition(DataCollector::class));
+    }
+
+    public function testCompilerPassRemovesTheDalRequestLogOutsideDebug(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(DataCollector::class, new Definition(DataCollector::class));
+        $container->setDefinition(ElasticsearchRequestLog::class, new Definition(ElasticsearchRequestLog::class));
+        $container->setParameter('kernel.debug', false);
+
+        (new ElasticsearchProfileCompilerPass())->process($container);
+
+        static::assertFalse($container->hasDefinition(ElasticsearchRequestLog::class));
     }
 
     public function testCompilerPassDecoratesClient(): void

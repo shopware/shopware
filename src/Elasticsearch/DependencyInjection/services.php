@@ -101,6 +101,7 @@ use Shopware\Elasticsearch\Product\ProductUpdater;
 use Shopware\Elasticsearch\Product\SearchKeywordReplacement;
 use Shopware\Elasticsearch\Product\StopwordTokenFilter;
 use Shopware\Elasticsearch\Profiler\DataCollector;
+use Shopware\Elasticsearch\Profiler\ElasticsearchRequestLog;
 use Shopware\Elasticsearch\TokenQueryBuilder;
 use Shopware\Elasticsearch\TranslatedFieldQueryBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -551,6 +552,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('admin.openSearch.client'),
         ])
         ->tag('data_collector', ['template' => '@Elasticsearch/Collector/elasticsearch.html.twig', 'id' => 'elasticsearch']);
+
+    $services->set(ElasticsearchRequestLog::class)
+        ->args([
+            service(Client::class),
+            service('admin.openSearch.client'),
+        ])
+        ->tag('shopware.profiler.dal_request_log');
 
     $services->alias('shopware.elasticsearch.logger', 'monolog.logger.elasticsearch');
 

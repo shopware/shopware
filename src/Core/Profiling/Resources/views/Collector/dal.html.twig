@@ -1,0 +1,432 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{# @var collector \Shopware\Core\Profiling\DataAbstractionLayer\DalCollector #}
+{% block toolbar %}
+    {% import _self as helper %}
+    {% if collector.callCount > 0 %}
+        {% set status = collector.repeatedCalls is not empty or collector.warningCounts is not empty ? 'yellow' %}
+
+        {% set icon %}
+            {{ include('@WebProfiler/Icon/search.svg') }}
+            <span class="sf-toolbar-value">{{ collector.callCount }}</span>
+            <span class="sf-toolbar-info-piece-additional-detail">
+                <span class="sf-toolbar-label">in</span>
+                <span class="sf-toolbar-value">{{ '%0.2f'|format(collector.time) }}</span>
+                <span class="sf-toolbar-label">ms</span>
+            </span>
+        {% endset %}
+
+        {% set text %}
+            <div class="sf-toolbar-info-piece">
+                <b>DAL calls</b>
+                <span class="sf-toolbar-status">{{ collector.callCount }}</span>
+            </div>
+            <div class="sf-toolbar-info-piece">
+                <b>DAL operations</b>
+                <span class="sf-toolbar-status">{{ collector.operationCount }}</span>
+            </div>
+            <div class="sf-toolbar-info-piece">
+                <b>DAL time</b>
+                <span>{{ '%0.2f'|format(collector.time) }} ms</span>
+            </div>
+            {% if collector.repeatedCalls is not empty %}
+                <div class="sf-toolbar-info-piece">
+                    <b>Repeated calls</b>
+                    <span class="sf-toolbar-status sf-toolbar-status-yellow">{{ collector.repeatedCalls|length }}</span>
+                </div>
+            {% endif %}
+            {% for type, count in collector.warningCounts %}
+                <div class="sf-toolbar-info-piece">
+                    <b>{{ helper.warning_label(type) }}</b>
+                    <span class="sf-toolbar-status sf-toolbar-status-yellow">{{ count }}</span>
+                </div>
+            {% endfor %}
+            {% if collector.skippedCount > 0 %}
+                <div class="sf-toolbar-info-piece">
+                    <b>Not recorded</b>
+                    <span class="sf-toolbar-status sf-toolbar-status-yellow">{{ collector.skippedCount }}</span>
+                </div>
+            {% endif %}
+        {% endset %}
+
+        {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true, status: status|default('') }) }}
+    {% endif %}
+{% endblock %}
+
+{% block menu %}
+    {% set alarm_count = collector.repeatedCalls|length + collector.warningCounts|reduce((sum, count) => sum + count, 0) %}
+    <span class="label {{ alarm_count > 0 ? 'label-status-warning' }} {{ collector.callCount == 0 ? 'disabled' }}">
+        <span class="icon">{{ include('@WebProfiler/Icon/search.svg') }}</span>
+        <strong>DAL</strong>
+        {% if alarm_count > 0 %}
+            <span class="count">
+                <span>{{ alarm_count }}</span>
+            </span>
+        {% endif %}
+    </span>
+{% endblock %}
+
+{% macro warning_label(type) %}
+    {{- {'slow': 'Slow calls', 'large-read': 'Large reads without limit', 'write-in-safe-request': 'Writes during GET requests'}[type] ?? type -}}
+{% endmacro %}
+
+{% macro warning_badge(type) %}
+    {{- {'slow': 'slow', 'large-read': 'no limit', 'write-in-safe-request': 'write in GET'}[type] ?? type -}}
+{% endmacro %}
+
+{% macro warning_hint(type) %}
+    {{- {'slow': 'took 100 ms or more', 'large-read': 'loaded 200 or more entities without a limit', 'write-in-safe-request': 'wrote data while handling a GET or HEAD request'}[type] ?? '' -}}
+{% endmacro %}
+
+{% macro call_site(frame) %}
+    {% if frame.call is defined and frame.call is not null %}
+        {{ frame.call|abbr_method }}
+    {% endif %}
+    {% if frame.file %}
+        <a href="{{ frame.file|file_link(frame.line|default(1)) }}" class="text-small text-muted">{{ frame.file|file_relative|default(frame.file) }}:{{ frame.line }}</a>
+    {% endif %}
+{% endmacro %}
+
+{% block panel %}
+    {% import _self as helper %}
+
+    <style>
+        .dal-call-repeated > td:first-child, .dal-call-repeated + .dal-call-details > td { box-shadow: inset 3px 0 0 var(--yellow-500); }
+        .dal-call-details:not(:has(.sf-toggle-visible)) { display: none; }
+        .dal-call-details > td { border-top: 0; padding-top: 0; }
+        .dal-table { table-layout: fixed; width: 100%; }
+        .dal-table > thead > tr > th:not(.full-width) { width: 90px; }
+        .dal-table > thead > tr > th:first-child { width: 64px; }
+        .dal-flat .dal-nest { display: none; }
+        .dal-details { margin-top: 8px; overflow-x: auto; }
+        .dal-details table { margin: 8px 0; }
+        .dal-step { margin: 8px 0; }
+        .dal-sortable { cursor: pointer; }
+        .dal-query pre.highlight { margin: 0 0 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .dal-query > .badge { display: inline-block; margin-bottom: 6px; }
+        .dal-copy { margin-top: 6px; }
+        .dal-query { width: 100%; }
+        .dal-query .keyword { color: var(--highlight-keyword); font-weight: bold; }
+        .dal-query .number { color: var(--highlight-constant); }
+        .dal-query .variable { color: var(--highlight-variable); }
+        .dal-query .comment { color: var(--highlight-comment); }
+        .dal-query .error { color: var(--highlight-error); }
+    </style>
+
+    <h2>Data Abstraction Layer</h2>
+
+    {% if not collector.enabled %}
+        <div class="empty">
+            <p>DAL calls are recorded only while the SQL profiler records queries: on web requests, and on console commands run with <code>--profile</code>.</p>
+        </div>
+    {% elseif collector.callCount == 0 %}
+        <div class="empty">
+            <p>No DAL reads or writes were performed.</p>
+        </div>
+    {% else %}
+        {% set sql_queries = profile.hasCollector('app.connection_collector') ? profile.getCollector('app.connection_collector').queries.default|default([]) : [] %}
+
+        <div class="metrics">
+            <div class="metric">
+                <span class="value">{{ collector.callCount }}</span>
+                <span class="label">DAL calls</span>
+            </div>
+            <div class="metric">
+                <span class="value">{{ collector.operationCount }}</span>
+                <span class="label">DAL operations</span>
+            </div>
+            <div class="metric">
+                <span class="value">{{ '%0.2f'|format(collector.time) }} ms</span>
+                <span class="label">DAL time</span>
+            </div>
+            {% for source, count in collector.queryCountsBySource %}
+                <div class="metric">
+                    <span class="value">{{ count }}</span>
+                    <span class="label">{{ source == 'sql' ? 'SQL' : source|capitalize }} queries caused</span>
+                </div>
+            {% endfor %}
+            {% if collector.repeatedCalls is not empty %}
+                <div class="metric">
+                    <span class="value">{{ collector.repeatedCalls|length }}</span>
+                    <span class="label">Repeated calls</span>
+                </div>
+            {% endif %}
+            {% for type, count in collector.warningCounts %}
+                <div class="metric">
+                    <span class="value">{{ count }}</span>
+                    <span class="label">{{ helper.warning_label(type) }}</span>
+                </div>
+            {% endfor %}
+        </div>
+
+        <p class="text-muted">
+            Time is spent in the DAL reader, searcher, aggregator and writer: {{ collector.queryCountsBySource.elasticsearch is defined ? 'SQL or Elasticsearch' : 'SQL' }}, hydration and write validation.
+            It does not include the subscribers of the loaded, searched and written events.
+        </p>
+
+        {% if collector.skippedCount > 0 %}
+            <div class="sf-alert sf-alert-warning">
+                Only the first {{ collector.operationCount }} DAL operations were recorded. {{ collector.skippedCount }} more were not.
+            </div>
+        {% endif %}
+
+        {% if collector.repeatedCalls is not empty %}
+            <h3>Repeated calls <small>reads: same entity, method and criteria shape; writes: same entity, method and call site</small></h3>
+
+            <table class="dal-table">
+                <thead>
+                    <tr>
+                        <th class="nowrap">Calls</th>
+                        <th class="nowrap">Identical</th>
+                        <th class="nowrap">Time</th>
+                        <th class="full-width">Call</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in collector.repeatedCalls %}
+                        <tr>
+                            <td class="nowrap"><span class="badge badge-warning">{{ group.count }}</span></td>
+                            <td class="nowrap">{{ group.duplicates > 0 ? group.duplicates : '-' }}</td>
+                            <td class="nowrap">{{ '%0.2f'|format(group.duration) }}&nbsp;ms</td>
+                            <td>
+                                <strong>{{ group.entity }}</strong>
+                                <span class="text-small">{{ group.method|abbr_method }}</span>
+                                {% for caller in group.callers %}
+                                    <div>{{ helper.call_site(caller) }}</div>
+                                {% endfor %}
+                                <div class="text-small">
+                                    Calls:
+                                    {% for index in group.calls %}
+                                        <a href="#dal-call-{{ index }}">#{{ index + 1 }}</a>{{ not loop.last ? ',' }}
+                                    {% endfor %}
+                                </div>
+                                {% set details_label = group.write ? 'payload' : 'criteria' %}
+                                <a href="#" class="sf-toggle link-inverse text-small" data-toggle-selector="#dal-repeated-{{ loop.index }}" data-toggle-alt-content="Hide {{ details_label }}">Show {{ details_label }}</a>
+                                <div id="dal-repeated-{{ loop.index }}" class="sf-toggle-content sf-toggle-hidden dal-details">
+                                    {{ profiler_dump(group.criteria, maxDepth = 4) }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        {% if collector.warningCounts is not empty %}
+            <h3>Warnings</h3>
+
+            <table class="dal-table">
+                <thead>
+                    <tr>
+                        <th class="nowrap">Calls</th>
+                        <th class="full-width">Warning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for type, count in collector.warningCounts %}
+                        <tr>
+                            <td class="nowrap"><span class="badge badge-warning">{{ count }}</span></td>
+                            <td>
+                                <strong>{{ helper.warning_label(type) }}</strong>
+                                <span class="text-muted">{{ helper.warning_hint(type) }}</span>
+                                <div class="text-small">
+                                    {% for index, call in collector.calls|filter(call => type in call.warnings) %}
+                                        <a href="#dal-call-{{ index }}">#{{ index + 1 }} {{ call.entity }}</a>{{ not loop.last ? ',' }}
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <h3>Calls</h3>
+
+        <table class="alt dal-table">
+            <thead>
+                <tr>
+                    <th class="nowrap dal-sortable" onclick="dalSortCalls(this, 0)" data-sort-direction="-1">#<span class="text-muted">&#9650;</span></th>
+                    <th class="nowrap dal-sortable" onclick="dalSortCalls(this, 1)">Time<span></span></th>
+                    <th class="nowrap dal-sortable" onclick="dalSortCalls(this, 2)">Result<span></span></th>
+                    <th class="nowrap dal-sortable" onclick="dalSortCalls(this, 3)">Queries<span></span></th>
+                    <th class="full-width">Call</th>
+                </tr>
+            </thead>
+            <tbody id="dal-calls">
+                {% for index, call in collector.calls %}
+                    <tr id="dal-call-{{ index }}" class="dal-call{{ call.repeated ? ' dal-call-repeated' }}">
+                        <td class="nowrap" data-sort="{{ index }}">
+                            {%- if call.depth > 0 %}<span class="dal-nest text-muted">└&nbsp;</span>{% endif -%}
+                            {{ index + 1 -}}
+                        </td>
+                        <td class="nowrap" data-sort="{{ call.duration }}">{{ '%0.2f'|format(call.duration) }}&nbsp;ms</td>
+                        <td class="nowrap" data-sort="{{ call.count ?? -1 }}">
+                            {{- call.count ?? '-' }}{% if call.total is not null and call.total != call.count %} of {{ call.total }}{% endif -%}
+                        </td>
+                        <td class="nowrap" data-sort="{{ call.queryCount }}">{{ call.queryCount }}</td>
+                        <td>
+                            <strong>{{ call.entity }}</strong>
+                            <span class="text-small">{{ call.method|abbr_method }}</span>
+                            {% if call.backend == 'elasticsearch' %}<span class="badge" title="Ran on Elasticsearch">es</span>{% endif %}
+                            {% if call.error %}<span class="badge badge-danger" title="{{ call.error }}">failed</span>{% endif %}
+                            {% if call.repeated %}<span class="badge badge-warning">repeated</span>{% endif %}
+                            {% for type in call.warnings %}<span class="badge badge-warning" title="{{ helper.warning_hint(type) }}">{{ helper.warning_badge(type) }}</span> {% endfor %}
+                            <div>{{ helper.call_site({ call: call.caller, file: call.file, line: call.line }) }}</div>
+
+                            <div class="text-small">
+                                {% set details_label = call.write ? 'Payload' : 'Criteria' %}
+                                <a href="#" class="sf-toggle link-inverse" data-toggle-selector="#dal-criteria-{{ index }}" data-toggle-alt-content="Hide {{ details_label|lower }}">{{ details_label }}</a>
+                                &middot;
+                                <a href="#" class="sf-toggle link-inverse" data-toggle-selector="#dal-context-{{ index }}" data-toggle-alt-content="Hide context">Context</a>
+                                {% if call.operations|length > 1 %}
+                                    &middot;
+                                    <a href="#" class="sf-toggle link-inverse" data-toggle-selector="#dal-operations-{{ index }}" data-toggle-alt-content="Hide steps">Steps ({{ call.operations|length }})</a>
+                                {% endif %}
+                                {% if call.queryCount > 0 %}
+                                    &middot;
+                                    <a href="#" class="sf-toggle link-inverse" data-toggle-selector="#dal-queries-{{ index }}" data-toggle-alt-content="Hide queries">Queries ({{ call.queryCount }})</a>
+                                {% endif %}
+                                &middot;
+                                <a href="#" class="sf-toggle link-inverse" data-toggle-selector="#dal-trace-{{ index }}" data-toggle-alt-content="Hide trace">Trace</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="dal-call-details">
+                        <td colspan="5">
+                            <div id="dal-criteria-{{ index }}" class="sf-toggle-content sf-toggle-hidden dal-details">
+                                {{ profiler_dump(call.criteria, maxDepth = 4) }}
+                                {% if call.affected is not empty %}
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="nowrap">Rows written or deleted</th>
+                                                <th class="full-width">Entity</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for entity, rows in call.affected %}
+                                                <tr>
+                                                    <td class="nowrap">{{ rows }}</td>
+                                                    <td>{{ entity }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            </div>
+
+                            <div id="dal-context-{{ index }}" class="sf-toggle-content sf-toggle-hidden dal-details">
+                                <table>
+                                    <tbody>
+                                        {% for key, value in call.context %}
+                                            <tr>
+                                                <th class="nowrap">{{ key }}</th>
+                                                <td>{{ value is iterable ? value|join(', ') : (value is same as(true) ? 'yes' : (value is same as(false) ? 'no' : value)) }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {% if call.operations|length > 1 %}
+                                <div id="dal-operations-{{ index }}" class="sf-toggle-content sf-toggle-hidden dal-details">
+                                    {% for operation in call.operations %}
+                                        <div class="dal-step">
+                                            <strong>{{ operation.operation }}</strong>
+                                            {% if operation.backend == 'elasticsearch' %}<span class="badge" title="Ran on Elasticsearch">es</span>{% endif %}
+                                            &middot; {{ '%0.2f'|format(operation.duration) }}&nbsp;ms
+                                            &middot; result {{ operation.count ?? '-' }}{% if operation.total is not null and operation.total != operation.count %} of {{ operation.total }}{% endif %}
+                                            &middot; {{ operation.queries|length + operation.requests|length }} queries
+                                            {{ profiler_dump(operation.criteria, maxDepth = 2) }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if call.queryCount > 0 %}
+                                <div id="dal-queries-{{ index }}" class="sf-toggle-content sf-toggle-hidden dal-details">
+                                    <table>
+                                        <tbody>
+                                            {% for operation in call.operations %}
+                                                {% for query_index in operation.queries %}
+                                                    {% set query = sql_queries[query_index] ?? null %}
+                                                    {% set sql = query ? query.sql : '' %}
+                                                    {% set title = null %}
+                                                    {% if sql starts with '-- ' %}
+                                                        {% set parts = sql|split("\n", 2) %}
+                                                        {% set title = parts[0]|slice(3) %}
+                                                        {% set sql = parts[1] ?? '' %}
+                                                    {% endif %}
+                                                    <tr>
+                                                        <td class="nowrap"><span class="badge">sql</span> <a href="{{ path('_profiler', { panel: 'app.connection_collector', token: token }) }}#queryNo-{{ query_index }}-1">#{{ query_index + 1 }}</a><div class="dal-copy"><button class="btn btn-sm hidden" data-clipboard-text="{{ sql|doctrine_format_sql(highlight = false)|convert_encoding('UTF-8//TRANSLIT//IGNORE', 'UTF-8')|e('html') }}">Copy</button></div></td>
+                                                        <td class="nowrap">{{ query ? '%0.2f'|format(query.executionMS * 1000) ~ ' ms' : '-' }}</td>
+                                                        <td class="dal-query">
+                                                            {% if title %}<span class="badge">{{ title }}</span>{% endif %}
+                                                            {{ sql|doctrine_format_sql(highlight = true) }}
+                                                            {% if query %}
+                                                                <div>
+                                                                    <strong class="font-normal text-small">Parameters</strong>: {{ profiler_dump(query.params|doctrine_binary_to_hex, 2) }}
+                                                                </div>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                {% for request in operation.requests %}
+                                                    <tr>
+                                                        <td class="nowrap"><span class="badge">{{ request.source }}</span>{% if profile.hasCollector(request.source) %} <a href="{{ path('_profiler', { panel: request.source, token: token }) }}#queryNo-{{ request.position }}">#{{ request.position + 1 }}</a>{% endif %}</td>
+                                                        <td class="nowrap">{{ '%0.2f'|format(request.time) }}&nbsp;ms</td>
+                                                        <td class="dal-query">
+                                                            <span class="text-muted">{{ request.url }}</span>
+                                                            {{ profiler_dump(request.body, maxDepth = 3) }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+
+                            <div id="dal-trace-{{ index }}" class="sf-toggle-content sf-toggle-hidden dal-details">
+                                <table>
+                                    <tbody>
+                                        {% for frame in call.trace %}
+                                            <tr>
+                                                <td class="nowrap">{{ loop.index }}</td>
+                                                <td>{{ helper.call_site(frame) }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script type="text/javascript">
+            function dalSortCalls(header, column) {
+                const direction = parseInt(header.getAttribute('data-sort-direction'), 10) || -1;
+                const body = document.getElementById('dal-calls');
+
+                for (const cell of header.parentElement.children) {
+                    cell.removeAttribute('data-sort-direction');
+                    if (cell.children.length > 0) {
+                        cell.children[0].innerHTML = '';
+                    }
+                }
+
+                header.setAttribute('data-sort-direction', (-direction).toString());
+                header.children[0].innerHTML = direction > 0 ? '&#9650;' : '&#9660;';
+                header.children[0].className = 'text-muted';
+                body.classList.toggle('dal-flat', column !== 0 || direction < 0);
+
+                [...body.querySelectorAll(':scope > .dal-call')]
+                    .sort((a, b) => direction * (parseFloat(a.children[column].dataset.sort) - parseFloat(b.children[column].dataset.sort)))
+                    .forEach((row) => body.append(row, row.nextElementSibling));
+            }
+        </script>
+    {% endif %}
+{% endblock %}

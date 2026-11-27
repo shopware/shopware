@@ -39,6 +39,22 @@ class BacktraceDebugDataHolderTest extends TestCase
         static::assertCount(0, $sut->getData()['myconn'] ?? []);
     }
 
+    public function testCountsQueriesPerConnectionUntilReset(): void
+    {
+        $sut = new BacktraceDebugDataHolder(['default']);
+        $sut->addQuery('default', new Query('SELECT * FROM product'));
+        $sut->addQuery('default', new Query('SELECT * FROM category'));
+        $sut->addQuery('replica', new Query('SELECT * FROM language'));
+
+        static::assertSame(2, $sut->getQueryCount('default'));
+        static::assertSame(1, $sut->getQueryCount('replica'));
+        static::assertSame(0, $sut->getQueryCount('unknown'));
+
+        $sut->reset();
+
+        static::assertSame(0, $sut->getQueryCount('default'));
+    }
+
     public function testBacktracesEnabled(): void
     {
         $sut = new BacktraceDebugDataHolder(['myconn2']);

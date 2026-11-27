@@ -67,7 +67,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn(), routedComponent = null } = {},
+        { routeName = 'sw.product.detail.base', routerPush = jest.fn(), routedComponent = null } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -83,9 +83,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                 },
                 provide: {
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
@@ -232,7 +229,21 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     let wrapper;
 
+    const consoleError = console.error;
+
     beforeAll(() => {
+        console.error = (...args) => {
+            const isBaselinedPageDeprecation =
+                args[0] === '[Deprecation]' &&
+                typeof args[1] === 'string' &&
+                args[1].startsWith('sw-product-detail.') &&
+                args[1].includes('core deprecation baseline');
+
+            if (!isBaselinedPageDeprecation) {
+                consoleError(...args);
+            }
+        };
+
         Shopware.Store.unregister('cmsPage');
         Shopware.Store.register({
             id: 'cmsPage',
@@ -241,6 +252,32 @@ describe('module/sw-product/page/sw-product-detail', () => {
             },
         });
     });
+
+    afterAll(() => {
+        console.error = consoleError;
+    });
+
+    async function expectLanguageLoadOnChange(loadsLanguage) {
+        wrapper.unmount();
+        const getFunction = jest.fn((id) => Promise.resolve({ id, variation: [] }));
+        wrapper = await createWrapper(undefined, getFunction);
+        await flushPromises();
+        const api = Shopware.Store.get('context').api;
+        const originalLanguageId = api.languageId;
+        const originalLanguage = api.language;
+        getFunction.mockClear();
+
+        try {
+            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'german');
+            await flushPromises();
+
+            expect(api.languageId).toBe('german');
+            expect(getFunction.mock.calls.map(([id]) => id).includes('german')).toBe(loadsLanguage);
+        } finally {
+            api.languageId = originalLanguageId;
+            api.language = originalLanguage;
+        }
+    }
 
     beforeEach(async () => {
         jest.restoreAllMocks();
@@ -259,7 +296,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         }
     });
 
-    it('should show item tabs', async () => {
+    it.deprecated('v6.8.0.0')('should show item tabs', async () => {
         await wrapper.setProps({
             productId: '1234',
         });
@@ -427,69 +464,68 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.find('.sw-card-view').exists()).toBe(false);
     });
 
-    it('should render the fallback tabs branch while the major feature flag is inactive', () => {
+    it.deprecated('v6.8.0.0')('should render the fallback tabs branch while the major feature flag is inactive', () => {
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
 
         expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor route tabs when the major feature flag is active', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
-        await flushPromises();
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render meteor route tabs when the major feature flag is active',
+        async () => {
+            await flushPromises();
 
-        Shopware.Store.get('swProductDetail').product = { parentId: null };
-        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+            Shopware.Store.get('swProductDetail').product = { parentId: null };
+            Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
-        await nextTick();
+            await nextTick();
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
-        const items = tabs.props('items');
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            const items = tabs.props('items');
 
-        expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
-        expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
-        expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
-            {
-                label: 'sw-product.detail.tabGeneral',
-                name: 'sw.product.detail.base',
-            },
-            {
-                label: 'sw-product.detail.tabSpecifications',
-                name: 'sw.product.detail.specifications',
-            },
-            {
-                label: 'sw-product.detail.tabAdvancedPrices',
-                name: 'sw.product.detail.prices',
-            },
-            {
-                label: 'sw-product.detail.tabVariation',
-                name: 'sw.product.detail.variants',
-            },
-            {
-                label: 'sw-product.detail.tabLayout',
-                name: 'sw.product.detail.layout',
-            },
-            {
-                label: 'sw-product.detail.tabSeo',
-                name: 'sw.product.detail.seo',
-            },
-            {
-                label: 'sw-product.detail.tabCrossSelling',
-                name: 'sw.product.detail.crossSelling',
-            },
-            {
-                label: 'sw-product.detail.tabReviews',
-                name: 'sw.product.detail.reviews',
-            },
-        ]);
-        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
-        expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
-    });
+            expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
+            expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
+            expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
+                {
+                    label: 'sw-product.detail.tabGeneral',
+                    name: 'sw.product.detail.base',
+                },
+                {
+                    label: 'sw-product.detail.tabSpecifications',
+                    name: 'sw.product.detail.specifications',
+                },
+                {
+                    label: 'sw-product.detail.tabAdvancedPrices',
+                    name: 'sw.product.detail.prices',
+                },
+                {
+                    label: 'sw-product.detail.tabVariation',
+                    name: 'sw.product.detail.variants',
+                },
+                {
+                    label: 'sw-product.detail.tabLayout',
+                    name: 'sw.product.detail.layout',
+                },
+                {
+                    label: 'sw-product.detail.tabSeo',
+                    name: 'sw.product.detail.seo',
+                },
+                {
+                    label: 'sw-product.detail.tabCrossSelling',
+                    name: 'sw.product.detail.crossSelling',
+                },
+                {
+                    label: 'sw-product.detail.tabReviews',
+                    name: 'sw.product.detail.reviews',
+                },
+            ]);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+            expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
+        },
+    );
 
-    it('should show the layout meteor tab for variant products', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should show the layout meteor tab for variant products', async () => {
         await flushPromises();
 
         Shopware.Store.get('swProductDetail').product = { parentId: 'parent-id' };
@@ -508,14 +544,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(tabNames).not.toContain('sw.product.detail.variants');
     });
 
-    it('should navigate when a meteor route tab is selected', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is selected', async () => {
         const routerPush = jest.fn();
 
         wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', {
-            featureActive: true,
-            routerPush,
-        });
+        wrapper = await createWrapper(undefined, undefined, '1234', { routerPush });
         await flushPromises();
 
         Shopware.Store.get('swProductDetail').product = { parentId: null };
@@ -536,7 +569,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
-    it('should show item tabs when advanced mode deactivate', async () => {
+    it.deprecated('v6.8.0.0')('should show item tabs when advanced mode deactivate', async () => {
         Shopware.Store.get('swProductDetail').product = { parentId: '' };
         await wrapper.setProps({
             productId: '1234',
@@ -566,7 +599,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
-    it('should show Advance mode setting on the variant product page', async () => {
+    it.deprecated('v6.8.0.0')('should show Advance mode setting on the variant product page', async () => {
         await flushPromises();
         Shopware.Store.get('swProductDetail').product = {
             ...wrapper.vm.product,
@@ -1081,80 +1114,65 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
     });
 
-    it.each([
-        { name: 'still loads the content language before 6.8', flags: [], loadsLanguage: true },
-        {
-            name: 'leaves loading the content language to the language service in 6.8',
-            flags: ['V6_8_0_0'],
-            loadsLanguage: false,
+    it.deprecated('v6.8.0.0')('still loads the content language when the language changes', async () => {
+        await expectLanguageLoadOnChange(true);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'leaves loading the content language to the language service when the language changes',
+        async () => {
+            await expectLanguageLoadOnChange(false);
         },
-    ])('$name when the language changes', async ({ flags, loadsLanguage }) => {
-        wrapper.unmount();
-        const getFunction = jest.fn((id) => Promise.resolve({ id, variation: [] }));
-        wrapper = await createWrapper(undefined, getFunction);
-        await flushPromises();
-        const api = Shopware.Store.get('context').api;
-        const originalLanguageId = api.languageId;
-        const originalLanguage = api.language;
-        const originalFlags = global.activeFeatureFlags;
-        global.activeFeatureFlags = [...originalFlags.filter((flag) => flag !== 'V6_8_0_0'), ...flags];
-        getFunction.mockClear();
+    );
 
-        try {
-            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'german');
+    it.deprecated('v6.8.0.0')(
+        'keeps the deprecated loadLanguage setting the content language until the 6.8 major',
+        async () => {
+            wrapper.unmount();
+            wrapper = await createWrapper(undefined, (id) => Promise.resolve({ id, variation: [] }));
             await flushPromises();
+            const api = Shopware.Store.get('context').api;
+            const originalLanguageId = api.languageId;
+            const originalLanguage = api.language;
 
-            expect(api.languageId).toBe('german');
-            expect(getFunction.mock.calls.map(([id]) => id).includes('german')).toBe(loadsLanguage);
-        } finally {
-            global.activeFeatureFlags = originalFlags;
-            api.languageId = originalLanguageId;
-            api.language = originalLanguage;
-        }
-    });
+            try {
+                api.languageId = 'german';
+                // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions may still call the deprecated loadLanguage()
+                await wrapper.vm.loadLanguage('german');
 
-    it('keeps the deprecated loadLanguage setting the content language until the 6.8 major', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, (id) => Promise.resolve({ id, variation: [] }));
-        await flushPromises();
-        const api = Shopware.Store.get('context').api;
-        const originalLanguageId = api.languageId;
-        const originalLanguage = api.language;
+                expect(api.language).toEqual(expect.objectContaining({ id: 'german' }));
+                expect(deprecations).toHaveTriggered('sw-product-detail.loadLanguage() is deprecated');
+                expect(deprecations).toHaveTriggered('sw-product-detail.languageCriteria is deprecated');
+            } finally {
+                api.languageId = originalLanguageId;
+                api.language = originalLanguage;
+            }
+        },
+    );
 
-        try {
-            api.languageId = 'german';
-            // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions may still call the deprecated loadLanguage()
-            await wrapper.vm.loadLanguage('german');
+    it.deprecated('v6.8.0.0')(
+        'keeps the content language when the deprecated loadLanguage resolves after another switch',
+        async () => {
+            wrapper.unmount();
+            wrapper = await createWrapper(undefined, (id) => Promise.resolve({ id, variation: [] }));
+            await flushPromises();
+            const api = Shopware.Store.get('context').api;
+            const originalLanguage = api.language;
 
-            expect(api.language).toEqual(expect.objectContaining({ id: 'german' }));
-            expect(deprecations).toHaveTriggered('sw-product-detail.loadLanguage() is deprecated');
-            expect(deprecations).toHaveTriggered('sw-product-detail.languageCriteria is deprecated');
-        } finally {
-            api.languageId = originalLanguageId;
-            api.language = originalLanguage;
-        }
-    });
+            try {
+                // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions may still call the deprecated loadLanguage()
+                await wrapper.vm.loadLanguage('german');
 
-    it('keeps the content language when the deprecated loadLanguage resolves after another switch', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, (id) => Promise.resolve({ id, variation: [] }));
-        await flushPromises();
-        const api = Shopware.Store.get('context').api;
-        const originalLanguage = api.language;
+                expect(api.language).toBe(originalLanguage);
+                expect(deprecations).toHaveTriggered('sw-product-detail.loadLanguage() is deprecated');
+                expect(deprecations).toHaveTriggered('sw-product-detail.languageCriteria is deprecated');
+            } finally {
+                api.language = originalLanguage;
+            }
+        },
+    );
 
-        try {
-            // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions may still call the deprecated loadLanguage()
-            await wrapper.vm.loadLanguage('german');
-
-            expect(api.language).toBe(originalLanguage);
-            expect(deprecations).toHaveTriggered('sw-product-detail.loadLanguage() is deprecated');
-            expect(deprecations).toHaveTriggered('sw-product-detail.languageCriteria is deprecated');
-        } finally {
-            api.language = originalLanguage;
-        }
-    });
-
-    it('keeps the deprecated languageCriteria loading the locale until the 6.8 major', async () => {
+    it.deprecated('v6.8.0.0')('keeps the deprecated languageCriteria loading the locale until the 6.8 major', async () => {
         // eslint-disable-next-line sw-test-rules/no-vm-access -- languageCriteria is deprecated and no longer used by the page
         const criteria = wrapper.vm.languageCriteria;
 

@@ -143,6 +143,10 @@ const createWrapper = async (customOptions = {}) => {
 };
 
 describe('components/sw-entity-multi-select', () => {
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
     it('should emit the correct search term', async () => {
         const swEntityMultiSelect = await createWrapper({
             props: {
@@ -337,5 +341,152 @@ describe('components/sw-entity-multi-select', () => {
 
         await wrapper.find('.sw-select__select-indicator-clear').trigger('click');
         expect(wrapper.emitted('update:entityCollection')[0][0].total).toBeNull();
+    });
+
+    it('should only display the result of the latest search when an older search responds later', async () => {
+        const pendingSearches = [];
+        const wrapper = await createWrapper({
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () =>
+                                    new Promise((resolve) => {
+                                        pendingSearches.push(resolve);
+                                    }),
+                            };
+                        },
+                    },
+                },
+            },
+        });
+
+        jest.useFakeTimers();
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+        pendingSearches[0](getPropertyCollection());
+        await flushPromises();
+
+        await wrapper.find('input').setValue('first');
+        await wrapper.find('input').trigger('change');
+        jest.advanceTimersByTime(400);
+
+        await wrapper.find('input').setValue('third');
+        await wrapper.find('input').trigger('change');
+        jest.advanceTimersByTime(400);
+
+        const newerResult = getPropertyCollection();
+        newerResult.remove(propertyFixture[0].id);
+        newerResult.remove(propertyFixture[1].id);
+
+        pendingSearches[2](newerResult);
+        await flushPromises();
+        pendingSearches[1](getPropertyCollection());
+        await flushPromises();
+
+        const results = new DOMWrapper(document.body).findAll('.sw-select-result-list__item-list li');
+        expect(results).toHaveLength(1);
+        expect(results.at(0).find('.sw-select-result__result-item-text').text()).toBe('third');
+        expect(wrapper.find('sw-loader-deprecated-stub').exists()).toBe(false);
+    });
+
+    it('should keep loading when an older search responds while the latest search is pending', async () => {
+        const pendingSearches = [];
+        const wrapper = await createWrapper({
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () =>
+                                    new Promise((resolve) => {
+                                        pendingSearches.push(resolve);
+                                    }),
+                            };
+                        },
+                    },
+                },
+            },
+        });
+
+        jest.useFakeTimers();
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+        pendingSearches[0](getPropertyCollection());
+        await flushPromises();
+
+        await wrapper.find('input').setValue('first');
+        await wrapper.find('input').trigger('change');
+        jest.advanceTimersByTime(400);
+
+        await wrapper.find('input').setValue('third');
+        await wrapper.find('input').trigger('change');
+        jest.advanceTimersByTime(400);
+
+        pendingSearches[1](getPropertyCollection());
+        await flushPromises();
+
+        expect(new DOMWrapper(document.body).findAll('.sw-select-result-list__item-list li')).toHaveLength(0);
+        expect(wrapper.find('sw-loader-deprecated-stub').exists()).toBe(true);
+
+        const newerResult = getPropertyCollection();
+        newerResult.remove(propertyFixture[0].id);
+        newerResult.remove(propertyFixture[1].id);
+
+        pendingSearches[2](newerResult);
+        await flushPromises();
+
+        const results = new DOMWrapper(document.body).findAll('.sw-select-result-list__item-list li');
+        expect(results).toHaveLength(1);
+        expect(results.at(0).find('.sw-select-result__result-item-text').text()).toBe('third');
+        expect(wrapper.find('sw-loader-deprecated-stub').exists()).toBe(false);
+    });
+
+    it('should display all pages when pages are loaded while an earlier page is pending', async () => {
+        const pendingSearches = [];
+        const wrapper = await createWrapper({
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () =>
+                                    new Promise((resolve) => {
+                                        pendingSearches.push(resolve);
+                                    }),
+                            };
+                        },
+                    },
+                },
+            },
+        });
+        const getPage = (name) => {
+            return new EntityCollection(
+                '/property-group-option',
+                'property_group_option',
+                null,
+                { isShopwareContext: true },
+                [{ id: `${name}-id`, name }],
+                100,
+                null,
+            );
+        };
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+        pendingSearches[0](getPage('page one'));
+        await flushPromises();
+
+        const listContent = new DOMWrapper(document.body).find('.sw-select-result-list__content');
+        await listContent.trigger('scroll');
+        await listContent.trigger('scroll');
+
+        pendingSearches[1](getPage('page two'));
+        await flushPromises();
+        pendingSearches[2](getPage('page three'));
+        await flushPromises();
+
+        const results = new DOMWrapper(document.body).findAll('.sw-select-result__result-item-text');
+        expect(results.map((result) => result.text())).toEqual(['page one', 'page two', 'page three']);
     });
 });

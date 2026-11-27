@@ -91,34 +91,47 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
     private function find(SeoResolverData $data, Struct $struct): void
     {
+        $visited = [];
+
         if ($struct instanceof AggregationResultCollection) {
             foreach ($struct as $item) {
-                $this->findStruct($data, $item);
+                $this->findStruct($data, $item, $visited);
             }
         }
 
         if ($struct instanceof EntitySearchResult) {
             foreach ($struct->getEntities() as $entity) {
-                $this->findStruct($data, $entity);
+                $this->findStruct($data, $entity, $visited);
             }
 
             foreach ($struct->getExtensions() as $extension) {
-                $this->findStruct($data, $extension);
+                $this->findStruct($data, $extension, $visited);
             }
         }
 
         /** @deprecated tag:v6.8.0 - Remove the EntitySearchResult exclusion once it no longer extends Collection. */
         if ($struct instanceof Collection && !$struct instanceof EntitySearchResult) {
             foreach ($struct as $item) {
-                $this->findStruct($data, $item);
+                $this->findStruct($data, $item, $visited);
             }
         }
 
-        $this->findStruct($data, $struct);
+        $this->findStruct($data, $struct, $visited);
     }
 
-    private function findStruct(SeoResolverData $data, Struct $struct): void
+    /**
+     * @param array<int, true> $visited
+     */
+    private function findStruct(SeoResolverData $data, Struct $struct, array &$visited): void
     {
+        $objectId = spl_object_id($struct);
+
+        if (isset($visited[$objectId])) {
+            return;
+        }
+
+        $visited[$objectId] = true;
+
         if ($struct instanceof Entity) {
             $definition = $this->definitionInstanceRegistry->getByEntityClass($struct) ?? $this->salesChannelDefinitionInstanceRegistry->getByEntityClass($struct);
 
@@ -130,15 +143,15 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         foreach ($struct->getVars() as $item) {
             /** @deprecated tag:v6.8.0 - Fold the EntitySearchResult branch into the Struct one once it no longer extends Collection. */
             if ($item instanceof EntitySearchResult) {
-                $this->findStruct($data, $item);
+                $this->findStruct($data, $item, $visited);
             } elseif ($item instanceof Collection || \is_array($item)) {
                 foreach ($item as $collectionItem) {
                     if ($collectionItem instanceof Struct) {
-                        $this->findStruct($data, $collectionItem);
+                        $this->findStruct($data, $collectionItem, $visited);
                     }
                 }
             } elseif ($item instanceof Struct) {
-                $this->findStruct($data, $item);
+                $this->findStruct($data, $item, $visited);
             }
         }
     }

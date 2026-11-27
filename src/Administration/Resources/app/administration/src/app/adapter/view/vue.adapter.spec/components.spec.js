@@ -349,6 +349,23 @@ describe('ASYNC app/adapter/view/vue.adapter.js - components', () => {
         expect(lifecycleSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('rejects the component when its build fails', async () => {
+        Shopware.Component.register('sw-failing-build', { template: '<div></div>' });
+        Shopware.Component.override('sw-failing-build', () => Promise.reject(new Error('The override failed to load.')));
+
+        await expect(vueAdapter.componentResolver('sw-failing-build')).rejects.toThrow('The override failed to load.');
+    });
+
+    it('rejects a sync component when its build fails', async () => {
+        Shopware.Component.register('sw-failing-sync-build', { template: '<div></div>' });
+        Shopware.Component.override('sw-failing-sync-build', () =>
+            Promise.reject(new Error('The override failed to load.')),
+        );
+        Shopware.Component.markComponentAsSync('sw-failing-sync-build');
+
+        await expect(vueAdapter.createComponent('sw-failing-sync-build')).rejects.toThrow('The override failed to load.');
+    });
+
     it('should build & create a vue.js component', async () => {
         const componentDefinition = {
             name: 'sw-foo',

@@ -150,6 +150,25 @@ The warning about it is only logged in development builds.
 The `indexProducts()` method and the `productIds` and `cacheService` properties of the variant generator in `src/module/sw-product/helper/sw-products-variants-generator.js` are deprecated and will be removed in 6.8 without replacement.
 The generator no longer calls them, because its sync requests queue the indexing of the products they write.
 
+### Overrides of deprecated component members report a deprecation
+
+A `Component.override()` of a deprecated `computed` or method now triggers a deprecation itself, when the component is built in a development build of the Administration.
+So does a `Component.extend()` that redefines one of its parent.
+Once the major flag is active, it logs an error instead of throwing.
+To keep a backward compatible override for older versions without the report, register it inside the experimental `Shopware.Feature.silence()`, and the override of the replacement outside of it:
+
+```javascript
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => {
+        Shopware.Component.override('sw-example', { methods: { oldMethod() { /* … */ } } });
+    });
+} else {
+    Shopware.Component.override('sw-example', { methods: { newMethod() { /* … */ } } });
+}
+```
+
+See `src/Administration/Resources/app/administration/technical-docs/05-global-object/02-feature-flags-deprecations.md` for details.
+
 ## Storefront
 
 ### Production Vite builds generate JavaScript SBOMs

@@ -161,6 +161,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
             expect(wrapper.getComponent('.sw-promotion-v2-cart-condition-form__rule-select-cart').props('ruleFilter')).toBe(
                 overriddenCriteria,
             );
+            expect(deprecations).toHaveTriggered(
+                'Component.override(\'sw-promotion-v2-cart-condition-form\') overrides the deprecated computed "ruleFilter", so the override stops working once "ruleFilter" is removed with V6_8_0_0.',
+            );
         });
 
         it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {

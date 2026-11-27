@@ -26,7 +26,7 @@ data
   showRatingModal: any  [private]
 
 computed
-  dateFilter: any  [private]
+  dateFormatFilter: any  [private]
   detailLink: any  [private]
   extensionCardClasses: any  [private]
   isExpiredRent: any  [private]

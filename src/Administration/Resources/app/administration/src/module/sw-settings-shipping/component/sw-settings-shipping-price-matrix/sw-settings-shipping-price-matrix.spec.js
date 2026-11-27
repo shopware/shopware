@@ -174,6 +174,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
                     .props('ruleFilter'),
             ).toBe(overriddenCriteria);
+            expect(deprecations).toHaveTriggered(
+                'Component.override(\'sw-settings-shipping-price-matrix\') overrides the deprecated computed "shippingRuleFilterCriteria", so the override stops working once "shippingRuleFilterCriteria" is removed with V6_8_0_0.',
+            );
         },
     );
 

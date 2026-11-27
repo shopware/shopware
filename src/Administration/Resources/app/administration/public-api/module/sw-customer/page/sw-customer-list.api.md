@@ -48,7 +48,7 @@ computed
   listFilters: any
 
 methods
-  createdComponent(): Promise<any>  [deprecated tag:v6.8.0]
+  createdComponent(): Promise<any>
   getCustomerColumns(): any
   getList(): Promise<any>
   loadFilterValues(): Promise<any>  [deprecated tag:v6.8.0]

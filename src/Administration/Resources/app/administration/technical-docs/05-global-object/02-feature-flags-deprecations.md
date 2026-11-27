@@ -223,6 +223,27 @@ Deprecated APIs that stay usable past the next major, like the deprecated `$tc` 
 order, use the major of their removal, e.g. `V6_9_0_0`. Put the caller and the replacement into the message, so
 every call site is reported once and stays actionable. See `src/core/helper/i18n-legacy-syntax.helper.ts`.
 
+A `Component.override()` of a guarded `computed` or method reports a deprecation of its own when a development build
+builds the component, with or without `this.$super()`, because the override stops working once the member is removed.
+The component factory finds the guard as the first statement of the overridden member.
+A `Component.extend()` that redefines a guarded `computed` or method of its parent reports one as well, because the
+redefinition keeps the name of a removed member that overrides of the extending component rely on.
+Rename the redefinition, or deprecate it with a guard of its own, which ends the report.
+Once the major is active, each report logs an error instead of throwing, as a throw would keep the whole component
+from rendering.
+An override or extension registered inside `Feature.silence()` of the member's major is not reported, so an
+extension can keep a backward compatible override for older versions:
+
+```typescript
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => {
+        Shopware.Component.override('sw-example', { methods: { oldMethod() { /* … */ } } });
+    });
+} else {
+    Shopware.Component.override('sw-example', { methods: { newMethod() { /* … */ } } });
+}
+```
+
 `sw-deprecation-rules/require-deprecation-guard` keeps every `@deprecated tag:vX.Y.Z` declaration on this
 lifecycle. What the marker sits on decides what it requires:
 

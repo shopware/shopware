@@ -91,6 +91,9 @@ describe('src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings
             const wrapper = await createWrapper();
 
             expect(wrapper.getComponent('.sw-select-rule-create').props('ruleFilter')).toBe(overriddenCriteria);
+            expect(deprecations).toHaveTriggered(
+                'Component.override(\'sw-promotion-v2-settings-rule-selection\') overrides the deprecated computed "ruleCriteria", so the override stops working once "ruleCriteria" is removed with V6_8_0_0.',
+            );
         });
 
         it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {

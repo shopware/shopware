@@ -59,13 +59,13 @@ export default {
                 return paymentText;
             }
 
-            const formattedDate = this.dateFilter(firstDateOfFullCharging, DATE_ONLY_FORMAT);
+            const formattedDate = this.dateFormatFilter(firstDateOfFullCharging, DATE_ONLY_FORMAT);
             const apiDate = firstDateOfFullCharging.split('T')[0];
 
             return paymentText.replace(apiDate, formattedDate);
         },
 
-        dateFilter() {
+        dateFormatFilter() {
             return Shopware.Filter.getByName('date');
         },
 
@@ -85,7 +85,7 @@ export default {
                 return null;
             }
 
-            const localDateString = this.dateFilter(expirationDate, DATE_ONLY_FORMAT);
+            const localDateString = this.dateFormatFilter(expirationDate, DATE_ONLY_FORMAT);
 
             // Show different text when it's a test phase instead of a rent
             if (this.extension?.storeLicense?.variant === 'test' && !this.extension?.storeLicense?.expired) {

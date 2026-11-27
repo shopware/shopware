@@ -97,12 +97,6 @@
             "default"
         ]
     },
-    "sw-customer-list.createdComponent() is deprecated. Will be removed without replacement.": {
-        "sw-customer-list": [
-            "default",
-            "major"
-        ]
-    },
     "sw-customer-list.updateCriteria() is deprecated. Use listing mixin implementation directly.": {
         "src/module/sw-customer/page/sw-customer-list/sw-customer-list.spec.js": [
             "default",

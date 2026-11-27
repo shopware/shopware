@@ -529,7 +529,7 @@ export default class VueAdapter extends ViewAdapter {
      * Includes the full rendered template with all overrides.
      */
     createComponent(componentName: string): Promise<App<Element>> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             // load sync components directly
             if (Component.isSyncComponent && Component.isSyncComponent(componentName)) {
                 const resolvedComponent = this.componentResolver(componentName);
@@ -549,7 +549,7 @@ export default class VueAdapter extends ViewAdapter {
                     // @ts-expect-error - resolved config does not match completely a standard vue component
                     this.vueComponents[componentName] = vueComponent;
                     resolve(vueComponent as unknown as App<Element>);
-                });
+                }, reject);
 
                 return;
             }
@@ -565,27 +565,28 @@ export default class VueAdapter extends ViewAdapter {
         });
     }
 
+    /**
+     * The built config of a component, cached per name. Rejects when the build fails, so Vue reports the error.
+     */
     componentResolver(componentName: string): Promise<ComponentConfig | boolean> {
         if (!this.resolvedComponentConfigs.has(componentName)) {
             this.resolvedComponentConfigs.set(
                 componentName,
-                new Promise((resolve) => {
-                    void Component.build(componentName).then((componentConfig) => {
-                        if (typeof componentConfig === 'boolean') {
-                            resolve(false);
-                        } else {
-                            if (process.env.NODE_ENV !== 'production') {
-                                // Lets the Vue HMR runtime find the mounted instances when a template file changes.
-                                // Native SFCs keep the id of their Vite plugin, which hot updates their script.
-                                (componentConfig as HmrComponentConfig).__hmrId ??= getHmrId(componentName);
-                            }
+                Component.build(componentName).then((componentConfig) => {
+                    if (typeof componentConfig === 'boolean') {
+                        return false;
+                    }
 
-                            attachSetupOverrideShim(componentName, componentConfig);
-                            this.resolveMixins(componentConfig);
-                        }
+                    if (process.env.NODE_ENV !== 'production') {
+                        // Lets the Vue HMR runtime find the mounted instances when a template file changes.
+                        // Native SFCs keep the id of their Vite plugin, which hot updates their script.
+                        (componentConfig as HmrComponentConfig).__hmrId ??= getHmrId(componentName);
+                    }
 
-                        resolve(componentConfig);
-                    });
+                    attachSetupOverrideShim(componentName, componentConfig);
+                    this.resolveMixins(componentConfig);
+
+                    return componentConfig;
                 }),
             );
         }

@@ -348,6 +348,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
             expect(wrapper.getComponent('.sw-promotion-discount-component__select-discount-rules').props('ruleFilter')).toBe(
                 overriddenCriteria,
             );
+            expect(deprecations).toHaveTriggered(
+                'Component.override(\'sw-promotion-discount-component\') overrides the deprecated computed "ruleFilter", so the override stops working once "ruleFilter" is removed with V6_8_0_0.',
+            );
         });
 
         it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {

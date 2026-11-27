@@ -207,6 +207,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
             expect(wrapper.getComponent('.sw-promotion-v2-conditions__rule-select-customer').props('ruleFilter')).toBe(
                 overriddenCriteria,
             );
+            expect(deprecations).toHaveTriggered(
+                'Component.override(\'sw-promotion-v2-conditions\') overrides the deprecated computed "personaRuleFilter", so the override stops working once "personaRuleFilter" is removed with V6_8_0_0.',
+            );
         });
 
         it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {
@@ -255,6 +258,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
             expect(
                 wrapper.getComponent('.sw-promotion-v2-conditions__rule-select-order-conditions').props('ruleFilter'),
             ).toBe(overriddenCriteria);
+            expect(deprecations).toHaveTriggered(
+                'Component.override(\'sw-promotion-v2-conditions\') overrides the deprecated computed "orderConditionsFilter", so the override stops working once "orderConditionsFilter" is removed with V6_8_0_0.',
+            );
         });
 
         it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {

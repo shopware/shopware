@@ -3,10 +3,11 @@
  */
 
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
-import { warn } from 'src/core/service/utils/debug.utils';
+import { error, warn } from 'src/core/service/utils/debug.utils';
 import types from 'src/core/service/utils/types.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
+import { silenceKey } from 'src/core/feature';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -98,12 +99,26 @@ const componentRegistry = new Map<string, AwaitedComponentConfig>();
 export type IndexedAwaitedComponentConfig = {
     index: number;
     config: AwaitedComponentConfig;
+    /** The majors `Feature.silence()` silenced while the override was registered, empty in production. */
+    silencedMajors?: string[];
 };
 /**
  * Registry which holds all component overrides
  * @private
  */
 const overrideRegistry = new Map<string, IndexedAwaitedComponentConfig[]>();
+
+/**
+ * What `extend()` registered for a component, read by `build()` to report the deprecated members of the parent that
+ * the component redefines.
+ */
+type ExtensionRegistration = {
+    /** The majors `Feature.silence()` silenced while the component was registered, empty in production. */
+    silencedMajors: string[];
+    /** The own `computed` and methods of the component, copied before `build()` adds the inherited ones to them. */
+    ownMembers?: Pick<ComponentConfig, 'computed' | 'methods'>;
+};
+const extensionRegistry = new Map<string, ExtensionRegistration>();
 
 /**
  * Registry for globally registered helper functions like src/app/service/map-error.service.ts
@@ -572,6 +587,9 @@ function extend(
     componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>) = { name: '' },
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
+    const registration: ExtensionRegistration = {
+        silencedMajors: process.env.NODE_ENV === 'production' ? [] : Shopware.Feature.getSilencedMajors(),
+    };
 
     const configurationResolveMethod = async (): Promise<ComponentConfig> => {
         if (config) {
@@ -595,6 +613,12 @@ function extend(
         }
 
         config = { ...awaitedConfigResult };
+        if (process.env.NODE_ENV !== 'production') {
+            registration.ownMembers = {
+                computed: { ...(config.computed as ComputedOptions) },
+                methods: { ...(config.methods as MethodOptions) },
+            };
+        }
 
         if (config.template) {
             /**
@@ -618,6 +642,7 @@ function extend(
     };
 
     componentRegistry.set(componentName, configurationResolveMethod);
+    extensionRegistry.set(componentName, registration);
 
     return configurationResolveMethod;
 }
@@ -693,6 +718,7 @@ function override(
     overrides.push({
         index: overrideIndex !== null ? overrideIndex : 0,
         config: configResolveMethod,
+        silencedMajors: process.env.NODE_ENV === 'production' ? [] : Shopware.Feature.getSilencedMajors(),
     });
     overrides.sort((a, b) => a.index - b.index);
     overrideRegistry.set(componentName, overrides);
@@ -784,6 +810,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         }
 
         if (extendComp) {
+            reportRedefinedDeprecatedMembers(componentName, extendComp, extensionRegistry.get(componentName));
             requirePageReloadOnHotUpdate(extendComp);
             enrichSuperChain(extendComp, config);
 
@@ -795,9 +822,10 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
 
     if (overrideRegistry.has(componentName)) {
         // Resolve all override configs in parallel, then separate by type
-        const resolvedEntries = await Promise.all(
-            overrideRegistry.get(componentName)!.map((overrideEntry) => overrideEntry.config()),
-        );
+        const overrideEntries = overrideRegistry.get(componentName)!;
+        const resolvedEntries = await Promise.all(overrideEntries.map((overrideEntry) => overrideEntry.config()));
+
+        reportOverriddenDeprecatedMembers(componentName, config, overrideEntries, resolvedEntries);
 
         const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
             (resolvedConfig) => () =>
@@ -1230,6 +1258,348 @@ function enrichSuperChain(baseConfig: ComponentConfig, targetConfig: ComponentCo
             }
         });
     });
+}
+
+/**
+ * The leading `triggerDeprecationOrThrow` call of a deprecated member, which `require-deprecation-guard` enforces.
+ * `message` is `null` when the guard does not pass it as a plain string literal.
+ */
+type DeprecationGuard = {
+    flag: string;
+    message: string | null;
+};
+
+/**
+ * Which accessor of a member a function implements: `null` for a method, `get` or `set` for a computed.
+ */
+type MemberAccessor = 'get' | 'set' | null;
+
+/**
+ * A method, a computed or one of its accessors, of which only the source is read.
+ */
+type MemberFunction = (...args: never[]) => unknown;
+
+/**
+ * Matches the leading guard at the start of a function body, with its flag and its message when that is a string literal.
+ */
+const LEADING_GUARD_PATTERN =
+    /^\s*[\w$.]+\.triggerDeprecationOrThrow\(\s*(['"`])(\w+)\1\s*(?:,\s*(['"`])((?:\\.|(?!\3)[^\\])*)\3\s*[,)])?/;
+
+/**
+ * Matches the counters Istanbul puts at the start of every function when Jest collects coverage, like
+ * `cov_1a().f[17]++; cov_1a().s[38]++;` with their `istanbul ignore next` comment, so the guard after them is still
+ * found in CI.
+ */
+const LEADING_COVERAGE_COUNTERS =
+    /^(?:\s*\/\*\s*istanbul ignore next\s*\*\/|\s*cov_\w+\(\)\.[bfs]\[\d+\](?:\[\d+\])?\+\+;)*/;
+
+/**
+ * A deprecation reported for a member that an override or an extending component redefines.
+ */
+type MemberDeprecation = {
+    flag: string;
+    message: string;
+};
+
+/**
+ * A deprecated `computed` or method of a base config that another config redefines.
+ */
+type RedefinedMember = {
+    kind: 'computed' | 'method';
+    name: string;
+    guard: DeprecationGuard;
+};
+
+/**
+ * Reports every override of `componentName` that overrides a deprecated `computed` or method of `baseConfig`, with
+ * or without `this.$super()`. The member's own guard only runs when the member is called, which can be behind a
+ * click, while the override stops working once the member is removed either way. An override registered inside
+ * `Feature.silence()` of the member's major is not reported, so an extension can keep a backward compatible override
+ * for older versions.
+ * Development only: production builds drop it.
+ * `overrideConfigs` are the resolved configs of `overrideEntries`, in the same order.
+ */
+function reportOverriddenDeprecatedMembers(
+    componentName: string,
+    baseConfig: ComponentConfig,
+    overrideEntries: IndexedAwaitedComponentConfig[],
+    overrideConfigs: (ComponentConfig | boolean)[],
+): void {
+    if (process.env.NODE_ENV === 'production') {
+        return;
+    }
+
+    const deprecations = overrideConfigs.flatMap((overrideConfig, index) => {
+        if (typeof overrideConfig === 'boolean') {
+            return [];
+        }
+
+        return redefinedDeprecatedMembers(baseConfig, overrideConfig, overrideEntries[index].silencedMajors ?? []).map(
+            ({ kind, name, guard }) => ({
+                flag: guard.flag,
+                message: `Component.override('${componentName}') overrides the deprecated ${kind} "${name}", so the override stops working once "${name}" is removed with ${guard.flag}.${guardMessage(kind, guard)}`,
+            }),
+        );
+    });
+
+    reportMemberDeprecations(deprecations);
+}
+
+/**
+ * Reports every deprecated `computed` or method of `parentConfig` that the component `componentName`, registered with
+ * `Component.extend()`, redefines. The redefinition keeps the name of a member the parent removes, and overrides of
+ * the component rely on it, so it needs a new name or a deprecation of its own. A redefinition with its own guard is
+ * not reported, and neither is one registered inside `Feature.silence()` of the member's major.
+ * Development only: production builds drop it.
+ */
+function reportRedefinedDeprecatedMembers(
+    componentName: string,
+    parentConfig: ComponentConfig,
+    registration: ExtensionRegistration | undefined,
+): void {
+    if (process.env.NODE_ENV === 'production' || !registration?.ownMembers) {
+        return;
+    }
+
+    const ownMembers = registration.ownMembers;
+    const deprecations = redefinedDeprecatedMembers(parentConfig, ownMembers, registration.silencedMajors)
+        .filter(({ kind, name }) => !isDeprecatedItself(kind, ownMembers, name))
+        .map(({ kind, name, guard }) => ({
+            flag: guard.flag,
+            message: `Component.extend('${componentName}', '${parentConfig.name ?? ''}') redefines the deprecated ${kind} "${name}", which is removed with ${guard.flag}. Rename it or deprecate it as well.${guardMessage(kind, guard)}`,
+        }));
+
+    reportMemberDeprecations(deprecations);
+}
+
+/**
+ * Triggers each deprecation. Once its major is active, it logs an error instead of throwing, as a throw would keep
+ * the whole component from rendering, while the redefinition only stops working with the major.
+ */
+function reportMemberDeprecations(deprecations: MemberDeprecation[]): void {
+    deprecations.forEach(({ flag, message }) => {
+        try {
+            Shopware.Feature.triggerDeprecationOrThrow(flag, message);
+        } catch (deprecation) {
+            // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- reports the thrown guard
+            error('Deprecation', (deprecation as Error).message);
+        }
+    });
+}
+
+/**
+ * The deprecated `computed` and methods of `baseConfig` that `config` redefines, except the ones of a major in
+ * `silencedMajors`.
+ */
+function redefinedDeprecatedMembers(
+    baseConfig: ComponentConfig,
+    config: Pick<ComponentConfig, 'computed' | 'methods'>,
+    silencedMajors: string[],
+): RedefinedMember[] {
+    return (['computed', 'methods'] as const).flatMap((section) => {
+        const members = (config[section] ?? {}) as Record<string, unknown>;
+        const kind = section === 'methods' ? 'method' : 'computed';
+
+        return Object.entries(members).flatMap(([name, member]) => {
+            const guard = overriddenDeprecationGuard(baseConfig, section, name, member);
+
+            if (!guard || silencedMajors.includes(silenceKey(guard.flag))) {
+                return [];
+            }
+
+            return [{ kind, name, guard }];
+        });
+    });
+}
+
+/**
+ * Whether the member `name` of `config` calls its own deprecation guard.
+ */
+function isDeprecatedItself(
+    kind: RedefinedMember['kind'],
+    config: Pick<ComponentConfig, 'computed' | 'methods'>,
+    name: string,
+): boolean {
+    const section = kind === 'method' ? 'methods' : 'computed';
+    const member = (config[section] as Record<string, unknown> | undefined)?.[name];
+
+    return memberAccessors(section, member).some(([, func]) => isMemberFunction(func) && !!leadingDeprecationGuard(func));
+}
+
+/**
+ * The message of the member's own guard, appended to the reported deprecation.
+ */
+function guardMessage(kind: RedefinedMember['kind'], guard: DeprecationGuard): string {
+    return guard.message ? ` The ${kind} is deprecated with: ${guard.message}` : '';
+}
+
+/**
+ * The guard of the deprecated base implementation that `member` overrides, or `null`.
+ */
+function overriddenDeprecationGuard(
+    baseConfig: ComponentConfig,
+    section: 'computed' | 'methods',
+    name: string,
+    member: unknown,
+): DeprecationGuard | null {
+    for (const [accessor, func] of memberAccessors(section, member)) {
+        if (isMemberFunction(func)) {
+            const guard = inheritedDeprecationGuard(baseConfig, section, name, accessor);
+
+            if (guard) {
+                return guard;
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
+ * The functions a member consists of, each with the accessor it implements.
+ *
+ * @example
+ * memberAccessors('computed', { get() {}, set(value) {} }); // [['get', get], ['set', set]]
+ */
+function memberAccessors(section: 'computed' | 'methods', member: unknown): [MemberAccessor, unknown][] {
+    if (section === 'methods') {
+        return [[null, member]];
+    }
+
+    if (typeof member === 'function') {
+        return [['get', member]];
+    }
+
+    if (!types.isPlainObject(member)) {
+        return [];
+    }
+
+    const accessors = member as { get?: unknown; set?: unknown };
+
+    return [
+        ['get', accessors.get],
+        ['set', accessors.set],
+    ];
+}
+
+/**
+ * Follows the `$super` chain of a member from `config` up to the first implementation that does not call `$super`,
+ * and returns the guard of the first guarded implementation on the way.
+ */
+function inheritedDeprecationGuard(
+    config: ComponentConfig,
+    section: 'computed' | 'methods',
+    name: string,
+    accessor: MemberAccessor,
+): DeprecationGuard | null {
+    let level: ComponentConfig | undefined = config;
+
+    while (level) {
+        const func = accessorOf(level, section, name, accessor);
+
+        if (isMemberFunction(func)) {
+            const guard = leadingDeprecationGuard(func);
+
+            if (guard) {
+                return guard;
+            }
+
+            if (!callsSuper(func)) {
+                return null;
+            }
+        }
+
+        level = typeof level.extends === 'object' ? level.extends : undefined;
+    }
+
+    return null;
+}
+
+/**
+ * The function that implements `accessor` of the member `name` in `config` itself, without its `extends`.
+ */
+function accessorOf(
+    config: ComponentConfig,
+    section: 'computed' | 'methods',
+    name: string,
+    accessor: MemberAccessor,
+): unknown {
+    const member = (config[section] as Record<string, unknown> | undefined)?.[name];
+
+    return memberAccessors(section, member).find(([memberAccessor]) => memberAccessor === accessor)?.[1];
+}
+
+/**
+ * Narrows a member value to a function, so its source can be read.
+ */
+function isMemberFunction(value: unknown): value is MemberFunction {
+    return typeof value === 'function';
+}
+
+/**
+ * Whether a member function calls `this.$super()`, the same check the `$super` chain uses.
+ */
+function callsSuper(func: MemberFunction): boolean {
+    return /\.\$super/.test(func.toString());
+}
+
+/**
+ * The guard a deprecated member calls as its first statement, read from its source, or `null` when it has none.
+ *
+ * @example
+ * leadingDeprecationGuard(function () { Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'x is deprecated.'); });
+ * // { flag: 'V6_8_0_0', message: 'x is deprecated.' }
+ */
+function leadingDeprecationGuard(func: MemberFunction): DeprecationGuard | null {
+    const source = func.toString();
+    const bodyStart = functionBodyStart(source);
+    const body = bodyStart === -1 ? null : source.slice(bodyStart);
+    const match = body === null ? null : LEADING_GUARD_PATTERN.exec(body.replace(LEADING_COVERAGE_COUNTERS, ''));
+
+    if (!match) {
+        return null;
+    }
+
+    const [
+        ,
+        ,
+        flag,
+        messageQuote,
+        rawMessage,
+    ] = match;
+    const isPlainLiteral = rawMessage !== undefined && !(messageQuote === '`' && rawMessage.includes('${'));
+
+    return {
+        flag,
+        message: isPlainLiteral ? rawMessage.replace(/\\(.)/g, '$1') : null,
+    };
+}
+
+/**
+ * The index right after the `{` that opens the body of a function source, or `-1` for an arrow function without a
+ * block body. It skips the parameter list by its parentheses, as a destructured parameter contains braces too.
+ *
+ * @example
+ * functionBodyStart('d(r,{foo:e}={}){return e}'); // 16
+ */
+function functionBodyStart(source: string): number {
+    let depth = 0;
+
+    for (let index = source.indexOf('('); index !== -1 && index < source.length; index += 1) {
+        if (source[index] === '(') {
+            depth += 1;
+        } else if (source[index] === ')') {
+            depth -= 1;
+        }
+
+        if (depth === 0) {
+            const opening = /^\s*(?:=>\s*)?\{/.exec(source.slice(index + 1));
+
+            return opening ? index + 1 + opening[0].length : -1;
+        }
+    }
+
+    return -1;
 }
 
 /**

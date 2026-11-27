@@ -141,20 +141,27 @@ export default {
             }
         },
 
+        /**
+         * Moves the focus to the previous focusable element, like the browser's SHIFT+TAB.
+         */
         focusPreviousFormElement() {
             const focusableSelector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
             const myFocusable = this.$el.querySelector(focusableSelector);
             const keyboardFocusable = [...document.querySelectorAll(focusableSelector)].filter(
-                (el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined,
+                (element) =>
+                    element.tabIndex >= 0 &&
+                    !element.matches(':disabled') &&
+                    element.getClientRects().length > 0 &&
+                    element.dataset.clearableButton === undefined,
             );
+            const previous = keyboardFocusable[keyboardFocusable.indexOf(myFocusable) - 1];
 
-            keyboardFocusable.forEach((element, index) => {
-                if (index > 0 && element === myFocusable) {
-                    const kbFocusable = keyboardFocusable[index - 1];
-                    kbFocusable.click();
-                    kbFocusable.focus();
-                }
-            });
+            if (!previous) {
+                return;
+            }
+
+            // A previous select only expands when its selection gets the focus, not its search input
+            (previous.closest('.sw-select__selection') ?? previous).focus();
         },
 
         listenToClickOutside(event) {

@@ -470,7 +470,7 @@ For extension developers:
   The tax rules are fixed when the sales channel context is built, before there is a cart, so the cart content cannot decide the dispatch country.
 - `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` are deprecated and will be removed in 6.8.0.
   Custom document renderers should inject the new public service `IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead; it only returns `true` for tax-free orders.
-  It returns `false` for orders whose products are all digital and whose cart was decided by the billing address, which print the reverse-charge note instead.
+  It returns `false` for orders whose products are all digital and whose cart was decided by the billing address, which print the reverse-charge note instead: call `isReverseCharge($order)` for those and pass the result to the templates as `reverseCharge`.
 - E-invoices take the intra-community decision from `isIntraCommunityDelivery()`, and for orders whose cart was decided by the billing address the reverse-charge decision from the same rules applied to the billing address.
   Both write the first VAT ID returned by `ResolveVatIdsExtension` that starts with the code of an EU member state as the buyer's VAT ID.
   Extensions that set VAT category `K` or `AE`, the buyer's VAT ID or the delivery address themselves, for example in a `ZugferdInvoiceGeneratedEvent` listener, should remove that workaround, otherwise the XML may contain them twice.

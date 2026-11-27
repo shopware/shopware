@@ -127,8 +127,6 @@ class IntraCommunityTaxResolver implements ResetInterface
     }
 
     /**
-     * @internal
-     *
      * Whether the documents of a tax-free order the cart decided by the billing address state reverse charge: the rules
      * of an intra-community delivery, applied to the billing address.
      */

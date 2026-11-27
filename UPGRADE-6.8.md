@@ -1072,6 +1072,7 @@ The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()
 Inject `Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead.
 It replaces both checks and only returns `true` for tax-free orders (`order.price.taxStatus` is `tax-free`).
 The renderer still reads the `displayAdditionalNoteDelivery` document config itself and passes the result to the templates as `intraCommunityDelivery`.
+Orders whose products are all digital and whose cart was decided by the billing address are no intra-community delivery: call `isReverseCharge($order)` for those and pass the result to the templates as `reverseCharge`.
 
 ## Removed `TaskScheduler::getNextExecutionTime()`
 

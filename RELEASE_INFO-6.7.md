@@ -75,9 +75,10 @@ Apps that need such a section should require that version in `<compatibility>`.
 
 ### Product prices card restructured behind the `v6.8.0.0` feature flag
 
-With the `v6.8.0.0` feature flag, the product prices card shows display prices and purchase prices in separate sections with their own inheritance controls, and the advanced pricing link moves to the card header.
-Without the flag, the card keeps its current layout, blocks and callbacks.
-Several blocks and members of `sw-product-price-form`, `sw-product-detail-base`, `sw-product-detail` and `sw-list-price-field` are deprecated;
+With the `v6.8.0.0` feature flag, the product prices card renders the new `sw-product-price-card-form` instead of `sw-product-price-form`.
+It shows display prices and purchase prices in separate sections with their own inheritance controls, and the advanced pricing link moves to the card header.
+Without the flag, the card keeps `sw-product-price-form` with its current layout, blocks and callbacks.
+`sw-product-price-form` and some members of `sw-product-detail-base`, `sw-product-detail` and `sw-list-price-field` are deprecated;
 see [Product prices card extension points](./UPGRADE-6.8.md#product-prices-card-extension-points) for their replacements.
 
 The shared price fields changed independently of the flag:

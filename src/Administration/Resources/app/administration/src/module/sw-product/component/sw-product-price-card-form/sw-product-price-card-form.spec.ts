@@ -1,0 +1,269 @@
+/**
+ * @sw-package inventory
+ */
+import { mount, type VueWrapper } from '@vue/test-utils';
+import { nextTick } from 'vue';
+
+const parentProductData = {
+    id: 'productId',
+    purchasePrices: [
+        {
+            currencyId: '1',
+            linked: true,
+            gross: 0,
+            net: 0,
+        },
+    ],
+    price: [
+        {
+            currencyId: '1',
+            linked: true,
+            gross: 100,
+            net: 84.034,
+            listPrice: {
+                currencyId: '1',
+                linked: true,
+                gross: 200,
+                net: 168.07,
+            },
+            regulationPrice: {
+                currencyId: '1',
+                linked: true,
+                gross: 100,
+                net: 93.45,
+            },
+        },
+    ],
+};
+
+describe('module/sw-product/component/sw-product-price-card-form', () => {
+    async function createWrapper(productEntityOverride: Record<string, unknown> = {}) {
+        const productEntity = {
+            id: 'productId1',
+            taxId: 'taxId',
+            purchasePrices: null,
+            price: null,
+            ...productEntityOverride,
+        };
+
+        const store = Shopware.Store.get('swProductDetail');
+        store.$reset();
+        store.product = productEntity as unknown as typeof store.product;
+        store.parentProduct = structuredClone(parentProductData) as unknown as typeof store.parentProduct;
+        store.advancedModeSetting = {
+            value: {
+                settings: [
+                    {
+                        key: 'prices',
+                        label: 'sw-product.detailBase.cardTitlePrices',
+                        enabled: true,
+                        name: 'general',
+                    },
+                ],
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
+        } as typeof store.advancedModeSetting;
+        store.currencies.push({
+            id: '1',
+            name: 'Euro',
+            isoCode: 'EUR',
+            isSystemDefault: true,
+        } as unknown as (typeof store.currencies)[number]);
+
+        return mount(await wrapTestComponent('sw-product-price-card-form', { sync: true }), {
+            global: {
+                mocks: {
+                    $te: () => false,
+                },
+                stubs: {
+                    'sw-container': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                    'sw-list-price-field': await wrapTestComponent('sw-list-price-field', { sync: true }),
+                    'sw-inheritance-switch': {
+                        props: ['isInherited', 'disabled'],
+                        template: `
+                            <button
+                                :class="isInherited
+                                    ? 'sw-inheritance-switch--is-inherited'
+                                    : 'sw-inheritance-switch--is-not-inherited'"
+                                :disabled="disabled"
+                                @click="$emit(isInherited ? 'inheritance-remove' : 'inheritance-restore')"
+                            />`,
+                    },
+                    'sw-price-field': true,
+                    'sw-purchase-price-field': await wrapTestComponent('sw-purchase-price-field'),
+                    'sw-help-text': true,
+                    'sw-select-field': true,
+                    'sw-internal-link': true,
+                    'sw-maintain-currencies-modal': {
+                        name: 'sw-maintain-currencies-modal',
+                        props: ['prices', 'disabled'],
+                        emits: ['modal-close'],
+                        template: '<button @click="$emit(\'modal-close\', prices)" />',
+                    },
+                    'mt-select': {
+                        name: 'mt-select',
+                        props: ['options'],
+                        template: '<div />',
+                    },
+                },
+            },
+        });
+    }
+
+    let wrapper: VueWrapper | undefined;
+    let previousLocale: string | null;
+
+    beforeEach(() => {
+        previousLocale = Shopware.Store.get('session').currentLocale;
+    });
+
+    afterEach(() => {
+        wrapper?.unmount();
+        Shopware.Store.get('session').currentLocale = previousLocale;
+    });
+
+    it('should show a localized tax rate percentage alongside each tax name', async () => {
+        Shopware.Store.get('session').currentLocale = 'de-DE';
+        wrapper = await createWrapper();
+        await flushPromises();
+        Shopware.Store.get('swProductDetail').taxes = [
+            { id: 'standard', name: 'Standard rate', taxRate: 19 },
+            { id: 'reduced', name: 'Reduced rate', taxRate: 7.5 },
+            { id: 'zero', name: 'Zero rate', taxRate: 0 },
+        ] as never;
+        await nextTick();
+
+        const options: unknown = wrapper.findComponent({ name: 'mt-select' }).props('options');
+
+        expect(options).toEqual([
+            { id: 'standard', value: 'standard', label: 'Standard rate (19\u00A0%)' },
+            { id: 'reduced', value: 'reduced', label: 'Reduced rate (7,5\u00A0%)' },
+            { id: 'zero', value: 'zero', label: 'Zero rate (0\u00A0%)' },
+        ]);
+    });
+
+    it('should limit the percentage precision to three decimal places', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        Shopware.Store.get('swProductDetail').taxes = [
+            { id: 'custom', name: 'Custom rate', taxRate: 7.12345 },
+        ] as never;
+        await nextTick();
+
+        const options: unknown = wrapper.findComponent({ name: 'mt-select' }).props('options');
+
+        expect(options).toEqual([
+            { id: 'custom', value: 'custom', label: 'Custom rate (7.123%)' },
+        ]);
+    });
+
+    it('should toggle displayPrices inheritance without changing purchasePrices', async () => {
+        const purchasePrices = [{ currencyId: '1', gross: 60, net: 50, linked: true }];
+        wrapper = await createWrapper({ purchasePrices: structuredClone(purchasePrices) });
+        await flushPromises();
+
+        const section = wrapper.find('.sw-product-price-card-form__display-prices');
+        const field = section.find('.sw-list-price-field__price-field');
+        expect(field.attributes('disabled')).toBeTruthy();
+        const product = Shopware.Store.get('swProductDetail').product;
+
+        await section.find('.sw-inheritance-switch--is-inherited').trigger('click');
+        expect(field.attributes('disabled')).toBeFalsy();
+        expect(product.price).toEqual(parentProductData.price);
+        expect(product.purchasePrices).toEqual(purchasePrices);
+
+        await section.find('.sw-inheritance-switch--is-not-inherited').trigger('click');
+        expect(field.attributes('disabled')).toBeTruthy();
+        expect(product.price).toBeNull();
+        expect(product.purchasePrices).toEqual(purchasePrices);
+    });
+
+    it('should show inherited currency prices', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const currencyLink = wrapper.find('.sw-product-price-card-form__currency-link');
+        expect(currencyLink.exists()).toBe(true);
+
+        await currencyLink.trigger('click');
+
+        const currencyModal = wrapper.findComponent({ name: 'sw-maintain-currencies-modal' });
+        expect(currencyModal.props('prices')).toEqual(parentProductData.price);
+        expect(currencyModal.props('disabled')).toBe(true);
+
+        await currencyModal.trigger('click');
+
+        expect(Shopware.Store.get('swProductDetail').product.price).toBeNull();
+    });
+
+    it('should toggle purchasePrices inheritance without changing displayPrices', async () => {
+        const displayPrices = [{ currencyId: '1', gross: 120, net: 100, linked: true }];
+        wrapper = await createWrapper({ price: structuredClone(displayPrices) });
+        await flushPromises();
+
+        const section = wrapper.find('.sw-product-price-card-form__purchase-prices');
+        const field = section.find('.sw-product-price-card-form__purchase-prices-field');
+        expect(field.attributes('disabled')).toBe('true');
+        const product = Shopware.Store.get('swProductDetail').product;
+
+        await section.find('.sw-inheritance-switch--is-inherited').trigger('click');
+        expect(field.attributes('disabled')).toBe('false');
+        expect(product.purchasePrices).toEqual(parentProductData.purchasePrices);
+        expect(product.price).toEqual(displayPrices);
+
+        await section.find('.sw-inheritance-switch--is-not-inherited').trigger('click');
+        expect(field.attributes('disabled')).toBe('true');
+        expect(product.purchasePrices).toBeNull();
+        expect(product.price).toEqual(displayPrices);
+    });
+
+    it('should use a valid zero price when purchase price inheritance is removed without a parent price', async () => {
+        wrapper = await createWrapper();
+        Shopware.Store.get('swProductDetail').parentProduct.purchasePrices = null;
+        await flushPromises();
+
+        const section = wrapper.find('.sw-product-price-card-form__purchase-prices');
+        await section.find('.sw-inheritance-switch--is-inherited').trigger('click');
+
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toEqual([
+            {
+                currencyId: '1',
+                gross: 0,
+                net: 0,
+                linked: true,
+            },
+        ]);
+    });
+
+    it('should show optional prices only in advanced mode', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-product-price-card-form__purchase-prices').exists()).toBe(true);
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').exists()).toBe(true);
+
+        const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
+
+        Shopware.Store.get('swProductDetail').advancedModeSetting = {
+            value: {
+                ...advancedModeSetting.value,
+                advancedMode: {
+                    enabled: false,
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
+        } as typeof advancedModeSetting;
+
+        await nextTick();
+
+        expect(wrapper.find('.sw-product-price-card-form__purchase-prices').exists()).toBe(false);
+
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').exists()).toBe(false);
+    });
+});

@@ -1,42 +1,15 @@
+@import "~scss/variables";
+
 .sw-product-price-form {
-    &__display-prices,
-    &__purchase-prices {
-        .sw-inherit-wrapper__inheritance-label {
-            font-weight: var(--font-weight-semibold);
-        }
-    }
-
-    &__section-description {
-        margin-bottom: var(--scale-size-16);
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs);
-        font-weight: var(--font-weight-regular);
-        line-height: var(--font-line-height-xs);
-    }
-
-    &__currency-link {
-        margin-bottom: var(--scale-size-32);
-        color: var(--color-text-brand-default);
-        font-size: var(--font-size-xs);
-        font-weight: var(--font-weight-medium);
-        line-height: var(--font-line-height-xs);
-        text-decoration: underline;
-        text-decoration-skip-ink: none;
-        text-underline-position: from-font;
-    }
-
-    // @deprecated tag:v6.8.0 - Styles of the legacy price form layout will be removed.
     &__tax-rate.sw-inherit-wrapper {
         justify-content: flex-start;
     }
 
-    // @deprecated tag:v6.8.0 - Styles of the legacy price form layout will be removed.
     &__currency {
         font-weight: var(--font-weight-regular);
         font-size: var(--font-size-l);
     }
 
-    // @deprecated tag:v6.8.0 - Styles of the legacy price form layout will be removed.
     &__links {
         a:first-child {
             margin-top: 0;
@@ -52,7 +25,6 @@
         }
     }
 
-    // @deprecated tag:v6.8.0 - Styles of the legacy price form layout will be removed.
     &__price-list:not(.has--parent) {
         .sw-inherit-wrapper__toggle-wrapper {
             margin: 0;

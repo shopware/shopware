@@ -17,6 +17,10 @@ async function createWrapper(props: Record<string, unknown> = {}) {
                 'mt-card': {
                     template: '<div><slot /><slot name="headerRight" /></div>',
                 },
+                'sw-silence-deprecations': {
+                    props: ['flag'],
+                    template: '<slot />',
+                },
                 'sw-container': {
                     template: '<div class="sw-container"><slot /></div>',
                 },
@@ -77,6 +81,14 @@ describe('sw-product-detail-base pricing', () => {
         },
     );
 
+    it.activeFeatureFlags(['v6.8.0.0'])('should render the price card form', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('sw-product-price-card-form').exists()).toBe(true);
+        expect(wrapper.find('sw-product-price-form').exists()).toBe(false);
+    });
+
     it.activeFeatureFlags(['v6.8.0.0'])('should hide advanced pricing for a new product', async () => {
         productIsNew.mockReturnValue(true);
 
@@ -98,5 +110,14 @@ describe('sw-product-detail-base pricing', () => {
             params: { id: 'productId' },
         });
         expect(wrapper.find('.sw-product-detail-base__advanced-prices').exists()).toBe(false);
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-product-price-form.
+    it.deprecated('v6.8.0.0')('should render the deprecated price form', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('sw-product-price-form').exists()).toBe(true);
+        expect(wrapper.find('sw-product-price-card-form').exists()).toBe(false);
     });
 });

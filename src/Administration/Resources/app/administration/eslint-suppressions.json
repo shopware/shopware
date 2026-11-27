@@ -9309,11 +9309,13 @@
     }
   },
   "src/module/sw-product/component/sw-product-price-form/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-price-form/sw-product-price-form.spec.js": {
+    "sw-test-rules/no-vm-access": {
+      "count": 8
     }
   },
   "src/module/sw-product/component/sw-product-properties/index.js": {

@@ -1665,33 +1665,36 @@ The product prices card shows display prices and purchase prices in separate sec
 The advanced pricing link moved to the card header.
 During 6.7, the new layout was only active with the `v6.8.0.0` feature flag.
 
-The following blocks were deprecated and are removed.
-Move overrides to the replacement blocks:
+`sw-product-price-form` was deprecated and is removed.
+The prices card renders `sw-product-price-card-form` instead.
+Move overrides of `sw-product-price-form` to `sw-product-price-card-form`:
 
-| Removed block | Replacement |
+| Removed block of `sw-product-price-form` | Replacement |
 | --- | --- |
-| `sw_product_price_form_fields` | `sw_product_price_form_tax_field`, `sw_product_price_form_display_prices` and `sw_product_price_form_purchase_prices` |
-| `sw_product_price_form_price_field` | `sw_product_price_form_display_prices` and `sw_product_price_form_purchase_prices` |
-| `sw_product_price_form_link` | `sw_product_price_form_currency_link` or `sw_product_detail_base_price_card_advanced_prices_button` |
-| `sw_product_price_form_maintain_currencies_link` | `sw_product_price_form_currency_link` |
+| `sw_product_price_form` | `sw_product_price_card_form` |
+| `sw_product_price_form_fields` | `sw_product_price_card_form_tax_field`, `sw_product_price_card_form_display_prices` and `sw_product_price_card_form_purchase_prices` |
+| `sw_product_price_form_tax_field` | `sw_product_price_card_form_tax_field` |
+| `sw_product_price_form_price_field` | `sw_product_price_card_form_display_prices` and `sw_product_price_card_form_purchase_prices` |
+| `sw_product_price_form_link` and `sw_product_price_form_maintain_currencies_link` | `sw_product_price_card_form_currency_link` |
 | `sw_product_price_form_advanced_prices_link` | `sw_product_detail_base_price_card_advanced_prices_button` in `sw-product-detail-base` |
-| `sw_product_detail_base_advanced_prices_link` | `sw_product_detail_base_price_card_advanced_prices_button` |
+| `sw_product_price_form_maintain_currencies_modal` | `sw_product_price_card_form_maintain_currencies_modal` |
 
-The display and purchase price sections bind their own price array to the inheritance wrapper, so `currentValue` is that array.
-Replace `currentValue.price` and `currentValue.purchasePrices` with `currentValue` in the corresponding section.
+The display and purchase price sections bind their own price array to the inheritance wrapper, so `currentValue` is that array instead of an object with `price` and `purchasePrices`.
 
-The following members of `sw-product-price-form` were deprecated and are removed:
+| Removed member of `sw-product-price-form` | Replacement in `sw-product-price-card-form` |
+| --- | --- |
+| `prices` and `parentPrices` | `product.price`, `product.purchasePrices`, `parentProduct.price` and `parentProduct.purchasePrices`; `displayPrices` returns the effective display prices, including inherited ones |
+| `removePriceInheritation()` | `copyDefaultPrice(prices)` for display prices or `copyDefaultPurchasePrice(prices)` for purchase prices |
+| `inheritationCheckFunction()` | `isPriceInherited(prices)` |
 
-* `removePriceInheritation()`: use `copyDefaultPrice(prices)` for display prices or `copyDefaultPurchasePrice(prices)` for purchase prices.
-* `inheritationCheckFunction()`: use `isPriceInherited(prices)`.
-* `prices` and `parentPrices`: use `product.price`, `product.purchasePrices`, `parentProduct.price` and `parentProduct.purchasePrices`.
-  `displayPrices` returns the effective display prices, including inherited ones.
+The CSS classes of `sw-product-price-form` are replaced by the `sw-product-price-card-form__*` classes of the new component.
+
+The block `sw_product_detail_base_advanced_prices_link` of `sw-product-detail-base` was deprecated and is removed.
+Use `sw_product_detail_base_price_card_advanced_prices_button` instead.
 
 `sw-list-price-field` no longer renders purchase prices.
 Its `purchasePrices` and `hidePurchasePrices` props and the `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated and are removed.
 Render `sw-purchase-price-field` separately where purchase prices are needed.
-
-The CSS classes `sw-product-price-form__prices`, `sw-product-price-form__price-list`, `sw-product-price-form__links` and `sw-product-price-form__currency` of the old layout were deprecated and are removed.
 
 The following methods of `sw-product-detail` were deprecated and are removed:
 
@@ -1700,8 +1703,6 @@ The following methods of `sw-product-detail` were deprecated and are removed:
   Move load-time customizations that overrode it to `loadProduct()`.
 * `getDefaultPurchasePrices()`: products without purchase prices keep `purchasePrices` as `null`.
   Set `product.purchasePrices` explicitly in an extension when a default purchase price is required.
-
-`sw-product-price-form.getTaxLabel()` appends the formatted tax rate to the tax name, for example `Standard rate (19%)`.
 
 ## Jest helper `test/_helper_/majorFeatureFlags` removed
 

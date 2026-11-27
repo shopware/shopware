@@ -10839,6 +10839,19 @@
                 "sw_product_settings_form_weight_field"
             ]
         },
+        "sw-product-price-card-form": {
+            "file": "module/sw-product/component/sw-product-price-card-form",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_product_price_card_form",
+                "sw_product_price_card_form_currency_link",
+                "sw_product_price_card_form_display_prices",
+                "sw_product_price_card_form_maintain_currencies_modal",
+                "sw_product_price_card_form_purchase_prices",
+                "sw_product_price_card_form_tax_field"
+            ]
+        },
         "sw-product-price-form": {
             "file": "module/sw-product/component/sw-product-price-form",
             "visibility": "public",
@@ -10846,14 +10859,11 @@
             "blocks": [
                 "sw_product_price_form",
                 "sw_product_price_form_advanced_prices_link",
-                "sw_product_price_form_currency_link",
-                "sw_product_price_form_display_prices",
                 "sw_product_price_form_fields",
                 "sw_product_price_form_link",
                 "sw_product_price_form_maintain_currencies_link",
                 "sw_product_price_form_maintain_currencies_modal",
                 "sw_product_price_form_price_field",
-                "sw_product_price_form_purchase_prices",
                 "sw_product_price_form_tax_field"
             ]
         },

@@ -5,7 +5,7 @@
 API report of component `sw-product-price-form` in both flag states.
 Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 ```text
-component sw-product-price-form  public  js
+component sw-product-price-form  public  js  [until v6.8.0]
   registered src/module/sw-product/index.js
   source src/module/sw-product/component/sw-product-price-form/index.js
   template src/module/sw-product/component/sw-product-price-form/sw-product-price-form.html.twig
@@ -13,65 +13,47 @@ component sw-product-price-form  public  js
 mixins
   placeholder
 
-inject
-  feature
-
 props
-  allowEdit?: boolean  default=true
+  allowEdit?: boolean  default=true  [until v6.8.0]
 
 data
-  displayMaintainCurrencies: any
+  displayMaintainCurrencies: any  [until v6.8.0]
 
 computed
-  currencies: any
-  currentLocale: any  [private]
-  defaultCurrency: any
-  defaultPrice: any
-  displayPrices: any
-  displayPricesInherited: any  [private]
-  isLoading: any
-  parentPrices: any  [deprecated tag:v6.8.0]
-  parentProduct: any
-  prices: any  [deprecated tag:v6.8.0]
-  product: any
-  productPriceError: any
-  productPurchasePricesError: any
-  productTaxIdError: any
-  productTaxRate: any
-  showModeSetting: any
-  taxRateFormatter: any  [private]
-  taxRateHelpText: any
-  taxRateOptions: any
-  taxes: any
+  currencies: any  [until v6.8.0]
+  defaultCurrency: any  [until v6.8.0]
+  defaultPrice: any  [until v6.8.0]
+  isLoading: any  [until v6.8.0]
+  parentPrices: any  [until v6.8.0]
+  parentProduct: any  [until v6.8.0]
+  prices: any  [until v6.8.0]
+  product: any  [until v6.8.0]
+  productPriceError: any  [until v6.8.0]
+  productPurchasePricesError: any  [until v6.8.0]
+  productTaxIdError: any  [until v6.8.0]
+  productTaxRate: any  [until v6.8.0]
+  showModeSetting: any  [until v6.8.0]
+  taxRateHelpText: any  [until v6.8.0]
+  taxRateOptions: any  [until v6.8.0]
+  taxes: any  [until v6.8.0]
 
 methods
-  copyDefaultCurrencyPrice(prices: any, fallbackValue: any): any  [private]
-  copyDefaultPrice(prices: any): any
-  copyDefaultPurchasePrice(prices: any): any
-  getTaxLabel(tax: any): any
-  inheritationCheckFunction(): any  [deprecated tag:v6.8.0]
-  isPriceInherited(prices: any): any
-  legacyInheritationCheckFunction(): any  [private]
-  legacyRemovePriceInheritation(refPrice: any): any  [private]
-  onMaintainCurrenciesClose(prices: any): any
-  readLegacyComputed(name: any): any  [private]
-  removePriceInheritation(refPrice: any): any  [deprecated tag:v6.8.0]
-  setLegacyPrices(newValue: any): any  [private]
-  updatePrices(index: any): any
+  getTaxLabel(tax: any): any  [until v6.8.0]
+  inheritationCheckFunction(): any  [until v6.8.0]
+  onMaintainCurrenciesClose(prices: any): any  [until v6.8.0]
+  removePriceInheritation(refPrice: any): any  [until v6.8.0]
+  updatePrices(index: any): any  [until v6.8.0]
 
 blocks
-  sw_product_price_form
-    sw_product_price_form_currency_link  [after v-if]
-    sw_product_price_form_display_prices
-    sw_product_price_form_fields  [deprecated tag:v6.8.0]
-      sw_product_price_form_price_field  [after v-if] [deprecated tag:v6.8.0]
-      sw_product_price_form_tax_field
-    sw_product_price_form_link  [after v-if] [deprecated tag:v6.8.0]
-      sw_product_price_form_advanced_prices_link  [until v6.8.0] [deprecated tag:v6.8.0]
-      sw_product_price_form_maintain_currencies_link  [after v-if] [until v6.8.0] [deprecated tag:v6.8.0]
-    sw_product_price_form_maintain_currencies_modal  [after v-if]
-    sw_product_price_form_purchase_prices  [after v-if]
+  sw_product_price_form  [until v6.8.0]
+    sw_product_price_form_fields  [until v6.8.0]
+      sw_product_price_form_price_field  [after v-if] [until v6.8.0]
+      sw_product_price_form_tax_field  [until v6.8.0]
+    sw_product_price_form_link  [until v6.8.0]
+      sw_product_price_form_advanced_prices_link  [until v6.8.0]
+      sw_product_price_form_maintain_currencies_link  [after v-if] [until v6.8.0]
+    sw_product_price_form_maintain_currencies_modal  [until v6.8.0]
 
 refs
-  taxIdInheritation  -> sw-inherit-wrapper  block=sw_product_price_form_tax_field
+  taxIdInheritation  -> sw-inherit-wrapper  block=sw_product_price_form_tax_field  [until v6.8.0]
 ```

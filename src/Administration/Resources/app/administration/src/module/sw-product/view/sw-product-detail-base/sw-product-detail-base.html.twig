@@ -62,7 +62,16 @@
         >
 
             {% block sw_product_detail_base_price_form %}
-            <sw-product-price-form :allow-edit="acl.can('product.editor')" />
+            <sw-silence-deprecations
+                v-if="!feature.isActive('V6_8_0_0')"
+                flag="V6_8_0_0"
+            >
+                <sw-product-price-form :allow-edit="acl.can('product.editor')" />
+            </sw-silence-deprecations>
+            <sw-product-price-card-form
+                v-else
+                :allow-edit="acl.can('product.editor')"
+            />
             {% endblock %}
 
             {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_detail_base_price_card_advanced_prices_button instead. #}

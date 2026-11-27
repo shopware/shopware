@@ -31,7 +31,7 @@ Shopware.Component.register(
     'sw-product-modal-delivery',
     () => import('./component/sw-product-variants/sw-product-modal-delivery'),
 );
-Shopware.Component.register('sw-product-price-form', () => import('./component/sw-product-price-form'));
+Shopware.Component.register('sw-product-price-card-form', () => import('./component/sw-product-price-card-form'));
 Shopware.Component.register('sw-product-settings-form', () => import('./component/sw-product-settings-form'));
 Shopware.Component.register('sw-product-guarantee-form', () => import('./component/sw-product-guarantee-form'));
 Shopware.Component.register('sw-product-measurement-form', () => import('./component/sw-product-measurement-form'));
@@ -130,6 +130,12 @@ Shopware.Component.register('sw-product-layout-assignment', () => import('./comp
  */
 if (!Shopware.Feature.isActive('v6.8.0.0')) {
     Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));
+}
+/**
+ * @deprecated tag:v6.8.0 - Will be removed. Use sw-product-price-card-form instead.
+ */
+if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    Shopware.Component.register('sw-product-price-form', () => import('./component/sw-product-price-form'));
 }
 Shopware.Component.register('sw-product-properties', () => import('./component/sw-product-properties'));
 Shopware.Component.register('sw-product-add-properties-modal', () => import('./component/sw-product-add-properties-modal'));

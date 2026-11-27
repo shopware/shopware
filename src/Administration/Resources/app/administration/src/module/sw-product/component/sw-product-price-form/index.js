@@ -8,11 +8,16 @@ import './sw-product-price-form.scss';
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.8.0 - Component will be removed. Use sw-product-price-card-form instead.
+ */
 export default {
     template,
 
-    inject: ['feature'],
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Use sw-product-price-card-form instead.',
+    },
 
     mixins: [Mixin.getByName('placeholder')],
 
@@ -67,19 +72,6 @@ export default {
             return Shopware.Store.get('swProductDetail').currencies;
         },
 
-        /** @private */
-        currentLocale() {
-            return Shopware.Store.get('session').currentLocale;
-        },
-
-        /** @private */
-        taxRateFormatter() {
-            return new Intl.NumberFormat(this.currentLocale, {
-                style: 'percent',
-                maximumFractionDigits: 3,
-            });
-        },
-
         ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
 
         taxRateHelpText() {
@@ -100,16 +92,8 @@ export default {
             );
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Use product.price and product.purchasePrices separately.
-         */
         prices: {
             get() {
-                Shopware.Feature.triggerDeprecationOrThrow(
-                    'V6_8_0_0',
-                    'sw-product-price-form.prices is deprecated. Use product.price and product.purchasePrices separately.',
-                );
-
                 const prices = {
                     price: [],
                     purchasePrices: [],
@@ -127,42 +111,16 @@ export default {
             },
 
             set(newValue) {
-                Shopware.Feature.triggerDeprecationOrThrow(
-                    'V6_8_0_0',
-                    'sw-product-price-form.prices is deprecated. Use product.price and product.purchasePrices separately.',
-                );
-
                 this.product.price = newValue?.price || null;
                 this.product.purchasePrices = newValue?.purchasePrices || null;
             },
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Use product.price, product.purchasePrices, parentProduct.price, and parentProduct.purchasePrices separately.
-         */
         parentPrices() {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-product-price-form.parentPrices is deprecated. Use the product and parentProduct price properties separately.',
-            );
-
             return {
                 price: this.product.price || this.parentProduct.price,
                 purchasePrices: this.product.purchasePrices || this.parentProduct.purchasePrices,
             };
-        },
-
-        /** @private */
-        displayPricesInherited() {
-            return !!this.parentProduct.id && this.isPriceInherited(this.product.price);
-        },
-
-        displayPrices() {
-            if (this.displayPricesInherited) {
-                return this.parentProduct.price;
-            }
-
-            return this.product.price;
         },
 
         taxRateOptions() {
@@ -177,15 +135,7 @@ export default {
     },
 
     methods: {
-        /**
-         * @deprecated tag:v6.8.0 - Use copyDefaultPrice() or copyDefaultPurchasePrice() for the corresponding price section.
-         */
         removePriceInheritation(refPrice) {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-product-price-form.removePriceInheritation() is deprecated. Use copyDefaultPrice() or copyDefaultPurchasePrice() instead.',
-            );
-
             const defaultRefPrice = refPrice.price?.find((price) => price.currencyId === this.defaultCurrency.id);
             const defaultRefPurchasePrice = refPrice.purchasePrices?.find(
                 (price) => price.currencyId === this.defaultCurrency.id,
@@ -219,117 +169,26 @@ export default {
             return prices;
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Use isPriceInherited() for the corresponding price section.
-         */
         inheritationCheckFunction() {
-            Shopware.Feature.triggerDeprecationOrThrow(
-                'V6_8_0_0',
-                'sw-product-price-form.inheritationCheckFunction() is deprecated. Use isPriceInherited() instead.',
-            );
-
-            const prices = this.readLegacyComputed('prices');
-
-            return !prices.price.length && !prices.purchasePrices.length;
-        },
-
-        /**
-         * Evaluates a deprecated computed property for the legacy layout without reporting core's own usage.
-         * It calls the definition, overrides included, instead of reading the cached property, because Vue
-         * re-evaluates a cached property outside of the silence when it checks whether to re-render.
-         * Remove it with the legacy layout in v6.8.0.
-         *
-         * @private
-         */
-        readLegacyComputed(name) {
-            const definition = this.$options.computed[name];
-            const getter = typeof definition === 'function' ? definition : definition.get;
-
-            return Shopware.Feature.silence('V6_8_0_0', () => getter.call(this, this));
-        },
-
-        /**
-         * Writes the deprecated `prices` for the legacy layout without reporting core's own usage.
-         * Remove it with the legacy layout in v6.8.0.
-         *
-         * @private
-         */
-        setLegacyPrices(newValue) {
-            Shopware.Feature.silence('V6_8_0_0', () => {
-                this.prices = newValue;
-            });
-        },
-
-        /**
-         * Calls the deprecated `removePriceInheritation()` for the legacy layout without reporting core's own usage.
-         * Remove it with the legacy layout in v6.8.0.
-         *
-         * @private
-         */
-        legacyRemovePriceInheritation(refPrice) {
-            return Shopware.Feature.silence('V6_8_0_0', () => this.removePriceInheritation(refPrice));
-        },
-
-        /**
-         * Calls the deprecated `inheritationCheckFunction()` for the legacy layout without reporting core's own usage.
-         * Remove it with the legacy layout in v6.8.0.
-         *
-         * @private
-         */
-        legacyInheritationCheckFunction() {
-            return Shopware.Feature.silence('V6_8_0_0', () => this.inheritationCheckFunction());
+            return !this.prices.price.length && !this.prices.purchasePrices.length;
         },
 
         onMaintainCurrenciesClose(prices) {
-            if (!this.displayPricesInherited) {
-                this.product.price = prices;
-            }
+            this.product.price = prices;
 
             this.displayMaintainCurrencies = false;
         },
 
         getTaxLabel(tax) {
-            if (!tax) {
-                return '';
+            if (this.$te(`global.tax-rates.${tax.name}`)) {
+                return this.$t(`global.tax-rates.${tax.name}`);
             }
 
-            const translationKey = `global.tax-rates.${tax.name}`;
-            const label = this.$te(translationKey) ? this.$t(translationKey) : tax.name;
-
-            // @deprecated tag:v6.8.0 - Remove the condition; the label always contains the tax rate.
-            if (!this.feature.isActive('V6_8_0_0')) {
-                return label;
-            }
-
-            return `${label} (${this.taxRateFormatter.format(tax.taxRate / 100)})`;
+            return tax.name;
         },
 
         updatePrices(index) {
             this.product.price.splice(index, 1);
-        },
-
-        copyDefaultPrice(prices) {
-            return this.copyDefaultCurrencyPrice(prices, null);
-        },
-
-        copyDefaultPurchasePrice(prices) {
-            return this.copyDefaultCurrencyPrice(prices, 0);
-        },
-
-        /** @private */
-        copyDefaultCurrencyPrice(prices, fallbackValue) {
-            const price = prices?.find(({ currencyId }) => currencyId === this.defaultCurrency.id) ?? {
-                currencyId: this.defaultCurrency.id,
-                gross: fallbackValue,
-                net: fallbackValue,
-                linked: true,
-            };
-
-            return [Shopware.Utils.object.cloneDeep(price)];
-        },
-
-        isPriceInherited(prices) {
-            return !prices?.length;
         },
     },
 };

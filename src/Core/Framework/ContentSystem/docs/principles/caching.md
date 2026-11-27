@@ -2,7 +2,7 @@
 
 The rules in this area state when the HTTP cache may store a render and which component records the cache tags of its values.
 
-## The HTTP cache stores a render only when a recorded tag covers every value it shows
+## The HTTP cache stores a render only when every value it shows has a recorded covering tag
 
 A cache tag covers a value when every change of that value invalidates the tag.
 The module marks a render that shows one value without a covering tag as uncacheable.
@@ -13,18 +13,18 @@ The empty result of a lookup therefore needs a covering tag like a loaded value 
 A loader that returns with no input needs no tag of its own, because the layout tags of the render cover the stored layout.
 A loader result states its cache dependency separately from whether it carries data.
 For a tag that the platform defines, the module relies on the invalidation of the platform.
-When a change of a value invalidates none of the tags that the platform defines for that value, the platform has a defect.
+When the platform defines a tag for a value and a change of that value does not invalidate it, the platform has a defect.
 For a tag that the module defines, the module invalidates the tag on every change of the value.
 
 Why: The HTTP cache stores the whole response.
-No write removes the stored response before it expires, unless the write invalidates a recorded tag.
+A write removes the stored response before it expires only by invalidating a recorded tag or by clearing the whole cache.
 A change of a value without a covering tag can leave every recorded tag valid, so the stored response can outlive the change.
 The HTTP cache has no unit smaller than the response.
 One value without a covering tag therefore makes the whole render uncacheable.
 
 Decided against: Caching the render and relying on the expiry time of the cache entry.
 A tag that only the most frequent change of the value invalidates.
-A delete, a translation write or a write that skips the indexer then leaves the response in the cache.
+A delete, a translation write or a write that skips the indexer can then leave the response in the cache.
 
 In code:
 

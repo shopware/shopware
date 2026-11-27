@@ -45,11 +45,11 @@
 - language reduction: the FULL mode step of `StoredTreePreparer` that replaces each language map with one entry: [translation.md](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map).
 - loss, dropped, orphaned: what a mutation response reports, a discarded property or wiring key (dropped) or a detached child it returns (orphaned): [failure-and-loss.md](failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).
 - cache context: the `RenderingCacheContext` of one render, which collects the cache tags the render path adds and can mark the render as uncacheable.
-- covering tag: a recorded cache tag that every change of a value invalidates: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-a-recorded-tag-covers-every-value-it-shows).
+- covering tag: a recorded cache tag that every change of a value invalidates: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-every-value-it-shows-has-a-recorded-covering-tag).
 - no input, found nothing: a loader result that read nothing outside the stored layout,
   or one whose own lookup found nothing or threw a caught `ShopwareHttpException`.
   `noInput()` and `layoutOnly()` state no input.
-  `foundNothing()` and `foundNothingUncacheable()` state found nothing: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-a-recorded-tag-covers-every-value-it-shows).
+  `foundNothing()` and `foundNothingUncacheable()` state found nothing: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-every-value-it-shows-has-a-recorded-covering-tag).
 
 In this module, "context" is the per-element delivery map. In the platform, `Context` is the Shopware context object.
 

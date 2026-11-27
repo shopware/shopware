@@ -30,7 +30,7 @@ Unsupported entities return null → page becomes uncacheable.
 
 `CacheInvalidationSubscriber` names the platform class under `src/Core/Framework/Adapter/Cache/` after a `platform` prefix, and the module class under `src/Core/Framework/ContentSystem/Cache/` after a `module` prefix.
 
-The five entity patterns and `navigation` are platform tags. The module records them and relies on the platform's invalidation of an entity's own data ([caching.md](../docs/principles/caching.md#the-http-cache-stores-a-render-only-when-a-recorded-tag-covers-every-value-it-shows)).
+The five entity patterns and `navigation` are platform tags. The module records them and relies on the platform's invalidation of an entity's own data ([caching.md](../docs/principles/caching.md#the-http-cache-stores-a-render-only-when-every-value-it-shows-has-a-recorded-covering-tag)).
 
 Category `category.media` mappings additionally record `content-system-mapped-media-{id}` for the media entity actually returned by the provider. The tag is added to the caller's rendering cache context and forwarded by `CacheFinalizer`. Reading only category text does not add it, even if the loaded category also has media. This does not add generic media support to `EntityCacheTagResolver` or make standalone media loaders cacheable.
 

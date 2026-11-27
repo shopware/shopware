@@ -136,7 +136,17 @@ export default Shopware.Mixin.register(
                 const query = this.$route.query;
 
                 if (Shopware.Utils.types.isEmpty(query)) {
+                    this.page = 1;
+
+                    if (this.term) {
+                        this.term = '';
+                    }
+
                     this.resetListing();
+                }
+
+                if (newRoute.query.term === undefined && oldRoute.query.term !== undefined) {
+                    this.term = '';
                 }
 
                 this.parseBooleanQueryParams(query);

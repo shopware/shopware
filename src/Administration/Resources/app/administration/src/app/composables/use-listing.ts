@@ -373,7 +373,17 @@ export default function useListing(options: UseListingOptions): UseListingReturn
         const query = route.query;
 
         if (Shopware.Utils.types.isEmpty(query)) {
+            page.value = 1;
+
+            if (term.value) {
+                term.value = '';
+            }
+
             resetListing();
+        }
+
+        if (newRoute.query.term === undefined && oldRoute.query.term !== undefined) {
+            term.value = '';
         }
 
         parseBooleanQueryParams(query);

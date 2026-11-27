@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 import { flushPromises, mount } from '@vue/test-utils';
-import { createRouter, createWebHashHistory } from 'vue-router';
-import type { RouteLocationRaw, Router } from 'vue-router';
+import { createRouter, createMemoryHistory, createWebHashHistory } from 'vue-router';
+import type { RouterHistory, RouteLocationRaw, Router } from 'vue-router';
 import useListing from './use-listing';
 import type { UseListingOptions, UseListingReturn } from './use-listing';
 
@@ -24,6 +24,7 @@ interface MountResult {
 async function mountListing(
     options: Partial<UseListingOptions> = {},
     initialRoute: RouteLocationRaw = { name: 'sw.product.index' },
+    history: RouterHistory = createWebHashHistory(),
 ): Promise<MountResult> {
     const getList = (options.getList as jest.Mock | undefined) ?? jest.fn();
     let listing: UseListingReturn | undefined;
@@ -55,7 +56,7 @@ async function mountListing(
                 component: { template: '<div></div>' },
             },
         ],
-        history: createWebHashHistory(),
+        history,
     });
 
     await router.push(initialRoute);
@@ -203,6 +204,106 @@ describe('src/app/composables/use-listing', () => {
         await flushPromises();
 
         expect(router.currentRoute.value.query).toMatchObject({ term: 'shirt', page: '1' });
+    });
+
+    it('resets the search term and page when the same route is opened again without a query', async () => {
+        const { listing, router } = await mountListing();
+
+        listing.onSearch('shirt');
+        await flushPromises();
+        listing.onPageChange({ page: 3, limit: 25 });
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.term).toBe('shirt');
+
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listing.term.value).toBe('');
+        expect(listing.page.value).toBe(1);
+        expect(router.currentRoute.value.query.term).toBe('');
+        expect(router.currentRoute.value.query.page).toBe('1');
+    });
+
+    it('leaves the term untouched when the same route is opened again without a query or a term', async () => {
+        const { listing, router } = await mountListing();
+
+        listing.onPageChange({ page: 3, limit: 25 });
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.page).toBe('3');
+
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listing.term.value).toBeUndefined();
+        expect(listing.page.value).toBe(1);
+        expect(router.currentRoute.value.query.page).toBe('1');
+        expect(router.currentRoute.value.fullPath).not.toContain('term=');
+    });
+
+    it('clears the search term when the browser goes back to the same route without a term', async () => {
+        const { listing, getList, router } = await mountListing({}, { name: 'sw.product.index' }, createMemoryHistory());
+
+        expect(router.currentRoute.value.query.term).toBeUndefined();
+
+        listing.onSearch('shirt');
+        await flushPromises();
+
+        expect(listing.term.value).toBe('shirt');
+
+        const listTerms: (string | undefined)[] = [];
+        getList.mockImplementation(() => {
+            listTerms.push(listing.term.value);
+        });
+
+        router.back();
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.term).toBeUndefined();
+        expect(listing.term.value).toBe('');
+        expect(listTerms).toEqual(['']);
+    });
+
+    it('keeps the search term when the browser goes back to the same route with the term', async () => {
+        const { listing, router } = await mountListing({}, { name: 'sw.product.index' }, createMemoryHistory());
+
+        listing.onSearch('shirt');
+        await flushPromises();
+        listing.onPageChange({ page: 2, limit: 25 });
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.page).toBe('2');
+
+        router.back();
+        await flushPromises();
+
+        expect(router.currentRoute.value.query).toMatchObject({ term: 'shirt', page: '1' });
+        expect(listing.term.value).toBe('shirt');
+        expect(listing.page.value).toBe(1);
+    });
+
+    it('keeps a default term when the listing is mounted with an empty query', async () => {
+        const { listing, router } = await mountListing({ term: 'foo' });
+
+        expect(listing.term.value).toBe('foo');
+        expect(router.currentRoute.value.query.term).toBe('foo');
+    });
+
+    it('keeps the page and the term when resetListing is called directly', async () => {
+        const { listing, router } = await mountListing();
+
+        listing.onSearch('shirt');
+        await flushPromises();
+        listing.onPageChange({ page: 3, limit: 25 });
+        await flushPromises();
+
+        listing.resetListing();
+        await flushPromises();
+
+        expect(listing.term.value).toBe('shirt');
+        expect(listing.page.value).toBe(3);
+        expect(router.currentRoute.value.query).toMatchObject({ term: 'shirt', page: '3' });
     });
 
     it('toggles the sort direction when the same column is sorted twice', async () => {

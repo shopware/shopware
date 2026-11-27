@@ -4,7 +4,8 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, config } from '@vue/test-utils';
+import { createRouter, createMemoryHistory } from 'vue-router';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
 import Criteria from 'src/core/data/criteria.data';
@@ -55,7 +56,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
     let spyLoadTypeSearchResultsByService;
     let userActivityApiServiceMock;
 
-    async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = [], customProviders = {}) {
+    async function createWrapper(
+        props,
+        searchTypes = searchTypeServiceTypes,
+        privileges = [],
+        customProviders = {},
+        router = null,
+    ) {
         swSearchBarComponent = await wrapTestComponent('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
@@ -82,13 +89,16 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     'sw-highlight-text': true,
                     'sw-shortcut-overview-item': true,
                 },
-                mocks: {
-                    $route: {
-                        query: {
-                            term: '',
-                        },
-                    },
-                },
+                plugins: router ? [router] : [],
+                mocks: router
+                    ? {}
+                    : {
+                          $route: {
+                              query: {
+                                  term: '',
+                              },
+                          },
+                      },
                 provide: {
                     searchService: customProviders.searchService ?? {
                         search: () => {
@@ -460,6 +470,86 @@ describe('src/app/component/structure/sw-search-bar', () => {
         wrapper.vm.$options.watch.$route.call(wrapper.vm, route);
 
         expect(wrapper.vm.searchTerm).toBe('shirt');
+    });
+
+    describe('route changes', () => {
+        let router;
+        let globalRouteMock;
+
+        beforeEach(async () => {
+            globalRouteMock = config.global.mocks.$route;
+            delete config.global.mocks.$route;
+
+            router = createRouter({
+                routes: [
+                    {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        component: { template: '<div></div>' },
+                    },
+                    {
+                        name: 'sw.order.index',
+                        path: '/sw/order/index',
+                        component: { template: '<div></div>' },
+                    },
+                ],
+                history: createMemoryHistory(),
+            });
+
+            await router.push({ name: 'sw.product.index', query: { term: 'shirt' } });
+
+            wrapper = await createWrapper(
+                {
+                    initialSearchType: 'product',
+                    initialSearch: 'shirt',
+                },
+                searchTypeServiceTypes,
+                [],
+                {},
+                router,
+            );
+        });
+
+        afterEach(() => {
+            config.global.mocks.$route = globalRouteMock;
+        });
+
+        it('should clear the search term when the same route drops its term', async () => {
+            await router.push({ name: 'sw.product.index' });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-search-bar__input').element.value).toBe('');
+        });
+
+        it('should clear the search term when the same route drops its term while the field is focused', async () => {
+            await wrapper.find('.sw-search-bar__input').trigger('focus');
+            await router.push({ name: 'sw.product.index' });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-search-bar__input').element.value).toBe('');
+        });
+
+        it('should keep the typed search term when the same route carries another term while the user is typing', async () => {
+            await wrapper.find('.sw-search-bar__input').trigger('focus');
+            await router.push({ name: 'sw.product.index', query: { term: 'shi' } });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-search-bar__input').element.value).toBe('shirt');
+        });
+
+        it('should keep the search term when another route has no term', async () => {
+            await router.push({ name: 'sw.order.index' });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-search-bar__input').element.value).toBe('shirt');
+        });
+
+        it('should clear the search term when the same route has an empty term', async () => {
+            await router.push({ name: 'sw.product.index', query: { term: '' } });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-search-bar__input').element.value).toBe('');
+        });
     });
 
     it('should update off-canvas state when admin menu toggles it', async () => {

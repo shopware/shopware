@@ -7,7 +7,7 @@
 {% set ORDER_STATE_OPEN = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_OPEN') %}
 {% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
 {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
-{% set NOT_REORDERED_LINE_ITEM_TYPES = [
+{% set notReorderedLineItemTypes = [
     constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PROMOTION_LINE_ITEM_TYPE'),
     constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::CREDIT_LINE_ITEM_TYPE'),
     constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::DISCOUNT_LINE_ITEM'),
@@ -105,7 +105,7 @@
                                         {# reorderable while a product is still shown in this sales channel, or a plugin can re-add its own line item #}
                                         {% set reorderable = order.lineItems is null or order.lineItems.firstWhere(item => item.type == PRODUCT_LINE_ITEM_TYPE
                                             ? (item.extensions.productAvailability.visible ?? true)
-                                            : item.type not in NOT_REORDERED_LINE_ITEM_TYPES
+                                            : item.type not in notReorderedLineItemTypes
                                         ) is not null %}
 
                                         {% if reorderable %}

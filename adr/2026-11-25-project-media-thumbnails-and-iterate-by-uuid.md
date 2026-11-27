@@ -80,6 +80,13 @@ Both cleared-table runs below indexed all 51,300,522 documents with 20 workers a
 Clearing the column and adding the covering index therefore address different costs.
 The cleanup makes existing rows cheaper to traverse, and the covering index lets ID-only queries bypass those rows entirely.
 
+Shopware 6.7.2.0 used the same split between regular and destructive migrations when it introduced `media_thumbnail.media_thumbnail_size_id`.
+The regular migration backfilled existing thumbnails in batches of 10,000, and the destructive phase repeated the backfill before enforcing `NOT NULL`. [6.7.2.0 thumbnail-size migration](https://github.com/shopware/shopware/blob/v6.7.2.0/src/Core/Migration/V6_7/Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnail.php)
+For the larger serialized values cleared here, the XL trials found comparable throughput with 1,000-row batches and shorter individual writes.
+
+Earlier regular migrations also built secondary indexes directly on populated `media` tables.
+Shopware 6.6 indexed the file extension, name and hash, and 6.7 added composite indexes for upload-time and folder queries. [File indexes](https://github.com/shopware/shopware/blob/v6.7.16.0/src/Core/Migration/V6_6/Migration1738661307AddMediaIndices.php) · [Upload-time index](https://github.com/shopware/shopware/blob/v6.7.16.0/src/Core/Migration/V6_7/Migration1771342632AddCorruptedMediaHandlerIndices.php) · [Folder index](https://github.com/shopware/shopware/blob/v6.7.16.0/src/Core/Migration/V6_7/Migration1780325388AddMediaFolderCreatedAtIndex.php)
+
 ### Alternative considered — an auto-increment column on media
 
 An indexed integer `auto_increment` column on `media` would let the existing integer cursor seek directly to the next page.

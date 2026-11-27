@@ -368,6 +368,13 @@ composer admin:check-public-api -- <base> <head>
 ```
 
 The command prints the summary and fails when the change has unannounced breaks.
+`--github` adds a GitHub annotation per break on its line in the head commit and writes the summary to the job summary in `GITHUB_STEP_SUMMARY`.
+`--report-only` keeps the exit code at 0 when the change has breaks and turns the annotations into warnings.
+A commit the check cannot read still fails the command.
+
+The job `public-api-break-check` in `.github/workflows/admin.yml` runs the check with both options on every pull request, between the merge commit and its first parent.
+This is the shadow mode of the check: it shows its findings on live pull requests, but it fails no pull request, and `admin-check` does not wait for it.
+
 A commit can hold templates that no component uses.
 The generator rejects those for the committed snapshot, and the check leaves them out, because it prints no snapshot.
 

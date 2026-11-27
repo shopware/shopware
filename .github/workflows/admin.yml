@@ -232,6 +232,41 @@ jobs:
       - name: Run extension tooling e2e suite
         run: npm --prefix src/Administration/Resources/app/administration run unit:extension-tooling-e2e
 
+  # Shadow mode: the job annotates unannounced breaks of the public API but does not fail on them, and admin-check
+  # does not wait for it. It runs on pull requests only, because the annotations belong to the diff of one.
+  public-api-break-check:
+    needs:
+      - markdown-only-changes
+    if: ${{ github.event_name == 'pull_request' && needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    runs-on: ubuntu-24.04
+    name: "Public API break check (report only)"
+    timeout-minutes: 20
+    env:
+      NODE_VERSION: 'lts/*'
+    steps:
+      # The merge commit of the pull request and its first parent, the head of the base branch
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            src/Administration/Resources/app/administration/package-lock.json
+            src/Administration/Resources/app/administration/build/vite-8/package-lock.json
+
+      - name: Install admin dependencies
+        run: npm --prefix src/Administration/Resources/app/administration ci
+
+      - name: Check the public API of the pull request
+        working-directory: src/Administration/Resources/app/administration
+        run: npm run check-public-api -- --github --report-only HEAD^1 HEAD
+
   license-check:
     needs:
       - markdown-only-changes

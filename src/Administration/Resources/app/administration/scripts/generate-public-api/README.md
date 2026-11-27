@@ -102,16 +102,20 @@ What the reader cannot resolve becomes a note in the report, because a member th
 flowchart TD
     git["source/git-source-tree.ts<br/>reads the sources of a commit out of git"]
     subgraph check["break-check/"]
+        command["check-command.ts<br/>reads the arguments of check.ts and decides the exit code"]
         commits["commit-check.ts<br/>builds the models of two commits"]
         facts["facts/<br/>what the rules compare about a component in one flag state"]
         rules["rules/<br/>what a rule is made of, the rules per kind of change, and the list of all rules"]
         classify["break-check.ts<br/>runs the rules per component and state, then decides the group"]
         announced["announcements.ts<br/>decides whether a marker announced a change"]
         print["print-findings.ts<br/>prints the summary"]
+        github["github-report.ts<br/>prints the annotations and the job summary for GitHub Actions"]
     end
 
+    command --> commits
     git --> commits --> classify
     facts --> rules --> classify --> print
+    print --> github
     announced --> classify
 ```
 
@@ -151,10 +155,11 @@ Its facts get a file of their own in `facts/` and join `ComponentFacts` in `fact
 | `break-check/break-check.spec/method-rules.spec.ts` | What each rule of the break check reports for a change to the parameters, the result and the return type of a method |
 | `break-check/break-check.spec/verdict.spec.ts` | What the break check reports as announced, private or inherited by an extend child |
 | `break-check/commit-check.spec.ts` | The break check on the commits of a repository that the spec creates |
+| `break-check/check-command.spec.ts` | The options and exit codes of `check.ts`, and its output for GitHub Actions |
 | `snapshot/committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |
 | `testing/fixture-runner.spec.ts`, `break-check/print-findings.spec.ts` | The fixture comparison and the summary of the break check |
 
-`testing/example-components.ts` builds the small source trees that the specs share.
+`testing/example-components.ts` builds the small source trees that the specs share, and `testing/example-repository.ts` the git repository for the specs that compare commits.
 
 Run them in the Administration folder:
 

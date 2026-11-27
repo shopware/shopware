@@ -3,23 +3,24 @@
  *
  * Runs the break check on two commits of this repository:
  *
- *     composer admin:check-public-api -- <base> <head>
+ *     composer admin:check-public-api -- [--github] [--report-only] <base> <head>
  *
  * It prints the findings of the change and fails when it has unannounced breaks.
  */
-import { compareCommits } from './break-check/commit-check';
-import { printFindings } from './break-check/print-findings';
+import fs from 'node:fs';
+import { runCheck } from './break-check/check-command';
 import { ADMINISTRATION_ROOT, currentMajorFlags } from './source/checkout';
 import { repositoryOf } from './source/git-source-tree';
 
-const [base, head, ...rest] = process.argv.slice(2);
+const { output, exitCode, jobSummary } = runCheck(process.argv.slice(2), {
+    repository: repositoryOf(ADMINISTRATION_ROOT),
+    majorFlags: currentMajorFlags(),
+});
+const jobSummaryFile = process.env.GITHUB_STEP_SUMMARY;
 
-if (base === undefined || head === undefined || rest.length > 0) {
-    process.stderr.write('Usage: composer admin:check-public-api -- <base> <head>\n');
-    process.exitCode = 2;
-} else {
-    const findings = compareCommits(repositoryOf(ADMINISTRATION_ROOT), currentMajorFlags(), base, head);
-
-    process.stdout.write(printFindings(findings));
-    process.exitCode = findings.some(({ group }) => group === 'Break') ? 1 : 0;
+if (jobSummary !== undefined && jobSummaryFile !== undefined) {
+    fs.appendFileSync(jobSummaryFile, jobSummary);
 }
+
+process.stdout.write(output);
+process.exitCode = exitCode;

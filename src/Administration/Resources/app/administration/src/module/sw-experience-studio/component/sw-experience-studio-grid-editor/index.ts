@@ -130,7 +130,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: () => ({}),
         },
         gridLayout: {
-            type: Object as () => GridLayout,
+            type: Object as PropType<GridLayout>,
             required: false,
             default: () => ({}),
         },

@@ -14,7 +14,7 @@ component sw-experience-studio-grid-editor  private  ts  [private]
 props
   allowEdit?: boolean  default=false  [private]
   breakpointFallbacks?: ContentSystemBreakpointFallbacks  default=factory  [private]
-  gridLayout?: object  default=factory  [private]
+  gridLayout?: GridLayout  default=factory  [private]
   label?: string  default=''  [private]
 
 emits

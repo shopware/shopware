@@ -23,7 +23,13 @@ export default {
             // Remove earlier "Add Tag" elements
             this.filterSearchGeneratedTags();
 
-            Promise.all([this.checkTagExists(this.searchTerm), this.$super('search', searchTerm)]).then(() => {
+            const term = this.searchTerm;
+
+            Promise.all([this.checkTagExists(term), this.$super('search', searchTerm)]).then(() => {
+                if (term !== this.searchTerm || !this.resultCollection) {
+                    return;
+                }
+
                 // Add the "Add Tag" Element if no tag exists
                 if (!this.tagExists) {
                     // Create dummy entity with id -1
@@ -91,6 +97,10 @@ export default {
         },
 
         filterSearchGeneratedTags() {
+            if (!this.resultCollection) {
+                return;
+            }
+
             this.resultCollection = this.resultCollection.filter((entity) => {
                 return entity.id !== -1;
             });

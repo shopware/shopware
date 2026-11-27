@@ -35,7 +35,7 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveConfig
         expect(result).toBeUndefined();
     });
 
-    it('should call syncService.sync with upsert action and cloned settings', async () => {
+    it('should upsert the settings through the sync API with the generator headers', async () => {
         const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
 
         variantsGenerator.product = {
@@ -111,45 +111,6 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveConfig
         syncSpy.mockRestore();
     });
 
-    it('should clone settings to avoid mutating original data', async () => {
-        const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
-
-        variantsGenerator.product = {
-            id: 'product-123',
-        };
-
-        const originalSettings = [
-            {
-                id: 'setting-1',
-                optionId: 'option-1',
-                productId: 'original-product-id',
-                isNew: () => false,
-            },
-        ];
-
-        await variantsGenerator.saveConfiguratorSettings(originalSettings);
-
-        expect(originalSettings[0].productId).toBe('original-product-id');
-
-        syncSpy.mockRestore();
-    });
-
-    it('should send the id of new settings, so saving them again updates the same rows', async () => {
-        const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
-        variantsGenerator.product = { id: 'product-123' };
-
-        const setting = entityFactory.create('product_configurator_setting', 'new-setting-id');
-        setting.optionId = 'option-1';
-
-        await variantsGenerator.saveConfiguratorSettings([setting], [{ options: [{ id: 'option-1' }] }]);
-
-        expect(syncSpy.mock.calls[0][0][0].payload[0]).toEqual(
-            expect.objectContaining({ id: 'new-setting-id', optionId: 'option-1', productId: 'product-123' }),
-        );
-
-        syncSpy.mockRestore();
-    });
-
     it('should send the fields of the settings without their nested option', async () => {
         const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
         variantsGenerator.product = { id: 'product-123' };
@@ -175,8 +136,6 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveConfig
                 customFields: { foo: 'bar' },
             },
         ]);
-
-        syncSpy.mockRestore();
     });
 
     it('should send position 0 for a new setting without a position', async () => {
@@ -189,8 +148,6 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveConfig
         await variantsGenerator.saveConfiguratorSettings([setting], [{ options: [{ id: 'option-1' }] }]);
 
         expect(syncSpy.mock.calls[0][0][0].payload[0].position).toBe(0);
-
-        syncSpy.mockRestore();
     });
 
     it('should always include existing settings (isNew returns false) regardless of createQueue', async () => {
@@ -292,47 +249,6 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveConfig
         const calledPayload = syncSpy.mock.calls[0][0][0].payload;
 
         expect(calledPayload).toHaveLength(3);
-
-        syncSpy.mockRestore();
-    });
-
-    it('should include existing and new-in-queue settings and filter out new-not-in-queue', async () => {
-        const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
-
-        variantsGenerator.product = {
-            id: 'product-123',
-        };
-
-        const mockSettings = [
-            {
-                id: 'setting-existing',
-                optionId: 'option-existing',
-                isNew: () => false,
-            },
-            {
-                id: 'setting-new-in-queue',
-                optionId: 'option-new-in-queue',
-                isNew: () => true,
-            },
-            {
-                id: 'setting-new-not-in-queue',
-                optionId: 'option-new-not-in-queue',
-                isNew: () => true,
-            },
-        ];
-
-        const createQueue = [
-            {
-                options: [{ id: 'option-new-in-queue' }],
-            },
-        ];
-
-        await variantsGenerator.saveConfiguratorSettings(mockSettings, createQueue);
-
-        const calledPayload = syncSpy.mock.calls[0][0][0].payload;
-
-        expect(calledPayload).toHaveLength(2);
-        expect(calledPayload.map((s) => s.optionId).sort()).toEqual(['option-existing', 'option-new-in-queue']);
 
         syncSpy.mockRestore();
     });

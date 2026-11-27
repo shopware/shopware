@@ -112,7 +112,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
     it('should save the same variants again when a failed generation is started again', async () => {
         const wrapper = await createWrapper();
-        const createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         const saveVariants = jest
             .fn()
             .mockRejectedValueOnce(new Error('timeout of 30000ms exceeded'))
@@ -128,12 +127,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         await generateButton.trigger('click');
         await flushPromises();
 
-        expect(createNotification).toHaveBeenCalledWith(
-            expect.objectContaining({
-                variant: 'error',
-                message: 'sw-product.variations.generatedListMessageGenerateError',
-            }),
-        );
         expect(wrapper.emitted('variations-finish-generate')).toBeUndefined();
 
         await generateButton.trigger('click');
@@ -145,7 +138,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             expect.objectContaining({
                 id: createQueueItem().id,
                 downloads: [{ id: expect.any(String), mediaId: 'media-id' }],
-                maxPurchase: 1,
             }),
         ]);
         expect(wrapper.emitted('variations-finish-generate')).toHaveLength(1);

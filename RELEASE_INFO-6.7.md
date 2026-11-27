@@ -1,6 +1,47 @@
 # 6.7.18.0 (upcoming)
 
+## Critical Fixes
+
+### Administration login with cross-origin assets
+
+Administration workers load from the shop origin while retaining the installation's subdirectory.
+Same-origin asset URLs retain their configured path, including S3 proxy prefixes.
+This restores Administration login when assets are hosted on a separate S3 or CDN domain.
+Rebuild custom Administration bundles to apply this fix.
+Rebuilt bundles receive new filenames to invalidate cached worker URL handling.
+
 ## Core
+
+### CSV exports escape values that start a formula
+
+Values in CSV exports that start with `=`, `+`, `-`, `@`, a tab, a carriage return or a line feed, or with the full-width `＝`, `＋`, `－` or `＠`, now get a single quote (`'`) in front.
+A value that already starts with quotes followed by one of these characters gets one more quote.
+Spreadsheet applications then show such a value as text instead of running it as a formula.
+This also applies to the file of invalid records that an import creates.
+The header row and plain numbers such as `-2` stay unchanged.
+Integrations that read exported files themselves see the added quote.
+
+`CsvReader` removes one quote in front of a value that starts with one of these characters, in every imported file.
+An exported file therefore imports with its original values, and a value such as `'+49 30 123456` in a file made by hand is imported as `+49 30 123456`.
+
+CSV exports and imports now quote values as defined in RFC 4180, like spreadsheet applications do: a backslash is a plain character, and every double quote in a value is doubled.
+Files exported by an earlier version that contain a backslash right before a double quote, for example a JSON custom field with a quote in its text, are read differently.
+Export such files again, or import them once with `escape` set to `\` in `config.parameters` of `POST /api/_action/import-export/prepare`.
+Do not store the parameter in the profile config: exports no longer use an escape character, so a profile with this setting misreads its own new exports.
+
+### Media cache invalidation uses bounded batches
+
+Reindexing or updating media shared by many products uses bounded batches to reduce worker memory usage.
+Large updates can call `CacheInvalidator::invalidate()` multiple times, and dispatch multiple `InvalidateCacheEvent` events when invalidation is immediate.
+Delayed invalidation still requires enough capacity to store and process the resulting tags.
+
+### Search config cache is kept per language
+
+`CachedSearchConfigLoader` now caches the search config per language id chain and tags each entry with `CachedSearchConfigLoader::CACHE_KEY`.
+It also adds that tag to the HTTP cache of the current request.
+Writing or deleting a search config or a search config field invalidates that tag, and so does removing a custom field from the search or resetting the excluded terms in the Administration.
+Deleting the cache item `CachedSearchConfigLoader::CACHE_KEY` no longer clears the cached config.
+Invalidate the tag instead.
 
 ### Faster DAL writes
 
@@ -14,6 +55,7 @@ Before, `product.categoryTree` and `product.categoriesRo` kept the old parents, 
 Integrations that called `POST /api/_action/index-products` after moving a category no longer need to.
 The Administration category tree no longer sends these requests after a drag and drop.
 Its `syncProducts()` and `indexProducts()` methods and its `productRepository` computed property are deprecated and will be removed in 6.8.
+
 ### Environment-specific bundle and plugin configuration
 
 Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.
@@ -87,6 +129,7 @@ Other inputs that extensions add inside a select need `tabindex="-1"`, so TAB mo
 ### Core popovers render with `mt-floating-ui` before 6.8
 
 `sw-context-button`, `sw-select-result-list` and `sw-multi-tag-select` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+`sw-category-tree-field` renders its dropdown with `mt-floating-ui` instead of `sw-popover-deprecated`.
 An open select dropdown now follows its field while the page scrolls, instead of staying where it was when it opened.
 
 The popovers are still teleported to `<body>`, but the markup around them changed.
@@ -102,6 +145,25 @@ Extensions have to be adjusted:
   Scope a rule with `.mt-floating-ui__content` to keep it on the popover.
 - The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
   The private `zIndex` prop of `sw-context-button` was removed.
+- `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
+
+### Modules can declare child entities
+
+A module manifest can now list entities that belong to its `entity` and have no module of their own in `childEntities`.
+The media manager shows default folders of those child entities with the module's icon and color.
+
+```js
+Shopware.Module.register('swag-example', {
+    entity: 'swag_example',
+    childEntities: ['swag_example_attachment'],
+    // ...
+});
+```
+
+The Product module now lists `product_document` as a child entity.
+If two modules list the same child entity, the first registered module wins.
+The warning about it is only logged in development builds.
 
 ## Storefront
 

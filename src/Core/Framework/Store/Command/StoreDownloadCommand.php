@@ -61,12 +61,10 @@ class StoreDownloadCommand extends Command
         $pluginName = (string) $input->getOption('pluginName');
         $user = $input->getOption('user');
 
-        $context = $this->getUserContextFromInput($user, $context);
-
         $this->validatePluginIsNotManagedByComposer($pluginName, $context);
 
         try {
-            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $context);
+            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $this->getUserContextFromInput($user, $context));
         } catch (ClientException $exception) {
             throw StoreException::storeError($exception);
         }

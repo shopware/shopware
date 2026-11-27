@@ -117,20 +117,8 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             return $cached;
         }
 
-        $criteria = (new Criteria())
-            ->addFilter(
-                new EqualsFilter('typeName', $documentType),
-                new OrFilter([
-                    new EqualsFilter('global', true),
-                    new EqualsFilter('salesChannels.salesChannelId', $salesChannelId),
-                ]),
-            )
-            ->addAssociation('logo');
-
-        $rows = $this->documentConfigRepository->search($criteria, $context)->getEntities();
-
-        $globalRow = $rows->filterByProperty('global', true)->first();
-        $salesChannelRow = $rows->filterByProperty('global', false)->first();
+        $criteria = (new Criteria())->addAssociation('logo');
+        [$globalRow, $salesChannelRow] = $this->loadConfigRows($documentType, $salesChannelId, $context, $criteria);
 
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
         $systemConfigCompanyInfo = $this->resolveCompanyInfoFromSystemConfig($salesChannelId);
@@ -151,6 +139,16 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $this->bundles[$documentType] ??= [];
 
         return $this->bundles[$documentType][$salesChannelId] = $bundle;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function loadLegacyConfig(string $documentType, string $salesChannelId, Context $context): array
+    {
+        [$globalRow, $salesChannelRow] = $this->loadConfigRows($documentType, $salesChannelId, $context, new Criteria());
+
+        return $this->mergeJsonConfig($globalRow, $salesChannelRow);
     }
 
     /**
@@ -179,6 +177,27 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         }
 
         return $configured;
+    }
+
+    /**
+     * @return array{?DocumentBaseConfigEntity, ?DocumentBaseConfigEntity}
+     */
+    private function loadConfigRows(string $documentType, string $salesChannelId, Context $context, Criteria $criteria): array
+    {
+        $criteria->addFilter(
+            new EqualsFilter('typeName', $documentType),
+            new OrFilter([
+                new EqualsFilter('global', true),
+                new EqualsFilter('salesChannels.salesChannelId', $salesChannelId),
+            ]),
+        );
+
+        $rows = $this->documentConfigRepository->search($criteria, $context)->getEntities();
+
+        return [
+            $rows->filterByProperty('global', true)->first(),
+            $rows->filterByProperty('global', false)->first(),
+        ];
     }
 
     /**

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -22,6 +23,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -68,31 +72,9 @@ class PromotionAlreadyRedeemedTest extends TestCase
         }
 
         $productId = Uuid::randomHex();
-        $promotionId = Uuid::randomHex();
         $promotionCode = 'TESTCODE';
         $customerId = $this->createCustomer();
-
-        // a promotion with a fixed (global) code, redeemable once per customer, with a discount
-        $this->promotionRepository->create([[
-            'id' => $promotionId,
-            'name' => 'Once per customer',
-            'active' => true,
-            'code' => $promotionCode,
-            'useCodes' => true,
-            'useIndividualCodes' => false,
-            'maxRedemptionsPerCustomer' => 1,
-            'salesChannels' => [
-                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1],
-            ],
-            'discounts' => [
-                [
-                    'scope' => PromotionDiscountEntity::SCOPE_CART,
-                    'type' => PromotionDiscountEntity::TYPE_ABSOLUTE,
-                    'value' => 10,
-                    'considerAdvancedRules' => false,
-                ],
-            ],
-        ]], Context::createDefaultContext());
+        $promotionId = $this->createOncePerCustomerPromotion($promotionCode);
 
         // 1) first checkout: redeem the code and submit the order
         $firstContext = $this->createCustomerContext($customerId);
@@ -155,6 +137,80 @@ class PromotionAlreadyRedeemedTest extends TestCase
     {
         yield 'stored per-customer count holds the redemption' => [false];
         yield 'redemption is counted from the orders when the stored per-customer count is empty' => [true];
+    }
+
+    /**
+     * @param list<string> $orderTransitions
+     */
+    #[Group('promotions')]
+    #[DataProvider('orderTransitionProvider')]
+    public function testOnlyACancelledOrderStopsCountingAgainstThePerCustomerLimit(array $orderTransitions, bool $redeemableAgain): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionCode = 'TESTCODE';
+        $customerId = $this->createCustomer();
+        $this->createOncePerCustomerPromotion($promotionCode);
+
+        $firstContext = $this->createCustomerContext($customerId);
+        $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $firstContext);
+
+        $cart = $this->cartService->getCart($firstContext->getToken(), $firstContext);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $firstContext);
+        $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $firstContext);
+        $orderId = $this->cartService->order($cart, $firstContext, new RequestDataBag());
+
+        foreach ($orderTransitions as $orderTransition) {
+            static::getContainer()->get(StateMachineRegistry::class)->transition(
+                new Transition(OrderDefinition::ENTITY_NAME, $orderId, $orderTransition, 'stateId'),
+                Context::createDefaultContext()
+            );
+        }
+
+        $secondContext = $this->createCustomerContext($customerId);
+        $secondCart = $this->cartService->getCart($secondContext->getToken(), $secondContext);
+        $secondCart = $this->addProduct($productId, 1, $secondCart, $this->cartService, $secondContext);
+        $secondCart = $this->addPromotionCode($promotionCode, $secondCart, $this->cartService, $secondContext);
+
+        static::assertSame(!$redeemableAgain, $secondCart->getErrors()->has('promotion-not-eligible'));
+        static::assertCount($redeemableAgain ? 1 : 0, $secondCart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE));
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, bool}>
+     */
+    public static function orderTransitionProvider(): iterable
+    {
+        yield 'cancelled order' => [[StateMachineTransitionActions::ACTION_CANCEL], true];
+        yield 'cancelled and reopened order' => [[StateMachineTransitionActions::ACTION_CANCEL, StateMachineTransitionActions::ACTION_REOPEN], false];
+        yield 'order in progress' => [[StateMachineTransitionActions::ACTION_PROCESS], false];
+    }
+
+    private function createOncePerCustomerPromotion(string $code): string
+    {
+        $promotionId = Uuid::randomHex();
+
+        $this->promotionRepository->create([[
+            'id' => $promotionId,
+            'name' => 'Once per customer',
+            'active' => true,
+            'code' => $code,
+            'useCodes' => true,
+            'useIndividualCodes' => false,
+            'maxRedemptionsPerCustomer' => 1,
+            'salesChannels' => [
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1],
+            ],
+            'discounts' => [
+                [
+                    'scope' => PromotionDiscountEntity::SCOPE_CART,
+                    'type' => PromotionDiscountEntity::TYPE_ABSOLUTE,
+                    'value' => 10,
+                    'considerAdvancedRules' => false,
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        return $promotionId;
     }
 
     private function createCustomerContext(string $customerId): SalesChannelContext

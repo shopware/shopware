@@ -344,6 +344,7 @@ class DocumentV2ControllerTest extends TestCase
                 'static' => true,
                 'deepLinkCode' => $payload['deepLinkCode'],
                 'config' => [
+                    'displayInCustomerAccount' => false,
                     'documentNumber' => '1000',
                 ],
             ],
@@ -1412,6 +1413,10 @@ class DocumentV2ControllerTest extends TestCase
         ?MediaService $mediaService = null,
         ?DocumentTypeRegistry $documentTypeRegistry = null,
     ): DocumentPersister {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setSalesChannelId(Uuid::randomHex());
+
         return new DocumentPersister(
             $this->documentRepository,
             $this->documentFileRepository,
@@ -1420,6 +1425,8 @@ class DocumentV2ControllerTest extends TestCase
             $documentTypeRegistry ?? $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             static::createStub(EventDispatcherInterface::class),
+            new StaticEntityRepository([new OrderCollection([$order])]),
+            DocumentConfigLoaderFactory::create($documentTypeRegistry ?? $this->createEmptyDocumentTypeRegistry(), static::createStub(SystemConfigService::class)),
         );
     }
 
@@ -1578,6 +1585,8 @@ class DocumentV2ControllerTest extends TestCase
                 $this->createTypeRegistry(),
                 $fileNameProvider,
                 static::createStub(EventDispatcherInterface::class),
+                $orderRepository,
+                DocumentConfigLoaderFactory::create($this->createTypeRegistry(), static::createStub(SystemConfigService::class)),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),

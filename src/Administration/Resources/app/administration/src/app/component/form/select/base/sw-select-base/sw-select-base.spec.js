@@ -383,6 +383,23 @@ describe('components/sw-select-base', () => {
             expect(document.activeElement).toBe(selection.element);
         });
 
+        it('should not click the previous element on SHIFT+TAB', async () => {
+            const previousLink = document.createElement('a');
+            previousLink.href = '#/sw/product/index';
+            const onClick = jest.fn((event) => event.preventDefault());
+            previousLink.onclick = onClick;
+            document.body.prepend(previousLink);
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.focus();
+
+            dispatchKeydown(searchInput, { key: 'Tab', shiftKey: true });
+            await flushPromises();
+
+            expect(onClick).not.toHaveBeenCalled();
+        });
+
         it('should not take the focus back when the select collapses after the focus left it', async () => {
             const selection = await createFocusedSelection();
             dispatchKeydown(selection.element, { key: 'ArrowDown' });

@@ -178,7 +178,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $tags = [];
         $cacheInvalidator = static::createStub(CacheInvalidator::class);
         $cacheInvalidator->method('invalidate')->willReturnCallback(static function (array $invalidated) use (&$tags): void {
-            $tags = $invalidated;
+            $tags = array_merge($tags, $invalidated);
         });
 
         $subscriber = new CacheInvalidationSubscriber($cacheInvalidator, static::getContainer()->get(Connection::class), productStreamIndexerEnabled: true);

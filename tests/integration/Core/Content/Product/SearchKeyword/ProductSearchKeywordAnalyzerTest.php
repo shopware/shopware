@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -608,10 +608,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     private function getDeSearchConfig(): ProductSearchConfigEntity
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('languageId', Defaults::LANGUAGE_SYSTEM)]
-        ));
+        $criteria->addFilter(new NotEqualsFilter('languageId', Defaults::LANGUAGE_SYSTEM));
 
         $productSearchConfig = $this->productSearchConfigRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($productSearchConfig);

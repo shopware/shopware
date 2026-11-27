@@ -7,9 +7,15 @@ import SwSettingsUsageDataConsentModal from '../sw-settings-usage-data-consent-m
 const WRONG_APP_URL_MODAL_STORAGE_KEY = 'sw-app-wrong-app-url-modal-shown';
 const SHOP_ID_CHANGE_MODAL_CLASS = 'sw-app-shop-id-change-modal';
 
-function createWrapper() {
+function createWrapper({ isAdmin = true } = {}) {
     return mount(SwSettingsUsageDataConsentModalDataProvider, {
         global: {
+            provide: {
+                acl: {
+                    can: (key) => global.activeAclRoles.includes(key),
+                    isAdmin: () => isAdmin,
+                },
+            },
             stubs: {
                 Teleport: { template: '<div><slot /></div>' },
                 'mt-modal': MtModal,
@@ -124,6 +130,17 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             const wrapper = await createWrapper();
 
             expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(false);
+        });
+
+        it('shows modal to non-admins when APP_URL is unreachable, because they never see the APP_URL modal', async () => {
+            setConsentEligibilityContext({
+                appUrlReachable: false,
+                appsRequireAppUrl: true,
+            });
+
+            const wrapper = await createWrapper({ isAdmin: false });
+
+            expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(true);
         });
 
         it('doesnt show modal when shop id change modal is displayed', async () => {

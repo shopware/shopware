@@ -92,12 +92,12 @@
 
             {% block sw_category_tree_field_input_transition %}
             {% block sw_category_tree_field_input_results %}
-            <sw-popover-deprecated
+            {# Mounted only while open: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
+            <mt-floating-ui
                 v-if="isExpanded"
-                class="sw-category-tree-field__results_base"
-                popover-class="sw-category-tree-field__results_popover"
-                :z-index="1100"
-                :resize-width="true"
+                class="sw-category-tree-field__results_base sw-category-tree-field__results_popover"
+                :is-opened="true"
+                :match-reference-width="true"
             >
 
                 {% block sw_category_tree_field_input_results_tree %}
@@ -234,7 +234,7 @@
                 </p>
                 {% endblock %}
 
-            </sw-popover-deprecated>
+            </mt-floating-ui>
             {% endblock %}
             {% endblock %}
         </template>

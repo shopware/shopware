@@ -8,7 +8,7 @@ import type {
     DocumentChanges,
     DocumentVariantOperation,
 } from 'src/module/sw-product/service/product-document-variant.service';
-import { getDocumentMedia } from '../product-document.helper';
+import { getDocumentMedia, getSavedDocumentValues } from '../product-document.helper';
 import template from './sw-product-document-edit-modal.html.twig';
 
 const { Context, Store } = Shopware;
@@ -181,7 +181,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         variantOperation(): DocumentVariantOperation | null {
             const queuedOperation = Store.get('swProductDetail').documentVariantOperations[this.document.id];
-            const { mediaId, title } = queuedOperation ?? this.document.translated ?? {};
+            const { mediaId, title } = queuedOperation ?? getSavedDocumentValues(this.document);
             const queuedChanges = queuedOperation?.type === 'update' ? queuedOperation.changes : {};
             return this.applyToVariants && this.hasVariants && this.hasChanges && mediaId
                 ? { type: 'update', mediaId, title: title || null, changes: { ...queuedChanges, ...this.changes } }

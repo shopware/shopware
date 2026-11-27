@@ -107,7 +107,7 @@ jobs:
     runs-on: ${{ github.repository == 'shopware/shopware-private' && format('runs-on={0}/runner=sw-amd64/cpu=4', github.run_id) || 'ubuntu-24.04' }}
     name: "Jest Admin (unit)"
     env:
-      NODE_VERSION: 'lts/*'
+      NODE_VERSION: '26'
       JEST_MAX_WORKERS: 100%
       NODE_OPTIONS: "--max_old_space_size=8192"
 
@@ -156,7 +156,7 @@ jobs:
     name: "Admin build (Vite 8)"
     timeout-minutes: 30
     env:
-      NODE_VERSION: 'lts/*'
+      NODE_VERSION: '26'
 
     steps:
       - name: Setup Shopware
@@ -204,7 +204,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: "Extension tooling e2e (nightly)"
     env:
-      NODE_VERSION: 'lts/*'
+      NODE_VERSION: '26'
 
     steps:
       - name: Setup Shopware
@@ -240,7 +240,7 @@ jobs:
     name: "License check"
     env:
       WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
-      NODE_VERSION: 'lts/*'
+      NODE_VERSION: '26'
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

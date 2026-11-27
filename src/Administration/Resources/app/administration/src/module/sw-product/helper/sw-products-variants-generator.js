@@ -115,6 +115,8 @@ export default class VariantsGenerator extends EventEmitter {
                 },
             ],
             {},
+            // No indexer reads the variant restrictions, they only decide which variants get generated.
+            // Indexing this write would re-index the parent and all its variants for nothing.
             RESTRICTIONS_SYNC_HEADERS,
         );
     }

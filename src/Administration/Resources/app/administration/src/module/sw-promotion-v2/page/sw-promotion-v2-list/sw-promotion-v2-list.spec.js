@@ -59,6 +59,14 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
+    it('should persist grid settings via a stable identifier', async () => {
+        const wrapper = await createWrapper();
+
+        const grid = wrapper.find('sw-entity-listing-stub');
+
+        expect(grid.attributes('identifier')).toBe('sw-promotion-v2-list');
+    });
+
     it('should disable create button when privilege not available', async () => {
         global.activeAclRoles = [];
 

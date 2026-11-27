@@ -608,6 +608,88 @@ class ProductStreamProcessorTest extends TestCase
         static::assertSame($products, $slider->getProducts());
     }
 
+    public function testCollectRanksGroupsByPriceWhenIgnoringTheMainVariant(): void
+    {
+        $criteria = $this->collectPriceSortedCriteria(true);
+
+        static::assertTrue($criteria->hasState(Criteria::STATE_SORTING_RANKED_GROUPING));
+        static::assertContainsEquals(
+            new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('childCount', 0),
+                new EqualsFilter('childCount', null),
+            ]),
+            $criteria->getFilters()
+        );
+    }
+
+    public function testCollectKeepsTheMainVariantWithoutTheSetting(): void
+    {
+        $criteria = $this->collectPriceSortedCriteria(false);
+
+        static::assertFalse($criteria->hasState(Criteria::STATE_SORTING_RANKED_GROUPING));
+        static::assertCount(2, $criteria->getFilters());
+    }
+
+    public function testEnrichKeepsTheRankedVariantsWhenIgnoringTheMainVariant(): void
+    {
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
+        $data = new ElementDataCollection();
+
+        $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1'));
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+
+        $products = ProductSliderFixture::getProducts();
+        $data->add('product-slider-entity-fallback_id', new EntitySearchResult(
+            'product',
+            $products->count(),
+            $products,
+            null,
+            $criteria,
+            Context::createDefaultContext()
+        ));
+
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
+
+        $slider = $slot->getData();
+        static::assertInstanceOf(ProductSliderStruct::class, $slider);
+        static::assertSame($products, $slider->getProducts());
+    }
+
+    private function collectPriceSortedCriteria(bool $ignoreMainVariant): Criteria
+    {
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
+
+        $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1'));
+        $this->config->add(new FieldConfig('productStreamSorting', FieldConfig::SOURCE_STATIC, 'cheapestPrice:ASC'));
+
+        $this->configureProductStreamBuilder(enrichCriteriaCalls: $this->once());
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
+        $this->systemConfigService = new StaticSystemConfigService([
+            $resolverContext->getSalesChannelContext()->getSalesChannelId() => [
+                'core.listing.ignoreMainVariantOnPriceSorting' => $ignoreMainVariant,
+            ],
+        ]);
+
+        $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
+
+        $criteria = $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id'] ?? null;
+        static::assertInstanceOf(Criteria::class, $criteria);
+
+        return $criteria;
+    }
+
     /**
      * Scoped to the sales channel so a processor that looked the setting up
      * globally, or under a different key, would still read `false` here.

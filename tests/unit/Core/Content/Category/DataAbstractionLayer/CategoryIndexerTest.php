@@ -11,6 +11,8 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -53,6 +56,7 @@ class CategoryIndexerTest extends TestCase
             static::createStub(CategoryBreadcrumbUpdater::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(MessageBusInterface::class),
+            static::createStub(ProductIndexer::class),
         );
     }
 
@@ -155,6 +159,7 @@ class CategoryIndexerTest extends TestCase
             static::createStub(CategoryBreadcrumbUpdater::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(MessageBusInterface::class),
+            static::createStub(ProductIndexer::class),
         );
 
         $parentId = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4';
@@ -167,6 +172,65 @@ class CategoryIndexerTest extends TestCase
         // The parent is required only for child-count recomputation; handing it to
         // the recursive tree updater would walk its entire subtree of siblings.
         static::assertNotContains($parentId, $treeUpdateIds, 'Parent id leaked into the tree updater.');
+    }
+
+    public function testMovedCategoryQueuesItsProductsWithOnlyTheCategoryRelatedUpdaters(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([$productId]);
+        $connection->method('getTransactionNestingLevel')->willReturn(0);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure($connection));
+
+        $productIndexer = static::createStub(ProductIndexer::class);
+        $productIndexer->method('getOptions')->willReturn([
+            ProductIndexer::STOCK_UPDATER,
+            ProductIndexer::CATEGORY_DENORMALIZER_UPDATER,
+            ProductIndexer::STREAM_UPDATER,
+            ProductIndexer::MANY_TO_MANY_ID_FIELD_UPDATER,
+            'product.added-later',
+        ]);
+
+        $messages = [];
+        $messageBus = static::createStub(MessageBusInterface::class);
+        $messageBus->method('dispatch')->willReturnCallback(
+            static function (object $message) use (&$messages): Envelope {
+                $messages[] = $message;
+
+                return new Envelope($message);
+            }
+        );
+
+        $indexer = new CategoryIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ChildCountUpdater::class),
+            static::createStub(TreeUpdater::class),
+            static::createStub(CategoryBreadcrumbUpdater::class),
+            static::createStub(EventDispatcherInterface::class),
+            $messageBus,
+            $productIndexer,
+        );
+
+        $indexer->update($this->createCategoryWrittenEvent(
+            ['parentId' => Uuid::randomHex()],
+            EntityWriteResult::OPERATION_UPDATE
+        ));
+
+        $productMessages = array_values(array_filter(
+            $messages,
+            static fn (object $message): bool => $message instanceof ProductIndexingMessage
+        ));
+
+        static::assertCount(1, $productMessages);
+        static::assertSame([$productId], $productMessages[0]->getData());
+        static::assertSame('product.indexer', $productMessages[0]->getIndexer());
+        static::assertEqualsCanonicalizing(
+            [ProductIndexer::STOCK_UPDATER, 'product.added-later'],
+            array_values($productMessages[0]->getSkip())
+        );
     }
 
     /**

@@ -5,6 +5,7 @@ import {
     FEATURE_REGISTRY_PATH,
     detectMajorTestArms,
     diffFromFiles,
+    fetchPullRequestDiff,
     hasAcceptanceTestChanges,
     hasMajorJsMarkers,
     hasMajorMarkers,
@@ -444,4 +445,42 @@ test('detection reads a diff too large for the diff format through the files end
     assert.deepEqual(warnings, [
         'diff too large, read 2 file(s) through the files endpoint instead; 1 without a patch are matched by path only',
     ]);
+});
+
+const readThroughFiles = (files: Array<{ filename: string; patch?: string }>) =>
+    fetchPullRequestDiff({
+        github: {
+            paginate: async () => files,
+            rest: {
+                pulls: {
+                    get: async () => {
+                        throw tooLarge;
+                    },
+                    listFiles: async () => ({ data: [] }),
+                },
+            },
+        },
+        core: { warning: () => {} },
+        context: { repo: { owner: 'shopware', repo: 'shopware' }, payload: { pull_request: { number: 1 } } },
+    });
+
+test('fetchPullRequestDiff treats the native diff as complete', async () => {
+    const { complete } = await fetchPullRequestDiff({
+        github: {
+            paginate: async () => assert.fail('the native diff needs no files endpoint'),
+            rest: { pulls: { get: async () => ({ data: 'diff' }), listFiles: async () => ({ data: [] }) } },
+        },
+        core: { warning: () => {} },
+        context: { repo: { owner: 'shopware', repo: 'shopware' }, payload: { pull_request: { number: 1 } } },
+    });
+    assert.equal(complete, true);
+});
+
+test('fetchPullRequestDiff treats the files endpoint as complete only below its limit and with every patch', async () => {
+    const withPatch = (count: number) =>
+        Array.from({ length: count }, (_, index) => ({ filename: `src/File${index}.php`, patch: '@@ -1 +1 @@\n+x' }));
+
+    assert.equal((await readThroughFiles(withPatch(2999))).complete, true);
+    assert.equal((await readThroughFiles(withPatch(3000))).complete, false);
+    assert.equal((await readThroughFiles([...withPatch(1), { filename: 'src/Huge.php' }])).complete, false);
 });

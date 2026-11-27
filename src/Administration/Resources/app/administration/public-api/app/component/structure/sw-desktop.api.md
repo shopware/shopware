@@ -12,6 +12,7 @@ component sw-desktop  private  js  [private]
   visibility-source export  [private]
 
 inject
+  acl  [private]
   shopIdChangeService  [private]
   snackbarService  [private]
   userActivityApiService  [private]

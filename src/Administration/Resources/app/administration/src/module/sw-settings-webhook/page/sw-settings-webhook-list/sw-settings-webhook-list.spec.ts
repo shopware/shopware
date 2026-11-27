@@ -212,6 +212,11 @@ async function createWrapper({
                     props: ['webhook'],
                     template: '<div class="secret-modal"></div>',
                 },
+                'sw-settings-webhook-roles-modal': {
+                    name: 'sw-settings-webhook-roles-modal',
+                    props: ['webhook'],
+                    template: '<div class="roles-modal"></div>',
+                },
                 'mt-badge': {
                     template: '<span class="mt-badge"><slot></slot></span>',
                 },
@@ -485,6 +490,25 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
         await flushPromises();
 
         expect(wrapper.find('.secret-modal').exists()).toBe(false);
+    });
+
+    it('lets a user limit only their own app-less webhooks to roles', async () => {
+        const ownWebhook = { ...userWebhook, id: 'own-webhook', ownerUserId: 'current-user-id' };
+        const { wrapper } = await createWrapper({
+            privileges: ['webhook.editor'],
+            webhooks: [ownWebhook, userWebhook, appWebhook],
+        });
+        const limitToRoles = (id: string) => wrapper.find(`.row-${id} .sw-settings-webhook-list__edit-roles-action`);
+
+        expect(limitToRoles('own-webhook').attributes('disabled')).toBeUndefined();
+        expect(limitToRoles('user-webhook').attributes('disabled')).toBeDefined();
+        expect(limitToRoles('app-webhook').attributes('disabled')).toBeDefined();
+
+        await limitToRoles('own-webhook').trigger('click');
+
+        expect(wrapper.findComponent({ name: 'sw-settings-webhook-roles-modal' }).props('webhook')).toEqual(
+            expect.objectContaining({ id: 'own-webhook' }),
+        );
     });
 
     it('lets an admin delete webhooks, except those of apps', async () => {

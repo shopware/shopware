@@ -33,6 +33,7 @@ export default Component.wrapComponentConfig({
         hasLoadError: boolean;
         deliveriesWebhook: Entity<'webhook'> | null;
         secretWebhook: Entity<'webhook'> | null;
+        rolesWebhook: Entity<'webhook'> | null;
         ownerFilter: Owner[];
         sortBy: string;
         sortDirection: 'ASC' | 'DESC';
@@ -45,6 +46,7 @@ export default Component.wrapComponentConfig({
             hasLoadError: false,
             deliveriesWebhook: null,
             secretWebhook: null,
+            rolesWebhook: null,
             ownerFilter: ['user'],
             sortBy: 'name',
             sortDirection: 'ASC',
@@ -421,6 +423,28 @@ export default Component.wrapComponentConfig({
             this.createNotificationError({
                 message: this.$t('sw-settings-webhook.list.messageDeleteError'),
             });
+        },
+
+        canEditRoles(webhook: Entity<'webhook'>): boolean {
+            return this.acl.can('webhook.editor') && !webhook.appId && this.canChange(webhook);
+        },
+
+        editRolesTooltip(webhook: Entity<'webhook'>) {
+            return {
+                message: webhook.appId
+                    ? this.$t('sw-settings-webhook.list.tooltipAppWebhookNotEditable')
+                    : this.$t('sw-settings-webhook.list.tooltipWebhookNotOwnedEdit'),
+                disabled: this.canEditRoles(webhook) || !this.acl.can('webhook.editor'),
+                showOnDisabledElements: true,
+            };
+        },
+
+        openRoles(webhook: Entity<'webhook'>): void {
+            this.rolesWebhook = webhook;
+        },
+
+        closeRoles(): void {
+            this.rolesWebhook = null;
         },
     },
 });

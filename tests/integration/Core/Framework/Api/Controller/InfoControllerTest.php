@@ -144,8 +144,13 @@ class InfoControllerTest extends TestCase
                 'disableExtensionManagement' => false,
                 'hideUpdateModule' => false,
                 'minSearchTermLength' => 2,
+                'appEnv' => 'test',
             ],
             'inAppPurchases' => [],
+            'services' => [
+                'enabled' => false,
+                'setting' => 'auto',
+            ],
         ];
 
         if (Feature::isActive('v6.8.0.0')) {
@@ -174,6 +179,9 @@ class InfoControllerTest extends TestCase
         $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
         $expected['versionHistory'] = $decodedResponse['versionHistory'];
         unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
+
+        ksort($expected);
+        ksort($decodedResponse);
 
         static::assertSame($expected, $decodedResponse);
     }

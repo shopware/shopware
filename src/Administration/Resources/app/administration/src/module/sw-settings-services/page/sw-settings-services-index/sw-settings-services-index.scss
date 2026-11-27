@@ -21,11 +21,35 @@
         margin-block: var(--scale-size-24);
     }
 
-    .sw-settings-services-index__services-deactivated-banner {
+    .sw-settings-services-index__services-turned-off-banner {
+        max-width: 960px;
+        margin: 0 auto var(--scale-size-24);
+
+        p {
+            margin-bottom: var(--scale-size-8);
+        }
+    }
+
+    .sw-settings-services-index__services-deactivated-banner,
+    .sw-settings-services-index__installation-stalled-banner {
         max-width: 960px;
 
         p {
             margin-bottom: var(--scale-size-8);
+        }
+    }
+
+    .sw-settings-services-index__installation-stalled-banner {
+        margin-bottom: var(--scale-size-24);
+    }
+
+    .sw-settings-services-index__debug-options {
+        margin-bottom: var(--scale-size-8);
+        padding-left: var(--scale-size-24);
+        list-style-type: disc;
+
+        li {
+            margin-bottom: var(--scale-size-4);
         }
     }
 
@@ -39,6 +63,7 @@
         border: 1px solid var(--color-border-secondary-default);
         border-radius: var(--border-radius-card);
         background-color: var(--color-elevation-surface-sunken);
+        margin-bottom: var(--scale-size-24);
         text-align: center;
         font-size: var(--font-size-s);
     }
@@ -49,6 +74,7 @@
 
     .sw-settings-services-index__installing-card-loader {
         position: relative;
+        width: var(--scale-size-32);
         height: var(--scale-size-32);
     }
 

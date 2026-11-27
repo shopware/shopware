@@ -11,6 +11,7 @@ use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceLifecycle;
+use Shopware\Core\Service\ServicesAvailability;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
@@ -134,7 +135,7 @@ class LifecycleManagerTest extends TestCase
             ->method('reevaluateInstalled');
         $this->serviceLifecycle = $lifecycle;
 
-        $manager = $this->createManager(enabled: 'false');
+        $manager = $this->createManager(setting: 'false');
 
         static::assertSame([], $manager->reconcile($this->context));
     }
@@ -143,77 +144,50 @@ class LifecycleManagerTest extends TestCase
      * @param array<string, bool> $systemConfig
      */
     #[DataProvider('enabledProvider')]
-    public function testEnabled(string $envEnabled, string $appEnv, array $systemConfig, bool $expectedEnabled): void
+    public function testEnabled(string $setting, string $appEnv, array $systemConfig, bool $expectedEnabled): void
     {
-        $manager = new LifecycleManager(
-            $envEnabled,
-            $appEnv,
-            new StaticSystemConfigService($systemConfig),
-            static::createStub(ServiceLifecycle::class),
-            static::createStub(AllServiceInstaller::class),
-            static::createStub(PermissionsService::class),
-        );
+        $this->systemConfigService = new StaticSystemConfigService($systemConfig);
+
+        $manager = $this->createManager(setting: $setting, appEnv: $appEnv);
 
         static::assertSame($expectedEnabled, $manager->enabled());
     }
 
     public static function enabledProvider(): \Generator
     {
-        yield 'auto enabled in prod environment, no system config' => [
-            LifecycleManager::AUTO_ENABLED,
+        yield 'services the environment turns on are enabled' => [
+            ServicesAvailability::AUTO,
             'prod',
             [],
             true,
         ];
 
-        yield 'auto enabled in dev environment, no system config' => [
-            LifecycleManager::AUTO_ENABLED,
+        yield 'services the environment turns off are not enabled' => [
+            ServicesAvailability::AUTO,
             'dev',
             [],
             false,
         ];
 
-        yield 'explicitly enabled, prod environment, no system config' => [
-            'true',
-            'prod',
-            [],
-            true,
-        ];
-
-        yield 'explicitly disabled, prod environment, no system config' => [
-            'false',
-            'prod',
-            [],
-            false,
-        ];
-
-        yield 'auto enabled in prod, system config disabled is ignored by enabled check' => [
-            LifecycleManager::AUTO_ENABLED,
-            'prod',
-            [LifecycleManager::CONFIG_KEY_SERVICES_DISABLED => true],
-            true,
-        ];
-
-        yield 'explicitly enabled, system config disabled is ignored by enabled check' => [
+        yield 'the persisted disabled flag does not change it' => [
             'true',
             'prod',
             [LifecycleManager::CONFIG_KEY_SERVICES_DISABLED => true],
-            true,
-        ];
-
-        yield 'auto enabled in prod, system config set to false' => [
-            LifecycleManager::AUTO_ENABLED,
-            'prod',
-            [LifecycleManager::CONFIG_KEY_SERVICES_DISABLED => false],
             true,
         ];
     }
 
-    private function createManager(string $enabled = 'true'): LifecycleManager
+    public function testAvailabilityIsBuiltFromTheEnvironment(): void
+    {
+        $manager = $this->createManager(setting: ServicesAvailability::AUTO, appEnv: 'dev');
+
+        static::assertEquals(new ServicesAvailability(ServicesAvailability::AUTO, 'dev'), $manager->availability());
+    }
+
+    private function createManager(string $setting = 'true', string $appEnv = 'prod'): LifecycleManager
     {
         return new LifecycleManager(
-            $enabled,
-            'prod',
+            new ServicesAvailability($setting, $appEnv),
             $this->systemConfigService,
             $this->serviceLifecycle,
             $this->serviceInstaller,

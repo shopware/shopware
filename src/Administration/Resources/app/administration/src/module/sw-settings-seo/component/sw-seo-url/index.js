@@ -24,7 +24,10 @@ const DISALLOWED_SEO_PATH_CHARS = /%(?![0-9A-Fa-f]{2})|[#\\\x00-\x1F\x7F]/;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     emits: ['on-change-sales-channel'],
 
@@ -131,6 +134,20 @@ export default {
             return this.currentSalesChannel?.typeId === Defaults.apiSalesChannelTypeId;
         },
 
+        canReadSalesChannelDomains() {
+            return this.acl.can('sales_channel_domain:read');
+        },
+
+        /**
+         * Without `sales_channel_domain:read` the domains are not loaded, so a missing
+         * external storefront domain cannot be told apart from an unreadable one.
+         */
+        headlessExternalStorefrontMissing() {
+            return (
+                this.currentSalesChannelIsHeadless && this.canReadSalesChannelDomains && !this.headlessExternalStorefrontUrl
+            );
+        },
+
         headlessExternalStorefrontUrl() {
             const url = this.currentSalesChannel?.domains?.find(
                 (domain) => domain.isExternalStorefront && domain.languageId === Shopware.Context.api.languageId,
@@ -148,7 +165,7 @@ export default {
                 return this.$t('sw-seo-url.textSeoUrlsNotSupported');
             }
 
-            if (this.currentSalesChannelIsHeadless && !this.headlessExternalStorefrontUrl) {
+            if (this.headlessExternalStorefrontMissing) {
                 return this.$t('sw-seo-url-template-card.general.textExternalStorefrontRequired');
             }
 
@@ -178,8 +195,7 @@ export default {
 
         allowInput() {
             return (
-                (this.hasDefaultTemplate || this.currentSalesChannelId !== null) &&
-                (!this.currentSalesChannelIsHeadless || !!this.headlessExternalStorefrontUrl)
+                (this.hasDefaultTemplate || this.currentSalesChannelId !== null) && !this.headlessExternalStorefrontMissing
             );
         },
     },
@@ -202,6 +218,17 @@ export default {
     },
 
     methods: {
+        createSalesChannelCriteria(limit) {
+            const salesChannelCriteria = new Criteria(1, limit);
+            salesChannelCriteria.addAssociation('type');
+
+            if (this.canReadSalesChannelDomains) {
+                salesChannelCriteria.addAssociation('domains');
+            }
+
+            return salesChannelCriteria;
+        },
+
         createdComponent() {
             this.initSalesChannelCollection();
             this.initSeoUrlCollection();
@@ -211,9 +238,7 @@ export default {
         },
 
         initSalesChannelCollection() {
-            const salesChannelCriteria = new Criteria(1, this.resultLimit);
-            salesChannelCriteria.addAssociation('type');
-            salesChannelCriteria.addAssociation('domains');
+            const salesChannelCriteria = this.createSalesChannelCriteria(this.resultLimit);
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
                 Shopware.Store.get('swSeoUrl').salesChannelCollection = salesChannelCollection;
@@ -231,10 +256,8 @@ export default {
                 return Promise.resolve();
             }
 
-            const salesChannelCriteria = new Criteria(1, 1);
+            const salesChannelCriteria = this.createSalesChannelCriteria(1);
             salesChannelCriteria.setIds([salesChannelId]);
-            salesChannelCriteria.addAssociation('type');
-            salesChannelCriteria.addAssociation('domains');
 
             return this.salesChannelRepository.search(salesChannelCriteria).then((result) => {
                 const salesChannel = result.first();

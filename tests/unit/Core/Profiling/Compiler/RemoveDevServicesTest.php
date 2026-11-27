@@ -53,6 +53,26 @@ class RemoveDevServicesTest extends TestCase
         static::assertFalse($container->hasDefinition(ProfilingEntityWriter::class));
     }
 
+    #[TestDox('keeps the DAL collector and its decorators when the profiler service exists')]
+    public function testKeepsDalProfilingWhenProfilerServicePresent(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register('profiler');
+        $container->register(DalCollector::class);
+        $container->register(ProfilingEntityReader::class);
+        $container->register(ProfilingEntitySearcher::class);
+        $container->register(ProfilingEntityAggregator::class);
+        $container->register(ProfilingEntityWriter::class);
+
+        (new RemoveDevServices())->process($container);
+
+        static::assertTrue($container->hasDefinition(DalCollector::class));
+        static::assertTrue($container->hasDefinition(ProfilingEntityReader::class));
+        static::assertTrue($container->hasDefinition(ProfilingEntitySearcher::class));
+        static::assertTrue($container->hasDefinition(ProfilingEntityAggregator::class));
+        static::assertTrue($container->hasDefinition(ProfilingEntityWriter::class));
+    }
+
     #[TestDox('keeps the ProfilerController when the profiler service exists and the web profiler bundle is installed')]
     public function testKeepsProfilerControllerWhenProfilerServicePresent(): void
     {

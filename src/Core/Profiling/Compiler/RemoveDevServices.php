@@ -20,13 +20,16 @@ class RemoveDevServices implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!InstalledVersions::isInstalled('symfony/web-profiler-bundle') || !$container->hasDefinition('profiler')) {
-            $container->removeDefinition(ProfilerController::class);
+        if (!$container->hasDefinition('profiler')) {
             $container->removeDefinition(DalCollector::class);
             $container->removeDefinition(ProfilingEntityReader::class);
             $container->removeDefinition(ProfilingEntitySearcher::class);
             $container->removeDefinition(ProfilingEntityAggregator::class);
             $container->removeDefinition(ProfilingEntityWriter::class);
+        }
+
+        if (!InstalledVersions::isInstalled('symfony/web-profiler-bundle') || !$container->hasDefinition('profiler')) {
+            $container->removeDefinition(ProfilerController::class);
         }
     }
 }

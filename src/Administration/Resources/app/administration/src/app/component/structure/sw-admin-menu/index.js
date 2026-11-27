@@ -323,7 +323,6 @@ The admin menu only supports up to three levels of nesting.`,
                     this.shopName = values['core.basicInformation.shopName'] || 'Shopware';
                 })
                 .catch(() => {
-                    // Users without system config read permission still get the fallback.
                     this.shopName = 'Shopware';
                 });
         },

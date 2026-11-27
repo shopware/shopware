@@ -61,8 +61,9 @@ class IndexerQueuerTest extends TestCase
 
         IndexerQueuer::registerIndexer($connection, 'test.indexer', ['test1']);
 
+        // the old format always ran every updater, so the entry stays a full run
         static::assertSame([
-            'test.indexer' => ['test1'],
+            'test.indexer' => [],
         ], (new IndexerQueuer($connection))->getIndexers());
     }
 

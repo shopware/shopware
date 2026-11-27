@@ -61,6 +61,12 @@ Its `syncProducts()` and `indexProducts()` methods and its `productRepository` c
 Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.
 PHP configuration files also receive the current environment through `$container->env()`.
 Check existing environment-specific configuration that was previously ignored, including Monolog handler levels.
+### Migrations no longer narrow a queued full indexer run
+
+When migrations of one update register the same indexer with `MigrationStep::registerIndexer()`, once without updaters and once with a list of updaters, the indexer now runs with all updaters, in either order.
+Before, the list of updaters replaced the full run.
+Updates from 6.7.9 or older therefore run the complete `product.indexer` again, which takes longer for large catalogs.
+Shops that were updated from 6.7.9 or older before this release can run `bin/console dal:refresh:index --only=product.indexer` to catch up on the product indexing that was skipped.
 
 ### Regenerating a document keeps its deep link and its stored files
 

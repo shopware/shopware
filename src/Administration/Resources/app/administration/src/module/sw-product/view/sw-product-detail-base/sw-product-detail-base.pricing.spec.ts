@@ -6,12 +6,19 @@ import { RouterLinkStub, shallowMount } from '@vue/test-utils';
 
 const productIsNew = jest.fn();
 
-async function createWrapper() {
+async function createWrapper(props: Record<string, unknown> = {}) {
     return shallowMount(await wrapTestComponent('sw-product-detail-base', { sync: true }), {
+        props,
         global: {
+            mocks: {
+                $route: { params: { id: 'productId' } },
+            },
             stubs: {
                 'mt-card': {
-                    template: '<div><slot name="headerRight" /></div>',
+                    template: '<div><slot /><slot name="headerRight" /></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot /></div>',
                 },
                 'mt-button': {
                     props: ['is', 'to'],
@@ -42,7 +49,10 @@ describe('sw-product-detail-base pricing', () => {
         store.$reset();
         store.product.id = 'productId' as typeof store.product.id;
         store.product.isNew = productIsNew;
-        store.creationType = 'physical';
+        // A digital product skips the deprecated `productStates` fallback of the download card,
+        // which logs an error in tests that activate the major flag.
+        store.product.type = 'digital';
+        store.creationType = 'digital';
         store.modeSettings = ['prices'];
     });
 
@@ -50,24 +60,43 @@ describe('sw-product-detail-base pricing', () => {
         wrapper?.unmount();
     });
 
-    it('should link to advanced pricing for a saved product', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should link to advanced pricing from the card header for a saved product',
+        async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
 
-        const link = wrapper.getComponent(RouterLinkStub);
+            const link = wrapper.getComponent(RouterLinkStub);
 
-        expect(link.props('to')).toEqual({
-            name: 'sw.product.detail.prices',
-            params: { id: 'productId' },
-        });
-    });
+            expect(link.classes()).toContain('sw-product-detail-base__advanced-prices');
+            expect(link.props('to')).toEqual({
+                name: 'sw.product.detail.prices',
+                params: { id: 'productId' },
+            });
+            expect(wrapper.find('.sw-container').exists()).toBe(false);
+        },
+    );
 
-    it('should hide advanced pricing for a new product', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should hide advanced pricing for a new product', async () => {
         productIsNew.mockReturnValue(true);
 
         wrapper = await createWrapper();
         await flushPromises();
 
+        expect(wrapper.find('.sw-product-detail-base__advanced-prices').exists()).toBe(false);
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy advanced prices link.
+    it.deprecated('v6.8.0.0')('should render the advanced pricing link below the price form', async () => {
+        wrapper = await createWrapper({ productId: 'productId' });
+        await flushPromises();
+
+        const link = wrapper.get('.sw-container').getComponent(RouterLinkStub);
+
+        expect(link.props('to')).toEqual({
+            name: 'sw.product.detail.prices',
+            params: { id: 'productId' },
+        });
         expect(wrapper.find('.sw-product-detail-base__advanced-prices').exists()).toBe(false);
     });
 });

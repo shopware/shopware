@@ -12,6 +12,8 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    inject: ['feature'],
+
     mixins: [Mixin.getByName('placeholder')],
 
     props: {
@@ -65,10 +67,12 @@ export default {
             return Shopware.Store.get('swProductDetail').currencies;
         },
 
+        /** @private */
         currentLocale() {
             return Shopware.Store.get('session').currentLocale;
         },
 
+        /** @private */
         taxRateFormatter() {
             return new Intl.NumberFormat(this.currentLocale, {
                 style: 'percent',
@@ -148,6 +152,7 @@ export default {
             };
         },
 
+        /** @private */
         displayPricesInherited() {
             return !!this.parentProduct.id && this.isPriceInherited(this.product.price);
         },
@@ -223,7 +228,76 @@ export default {
                 'sw-product-price-form.inheritationCheckFunction() is deprecated. Use isPriceInherited() instead.',
             );
 
-            return !this.prices.price.length && !this.prices.purchasePrices.length;
+            const prices = this.getLegacyPrices();
+
+            return !prices.price.length && !prices.purchasePrices.length;
+        },
+
+        /**
+         * Evaluates a deprecated computed property for the legacy layout without reporting core's own usage.
+         * It calls the definition, overrides included, instead of reading the cached property, because Vue
+         * re-evaluates a cached property outside of the silence when it checks whether to re-render.
+         * Remove it with the legacy layout in v6.8.0.
+         *
+         * @private
+         */
+        readLegacyComputed(name) {
+            const definition = this.$options.computed[name];
+            const getter = typeof definition === 'function' ? definition : definition.get;
+
+            return Shopware.Feature.silence('V6_8_0_0', () => getter.call(this, this));
+        },
+
+        /**
+         * Reads the deprecated `prices` for the legacy layout without reporting core's own usage.
+         * Remove it with the legacy layout in v6.8.0.
+         *
+         * @private
+         */
+        getLegacyPrices() {
+            return this.readLegacyComputed('prices');
+        },
+
+        /**
+         * Writes the deprecated `prices` for the legacy layout without reporting core's own usage.
+         * Remove it with the legacy layout in v6.8.0.
+         *
+         * @private
+         */
+        setLegacyPrices(newValue) {
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                this.prices = newValue;
+            });
+        },
+
+        /**
+         * Reads the deprecated `parentPrices` for the legacy layout without reporting core's own usage.
+         * Remove it with the legacy layout in v6.8.0.
+         *
+         * @private
+         */
+        getLegacyParentPrices() {
+            return this.readLegacyComputed('parentPrices');
+        },
+
+        /**
+         * Calls the deprecated `removePriceInheritation()` for the legacy layout without reporting core's own usage.
+         * Remove it with the legacy layout in v6.8.0.
+         *
+         * @private
+         */
+        legacyRemovePriceInheritation(refPrice) {
+            return Shopware.Feature.silence('V6_8_0_0', () => this.removePriceInheritation(refPrice));
+        },
+
+        /**
+         * Calls the deprecated `inheritationCheckFunction()` for the legacy layout without reporting core's own usage.
+         * Remove it with the legacy layout in v6.8.0.
+         *
+         * @private
+         */
+        legacyInheritationCheckFunction() {
+            return Shopware.Feature.silence('V6_8_0_0', () => this.inheritationCheckFunction());
         },
 
         onMaintainCurrenciesClose(prices) {
@@ -242,6 +316,11 @@ export default {
             const translationKey = `global.tax-rates.${tax.name}`;
             const label = this.$te(translationKey) ? this.$t(translationKey) : tax.name;
 
+            // @deprecated tag:v6.8.0 - Remove the condition; the label always contains the tax rate.
+            if (!this.feature.isActive('V6_8_0_0')) {
+                return label;
+            }
+
             return `${label} (${this.taxRateFormatter.format(tax.taxRate / 100)})`;
         },
 
@@ -257,6 +336,7 @@ export default {
             return this.copyDefaultCurrencyPrice(prices, 0);
         },
 
+        /** @private */
         copyDefaultCurrencyPrice(prices, fallbackValue) {
             const price = prices?.find(({ currencyId }) => currencyId === this.defaultCurrency.id) ?? {
                 currencyId: this.defaultCurrency.id,

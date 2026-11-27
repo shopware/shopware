@@ -1661,34 +1661,37 @@ Use `'sha256'` directly if you computed the imitation token hash yourself.
 
 ## Product prices card extension points
 
-The product prices card was restructured, and display prices and purchase prices received separate inheritance controls.
-The following blocks were deprecated and retained as compatibility wrappers during 6.7, and removed in 6.8.
-Update overrides to use the replacement blocks:
+The product prices card shows display prices and purchase prices in separate sections with their own inheritance controls.
+The advanced pricing link moved to the card header.
+During 6.7, the new layout was only active with the `v6.8.0.0` feature flag.
 
-| Previous block | Replacement |
+The following blocks were deprecated and are removed.
+Move overrides to the replacement blocks:
+
+| Removed block | Replacement |
 | --- | --- |
-| `sw_product_price_form_fields` | `sw_product_price_form_tax_field`, `sw_product_price_form_display_prices`, and `sw_product_price_form_purchase_prices` |
+| `sw_product_price_form_fields` | `sw_product_price_form_tax_field`, `sw_product_price_form_display_prices` and `sw_product_price_form_purchase_prices` |
 | `sw_product_price_form_price_field` | `sw_product_price_form_display_prices` and `sw_product_price_form_purchase_prices` |
-| `sw_product_price_form_link` | `sw_product_price_form_currency_link` or `sw_product_detail_base_advanced_prices_link` |
+| `sw_product_price_form_link` | `sw_product_price_form_currency_link` or `sw_product_detail_base_price_card_advanced_prices_button` |
 | `sw_product_price_form_maintain_currencies_link` | `sw_product_price_form_currency_link` |
-| `sw_product_price_form_advanced_prices_link` | `sw_product_detail_base_advanced_prices_link` in `sw-product-detail-base` |
+| `sw_product_price_form_advanced_prices_link` | `sw_product_detail_base_price_card_advanced_prices_button` in `sw-product-detail-base` |
+| `sw_product_detail_base_advanced_prices_link` | `sw_product_detail_base_price_card_advanced_prices_button` |
 
-`sw-list-price-field` continued to render purchase prices during 6.7 when its deprecated `purchasePrices` prop was supplied.
-Its `hidePurchasePrices` and `purchasePrices` props were deprecated during 6.7 and removed in 6.8.
+The display and purchase price sections bind their own price array to the inheritance wrapper, so `currentValue` is that array.
+Replace `currentValue.price` and `currentValue.purchasePrices` with `currentValue` in the corresponding section.
+
+The following members of `sw-product-price-form` were deprecated and are removed:
+
+* `removePriceInheritation()`: use `copyDefaultPrice(prices)` for display prices or `copyDefaultPurchasePrice(prices)` for purchase prices.
+* `inheritationCheckFunction()`: use `isPriceInherited(prices)`.
+* `prices` and `parentPrices`: use `product.price`, `product.purchasePrices`, `parentProduct.price` and `parentProduct.purchasePrices`.
+  `displayPrices` returns the effective display prices, including inherited ones.
+
+`sw-list-price-field` no longer renders purchase prices.
+Its `purchasePrices` and `hidePurchasePrices` props and the `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated and are removed.
 Render `sw-purchase-price-field` separately where purchase prices are needed.
-Overrides that copied the old combined price editor and continued passing `purchasePrices` to `sw-list-price-field` could render purchase prices twice alongside the new purchase section.
-Remove the `purchasePrices` binding from the copied display-price editor and customize `sw_product_price_form_purchase_prices` separately.
-The `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated during 6.7 and removed in 6.8.
-Use `sw_product_price_form_purchase_prices` to customize the product card's purchase section.
 
-The restructured price inheritance wrappers exposed their price arrays directly as `currentValue`.
-Replace `currentValue.price` and `currentValue.purchasePrices` with `currentValue` in the corresponding sections.
-Replace overrides of `removePriceInheritation()` with `copyDefaultPrice(prices)` for display prices or `copyDefaultPurchasePrice(prices)` for purchase prices.
-Replace overrides of `inheritationCheckFunction()` with `isPriceInherited(prices)`.
-Each replacement receives the corresponding section's price array.
-The `prices` and `parentPrices` computed properties of `sw-product-price-form` were deprecated during 6.7 and removed in 6.8.
-Replace `this.prices.price` with `this.product.price` and `this.prices.purchasePrices` with `this.product.purchasePrices`.
-Use `product.price`, `product.purchasePrices`, `parentProduct.price`, and `parentProduct.purchasePrices` separately; use `displayPrices` for the effective inherited display prices.
+The CSS classes `sw-product-price-form__prices`, `sw-product-price-form__price-list`, `sw-product-price-form__links` and `sw-product-price-form__currency` of the old layout were deprecated and are removed.
 
 `sw-product-detail.syncVariantPriceInheritance()` was deprecated during 6.7 and removed in 6.8.
 It retained the old coupled inheritance behavior during 6.7, so calling it could reset independently overridden purchase prices.
@@ -1711,6 +1714,12 @@ export default shopwareAdminJestConfig({
 
 `composer admin:setup-extension-tooling` generates the `.shopware/jest.mjs` bridge.
 See *Running specs with Jest* in `src/Administration/Resources/app/administration/extension-tooling/README.md` for the accepted options.
+The following methods of `sw-product-detail` were deprecated and are removed:
+
+* `syncVariantPriceInheritance()`: display and purchase prices of a variant inherit independently.
+  Move load-time customizations that overrode it to `loadProduct()`.
+* `getDefaultPurchasePrices()`: products without purchase prices keep `purchasePrices` as `null`.
+  Set `product.purchasePrices` explicitly in an extension when a default purchase price is required.
 
 ## Sales channel detail components load fewer visibilities and sales channels
 

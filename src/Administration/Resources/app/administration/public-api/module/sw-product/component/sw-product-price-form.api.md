@@ -13,6 +13,9 @@ component sw-product-price-form  public  js
 mixins
   placeholder
 
+inject
+  feature
+
 props
   allowEdit?: boolean  default=true
 
@@ -21,11 +24,11 @@ data
 
 computed
   currencies: any
-  currentLocale: any
+  currentLocale: any  [private]
   defaultCurrency: any
   defaultPrice: any
   displayPrices: any
-  displayPricesInherited: any
+  displayPricesInherited: any  [private]
   isLoading: any
   parentPrices: any  [deprecated tag:v6.8.0]
   parentProduct: any
@@ -36,32 +39,38 @@ computed
   productTaxIdError: any
   productTaxRate: any
   showModeSetting: any
-  taxRateFormatter: any
+  taxRateFormatter: any  [private]
   taxRateHelpText: any
   taxRateOptions: any
   taxes: any
 
 methods
-  copyDefaultCurrencyPrice(prices: any, fallbackValue: any): any
+  copyDefaultCurrencyPrice(prices: any, fallbackValue: any): any  [private]
   copyDefaultPrice(prices: any): any
   copyDefaultPurchasePrice(prices: any): any
+  getLegacyParentPrices(): any  [private]
+  getLegacyPrices(): any  [private]
   getTaxLabel(tax: any): any
   inheritationCheckFunction(): any  [deprecated tag:v6.8.0]
   isPriceInherited(prices: any): any
+  legacyInheritationCheckFunction(): any  [private]
+  legacyRemovePriceInheritation(refPrice: any): any  [private]
   onMaintainCurrenciesClose(prices: any): any
+  readLegacyComputed(name: any): any  [private]
   removePriceInheritation(refPrice: any): any  [deprecated tag:v6.8.0]
+  setLegacyPrices(newValue: any): any  [private]
   updatePrices(index: any): any
 
 blocks
   sw_product_price_form
+    sw_product_price_form_currency_link  [after v-if]
+    sw_product_price_form_display_prices
     sw_product_price_form_fields  [deprecated tag:v6.8.0]
-      sw_product_price_form_price_field  [deprecated tag:v6.8.0]
-        sw_product_price_form_display_prices
+      sw_product_price_form_price_field  [after v-if] [deprecated tag:v6.8.0]
       sw_product_price_form_tax_field
     sw_product_price_form_link  [after v-if] [deprecated tag:v6.8.0]
-      sw_product_price_form_advanced_prices_link  [after v-if] [deprecated tag:v6.8.0]
-      sw_product_price_form_maintain_currencies_link  [after v-if] [deprecated tag:v6.8.0]
-        sw_product_price_form_currency_link  [after v-if]
+      sw_product_price_form_advanced_prices_link  [until v6.8.0] [deprecated tag:v6.8.0]
+      sw_product_price_form_maintain_currencies_link  [after v-if] [until v6.8.0] [deprecated tag:v6.8.0]
     sw_product_price_form_maintain_currencies_modal  [after v-if]
     sw_product_price_form_purchase_prices  [after v-if]
 

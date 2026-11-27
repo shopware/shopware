@@ -65,11 +65,32 @@
             <sw-product-price-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
 
+            {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_detail_base_price_card_advanced_prices_button instead. #}
+            {% block sw_product_detail_base_advanced_prices_link %}
+            <sw-container
+                v-if="productId && !feature.isActive('V6_8_0_0')"
+                columns="1fr"
+                justify="end"
+            >
+
+                <router-link
+                    :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                    class="sw-card__quick-link"
+                >
+                    {{ $t('sw-product.detailBase.linkAdvancedPrices') }}
+                    <mt-icon
+                        name="regular-long-arrow-right"
+                        size="var(--scale-size-16)"
+                    />
+                </router-link>
+            </sw-container>
+            {% endblock %}
+
             <template #headerRight>
-                {% block sw_product_detail_base_advanced_prices_link %}
+                {% block sw_product_detail_base_price_card_advanced_prices_button %}
                 <mt-button
                     is="router-link"
-                    v-if="product.id && !product.isNew()"
+                    v-if="feature.isActive('V6_8_0_0') && product.id && !product.isNew()"
                     class="sw-product-detail-base__advanced-prices"
                     :to="{ name: 'sw.product.detail.prices', params: { id: product.id } }"
                     variant="secondary"

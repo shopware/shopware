@@ -73,6 +73,13 @@ Apps that need such a section should require that version in `<compatibility>`.
 
 ## Administration
 
+### Product prices card restructured behind the `v6.8.0.0` feature flag
+
+With the `v6.8.0.0` feature flag, the product prices card shows display prices and purchase prices in separate sections with their own inheritance controls, and the advanced pricing link moves to the card header.
+Without the flag, the card keeps its current layout, blocks and callbacks.
+Several blocks and members of `sw-product-price-form`, `sw-product-detail-base`, `sw-product-detail` and `sw-list-price-field` are deprecated;
+see [Product prices card extension points](./UPGRADE-6.8.md#product-prices-card-extension-points) for their replacements.
+
 ### Core popovers render with `mt-floating-ui` before 6.8
 
 `sw-context-button`, `sw-select-result-list` and `sw-multi-tag-select` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
@@ -1418,12 +1425,6 @@ This includes edits of the files such a component imports.
 The watcher remounts the edited component and the components an edited override changes.
 It reloads the page for edits it cannot apply in place:
 edits that change the blocks of a component, edits of a component built with `Component.extend()` or `Component.override()` or of a component that is not on the page, and updates that fail to render.
-
-### Product Prices card restructured
-
-Display and purchase prices now have separate sections and inheritance controls; advanced pricing moved to the card header.
-Extensions overriding the price form must [update their blocks and callbacks](./UPGRADE-6.8.md#product-prices-card-extension-points).
-Callers of `sw-list-price-field` that pass purchase prices continue to work during the deprecation period and should migrate to rendering `sw-purchase-price-field` separately.
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 

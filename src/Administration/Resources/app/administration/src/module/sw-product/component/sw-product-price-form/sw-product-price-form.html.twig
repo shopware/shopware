@@ -1,20 +1,25 @@
 {% block sw_product_price_form %}
 <div class="sw-product-price-form">
-    {# @deprecated tag:v6.8.0 - Block will be removed. Use the section-specific blocks instead. #}
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_price_form_tax_field, sw_product_price_form_display_prices, and sw_product_price_form_purchase_prices instead. #}
     {% block sw_product_price_form_fields %}
+    <sw-container
+        :columns="feature.isActive('V6_8_0_0') ? '1fr var(--scale-size-56) 1fr' : '1fr 2fr'"
+        :gap="feature.isActive('V6_8_0_0') ? undefined : '0 var(--scale-size-30)'"
+        :class="{ 'sw-product-price-form__prices': !feature.isActive('V6_8_0_0') }"
+    >
+
         {% block sw_product_price_form_tax_field %}
-    <sw-container columns="1fr var(--scale-size-56) 1fr">
         <sw-inherit-wrapper
             v-if="!isLoading"
             ref="taxIdInheritation"
             v-model:value="product.taxId"
-            class="sw-product-price-form__tax-rate"
-            required
-            :disabled="!allowEdit"
             :inherited-value="parentProduct.taxId"
             :has-parent="!!parentProduct.id"
             :help-text="taxRateHelpText"
             :label="$t('sw-product.priceForm.labelTaxRate')"
+            :disabled="!allowEdit"
+            class="sw-product-price-form__tax-rate"
+            required
         >
             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                 <mt-select
@@ -29,14 +34,48 @@
                 />
             </template>
         </sw-inherit-wrapper>
-    </sw-container>
         {% endblock %}
 
-    {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_price_form_display_prices instead. #}
+        {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_price_form_display_prices and sw_product_price_form_purchase_prices instead. #}
         {% block sw_product_price_form_price_field %}
-            {% block sw_product_price_form_display_prices %}
+        <sw-silence-deprecations
+            v-if="!isLoading && !feature.isActive('V6_8_0_0')"
+            flag="V6_8_0_0"
+        >
+            <sw-inherit-wrapper
+                label=" "
+                class="sw-product-price-form__price-list"
+                :value="getLegacyPrices()"
+                :has-parent="!!parentProduct.id"
+                :inherited-value="getLegacyParentPrices()"
+                :custom-remove-inheritance-function="legacyRemovePriceInheritation"
+                :custom-inheritation-check-function="legacyInheritationCheckFunction"
+                @update:value="setLegacyPrices"
+            >
+                <template #content="{ currentValue, isInherited }">
+                    <sw-silence-deprecations flag="V6_8_0_0">
+                        <sw-list-price-field
+                            vertical
+                            :price="currentValue.price"
+                            :purchase-prices="currentValue.purchasePrices"
+                            :tax-rate="productTaxRate"
+                            :disabled="isInherited || !allowEdit || undefined"
+                            :error="productPriceError ? productPriceError[0] : null"
+                            :currency="defaultCurrency"
+                            :show-setting-price="showModeSetting"
+                        />
+                    </sw-silence-deprecations>
+                </template>
+            </sw-inherit-wrapper>
+        </sw-silence-deprecations>
+        {% endblock %}
+
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_product_price_form_display_prices %}
     <sw-inherit-wrapper
-        v-if="!isLoading"
+        v-if="!isLoading && feature.isActive('V6_8_0_0')"
         v-model:value="product.price"
         class="sw-product-price-form__display-prices"
         :label="$t('sw-product.priceForm.displayPrices.title')"
@@ -62,20 +101,54 @@
             />
         </template>
     </sw-inherit-wrapper>
-            {% endblock %}
-        {% endblock %}
     {% endblock %}
 
-    {# @deprecated tag:v6.8.0 - Block will be removed. Use the section-specific link blocks instead. #}
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_price_form_currency_link or sw_product_detail_base_price_card_advanced_prices_button instead. #}
     {% block sw_product_price_form_link %}
-    {# @deprecated tag:v6.8.0 - Use sw_product_detail_base_advanced_prices_link instead. #}
-        {% block sw_product_price_form_advanced_prices_link %}{% endblock %}
+    <sw-container
+        v-if="!feature.isActive('V6_8_0_0')"
+        columns="1fr"
+        justify="end"
+        class="sw-product-price-form__links"
+    >
+        {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_detail_base_price_card_advanced_prices_button in sw-product-detail-base instead. #}
+        {% block sw_product_price_form_advanced_prices_link %}
+        <router-link
+            v-if="!product._isNew"
+            :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+            class="sw-card__quick-link"
+        >
+            {{ $t('sw-product.detailBase.linkAdvancedPrices') }}
+            <mt-icon
+                name="regular-long-arrow-right"
+                size="var(--scale-size-16)"
+            />
+        </router-link>
+        {% endblock %}
 
-    {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_price_form_currency_link instead. #}
+        {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_product_price_form_currency_link instead. #}
         {% block sw_product_price_form_maintain_currencies_link %}
-            {% block sw_product_price_form_currency_link %}
+        <a
+            v-if="product.price"
+            class="sw-card__quick-link"
+            role="button"
+            tabindex="0"
+            @click.prevent="displayMaintainCurrencies = true"
+            @keydown.enter.prevent="displayMaintainCurrencies = true"
+        >
+            {{ $t('sw-product.detailBase.linkMaintainCurrencyPrices') }}
+            <mt-icon
+                name="regular-long-arrow-right"
+                size="var(--scale-size-16)"
+            />
+        </a>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_product_price_form_currency_link %}
     <a
-        v-if="displayPrices"
+        v-if="displayPrices && feature.isActive('V6_8_0_0')"
         class="sw-product-price-form__currency-link"
         role="button"
         tabindex="0"
@@ -88,13 +161,11 @@
             size="var(--scale-size-16)"
         />
     </a>
-            {% endblock %}
-        {% endblock %}
     {% endblock %}
 
     {% block sw_product_price_form_purchase_prices %}
     <sw-inherit-wrapper
-        v-if="!isLoading && showModeSetting"
+        v-if="!isLoading && showModeSetting && feature.isActive('V6_8_0_0')"
         v-model:value="product.purchasePrices"
         class="sw-product-price-form__purchase-prices"
         :label="$t('sw-product.priceForm.purchasePrices.title')"
@@ -127,10 +198,10 @@
         v-if="displayMaintainCurrencies"
         variant="full"
         :currencies="currencies"
-        :prices="displayPrices"
+        :prices="feature.isActive('V6_8_0_0') ? displayPrices : product.price"
         :default-price="defaultPrice"
         :tax-rate="productTaxRate"
-        :disabled="displayPricesInherited || !allowEdit || undefined"
+        :disabled="(feature.isActive('V6_8_0_0') && displayPricesInherited) || !allowEdit || undefined"
         @modal-close="onMaintainCurrenciesClose"
         @update-prices="updatePrices"
     />

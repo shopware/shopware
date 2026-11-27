@@ -14,6 +14,7 @@ export default {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'acl',
         'mediaDefaultFolderService',

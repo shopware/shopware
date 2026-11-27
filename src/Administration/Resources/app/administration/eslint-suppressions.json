@@ -9603,7 +9603,7 @@
   },
   "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 152
+      "count": 118
     }
   },
   "src/module/sw-product/page/sw-product-list/index.js": {

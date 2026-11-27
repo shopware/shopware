@@ -25,4 +25,38 @@
         text-underline-offset: auto;
         text-underline-position: from-font;
     }
+
+    // @deprecated tag:v6.8.0 - Styles of the legacy price form layout will be removed.
+    &__tax-rate.sw-inherit-wrapper {
+        justify-content: flex-start;
+    }
+
+    // @deprecated tag:v6.8.0 - Styles of the legacy price form layout will be removed.
+    &__currency {
+        font-weight: var(--font-weight-regular);
+        font-size: var(--font-size-l);
+    }
+
+    // @deprecated tag:v6.8.0 - Styles of the legacy price form layout will be removed.
+    &__links {
+        a:first-child {
+            margin-top: 0;
+        }
+
+        a {
+            display: inline-flex;
+            column-gap: var(--scale-size-4);
+            align-items: center;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            margin-top: var(--scale-size-16);
+        }
+    }
+
+    // @deprecated tag:v6.8.0 - Styles of the legacy price form layout will be removed.
+    &__price-list:not(.has--parent) {
+        .sw-inherit-wrapper__toggle-wrapper {
+            margin: 0;
+        }
+    }
 }

@@ -1,28 +1,26 @@
 import { test as base } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
-import { LANGUAGE_LABELS } from '@tasks/languageLabels';
+import { getLanguageData } from '@fixtures/AcceptanceTest';
 
 /**
- * Switches the storefront language via the header language dropdown. The menu entries are
- * `button.dropdown-item` elements inside `li.top-bar-list-item`; selecting one navigates to that
- * language's sales-channel domain. The sales channel must have the target language + a domain for
- * the switcher to be present.
+ * Switches the storefront language via the header language dropdown. Each option is a
+ * `button[name="languageId"]` that submits the language form and navigates to that language's
+ * sales-channel domain. The option is selected by languageId, not its label: 6.8 renders the name
+ * as the locale ("German (Germany)") rather than the stored language name ("Deutsch"), so a
+ * text match would be version-dependent. The switch is confirmed via the document `lang` attribute,
+ * which reflects the active locale regardless of the displayed name. The sales channel must have the
+ * target language and a domain for the switcher to be present.
  */
 export const SwitchStorefrontLanguage = base.extend<{ SwitchStorefrontLanguage: Task }, FixtureTypes>({
-    SwitchStorefrontLanguage: async ({ ShopCustomer, StorefrontHeader }, use) => {
+    SwitchStorefrontLanguage: async ({ ShopCustomer, StorefrontHeader, TestDataService }, use) => {
         const task = (locale: string) => {
             return async function SwitchStorefrontLanguage() {
-                const label = LANGUAGE_LABELS[locale] ?? locale;
+                const language = await getLanguageData(TestDataService.AdminApiClient, locale);
                 await ShopCustomer.presses(StorefrontHeader.languagesDropdown);
                 await ShopCustomer.presses(
-                    StorefrontHeader.languagesMenuOptions
-                        .locator('li.top-bar-list-item')
-                        .filter({ hasText: label })
-                        .locator('button.dropdown-item'),
+                    StorefrontHeader.languagesMenuOptions.locator(`button[name="languageId"][value="${language.id}"]`),
                 );
-                // Confirm the switch landed (the toggle shows the active language) so a silent no-op
-                // cannot let a caller's fallback/override assertion pass. The toggle id is stable.
-                await ShopCustomer.expects(StorefrontHeader.page.locator('#languagesDropdown-top-bar')).toContainText(label);
+                await ShopCustomer.expects(StorefrontHeader.page.locator('html')).toHaveAttribute('lang', locale);
             };
         };
 

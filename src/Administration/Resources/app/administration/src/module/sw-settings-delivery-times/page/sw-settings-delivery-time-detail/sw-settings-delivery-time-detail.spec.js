@@ -1,10 +1,11 @@
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 /**
  * @sw-package checkout
  */
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], route = { params: { id: '1' } }, get = null) {
     return mount(
         await wrapTestComponent('sw-settings-delivery-time-detail', {
             sync: true,
@@ -13,11 +14,7 @@ async function createWrapper(privileges = []) {
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $route: {
-                        params: {
-                            id: '1',
-                        },
-                    },
+                    $route: route,
                 },
                 provide: {
                     repositoryFactory: {
@@ -32,32 +29,34 @@ async function createWrapper(privileges = []) {
                                 };
                             },
 
-                            get: (id) => {
-                                const deliveryTimes = [
-                                    {
-                                        id: '1',
-                                        name: '1 - 3 weeks',
-                                        min: 1,
-                                        max: 3,
-                                        unit: 'week',
-                                        isNew: () => false,
-                                    },
-                                    {
-                                        id: 2,
-                                        name: '2 - 5 days',
-                                        min: 2,
-                                        max: 5,
-                                        unit: 'day',
-                                        isNew: () => false,
-                                    },
-                                ];
+                            get:
+                                get ??
+                                ((id) => {
+                                    const deliveryTimes = [
+                                        {
+                                            id: '1',
+                                            name: '1 - 3 weeks',
+                                            min: 1,
+                                            max: 3,
+                                            unit: 'week',
+                                            isNew: () => false,
+                                        },
+                                        {
+                                            id: 2,
+                                            name: '2 - 5 days',
+                                            min: 2,
+                                            max: 5,
+                                            unit: 'day',
+                                            isNew: () => false,
+                                        },
+                                    ];
 
-                                return Promise.resolve(
-                                    deliveryTimes.find((deliveryTime) => {
-                                        return deliveryTime.id === id;
-                                    }),
-                                );
-                            },
+                                    return Promise.resolve(
+                                        deliveryTimes.find((deliveryTime) => {
+                                            return deliveryTime.id === id;
+                                        }),
+                                    );
+                                }),
                         }),
                     },
                     acl: {
@@ -177,5 +176,22 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
             message: 'CTRL + S',
             appearance: 'light',
         });
+    });
+
+    it('should load the new delivery time when the route id changes', async () => {
+        const route = reactive({ params: { id: 'first-id' } });
+        const get = jest.fn((id) => Promise.resolve({ id, name: `Delivery time ${id}`, isNew: () => false }));
+        const wrapper = await createWrapper(['delivery_times.editor'], route, get);
+        await flushPromises();
+
+        expect(get).toHaveBeenLastCalledWith('first-id');
+        expect(wrapper.find('input[name="sw-field--deliveryTime-name"]').element.value).toBe('Delivery time first-id');
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(get).toHaveBeenCalledTimes(2);
+        expect(get).toHaveBeenLastCalledWith('second-id');
+        expect(wrapper.find('input[name="sw-field--deliveryTime-name"]').element.value).toBe('Delivery time second-id');
     });
 });

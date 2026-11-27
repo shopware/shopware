@@ -126,7 +126,9 @@ export default {
 
     watch: {
         salutationId() {
-            if (!this.salutationId) {
+            if (this.salutationId !== this.salutation?.id) {
+                this.invalidKey = false;
+                this.isKeyChecking = false;
                 this.createdComponent();
             }
         },

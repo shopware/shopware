@@ -103,6 +103,12 @@ export default {
         languageId() {
             this.createdComponent();
         },
+
+        roleId(roleId) {
+            if (roleId !== this.role?.id) {
+                this.createdComponent();
+            }
+        },
     },
 
     created() {

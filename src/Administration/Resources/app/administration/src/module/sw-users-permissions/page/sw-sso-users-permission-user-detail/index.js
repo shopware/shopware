@@ -32,6 +32,12 @@ export default {
         ESCAPE: 'onCancel',
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },

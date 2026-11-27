@@ -102,6 +102,19 @@ export default {
         },
     },
 
+    watch: {
+        '$route.params.key'(key) {
+            if (key !== this.translationKeyOrigin) {
+                this.isInvalidKey = false;
+                this.isAddedSnippet = false;
+                this.queryIds = this.$route.query.ids;
+                this.page = this.$route.query.page;
+                this.limit = this.$route.query.limit;
+                this.createdComponent();
+            }
+        },
+    },
+
     created() {
         this.createdComponent();
     },

@@ -14,7 +14,11 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                 provide: {
                     repositoryFactory: {
                         create: () => ({
-                            get: () => {
+                            get: (id) => {
+                                if (additionalOptions.hasOwnProperty('taxProviders')) {
+                                    return Promise.resolve(additionalOptions.taxProviders[id]);
+                                }
+
                                 if (additionalOptions.hasOwnProperty('taxProvider')) {
                                     return Promise.resolve(additionalOptions.taxProvider);
                                 }
@@ -190,6 +194,23 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         wrapper.vm.onSaveRule(ruleId);
 
         expect(wrapper.vm.taxProvider.availabilityRuleId).toEqual(ruleId);
+    });
+
+    it('should load the new tax provider when the taxProviderId changes', async () => {
+        const wrapper = await createWrapper(['tax.editor'], {
+            taxProviders: {
+                taxProviderId: { id: 'taxProviderId', translated: { name: 'Tax provider one' } },
+                otherTaxProviderId: { id: 'otherTaxProviderId', translated: { name: 'Tax provider two' } },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('h2').text()).toBe('Tax provider one');
+
+        await wrapper.setProps({ taxProviderId: 'otherTaxProviderId' });
+        await flushPromises();
+
+        expect(wrapper.find('h2').text()).toBe('Tax provider two');
     });
 
     it('should handle onDismissRule and set availabilityRuleId to null', async () => {

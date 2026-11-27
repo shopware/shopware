@@ -138,6 +138,12 @@ export default {
         },
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },

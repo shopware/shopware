@@ -16,7 +16,7 @@ const text = {
     placeholderDescriptionField: 'sw-settings-product-feature-sets.detail.placeholderDescription',
 };
 
-const detailPage = async (additionalOptions = {}, privileges = []) => {
+const detailPage = async (additionalOptions = {}, privileges = [], props = {}) => {
     return mount(
         await wrapTestComponent('sw-settings-product-feature-sets-detail', {
             sync: true,
@@ -86,10 +86,19 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                     description: null,
                     features: [{}],
                 },
+                ...props,
             },
         },
     );
 };
+
+const createRepositoryProvide = (repository) => ({
+    provide: {
+        acl: { can: () => true },
+        repositoryFactory: { create: () => repository },
+        validationService: {},
+    },
+});
 
 describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail', () => {
     let wrapper;
@@ -167,5 +176,52 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(fieldName.props().disabled).toBe(false);
         expect(fieldDescription.vm.disabled).toBe(false);
         expect(productFeatureSetsValuesCard.attributes()['allow-edit']).toBe('true');
+    });
+
+    it('should load the new product feature set when the productFeatureSetId changes', async () => {
+        const repository = {
+            get: jest.fn((id) => Promise.resolve({ id, name: `Feature set ${id}`, features: [{}] })),
+        };
+        wrapper = await detailPage(createRepositoryProvide(repository), [], { productFeatureSetId: 'firstId' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenLastCalledWith('firstId');
+        expect(wrapper.find('.sw-settings-product-feature-sets-detail__name input').element.value).toBe(
+            'Feature set firstId',
+        );
+
+        await wrapper.setProps({ productFeatureSetId: 'secondId' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenLastCalledWith('secondId');
+        expect(wrapper.find('.sw-settings-product-feature-sets-detail__name input').element.value).toBe(
+            'Feature set secondId',
+        );
+    });
+
+    it('should load a newly created product feature set only once after the redirect to its detail route', async () => {
+        const repository = {
+            create: () => ({ id: 'newId', name: 'New feature set', features: [] }),
+            save: jest.fn(() => Promise.resolve()),
+            get: jest.fn((id) => Promise.resolve({ id, name: 'New feature set', features: [{}] })),
+        };
+        const router = { push: jest.fn() };
+        wrapper = await detailPage({ ...createRepositoryProvide(repository), mocks: { $router: router } });
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-currency-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(repository.save).toHaveBeenCalledTimes(1);
+        expect(router.push).toHaveBeenCalledWith({
+            name: 'sw.settings.product.feature.sets.detail',
+            params: { id: 'newId' },
+        });
+
+        await wrapper.setProps({ productFeatureSetId: 'newId' });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledTimes(1);
+        expect(repository.get).toHaveBeenCalledWith('newId');
     });
 });

@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail';
 import 'src/app/component/base/sw-button-process';
@@ -119,6 +120,9 @@ async function createWrapper({
     routeId = null,
     entityName = testEntityName,
     featureActive = false,
+    route = null,
+    router = null,
+    getDefinitionByName = (name) => (name === testEntityName ? customEntityDefinition : undefined),
 } = {}) {
     return mount(await Shopware.Component.build('sw-generic-custom-entity-detail'), {
         data() {
@@ -197,7 +201,7 @@ async function createWrapper({
             },
             provide: {
                 customEntityDefinitionService: {
-                    getDefinitionByName: (name) => (name === testEntityName ? customEntityDefinition : undefined),
+                    getDefinitionByName,
                 },
                 repositoryFactory: {
                     create(name) {
@@ -214,7 +218,7 @@ async function createWrapper({
             },
             mixins: [{ createNotificationError: jest.fn() }],
             mocks: {
-                $route: {
+                $route: route ?? {
                     params: {
                         entityName,
                         id: routeId,
@@ -225,6 +229,7 @@ async function createWrapper({
                         },
                     },
                 },
+                ...(router ? { $router: router } : {}),
             },
         },
     });
@@ -403,6 +408,106 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
         expect(wrapper.vm.customEntityData.id).toBe(testEntityData.id);
         expect(wrapper.vm.customEntityData.title).toBe(testEntityData.title);
         expect(wrapper.vm.customEntityData.description).toBe(testEntityData.description);
+    });
+
+    describe('route changes', () => {
+        let getSpy;
+
+        function createRoute(id) {
+            return reactive({
+                params: { entityName: testEntityName, id },
+                meta: { $module: { icon: null } },
+            });
+        }
+
+        beforeEach(() => {
+            getSpy = jest
+                .spyOn(customEntityRepository, 'get')
+                .mockImplementation(async (id) => ({ ...testEntityData, id, title: `title-${id}` }));
+        });
+
+        afterEach(() => {
+            getSpy.mockRestore();
+        });
+
+        it('should load the new entity when the route id changes', async () => {
+            const saveSpy = jest.spyOn(customEntityRepository, 'save');
+            const route = createRoute(testEntityData.id);
+            const wrapper = await createWrapper({ route });
+            await flushPromises();
+            getSpy.mockClear();
+
+            route.params.id = 'other-id';
+            await flushPromises();
+
+            expect(getSpy).toHaveBeenCalledTimes(1);
+            expect(getSpy).toHaveBeenCalledWith('other-id');
+            expect(wrapper.get('.sw-generic-custom-entity-detail__title').text()).toBe('title-other-id');
+
+            wrapper.findComponent('.sw-generic-custom-entity-detail__save-action').vm.$emit('click');
+            await flushPromises();
+
+            expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'other-id', title: 'title-other-id' }));
+            saveSpy.mockRestore();
+        });
+
+        it('should load the entity again when the route entityName changes', async () => {
+            const route = createRoute(testEntityData.id);
+            const wrapper = await createWrapper({
+                route,
+                getDefinitionByName: () => customEntityDefinition,
+            });
+            await flushPromises();
+            getSpy.mockClear();
+
+            route.params.entityName = 'custom_other_entity';
+            await flushPromises();
+
+            expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab-item').at(0).text()).toBe(
+                'custom_other_entity.tabs.main',
+            );
+            expect(getSpy).toHaveBeenCalledTimes(1);
+            expect(getSpy).toHaveBeenCalledWith(testEntityData.id);
+        });
+
+        it('should load the entity only once when saving a new entity pushes the detail route', async () => {
+            const route = createRoute(undefined);
+            const router = {
+                push: jest.fn(async ({ params }) => {
+                    route.params.id = params.id;
+                }),
+            };
+            const wrapper = await createWrapper({ route, router });
+            await flushPromises();
+
+            expect(wrapper.get('.sw-generic-custom-entity-detail__title').text()).toBe(testEntityData.title);
+
+            wrapper.findComponent('.sw-generic-custom-entity-detail__save-action').vm.$emit('click');
+            await flushPromises();
+
+            expect(router.push).toHaveBeenCalledWith({
+                name: 'sw.custom.entity.detail',
+                params: { id: testEntityCreateId },
+            });
+            expect(getSpy).toHaveBeenCalledTimes(1);
+            expect(getSpy).toHaveBeenCalledWith(testEntityCreateId);
+            expect(wrapper.get('.sw-generic-custom-entity-detail__title').text()).toBe(`title-${testEntityCreateId}`);
+        });
+
+        it('should load the entity only once when saving an existing entity', async () => {
+            const route = createRoute(testEntityData.id);
+            const router = { push: jest.fn() };
+            const wrapper = await createWrapper({ route, router });
+            await flushPromises();
+            getSpy.mockClear();
+
+            wrapper.findComponent('.sw-generic-custom-entity-detail__save-action').vm.$emit('click');
+            await flushPromises();
+
+            expect(router.push).not.toHaveBeenCalled();
+            expect(getSpy).toHaveBeenCalledTimes(1);
+            expect(getSpy).toHaveBeenCalledWith(testEntityData.id);
+        });
     });
 
     it('should render the layout tab, pass in the cmsPageId and the cmsSlotOverrides and react to changes', async () => {

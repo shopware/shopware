@@ -72,6 +72,7 @@ class RobotsPageLoader
             // Filter on the bare host: domains on a default port carry no port in their URL
             ->addFilter(new ContainsFilter('url', parse_url('//' . $hostname, \PHP_URL_HOST) ?: $hostname))
             ->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
+            ->addFilter(new EqualsFilter('salesChannel.active', true))
         ;
 
         return $this->salesChannelDomainRepository->search($criteria, $context)->getEntities();

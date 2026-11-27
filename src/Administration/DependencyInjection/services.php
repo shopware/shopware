@@ -137,6 +137,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('language.repository'),
             env('PRODUCT_ANALYTICS_GATEWAY_URL'),
             service(CustomerEmailUniqueChecker::class),
+            service(CacheInvalidator::class),
             param('shopware.api.refresh_token_ttl'),
         ])
         ->call('setContainer', [service('service_container')]);

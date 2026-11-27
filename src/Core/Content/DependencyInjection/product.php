@@ -152,6 +152,7 @@ use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscribe
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -372,6 +373,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('parameter_bag'),
+            service(CacheInvalidator::class),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -193,11 +193,13 @@ export default {
                 source = source.parentNode;
             }
 
-            if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
-                return;
-            }
-
-            if (path.some((element) => element.classList?.contains('mt-select-result-list-popover-wrapper'))) {
+            // Popovers of the link menu, such as select results, render outside the toolbar.
+            const popoverClasses = [
+                'sw-popover__wrapper',
+                'mt-select-result-list-popover-wrapper',
+                'mt-floating-ui__content',
+            ];
+            if (path.some((element) => popoverClasses.some((popoverClass) => element.classList?.contains(popoverClass)))) {
                 return;
             }
 

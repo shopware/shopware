@@ -26,7 +26,6 @@ props
   menuVerticalAlign?: string  default='bottom'  [private]
   menuWidth?: number  default=220  [private]
   showMenuOnStartup?: boolean  default=false  [private]
-  zIndex?: number  default=1100  [private]
 
 emits
   on-open-change(...args: any[])  [private]
@@ -42,6 +41,7 @@ computed
   contextButtonClass: any  [private]
   contextClass: any  [private]
   contextMenuClass: any  [private]
+  menuFloatingUiOptions: any  [private]
   menuStyles: any  [private]
 
 methods

@@ -3,7 +3,6 @@ title: Project media thumbnails on read and paginate DAL indexing by UUID
 date: 2026-11-25
 area: framework
 tags: [dal, media, thumbnails, indexing, opensearch]
-status: proposed
 ---
 
 ## Context
@@ -16,8 +15,8 @@ Admin OpenSearch indexing has a separate cost even though its producer only need
 For entities without an auto-increment field, the stock DAL iterator uses offset pagination, so later pages revisit all earlier entries.
 Changing the pagination fixes that repeated work, but scanning the clustered primary index still means traversing pages that store media rows.
 
-On a 51.3-million-media fixture, the media tablespace occupied 624 GiB and InnoDB attributed 598 GiB to its clustered primary index.
-These figures include the full rows and their storage overhead.
+On a 51.3-million-media fixture, the media tablespace occupied 624 GiB and InnoDB attributed 598 GiB to its clustered primary index, including 522 GiB of leaf pages.
+The serialized thumbnail collections alone accounted for 242 GiB of row payload.
 Stock admin indexing examined 62.59 billion entries to produce its first 11.19 million documents in two hours.
 The DAL media indexer processed 1.13 million media in one hour.
 
@@ -51,12 +50,35 @@ Admin OpenSearch still builds its own media search documents.
 
 For a definition with a single UUID primary key named `id` and no auto-increment field, read the first page in ID order and subsequent pages with `WHERE id > :lastId ORDER BY id LIMIT :limit`.
 Apply the range predicate only once a real cursor exists.
+At a fixed page size, advancing past the last ID makes the number of index entries traversed approximately linear in the catalog size.
+With the blobs populated, this removed the growing OFFSET cost but the unhinted cursor still had to traverse the wide primary index and produced only 4.43 million admin documents in 30 minutes.
 Definitions already using an auto-increment cursor keep it, and composite keys retain their existing iteration strategy.
 
 Allow eligible definitions to name an optional covering index on the DAL `PrimaryKey` flag for ID iteration.
-Media opts in with a secondary index on `media(id)`: its leaf entries provide everything an ID page needs without carrying the other media columns.
+Media opts in with a secondary index on `media(id)` whose leaf entries supply everything an ID page needs.
 The iterator can still use the primary key when the secondary index is unavailable.
 Other UUID-keyed definitions gain cursor pagination without having to add an index.
+
+### Clear the thumbnail column before building the iteration index
+
+Once the projection serves reads and old workers have stopped writing serialized collections, set existing `thumbnails_ro` values to NULL in batches of 1,000 in the regular 6.7 migration.
+Waiting for the destructive column drop would leave shops paying the scan cost of the old rows in the meantime.
+On XL, an instant drop took 0.6 seconds and left the 522 GiB primary leaf footprint unchanged.
+After explicitly clearing the restored blobs and allowing InnoDB purge to catch up, the reported primary leaf footprint was 39.3 GiB.
+The tablespace file remained about 624 GiB, so the improved scan speed did not depend on returning disk space to the filesystem.
+
+Build the covering index after this cleanup.
+With the blobs still populated, an earlier run using the covering index finished in 46m 15s through queue drain.
+Even with smaller clustered rows, the 1.20 GiB secondary index gives the count and UUID page queries a much narrower tree to scan.
+Both cleared-table runs below indexed all 51,300,522 documents with 20 workers and zero failed messages or shards.
+
+| Cleared XL table | Admin OpenSearch producer | Start through queue drain |
+| --- | ---: | ---: |
+| UUID cursor, no dedicated index | 18m 24s | 18m 39s |
+| UUID cursor using the covering index | 3m 55s | 6m 10s |
+
+Clearing the column and adding the covering index therefore address different costs.
+The cleanup makes existing rows cheaper to traverse, and the covering index lets ID-only queries bypass those rows entirely.
 
 ### Alternative considered — an auto-increment column on media
 
@@ -74,13 +96,11 @@ Using the existing key solves pagination once across eligible definitions and le
   On the XL fixture, warm 24-product listing responses had medians of 538 ms with the BLOB and 543 ms with the projection.
   First visits measured 893 ms and 923 ms respectively.
   The projection and explicit association produced matching thumbnail URLs.
-- **Storage and migration.** Dropping the column removes the duplicate representation from the schema.
-  On the fixture an instant drop took 0.6 seconds and left the physical tablespace size unchanged.
-  Reclaiming that space requires a separate table rebuild.
-  The covering index also costs storage and adds work on insert and delete.
-  With the BLOB still present it occupied 1.19 GiB and took 89m 37s to build.
-- **Indexing.** The patched UUID cursor and covering index together completed all 51.3 million admin documents in 46m 15s including queue drain, with the BLOB still present.
-  This measures the combined configuration and leaves the incremental benefit of the covering index after physical compaction as a separate measurement. [Indexing benchmark](https://github.com/shopware/shopware/issues/23422)
+- **Upgrade cost.** Clearing the XL fixture took 6h 20m including batch-size experiments, so large shops should budget a maintenance window for the 6.7 migration.
+  Building the secondary index took 89m 37s with populated blobs, 92m 40s after an instant drop with physically unchanged rows, and 2m 00s after clearing and purge.
+  Although cleanup made the index build about 45 times faster, cleanup plus build took about 6h 22m.
+  The return on that one-time cost is cheaper recurring scans and retirement of the DAL thumbnail rewrite.
+  The secondary index also consumes storage and adds work on insert and delete.
 - **Rollout.** Keep `MediaIndexer` callable as a deprecated no-op in 6.7.
   Deprecate `MediaIndexerEvent` and stop dispatching it from core.
   The 6.8 destructive migration drops the BLOB, and workers acknowledge outstanding iteration messages for the removed media indexer through the 6.8 transition.

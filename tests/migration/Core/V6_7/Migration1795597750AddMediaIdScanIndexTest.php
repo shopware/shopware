@@ -37,6 +37,7 @@ class Migration1795597750AddMediaIdScanIndexTest extends TestCase
             $before = $factory->createIterator(MediaDefinition::ENTITY_NAME, limit: 2);
             $expectedCount = $before->fetchCount();
             $expectedIds = $before->fetch();
+            $expectedNextIds = $before->fetch();
             static::assertStringNotContainsString('FORCE INDEX', $before->getQuery()->getSQL());
         } finally {
             $migration->update($connection);
@@ -52,7 +53,8 @@ class Migration1795597750AddMediaIdScanIndexTest extends TestCase
         static::assertSame($expectedCount, $after->fetchCount());
         static::assertSame($expectedIds, $after->fetch());
 
-        $plan = $connection->fetchAssociative('EXPLAIN ' . $after->getQuery()->getSQL());
+        $query = $after->getQuery();
+        $plan = $connection->fetchAssociative('EXPLAIN ' . $query->getSQL(), $query->getParameters(), $query->getParameterTypes());
         static::assertIsArray($plan);
         static::assertSame('idx_media_id_only', $plan['key']);
         static::assertStringContainsString('Using index', $plan['Extra']);
@@ -61,8 +63,8 @@ class Migration1795597750AddMediaIdScanIndexTest extends TestCase
         $maria = $connection->getDatabasePlatform() instanceof MariaDBPlatform;
         $connection->executeStatement('ALTER TABLE media ALTER INDEX idx_media_id_only ' . ($maria ? 'IGNORED' : 'INVISIBLE'));
         try {
-            $after->getQuery()->setFirstResult(0);
-            static::assertSame($expectedIds, $after->fetch());
+            static::assertSame($expectedNextIds, $after->fetch());
+            static::assertStringNotContainsString('FORCE INDEX', $after->getQuery()->getSQL());
         } finally {
             $connection->executeStatement('ALTER TABLE media ALTER INDEX idx_media_id_only ' . ($maria ? 'NOT IGNORED' : 'VISIBLE'));
         }

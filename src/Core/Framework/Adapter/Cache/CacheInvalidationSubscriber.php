@@ -18,6 +18,7 @@ use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
+use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -25,6 +26,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
@@ -41,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -94,6 +98,17 @@ class CacheInvalidationSubscriber
         }
 
         $this->cacheInvalidator->invalidate([InitialStateIdLoader::CACHE_KEY], true);
+    }
+
+    public function invalidateSearchConfig(EntityWrittenContainerEvent $event): void
+    {
+        if (!$event->getPrimaryKeys(ProductSearchConfigDefinition::ENTITY_NAME)
+            && !$event->getPrimaryKeys(ProductSearchConfigFieldDefinition::ENTITY_NAME)
+        ) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate([CachedSearchConfigLoader::CACHE_KEY], true);
     }
 
     public function invalidateSitemap(SitemapGeneratedEvent $event): void
@@ -379,7 +394,18 @@ class CacheInvalidationSubscriber
         InvalidateMediaCache::dispatch($this->bus, $mediaIds, $context);
     }
 
-    public function invalidateMedia(InvalidateMediaCache $message): void
+    /**
+     * @deprecated tag:v6.8.0 - Use handleInvalidateMediaCache() instead.
+     */
+    public function invalidateMedia(MediaIndexerEvent $event): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Use handleInvalidateMediaCache() instead.');
+
+        $mediaIds = Feature::silent('v6.8.0.0', static fn () => $event->getIds());
+        $this->handleInvalidateMediaCache(new InvalidateMediaCache($mediaIds));
+    }
+
+    public function handleInvalidateMediaCache(InvalidateMediaCache $message): void
     {
         /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
         $productIds = $this->connection->fetchAllAssociative(

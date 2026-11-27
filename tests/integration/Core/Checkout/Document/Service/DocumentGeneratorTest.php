@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -40,6 +41,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -819,6 +821,86 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($media);
     }
 
+    public function testReadDocumentInAFormatItIsNotGeneratedInKeepsItsFile(): void
+    {
+        $operation = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, ['fileTypes' => [PdfRenderer::FILE_EXTENSION]]);
+
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        static::assertNotNull($invoiceStruct);
+        static::assertNotNull($invoiceStruct->getMediaId());
+        static::assertNull($invoiceStruct->getA11yMediaId());
+
+        $htmlDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context, $invoiceStruct->getDeepLinkCode(), HtmlRenderer::FILE_EXTENSION);
+
+        static::assertNull($htmlDocument);
+
+        $document = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($document);
+        static::assertSame($invoiceStruct->getMediaId(), $document->getDocumentMediaFileId());
+        static::assertNull($document->getDocumentA11yMediaFileId());
+        static::assertSame($invoiceStruct->getDeepLinkCode(), $document->getDeepLinkCode());
+
+        $pdfDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context, $invoiceStruct->getDeepLinkCode(), PdfRenderer::FILE_EXTENSION);
+
+        static::assertInstanceOf(RenderedDocument::class, $pdfDocument);
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $pdfDocument->getContentType());
+    }
+
+    public function testReadDocumentGeneratesOnlyTheMissingFile(): void
+    {
+        $operation = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, ['fileTypes' => [PdfRenderer::FILE_EXTENSION, HtmlRenderer::FILE_EXTENSION]]);
+
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        static::assertNotNull($invoiceStruct);
+        $mediaId = $invoiceStruct->getMediaId();
+        static::assertNotNull($mediaId);
+        $a11yMediaId = $invoiceStruct->getA11yMediaId();
+        static::assertNotNull($a11yMediaId);
+
+        $storedDocument = $this->removePdfAndStoreOutdatedConfig($invoiceStruct, $mediaId);
+        $generatedOrderVersionIds = $this->collectGeneratedOrderVersionIds();
+
+        $pdfDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context, $invoiceStruct->getDeepLinkCode(), PdfRenderer::FILE_EXTENSION);
+
+        static::assertInstanceOf(RenderedDocument::class, $pdfDocument);
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $pdfDocument->getContentType());
+
+        $document = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($document);
+        static::assertNotNull($document->getDocumentMediaFileId());
+        static::assertSame($a11yMediaId, $document->getDocumentA11yMediaFileId());
+        static::assertSame($invoiceStruct->getDeepLinkCode(), $document->getDeepLinkCode());
+        static::assertSame($storedDocument->getOrderVersionId(), $document->getOrderVersionId());
+        static::assertSame($storedDocument->getConfig(), $document->getConfig());
+        static::assertSame([$document->getOrderVersionId()], $generatedOrderVersionIds->getArrayCopy());
+    }
+
+    public function testReadDocumentWithoutAnyStoredFileTakesTheNewOrderVersionAndConfig(): void
+    {
+        $operation = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, ['fileTypes' => [PdfRenderer::FILE_EXTENSION]]);
+
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        static::assertNotNull($invoiceStruct);
+        $mediaId = $invoiceStruct->getMediaId();
+        static::assertNotNull($mediaId);
+        static::assertNull($invoiceStruct->getA11yMediaId());
+
+        $storedDocument = $this->removePdfAndStoreOutdatedConfig($invoiceStruct, $mediaId);
+        $generatedOrderVersionIds = $this->collectGeneratedOrderVersionIds();
+
+        $pdfDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context, $invoiceStruct->getDeepLinkCode(), PdfRenderer::FILE_EXTENSION);
+
+        static::assertInstanceOf(RenderedDocument::class, $pdfDocument);
+
+        $document = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($document);
+        static::assertNotNull($document->getDocumentMediaFileId());
+        static::assertSame($invoiceStruct->getDeepLinkCode(), $document->getDeepLinkCode());
+        static::assertNotSame($storedDocument->getOrderVersionId(), $document->getOrderVersionId());
+        static::assertFalse($document->getConfig()['intraCommunityDelivery']);
+        static::assertSame([$document->getOrderVersionId()], $generatedOrderVersionIds->getArrayCopy());
+    }
+
     #[DataProvider('readDocumentDataProvider')]
     public function testReadDocument(bool $withMedia, bool $static): void
     {
@@ -1032,6 +1114,44 @@ class DocumentGeneratorTest extends TestCase
         static::assertTrue($fileSystem->has($filePath));
 
         static::assertNotNull($this->documentGenerator->readDocument($document->getId(), $this->context));
+    }
+
+    /**
+     * Removes the document's PDF, as a media cleanup would, and stores a config value its next render computes differently.
+     */
+    private function removePdfAndStoreOutdatedConfig(DocumentIdStruct $invoiceStruct, string $mediaId): DocumentEntity
+    {
+        $document = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($document);
+
+        $this->documentRepository->update([[
+            'id' => $invoiceStruct->getId(),
+            'documentMediaFileId' => null,
+            'config' => [...$document->getConfig(), 'intraCommunityDelivery' => true],
+        ]], $this->context);
+        static::getContainer()->get('media.repository')->delete([['id' => $mediaId]], $this->context);
+
+        $document = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($document);
+
+        return $document;
+    }
+
+    /**
+     * @return \ArrayObject<int, string> the order version id of every DocumentGeneratedEvent dispatched from now on
+     */
+    private function collectGeneratedOrderVersionIds(): \ArrayObject
+    {
+        /** @var \ArrayObject<int, string> $orderVersionIds */
+        $orderVersionIds = new \ArrayObject();
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            DocumentGeneratedEvent::class,
+            static function (DocumentGeneratedEvent $event) use ($orderVersionIds): void {
+                $orderVersionIds->append($event->getOrderVersionId());
+            },
+        );
+
+        return $orderVersionIds;
     }
 
     private function createDocumentWithFile(): DocumentEntity

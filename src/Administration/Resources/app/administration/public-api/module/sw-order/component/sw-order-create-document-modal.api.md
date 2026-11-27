@@ -67,4 +67,5 @@ methods
 
 blocks
   sw_order_create_document_modal  [private]
+    sw_order_create_document_modal_type_specific_fields_additional  [private]
 ```

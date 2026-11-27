@@ -223,6 +223,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateSalutationRoute', 'priority' => 2016])
         ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateInitialStateIdLoader', 'priority' => 2017])
         ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateCountryStateRoute', 'priority' => 2018])
+        ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateSearchConfig', 'priority' => 2019])
         ->tag('kernel.event_listener', ['event' => RuleIndexerEvent::class, 'method' => 'invalidateRules', 'priority' => 2000])
         ->tag('kernel.event_listener', ['event' => PluginPostInstallEvent::class, 'method' => 'invalidateRules', 'priority' => 2000])
         ->tag('kernel.event_listener', ['event' => PluginPostInstallEvent::class, 'method' => 'invalidateConfig', 'priority' => 2001])
@@ -235,7 +236,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_listener', ['event' => SystemConfigChangedHook::class, 'method' => 'invalidateConfigKey', 'priority' => 2000])
         ->tag('kernel.event_listener', ['event' => SitemapGeneratedEvent::class, 'method' => 'invalidateSitemap', 'priority' => 2000])
         ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'onMediaWritten', 'priority' => 2000])
-        ->tag('messenger.message_handler', ['method' => 'invalidateMedia']);
+        ->tag('messenger.message_handler', ['method' => 'handleInvalidateMediaCache']);
 
     $services->set(CacheTagCollector::class)
         ->args([

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Migration\V6_7\Migration1795618535ClearMediaThumbnailsRo;
 use Shopware\Core\Migration\V6_8\Migration1795594799RemoveMediaThumbnailsRo;
 
 /**
@@ -38,6 +39,7 @@ class Migration1795594799RemoveMediaThumbnailsRoTest extends TestCase
         $migration = new Migration1795594799RemoveMediaThumbnailsRo();
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
+        (new Migration1795618535ClearMediaThumbnailsRo())->update($this->connection);
 
         static::assertFalse(TableHelper::columnExists($this->connection, 'media', 'thumbnails_ro'));
     }

@@ -21,3 +21,13 @@ export function setDocumentMedia(document: Entity<'product_document'>, media: En
         selectedMedia.delete(document);
     }
 }
+
+/** @private */
+export function getSavedDocumentValues(document: Entity<'product_document'>): {
+    mediaId?: string | null;
+    title?: string | null;
+} {
+    const values = document.isNew() ? document.translated : document.getOrigin().translated;
+
+    return { mediaId: values?.mediaId, title: values?.title };
+}

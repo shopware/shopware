@@ -249,19 +249,15 @@
         "alertTitle": "Diese Trigger/Flows könnten ausgelöst werden:",
         "triggeredFlows": {
           "orderDeliveries": {
-            "key": "orderDeliveries",
             "label": "Lieferstatusänderung"
           },
           "orderTransactions": {
-            "key": "orderTransactions",
             "label": "Zahlungsstatusänderung"
           },
           "orders": {
-            "key": "orders",
             "label": "Bestellstatusänderung"
           },
           "requestedCustomerGroupId": {
-            "key": "requestedCustomerGroupId",
             "label": "Kundengruppen-Registrierungsanfrage"
           }
         },

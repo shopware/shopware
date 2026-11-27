@@ -162,7 +162,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
-    // Filled by the bundle that owns the section assignment tables; the Storefront sets header and footer.
+    // Filled by the bundle that owns the section assignment tables.
     $containerConfigurator->parameters()
         ->set('shopware.content_system.section_assignment_entities', []);
 
@@ -407,7 +407,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
         ]);
 
-    // Domain-Aware Layout Resolution (Header/Footer)
+    // Domain-Aware Layout Resolution (section sources)
     $services->set(DomainAwareLayoutResolver::class);
 
     $services->set(NavigationAliasResolver::class);

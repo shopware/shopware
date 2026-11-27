@@ -56,6 +56,7 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGe
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
@@ -80,6 +81,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {
@@ -281,8 +283,8 @@ class InfoControllerTest extends TestCase
         $rootSourceRegistry->method('knownRootSources')->willReturn(['category', 'none']);
 
         $mappingCandidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
-        $mappingCandidateRegistry->method('forRootSource')->willReturnCallback(
-            static fn (string $rootSource): array => $rootSource === 'category' ? [
+        $mappingCandidateRegistry->method('forRootSource')->willReturnMap([
+            ['category', [
                 'category.name' => new MappingCandidate(
                     path: 'category.name',
                     label: 'sw-experience-studio.mapping.category.name.label',
@@ -290,8 +292,9 @@ class InfoControllerTest extends TestCase
                     group: 'basic',
                     valueType: 'string',
                 ),
-            ] : []
-        );
+            ]],
+            ['none', []],
+        ]);
 
         $controller = $this->createController(
             rootSourceRegistry: $rootSourceRegistry,
@@ -372,7 +375,7 @@ class InfoControllerTest extends TestCase
         $this->shopIdProvider->expects($this->never())->method('getShopId');
 
         $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
-        $rootSourceRegistry->method('knownRootSources')->willReturn(['product', 'header', 'none']);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['product', 'none']);
         $rootSourceRegistry->method('entityRootSources')->willReturn(['product']);
         $rootSourceRegistry->method('resolve')->willReturnCallback(
             static fn (string $rootSource): array => $rootSource === 'product' ? [new ProvidedContext(
@@ -404,11 +407,6 @@ class InfoControllerTest extends TestCase
                         'contextType' => 'single',
                         'distribution' => 'broadcast',
                     ]],
-                ],
-                [
-                    'id' => 'header',
-                    'kind' => 'section',
-                    'providedContext' => [],
                 ],
                 [
                     'id' => 'none',

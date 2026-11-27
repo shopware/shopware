@@ -24,7 +24,7 @@ Products, Categories, and Landing Pages can render directly using ContentSystem 
 - `product_content_layout` - Product layout assignments
 - `category_content_layout` - Category layout assignments
 - `landing_page_content_layout` - Landing page layout assignments
-- Repository service ids: `{entity}_content_layout.repository` (Core), `header_content_layout.repository` and `footer_content_layout.repository` (Storefront)
+- Repository service ids: `{entity}_content_layout.repository`
 
 ## Assignment Structure
 

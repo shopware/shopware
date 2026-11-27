@@ -129,7 +129,7 @@ class PersistedLayoutMutator
 
     /**
      * Re-resolves the mutated tree against its root source, initialized from the locked layout and preserved by
-     * every transform. A bound source supplies a list ([] for none/header/footer), enabling binding-scope checks.
+     * every transform. A bound source supplies a list ([] for none), enabling binding-scope checks.
      *
      * A de-registered source is rejected by ContentLayoutWriteValidator during update(), before commit;
      * this later lookup therefore resolves the same admitted root source carried by the mutated tree.

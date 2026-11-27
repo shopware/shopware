@@ -772,9 +772,7 @@ class InfoControllerTest extends TestCase
             static::assertStringStartsWith('category.', (string) $path);
         }
 
-        foreach (['header', 'footer', 'none'] as $rootSource) {
-            static::assertSame([], $data['mappingCandidates'][$rootSource]);
-        }
+        static::assertSame([], $data['mappingCandidates']['none']);
     }
 
     public function testContentSystemMappingCandidatesWithOnlyContentLayoutReadPermission(): void
@@ -890,10 +888,6 @@ class InfoControllerTest extends TestCase
                 'distribution' => 'broadcast',
             ],
         ], $byId['product']['providedContext']);
-
-        static::assertArrayHasKey('header', $byId);
-        static::assertSame('section', $byId['header']['kind']);
-        static::assertSame([], $byId['header']['providedContext']);
 
         static::assertArrayHasKey('none', $byId);
         static::assertSame('none', $byId['none']['kind']);

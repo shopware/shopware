@@ -20,11 +20,12 @@ class ContentRouteCompilerPassTest extends TestCase
     /**
      * Core registers exactly one section resolver, `main`, and all four output formats, so the
      * pass generates four store-api routes. The names below are written out by hand; adding or
-     * removing a `content_system.section_resolver` or `content_system.output_format` tag in
+     * removing a `content_system.section_resolver` tag for the `main` section, or a
+     * `content_system.output_format` tag, in
      * src/Core/Framework/DependencyInjection/content-system.php fails this test.
      *
-     * The Storefront's `header` and `footer` resolvers live in the Storefront's own DI file and
-     * are pinned by its own test, so a Core-only installation still passes.
+     * Resolvers for other sections are registered by the bundle that ships them, so this test
+     * pins the routes of the `main` section only.
      */
     #[TestDox('generates exactly the four pinned store-api routes for the main section')]
     public function testGeneratesThePinnedMainSectionRoutes(): void

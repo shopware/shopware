@@ -40,7 +40,7 @@
                                                     },
                                                     "providedContext": {
                                                         "type": "array",
-                                                        "description": "The root-ambient context entries this source supplies. An empty set serializes as [], never {}. The \"none\" source supplies no entries, and the header and footer sections shipped with the platform supply none either.",
+                                                        "description": "The root-ambient context entries this source supplies. An empty set serializes as [], never {}. The \"none\" source supplies no entries.",
                                                         "items": {
                                                             "type": "object",
                                                             "required": ["contextKey", "fqcn", "contextType", "distribution"],

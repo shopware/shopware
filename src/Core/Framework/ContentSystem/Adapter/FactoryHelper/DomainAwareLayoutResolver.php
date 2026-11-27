@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * Resolves header/footer content layout assignments with domain-aware priority.
+ * Resolves section content layout assignments with domain-aware priority.
  *
  * Resolution priority (highest to lowest):
  * 1. Domain + SalesChannel (most specific)

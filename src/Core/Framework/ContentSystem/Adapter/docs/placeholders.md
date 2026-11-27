@@ -11,7 +11,7 @@ Use these in element properties and data requirements. See [Product Detail Page 
 
 A query parameter becomes a placeholder only when the specification source that renders the page declares it in `placeholderQueryParameters()`.
 The product source declares `referrerCategoryId`, which the breadcrumb uses to build its path through the category the visitor came from.
-The category, landing page, header and footer sources declare none.
+The category and landing page sources declare none.
 
 `RenderingSpecificationFactory` adds the declared parameters for every source, so a source derives its own placeholder values from the route alone.
 Only scalar query values become placeholders.

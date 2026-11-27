@@ -19,7 +19,7 @@
                     },
                     "rootSource": {
                         "type": ["string", "null"],
-                        "description": "Optional root source the draft is resolved against for resolvability. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it absent or empty, intrinsic well-formedness is evaluated and inline tokens in opted-in properties that require a source report `invalid_mapping`; whole-field mappings and other binding checks remain unjudged.",
+                        "description": "Optional root source the draft is resolved against for resolvability. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section key (an id of kind `section` from `GET /api/_info/content-system-root-sources.json`), or `none`. With it absent or empty, intrinsic well-formedness is evaluated and inline tokens in opted-in properties that require a source report `invalid_mapping`; whole-field mappings and other binding checks remain unjudged.",
                         "default": null,
                         "example": "product"
                     }
@@ -887,7 +887,7 @@
                     },
                     "rootSource": {
                         "type": ["string", "null"],
-                        "description": "Optional root source the draft is resolved against. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. Without a root source, intrinsic well-formedness and inline tokens requiring a source are checked; whole-field mappings and other binding checks remain unjudged.",
+                        "description": "Optional root source the draft is resolved against. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section key (an id of kind `section` from `GET /api/_info/content-system-root-sources.json`), or `none`. Without a root source, intrinsic well-formedness and inline tokens requiring a source are checked; whole-field mappings and other binding checks remain unjudged.",
                         "default": null,
                         "example": "product"
                     }

@@ -30,7 +30,7 @@ The optional `rootSource` selects a registered source through `Adapter/RootSourc
 | Field        | Required | Notes                                                                                                                                                                                                                         |
 |--------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `layout`     | no       | Raw element-tree array; decoded through the same path as a stored layout (`Layout/Codec/StoredElementCodec::decode()`). Defaults to an empty tree when omitted.                                                          |
-| `rootSource` | no       | The root source whose context the draft is checked against: an entity type (`content-system-entity-types.json` value), a section id (`header`, `footer`), or `none`. Resolved through `Adapter/RootSourceRegistry`. An unknown non-empty value is rejected with 400 (`unknownRootSource`). |
+| `rootSource` | no       | The root source whose context the draft is checked against: an entity type (a value from `content-system-entity-types.json`), a section key (an id of kind `section` from `GET /api/_info/content-system-root-sources.json`), or `none`. Resolved through `Adapter/RootSourceRegistry`. An unknown non-empty value is rejected with 400 (`unknownRootSource`). |
 
 ## Errors
 

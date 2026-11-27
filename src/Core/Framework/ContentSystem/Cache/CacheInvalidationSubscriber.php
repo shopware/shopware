@@ -37,8 +37,8 @@ class CacheInvalidationSubscriber
     private readonly array $sectionAssignments;
 
     /**
-     * Header and footer live in the Storefront bundle, so their table names arrive as a container parameter
-     * instead of an import; a Core-only installation passes an empty map.
+     * Section assignment tables are owned by the bundle that ships the section, so their table names arrive as a
+     * container parameter instead of an import; with no such bundle the map is empty.
      *
      * @param array<string, string> $sectionAssignmentEntities assignment table name => ContentSection value
      */

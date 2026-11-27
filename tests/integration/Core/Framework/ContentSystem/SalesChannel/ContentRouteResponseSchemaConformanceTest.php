@@ -26,8 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Validates the encoded body each content route serves against the OpenAPI schema that same route's entry
- * declares for its 200 response, over all twelve generated routes: four output formats across the main,
- * header and footer section families.
+ * declares for its 200 response, over the four generated routes of the main section, one per output format.
  *
  * The schema is taken from the assembled Store API document rather than from a fragment file on disk: the
  * `$ref` comes off the route's own `responses.200.content.application/json.schema` entry, and the component it
@@ -36,15 +35,12 @@ use Symfony\Component\HttpFoundation\Response;
  * reachable show up here. The request URL is derived from the same path key, so the body validated is the body
  * of the entry that declared the schema.
  *
- * The three families reach their layout by different resolution and therefore need different fixtures. Main
- * resolves by path, so its routes carry a `{path}` parameter and its layout is bound to a category. Header and
- * footer carry no path at all and resolve by sales channel through `DomainAwareLayoutResolver`, so their
- * layouts are bound by a `header_content_layout` / `footer_content_layout` assignment scoped to the browser's
- * own sales channel — the resolver's second tier, domain null and channel set. Nothing about that resolution is
- * stubbed: each row asserts the served page `id` is the fixture's own layout, so a route that resolved
- * something else fails rather than validating a body this test never built.
+ * The main section resolves by path, so its routes carry a `{path}` parameter and its layout is bound to a
+ * category. Nothing about that resolution is stubbed: each row asserts the served page `id` is the fixture's
+ * own layout, so a route that resolved something else fails rather than validating a body this test never
+ * built.
  *
- * Two fixtures per family, because the empty cases and the populated ones cannot be the same layout: a page
+ * Two fixtures, because the empty cases and the populated ones cannot be the same layout: a page
  * whose `data` and `assignments` maps are empty is a page on which no element resolved anything, which leaves
  * no populated tree to validate. `createPopulatedLayout()` carries nested slots, element style and hydrated as
  * well as primitive property values; `createEmptyCaseLayout()` carries a single element with no properties, no
@@ -65,29 +61,6 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
      * pointer taken off a route entry resolves against it verbatim.
      */
     private const SCHEMA_DOCUMENT_URI = 'https://schema.shopware.test/store-api.json';
-
-    private const SECTION_MAIN = 'main';
-
-    private const SECTION_HEADER = 'header';
-
-    private const SECTION_FOOTER = 'footer';
-
-    /**
-     * The root source each section's layout must be written under. The header and footer assignment gate is a
-     * type-match against the section id, so a layout bound to one of those sections carries the section id
-     * itself as its root source rather than an entity type.
-     */
-    private const ROOT_SOURCE_BY_SECTION = [
-        self::SECTION_MAIN => 'category',
-        self::SECTION_HEADER => 'header',
-        self::SECTION_FOOTER => 'footer',
-    ];
-
-    private const ASSIGNMENT_REPOSITORY_BY_SECTION = [
-        self::SECTION_MAIN => 'category_content_layout.repository',
-        self::SECTION_HEADER => 'header_content_layout.repository',
-        self::SECTION_FOOTER => 'footer_content_layout.repository',
-    ];
 
     private const LAYOUT_NAME = 'content-route-schema-conformance';
 
@@ -122,34 +95,23 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
     }
 
     /**
-     * One case per generated content route: the section that resolves it, and the path key its schema hangs
-     * off in the assembled document.
+     * One case per generated content route: the path key its schema hangs off in the assembled document.
      *
-     * @return \Generator<string, array{string, string}>
+     * @return \Generator<string, array{string}>
      */
     public static function routeProvider(): \Generator
     {
-        yield 'main full, ContentPage' => [self::SECTION_MAIN, '/content/{path}'];
-        yield 'main decomposed, ContentDecomposedPage' => [self::SECTION_MAIN, '/content-decomposed/{path}'];
-        yield 'main skeleton, ContentSkeletonPage' => [self::SECTION_MAIN, '/content-skeleton/{path}'];
-        yield 'main data, ContentDataPage' => [self::SECTION_MAIN, '/content-data/{path}'];
-
-        yield 'header full, ContentPage' => [self::SECTION_HEADER, '/content-header'];
-        yield 'header decomposed, ContentDecomposedPage' => [self::SECTION_HEADER, '/content-header-decomposed'];
-        yield 'header skeleton, ContentSkeletonPage' => [self::SECTION_HEADER, '/content-header-skeleton'];
-        yield 'header data, ContentDataPage' => [self::SECTION_HEADER, '/content-header-data'];
-
-        yield 'footer full, ContentPage' => [self::SECTION_FOOTER, '/content-footer'];
-        yield 'footer decomposed, ContentDecomposedPage' => [self::SECTION_FOOTER, '/content-footer-decomposed'];
-        yield 'footer skeleton, ContentSkeletonPage' => [self::SECTION_FOOTER, '/content-footer-skeleton'];
-        yield 'footer data, ContentDataPage' => [self::SECTION_FOOTER, '/content-footer-data'];
+        yield 'main full, ContentPage' => ['/content/{path}'];
+        yield 'main decomposed, ContentDecomposedPage' => ['/content-decomposed/{path}'];
+        yield 'main skeleton, ContentSkeletonPage' => ['/content-skeleton/{path}'];
+        yield 'main data, ContentDataPage' => ['/content-data/{path}'];
     }
 
     #[DataProvider('routeProvider')]
     #[TestDox('validates a populated body against the schema its own route entry declares')]
-    public function testPopulatedBodyValidatesAgainstTheSchemaItsRouteDeclares(string $section, string $schemaPath): void
+    public function testPopulatedBodyValidatesAgainstTheSchemaItsRouteDeclares(string $schemaPath): void
     {
-        $this->createPopulatedLayout($section);
+        $this->createPopulatedLayout();
 
         $body = $this->servedBody($schemaPath);
 
@@ -162,9 +124,9 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
 
     #[DataProvider('routeProvider')]
     #[TestDox('validates an empty-case body against the schema its own route entry declares')]
-    public function testEmptyCaseBodyValidatesAgainstTheSchemaItsRouteDeclares(string $section, string $schemaPath): void
+    public function testEmptyCaseBodyValidatesAgainstTheSchemaItsRouteDeclares(string $schemaPath): void
     {
-        $this->createEmptyCaseLayout($section);
+        $this->createEmptyCaseLayout();
 
         $body = $this->servedBody($schemaPath);
 
@@ -175,15 +137,10 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
         );
     }
 
-    /**
-     * The element-level empty shape is a property of the shared encoders rather than of a section: one
-     * `ContentRoute` class serves every section, and the encoding listener that replaces the body selects by
-     * response class alone. Pinned once, over the main section.
-     */
     #[TestDox('serves the empty-case element with an empty property map and no slots or style key at all')]
     public function testTheEmptyCaseElementReallyCarriesTheElementLevelEmptyCase(): void
     {
-        $this->createEmptyCaseLayout(self::SECTION_MAIN);
+        $this->createEmptyCaseLayout();
 
         $elements = $this->decodeAsArray($this->requestBody($this->requestUri('/content/{path}')))['elements'] ?? null;
         static::assertIsArray($elements);
@@ -200,7 +157,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
     #[TestDox('serves the empty-case page with an empty data map and an empty assignments map')]
     public function testTheEmptyCasePageReallyCarriesThePageLevelEmptyCase(): void
     {
-        $this->createEmptyCaseLayout(self::SECTION_MAIN);
+        $this->createEmptyCaseLayout();
 
         $body = $this->decodeAsArray($this->requestBody($this->requestUri('/content-data/{path}')));
 
@@ -215,7 +172,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
     #[TestDox('names the JSON pointer and the schema keyword when a member the declared schema requires is missing')]
     public function testValidationNamesThePointerAndKeywordOfAMissingRequiredMember(): void
     {
-        $this->createPopulatedLayout(self::SECTION_MAIN);
+        $this->createPopulatedLayout();
 
         $members = get_object_vars($this->servedBody('/content/{path}'));
 
@@ -229,9 +186,8 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
 
     /**
      * The decoded body of the route the path key names, proven to be the fixture's own page before anything is
-     * asserted about its shape. The header and footer families reach their layout through section resolution
-     * rather than through the URL, so without this a route resolving some other assignment would validate a
-     * body this test never built and the row would pass for the wrong reason.
+     * asserted about its shape. Without this a route resolving some other assignment would validate a body this
+     * test never built and the row would pass for the wrong reason.
      */
     private function servedBody(string $schemaPath): \stdClass
     {
@@ -241,7 +197,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
         static::assertSame(
             $this->ids->get('layout'),
             get_object_vars($body)['id'] ?? null,
-            \sprintf('"%s" must serve the layout this fixture bound to its section.', $schemaPath),
+            \sprintf('"%s" must serve the layout this fixture bound to its category.', $schemaPath),
         );
 
         return $body;
@@ -335,9 +291,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
     }
 
     /**
-     * Derived from the path key the schema hangs off, so the request and the schema cannot drift apart. Only
-     * the main family's keys carry `{path}`; the header and footer keys are already the whole route, so the
-     * replacement leaves them unchanged.
+     * Derived from the path key the schema hangs off, so the request and the schema cannot drift apart.
      */
     private function requestUri(string $schemaPath): string
     {
@@ -372,11 +326,11 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
      * media entity: every node carries at least one rendered property, so no element of this fixture stands in
      * for the empty case the other fixture exists to serve.
      */
-    private function createPopulatedLayout(string $section): void
+    private function createPopulatedLayout(): void
     {
         $this->createMedia();
 
-        $this->persistLayout($section, [[
+        $this->persistLayout([[
             'id' => $this->ids->get('root-grid'),
             'component' => 'Sw:Grid:Container',
             'properties' => [],
@@ -421,9 +375,9 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
      * on the translatable `Sw:Content:Text.text` is a 400 at the strict write, and that type declares no
      * other primitive.
      */
-    private function createEmptyCaseLayout(string $section): void
+    private function createEmptyCaseLayout(): void
     {
-        $this->persistLayout($section, [[
+        $this->persistLayout([[
             'id' => $this->ids->get('bare-element'),
             'component' => 'Sw:Product:QuantitySelector',
             'properties' => [],
@@ -433,7 +387,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
     /**
      * @param list<array<string, mixed>> $tree
      */
-    private function persistLayout(string $section, array $tree): void
+    private function persistLayout(array $tree): void
     {
         $this->createCategory();
 
@@ -441,34 +395,17 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
             $this->ids->get('layout'),
             self::LAYOUT_NAME,
             self::LAYOUT_VERSION,
-            self::ROOT_SOURCE_BY_SECTION[$section],
+            'category',
             $tree,
         );
 
-        $this->repository(self::ASSIGNMENT_REPOSITORY_BY_SECTION[$section])
-            ->create([$this->assignmentPayload($section)], Context::createDefaultContext());
-    }
-
-    /**
-     * Main binds its layout to the category the request path names. Header and footer carry no path, so their
-     * assignment is scoped to the browser's own sales channel with a null domain — the middle tier of the
-     * domain-aware resolution, reached by the real resolver rather than around it.
-     *
-     * @return array<string, mixed>
-     */
-    private function assignmentPayload(string $section): array
-    {
-        $browserScope = ['domainId' => null, 'salesChannelId' => $this->getSalesChannelApiSalesChannelId()];
-        $scopeBySection = [
-            self::SECTION_MAIN => ['categoryId' => $this->ids->get('category'), 'salesChannelId' => null],
-            self::SECTION_HEADER => $browserScope,
-            self::SECTION_FOOTER => $browserScope,
-        ];
-
-        return [
+        // Binds the layout to the category the request path names.
+        $this->repository('category_content_layout.repository')->create([[
             'id' => $this->ids->get('assignment'),
             'contentLayoutId' => $this->ids->get('layout'),
-        ] + $scopeBySection[$section];
+            'categoryId' => $this->ids->get('category'),
+            'salesChannelId' => null,
+        ]], Context::createDefaultContext());
     }
 
     private function createCategory(): void

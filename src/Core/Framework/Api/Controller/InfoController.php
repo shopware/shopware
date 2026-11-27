@@ -453,7 +453,7 @@ class InfoController extends AbstractController
 
     /**
      * "none" for the NoneSpecificationSource id, "entity" for an entity-type root source, "section" for the rest
-     * (the section keys header and footer).
+     * (the section keys of the registered section sources).
      */
     private function contentSystemRootSourceKind(string $rootSource): string
     {

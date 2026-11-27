@@ -111,6 +111,23 @@ Extensions have to be adjusted:
 - `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
   Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
 
+### Modules can declare child entities
+
+A module manifest can now list entities that belong to its `entity` and have no module of their own in `childEntities`.
+The media manager shows default folders of those child entities with the module's icon and color.
+
+```js
+Shopware.Module.register('swag-example', {
+    entity: 'swag_example',
+    childEntities: ['swag_example_attachment'],
+    // ...
+});
+```
+
+The Product module now lists `product_document` as a child entity.
+If two modules list the same child entity, the first registered module wins.
+The warning about it is only logged in development builds.
+
 ## Storefront
 
 ### Production Vite builds generate JavaScript SBOMs

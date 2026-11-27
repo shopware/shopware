@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -64,6 +65,35 @@ class ProductCategoryDenormalizerTest extends TestCase
             \count($categoryIds),
             $this->getCountRowsInProductCategoryTree($productFixture['variant-testable-product'], $categoryIds)
         );
+    }
+
+    public function testUpdateRemovesOnlyTheRemovedCategoryFromParentAndVariant(): void
+    {
+        ['products' => $productFixture, 'categories' => $categoryIds] = $this->prepareData();
+        [$keptCategoryId, $removedCategoryId] = $categoryIds;
+        $parentId = $productFixture['testable-product'];
+
+        $this->productRepository->update([
+            [
+                'id' => $parentId,
+                'categories' => \array_map(static fn (string $categoryId) => ['id' => $categoryId], $categoryIds),
+            ],
+        ], $this->context);
+
+        $withoutIndexing = Context::createDefaultContext();
+        $withoutIndexing->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        static::getContainer()->get('product_category.repository')->delete([
+            ['productId' => $parentId, 'categoryId' => $removedCategoryId],
+        ], $withoutIndexing);
+        static::assertSame(1, $this->getCountRowsInProductCategoryTree($parentId, [$removedCategoryId]));
+
+        static::getContainer()->get(ProductCategoryDenormalizer::class)->update([$parentId], $this->context);
+
+        foreach ([$parentId, $productFixture['variant-testable-product']] as $productId) {
+            static::assertSame([$keptCategoryId], $this->getProductCategoryList($productId));
+            static::assertSame(1, $this->getCountRowsInProductCategoryTree($productId, [$keptCategoryId]));
+            static::assertSame(0, $this->getCountRowsInProductCategoryTree($productId, [$removedCategoryId]));
+        }
     }
 
     public function testFullIndexIncludesParentCategoriesInTheProductCategoryTree(): void

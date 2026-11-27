@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
@@ -151,6 +152,7 @@ use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscribe
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -250,7 +252,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             param('shopware.product_documents.allowed_extensions'),
             param('shopware.product_documents.max_file_size'),
-            param('shopware.filesystem.allowed_extensions'),
+            service(MediaFileExtensionListProvider::class),
         ]);
 
     $services->set(ProductDocumentValidator::class)
@@ -371,6 +373,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('parameter_bag'),
+            service(CacheInvalidator::class),
         ])
         ->tag('kernel.event_subscriber');
 

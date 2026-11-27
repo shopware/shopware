@@ -112,7 +112,15 @@ export default {
             return this.repositoryFactory.create('cms_page');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the server re-indexes the products of a moved category
+         */
         productRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-tree.productRepository is deprecated. Will be removed, the server re-indexes the products of a moved category.',
+            );
+
             return this.repositoryFactory.create('product');
         },
     },
@@ -240,16 +248,22 @@ export default {
 
             this.syncSiblings({ parentId: newParentId }).then(() => {
                 if (oldParentId !== newParentId) {
-                    this.syncSiblings({ parentId: oldParentId }).then(() => {
-                        this.syncProducts(draggedItem.id);
-                    });
+                    this.syncSiblings({ parentId: oldParentId });
                 }
 
                 this.sortable = this.allowEdit;
             });
         }, 400),
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the server re-indexes the products of a moved category
+         */
         syncProducts(categoryId) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-tree.syncProducts() is deprecated. Will be removed, the server re-indexes the products of a moved category.',
+            );
+
             const criteria = new Criteria(1, 50);
             criteria.addFilter(
                 Criteria.multi('or', [
@@ -258,11 +272,22 @@ export default {
                 ]),
             );
 
-            return this.productRepository.iterateIds(criteria, this.indexProducts);
+            const productRepository = Shopware.Feature.silence('V6_8_0_0', () => this.productRepository);
+
+            return productRepository.iterateIds(criteria, this.indexProducts);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, the server re-indexes the products of a moved category
+         */
         indexProducts(ids) {
-            const headers = this.productRepository.buildHeaders();
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-tree.indexProducts() is deprecated. Will be removed, the server re-indexes the products of a moved category.',
+            );
+
+            const productRepository = Shopware.Feature.silence('V6_8_0_0', () => this.productRepository);
+            const headers = productRepository.buildHeaders();
 
             const initContainer = Shopware.Application.getContainer('init');
             const httpClient = initContainer.httpClient;

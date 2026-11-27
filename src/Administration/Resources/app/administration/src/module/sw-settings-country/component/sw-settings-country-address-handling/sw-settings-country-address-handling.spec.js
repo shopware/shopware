@@ -67,7 +67,8 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     </div>`,
         },
         'mt-floating-ui': {
-            template: '<div><slot /></div>',
+            props: ['isOpened'],
+            template: '<div><slot v-if="isOpened"></slot></div>',
         },
         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
         'sw-select-result': await wrapTestComponent('sw-select-result'),

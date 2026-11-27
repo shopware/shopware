@@ -126,6 +126,37 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
         expect(wrapper.vm.options).toHaveLength(2);
     });
 
+    it('should add the same setting again when an option is unselected and selected again', async () => {
+        const setting = { id: 'setting-1', optionId: 'option-1', option: { id: 'option-1', groupId: 'group-1' } };
+        const options = new EntityCollection(
+            '/product-configurator-setting',
+            'product_configurator_setting',
+            Shopware.Context.api,
+            null,
+            [setting],
+        );
+        await wrapper.setProps({
+            product: {
+                configuratorSettings: {
+                    entity: 'product_configurator_setting',
+                    source: '/product-configurator-setting',
+                },
+            },
+            options,
+        });
+        await wrapper.setData({
+            displaySearch: true,
+            groupOptions: [{ id: 'option-1', translated: { name: 'Red' }, group: { translated: { name: 'Color' } } }],
+        });
+
+        const optionGrid = wrapper.findComponent('.sw-property-search__search-selection__option_grid');
+        optionGrid.vm.$emit('sw-grid-select-item', {}, { id: 'option-1' });
+        optionGrid.vm.$emit('sw-grid-select-item', {}, { id: 'option-1' });
+
+        expect(options).toHaveLength(1);
+        expect(options.get('setting-1')).toBe(setting);
+    });
+
     it('should be able to select options once again when the add only toggle get changed', async () => {
         await wrapper.setData({
             displayTree: true,

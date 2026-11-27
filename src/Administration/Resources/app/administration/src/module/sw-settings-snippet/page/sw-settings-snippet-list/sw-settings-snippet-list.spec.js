@@ -150,7 +150,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                         'sw-context-button': await wrapTestComponent('sw-context-button'),
                         'sw-data-grid-settings': true,
                         'router-link': true,
-                        'sw-popover': true,
+                        'mt-floating-ui': true,
                         'sw-search-bar': true,
                         'sw-text-field': true,
                         'sw-grid-column': true,

@@ -3,7 +3,11 @@ import { test } from 'node:test';
 import {
     FEATURE_REGISTRY_PATH,
     MAJOR_PATHS_PATH,
+    addedByWorkflow,
+    applyMajorLabels,
     detectMajorLabels,
+    evidenceForDiff,
+    formatEvidence,
     evaluateMajorLabels,
     globToRegExp,
     labelNamesFor,
@@ -260,6 +264,141 @@ test('a flag mentioned in a deprecation docblock earns cleanup through the tag a
     );
 });
 
+test('a flag named in a code comment is not — the comment describes the code next to it', () => {
+    for (const line of [
+        "+ * leadingDeprecationGuard(function () { Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'x'); });",
+        "+    // only reached while 'v6.8.0.0' is inactive",
+        '+    # WEBHOOKS_REWORK: off until 6.8',
+        "+    {# 'v6.8.0.0' switches the block below #}",
+    ]) {
+        assert.deepEqual(evaluate('src/Core/Framework/Feature.php', line), { behaviour: false, cleanup: false }, line);
+    }
+});
+
+test('switching between the two spellings of the major flag is not a change', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/app/init-post/worker.init.ts',
+            "-    if (!Shopware.Feature.isActive('v6.8.0.0')) {\n+    if (!Shopware.Feature.isActive('V6_8_0_0')) {",
+        ),
+        { behaviour: false, cleanup: false },
+    );
+});
+
+test('code after a comment that closes on the same line still counts', () => {
+    for (const line of [
+        "+        /* x */ if (Feature::isActive('v6.8.0.0')) {",
+        "+    {# old #}{% if feature('v6.8.0.0') %}",
+        '+    <!-- old --><sw-flag v-if="feature(\'v6.8.0.0\')" />',
+        '+    <!-- old --!><sw-flag v-if="feature(\'v6.8.0.0\')" />',
+    ]) {
+        assert.deepEqual(evaluate('src/Core/Framework/Feature.php', line), { behaviour: true, cleanup: false }, line);
+    }
+});
+
+test('commenting out a flag check is a change to the flag', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Core/Framework/Feature.php',
+            "-        if (Feature::isActive('v6.8.0.0')) {\n+        // if (Feature::isActive('v6.8.0.0')) {",
+        ),
+        { behaviour: true, cleanup: false },
+    );
+});
+
+test('a PHP attribute is not a comment', () => {
+    assert.deepEqual(evaluate('src/Core/Framework/Context.php', "+    #[Feature('v6.8.0.0')]"), {
+        behaviour: true,
+        cleanup: false,
+    });
+});
+
+test('reporting a deprecation for the target major is cleanup, not behaviour', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Core/Content/Rule/RuleException.php',
+            "+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0'));",
+        ),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('a deprecation report spread over several lines is cleanup too', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/app/component/utils/sw-loader/index.js',
+            "+            Shopware.Feature.triggerDeprecationOrThrow(\n+                'V6_8_0_0',\n+                'sw-loader is deprecated. Use mt-loader instead.',\n+            );",
+        ),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('a deprecated declaration for the target major is cleanup', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/app/component/utils/sw-popover/index.ts',
+            "+    deprecated: {\n+        version: 'v6.8.0.0',\n+        comment: 'Use mt-floating-ui instead.',\n+    },",
+        ),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('silencing a deprecation report is cleanup', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/module/sw-media/index.js',
+            "+            return Shopware.Feature.silence('V6_8_0_0', () => this.ruleFilter);",
+        ),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('a PHP silent() call and a standalone deprecation message are cleanup', () => {
+    for (const line of [
+        "+        Feature::silent('v6.8.0.0', function (): void {",
+        "+        $message = Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0');",
+    ]) {
+        assert.deepEqual(evaluate('src/Core/Framework/Feature.php', line), { behaviour: false, cleanup: true }, line);
+    }
+});
+
+test('a feature call whose name only starts like a deprecation call is behaviour', () => {
+    assert.deepEqual(
+        evaluate('src/Core/Framework/Feature.php', "+        Feature::callSilentIfInactive('v6.8.0.0', fn () => $x);"),
+        { behaviour: true, cleanup: false },
+    );
+});
+
+test('a deprecation call opened more than three lines up no longer covers the flag', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Core/Framework/Feature.php',
+            "+        Feature::triggerDeprecationOrThrow(\n+\n+\n+\n+            'v6.8.0.0',",
+        ),
+        { behaviour: true, cleanup: false },
+    );
+});
+
+test('a flag check inside a silenced callback is still behaviour', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Administration/Resources/app/administration/src/module/sw-media/index.js',
+            "+            return Shopware.Feature.silence('V6_8_0_0', () => {\n+                if (Shopware.Feature.isActive('V6_8_0_0')) {",
+        ),
+        { behaviour: true, cleanup: true },
+    );
+});
+
+test('replacing a flag check with a deprecation report changes the behaviour', () => {
+    assert.deepEqual(
+        evaluate(
+            'src/Core/Framework/Feature.php',
+            "-        if (Feature::isActive('v6.8.0.0')) {\n+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'x is deprecated');",
+        ),
+        { behaviour: true, cleanup: true },
+    );
+});
+
 test('a flag that already flipped is not', () => {
     assert.deepEqual(evaluate('src/Core/Cart.php', "+        if (Feature::isActive('v6.7.0.0')) {"), {
         behaviour: false,
@@ -436,6 +575,16 @@ test('shouldDetect rejects other actions and events', () => {
     assert.equal(shouldDetect(detectionContext('opened', 'issues')), false);
 });
 
+test('shouldDetect re-runs when the base changes, not for a new title or description', () => {
+    const edited = (changes: object) => ({
+        eventName: 'pull_request_target',
+        payload: { action: 'edited', changes, pull_request: { base: { ref: 'trunk' } } },
+    });
+    assert.equal(shouldDetect(edited({ base: { ref: { from: 'feat/stacked' } } })), true);
+    assert.equal(shouldDetect(edited({ title: { from: 'old title' } })), false);
+    assert.equal(shouldDetect(edited({})), false);
+});
+
 test('shouldDetect rejects pull requests into a release branch', () => {
     assert.equal(shouldDetect(detectionContext('opened', 'pull_request_target', '6.7.14.x')), false);
     assert.equal(shouldDetect(detectionContext('synchronize', 'pull_request_target', '6.6.x')), false);
@@ -496,6 +645,11 @@ test('isIgnoredPath skips tests, specs, prose and agent tooling but keeps shippe
         'src/Administration/Resources/app/administration/src/core/__tests__/helper.ts',
         'coding-guidelines/core/backward-compatibility.md',
         'RELEASE_INFO-6.7.md',
+        'src/Administration/Resources/app/administration/scripts/generate-public-api/__fixtures__/service-removed/case.json',
+        'src/Administration/Resources/app/administration/scripts/generate-public-api/testing/fixture-runner.spec/example.ts',
+        'src/Administration/Resources/app/administration/scripts/generate-public-api/example-components.ts',
+        'src/Administration/Resources/app/administration/eslint-rules/deprecation-rules/require-deprecation-guard.fixtures/guarded-component/index.js',
+        'src/Administration/Resources/app/administration/eslint-rules/deprecation-rules/no-manual-deprecation-notices.js',
     ]) {
         assert.equal(isIgnoredPath(path), true, path);
     }
@@ -504,6 +658,7 @@ test('isIgnoredPath skips tests, specs, prose and agent tooling but keeps shippe
         'src/Core/Test/TestDefaults.php',
         'src/Storefront/Resources/views/storefront/base.html.twig',
         'src/Administration/Resources/app/administration/src/app/service/documentV2.service.ts',
+        'src/Administration/Resources/app/administration/eslint-rules/plugin-rules/no-deprecated-components.js',
     ]) {
         assert.equal(isIgnoredPath(path), false, path);
     }
@@ -542,20 +697,9 @@ test('the upgrade guide still labels by path although Markdown carries no marker
 });
 
 test('missingLabels drops labels the pull request already carries', () => {
-    const context = {
-        eventName: 'pull_request_target',
-        repo: { owner: 'shopware', repo: 'shopware' },
-        payload: {
-            action: 'synchronize',
-            pull_request: {
-                number: 1,
-                base: { ref: 'trunk' },
-                labels: [{ name: 'major/6.8' }, { name: 'domain/checkout' }],
-            },
-        },
-    };
-    assert.deepEqual(missingLabels(context, ['major/6.8', 'major/6.8-cleanup']), ['major/6.8-cleanup']);
-    assert.deepEqual(missingLabels(context, ['major/6.8']), []);
+    const present = ['major/6.8', 'domain/checkout'];
+    assert.deepEqual(missingLabels(present, ['major/6.8', 'major/6.8-cleanup']), ['major/6.8-cleanup']);
+    assert.deepEqual(missingLabels(present, ['major/6.8']), []);
 });
 
 const TWO_MAJORS = parseFeatureRegistry(`shopware:
@@ -641,26 +785,50 @@ const tooLarge = Object.assign(new Error('Sorry, the diff exceeded the maximum n
     response: { data: { errors: [{ resource: 'PullRequest', field: 'diff', code: 'too_large' }] } },
 });
 
-const detect = (github: object, labels: Array<{ name: string }> = []) => {
+type FakeClient = {
+    paginate?: (route: unknown, options: object) => Promise<unknown[]>;
+    rest: { issues?: object } & Record<string, unknown>;
+};
+
+/**
+ * `labels` is what the API reports now; the payload carries a stale snapshot on purpose,
+ * so a test that passed through the payload would see the wrong set.
+ */
+const detect = (github: FakeClient, labels: Array<{ name: string }> = []) => {
     const warnings: string[] = [];
+    const infos: string[] = [];
     const files: Record<string, string> = { [FEATURE_REGISTRY_PATH]: REGISTRY, [MAJOR_PATHS_PATH]: PATH_MAP };
+    const listLabelsOnIssue = async () => ({ data: labels });
+    const client = {
+        ...github,
+        paginate: async (route: unknown, options: object) => {
+            if (route === listLabelsOnIssue) {
+                assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', issue_number: 1, per_page: 100 });
+
+                return labels;
+            }
+
+            return github.paginate ? github.paginate(route, options) : assert.fail('unexpected paginate call');
+        },
+        rest: { ...github.rest, issues: { ...github.rest.issues, listLabelsOnIssue } },
+    };
     const run = detectMajorLabels(
         {
-            github: github as Parameters<typeof detectMajorLabels>[0]['github'],
-            core: { info: () => {}, warning: (message) => warnings.push(message) },
+            github: client as unknown as Parameters<typeof detectMajorLabels>[0]['github'],
+            core: { info: (message) => infos.push(message), warning: (message) => warnings.push(message) },
             context: {
                 eventName: 'pull_request_target',
                 repo: { owner: 'shopware', repo: 'shopware' },
                 payload: {
                     action: 'synchronize',
-                    pull_request: { number: 1, base: { ref: 'trunk' }, labels },
+                    pull_request: { number: 1, base: { ref: 'trunk' }, labels: [{ name: 'stale/payload' }] },
                 },
             },
         },
         (path) => files[path],
     );
 
-    return { run, warnings };
+    return { run, warnings, infos };
 };
 
 test('a diff too large for the diff format is read through the files endpoint', async () => {
@@ -690,7 +858,7 @@ test('a diff too large for the diff format is read through the files endpoint', 
         },
     });
 
-    assert.deepEqual(await run, ['major/6.8']);
+    assert.deepEqual(await run, { add: ['major/6.8'], remove: [] });
     assert.deepEqual(warnings, [
         'diff too large, read 2 file(s) through the files endpoint instead; 1 without a patch are matched by path only',
     ]);
@@ -714,36 +882,223 @@ test('any other diff failure still fails the run', async () => {
 });
 
 const upgradeDiff = diffFor('UPGRADE-6.8.md', '+## Something breaks');
+const plainDiff = diffFor('src/Core/Cart.php', '+        return $x;');
+
+const workflow = { type: 'Bot', login: 'github-actions[bot]' };
+const person = { type: 'User', login: 'someone' };
+
+const detectWithEvents = (diff: string, labels: Array<{ name: string }>, events: object[]) => {
+    const listEvents = async () => ({ data: [] });
+
+    return detect(
+        {
+            paginate: async (route: unknown, options: object) => {
+                assert.equal(route, listEvents);
+                assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', issue_number: 1, per_page: 100 });
+
+                return events;
+            },
+            rest: { pulls: { get: async () => ({ data: diff }) }, issues: { listEvents } },
+        },
+        labels,
+    );
+};
 
 test('a label someone removed is not added back on the next push', async () => {
-    const listEvents = async () => ({ data: [] });
-    const { run } = detect({
-        paginate: async (route: unknown, options: object) => {
-            assert.equal(route, listEvents);
-            assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', issue_number: 1, per_page: 100 });
+    const { run } = detectWithEvents(
+        upgradeDiff,
+        [],
+        [
+            { event: 'labeled', label: { name: 'major/6.8' }, actor: workflow },
+            { event: 'unlabeled', label: { name: 'major/6.8' }, actor: person },
+        ],
+    );
 
-            return [
-                { event: 'labeled', label: { name: 'major/6.8' } },
-                { event: 'unlabeled', label: { name: 'major/6.8' } },
-            ];
-        },
-        rest: { pulls: { get: async () => ({ data: upgradeDiff }) }, issues: { listEvents } },
-    });
-
-    assert.deepEqual(await run, []);
+    assert.deepEqual(await run, { add: [], remove: [] });
 });
 
-test('the event history is only read when a label is missing', async () => {
+test('a label the workflow set goes once the diff no longer earns it', async () => {
+    const { run } = detectWithEvents(
+        plainDiff,
+        [{ name: 'major/6.8' }, { name: 'major/6.8-cleanup' }, { name: 'domain/checkout' }],
+        [
+            { event: 'labeled', label: { name: 'major/6.8' }, actor: workflow },
+            { event: 'labeled', label: { name: 'major/6.8-cleanup' }, actor: workflow },
+            { event: 'labeled', label: { name: 'domain/checkout' }, actor: workflow },
+        ],
+    );
+
+    assert.deepEqual(await run, { add: [], remove: ['major/6.8', 'major/6.8-cleanup'] });
+});
+
+test('a label a person set stays although the diff does not earn it', async () => {
+    const { run, infos } = detectWithEvents(
+        plainDiff,
+        [{ name: 'major/6.8' }, { name: 'major/6.8-cleanup' }],
+        [
+            { event: 'labeled', label: { name: 'major/6.8' }, actor: workflow },
+            { event: 'unlabeled', label: { name: 'major/6.8' }, actor: workflow },
+            { event: 'labeled', label: { name: 'major/6.8' }, actor: person },
+            { event: 'labeled', label: { name: 'major/6.8-cleanup' }, actor: workflow },
+        ],
+    );
+
+    assert.deepEqual(await run, { add: [], remove: ['major/6.8-cleanup'] });
+    assert.ok(infos.includes('keeping major/6.8: not added by this workflow'));
+});
+
+test('a label of a major that is no longer in flight is left alone', async () => {
     const { run } = detect(
         {
-            paginate: async () => assert.fail('no label is missing, so no history is needed'),
+            paginate: async () => assert.fail('nothing to add or take back'),
+            rest: { pulls: { get: async () => ({ data: plainDiff }) } },
+        },
+        [{ name: 'major/6.7' }],
+    );
+
+    assert.deepEqual(await run, { add: [], remove: [] });
+});
+
+test('no label is taken back when the diff was not read in full', async () => {
+    const listFiles = async () => ({ data: [] });
+    const { run, infos } = detect(
+        {
+            paginate: async (route: unknown) => {
+                assert.equal(route, listFiles, 'no history is needed when nothing changes');
+
+                return [{ filename: 'src/Core/Huge.php' }];
+            },
             rest: {
-                pulls: { get: async () => ({ data: upgradeDiff }) },
-                issues: { listEvents: async () => ({ data: [] }) },
+                pulls: {
+                    get: async () => {
+                        throw tooLarge;
+                    },
+                    listFiles,
+                },
             },
         },
         [{ name: 'major/6.8' }],
     );
 
-    assert.deepEqual(await run, []);
+    assert.deepEqual(await run, { add: [], remove: [] });
+    assert.ok(infos.includes('the diff was not read in full, so existing major labels stay'));
+});
+
+test('the event history is only read when a label is missing or unsupported', async () => {
+    const { run } = detect(
+        {
+            paginate: async () => assert.fail('every label is earned and present, so no history is needed'),
+            rest: { pulls: { get: async () => ({ data: upgradeDiff }) } },
+        },
+        [{ name: 'major/6.8' }],
+    );
+
+    assert.deepEqual(await run, { add: [], remove: [] });
+});
+
+test('the log names the file and marker behind each label', async () => {
+    const diff = diffFor(
+        'src/Core/Cart.php',
+        "+        if (Feature::isActive('v6.8.0.0')) {\n+     * @deprecated tag:v6.8.0 - Will be removed",
+    );
+    const { run, infos } = detectWithEvents(diff, [], []);
+
+    assert.deepEqual(await run, { add: ['major/6.8', 'major/6.8-cleanup'], remove: [] });
+    assert.ok(
+        infos.includes(
+            [
+                'markers found:',
+                'major/6.8:',
+                "  src/Core/Cart.php: 'v6.8.0.0' (+1)",
+                'major/6.8-cleanup:',
+                '  src/Core/Cart.php: tag:v6.8.0 (+1)',
+            ].join('\n'),
+        ),
+        infos.join('\n---\n'),
+    );
+});
+
+test('formatEvidence names path rules and caps a long list', () => {
+    assert.equal(
+        formatEvidence({ label: 'major/6.8', reasons: ['UPGRADE-6.8.md changed'] }),
+        'major/6.8:\n  UPGRADE-6.8.md changed',
+    );
+    const many = Array.from({ length: 12 }, (_, index) => `src/File${index}.php: 'v6.8.0.0' (+1)`);
+    const lines = formatEvidence({ label: 'major/6.8', reasons: many }).split('\n');
+    assert.equal(lines.length, 12);
+    assert.equal(lines.at(-1), '  … and 2 more');
+});
+
+test('evidenceForDiff names the glob that owns a path', () => {
+    assert.deepEqual(
+        evidenceForDiff({
+            diff: diffFor('src/Core/Checkout/DocumentV2/Renderer.php', '+        return $x;'),
+            flags: FLAGS,
+            majorPaths: PATHS,
+        }),
+        [
+            {
+                label: 'major/6.8',
+                reasons: ['src/Core/Checkout/DocumentV2/Renderer.php: matches **/DocumentV2/** in .github/major-paths.yml'],
+            },
+        ],
+    );
+});
+
+test('addedByWorkflow trusts the latest addition of each label', () => {
+    const events = [
+        { event: 'labeled', label: { name: 'major/6.8' }, actor: person },
+        { event: 'unlabeled', label: { name: 'major/6.8' }, actor: person },
+        { event: 'labeled', label: { name: 'major/6.8' }, actor: workflow },
+        { event: 'labeled', label: { name: 'major/6.8-cleanup' }, actor: workflow },
+        { event: 'labeled', label: { name: 'major/6.8-cleanup' }, actor: person },
+    ];
+    assert.deepEqual(addedByWorkflow(['major/6.8', 'major/6.8-cleanup', 'major/6.9'], events), ['major/6.8']);
+});
+
+test('applyMajorLabels adds and removes, and shrugs at a label already gone', async () => {
+    const calls: string[] = [];
+    const missing = Object.assign(new Error('Label does not exist'), { status: 404 });
+    await applyMajorLabels(
+        {
+            github: {
+                rest: {
+                    issues: {
+                        addLabels: async ({ labels }: { labels: string[] }) => calls.push(`add ${labels.join(',')}`),
+                        removeLabel: async ({ name }: { name: string }) => {
+                            calls.push(`remove ${name}`);
+                            if (name === 'major/6.8-cleanup') {
+                                throw missing;
+                            }
+                        },
+                    },
+                },
+            } as unknown as Parameters<typeof applyMajorLabels>[0]['github'],
+            context: {
+                eventName: 'pull_request_target',
+                repo: { owner: 'shopware', repo: 'shopware' },
+                payload: { action: 'synchronize', pull_request: { number: 1, base: { ref: 'trunk' } } },
+            },
+        },
+        { add: ['major/6.9'], remove: ['major/6.8', 'major/6.8-cleanup'] },
+    );
+
+    assert.deepEqual(calls, ['add major/6.9', 'remove major/6.8', 'remove major/6.8-cleanup']);
+});
+
+test('labels are read live, so a quick earlier run that removed one does not leave it off', async () => {
+    const { run } = detectWithEvents(
+        upgradeDiff,
+        [],
+        [
+            { event: 'labeled', label: { name: 'major/6.8' }, actor: workflow },
+            { event: 'unlabeled', label: { name: 'major/6.8' }, actor: workflow },
+        ],
+    );
+
+    assert.deepEqual(await run, { add: ['major/6.8'], remove: [] });
+});
+
+test('addedByWorkflow keeps a label without any addition on record', () => {
+    assert.deepEqual(addedByWorkflow(['major/6.8'], []), []);
 });

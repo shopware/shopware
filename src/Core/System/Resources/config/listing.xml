@@ -66,6 +66,15 @@
         </input-field>
 
         <input-field type="bool">
+            <name>ignoreMainVariantOnPriceSorting</name>
+            <label>Ignore main variant on price sorting</label>
+            <label lang="de-DE">Hauptvariante bei Sortierung nach Preis ignorieren</label>
+            <helpText>Activate to ignore the main variant or main product selected in the product's "Storefront presentation &gt; Product Listing" configuration in listings sorted by price. Each product shows the variant which determines its position instead: the cheapest matching variant when sorted ascending, the most expensive matching variant when sorted descending. Expanded property values stay separate.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, wird die unter "Storefront-Darstellung &gt; Produktliste" gewählte Hauptvariante bzw. das Hauptprodukt in nach Preis sortierten Listen ignoriert. Stattdessen zeigt jedes Produkt die Variante, die seine Position bestimmt: bei aufsteigender Sortierung die günstigste passende Variante, bei absteigender Sortierung die teuerste passende Variante. Erweiterte Eigenschaftsausprägungen bleiben getrennt.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
             <name>showReview</name>
             <label>Show reviews</label>
             <label lang="de-DE">Bewertungen anzeigen</label>

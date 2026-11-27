@@ -17,6 +17,7 @@ rules:
       - sw-bugfixer.lock.yml
       - sw-nightly.lock.yml
       - sw-review.lock.yml
+      - sw-security-review.lock.yml
       - sw-triage.lock.yml
 
   # Third-party actions must be pinned to a commit hash. `shopware/*` actions are

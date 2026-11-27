@@ -26,7 +26,7 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
             WHERE `parent_id` IS NULL
               AND `variant_listing_config` IS NOT NULL
               AND JSON_UNQUOTE(JSON_EXTRACT(`variant_listing_config`, "$.displayParent")) = "0"
-              AND JSON_UNQUOTE(JSON_EXTRACT(`parent`.`variant_listing_config`, "$.mainVariantId")) IS NOT NULL
+              AND JSON_TYPE(JSON_EXTRACT(`parent`.`variant_listing_config`, "$.mainVariantId")) = "STRING"
               AND JSON_UNQUOTE(JSON_EXTRACT(`parent`.`variant_listing_config`, "$.mainVariantId")) NOT IN
                 (SELECT LOWER(HEX(`id`)) FROM `product` WHERE `parent_id` = `parent`.`id`)
         ');

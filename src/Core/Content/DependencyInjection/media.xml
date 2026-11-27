@@ -319,6 +319,89 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="shopware.cms.element_media_ids_provider.image" class="Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider">
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\ImageCmsElementResolver"/>
+            <argument type="collection">
+                <argument>media</argument>
+            </argument>
+            <tag name="shopware.cms.element_media_ids_provider"/>
+        </service>
+
+        <service id="shopware.cms.element_media_ids_provider.image_slider" class="Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider">
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\Type\ImageSliderTypeDataResolver"/>
+            <argument type="collection">
+                <argument>sliderItems.*.mediaId</argument>
+            </argument>
+            <tag name="shopware.cms.element_media_ids_provider"/>
+        </service>
+
+        <service id="shopware.cms.element_media_ids_provider.image_gallery" class="Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider">
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\Type\ImageGalleryTypeDataResolver"/>
+            <argument type="collection">
+                <argument>sliderItems.*.mediaId</argument>
+            </argument>
+            <tag name="shopware.cms.element_media_ids_provider"/>
+        </service>
+
+        <service id="shopware.cms.element_media_ids_provider.youtube_video" class="Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider">
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\YoutubeVideoCmsElementResolver"/>
+            <argument type="collection">
+                <argument>previewMedia</argument>
+            </argument>
+            <tag name="shopware.cms.element_media_ids_provider"/>
+        </service>
+
+        <service id="shopware.cms.element_media_ids_provider.vimeo_video" class="Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider">
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\VimeoVideoCmsElementResolver"/>
+            <argument type="collection">
+                <argument>previewMedia</argument>
+            </argument>
+            <tag name="shopware.cms.element_media_ids_provider"/>
+        </service>
+
+        <service id="shopware.cms.element_media_ids_provider.manufacturer_logo" class="Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider">
+            <argument type="service" id="Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver"/>
+            <argument type="collection">
+                <argument>media</argument>
+            </argument>
+            <tag name="shopware.cms.element_media_ids_provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver">
+            <argument type="tagged_iterator" tag="shopware.cms.element_media_ids_provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaUsageIndexer">
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver"/>
+        </service>
+
+        <service id="category_translation_media_usage.indexer" class="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer">
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition"/>
+        </service>
+
+        <service id="product_translation_media_usage.indexer" class="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer">
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition"/>
+        </service>
+
+        <service id="landing_page_translation_media_usage.indexer" class="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\SlotConfigOverrideMediaUsageIndexer">
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage\CmsSlotMediaIdResolver"/>
+            <argument type="service" id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer">
             <tag name="shopware.entity_indexer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>

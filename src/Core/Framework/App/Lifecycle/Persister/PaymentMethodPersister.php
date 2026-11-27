@@ -6,6 +6,7 @@ use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -28,9 +29,11 @@ class PaymentMethodPersister
 
     /**
      * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly EntityRepository $paymentMethodRepository,
+        private readonly EntityRepository $mediaRepository,
         private readonly MediaService $mediaService,
         private readonly SourceResolver $sourceResolver,
     ) {
@@ -148,7 +151,7 @@ class PaymentMethodPersister
         $icon = $fs->read($iconPath);
         $extension = pathinfo($paymentMethod->getIcon() ?? '', \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
-        $mediaId = $existing?->getOriginalMediaId();
+        $mediaId = $existing?->getOriginalMediaId() ?? $this->checkFileExists($fileName, $context);
 
         if (!$mimeType) {
             return null;
@@ -164,5 +167,13 @@ class PaymentMethodPersister
             $mediaId,
             false
         );
+    }
+
+    private function checkFileExists(string $fileName, Context $context): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('fileName', $fileName));
+
+        return $this->mediaRepository->searchIds($criteria, $context)->firstId();
     }
 }

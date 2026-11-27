@@ -103,10 +103,12 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
     {
         $parentId = $response->getProduct()->getParentId() ?? $response->getProduct()->getId();
         $pageId = $response->getProduct()->getCmsPageId();
+        $manufacturerId = $response->getProduct()->getManufacturerId();
 
         $tags = array_merge(
             $this->tracer->get(self::buildName($productId)),
             [$pageId !== null ? EntityCacheKeyGenerator::buildCmsTag($pageId) : null],
+            [$manufacturerId !== null ? EntityCacheKeyGenerator::buildManufacturerTag($manufacturerId) : null],
             [self::buildName($parentId)]
         );
 

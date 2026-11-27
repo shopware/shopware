@@ -112,5 +112,8 @@ return [
 
         // Useless /api/oauth/authorize endpoint removed without replacement, it only threw or returned void
         preg_quote('REMOVED: Method Shopware\Core\Framework\Api\Controller\AuthController#authorize() was removed', '/'),
+
+        // Optional parameter added with default null; existing callers and subclass constructors are unaffected
+        preg_quote('ADDED: Parameter text was added to Method __construct() of class Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel\LegalGuaranteeNoticeRouteResponse', '/'),
     ],
 ];

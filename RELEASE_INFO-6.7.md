@@ -12,6 +12,12 @@ Rebuilt bundles receive new filenames to invalidate cached worker URL handling.
 
 ## Core
 
+### Media cache invalidation uses bounded batches
+
+Reindexing or updating media shared by many products uses bounded batches to reduce worker memory usage.
+Large updates can call `CacheInvalidator::invalidate()` multiple times, and dispatch multiple `InvalidateCacheEvent` events when invalidation is immediate.
+Delayed invalidation still requires enough capacity to store and process the resulting tags.
+
 ### Search config cache is kept per language
 
 `CachedSearchConfigLoader` now caches the search config per language id chain and tags each entry with `CachedSearchConfigLoader::CACHE_KEY`.

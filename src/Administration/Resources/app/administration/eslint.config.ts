@@ -827,6 +827,11 @@ export default [
                 { max: 1000 },
             ],
             'sw-test-rules/no-vm-access': 'error',
+            // Tagging is optional, the rule only checks tags that are present, see technical-docs/11-code-quality/04-test-annotations.md
+            'sw-test-rules/test-annotation': [
+                'error',
+                { repoRoot: path.resolve(__dirname, '../../../../..') },
+            ],
         },
     },
 

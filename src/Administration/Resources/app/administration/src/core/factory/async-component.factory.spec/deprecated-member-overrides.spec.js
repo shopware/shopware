@@ -396,6 +396,28 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         );
     });
 
+    it.activeFeatureFlags(['v6.8.0.0'])('throws once for all overridden members once the major flag is active', async () => {
+        useProductionDeprecationGuard();
+        registerComponentWithDeprecatedMembers('sw-active-major-members');
+        ComponentFactory.override('sw-active-major-members', {
+            computed: {
+                oldFilter() {
+                    return 'overridden';
+                },
+            },
+            methods: {
+                oldMethod() {
+                    return 'overridden';
+                },
+            },
+        });
+
+        const error = await ComponentFactory.build('sw-active-major-members').catch((reason) => reason);
+
+        expect(error.message).toContain('overrides the deprecated computed "oldFilter"');
+        expect(error.message).toContain('overrides the deprecated method "oldMethod"');
+    });
+
     it.activeFeatureFlags(['v6.8.0.0'])('logs an error instead of throwing for a baselined override', async () => {
         useProductionDeprecationGuard();
         const error = jest.spyOn(console, 'error').mockImplementation(() => {});

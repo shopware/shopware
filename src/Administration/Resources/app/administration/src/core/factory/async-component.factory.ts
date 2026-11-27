@@ -1276,6 +1276,7 @@ const LEADING_COVERAGE_COUNTERS =
  * click, while the override stops working once the member is removed either way. An override registered inside
  * `Feature.silence()` of the member's major is not reported, so an extension can keep a backward compatible override
  * for older versions.
+ * Once the major is active, it reports every member before it throws, so one reload shows all of them.
  * Development only: production builds drop it, and a throwing guard there would break the whole component.
  * `overrideConfigs` are the resolved configs of `overrideEntries`, in the same order.
  */
@@ -1288,6 +1289,33 @@ function reportOverriddenDeprecatedMembers(
     if (process.env.NODE_ENV === 'production') {
         return;
     }
+
+    const errors: Error[] = [];
+
+    overriddenDeprecations(componentName, baseConfig, overrideEntries, overrideConfigs).forEach(({ flag, message }) => {
+        try {
+            Shopware.Feature.triggerDeprecationOrThrow(flag, message);
+        } catch (error) {
+            errors.push(error as Error);
+        }
+    });
+
+    if (errors.length > 0) {
+        throw new Error(errors.map((error) => error.message).join('\n'));
+    }
+}
+
+/**
+ * The deprecation of every member that an override of `componentName` overrides, except the ones silenced while the
+ * override was registered.
+ */
+function overriddenDeprecations(
+    componentName: string,
+    baseConfig: ComponentConfig,
+    overrideEntries: IndexedAwaitedComponentConfig[],
+    overrideConfigs: (ComponentConfig | boolean)[],
+): { flag: string; message: string }[] {
+    const deprecations: { flag: string; message: string }[] = [];
 
     overrideConfigs.forEach((overrideConfig, index) => {
         if (typeof overrideConfig === 'boolean') {
@@ -1309,13 +1337,15 @@ function reportOverriddenDeprecatedMembers(
                 const kind = section === 'methods' ? 'method' : 'computed';
                 const memberDeprecation = guard.message ? ` The ${kind} is deprecated with: ${guard.message}` : '';
 
-                Shopware.Feature.triggerDeprecationOrThrow(
-                    guard.flag,
-                    `Component.override('${componentName}') overrides the deprecated ${kind} "${name}", so the override stops working once "${name}" is removed with ${guard.flag}.${memberDeprecation}`,
-                );
+                deprecations.push({
+                    flag: guard.flag,
+                    message: `Component.override('${componentName}') overrides the deprecated ${kind} "${name}", so the override stops working once "${name}" is removed with ${guard.flag}.${memberDeprecation}`,
+                });
             });
         });
     });
+
+    return deprecations;
 }
 
 /**

@@ -492,6 +492,51 @@ class EntitySearcherTest extends TestCase
         static::assertSame([], $result->getIds());
     }
 
+    public function testGroupedExactTotalCountCountsEveryGroup(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = new Criteria();
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+        $criteria->addFilter(new EqualsAnyFilter('parentId', [$ids->get('parent-a'), $ids->get('parent-b')]));
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::DESCENDING));
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame(2, $result->getTotal());
+        static::assertCount(1, $result->getIds());
+        $id = $result->firstId();
+        static::assertContains($id, [$ids->get('b1'), $ids->get('b2')]);
+        static::assertArrayNotHasKey('_total', $result->getDataOfId($id));
+    }
+
+    public function testToManyFilteredExactTotalCountCountsEveryEntity(): void
+    {
+        $ids = new IdsCollection();
+        $products = [];
+        foreach (['Charlie', 'Bravo', 'Alpha'] as $name) {
+            $products[] = (new ProductBuilder($ids, $name))->name($name)->price(100)
+                ->tag($name . '-window-a')->tag($name . '-window-b')->build();
+        }
+        $products[] = (new ProductBuilder($ids, 'Delta'))->name('Delta')->price(100)->tag('Delta-other')->build();
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', array_values($ids->getList(['Alpha', 'Bravo', 'Charlie', 'Delta']))));
+        $criteria->addFilter(new ContainsFilter('tags.name', 'window'));
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING, true));
+        $criteria->setLimit(2);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame(3, $result->getTotal());
+        static::assertSame([$ids->get('Alpha'), $ids->get('Bravo')], $result->getIds());
+        static::assertArrayNotHasKey('_total', $result->getDataOfId($ids->get('Alpha')));
+    }
+
     public function testScoredExactTotalCountWithAnAssociationScoreFieldSurvivesJoinBufferedPlans(): void
     {
         $ids = $this->createSportProducts();
@@ -559,6 +604,24 @@ class EntitySearcherTest extends TestCase
         $result = $this->searchProducts($criteria);
 
         static::assertSame([$ids->get('b1')], array_values($result->getIds()));
+    }
+
+    public function testSortingRankingCountsEveryGroupOfAFullPage(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addState(Criteria::STATE_SORTING_RANKED_GROUPING);
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+        $criteria->setLimit(1);
+        $criteria->setOffset(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame([$ids->get('b2')], array_values($result->getIds()));
+        static::assertSame([], array_intersect(['_total', '_group_0'], array_keys($result->getDataOfId($ids->get('b2')))));
     }
 
     public function testSortingRankingOfScoredSearchesCountsEveryGroup(): void

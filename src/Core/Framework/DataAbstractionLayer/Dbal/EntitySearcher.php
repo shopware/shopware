@@ -84,6 +84,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         $scored = $query->hasState(Criteria::SCORE_FIELD);
+        $hasGroupBy = $criteria->getGroupFields() !== [] || $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
         $isSortingRanked = !$scored
             && $criteria->getGroupFields() !== []
             && $criteria->hasState(Criteria::STATE_SORTING_RANKED_GROUPING);
@@ -94,15 +95,21 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
         }
 
+        $groupColumns = [];
         if ($isSortingRanked) {
-            $this->addGroupSelects($query, $definition, $criteria, $context, $table);
+            $groupColumns = $this->addGroupSelects($query, $definition, $criteria, $context, $table);
         }
 
         $countQuery = $query;
-        if ($scored
+        if (($scored || $hasGroupBy)
             && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
             && $criteria->getLimit() !== null) {
-            $query = $this->buildWindowTotalQuery($query, $fields);
+            $columns = array_keys($fields);
+            if ($scored) {
+                $columns[] = Criteria::SCORE_FIELD;
+            }
+
+            $query = $this->buildWindowTotalQuery($query, [...$columns, ...$groupColumns]);
         }
 
         // add pagination
@@ -223,7 +230,7 @@ class EntitySearcher implements EntitySearcherInterface
             $ranking = 'inner_q.' . EntityDefinitionQueryHelper::escape($column) . ' ' . $direction;
         }
 
-        $outer = $this->createOuterQuery($query, $fields, 'ranked');
+        $outer = $this->createOuterQuery($query, [...array_keys($fields), Criteria::SCORE_FIELD], 'ranked');
 
         $innerSql = $query->getSQL();
 
@@ -241,11 +248,11 @@ class EntitySearcher implements EntitySearcherInterface
     }
 
     /**
-     * @param array<string, Field> $fields keyed by storage name
+     * @param list<string> $columns
      */
-    private function buildWindowTotalQuery(QueryBuilder $query, array $fields): QueryBuilder
+    private function buildWindowTotalQuery(QueryBuilder $query, array $columns): QueryBuilder
     {
-        $outer = $this->createOuterQuery($query, $fields, 'counted');
+        $outer = $this->createOuterQuery($query, $columns, 'counted');
 
         $outer->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL))
             ->from('(' . $query->getSQL() . ')', 'counted')
@@ -255,9 +262,9 @@ class EntitySearcher implements EntitySearcherInterface
     }
 
     /**
-     * @param array<string, Field> $fields keyed by storage name
+     * @param list<string> $columns
      */
-    private function createOuterQuery(QueryBuilder $query, array $fields, string $alias): QueryBuilder
+    private function createOuterQuery(QueryBuilder $query, array $columns, string $alias): QueryBuilder
     {
         $outer = new QueryBuilder($this->connection);
 
@@ -274,19 +281,27 @@ class EntitySearcher implements EntitySearcherInterface
 
         $query->resetOrderBy();
 
-        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
+        foreach ($columns as $column) {
             $outer->addSelect($alias . '.' . EntityDefinitionQueryHelper::escape($column));
         }
 
         return $outer;
     }
 
-    private function addGroupSelects(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table): void
+    /**
+     * @return list<string>
+     */
+    private function addGroupSelects(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table): array
     {
+        $columns = [];
         foreach (array_values($criteria->getGroupFields()) as $i => $grouping) {
             $accessor = $this->queryHelper->getFieldAccessor($grouping->getField(), $definition, $table, $context);
-            $query->addSelect($accessor . ' as `_group_' . $i . '`');
+            $column = '_group_' . $i;
+            $query->addSelect($accessor . ' as `' . $column . '`');
+            $columns[] = $column;
         }
+
+        return $columns;
     }
 
     /**

@@ -1790,6 +1790,11 @@ The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` d
 The `syncProducts()` and `indexProducts()` methods and the `productRepository` computed property were removed from `sw-category-tree` without replacement.
 The server re-indexes the products of a moved category itself, so extensions should stop calling or overriding these members.
 
+## Index request members removed from the variant generator
+
+The `indexProducts()` method and the `productIds` and `cacheService` properties were removed from the variant generator in `src/module/sw-product/helper/sw-products-variants-generator.js` without replacement.
+Its sync requests queue the indexing of the products they write, so extensions should stop calling these members.
+
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.

@@ -128,6 +128,11 @@ The Product module now lists `product_document` as a child entity.
 If two modules list the same child entity, the first registered module wins.
 The warning about it is only logged in development builds.
 
+### Deprecated index request of the variant generator
+
+The `indexProducts()` method and the `productIds` and `cacheService` properties of the variant generator in `src/module/sw-product/helper/sw-products-variants-generator.js` are deprecated and will be removed in 6.8 without replacement.
+The generator no longer calls them, because its sync requests queue the indexing of the products they write.
+
 ## Storefront
 
 ### Production Vite builds generate JavaScript SBOMs

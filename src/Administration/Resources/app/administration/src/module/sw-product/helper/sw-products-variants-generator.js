@@ -22,8 +22,18 @@ export default class VariantsGenerator extends EventEmitter {
 
         this.product = null;
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        this.productIds = [];
+
         // set dependencies
         this.syncService = Shopware.Service('syncService');
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        this.cacheService = Shopware.Service('cacheApiService');
         this.httpClient = this.syncService.httpClient;
 
         // local data
@@ -592,5 +602,22 @@ export default class VariantsGenerator extends EventEmitter {
                 this.processQueue(type, queue, offset + limit, limit, resolve, reject);
             })
             .catch(reject);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, the sync requests of the generator already queue
+     * the indexing of the products they write
+     */
+    indexProducts(productIds) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'VariantsGenerator.indexProducts() is deprecated. Will be removed without replacement.',
+        );
+
+        if (productIds.length <= 0) {
+            return;
+        }
+
+        this.cacheService.indexProducts(productIds);
     }
 }

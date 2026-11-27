@@ -20,6 +20,7 @@ import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
+import type { LowerOptions } from './shared';
 
 /**
  * Dispatches to the mode-specific lowering path after shared analysis has completed.
@@ -33,10 +34,11 @@ function lowerShopwareSetupBlock(
     // The template pass runs after script analysis, so its result arrives as its own argument rather
     // than folded onto `analysis`. Each mode reads only the parts its own template shape produces.
     templateAnalysis: TemplateAnalysis,
+    options: LowerOptions,
 ): SourceEdit[] {
     return analysis.mode === 'base'
         ? buildBaseScript(block, analysis, templateAnalysis)
-        : buildOverrideScript(block, analysis, templateAnalysis);
+        : buildOverrideScript(block, analysis, templateAnalysis, options);
 }
 
 /**

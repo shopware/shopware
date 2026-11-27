@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Checkout\Customer\Extension\SendPasswordRecoveryMailRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,6 +33,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -86,8 +88,19 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
 
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $key = mb_strtolower(mb_trim((string) $data->get('email'))) . '-' . $request->getClientIp();
-            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, $key);
+            $emailKey = mb_strtolower(mb_trim((string) $data->get('email')));
+            $clientIp = (string) $request->getClientIp();
+            // an IPv6 client can rotate through its whole /64, so the network shares one limit
+            $clientNetworkKey = $clientIp === '' ? '' : IpUtils::anonymize($clientIp, 0, 8);
+
+            // one admin sends mails for many customers from one IP, e.g. when converting guests
+            if (!$context->getContext()->getSource() instanceof AdminSalesChannelApiSource) {
+                $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD_CLIENT, $clientNetworkKey);
+            }
+
+            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, $emailKey . '-' . $clientIp);
+            // last, so a request blocked by an IP limit does not use up the limit of the email owner
+            $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::RESET_PASSWORD_USER, $emailKey);
         }
 
         try {

@@ -116,6 +116,25 @@ class FingerprintGeneratorTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $storedFingerprints
+     */
+    #[DataProvider('storedFingerprintsOfOneFingerprint')]
+    public function testCalculatesEachStampOnlyOnce(array $storedFingerprints): void
+    {
+        $fingerprint = new StampCountingFingerprint();
+
+        (new FingerprintGenerator([$fingerprint]))->matchFingerprints($storedFingerprints);
+
+        static::assertSame(1, $fingerprint->stampCalculations);
+    }
+
+    public static function storedFingerprintsOfOneFingerprint(): \Generator
+    {
+        yield 'matching stamp is calculated once for the comparison and the match' => [['stamp-counting' => 'stamp']];
+        yield 'mismatching stamp is calculated once for the comparison and the mismatch' => [['stamp-counting' => 'stale']];
+    }
+
+    /**
      * @param array<string, string> $fingerprints
      */
     #[DataProvider('fingerprintsWithCustomComparison')]
@@ -231,6 +250,31 @@ class BazFingerprint implements Fingerprint
     public function getStamp(): string
     {
         return 'baz';
+    }
+}
+
+/**
+ * @internal
+ */
+class StampCountingFingerprint implements Fingerprint
+{
+    public int $stampCalculations = 0;
+
+    public function getIdentifier(): string
+    {
+        return 'stamp-counting';
+    }
+
+    public function getScore(): int
+    {
+        return 25;
+    }
+
+    public function getStamp(): string
+    {
+        ++$this->stampCalculations;
+
+        return 'stamp';
     }
 }
 

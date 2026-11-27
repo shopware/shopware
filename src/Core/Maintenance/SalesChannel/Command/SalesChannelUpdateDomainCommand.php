@@ -16,6 +16,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
@@ -72,9 +73,47 @@ class SalesChannelUpdateDomainCommand extends Command
             ];
         }
 
+        $collisions = $this->findCollisions($domains, $payload);
+        if ($collisions !== []) {
+            $io = new SymfonyStyle($input, $output);
+            $io->error('Several domains would get the same URL, so no domain was updated. Update these domains separately, for example with sales-channel:replace:url.');
+            $io->listing(array_map(
+                static fn (array $collision): string => \sprintf('%s (now: %s)', $collision['url'], implode(', ', $collision['previousUrls'])),
+                $collisions
+            ));
+
+            return self::FAILURE;
+        }
+
         $this->salesChannelDomainRepository->update($payload, $context);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The unique index on the domain URL is case-insensitive, so the URLs are compared in lower case.
+     *
+     * @param list<array{id: string, url: string}> $payload
+     *
+     * @return list<array{url: string, previousUrls: non-empty-list<string>}>
+     */
+    private function findCollisions(SalesChannelDomainCollection $domains, array $payload): array
+    {
+        $newUrls = array_column($payload, 'url', 'id');
+
+        $domainsByUrl = [];
+        foreach ($domains as $domain) {
+            $url = $newUrls[$domain->getId()] ?? $domain->getUrl();
+            $key = mb_strtolower($url);
+
+            $domainsByUrl[$key]['url'] ??= $url;
+            $domainsByUrl[$key]['previousUrls'][] = $domain->getUrl();
+        }
+
+        return array_values(array_filter(
+            $domainsByUrl,
+            static fn (array $collision): bool => \count($collision['previousUrls']) > 1
+        ));
     }
 
     private function replaceDomain(string $url, string $newDomain): string

@@ -44,6 +44,13 @@
                         "schema": { "$ref": "#/components/schemas/OAuthScopes" }
                     },
                     {
+                        "name": "resource",
+                        "in": "query",
+                        "description": "RFC 8707 resource indicator, an absolute URI. Binds the issued tokens to the MCP endpoint of the shop, the only accepted value, for example `https://shop.example/api/_mcp`. Query parameters are ignored when comparing. Any other value is rejected with the OAuth error `invalid_target`. Tokens bound to the resource are accepted only by the MCP endpoint.",
+                        "required": false,
+                        "schema": { "type": "string", "format": "uri" }
+                    },
+                    {
                         "name": "code_challenge",
                         "in": "query",
                         "description": "PKCE code challenge, the base64url encoded SHA-256 hash of the `code_verifier`.",
@@ -59,7 +66,7 @@
                 ],
                 "responses": {
                     "302": {
-                        "description": "Redirect to the consent page of the Administration, or back to the `redirect_uri` with an `error` parameter when the request is invalid but the redirect URI is registered for the client."
+                        "description": "Redirect to the consent page of the Administration, or back to the `redirect_uri` with an `error` parameter when the request is invalid but the redirect URI is registered for the client. An unsupported `resource` gives `error=invalid_target`. Every redirect back to the `redirect_uri` carries the issuer identifier as `iss` (RFC 9207), the Admin API base URL such as `https://shop.example/api`; clients should compare it with the `issuer` of the authorization server metadata."
                     },
                     "400": { "$ref": "#/components/responses/400" },
                     "401": { "$ref": "#/components/responses/401" }
@@ -68,7 +75,7 @@
             "post": {
                 "tags": ["Authorization & Authentication"],
                 "summary": "Approve or deny an authorization request",
-                "description": "Used by the consent page of the Administration. Completes the authorization request on behalf of the authenticated user and returns the redirect URI for the browser. The URI contains the authorization code, or `error=access_denied` when the user denied the request. Requires a user-bound access token; integration tokens cannot approve requests. An unregistered redirect URI returns HTTP 400 with error code `FRAMEWORK__OAUTH_INVALID_REDIRECT_URI` and a readable `detail` message, without redirecting.",
+                "description": "Used by the consent page of the Administration. Completes the authorization request on behalf of the authenticated user and returns the redirect URI for the browser. The URI contains the authorization code, or `error=access_denied` when the user denied the request. Requires a user-bound access token; integration tokens cannot approve requests. An unsupported `resource` returns HTTP 400 with the OAuth error `invalid_target`. An unregistered redirect URI returns HTTP 400 with error code `FRAMEWORK__OAUTH_INVALID_REDIRECT_URI` and a readable `detail` message, without redirecting.",
                 "operationId": "approveAuthorization",
                 "requestBody": {
                     "required": true,
@@ -102,7 +109,7 @@
                                     "required": ["redirectUri"],
                                     "properties": {
                                         "redirectUri": {
-                                            "description": "URI the browser has to be sent to. Contains `code` and `state`, or `error` and `state`.",
+                                            "description": "URI the browser has to be sent to. Contains `code` and `state`, or `error` and `state`, and always the issuer identifier `iss` (RFC 9207).",
                                             "type": "string",
                                             "format": "uri"
                                         }
@@ -129,6 +136,7 @@
                     { "name": "redirect_uri", "in": "query", "required": true, "schema": { "type": "string", "format": "uri" } },
                     { "name": "state", "in": "query", "required": false, "schema": { "type": "string" } },
                     { "name": "scope", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/OAuthScopes" } },
+                    { "name": "resource", "in": "query", "description": "RFC 8707 resource indicator, see `GET /oauth/authorize`. Any value other than the MCP endpoint of the shop returns HTTP 400 with the OAuth error `invalid_target`.", "required": false, "schema": { "type": "string", "format": "uri" } },
                     { "name": "code_challenge", "in": "query", "required": true, "schema": { "type": "string" } },
                     { "name": "code_challenge_method", "in": "query", "required": true, "schema": { "type": "string", "enum": ["S256"] } }
                 ],
@@ -139,7 +147,7 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
-                                    "required": ["client", "redirectUri", "scopes"],
+                                    "required": ["client", "redirectUri", "scopes", "resource"],
                                     "properties": {
                                         "client": {
                                             "type": "object",
@@ -150,7 +158,12 @@
                                             }
                                         },
                                         "redirectUri": { "type": "string", "format": "uri" },
-                                        "scopes": { "type": "array", "items": { "type": "string" } }
+                                        "scopes": { "type": "array", "items": { "type": "string" } },
+                                        "resource": {
+                                            "description": "Normalized RFC 8707 resource the tokens will be bound to, or null when the request names no resource.",
+                                            "type": ["string", "null"],
+                                            "format": "uri"
+                                        }
                                     }
                                 }
                             }

@@ -5,6 +5,7 @@ import MailApiService from 'src/core/service/api/mail.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 function getMailApiService() {
     const client = createHTTPClient();
@@ -21,6 +22,10 @@ function getMailApiService() {
 }
 
 describe('mailApiService', () => {
+    beforeEach(() => {
+        allowDeprecation('mailApiService.buildRenderPreview() is deprecated');
+    });
+
     it('is registered correctly', async () => {
         const { mailApiService } = getMailApiService();
         expect(mailApiService).toBeInstanceOf(MailApiService);

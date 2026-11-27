@@ -18,6 +18,7 @@ export default {
     registerModule,
     getModuleRegistry,
     getModuleByEntityName,
+    getModuleByChildEntity,
     getModuleSnippets,
     getModuleByKey,
 };
@@ -81,6 +82,7 @@ interface SettingsItem {
     id?: string;
     name?: string;
     label?: string;
+    since?: string;
 }
 
 /**
@@ -104,6 +106,12 @@ export interface ModuleManifest {
     };
     entity?: string;
     entityDisplayProperty?: string;
+    /**
+     * Entities that belong to this module's `entity` and have no module of their own,
+     * for example aggregates such as `product_document` for the `product` module.
+     * Not related to variant children or to child routes.
+     */
+    childEntities?: string[];
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Snippets are loaded from the `snippet` folders by the initial snippets request.
      */
@@ -193,6 +201,7 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
     }
 
     if (hasOwnProperty(module, 'snippets')) {
+        // @deprecated tag:v6.8.0 - The "snippets" module option will be removed, snippets load from the "snippet" folders.
         Shopware.Feature.triggerDeprecationOrThrow(
             'V6_8_0_0',
             `Module "${moduleId}": the "snippets" property is deprecated and will be removed in v6.8.0. Snippets are loaded from the "snippet" folders automatically.`,
@@ -282,6 +291,30 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             module.routes,
         );
         return false;
+    }
+
+    if (module.childEntities !== undefined) {
+        if (!types.isArray(module.childEntities)) {
+            warn(
+                'ModuleFactory',
+                `Module "${moduleId}": "childEntities" has to be an array of entity names.`,
+                module.childEntities,
+            );
+            delete module.childEntities;
+        } else {
+            module.childEntities.forEach((entity) => {
+                const ownerId = Array.from(modules.keys()).find((id) => {
+                    return modules.get(id)?.manifest.childEntities?.includes(entity);
+                });
+
+                if (ownerId) {
+                    warn(
+                        'ModuleFactory',
+                        `Module "${moduleId}": the child entity "${entity}" is already claimed by module "${ownerId}". The first registered module wins.`,
+                    );
+                }
+            });
+        }
     }
 
     const moduleDefinition: ModuleDefinition = {
@@ -477,11 +510,26 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
 }
 
 /**
+ * Returns the first registered module that lists the given entity in its `childEntities`.
+ * It does not match a module's own `entity`, use `getModuleByEntityName` for that.
+ */
+function getModuleByChildEntity(childEntity: string): ModuleDefinition | undefined {
+    return Array.from(modules.values()).find(({ manifest }) => {
+        return manifest.childEntities?.includes(childEntity);
+    });
+}
+
+/**
  * Returns a list of all module specific snippets
  *
  * @deprecated tag:v6.8.0 - Will be removed together with the module manifest `snippets` property.
  */
 function getModuleSnippets(): { [lang: string]: Snippets | undefined } {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'ModuleFactory.getModuleSnippets() is deprecated and will be removed together with the module manifest "snippets" property.',
+    );
+
     return Array.from(modules.values()).reduce<{
         [lang: string]: Snippets | undefined;
     }>((accumulator, module) => {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedUploadFinalizePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadPreparePayload;
@@ -24,18 +25,22 @@ readonly class PresignedUploadController
     {
     }
 
-    #[Route(path: '/api/_action/media/presign-upload', name: 'api.action.media.presign-upload', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/presign-upload', name: 'api.action.media.presign-upload', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function prepare(
         #[MapRequestPayload]
         PresignedUploadPreparePayload $payload,
         Context $context,
     ): JsonResponse {
+        if ($payload->mediaId === null && !$context->isAllowed('media:create')) {
+            throw MediaException::missingPrivileges(['media:create']);
+        }
+
         return new JsonResponse(
             $this->presignedMediaUploadService->prepare($payload, $context)
         );
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/finalize-upload', name: 'api.action.media.finalize-upload', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/{mediaId}/finalize-upload', name: 'api.action.media.finalize-upload', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function finalize(
         string $mediaId,
         #[MapRequestPayload]

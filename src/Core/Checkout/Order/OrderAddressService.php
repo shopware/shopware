@@ -192,9 +192,7 @@ class OrderAddressService
         }
 
         // If it's used also as a shipping address, but that will be overwritten anyway we can still reuse it
-        $deliveryId = $this->getDeliveryIdForOrderAddressId($order, $newOrderAddressId);
-
-        if ($deliveryId !== null && !$this->mappingContainsShippingAddress($deliveryId, $allMappings)) {
+        if ($this->isKeptAsShippingAddress($order, $newOrderAddressId, $allMappings)) {
             return Uuid::randomHex();
         }
 
@@ -220,6 +218,11 @@ class OrderAddressService
 
         // If it's the same as the billing address, but billing address will be overwritten anyway we can still reuse it
         if ($newOrderAddressId === $order->getBillingAddressId() && !$this->mappingContainsBillingAddress($allMappings)) {
+            return Uuid::randomHex();
+        }
+
+        // If another delivery shares it and keeps it, we need to create a new one
+        if ($this->isKeptAsShippingAddress($order, $newOrderAddressId, $allMappings)) {
             return Uuid::randomHex();
         }
 
@@ -254,20 +257,18 @@ class OrderAddressService
         return false;
     }
 
-    private function getDeliveryIdForOrderAddressId(OrderEntity $order, string $orderAddressId): ?string
+    /**
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $mappings
+     */
+    private function isKeptAsShippingAddress(OrderEntity $order, string $orderAddressId, array $mappings): bool
     {
-        $deliveries = $order->getDeliveries();
-        if ($deliveries === null) {
-            return null;
-        }
-
-        foreach ($deliveries as $delivery) {
-            if ($delivery->getShippingOrderAddressId() === $orderAddressId) {
-                return $delivery->getId();
+        foreach ($order->getDeliveries() ?? [] as $delivery) {
+            if ($delivery->getShippingOrderAddressId() === $orderAddressId && !$this->mappingContainsShippingAddress($delivery->getId(), $mappings)) {
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
     private function getOrderAddressIdForDeliveryId(OrderEntity $order, string $deliveryId): string

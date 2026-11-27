@@ -623,7 +623,8 @@
           "label": {
             "descriptionAndReviews": "Produktbeschreibung und -bewertungen",
             "description": "Beschreibung",
-            "reviews": "Bewertungen"
+            "reviews": "Bewertungen",
+            "documents": "Dokumente"
           }
         }
       },

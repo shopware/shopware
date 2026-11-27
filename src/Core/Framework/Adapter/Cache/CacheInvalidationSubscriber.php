@@ -25,6 +25,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
@@ -39,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -73,6 +76,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
  */
 class CacheInvalidationSubscriber
 {
+    private const MEDIA_BATCH_SIZE = 10000;
+
     /**
      * @internal
      */
@@ -80,6 +85,7 @@ class CacheInvalidationSubscriber
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly Connection $connection,
         private readonly bool $productStreamIndexerEnabled,
+        private readonly int $mediaBatchSize = self::MEDIA_BATCH_SIZE,
     ) {
     }
 
@@ -90,6 +96,17 @@ class CacheInvalidationSubscriber
         }
 
         $this->cacheInvalidator->invalidate([InitialStateIdLoader::CACHE_KEY], true);
+    }
+
+    public function invalidateSearchConfig(EntityWrittenContainerEvent $event): void
+    {
+        if (!$event->getPrimaryKeys(ProductSearchConfigDefinition::ENTITY_NAME)
+            && !$event->getPrimaryKeys(ProductSearchConfigFieldDefinition::ENTITY_NAME)
+        ) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate([CachedSearchConfigLoader::CACHE_KEY], true);
     }
 
     public function invalidateSitemap(SitemapGeneratedEvent $event): void
@@ -107,8 +124,13 @@ class CacheInvalidationSubscriber
 
     public function invalidateConfigKey(SystemConfigChangedHook $event): void
     {
-        // invalidates the complete cached config immediately
-        $this->cacheInvalidator->invalidate([CachedSystemConfigLoader::CACHE_TAG], true);
+        // invalidates the cached config immediately: a global change is inherited by all sales channels,
+        // a sales channel specific change only affects the config of that sales channel
+        $loaderTag = $event->salesChannelId === null || $event->salesChannelId === ''
+            ? CachedSystemConfigLoader::CACHE_TAG
+            : CachedSystemConfigLoader::buildSalesChannelTag($event->salesChannelId);
+
+        $this->cacheInvalidator->invalidate([$loaderTag], true);
 
         // SystemConfig is often uses to store internal values. In such cases clients can set silent flag to true,
         // so no http cache invalidations will happen.
@@ -358,34 +380,39 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate($logs);
     }
 
+    /**
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
+     */
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
-        /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
-        $productIds = $this->connection->fetchAllAssociative(
-            'SELECT
-                    LOWER(HEX(pm.product_id)) as product_id,
-                    IF(variant.id IS NULL,  NULL, LOWER(HEX(variant.id))) as variant_id
-                    FROM product_media AS pm
-                    LEFT JOIN product as variant ON (pm.product_id = variant.parent_id)
-                    WHERE media_id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds())],
-            ['ids' => ArrayParameterType::STRING]
-        );
-
-        $variantIds = array_filter(array_column($productIds, 'variant_id'));
-        $uniqueProductIds = array_unique(array_column($productIds, 'product_id'));
-        $productIds = array_merge(
-            $uniqueProductIds,
-            $variantIds,
-        );
-
-        $tags = array_map(ProductDetailRoute::buildName(...), $productIds);
-
-        if (Feature::isActive('CACHE_REWORK')) {
-            $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $event->getIds()));
+        $mediaIds = $event->getIds();
+        if ($mediaIds === []) {
+            return;
         }
 
-        $this->cacheInvalidator->invalidate($tags);
+        $pending = [];
+        foreach ($this->getMediaProductBatches($mediaIds) as $ids) {
+            foreach ($ids as $id) {
+                $pending[Uuid::fromBytesToHex($id)] = true;
+                if (\count($pending) === $this->mediaBatchSize) {
+                    $this->cacheInvalidator->invalidate($this->getMediaProductTags(array_keys($pending)));
+                    $pending = [];
+                }
+            }
+        }
+
+        $tags = [
+            ...$this->getMediaProductTags(array_keys($pending)),
+            ...$this->getMediaUsageTags($mediaIds),
+        ];
+        if (Feature::isActive('CACHE_REWORK')) {
+            $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $mediaIds));
+        }
+        if ($tags !== []) {
+            $this->cacheInvalidator->invalidate($tags);
+        }
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void
@@ -487,6 +514,190 @@ class CacheInvalidationSubscriber
     }
 
     /**
+     * @param list<string> $mediaIds
+     *
+     * @return \Generator<int, list<string>>
+     *
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
+     */
+    private function getMediaProductBatches(array $mediaIds): \Generator
+    {
+        yield from $this->getDocumentProductBatches($mediaIds);
+
+        // The paged path fixes one media_id at a time to follow its FK index, and fetches variants separately
+        // so a large variant family cannot multiply an assignment page.
+        // Without this probe, even 500 media IDs with one product each would need 500 assignment queries,
+        // plus variant queries where needed. Resolve small events with one bounded join instead.
+        $probe = $this->connection->fetchAllAssociative(
+            'SELECT pm.product_id, variant.id AS variant_id
+             FROM product_media pm LEFT JOIN product variant ON variant.parent_id = pm.product_id
+             WHERE pm.media_id IN (:ids) LIMIT ' . $this->mediaBatchSize,
+            ['ids' => Uuid::fromHexToBytesList($mediaIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        if (\count($probe) < $this->mediaBatchSize) {
+            if ($probe !== []) {
+                yield array_merge(array_column($probe, 'product_id'), array_filter(array_column($probe, 'variant_id')));
+            }
+
+            return;
+        }
+
+        unset($probe);
+
+        foreach (Uuid::fromHexToBytesList($mediaIds) as $mediaId) {
+            $base = $this->connection->createQueryBuilder()
+                ->select('pm.id', 'pm.version_id', 'pm.product_id', 'EXISTS(SELECT 1 FROM product v WHERE v.parent_id = pm.product_id) AS has_variants')
+                // InnoDB appends (id, version_id) to the media_id FK index, so it supports this cursor's order.
+                // MySQL may instead scan PRIMARY for ORDER BY, visiting assignments for unrelated media.
+                // Exclude that plan without hard-coding the FK index name.
+                ->from('product_media pm IGNORE INDEX (PRIMARY)')
+                ->where('pm.media_id = :media')
+                ->orderBy('pm.id')
+                ->addOrderBy('pm.version_id')
+                ->setMaxResults($this->mediaBatchSize)
+                ->setParameter('media', $mediaId);
+
+            $last = null;
+            do {
+                $page = clone $base;
+                if ($last !== null) {
+                    $page->andWhere('pm.id > :id OR (pm.id = :id AND pm.version_id > :version)')
+                        ->setParameter('id', $last['id'])
+                        ->setParameter('version', $last['version_id']);
+                }
+
+                $rows = $page->executeQuery()->fetchAllAssociative();
+                if ($rows === []) {
+                    break;
+                }
+
+                yield array_column($rows, 'product_id');
+
+                $parents = array_column(array_filter($rows, static fn (array $row): bool => (bool) $row['has_variants']), 'product_id');
+                if ($parents !== []) {
+                    yield from $this->getMediaVariantBatches(array_values(array_unique($parents)));
+                }
+
+                $last = $rows[array_key_last($rows)];
+            } while (\count($rows) === $this->mediaBatchSize);
+        }
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return \Generator<int, list<string>>
+     *
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
+     */
+    private function getDocumentProductBatches(array $mediaIds): \Generator
+    {
+        $base = $this->connection->createQueryBuilder()
+            ->select('COALESCE(product.parent_id, product.id) AS owner_id')
+            ->distinct()
+            ->from('product_document_translation', 'pdt')
+            ->innerJoin('pdt', 'product_document', 'pd', 'pdt.product_document_id = pd.id AND pdt.product_document_version_id = pd.version_id')
+            ->innerJoin('pd', 'product', 'product', 'pd.product_id = product.id AND pd.product_version_id = product.version_id')
+            ->where('pdt.media_id IN (:ids)')
+            ->andWhere('pd.version_id = :version')
+            ->orderBy('owner_id')
+            ->setMaxResults($this->mediaBatchSize)
+            ->setParameter('ids', Uuid::fromHexToBytesList($mediaIds), ArrayParameterType::BINARY)
+            ->setParameter('version', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+
+        $lastId = null;
+        do {
+            $page = clone $base;
+            if ($lastId !== null) {
+                $page->andWhere('COALESCE(product.parent_id, product.id) > :last')
+                    ->setParameter('last', $lastId);
+            }
+
+            $ids = $page->executeQuery()->fetchFirstColumn();
+            if ($ids === []) {
+                return;
+            }
+
+            yield $ids;
+
+            $lastId = $ids[array_key_last($ids)];
+        } while (\count($ids) === $this->mediaBatchSize);
+    }
+
+    /**
+     * @param list<string> $parents
+     *
+     * @return \Generator<int, list<string>>
+     *
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
+     */
+    private function getMediaVariantBatches(array $parents): \Generator
+    {
+        $base = $this->connection->createQueryBuilder()
+            ->select('parent_id', 'parent_version_id', 'id')
+            ->from('product')
+            ->where('parent_id IN (:parents)')
+            ->orderBy('parent_id')
+            ->addOrderBy('parent_version_id')
+            ->addOrderBy('id')
+            ->setMaxResults($this->mediaBatchSize)
+            ->setParameter('parents', $parents, ArrayParameterType::BINARY);
+
+        $last = null;
+        do {
+            $page = clone $base;
+            if ($last !== null) {
+                // Follow the parent FK index, including nullable parent versions. Equal IDs have the same cache tag.
+                $page->andWhere('parent_id > :parent OR (parent_id = :parent AND (
+                    parent_version_id > :version OR (parent_version_id IS NOT NULL AND :version IS NULL)
+                    OR (parent_version_id <=> :version AND id > :id)))')
+                    ->setParameter('parent', $last['parent_id'])
+                    ->setParameter('version', $last['parent_version_id'])
+                    ->setParameter('id', $last['id']);
+            }
+
+            $rows = $page->executeQuery()->fetchAllAssociative();
+            if ($rows === []) {
+                return;
+            }
+
+            yield array_column($rows, 'id');
+
+            $last = $rows[array_key_last($rows)];
+        } while (\count($rows) === $this->mediaBatchSize);
+    }
+
+    /**
+     * @param list<string> $productIds
+     *
+     * @return array<string>
+     *
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\MediaCacheInvalidationTest
+     */
+    private function getMediaProductTags(array $productIds): array
+    {
+        if ($productIds === []) {
+            return [];
+        }
+
+        return [
+            ...array_map(ProductDetailRoute::buildName(...), $productIds),
+            ...array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds)),
+            ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $this->getStreamIds($productIds)),
+        ];
+    }
+
+    /**
      * @return string[]
      */
     private function getDeletedPropertyFilterTags(EntityWrittenContainerEvent $event): array
@@ -520,6 +731,138 @@ class CacheInvalidationSubscriber
              AND product_version_id = :version
              AND category_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * Returns the cache tags of the pages showing the media, besides the product detail pages of the product media.
+     * The media of slot configs are mapped to their layouts and owners by the media usage indexers.
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getMediaUsageTags(array $mediaIds): array
+    {
+        return array_values(array_unique([
+            ...array_map(CategoryRoute::buildName(...), [
+                ...$this->getCategoryIdsByMedia($mediaIds),
+                ...$this->getCategoryIdsBySlotConfigOverride($mediaIds),
+            ]),
+            ...array_map(EntityCacheKeyGenerator::buildCmsTag(...), [
+                ...$this->getCmsPageIdsByMedia($mediaIds),
+                ...$this->getCmsPageIdsByBackground($mediaIds),
+            ]),
+            ...array_map(LandingPageRoute::buildName(...), $this->getLandingPageIdsBySlotConfigOverride($mediaIds)),
+            ...array_map(EntityCacheKeyGenerator::buildProductTag(...), $this->getProductIdsBySlotConfigOverride($mediaIds)),
+            ...array_map(EntityCacheKeyGenerator::buildManufacturerTag(...), $this->getManufacturerIdsByMedia($mediaIds)),
+        ]));
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCategoryIdsByMedia(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(id)) FROM category WHERE media_id IN (:ids) AND version_id = :version', $mediaIds);
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCategoryIdsBySlotConfigOverride(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(category_id)) FROM category_translation_media_usage WHERE media_id IN (:ids) AND category_version_id = :version', $mediaIds);
+    }
+
+    /**
+     * The media of CMS elements, mapped by the media usage indexer
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCmsPageIdsByMedia(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_page_id)) FROM cms_page_media_usage WHERE media_id IN (:ids) AND cms_page_version_id = :version', $mediaIds);
+    }
+
+    /**
+     * Section and block backgrounds, a block belongs to its layout by its section
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getCmsPageIdsByBackground(array $mediaIds): array
+    {
+        $pageIds = $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_page_id)) FROM cms_section WHERE background_media_id IN (:ids) AND version_id = :version', $mediaIds);
+        $sectionIds = $this->fetchIdsByMedia('SELECT LOWER(HEX(cms_section_id)) FROM cms_block WHERE background_media_id IN (:ids) AND version_id = :version', $mediaIds);
+        if ($sectionIds === []) {
+            return $pageIds;
+        }
+
+        return [
+            ...$pageIds,
+            ...$this->connection->fetchFirstColumn(
+                'SELECT LOWER(HEX(cms_page_id)) FROM cms_section WHERE id IN (:ids) AND version_id = :version',
+                ['ids' => Uuid::fromHexToBytesList($sectionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+                ['ids' => ArrayParameterType::BINARY]
+            ),
+        ];
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getLandingPageIdsBySlotConfigOverride(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(landing_page_id)) FROM landing_page_translation_media_usage WHERE media_id IN (:ids) AND landing_page_version_id = :version', $mediaIds);
+    }
+
+    /**
+     * The detail page of a variant is tagged with its parent
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return array<string>
+     */
+    private function getProductIdsBySlotConfigOverride(array $mediaIds): array
+    {
+        $ids = $this->fetchIdsByMedia('SELECT LOWER(HEX(product_id)) FROM product_translation_media_usage WHERE media_id IN (:ids) AND product_version_id = :version', $mediaIds);
+
+        return $ids === [] ? [] : $this->getParentIds($ids);
+    }
+
+    /**
+     * The detail pages of products are tagged with their manufacturer, whose logo they can show
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getManufacturerIdsByMedia(array $mediaIds): array
+    {
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(id)) FROM product_manufacturer WHERE media_id IN (:ids) AND version_id = :version', $mediaIds);
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function fetchIdsByMedia(string $sql, array $mediaIds): array
+    {
+        return $this->connection->fetchFirstColumn(
+            $sql,
+            ['ids' => Uuid::fromHexToBytesList($mediaIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
     }

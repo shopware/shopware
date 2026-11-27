@@ -28,6 +28,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
@@ -38,7 +39,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\DocumentConfigLoaderFactory;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -406,6 +409,16 @@ class DocumentPersisterTest extends TestCase
                 return $event;
             });
 
+        $order = new OrderEntity();
+        $order->setId($orderId);
+        $order->setSalesChannelId(Uuid::randomHex());
+        $orderRepository = StaticEntityRepository::of(OrderCollection::class, [static function (Criteria $criteria, Context $context) use ($order, $orderVersionId): OrderCollection {
+            static::assertSame($orderVersionId, $context->getVersionId());
+            static::assertSame(['salesChannelId'], $criteria->getFields());
+
+            return new OrderCollection([$order]);
+        }]);
+
         $persister = new DocumentPersister(
             $documentRepository,
             $documentFileRepository,
@@ -414,6 +427,8 @@ class DocumentPersisterTest extends TestCase
             $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             $eventDispatcher,
+            $orderRepository,
+            DocumentConfigLoaderFactory::create($this->createEmptyDocumentTypeRegistry(), static::createStub(SystemConfigService::class)),
         );
 
         $document = $persister->persistUploaded(
@@ -434,6 +449,7 @@ class DocumentPersisterTest extends TestCase
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
         static::assertSame($mediaId, $documentRepository->creates[0][0]['documentMediaFileId']);
         static::assertTrue($documentRepository->creates[0][0]['static']);
+        static::assertFalse($documentRepository->creates[0][0]['config']['displayInCustomerAccount']);
 
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(self::FORMAT, $documentFileRepository->creates[0][0]['documentFormat']);
@@ -561,6 +577,8 @@ class DocumentPersisterTest extends TestCase
             $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             static::createStub(EventDispatcherInterface::class),
+            new StaticEntityRepository([new OrderCollection()]),
+            DocumentConfigLoaderFactory::create($this->createEmptyDocumentTypeRegistry(), static::createStub(SystemConfigService::class)),
         );
 
         $persister->persist(
@@ -650,6 +668,8 @@ class DocumentPersisterTest extends TestCase
                 $documentTypeRegistry,
                 $fileNameProvider,
                 $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
+                new StaticEntityRepository([new OrderCollection()]),
+                DocumentConfigLoaderFactory::create($documentTypeRegistry, static::createStub(SystemConfigService::class)),
             ),
             $documentRepository,
             $documentFileRepository,

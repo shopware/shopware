@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
@@ -53,7 +54,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -343,6 +344,7 @@ class DocumentV2ControllerTest extends TestCase
                 'static' => true,
                 'deepLinkCode' => $payload['deepLinkCode'],
                 'config' => [
+                    'displayInCustomerAccount' => false,
                     'documentNumber' => '1000',
                 ],
             ],
@@ -609,7 +611,9 @@ class DocumentV2ControllerTest extends TestCase
         );
     }
 
-    public function testUploadStoresBinaryRequestWithQueryPayload(): void
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function testUploadStoresBinaryRequestWithQueryPayload(bool $saveFails): void
     {
         $documentTypeId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
@@ -621,11 +625,17 @@ class DocumentV2ControllerTest extends TestCase
         $this->documentTypeRepository->searches[] = [$documentTypeId];
         $this->documentRepository->searches[] = $this->createUploadedDocumentSearch();
 
+        $tempFile = null;
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects($this->once())
             ->method('fetchFile')
-            ->with(static::isInstanceOf(Request::class))
-            ->willReturn($mediaFile);
+            ->with(static::isInstanceOf(Request::class), static::isString())
+            ->willReturnCallback(static function (Request $request, string $path) use (&$tempFile, $mediaFile): MediaFile {
+                $tempFile = $path;
+
+                return $mediaFile;
+            });
+        $tempFileExistedOnSave = false;
 
         $fileNameProvider = $this->createMock(FileNameProvider::class);
         $fileNameProvider->expects($this->once())
@@ -641,7 +651,15 @@ class DocumentV2ControllerTest extends TestCase
                 static::isInstanceOf(Context::class),
                 DocumentPersister::MEDIA_FOLDER,
             )
-            ->willReturn($mediaId);
+            ->willReturnCallback(static function () use (&$tempFile, &$tempFileExistedOnSave, $mediaId, $saveFails): string {
+                $tempFileExistedOnSave = \is_string($tempFile) && is_file($tempFile);
+
+                if ($saveFails) {
+                    throw new \LogicException('save failed');
+                }
+
+                return $mediaId;
+            });
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(DocumentFormat::PDF),
@@ -661,26 +679,36 @@ class DocumentV2ControllerTest extends TestCase
             new StaticEntityRepository([]),
         );
 
-        $response = $controller->upload(
-            Request::create(
-                '/api/_action/order/document-v2/upload?' . http_build_query([
-                    'documentNumber' => '1000',
-                    'documentType' => DocumentType::INVOICE->value,
-                    'extension' => DocumentFormat::PDF->value,
-                    'fileName' => 'invoice',
-                    'format' => DocumentFormat::PDF->value,
-                    'orderId' => $orderId,
-                    'orderVersionId' => $orderVersionId,
-                ], '', '&', \PHP_QUERY_RFC3986),
-                Request::METHOD_POST,
-                server: [
-                    'CONTENT_LENGTH' => (string) \strlen($content),
-                    'CONTENT_TYPE' => DocumentFormat::PDF->mimeType(),
-                ],
-                content: $content,
-            ),
-            Context::createDefaultContext(),
-        );
+        if ($saveFails) {
+            $this->expectExceptionObject(new \LogicException('save failed'));
+        }
+
+        try {
+            $response = $controller->upload(
+                Request::create(
+                    '/api/_action/order/document-v2/upload?' . http_build_query([
+                        'documentNumber' => '1000',
+                        'documentType' => DocumentType::INVOICE->value,
+                        'extension' => DocumentFormat::PDF->value,
+                        'fileName' => 'invoice',
+                        'format' => DocumentFormat::PDF->value,
+                        'orderId' => $orderId,
+                        'orderVersionId' => $orderVersionId,
+                    ], '', '&', \PHP_QUERY_RFC3986),
+                    Request::METHOD_POST,
+                    server: [
+                        'CONTENT_LENGTH' => (string) \strlen($content),
+                        'CONTENT_TYPE' => DocumentFormat::PDF->mimeType(),
+                    ],
+                    content: $content,
+                ),
+                Context::createDefaultContext(),
+            );
+        } finally {
+            static::assertTrue($tempFileExistedOnSave);
+            static::assertIsString($tempFile);
+            static::assertFileDoesNotExist($tempFile);
+        }
 
         $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -1286,7 +1314,7 @@ class DocumentV2ControllerTest extends TestCase
         ];
 
         if ($excludesNumberRange) {
-            $expectedFilters[] = new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $numberRangeId)]);
+            $expectedFilters[] = new NotEqualsFilter('id', $numberRangeId);
         }
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
@@ -1385,6 +1413,10 @@ class DocumentV2ControllerTest extends TestCase
         ?MediaService $mediaService = null,
         ?DocumentTypeRegistry $documentTypeRegistry = null,
     ): DocumentPersister {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setSalesChannelId(Uuid::randomHex());
+
         return new DocumentPersister(
             $this->documentRepository,
             $this->documentFileRepository,
@@ -1393,6 +1425,8 @@ class DocumentV2ControllerTest extends TestCase
             $documentTypeRegistry ?? $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             static::createStub(EventDispatcherInterface::class),
+            new StaticEntityRepository([new OrderCollection([$order])]),
+            DocumentConfigLoaderFactory::create($documentTypeRegistry ?? $this->createEmptyDocumentTypeRegistry(), static::createStub(SystemConfigService::class)),
         );
     }
 
@@ -1551,6 +1585,8 @@ class DocumentV2ControllerTest extends TestCase
                 $this->createTypeRegistry(),
                 $fileNameProvider,
                 static::createStub(EventDispatcherInterface::class),
+                $orderRepository,
+                DocumentConfigLoaderFactory::create($this->createTypeRegistry(), static::createStub(SystemConfigService::class)),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),

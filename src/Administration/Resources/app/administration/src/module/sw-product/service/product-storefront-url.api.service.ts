@@ -1,0 +1,153 @@
+/**
+ * @private
+ * @sw-package inventory
+ */
+import type { HttpClient } from 'src/core/factory/http-client.types';
+
+import ApiService from 'src/core/service/api.service';
+import type { LoginService } from 'src/core/service/login.service';
+import type RepositoryFactory from 'src/core/data/repository-factory.data';
+
+const { Criteria } = Shopware.Data;
+
+/**
+ * @private
+ */
+export type ProductStorefrontUrls = {
+    reachable: boolean;
+    domains: {
+        id: string;
+        url: string;
+        languageId: string;
+        productUrl: string | null;
+    }[];
+};
+
+type SalesChannelDomain = {
+    id: string;
+    url: string;
+    languageId: string;
+};
+
+type StoreApiProduct = {
+    product: {
+        seoUrls?: {
+            seoPathInfo: string;
+            isCanonical: boolean;
+            salesChannelId: string | null;
+        }[];
+    };
+};
+
+/**
+ * @private
+ */
+export default class ProductStorefrontUrlApiService extends ApiService {
+    private readonly repositoryFactory: RepositoryFactory;
+
+    constructor(
+        httpClient: HttpClient,
+        loginService: LoginService,
+        repositoryFactory: RepositoryFactory,
+        apiEndpoint = '_proxy/store-api',
+    ) {
+        super(httpClient, loginService, apiEndpoint);
+
+        this.name = 'productStorefrontUrlApiService';
+        this.repositoryFactory = repositoryFactory;
+    }
+
+    /**
+     * Returns whether the Storefront shows the product in the sales channel, and the product URL per domain.
+     * Returns null when the sales channel has no domain.
+     */
+    async fetchProductUrls(productId: string, salesChannelId: string): Promise<ProductStorefrontUrls | null> {
+        const domains = await this.fetchDomains(salesChannelId);
+
+        if (domains.length === 0) {
+            return null;
+        }
+
+        const languageIds = [...new Set(domains.map((domain) => domain.languageId))];
+        const languagePaths = await Promise.all(
+            languageIds.map((languageId) => this.fetchProductPath(productId, salesChannelId, languageId)),
+        );
+
+        const paths: Record<string, string> = {};
+        for (const [index, path] of languagePaths.entries()) {
+            if (path === null) {
+                return {
+                    reachable: false,
+                    domains: domains.map((domain) => ({ ...domain, productUrl: null })),
+                };
+            }
+
+            paths[languageIds[index]] = path;
+        }
+
+        return {
+            reachable: true,
+            domains: domains.map((domain) => ({
+                ...domain,
+                productUrl: ProductStorefrontUrlApiService.buildProductUrl(domain.url, paths[domain.languageId]),
+            })),
+        };
+    }
+
+    private async fetchDomains(salesChannelId: string): Promise<SalesChannelDomain[]> {
+        const criteria = new Criteria(1, null);
+        criteria.addFilter(Criteria.equals('salesChannelId', salesChannelId));
+
+        const domains = await this.repositoryFactory.create('sales_channel_domain').search(criteria);
+
+        return Array.from(domains)
+            .map(({ id, url, languageId }) => ({ id, url, languageId }))
+            .sort((a, b) => a.url.localeCompare(b.url));
+    }
+
+    private static buildProductUrl(domainUrl: string, path: string): string | null {
+        try {
+            const { protocol } = new URL(domainUrl);
+
+            if (protocol !== 'http:' && protocol !== 'https:') {
+                return null;
+            }
+        } catch {
+            return null;
+        }
+
+        return `${domainUrl.replace(/\/+$/, '')}${path}`;
+    }
+
+    private async fetchProductPath(productId: string, salesChannelId: string, languageId: string): Promise<string | null> {
+        try {
+            const response = await this.httpClient.post<StoreApiProduct>(
+                `${this.apiEndpoint}/${salesChannelId}/product/${productId}`,
+                {
+                    includes: {
+                        product: ['id', 'seoUrls'],
+                        seo_url: ['seoPathInfo', 'isCanonical', 'salesChannelId'],
+                    },
+                },
+                {
+                    headers: {
+                        ...this.getBasicHeaders(),
+                        'sw-language-id': languageId,
+                        'sw-include-seo-urls': '1',
+                    },
+                    params: { skipCmsPage: 1, skipConfigurator: 1 },
+                },
+            );
+            const seoUrls = (response.data.product.seoUrls ?? []).filter(({ isCanonical }) => isCanonical);
+            const seoUrl = seoUrls.find((url) => url.salesChannelId === salesChannelId) ?? seoUrls[0];
+
+            return seoUrl ? `/${seoUrl.seoPathInfo.replace(/^\/+/, '')}` : `/detail/${productId}`;
+        } catch (error) {
+            if ((error as { response?: { status?: number } }).response?.status === 404) {
+                return null;
+            }
+
+            throw error;
+        }
+    }
+}

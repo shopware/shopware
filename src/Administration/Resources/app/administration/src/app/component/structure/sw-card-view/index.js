@@ -22,7 +22,6 @@ import './sw-card-view.scss';
  *    </sw-card>
  * </sw-card-view>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

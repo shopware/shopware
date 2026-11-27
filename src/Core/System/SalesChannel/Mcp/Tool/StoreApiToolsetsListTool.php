@@ -3,9 +3,11 @@
 namespace Shopware\Core\System\SalesChannel\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
 
 /**
@@ -18,12 +20,12 @@ use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
  * the service id (= class). It is wired with the store-api toolset registry + session storage.
  */
 #[Package('framework')]
-#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', description: 'List the MCP toolsets and whether each is enabled for the current session, either in the connect URL or with shopware-toolset-enable. Use this when no advertised tool fits the task: a toolset\'s tools become available once you enable it.')]
+#[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, title: 'List Toolsets', annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false), description: 'List the MCP toolsets and whether each is enabled for the current session, either in the connect URL or with shopware-toolset-enable. Use this when no advertised tool fits the task: a toolset\'s tools become available once you enable it.')]
 #[McpToolGroup('discovery')]
 class StoreApiToolsetsListTool extends ToolsetsListTool
 {
     #[\Override]
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
         return parent::__invoke();
     }

@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartTaxDisplayRule;
 use Shopware\Core\Checkout\Cart\Rule\CartTotalPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Rule\CartVolumeRule;
 use Shopware\Core\Checkout\Cart\Rule\CartWeightRule;
+use Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule;
@@ -120,6 +121,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CartWeightRule::class)->tag('shopware.rule.definition');
     $services->set(CartVolumeRule::class)->tag('shopware.rule.definition');
     $services->set(CartHasDeliveryFreeItemRule::class)->tag('shopware.rule.definition');
+    $services->set(DeliveryContainerRule::class)->tag('shopware.rule.definition');
     $services->set(BillingCountryRule::class)->tag('shopware.rule.definition');
     $services->set(BillingStreetRule::class)->tag('shopware.rule.definition');
     $services->set(BillingZipCodeRule::class)->tag('shopware.rule.definition');

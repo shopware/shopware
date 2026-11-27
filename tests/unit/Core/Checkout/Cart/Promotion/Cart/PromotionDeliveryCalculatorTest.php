@@ -23,10 +23,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
@@ -188,6 +191,66 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertInstanceOf(AbsolutePriceDefinition::class, $priceDefinition);
         static::assertSame(0.0, $priceDefinition->getPrice());
         static::assertSame(0.0, $cart->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testDeliveryDiscountInOtherCurrencyRestoresPriceDefinitionFromPayloadValue(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $currencyId = $this->ids->get('currency');
+
+        $advancedPrice = new PromotionDiscountPriceEntity();
+        $advancedPrice->setUniqueIdentifier($this->ids->get('advanced-price'));
+        $advancedPrice->setCurrencyId($currencyId);
+        $advancedPrice->setPrice(4.0);
+
+        $promotion = new PromotionEntity();
+        $promotion->setId('free-shipping');
+        $promotion->setPriority(1);
+        $promotion->setUseIndividualCodes(false);
+
+        $promotionDiscount = new PromotionDiscountEntity();
+        $promotionDiscount->setId($this->ids->get('discount'));
+        $promotionDiscount->setType(PromotionDiscountEntity::TYPE_FIXED_UNIT);
+        $promotionDiscount->setScope(PromotionDiscountEntity::SCOPE_DELIVERY);
+        $promotionDiscount->setValue(10.0);
+        $promotionDiscount->setConsiderAdvancedRules(false);
+        $promotionDiscount->setPromotionDiscountPrices(new PromotionDiscountPriceCollection([$advancedPrice]));
+
+        // simulate a recalculation where the copied delivery discount line item
+        // carries the currency specific payload value and a QuantityPriceDefinition
+        $discount = (new PromotionItemBuilder())
+            ->buildDiscountLineItem('code-1', $promotion, $promotionDiscount, $currencyId, 2.0)
+            ->setPriceDefinition(new QuantityPriceDefinition(0, new TaxRuleCollection(), 1));
+
+        static::assertSame('4', $discount->getPayloadValue('value'));
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$discount]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        $priceDefinition = $discount->getPriceDefinition();
+        static::assertInstanceOf(AbsolutePriceDefinition::class, $priceDefinition);
+        static::assertSame(4.0, $priceDefinition->getPrice());
+        static::assertSame(4.0, $cart->getShippingCosts()->getTotalPrice());
     }
 
     public function testPromotionPrioritySorting(): void

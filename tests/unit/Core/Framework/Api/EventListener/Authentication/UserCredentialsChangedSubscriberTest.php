@@ -79,6 +79,31 @@ class UserCredentialsChangedSubscriberTest extends TestCase
         ]));
     }
 
+    public function testCreatingUserDoesNotInvalidateTokens(): void
+    {
+        $refreshTokenRepository = $this->createMock(RefreshTokenRepository::class);
+        $refreshTokenRepository->expects($this->never())->method('revokeRefreshTokensForUser');
+        $authCodeRepository = $this->createMock(AuthCodeRepository::class);
+        $authCodeRepository->expects($this->never())->method('revokeAuthCodesForUser');
+
+        $subscriber = new UserCredentialsChangedSubscriber(
+            $refreshTokenRepository,
+            $authCodeRepository,
+            $this->connectionExpectingTimestampUpdate(),
+            new MockClock('2026-06-30 12:00:00')
+        );
+
+        $subscriber->onUserWritten(new EntityWrittenEvent(
+            UserDefinition::ENTITY_NAME,
+            [new EntityWriteResult(self::USER_ID, [
+                'id' => self::USER_ID,
+                'password' => 'initial-password',
+                'active' => true,
+            ], UserDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT)],
+            Context::createDefaultContext()
+        ));
+    }
+
     public function testDeletingUserInvalidatesTokens(): void
     {
         $connection = $this->createMock(Connection::class);

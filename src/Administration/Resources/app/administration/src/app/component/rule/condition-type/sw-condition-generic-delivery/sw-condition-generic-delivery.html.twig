@@ -1,0 +1,24 @@
+{% block sw_condition_value_before_content %}
+<sw-single-select
+    v-if="allowAppliesTo"
+    v-model:value="appliesTo"
+    name="sw-field--appliesTo"
+    class="sw-condition-generic-delivery__applies-to"
+    :options="appliesToOptions"
+    :disabled="isDisabled || undefined"
+    required
+>
+    <template #result-item="{ item, index, labelProperty, isSelected, setValue, getKey }">
+        <sw-select-result
+            v-tooltip="getOptionTooltip(item)"
+            :disabled="item.disabled"
+            :class="'sw-select-option--' + item.value"
+            :selected="isSelected(item)"
+            v-bind="{ item, index }"
+            @item-select="setValue"
+        >
+            {{ getKey(item, labelProperty) }}
+        </sw-select-result>
+    </template>
+</sw-single-select>
+{% endblock %}

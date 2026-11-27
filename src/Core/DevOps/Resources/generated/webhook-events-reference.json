@@ -1,0 +1,570 @@
+{
+    "sales_channel.written": {
+        "privileges": [
+            "sales_channel:read"
+        ]
+    },
+    "sales_channel.deleted": {
+        "privileges": [
+            "sales_channel:read"
+        ]
+    },
+    "sales_channel_domain.written": {
+        "privileges": [
+            "sales_channel_domain:read"
+        ]
+    },
+    "sales_channel_domain.deleted": {
+        "privileges": [
+            "sales_channel_domain:read"
+        ]
+    },
+    "category.written": {
+        "privileges": [
+            "category:read"
+        ]
+    },
+    "category.deleted": {
+        "privileges": [
+            "category:read"
+        ]
+    },
+    "media.written": {
+        "privileges": [
+            "media:read"
+        ]
+    },
+    "media.deleted": {
+        "privileges": [
+            "media:read"
+        ]
+    },
+    "product.written": {
+        "privileges": [
+            "product:read"
+        ]
+    },
+    "product.deleted": {
+        "privileges": [
+            "product:read"
+        ]
+    },
+    "product_price.written": {
+        "privileges": [
+            "product_price:read"
+        ]
+    },
+    "product_price.deleted": {
+        "privileges": [
+            "product_price:read"
+        ]
+    },
+    "customer.written": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "customer.deleted": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "customer_address.written": {
+        "privileges": [
+            "customer_address:read"
+        ]
+    },
+    "customer_address.deleted": {
+        "privileges": [
+            "customer_address:read"
+        ]
+    },
+    "order.written": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "order.deleted": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "order_address.written": {
+        "privileges": [
+            "order_address:read"
+        ]
+    },
+    "order_address.deleted": {
+        "privileges": [
+            "order_address:read"
+        ]
+    },
+    "document.written": {
+        "privileges": [
+            "document:read"
+        ]
+    },
+    "document.deleted": {
+        "privileges": [
+            "document:read"
+        ]
+    },
+    "checkout.customer.before.login": {
+        "privileges": []
+    },
+    "checkout.customer.deleted": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "checkout.customer.double_opt_in_guest_order": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "checkout.customer.double_opt_in_registration": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "checkout.customer.guest_register": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "checkout.customer.login": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "checkout.customer.logout": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "checkout.customer.register": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "checkout.order.payment_method.changed": {
+        "privileges": [
+            "order:read",
+            "order_transaction:read"
+        ]
+    },
+    "checkout.order.placed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "contact_form.send": {
+        "privileges": []
+    },
+    "customer.group.registration.accepted": {
+        "privileges": [
+            "customer:read",
+            "customer_group:read"
+        ]
+    },
+    "customer.group.registration.declined": {
+        "privileges": [
+            "customer:read",
+            "customer_group:read"
+        ]
+    },
+    "customer.password.changed": {
+        "privileges": [
+            "customer:read"
+        ]
+    },
+    "document.generation.completed": {
+        "privileges": []
+    },
+    "document.generation.deleted": {
+        "privileges": []
+    },
+    "mail.sent": {
+        "privileges": []
+    },
+    "newsletter.confirm": {
+        "privileges": [
+            "newsletter_recipient:read"
+        ]
+    },
+    "newsletter.register": {
+        "privileges": [
+            "newsletter_recipient:read"
+        ]
+    },
+    "newsletter.unsubscribe": {
+        "privileges": [
+            "newsletter_recipient:read"
+        ]
+    },
+    "product_export.log": {
+        "privileges": []
+    },
+    "review_form.send": {
+        "privileges": [
+            "product:read"
+        ]
+    },
+    "revocation_request.sent": {
+        "privileges": []
+    },
+    "state_enter.order.state.cancelled": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order.state.completed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order.state.in_progress": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order.state.open": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_delivery.state.cancelled": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_delivery.state.open": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_delivery.state.returned": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_delivery.state.returned_partially": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_delivery.state.shipped": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_delivery.state.shipped_partially": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.authorized": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.cancelled": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.chargeback": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.failed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.in_progress": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.open": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.paid": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.paid_partially": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.refunded": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.refunded_partially": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.reminded": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction.state.unconfirmed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction_capture.state.completed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction_capture.state.failed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction_capture.state.pending": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction_capture_refund.state.cancelled": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction_capture_refund.state.completed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction_capture_refund.state.failed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction_capture_refund.state.in_progress": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_enter.order_transaction_capture_refund.state.open": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order.state.cancelled": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order.state.completed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order.state.in_progress": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order.state.open": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_delivery.state.cancelled": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_delivery.state.open": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_delivery.state.returned": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_delivery.state.returned_partially": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_delivery.state.shipped": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_delivery.state.shipped_partially": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.authorized": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.cancelled": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.chargeback": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.failed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.in_progress": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.open": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.paid": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.paid_partially": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.refunded": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.refunded_partially": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.reminded": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction.state.unconfirmed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction_capture.state.completed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction_capture.state.failed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction_capture.state.pending": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction_capture_refund.state.cancelled": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction_capture_refund.state.completed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction_capture_refund.state.failed": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction_capture_refund.state.in_progress": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "state_leave.order_transaction_capture_refund.state.open": {
+        "privileges": [
+            "order:read"
+        ]
+    },
+    "media.uploaded": {
+        "privileges": [
+            "media:read"
+        ]
+    },
+    "app.activated": {
+        "privileges": []
+    },
+    "app.deactivated": {
+        "privileges": []
+    },
+    "app.deleted": {
+        "privileges": []
+    },
+    "app.installed": {
+        "privileges": []
+    },
+    "app.updated": {
+        "privileges": []
+    },
+    "app.permissions.updated": {
+        "privileges": []
+    },
+    "shopware.updated": {
+        "privileges": []
+    },
+    "app.config.changed": {
+        "privileges": [
+            "system_config:read"
+        ]
+    },
+    "app.system_heartbeat": {
+        "privileges": []
+    },
+    "consent.backend_data.accepted": {
+        "privileges": [
+            "consent:backend_data:read"
+        ]
+    },
+    "consent.backend_data.revoked": {
+        "privileges": [
+            "consent:backend_data:read"
+        ]
+    },
+    "consent.product_analytics.accepted": {
+        "privileges": [
+            "consent:product_analytics:read"
+        ]
+    },
+    "consent.product_analytics.revoked": {
+        "privileges": [
+            "consent:product_analytics:read"
+        ]
+    }
+}

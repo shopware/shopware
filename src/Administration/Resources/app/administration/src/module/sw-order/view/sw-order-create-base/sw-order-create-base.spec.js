@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-create-base', { sync: true }), {
@@ -66,6 +67,7 @@ async function createWrapper() {
 
 describe('src/module/sw-order/view/sw-order-create-base', () => {
     beforeEach(() => {
+        allowDeprecation('The component "sw-order-create-base" is deprecated');
         Shopware.Store.get('swOrder').$reset();
     });
 

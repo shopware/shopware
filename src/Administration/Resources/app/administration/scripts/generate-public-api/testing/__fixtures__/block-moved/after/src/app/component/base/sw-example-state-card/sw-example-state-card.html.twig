@@ -1,0 +1,72 @@
+{% block sw_example_state_card %}
+<mt-card
+    class="sw-example-state-card"
+    :title="title"
+    :is-loading="isLoading"
+>
+    {% block sw_example_state_card_state %}
+    <div class="sw-example-state-card__state">
+        <div class="sw-example-state-card__state-container">
+            {% block sw_example_state_card_state_select %}
+            <sw-example-state-select
+                :transition-options="stateOptions"
+                :state-type="entityName"
+                :label="stateLabel"
+                :disabled="isDisabled"
+                :is-loading="statesLoading"
+                @state-select="onStateSelected"
+            >
+                <template #hint>
+                    {% block sw_example_state_card_state_history_text %}
+                    <div
+                        v-if="lastStateChange"
+                        class="sw-example-state-card__state-history-text"
+                    >
+                        {% block sw_example_state_card_state_history_text_label %}
+                        <span class="sw-example-state-card__state-history-author">
+                            {{ lastChangeAuthorLabel }}
+                        </span>
+                        {% endblock %}
+
+                        {% block sw_example_state_card_state_history_text_internal_comment %}
+                        <mt-icon
+                            v-if="lastStateChange.internalComment"
+                            v-tooltip="lastStateChange.internalComment"
+                            name="regular-comment"
+                            size="var(--scale-size-14)"
+                        />
+                        {% endblock %}
+                    </div>
+
+                    <div v-else></div>
+                    {% endblock %}
+                </template>
+            </sw-example-state-select>
+            {% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_example_state_card_divider %}
+    <hr class="sw-example-state-card__divider">
+    {% endblock %}
+
+    {% block sw_example_state_card_content %}
+    <sw-container
+        class="sw-example-state-card__content"
+        columns="1fr 1fr"
+    >
+        {% block sw_example_state_card_state_history_button %}
+        <mt-link
+            as="button"
+            class="sw-example-state-card__state-history-button"
+            icon="regular-long-arrow-right"
+            @click="onShowStatusHistory"
+        >
+            {{ $t('sw-example-state-card.labelShowHistoryModal') }}
+        </mt-link>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</mt-card>
+{% endblock %}

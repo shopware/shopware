@@ -363,78 +363,83 @@ class ThemeServiceTest extends TestCase
         $this->getThemeService(themeCompiler: $themeCompiler)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
-    public function testCompileThemeRefreshesConfigValuesWithStaticFileConfigLoaderWhenDatabaseIsAvailable(): void
+    public function testCompileThemeRefreshesRuntimeConfigWithStaticFileConfigLoaderWhenDatabaseIsAvailable(): void
     {
         $themeId = Uuid::randomHex();
-        $fs = new Filesystem(new InMemoryFilesystemAdapter());
-        $fs->write(
-            \sprintf('theme-config/%s.json', $themeId),
-            json_encode([
-                'styleFiles' => [],
-                'scriptFiles' => [],
-            ], \JSON_THROW_ON_ERROR)
-        );
-        $configLoader = new StaticFileConfigLoader($fs);
+        $configLoader = $this->createStaticFileConfigLoader($themeId);
+        $configurationCollection = new StorefrontPluginConfigurationCollection();
+        $importMap = ['imports' => ['foo' => '/bundles/foo.js']];
 
         $themeCompiler = $this->createMock(ThemeCompiler::class);
         $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             static::anything(),
-            static::anything(),
+            $configurationCollection,
             true,
             $this->context
         );
-        $themeCompiler->expects($this->never())->method('buildComponentImportMap');
+        $themeCompiler->expects($this->once())
+            ->method('buildComponentImportMap')
+            ->with($configurationCollection)
+            ->willReturn($importMap);
 
         $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
-        $runtimeConfigService->expects($this->once())->method('refreshConfigValues')->with($themeId, $this->context);
-        $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
+        $runtimeConfigService->expects($this->once())->method('refreshRuntimeConfig')->with(
+            $themeId,
+            static::isInstanceOf(StorefrontPluginConfiguration::class),
+            $this->context,
+            true,
+            $configurationCollection,
+            $importMap
+        );
 
         $this->getThemeService(
             themeCompiler: $themeCompiler,
             configLoader: $configLoader,
             runtimeConfigService: $runtimeConfigService,
-        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, $configurationCollection);
     }
 
-    public function testCompileThemeDoesNotRefreshConfigValuesWithStaticFileConfigLoaderWhenDatabaseIsUnavailable(): void
+    public function testCompileThemeDoesNotFailWithStaticFileConfigLoaderWhenDatabaseIsUnavailable(): void
     {
         $themeId = Uuid::randomHex();
-        $fs = new Filesystem(new InMemoryFilesystemAdapter());
-        $fs->write(
-            \sprintf('theme-config/%s.json', $themeId),
-            json_encode([
-                'styleFiles' => [],
-                'scriptFiles' => [],
-            ], \JSON_THROW_ON_ERROR)
-        );
-        $configLoader = new StaticFileConfigLoader($fs);
+        $configLoader = $this->createStaticFileConfigLoader($themeId);
 
         $themeCompiler = $this->createMock(ThemeCompiler::class);
-        $themeCompiler->expects($this->once())->method('compileTheme')->with(
-            TestDefaults::SALES_CHANNEL,
-            $themeId,
-            static::anything(),
-            static::anything(),
-            true,
-            $this->context
-        );
-        $themeCompiler->expects($this->never())->method('buildComponentImportMap');
+        $themeCompiler->expects($this->once())->method('compileTheme');
 
         $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
-        $driverException = static::createStub(Driver\Exception::class);
         $runtimeConfigService->expects($this->once())
-            ->method('refreshConfigValues')
-            ->with($themeId, $this->context)
-            ->willThrowException(new ConnectionException($driverException, null));
-        $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
+            ->method('refreshRuntimeConfig')
+            ->willThrowException(new ConnectionException(static::createStub(Driver\Exception::class), null));
 
         $this->getThemeService(
             themeCompiler: $themeCompiler,
             configLoader: $configLoader,
             runtimeConfigService: $runtimeConfigService,
-        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, new StorefrontPluginConfigurationCollection());
+    }
+
+    public function testCompileThemeRethrowsConnectionExceptionWithDatabaseConfigLoader(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $databaseConfigLoader = static::createStub(DatabaseConfigLoader::class);
+        $databaseConfigLoader->method('load')->willReturn(new StorefrontPluginConfiguration('Storefront'));
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->expects($this->once())
+            ->method('refreshRuntimeConfig')
+            ->willThrowException(new ConnectionException(static::createStub(Driver\Exception::class), null));
+
+        $this->expectException(ConnectionException::class);
+
+        $this->getThemeService(
+            themeCompiler: static::createStub(ThemeCompiler::class),
+            configLoader: $databaseConfigLoader,
+            runtimeConfigService: $runtimeConfigService,
+        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, new StorefrontPluginConfigurationCollection());
     }
 
     public function testCompileThemeAsyncSkipHeader(): void
@@ -671,33 +676,37 @@ class ThemeServiceTest extends TestCase
         );
     }
 
-    public function testRefreshThemeImportMapReturnsEarlyWithStaticFileConfigLoader(): void
+    public function testRefreshThemeImportMapWithStaticFileConfigLoader(): void
     {
         $themeId = Uuid::randomHex();
-        $fs = new Filesystem(new InMemoryFilesystemAdapter());
-        $fs->write(\sprintf('theme-config/%s.json', $themeId), json_encode([
-            'styleFiles' => [],
-            'scriptFiles' => [],
-        ], \JSON_THROW_ON_ERROR));
-        $configLoader = new StaticFileConfigLoader($fs);
+        $configLoader = $this->createStaticFileConfigLoader($themeId);
+        $configurationCollection = new StorefrontPluginConfigurationCollection();
 
         $themeCompiler = $this->createMock(ThemeCompiler::class);
-        $themeCompiler->expects($this->never())->method('buildComponentImportMap');
+        $themeCompiler->expects($this->once())
+            ->method('buildComponentImportMap')
+            ->with($configurationCollection)
+            ->willReturn(null);
 
         $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
-        $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
+        $runtimeConfigService->expects($this->once())->method('refreshRuntimeConfig')->with(
+            $themeId,
+            static::isInstanceOf(StorefrontPluginConfiguration::class),
+            $this->context,
+            false,
+            $configurationCollection,
+            ['imports' => []]
+        );
 
-        $themeService = $this->getThemeService(
+        $this->getThemeService(
             themeCompiler: $themeCompiler,
             configLoader: $configLoader,
             runtimeConfigService: $runtimeConfigService,
-        );
-
-        $themeService->refreshThemeImportMap(
+        )->refreshThemeImportMap(
             TestDefaults::SALES_CHANNEL,
             $themeId,
             $this->context,
-            new StorefrontPluginConfigurationCollection()
+            $configurationCollection
         );
     }
 
@@ -993,6 +1002,64 @@ class ThemeServiceTest extends TestCase
         $this->getThemeService(themeCompiler: $themeCompiler, eventDispatcher: $eventDispatcher)->updateTheme($themeId, $config, $parentThemeId, $this->context);
     }
 
+    public function testUpdateThemeDispatchesConfigChangedEventAfterThePersist(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $this->connectionMock->method('fetchAllAssociative')->willReturn([
+            ['id' => $themeId, 'saleschannelId' => TestDefaults::SALES_CHANNEL],
+        ]);
+
+        $searchResult = new EntitySearchResult(
+            'theme',
+            1,
+            new ThemeCollection([
+                (new ThemeEntity())->assign([
+                    '_uniqueIdentifier' => $themeId,
+                    'salesChannels' => new SalesChannelCollection(),
+                    // Null config mirrors the admin reset=1 save that triggers the bug.
+                    'configValues' => null,
+                    'baseConfig' => [
+                        'fields' => [
+                            'sw-color-brand-primary' => ['type' => 'color', 'value' => '#0042a0'],
+                        ],
+                    ],
+                ]),
+            ]),
+            null,
+            new Criteria(),
+            $this->context
+        );
+
+        $this->mergedConfigBuilderMock->method('getPlainThemeConfiguration')->willReturn([
+            'fields' => [
+                'sw-color-brand-primary' => ['type' => 'color', 'value' => '#0042a0'],
+            ],
+        ]);
+
+        $themeRepository = new StaticEntityRepository([$searchResult]);
+        $updatesAtDispatch = 0;
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->willReturnCallback(
+            function (object $event) use ($themeRepository, &$updatesAtDispatch): object {
+                static::assertInstanceOf(ThemeConfigChangedEvent::class, $event);
+                $updatesAtDispatch = \count($themeRepository->updates);
+
+                return $event;
+            }
+        );
+
+        $this->getThemeService(
+            themeRepository: $themeRepository,
+            eventDispatcher: $eventDispatcher,
+        )->updateTheme($themeId, ['sw-color-brand-primary' => ['value' => '#ff00ff']], null, $this->context);
+
+        // The StaticFileConfigDumper listener re-reads the DB on this event, so the write must come first.
+        static::assertSame(1, $updatesAtDispatch);
+        static::assertCount(1, $themeRepository->updates);
+    }
+
     public function testUpdateThemeNoSalesChannelAssigned(): void
     {
         $themeId = Uuid::randomHex();
@@ -1052,6 +1119,27 @@ class ThemeServiceTest extends TestCase
             null,
             $this->context,
         );
+    }
+
+    public function testUpdateThemeWithSkipCompileStateDoesNotCompile(): void
+    {
+        $themeId = Uuid::randomHex();
+        $theme = new ThemeEntity();
+        $theme->setId($themeId);
+        $theme->setSalesChannels(new SalesChannelCollection());
+        $repository = new StaticEntityRepository([new ThemeCollection([$theme])]);
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['id' => $themeId, 'saleschannelId' => TestDefaults::SALES_CHANNEL]]);
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->never())->method('compileTheme');
+
+        $this->context->state(
+            fn () => $this->getThemeService(themeRepository: $repository, themeCompiler: $themeCompiler, connection: $connection)
+                ->updateTheme($themeId, null, null, $this->context),
+            ThemeService::STATE_SKIP_COMPILE,
+        );
+
+        static::assertSame([[['id' => $themeId]]], $repository->updates);
     }
 
     public function testUpdateThemeNoTheme(): void
@@ -1423,5 +1511,16 @@ class ThemeServiceTest extends TestCase
             $mergedConfigBuilder ?? $this->mergedConfigBuilderMock,
             $runtimeConfigService ?? $this->runtimeConfigServiceMock,
         );
+    }
+
+    private function createStaticFileConfigLoader(string $themeId): StaticFileConfigLoader
+    {
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write(\sprintf('theme-config/%s.json', $themeId), json_encode([
+            'styleFiles' => [],
+            'scriptFiles' => [],
+        ], \JSON_THROW_ON_ERROR));
+
+        return new StaticFileConfigLoader($fs);
     }
 }

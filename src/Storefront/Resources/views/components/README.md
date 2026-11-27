@@ -654,6 +654,15 @@ export default async () => {
 
 The unified component dev server loads each active bundle's config and applies its `resolve.alias` entries only to imports from that bundle's resource tree. This lets different bundles use the same alias name for different paths, including when a module under `Resources/app/storefront/src` imports another module through the alias. Other bundle-specific build options and plugins are used by the component build only.
 
+### Production JavaScript inventory
+
+Production component builds generate one CycloneDX JSON SBOM per bundle at `Resources/sbom/storefront/components.cdx.json`.
+The report covers all emitted JavaScript chunks, including bundled npm libraries and dynamically loaded code.
+Custom configurations receive this automatically when built through `build:components`.
+The reports are outside `Resources/public`, so `assets:install` does not publish them.
+Keep these files when packaging an extension after build-source cleanup.
+See the [build documentation](../../app/storefront/build/README.md#production-javascript-sboms) for custom output naming, external dependencies, and coverage boundaries.
+
 ### Build security defaults
 
 When bundle-local dependencies are installed during `build:components`, lifecycle scripts are blocked by default:

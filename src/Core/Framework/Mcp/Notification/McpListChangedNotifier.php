@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp\Notification;
 
+use Mcp\Exception\SessionStoreException;
 use Mcp\Schema\Notification\PromptListChangedNotification;
 use Mcp\Schema\Notification\ResourceListChangedNotification;
 use Mcp\Schema\Notification\ToolListChangedNotification;
@@ -21,7 +22,9 @@ use Symfony\Component\Uid\Uuid;
  * Queues `list_changed` notifications in a session's outgoing queue in the session store; the client
  * receives them with its next request. Changes for every session are pulled, not pushed: notify()
  * bumps a shared list version and syncSession() queues the notification when a session sees a version
- * it has not seen yet. See "List change notifications" in `Mcp/AGENTS.md`.
+ * it has not seen yet. Clients on the stateless era have no session; their `subscriptions/listen` streams
+ * read the same versions through {@see McpListVersionsNotificationBus}. See "List change notifications"
+ * in `Mcp/AGENTS.md`.
  */
 #[Package('framework')]
 class McpListChangedNotifier
@@ -54,8 +57,9 @@ class McpListChangedNotifier
     }
 
     /**
-     * Announces an installation-wide capability change (e.g. app install or uninstall) to every
-     * session, on every server. Costs one write; each session picks the change up on its next request.
+     * Announces an installation-wide capability change (e.g. app install or uninstall, or an allowlist edit) to every
+     * session, on every server. Costs one write; each session picks the change up on its next request,
+     * and each `subscriptions/listen` stream of the stateless era within about a second.
      */
     public function notify(McpListChangedNotificationSet $notifications): void
     {
@@ -63,7 +67,11 @@ class McpListChangedNotifier
             return;
         }
 
-        $this->listVersions?->bump($notifications);
+        if ($this->listVersions === null) {
+            return;
+        }
+
+        $this->listVersions->bump($notifications);
     }
 
     /**
@@ -144,7 +152,17 @@ class McpListChangedNotifier
             return null;
         }
 
-        if (!$sessionStore->exists($uuid)) {
+        try {
+            if (!$sessionStore->exists($uuid)) {
+                return null;
+            }
+        } catch (SessionStoreException $exception) {
+            // The SDK answers such a request with a 503. syncSession() compares the versions again on the next one.
+            $this->logger->warning('Skipping MCP list_changed notification while the session store is unavailable.', [
+                'sessionId' => $sessionId,
+                'exception' => $exception,
+            ]);
+
             return null;
         }
 

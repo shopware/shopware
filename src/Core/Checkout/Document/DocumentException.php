@@ -58,6 +58,8 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_AUTH_THROTTLED = 'DOCUMENT__AUTH_THROTTLED';
 
+    public const ORDER_DELIVERY_NOT_FOUND = 'DOCUMENT__ORDER_DELIVERY_NOT_FOUND';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -325,6 +327,19 @@ class DocumentException extends HttpException
             'Could not generate document of type "{{ documentType }}" for order "{{ orderId }}" because the referenced invoice could not be found.',
             [
                 'documentType' => $documentType,
+                'orderId' => $orderId,
+            ]
+        );
+    }
+
+    public static function orderDeliveryNotFound(string $orderDeliveryId, string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_DELIVERY_NOT_FOUND,
+            'The delivery with id "{{ orderDeliveryId }}" does not belong to the order with id "{{ orderId }}".',
+            [
+                'orderDeliveryId' => $orderDeliveryId,
                 'orderId' => $orderId,
             ]
         );

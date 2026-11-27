@@ -9,7 +9,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { record, warn } from './setup-context';
+import { record, warnTypeCheckOrLint } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
 import { describeConfigFix } from './report-guidance';
@@ -100,7 +100,7 @@ export function ensureEntitySchema(context: GeneratorContext): boolean {
     ].join('\n');
 
     record(context, writeManagedFile(entitySchemaPath, stubContent, context.dryRun));
-    warn(
+    warnTypeCheckOrLint(
         context,
         'The generated entity schema types are missing; a stub with an empty entity list was created. ' +
             `Run \`${context.commands.generateSchema}\` to get installation-specific entity types.`,
@@ -355,7 +355,7 @@ export function scaffoldExtensionConfigs(
         const verdict = tsconfigVerdict(tsconfigPath, relativePosix(context.projectRoot, tsconfigPath));
 
         if (!verdict.composes) {
-            warn(
+            warnTypeCheckOrLint(
                 context,
                 `${tsconfigPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware preset.'} ` +
                     `Fix: ${flattenFix(describeConfigFix('TypeScript', verdict))}`,
@@ -368,7 +368,7 @@ export function scaffoldExtensionConfigs(
         const verdict = eslintConfigVerdict(eslintPath, relativePosix(context.projectRoot, eslintPath));
 
         if (!verdict.composes) {
-            warn(
+            warnTypeCheckOrLint(
                 context,
                 `${eslintPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware factory.'} ` +
                     `Fix: ${flattenFix(describeConfigFix('ESLint', verdict))}`,

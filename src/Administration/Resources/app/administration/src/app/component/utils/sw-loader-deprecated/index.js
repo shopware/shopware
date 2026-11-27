@@ -11,7 +11,6 @@ import template from './sw-loader.html.twig';
  * @component-example
  * <sw-loader />
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

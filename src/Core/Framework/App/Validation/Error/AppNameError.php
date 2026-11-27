@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppNameError implements Error
 {
+    public const CODE = 'FRAMEWORK__APP_NAME_MISMATCH';
+
     private readonly string $message;
 
     public function __construct(string $appName)
@@ -25,5 +27,20 @@ class AppNameError implements Error
     public function getMessage(): string
     {
         return $this->message;
+    }
+
+    public function getErrorCode(): string
+    {
+        return self::CODE;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Fail;
     }
 }

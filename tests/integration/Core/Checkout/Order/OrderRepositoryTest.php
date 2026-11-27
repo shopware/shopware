@@ -201,6 +201,51 @@ class OrderRepositoryTest extends TestCase
         static::assertCount(0, $count);
     }
 
+    public function testDeliveriesCreatedWithoutPositionGetTheNextFreePositionOfTheirOrderVersion(): void
+    {
+        $orderId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $this->orderRepository->create($this->getOrderData($orderId), $context);
+        $this->addDeliveryWithoutPosition($orderId, $context);
+
+        $versionContext = $context->createWithVersionId($this->orderRepository->createVersion($orderId, $context));
+        $this->addDeliveryWithoutPosition($orderId, $versionContext);
+        $this->addDeliveryWithoutPosition($orderId, $context);
+
+        static::assertSame([1, 2, 3], $this->getDeliveryPositions($orderId, $context));
+        static::assertSame([1, 2, 3], $this->getDeliveryPositions($orderId, $versionContext));
+    }
+
+    private function addDeliveryWithoutPosition(string $orderId, Context $context): void
+    {
+        $placedDelivery = $this->orderRepository->search((new Criteria([$orderId]))->addAssociation('deliveries'), $context)
+            ->getEntities()->first()?->getDeliveries()?->first();
+        static::assertNotNull($placedDelivery);
+
+        $this->orderRepository->update([[
+            'id' => $orderId,
+            'deliveries' => [[
+                'stateId' => $placedDelivery->getStateId(),
+                'shippingMethodId' => $placedDelivery->getShippingMethodId(),
+                'shippingOrderAddressId' => $placedDelivery->getShippingOrderAddressId(),
+                'shippingCosts' => $placedDelivery->getShippingCosts(),
+                'shippingDateEarliest' => $placedDelivery->getShippingDateEarliest(),
+                'shippingDateLatest' => $placedDelivery->getShippingDateLatest(),
+            ]],
+        ]], $context);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function getDeliveryPositions(string $orderId, Context $context): array
+    {
+        return array_map(intval(...), static::getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT position FROM order_delivery WHERE order_id = :orderId AND order_version_id = :versionId ORDER BY position',
+            ['orderId' => Uuid::fromHexToBytes($orderId), 'versionId' => Uuid::fromHexToBytes($context->getVersionId())]
+        ));
+    }
+
     private function createCustomer(): string
     {
         $customerId = Uuid::randomHex();

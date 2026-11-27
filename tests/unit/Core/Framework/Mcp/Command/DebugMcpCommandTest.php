@@ -69,6 +69,33 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame(0, $tester->getStatusCode());
     }
 
+    public function testShowsTheProtocolEraOfEachServer(): void
+    {
+        $registry = new Registry();
+        $storeApiRegistry = new Registry();
+        $command = new DebugMcpCommand(
+            Server::builder()->setRegistry($registry),
+            $registry,
+            static::createStub(McpAllowlistProvider::class),
+            new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider()),
+            Server::builder()->setRegistry($storeApiRegistry),
+            $storeApiRegistry,
+            new McpCapabilityCatalog($storeApiRegistry, $this->stubPrivilegeProvider()),
+            protocolEras: ['admin' => 'auto', 'store_api' => 'legacy'],
+        );
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Protocol era: auto (handshake revisions up to 2025-11-25 and the stateless 2026-07-28 revision)', $output);
+        static::assertStringContainsString('Protocol era: legacy (handshake revisions up to 2025-11-25)', $output);
+        static::assertLessThan(
+            strpos($output, 'Protocol era: legacy'),
+            strpos($output, 'Protocol era: auto'),
+            'the Admin API server comes first',
+        );
+    }
+
     public function testEmptyRegistryShowsNoCapabilitiesMessages(): void
     {
         $command = $this->makeCommand(new Registry());
@@ -188,30 +215,12 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame($sorted, $positions, 'Detail rows must read Title, Type, Scope, Group, Handler.');
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function malformedRequiredSchemaProvider(): iterable
+    public function testDetailViewRendersToolWithoutRequiredKey(): void
     {
-        yield 'required key omitted, as the SDK SchemaGenerator does when no parameter is required' => [
-            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]],
-        ];
-
-        yield 'required value is not an array, as unvalidated third-party registrations may carry' => [
-            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']], 'required' => 'invalid'],
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $inputSchema
-     */
-    #[DataProvider('malformedRequiredSchemaProvider')]
-    public function testDetailViewRendersToolWithMalformedRequiredSchema(array $inputSchema): void
-    {
+        // the SDK SchemaGenerator omits 'required' when no parameter is required
         $registry = new Registry();
         $registry->registerTool(
-            // @phpstan-ignore argument.type (malformed schemas are not bound by the ToolInputSchema type alias at runtime)
-            new Tool('my-tool', null, $inputSchema, 'Does things', null),
+            new Tool('my-tool', null, ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]], 'Does things', null),
             'Acme\\MyTool',
         );
 

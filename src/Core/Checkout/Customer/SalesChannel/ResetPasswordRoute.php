@@ -106,6 +106,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, $emailKey);
             $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_CLIENT, (string) $request->getClientIp());
             $this->rateLimiter->reset(RateLimiter::RESET_PASSWORD, $cacheKey);
+            $this->rateLimiter->resetIfConfigured(RateLimiter::RESET_PASSWORD_USER, $emailKey);
         }
 
         $customerData = [

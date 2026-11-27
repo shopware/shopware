@@ -12,7 +12,6 @@ import './sw-inheritance-warning.scss';
  * @component-example
  * <sw-inheritance-warning :name="'This product'"></sw-inheritance-warning>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

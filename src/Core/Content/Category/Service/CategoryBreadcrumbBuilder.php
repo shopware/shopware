@@ -207,6 +207,8 @@ class CategoryBreadcrumbBuilder
 
         if (
             !$category instanceof CategoryEntity
+            // @deprecated tag:v6.8.0 - Remove when MainCategoryEntity::getCategory() returns null instead of an empty entity.
+            || !isset($category->id)
             || !\in_array($category->getId(), $product->getCategoryIds() ?? [], true)
             || !$this->isCategoryAvailableForCustomer($category, $context)
         ) {

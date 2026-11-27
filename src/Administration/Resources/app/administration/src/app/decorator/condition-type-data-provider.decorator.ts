@@ -56,6 +56,7 @@ export type RuleGroup = (typeof GROUPS)[keyof typeof GROUPS];
 export const COMPONENTS = {
     GENERIC: 'sw-condition-generic',
     GENERIC_LINE_ITEM: 'sw-condition-generic-line-item',
+    GENERIC_DELIVERY: 'sw-condition-generic-delivery',
     LINE_ITEM: 'sw-condition-line-item',
     LINE_ITEM_WITH_QUANTITY: 'sw-condition-line-item-with-quantity',
     LINE_ITEM_PROPERTY: 'sw-condition-line-item-property',
@@ -458,7 +459,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'cartHasDeliveryFreeItem',
-        component: COMPONENTS.GENERIC,
+        component: COMPONENTS.GENERIC_DELIVERY,
         label: 'global.sw-condition.condition.hasDeliveryFreeItemRule',
         scopes: [SCOPES.CART],
         group: GROUPS.ITEM,
@@ -472,14 +473,14 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'cartWeight',
-        component: COMPONENTS.GENERIC,
+        component: COMPONENTS.GENERIC_DELIVERY,
         label: 'global.sw-condition.condition.weightOfCartRule',
         scopes: [SCOPES.CART],
         group: GROUPS.CART,
     },
     {
         type: 'cartVolume',
-        component: COMPONENTS.GENERIC,
+        component: COMPONENTS.GENERIC_DELIVERY,
         label: 'global.sw-condition.condition.volumeOfCartRule',
         scopes: [SCOPES.CART],
         group: GROUPS.CART,
@@ -862,12 +863,18 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
     const orderRestrictions = service
         .getRestrictionsByGroup(GROUPS.ORDER)
         .filter((type) => service.getByType(type).scopes.indexOf(SCOPES.CHECKOUT) === -1);
+    const promotionRestrictions = [
+        'cartCartAmount',
+        'cartShippingCost',
+        'deliveryContainer',
+        ...orderRestrictions,
+    ];
 
     return [
         {
             name: 'personaPromotions',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 equalsAny: ['alwaysValid', ...service.getRestrictionsByGroup(GROUPS.CUSTOMER)],
                 snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
             },
@@ -875,28 +882,28 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
         {
             name: 'orderPromotions',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
             },
         },
         {
             name: 'cartPromotions',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
             },
         },
         {
             name: 'promotionSetGroups',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
             },
         },
         {
             name: 'promotionDiscounts',
             config: {
-                notEquals: ['cartCartAmount', 'cartShippingCost', ...orderRestrictions],
+                notEquals: [...promotionRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
             },
         },
@@ -917,7 +924,7 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
         {
             name: 'paymentMethods',
             config: {
-                notEquals: [...orderRestrictions],
+                notEquals: ['deliveryContainer', ...orderRestrictions],
                 snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',
             },
         },

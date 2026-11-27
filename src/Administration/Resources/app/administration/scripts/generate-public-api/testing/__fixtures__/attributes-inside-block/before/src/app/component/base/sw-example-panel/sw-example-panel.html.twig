@@ -1,0 +1,41 @@
+{% block sw_example_panel %}
+<div class="sw-example-panel">
+    {% block sw_example_panel_header %}
+    <div class="sw-example-panel__header">
+        {% block sw_example_panel_title %}
+        <h2 class="sw-example-panel__title">
+            {{ title }}
+        </h2>
+        {% endblock %}
+
+        {% block sw_example_panel_actions %}
+        <slot name="actions"></slot>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_example_panel_list %}
+    <ul class="sw-example-panel__list">
+        {% block sw_example_panel_list_item %}
+        <li
+            v-for="item in items"
+            :key="item.id"
+            class="sw-example-panel__item"
+            @click="onSelectItem(item)"
+        >
+            {{ item.name }}
+        </li>
+        {% endblock %}
+    </ul>
+    {% endblock %}
+
+    {% block sw_example_panel_empty_state %}
+    <p
+        v-if="!hasItems"
+        class="sw-example-panel__empty"
+    >
+        No items yet.
+    </p>
+    {% endblock %}
+</div>
+{% endblock %}

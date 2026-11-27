@@ -22,7 +22,7 @@ Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. 
 - Request paths are validated before they are mapped to a template path. Template discovery paths come from code and registered template storage.
 - Discovery is cached per file family because it can run during 404 handling. Runtime responses are tagged with the matching `sales_channel_file.id`; discovery caches are cleared when app, plugin, app-template, or system update events can change registered templates.
 - Merchant overrides are rendered through `SalesChannelFileTemplateOverrideLoader`, a high-priority Twig loader that is activated only for the duration of one render. The loader does not read the database, so public rendering and Administration previews use the same renderer without coupling Twig to request state.
-- Additional render-time data for core templates, such as the public base URL or Store API MCP endpoint, is passed through the scoped `salesChannelFileContext` Twig variable instead of extending the exposed `salesChannelFile` metadata object.
+- Additional render-time data for core templates, such as `APP_URL`, the public base URL or Store API MCP endpoint, is passed through the scoped `salesChannelFileContext` Twig variable instead of extending the exposed `salesChannelFile` metadata object.
 - Extensions that need more Twig data can subscribe to `SalesChannelFileRenderParametersExtension::onPost()` and add values only for the files they handle.
 
 ## Namespace Layout
@@ -31,6 +31,8 @@ Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. 
 - `Loader`: loads sales-channel configuration and coordinates public or preview rendering.
 - `Rendering`: activates merchant override templates and renders the resolved Twig stack.
 - `Api`: exposes Administration HTTP endpoints and assembles Administration read payloads.
+- `SalesChannel`: exposes enabled files through the Store API for headless frontends.
+- `Extension`: extension events of the Store API route.
 - Root namespace: request path validation, 404 fallback serving, cache invalidation, and exceptions.
 
 ## Discovery Flow

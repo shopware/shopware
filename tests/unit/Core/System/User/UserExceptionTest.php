@@ -49,4 +49,13 @@ class UserExceptionTest extends TestCase
             'path' => 'user.email',
         ], $exception->getParameters());
     }
+
+    public function testUserChangeNotAllowed(): void
+    {
+        $exception = UserException::userChangeNotAllowed();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(UserException::USER_CHANGE_NOT_ALLOWED, $exception->getErrorCode());
+        static::assertSame('A user and its access keys can only be changed or deleted by that user or an admin.', $exception->getMessage());
+    }
 }

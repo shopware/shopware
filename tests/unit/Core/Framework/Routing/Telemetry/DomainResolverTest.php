@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Telemetry\DomainResolver;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -39,7 +40,7 @@ class DomainResolverTest extends TestCase
 
     public static function routeProvider(): \Generator
     {
-        // functional groups, first matching prefix wins
+        // route domains: longest matching prefix wins
         yield 'frontend.detail maps to product' => ['frontend.detail.page', [], 'product'];
         yield 'store-api product maps to product' => ['store-api.product.list', [], 'product'];
         yield 'cart prefix precedes checkout' => ['frontend.checkout.cart', [], 'cart'];
@@ -71,7 +72,29 @@ class DomainResolverTest extends TestCase
 
     private function createResolver(): DomainResolver
     {
-        return new DomainResolver(new EntityGroupResolver());
+        $registry = new LabelMappingRegistry([
+            DomainResolver::MAPPING_ROUTE_DOMAIN => [
+                'frontend.detail*' => 'product',
+                'store-api.product*' => 'product',
+                'frontend.checkout*' => 'checkout',
+                'frontend.checkout.cart*' => 'cart',
+                'frontend.account*' => 'customer',
+                'frontend.account.login*' => 'auth',
+                'frontend.account.order*' => 'order',
+            ],
+            DomainResolver::MAPPING_ACTION_DOMAIN => [
+                'cache' => 'cache',
+                'index' => 'indexing',
+                'system-config' => 'core',
+            ],
+            EntityGroupResolver::MAPPING => [
+                'product' => 'product',
+                'product_*' => 'product',
+                'order' => 'order',
+            ],
+        ], 'other');
+
+        return new DomainResolver($registry, new EntityGroupResolver($registry));
     }
 
     /**

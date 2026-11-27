@@ -67,34 +67,16 @@ class NavigationControllerTest extends TestCase
         static::assertArrayHasKey(MenuOffcanvasPageletLoadedHook::HOOK_NAME, $traces);
     }
 
-    public function testStorefrontRedirectsOutOfRangePaginationTo301(): void
+    public function testStorefrontAnswersOutOfRangePaginationWith404(): void
     {
-        // 5 products, default limit 24 → lastPage = 1; p=99 must redirect.
+        // 5 products, default limit 24 → lastPage = 1; p=99 does not exist.
         $seoPath = $this->createCategoryWithProducts(5);
 
         $response = $this->request('GET', $seoPath . '?p=99', []);
-
-        static::assertSame(301, $response->getStatusCode());
-
-        $location = $response->headers->get('Location');
-        static::assertNotNull($location);
-        static::assertStringNotContainsString('p=99', $location);
-        static::assertStringNotContainsString('p=', $location);
-    }
-
-    public function testStorefrontPreservesOtherQueryParamsOnRedirect(): void
-    {
-        $seoPath = $this->createCategoryWithProducts(5);
+        static::assertSame(404, $response->getStatusCode());
 
         $response = $this->request('GET', $seoPath . '?p=99&order=price-asc', []);
-
-        static::assertSame(301, $response->getStatusCode());
-
-        $location = $response->headers->get('Location');
-        static::assertNotNull($location);
-        static::assertStringContainsString('order=price-asc', $location);
-        static::assertStringNotContainsString('p=99', $location);
-        static::assertStringNotContainsString('p=', $location);
+        static::assertSame(404, $response->getStatusCode());
     }
 
     public function testStorefrontInRangePaginationStillReturns200AndRendersCanonicalUrl(): void

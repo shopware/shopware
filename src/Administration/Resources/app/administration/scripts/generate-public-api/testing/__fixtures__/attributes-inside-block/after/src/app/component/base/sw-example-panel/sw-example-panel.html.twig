@@ -1,0 +1,80 @@
+{% block sw_example_panel %}
+<div
+    class="sw-example-panel"
+    :class="{ 'is--loading': isLoading }"
+    role="region"
+    :aria-label="title"
+>
+    {% block sw_example_panel_header %}
+    <div class="sw-example-panel__header">
+        <div class="sw-example-panel__header-inner">
+            {% block sw_example_panel_title %}
+            <h2
+                class="sw-example-panel__headline"
+                :title="title"
+            >
+                <mt-icon
+                    name="regular-list"
+                    size="16px"
+                />
+                <span class="sw-example-panel__headline-text">{{ title }}</span>
+            </h2>
+            {% endblock %}
+
+            {% block sw_example_panel_actions %}
+            <div class="sw-example-panel__actions">
+                <slot name="actions"></slot>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_example_panel_list %}
+    <mt-loader
+        v-if="isLoading"
+        size="24px"
+    />
+
+    <ul
+        v-else
+        class="sw-example-panel__list"
+        role="listbox"
+    >
+        {% block sw_example_panel_list_item %}
+        <li
+            v-for="item in items"
+            :key="item.id"
+            class="sw-example-panel__item"
+            :class="{ 'is--selected': item.id === selectedId }"
+            role="option"
+            :aria-selected="item.id === selectedId"
+            @click="onSelectItem(item)"
+        >
+            <mt-icon
+                v-if="item.id === selectedId"
+                name="regular-checkmark-xs"
+                size="12px"
+            />
+            {{ item.name }}
+        </li>
+        {% endblock %}
+    </ul>
+    {% endblock %}
+
+    {% block sw_example_panel_empty_state %}
+    <div
+        v-if="!hasItems && !isLoading"
+        class="sw-example-panel__empty-state"
+    >
+        <mt-icon
+            name="regular-inbox"
+            size="24px"
+        />
+        <p class="sw-example-panel__empty">
+            There are no items in this list yet.
+        </p>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

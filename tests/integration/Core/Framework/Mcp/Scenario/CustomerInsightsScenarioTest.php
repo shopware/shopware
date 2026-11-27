@@ -71,11 +71,11 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
-        static::assertGreaterThanOrEqual(2, \count($data['data']));
+        static::assertGreaterThanOrEqual(2, \count($data->data));
 
-        foreach ($data['data'] as $review) {
+        foreach ($data->data as $review) {
             static::assertSame(1.0, $review['points']);
         }
     }
@@ -115,8 +115,8 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
-        $foundIds = array_column($data['data'], 'id');
+        $data = $this->assertToolSucceeded($output);
+        $foundIds = array_column($data->data, 'id');
 
         static::assertContains($ids->get('inactive'), $foundIds, 'Inactive customer should appear');
         static::assertNotContains($ids->get('active'), $foundIds, 'Active customer should not appear');
@@ -171,10 +171,10 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $data = $this->decodeToolOutput($output);
+        $data = $this->assertToolSucceeded($output);
 
-        static::assertArrayHasKey('aggregations', $data['data']);
-        static::assertArrayHasKey('avgOrderValue', $data['data']['aggregations']);
-        static::assertGreaterThan(0, $data['data']['aggregations']['avgOrderValue']['avg']);
+        static::assertArrayHasKey('aggregations', $data->data);
+        static::assertArrayHasKey('avgOrderValue', $data->data['aggregations']);
+        static::assertGreaterThan(0, $data->data['aggregations']['avgOrderValue']['avg']);
     }
 }

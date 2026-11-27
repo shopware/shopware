@@ -86,6 +86,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-media-folder-item.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
     },
@@ -114,7 +119,9 @@ export default {
                 return;
             }
 
-            const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
+            const module =
+                this.moduleFactory.getModuleByEntityName(defaultFolder.entity) ??
+                this.moduleFactory.getModuleByChildEntity(defaultFolder.entity);
 
             if (!module) {
                 warn('Missing module for default folder entity', defaultFolder.entity);

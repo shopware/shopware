@@ -23,49 +23,42 @@ async function createWrapper(propsData = {}) {
  * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
-    it('should show the correct title', async () => {
-        const wrapper = await createWrapper();
+    it.each([
+        {
+            action: 'cancels the subscription and removes the extension',
+            props: { isLicensed: true, hasDeletableFiles: true },
+            title: 'titleCancel["Awesome extension"]',
+            alert: 'alertCancel',
+            button: 'sw-extension-store.component.sw-extension-removal-modal.labelCancel',
+            explainsRemoval: true,
+        },
+        {
+            action: 'only cancels the subscription',
+            props: { isLicensed: true, hasDeletableFiles: false },
+            title: 'titleCancelSubscription["Awesome extension"]',
+            alert: 'alertCancelSubscription',
+            button: 'sw-extension-store.component.sw-extension-removal-modal.labelCancelSubscription',
+            explainsRemoval: false,
+        },
+        {
+            action: 'only removes the extension',
+            props: { isLicensed: false, hasDeletableFiles: true },
+            title: 'titleRemove["Awesome extension"]',
+            alert: 'alertRemove',
+            button: 'global.default.remove',
+            explainsRemoval: true,
+        },
+    ])('should word the modal for an action that $action', async ({ props, title, alert, button, explainsRemoval }) => {
+        const wrapper = await createWrapper(props);
 
-        let title = wrapper.vm.title;
-
-        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleCancel["Awesome extension"]');
-
-        await wrapper.setProps({
-            isLicensed: false,
-        });
-
-        title = wrapper.vm.title;
-        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleRemove["Awesome extension"]');
-    });
-
-    it('should show the correct alert text', async () => {
-        const wrapper = await createWrapper();
-
-        let alert = wrapper.vm.alert;
-
-        expect(alert).toBe('sw-extension-store.component.sw-extension-removal-modal.alertCancel');
-
-        await wrapper.setProps({
-            isLicensed: false,
-        });
-
-        alert = wrapper.vm.alert;
-        expect(alert).toBe('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
-    });
-
-    it('should show the correct button label', async () => {
-        const wrapper = await createWrapper();
-
-        let btnLabel = wrapper.vm.btnLabel;
-
-        expect(btnLabel).toBe('sw-extension-store.component.sw-extension-removal-modal.labelCancel');
-
-        await wrapper.setProps({
-            isLicensed: false,
-        });
-
-        btnLabel = wrapper.vm.alert;
-        expect(btnLabel).toBe('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
+        expect(wrapper.attributes('title')).toBe(`sw-extension-store.component.sw-extension-removal-modal.${title}`);
+        expect(wrapper.get('.sw-extension-removal-modal__bold-paragraph').text()).toBe(
+            `sw-extension-store.component.sw-extension-removal-modal.${alert}`,
+        );
+        expect(wrapper.findByText('button', button)).not.toBeNull();
+        expect(wrapper.text().includes('sw-extension-store.component.sw-extension-removal-modal.description')).toBe(
+            explainsRemoval,
+        );
     });
 
     it('should emit the close event', async () => {

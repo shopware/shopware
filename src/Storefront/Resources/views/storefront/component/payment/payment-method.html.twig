@@ -44,12 +44,12 @@
                                     {% set paymentName = payment.translated.name %}
 
                                     {% block component_payment_method_name %}
-                                        <strong>{{ paymentName }}</strong>
+                                        <strong class="payment-method-name">{{ paymentName }}</strong>
                                     {% endblock %}
 
                                     {% if payment.translated.description and payment.id is same as(selectedPaymentMethodId) %}
                                         {% set paymentDescription = payment.translated.description|raw %}
-                                        {% set paymentDescriptionTitle = payment.translated.description|striptags|raw %}
+                                        {% set paymentDescriptionTitle = payment.translated.description|raw|striptags %}
 
                                         {% block component_payment_method_description_text %}
                                             <p class="mb-0" title="{{ paymentDescriptionTitle }}">{{ paymentDescription }}</p>

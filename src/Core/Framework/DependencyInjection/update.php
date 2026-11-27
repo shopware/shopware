@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
@@ -11,7 +12,9 @@ use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Services\UpdateHtaccess;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
 use Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber;
+use Shopware\Core\Framework\Update\Subscriber\VersionHistorySubscriber;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -63,6 +66,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(UpdateSubscriber::class)
         ->args([
             service(NotificationService::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(VersionHistory::class)
+        ->args([
+            service(AbstractKeyValueStorage::class),
+            service(ClockInterface::class),
+            param('kernel.shopware_version'),
+        ]);
+
+    $services->set(VersionHistorySubscriber::class)
+        ->args([
+            service(VersionHistory::class),
         ])
         ->tag('kernel.event_subscriber');
 };

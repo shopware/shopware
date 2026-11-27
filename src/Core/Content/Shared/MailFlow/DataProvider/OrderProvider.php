@@ -39,6 +39,7 @@ class OrderProvider extends AbstractProvider
             'stateMachineState',
             'transactions.stateMachineState',
             'transactions.paymentMethod',
+            'transactions.captures.refunds',
             'deliveries.stateMachineState',
             'currency',
             'addresses.country',

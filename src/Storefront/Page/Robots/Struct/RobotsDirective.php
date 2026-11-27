@@ -18,6 +18,11 @@ class RobotsDirective
      */
     public function isPathBased(): bool
     {
+        // Content-Usage takes an optional path in front of the usage preference
+        if ($this->type === RobotsDirectiveType::CONTENT_USAGE) {
+            return str_starts_with($this->value, '/');
+        }
+
         return $this->type->isPathBased();
     }
 

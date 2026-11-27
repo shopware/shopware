@@ -12,6 +12,7 @@ const WebpackBar = require('webpackbar');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
+const getTwigWatchPaths = require('./build/webpack/twig-watch-paths');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -55,16 +56,17 @@ try {
 }
 
 const useExtensionTwigWatch = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
-let watchFilePaths = isHotMode ? [`${themeFiles.basePath}/**/*.twig`] : [];
+
+const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
+
+if (!fs.existsSync(pluginFile)) {
+    throw new Error(`The file ${pluginFile} could not be found. Try bin/console bundle:dump to create this file.`);
+}
+
+const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
+const watchFilePaths = isHotMode ? getTwigWatchPaths(projectRootPath, pluginDefinition, useExtensionTwigWatch) : [];
 
 const pluginEntries = (() => {
-    const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
-
-    if (!fs.existsSync(pluginFile)) {
-        throw new Error(`The file ${pluginFile} could not be found. Try bin/console bundle:dump to create this file.`);
-    }
-
-    const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
 
     return Object.entries(pluginDefinition)
         .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
@@ -74,12 +76,6 @@ const pluginEntries = (() => {
             const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
             const htmlFilePath = path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path, '..', 'index.html');
             const hasHtmlFile = fs.existsSync(htmlFilePath);
-
-            if (isHotMode && useExtensionTwigWatch && definition.views?.length > 0) {
-                watchFilePaths = watchFilePaths.concat(definition.views.map((view) => {
-                    return `${path.resolve(projectRootPath, definition.basePath, view)}/**/*.twig`;
-                }));
-            }
 
             return {
                 name,

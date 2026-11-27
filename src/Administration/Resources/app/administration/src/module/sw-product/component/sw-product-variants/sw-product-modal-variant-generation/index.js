@@ -8,6 +8,7 @@ import './sw-product-modal-variant-generation.scss';
 
 const { Criteria } = Shopware.Data;
 const { Mixin, Context } = Shopware;
+const { md5 } = Shopware.Utils.format;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -122,6 +123,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, no longer needed
         progressInPercentage() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-modal-variant-generation.progressInPercentage is deprecated. Will be removed, no longer needed.',
+            );
+
             return this.actualProgress / (this.maxProgress * 100);
         },
 
@@ -244,7 +250,7 @@ export default {
                             item.productStates = [];
                         }
                         item.type = 'physical';
-                        item.id = item.productNumber;
+                        item.id = Shopware.Utils.createId();
                         this.idToIndex[item.id] = index;
                     });
 
@@ -348,26 +354,37 @@ export default {
         generateVariants() {
             this.isLoading = true;
 
-            this.variantGenerationQueue.createQueue.forEach((item) => {
-                delete item.id;
+            const queues = {
+                deleteQueue: this.variantGenerationQueue.deleteQueue,
+                createQueue: this.variantGenerationQueue.createQueue.map((item) => {
+                    const variant = {
+                        ...item,
+                        options: item.options.map((option) => ({ id: option.id })),
+                        downloads: item.downloads.map((download) => ({
+                            id: md5(`${item.id}${download.id}`),
+                            mediaId: download.id,
+                        })),
+                    };
 
-                if (item.type === 'digital') {
-                    item.maxPurchase = 1;
-                    item.minPurchase = 1;
-                    item.isCloseout = false;
-                    item.shippingFree = false;
-                }
+                    if (variant.type === 'digital') {
+                        variant.maxPurchase = 1;
+                        variant.minPurchase = 1;
+                        variant.isCloseout = false;
+                        variant.shippingFree = false;
+                    }
 
-                const mediaIds = [];
-                item.downloads.forEach((download) => {
-                    mediaIds.push({ mediaId: download.id });
-                });
+                    return variant;
+                }),
+            };
 
-                item.downloads = mediaIds;
-            });
+            const originalOptionIds = new Set(this.originalConfiguratorSettings.map((setting) => setting.optionId));
+            const configuratorSettings = [
+                ...this.originalConfiguratorSettings,
+                ...this.product.configuratorSettings.filter((setting) => !originalOptionIds.has(setting.optionId)),
+            ];
 
             this.variantsGenerator
-                .saveVariants(this.variantGenerationQueue)
+                .saveConfiguratorSettings(configuratorSettings, queues.createQueue)
                 .then(() => {
                     return this.variantsGenerator.saveVariantRestrictions();
                 })
@@ -375,11 +392,7 @@ export default {
                     return this.variantsGenerator.saveVariantListingConfig();
                 })
                 .then(() => {
-                    this.addOriginalConfiguratorSettings();
-                    return this.variantsGenerator.saveConfiguratorSettings(
-                        this.product.configuratorSettings,
-                        this.variantGenerationQueue.createQueue,
-                    );
+                    return this.variantsGenerator.saveVariants(queues);
                 })
                 .then(() => {
                     this.$emit('variations-finish-generate');

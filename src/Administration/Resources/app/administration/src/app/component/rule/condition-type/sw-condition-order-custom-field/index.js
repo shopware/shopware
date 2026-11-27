@@ -14,7 +14,6 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-order-custom-field :condition="condition"></sw-condition-order-custom-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

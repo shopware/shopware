@@ -81,6 +81,44 @@ class BundleTest extends TestCase
         static::assertTrue($container->hasDefinition('unit_test.bundle.php_service'));
     }
 
+    #[DataProvider('environmentCases')]
+    public function testBuildLoadsEnvironmentSpecificServiceConfiguration(string $environment, string $expectedYamlValue): void
+    {
+        $container = $this->createContainerBuilder();
+        $container->setParameter('kernel.environment', $environment);
+
+        (new BundleStub(self::FIXTURES_DIR . '/with-env-config'))->build($container);
+
+        static::assertSame('loaded', $container->getParameter('unit_test.bundle.services.base'));
+        static::assertSame($expectedYamlValue, $container->getParameter('unit_test.bundle.services.yaml_environment'));
+        static::assertSame($environment, $container->getParameter('unit_test.bundle.services.php_environment'));
+        static::assertSame($environment === 'test', $container->hasParameter('unit_test.bundle.services.test_file'));
+    }
+
+    #[DataProvider('environmentCases')]
+    public function testBuildDefaultConfigLoadsEnvironmentSpecificPackageConfiguration(string $environment, string $expectedYamlValue): void
+    {
+        $container = $this->createContainerBuilder();
+        $container->setParameter('kernel.environment', $environment);
+
+        (new BundleStub(self::FIXTURES_DIR . '/with-env-config'))->runBuildDefaultConfig($container);
+
+        static::assertSame('loaded', $container->getParameter('unit_test.bundle.packages.base'));
+        static::assertSame($expectedYamlValue, $container->getParameter('unit_test.bundle.packages.yaml_environment'));
+        static::assertSame($environment, $container->getParameter('unit_test.bundle.packages.php_environment'));
+        static::assertSame($environment === 'prod', $container->hasParameter('unit_test.bundle.packages.prod_directory'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function environmentCases(): iterable
+    {
+        yield 'production loads only the production override' => ['prod', 'prod'];
+        yield 'test loads only the test override' => ['test', 'test'];
+        yield 'development keeps the base configuration' => ['dev', 'default'];
+    }
+
     /**
      * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
      */

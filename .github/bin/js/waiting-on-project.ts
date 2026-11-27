@@ -61,14 +61,23 @@ export function parseTeamProjects(json: string | undefined): Map<string, number>
     }
 
     const parsed: unknown = JSON.parse(json);
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed) || !Object.values(parsed).every((value) => Number.isInteger(value) && (value as number) > 0)) {
+    if (
+        typeof parsed !== 'object' ||
+        parsed === null ||
+        Array.isArray(parsed) ||
+        !Object.values(parsed).every((value) => Number.isInteger(value) && (value as number) > 0)
+    ) {
         throw new Error('WAITING_ON_TEAM_PROJECTS must be a JSON object from a label to a project number.');
     }
 
     return new Map(Object.entries(parsed as Record<string, number>));
 }
 
-export function planProjectChanges(rows: Row[], items: ProjectItem[], { archive = true }: PlanOptions = {}): ProjectChange[] {
+export function planProjectChanges(
+    rows: Row[],
+    items: ProjectItem[],
+    { archive = true }: PlanOptions = {},
+): ProjectChange[] {
     const itemsByPullRequest = new Map(items.map((item) => [item.pullRequestId, item]));
     const changes: ProjectChange[] = [];
 
@@ -145,7 +154,9 @@ export type FieldValueNode = { name?: string; date?: string; field?: { name?: st
 export function readValues(nodes: FieldValueNode[]): FieldValues {
     const values: FieldValues = {};
     for (const value of nodes) {
-        const key = (Object.keys(PROJECT_FIELD) as FieldKey[]).find((candidate) => PROJECT_FIELD[candidate] === value.field?.name);
+        const key = (Object.keys(PROJECT_FIELD) as FieldKey[]).find(
+            (candidate) => PROJECT_FIELD[candidate] === value.field?.name,
+        );
         const stored = value.name ?? value.date;
         if (key !== undefined && stored !== undefined) {
             values[key] = key === 'since' ? toDate(stored) : stored;
@@ -241,8 +252,16 @@ type ItemsPage<Node> = {
  * generic "Something went wrong". Such a page is read again item by item, and the items that
  * still fail are skipped with a warning, so one bad item cannot take the sync down.
  */
-async function readPageItemByItem(github: ProjectClient, core: Pick<Core, 'warning'>, owner: string, number: number, after: string | undefined): Promise<{ pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: ItemNode[] }> {
-    const { pageInfo, nodes: ids } = (await github.graphql<ItemsPage<{ id: string }>>(ITEM_IDS_QUERY, { owner, number, after })).organization.projectV2.items;
+async function readPageItemByItem(
+    github: ProjectClient,
+    core: Pick<Core, 'warning'>,
+    owner: string,
+    number: number,
+    after: string | undefined,
+): Promise<{ pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: ItemNode[] }> {
+    const { pageInfo, nodes: ids } = (
+        await github.graphql<ItemsPage<{ id: string }>>(ITEM_IDS_QUERY, { owner, number, after })
+    ).organization.projectV2.items;
     const nodes: ItemNode[] = [];
 
     for (const { id } of ids) {
@@ -252,7 +271,9 @@ async function readPageItemByItem(github: ProjectClient, core: Pick<Core, 'warni
                 nodes.push(node);
             }
         } catch (error) {
-            core.warning(`Skipped project item ${id}, it cannot be read: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`);
+            core.warning(
+                `Skipped project item ${id}, it cannot be read: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`,
+            );
         }
     }
 
@@ -265,10 +286,19 @@ export async function fetchSchema(github: ProjectClient, owner: string, number: 
         throw new Error(`Project ${owner}/${number} does not exist or the token cannot read it.`);
     }
 
-    return resolveSchema(project.id, project.fields.nodes.filter((field) => field.id !== undefined));
+    return resolveSchema(
+        project.id,
+        project.fields.nodes.filter((field) => field.id !== undefined),
+    );
 }
 
-export async function fetchProject(github: ProjectClient, core: Pick<Core, 'warning'>, owner: string, number: number, nameWithOwner: string): Promise<{ schema: ProjectSchema; items: ProjectItem[] }> {
+export async function fetchProject(
+    github: ProjectClient,
+    core: Pick<Core, 'warning'>,
+    owner: string,
+    number: number,
+    nameWithOwner: string,
+): Promise<{ schema: ProjectSchema; items: ProjectItem[] }> {
     const schema = await fetchSchema(github, owner, number);
     const items: ProjectItem[] = [];
     let after: string | undefined = undefined;
@@ -276,13 +306,14 @@ export async function fetchProject(github: ProjectClient, core: Pick<Core, 'warn
     do {
         let page: { pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: ItemNode[] };
         try {
-            page = (await github.graphql<ItemsPage<ItemNode>>(ITEMS_QUERY, { owner, number, after })).organization.projectV2.items;
+            page = (await github.graphql<ItemsPage<ItemNode>>(ITEMS_QUERY, { owner, number, after })).organization.projectV2
+                .items;
         } catch {
             page = await readPageItemByItem(github, core, owner, number, after);
         }
 
         items.push(...toProjectItems(page.nodes, nameWithOwner));
-        after = page.pageInfo.hasNextPage ? page.pageInfo.endCursor ?? undefined : undefined;
+        after = page.pageInfo.hasNextPage ? (page.pageInfo.endCursor ?? undefined) : undefined;
     } while (after);
 
     return { schema, items };
@@ -292,7 +323,12 @@ export async function fetchProject(github: ProjectClient, core: Pick<Core, 'warn
  * One request per item: GraphQL aliases let the field updates share it. A value whose
  * single-select option does not exist is left out with a warning instead of failing the item.
  */
-export function buildFieldMutation(schema: ProjectSchema, itemId: string, set: FieldValues, core: Pick<Core, 'warning'>): { query: string; variables: Record<string, unknown> } | undefined {
+export function buildFieldMutation(
+    schema: ProjectSchema,
+    itemId: string,
+    set: FieldValues,
+    core: Pick<Core, 'warning'>,
+): { query: string; variables: Record<string, unknown> } | undefined {
     const parts: string[] = [];
     const variables: Record<string, unknown> = { projectId: schema.projectId, itemId };
     const declarations = ['$projectId: ID!', '$itemId: ID!'];
@@ -318,7 +354,9 @@ export function buildFieldMutation(schema: ProjectSchema, itemId: string, set: F
 
         declarations.push(`$${key}Field: ID!`);
         variables[`${key}Field`] = field.id;
-        parts.push(`${key}: updateProjectV2ItemFieldValue(input: { projectId: $projectId, itemId: $itemId, fieldId: $${key}Field, value: ${value} }) { clientMutationId }`);
+        parts.push(
+            `${key}: updateProjectV2ItemFieldValue(input: { projectId: $projectId, itemId: $itemId, fieldId: $${key}Field, value: ${value} }) { clientMutationId }`,
+        );
     }
 
     if (parts.length === 0) {
@@ -343,7 +381,13 @@ const ARCHIVE_ITEM = `
 const sleep = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 /** Writes are spaced out for the same reason as the label writes: the first run adds every open pull request. */
-export async function applyProjectChanges(github: ProjectClient, core: Core, schema: ProjectSchema, changes: ProjectChange[], pauseMilliseconds = 1000): Promise<string[]> {
+export async function applyProjectChanges(
+    github: ProjectClient,
+    core: Core,
+    schema: ProjectSchema,
+    changes: ProjectChange[],
+    pauseMilliseconds = 1000,
+): Promise<string[]> {
     const failed: string[] = [];
     const { projectId } = schema;
 
@@ -368,7 +412,9 @@ export async function applyProjectChanges(github: ProjectClient, core: Core, sch
             }
 
             if (change.kind === 'add') {
-                const result = (await write(ADD_ITEM, { projectId, contentId: change.row.id })) as { addProjectV2ItemById: { item: { id: string } } };
+                const result = (await write(ADD_ITEM, { projectId, contentId: change.row.id })) as {
+                    addProjectV2ItemById: { item: { id: string } };
+                };
                 itemId = result.addProjectV2ItemById.item.id;
                 core.info(`Added ${subject}`);
             } else {
@@ -378,11 +424,17 @@ export async function applyProjectChanges(github: ProjectClient, core: Core, sch
             const mutation = buildFieldMutation(schema, itemId, change.set, core);
             if (mutation !== undefined) {
                 await write(mutation.query, mutation.variables);
-                core.info(`Set ${Object.entries(change.set).map(([key, value]) => `${key}=${value}`).join(', ')} on ${subject}`);
+                core.info(
+                    `Set ${Object.entries(change.set)
+                        .map(([key, value]) => `${key}=${value}`)
+                        .join(', ')} on ${subject}`,
+                );
             }
         } catch (error) {
             failed.push(subject);
-            core.error(`Failed to sync ${subject} to the project: ${error instanceof Error ? error.message : String(error)}`);
+            core.error(
+                `Failed to sync ${subject} to the project: ${error instanceof Error ? error.message : String(error)}`,
+            );
         }
     }
 

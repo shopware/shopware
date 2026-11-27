@@ -175,6 +175,8 @@ const baseRules = {
     // has no `--max-warnings`, so at warning level `Bad_Dir/index.vue` would pass CI.
     'sw-core-rules/native-setup-filename': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
+    'sw-deprecation-rules/no-manual-deprecation-notices': 'error',
+    'sw-deprecation-rules/valid-api-markers': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [
         2,
@@ -283,6 +285,10 @@ export default [
             '!scripts/extensionTooling/**/*',
             '!scripts/generate-shopware-modules/',
             '!scripts/generate-shopware-modules/**/*',
+            '!scripts/generate-public-api/',
+            '!scripts/generate-public-api/**/*',
+            // Fixture source trees are inputs of the generator, not Administration code.
+            'scripts/generate-public-api/testing/__fixtures__/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',
@@ -765,6 +771,7 @@ export default [
             ],
             'max-len': 0,
             'sw-deprecation-rules/private-feature-declarations': 0,
+            'sw-deprecation-rules/no-manual-deprecation-notices': 0,
             'jest/expect-expect': [
                 'error',
                 {
@@ -910,6 +917,35 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-vue-options-api': 'off',
+        },
+    },
+
+    // The TS block above re-spreads baseRules, so test files need the exemption again.
+    {
+        files: [
+            '**/*.spec.ts',
+            '**/*.spec/*.ts',
+            'test/**/*.ts',
+        ],
+        rules: {
+            'sw-deprecation-rules/no-manual-deprecation-notices': 'off',
+        },
+    },
+
+    // Runtime side of the deprecation lifecycle, see
+    // adr/2026-08-10-administration-javascript-deprecation-guards.md
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+        ],
+        ignores: [
+            'src/**/*.spec.js',
+            'src/**/*.spec.ts',
+            'src/**/*.spec/**',
+        ],
+        rules: {
+            'sw-deprecation-rules/require-deprecation-guard': 'error',
         },
     },
 

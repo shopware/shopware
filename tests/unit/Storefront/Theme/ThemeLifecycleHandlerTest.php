@@ -244,6 +244,42 @@ class ThemeLifecycleHandlerTest extends TestCase
         )->refreshAllActiveThemeImportMaps($this->context, $configurationCollection);
     }
 
+    public function testRefreshAllActiveThemeImportMapsRefreshesEachThemeOnlyOnce(): void
+    {
+        $sharedThemeId = Uuid::randomHex();
+        $otherThemeId = Uuid::randomHex();
+        $firstSalesChannelId = Uuid::randomHex();
+        $otherSalesChannelId = Uuid::randomHex();
+
+        // The import map and the runtime config are stored per theme, not per sales channel
+        $connectionMock = static::createStub(Connection::class);
+        $connectionMock->method('fetchAllAssociative')->willReturn([
+            ['sales_channel_id' => $firstSalesChannelId, 'theme_id' => $sharedThemeId],
+            ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => $sharedThemeId],
+            ['sales_channel_id' => $otherSalesChannelId, 'theme_id' => $otherThemeId],
+            ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => $sharedThemeId],
+        ]);
+
+        $refreshes = [];
+        $themeServiceMock = $this->createMock(ThemeService::class);
+        $themeServiceMock
+            ->expects($this->exactly(2))
+            ->method('refreshThemeImportMap')
+            ->willReturnCallback(static function (string $salesChannelId, string $themeId) use (&$refreshes): void {
+                $refreshes[] = [$salesChannelId, $themeId];
+            });
+
+        $this->buildHandler(
+            themeService: $themeServiceMock,
+            connection: $connectionMock
+        )->refreshAllActiveThemeImportMaps($this->context, new StorefrontPluginConfigurationCollection());
+
+        static::assertSame([
+            [$firstSalesChannelId, $sharedThemeId],
+            [$otherSalesChannelId, $otherThemeId],
+        ], $refreshes);
+    }
+
     public function testRecompileAllActiveThemesNotifiesAsyncCompletionOnlyForTheLastCompilation(): void
     {
         $firstThemeId = Uuid::randomHex();

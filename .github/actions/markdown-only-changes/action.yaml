@@ -23,16 +23,21 @@ runs:
         # paths-filter can only answer "does any changed file match?", so ask
         # the complement: did the PR touch anything that is not markdown?
         # (`every` = a file only counts when it matches both negated patterns)
+        # The `.api.md` reports of the Administration public API snapshot are
+        # generated and checked by Jest, so they do not count as docs.
         predicate-quantifier: 'every'
         filters: |
           non_markdown:
             - '!**/*.md'
             - '!**/*.MD'
+          generated_reports:
+            - '**/*.api.md'
 
-    # docs_only = files changed and none of them were non-markdown. A skipped
-    # or failed filter step leaves the output empty, and '' == 'false' is
-    # false — do not simplify, this is the fail-open path.
+    # docs_only = files changed, none of them were non-markdown and none were
+    # generated reports. A skipped or failed filter step leaves the outputs
+    # empty, and '' == 'false' is false — do not simplify, this is the
+    # fail-open path.
     - name: Report markdown-only result
       id: check
       shell: bash
-      run: echo "docs_only=${{ steps.filter.outputs.non_markdown == 'false' }}" >> "$GITHUB_OUTPUT"
+      run: echo "docs_only=${{ steps.filter.outputs.non_markdown == 'false' && steps.filter.outputs.generated_reports == 'false' }}" >> "$GITHUB_OUTPUT"

@@ -44,6 +44,11 @@ export interface ContextState {
             version: null | string;
             versionRevision: null | string;
             inAppPurchases: Record<string, string[]>;
+            versionHistory?: {
+                version: string;
+                recordedAt: string;
+                type: 'install' | 'update';
+            }[];
             shopId: null | string;
             appUrl: null | string;
         };

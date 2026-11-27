@@ -30,7 +30,7 @@ class BlockedShippingMethodSwitcher
         ?ShippingMethodCollection $shippingMethods = null
     ): ShippingMethodEntity {
         $originalShippingMethod = $salesChannelContext->getShippingMethod();
-        if (!$this->shippingMethodBlocked($errors)) {
+        if (!$this->isContextShippingMethodBlocked($errors, $salesChannelContext)) {
             return $originalShippingMethod;
         }
 
@@ -47,20 +47,38 @@ class BlockedShippingMethodSwitcher
             return $originalShippingMethod;
         }
 
-        $this->addNoticeToCart($errors, $shippingMethod);
+        $this->addNoticeToCart($errors, $shippingMethod, $originalShippingMethod);
 
         return $shippingMethod;
     }
 
-    private function shippingMethodBlocked(ErrorCollection $cartErrors): bool
+    public function isContextShippingMethodBlocked(ErrorCollection $errors, SalesChannelContext $salesChannelContext): bool
     {
-        foreach ($cartErrors as $error) {
-            if ($error instanceof ShippingMethodBlockedError) {
+        $contextShippingMethod = $salesChannelContext->getShippingMethod();
+        foreach ($errors as $error) {
+            if ($this->blocksContextShippingMethod($error, $contextShippingMethod)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * @phpstan-assert-if-true ShippingMethodBlockedError $error
+     */
+    private function blocksContextShippingMethod(Error $error, ShippingMethodEntity $contextShippingMethod): bool
+    {
+        if (!$error instanceof ShippingMethodBlockedError) {
+            return false;
+        }
+
+        // @deprecated tag:v6.8.0 - remove together with the name fallback in the lookup, the error always carries the id
+        if ($error->getShippingMethodId() === null) {
+            return true;
+        }
+
+        return $error->getShippingMethodId() === $contextShippingMethod->getId();
     }
 
     private function getShippingMethodToChangeTo(
@@ -108,7 +126,7 @@ class BlockedShippingMethodSwitcher
         return $name !== null && isset($blocked[$name]);
     }
 
-    private function addNoticeToCart(ErrorCollection $cartErrors, ShippingMethodEntity $shippingMethod): void
+    private function addNoticeToCart(ErrorCollection $cartErrors, ShippingMethodEntity $shippingMethod, ShippingMethodEntity $contextShippingMethod): void
     {
         $newShippingMethodName = $shippingMethod->getTranslation('name');
         if ($newShippingMethodName === null) {
@@ -116,7 +134,7 @@ class BlockedShippingMethodSwitcher
         }
 
         foreach ($cartErrors as $error) {
-            if (!$error instanceof ShippingMethodBlockedError) {
+            if (!$this->blocksContextShippingMethod($error, $contextShippingMethod)) {
                 continue;
             }
 

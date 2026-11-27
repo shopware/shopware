@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -72,6 +73,59 @@ class ElasticsearchIndexerTest extends TestCase
         parent::setUp();
     }
 
+    /**
+     * @param list<list<string>> $batches
+     */
+    #[DataProvider('indexingBatches')]
+    public function testIterateMessagesPreservesProductsAndMarksOnlyTheLastBatch(array $batches): void
+    {
+        $query = static::createStub(IterableQuery::class);
+        $query->method('fetch')->willReturnOnConsecutiveCalls(...[...$batches, []]);
+        $this->iteratorFactory->method('createIterator')->willReturn($query);
+
+        $messages = iterator_to_array($this->getIndexer()->iterateMessages(['product']));
+
+        static::assertCount(\count($batches), $messages);
+        foreach ($messages as $position => $message) {
+            static::assertSame($batches[$position], $message->getData()->getIds());
+            static::assertSame($position === array_key_last($batches), $message->isLastMessage());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{list<list<string>>}>
+     */
+    public static function indexingBatches(): iterable
+    {
+        yield 'empty index' => [[]];
+        yield 'single batch' => [[['product-a', 'product-b']]];
+        yield 'multiple batches' => [[['product-a'], ['product-b'], ['product-c']]];
+    }
+
+    public function testIterateMessagesYieldsBeforeReadingTheWholeCatalog(): void
+    {
+        $catalog = new \ArrayIterator([['product-a'], ['product-b']]);
+        $query = static::createStub(IterableQuery::class);
+        $query->method('fetch')->willReturnCallback(static function () use ($catalog): array {
+            if (!$catalog->valid()) {
+                throw new \RuntimeException('Later catalog read failed');
+            }
+
+            $batch = $catalog->current();
+            $catalog->next();
+
+            return $batch;
+        });
+        $this->iteratorFactory->method('createIterator')->willReturn($query);
+
+        $messages = $this->getIndexer()->iterateMessages(['product']);
+
+        static::assertSame(['product-a'], $messages->current()->getData()->getIds());
+        static::assertFalse($messages->current()->isLastMessage());
+        $this->expectExceptionObject(new \RuntimeException('Later catalog read failed'));
+        $messages->next();
+    }
+
     public function testIterateESDisabled(): void
     {
         $this->helper = static::createStub(ElasticsearchHelper::class);
@@ -116,11 +170,20 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateTillLastMsgCreatesIndicesAndIndexTaskInDB(): void
     {
+        $iterator = $this->createMock(IterableQuery::class);
+        $iterator->expects($this->once())->method('fetchCount')->willReturn(100);
+        $this->iteratorFactory->method('createIterator')->willReturn($iterator);
+
+        $task = [];
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
             ->method('insert')
-            ->with('elasticsearch_index_task');
+            ->willReturnCallback(static function (string $table, array $data) use (&$task): int {
+                $task = $data;
+
+                return 1;
+            });
 
         $indexCreator = $this->createMock(IndexCreator::class);
         $indexCreator
@@ -136,6 +199,8 @@ class ElasticsearchIndexerTest extends TestCase
         $msg = $indexer->iterate();
 
         static::assertNull($msg);
+        static::assertSame(100, $task['`doc_count`']);
+        static::assertSame(100, $task['`total_count`']);
     }
 
     public function testIterateWithMessage(): void

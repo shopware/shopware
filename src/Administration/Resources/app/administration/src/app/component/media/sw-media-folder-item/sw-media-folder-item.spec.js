@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const { Module } = Shopware;
 
@@ -12,6 +13,7 @@ modulesToCreate.set('sw-product', {
     icon: 'regular-products',
     color: '#57D9A3',
     entity: 'product',
+    childEntities: ['product_document'],
 });
 modulesToCreate.set('sw-mail-template', {
     icon: 'regular-cog',
@@ -26,6 +28,7 @@ Array.from(modulesToCreate.keys()).forEach((moduleName) => {
         icon: currentModuleValues.icon,
         color: currentModuleValues.color,
         entity: currentModuleValues.entity,
+        childEntities: currentModuleValues.childEntities,
         routes: {
             index: {
                 components: {},
@@ -37,6 +40,8 @@ Array.from(modulesToCreate.keys()).forEach((moduleName) => {
 
 const ID_MAILTEMPLATE_FOLDER = '4006d6aa64ce409692ac2b952fa56ade';
 const ID_PRODUCTS_FOLDER = '0e6b005ca7a1440b8e87ac3d45ed5c9f';
+const ID_PRODUCT_DOCUMENTS_FOLDER = 'e026b4f162b84397a44a973563843d46';
+const ID_UNKNOWN_ENTITY_FOLDER = '5b1c2a8e0f8e4c5f9a3d7e6b4c2a1f0e';
 const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
 
 async function createWrapper(defaultFolderId, privileges = []) {
@@ -51,6 +56,16 @@ async function createWrapper(defaultFolderId, privileges = []) {
             }),
         get: (folderId) => {
             switch (folderId) {
+                case ID_PRODUCT_DOCUMENTS_FOLDER:
+                    return {
+                        entity: 'product_document',
+                        isNew: () => false,
+                    };
+                case ID_UNKNOWN_ENTITY_FOLDER:
+                    return {
+                        entity: 'unknown_entity',
+                        isNew: () => false,
+                    };
                 case ID_PRODUCTS_FOLDER:
                     return {
                         entity: 'product',
@@ -165,6 +180,10 @@ async function createWrapper(defaultFolderId, privileges = []) {
 }
 
 describe('components/media/sw-media-folder-item', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-media-folder-item.dateFilter is deprecated');
+    });
+
     afterEach(() => {
         useModuleIconColors().enabled.value = false;
     });
@@ -198,6 +217,27 @@ describe('components/media/sw-media-folder-item', () => {
 
         expect(wrapper.findComponent('svg.sw-media-folder-thumbnail').props('color')).toBe('#57D9A3');
         expect(wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner').props('color')).toBe('#57D9A3');
+    });
+
+    it('should use the icon and color of the module that lists the default folder entity as a child entity', async () => {
+        useModuleIconColors().enabled.value = true;
+        const warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+        const wrapper = await createWrapper(ID_PRODUCT_DOCUMENTS_FOLDER);
+        await flushPromises();
+
+        const innerIcon = wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner');
+        expect(innerIcon.props('name')).toBe('regular-products');
+        expect(innerIcon.props('color')).toBe('#57D9A3');
+        expect(warnSpy).not.toHaveBeenCalledWith('[Missing module for default folder entity]', 'product_document');
+    });
+
+    it('should show no module icon and warn when no module owns the default folder entity', async () => {
+        const warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+        const wrapper = await createWrapper(ID_UNKNOWN_ENTITY_FOLDER);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-media-folder-item__folder-thumbnails.is--inner').exists()).toBe(false);
+        expect(warnSpy).toHaveBeenCalledWith('[Missing module for default folder entity]', 'unknown_entity');
     });
 
     it('should keep the folder neutral for a module without a color when module colors are enabled', async () => {
@@ -337,12 +377,25 @@ describe('components/media/sw-media-folder-item', () => {
         });
 
         wrapper.vm.mediaDefaultFolderRepository.get = jest.fn(() => Promise.resolve({}));
-        wrapper.vm.moduleFactory.getModuleByEntityName = jest.fn(() => Promise.resolve({}));
+        jest.spyOn(wrapper.vm.moduleFactory, 'getModuleByEntityName').mockReturnValue({});
 
         await wrapper.vm.getIconConfigFromFolder();
         await flushPromises();
 
         expect(wrapper.vm.mediaDefaultFolderRepository.get).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.moduleFactory.getModuleByEntityName).toHaveBeenCalledTimes(1);
+    });
+
+    it('should prefer the module registered for the entity over a module listing it as a child entity', async () => {
+        const childEntitySpy = jest.spyOn(Shopware.Application.getContainer('factory').module, 'getModuleByChildEntity');
+        const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
+        await flushPromises();
+
+        expect(wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner').props('name')).toBe(
+            'regular-products',
+        );
+        expect(childEntitySpy).not.toHaveBeenCalled();
+
+        childEntitySpy.mockRestore();
     });
 });

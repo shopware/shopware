@@ -53,8 +53,13 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
-                <sw-tabs position-identifier="sw-flow-detail">
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
+                <sw-tabs
+                    position-identifier="sw-flow-detail"
+                >
                     {% block sw_flow_tabs_header_general %}
                     <sw-tabs-item
                         class="sw-flow-detail__tab-general"
@@ -75,7 +80,7 @@
 
                     {% block sw_flow_tabs_header_extension %}{% endblock %}
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             <mt-banner

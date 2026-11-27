@@ -126,6 +126,10 @@ class AccountOrderPageLoader
             ->addAssociation('primaryOrderDelivery.shippingMethod')
             ->addAssociation('primaryOrderDelivery.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.shippingOrderAddress.salutation')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState')
+            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
@@ -144,8 +148,7 @@ class AccountOrderPageLoader
         if (!Feature::isActive('v6.8.0.0')) {
             $criteria
                 ->addAssociation('transactions.paymentMethod')
-                ->addAssociation('transactions.stateMachineState')
-                ->addAssociation('deliveries.stateMachineState');
+                ->addAssociation('transactions.stateMachineState');
 
             $criteria
                 ->getAssociation('transactions')

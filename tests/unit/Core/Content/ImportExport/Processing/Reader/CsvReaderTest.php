@@ -2,11 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Reader;
 
+use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
+use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 
@@ -159,6 +162,52 @@ class CsvReaderTest extends TestCase
             ['foo' => '0', 'bar' => '0'],
             ['foo' => '0', 'bar' => ''],
         ], array_values($result));
+    }
+
+    public function testExportedValuesAreImportedUnchanged(): void
+    {
+        $records = [
+            ['street' => '-', 'phoneNumber' => '+49 30 123456', 'stock' => '-2', 'name' => '=1+1', 'title' => '\'=1+1'],
+            ['street' => 'Main Street 1', 'phoneNumber' => "\t1", 'stock' => '3', 'name' => '\'Quoted', 'title' => ''],
+            ['street' => 'A\";=1+1;\"', 'phoneNumber' => 'C:\path\\', 'stock' => '0', 'name' => '{"text":"say \"hi\""}', 'title' => 'x'],
+        ];
+
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $config = new Config([], [], []);
+        $writer = new CsvFileWriter($filesystem);
+        foreach ($records as $index => $record) {
+            $writer->append($config, $record, $index);
+        }
+        $writer->finish($config, 'export.csv');
+
+        $resource = $filesystem->readStream('export.csv');
+        $result = $this->getAll((new CsvReader())->read($config, $resource, 0));
+
+        static::assertSame($records, array_values($result));
+    }
+
+    public function testQuoteBeforeAFormulaIsRemovedWithoutAHeader(): void
+    {
+        $reader = new CsvReader(withHeader: false);
+        $resource = fopen('data://text/plain,' . rawurlencode('\'=1+1;\'-2'), 'r');
+
+        static::assertIsResource($resource);
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
+
+        static::assertSame([['=1+1', '\'-2']], array_values($result));
+    }
+
+    public function testTheEscapeParameterReadsFilesExportedByAnEarlierVersion(): void
+    {
+        $resource = fopen('php://temp', 'r+');
+        static::assertIsResource($resource);
+        fputcsv($resource, ['name', 'comment'], ';', '"', '\\');
+        fputcsv($resource, ['A\";=1+1;\"', '{"text":"say \"hi\""}'], ';', '"', '\\');
+        rewind($resource);
+
+        $result = $this->getAll((new CsvReader())->read(new Config([], ['escape' => '\\'], []), $resource, 0));
+
+        static::assertSame([['name' => 'A\";=1+1;\"', 'comment' => '{"text":"say \"hi\""}']], array_values($result));
     }
 
     public static function eolProvider(): \Generator

@@ -36,6 +36,8 @@ class SnippetException extends HttpException
 
     final public const SNIPPET_TRANSLATION_METADATA_DOWNLOAD_FAILED = 'SYSTEM__TRANSLATION_METADATA_DOWNLOAD_FAILED';
 
+    final public const SNIPPET_TRANSLATION_ARCHIVE_UNAVAILABLE = 'SYSTEM__TRANSLATION_ARCHIVE_UNAVAILABLE';
+
     final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_IS_EMPTY = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_IS_EMPTY';
 
     final public const SNIPPET_CONFIGURED_LOCALE_DOES_NOT_EXIST = 'SYSTEM__PROVIDED_LOCALE_DOES_NOT_EXIST';
@@ -187,6 +189,17 @@ class SnippetException extends HttpException
                 'uri' => (string) $uri,
                 'error' => $previous?->getMessage() ?? 'Unknown error',
             ],
+            $previous
+        );
+    }
+
+    public static function translationArchiveUnavailable(string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SNIPPET_TRANSLATION_ARCHIVE_UNAVAILABLE,
+            'The translation archive cannot be used: {{ reason }}',
+            ['reason' => $reason],
             $previous
         );
     }

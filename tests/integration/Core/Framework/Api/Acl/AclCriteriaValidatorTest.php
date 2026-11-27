@@ -9,7 +9,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -243,6 +245,38 @@ class AclCriteriaValidatorTest extends TestCase
             ['product:read'],
             (new Criteria())
                 ->addAggregation(new CountAggregation('count-agg', 'categories.media.private')),
+            false,
+        ];
+        yield 'Has permissions for entity aggregation' => [
+            ['product:read', 'product_manufacturer:read'],
+            (new Criteria())
+                ->addAggregation(new EntityAggregation('entity-agg', 'manufacturerId', 'product_manufacturer')),
+            true,
+        ];
+        yield 'Missing permissions for entity aggregation' => [
+            ['product:read'],
+            (new Criteria())
+                ->addAggregation(new EntityAggregation('entity-agg', 'manufacturerId', 'product_manufacturer')),
+            false,
+        ];
+        yield 'Missing permissions for entity aggregation in bucket aggregation' => [
+            ['product:read'],
+            (new Criteria())
+                ->addAggregation(new FilterAggregation(
+                    'filter-agg',
+                    new EntityAggregation('entity-agg', 'manufacturerId', 'product_manufacturer'),
+                    [new EqualsFilter('active', true)]
+                )),
+            false,
+        ];
+
+        $criteria = new Criteria();
+        $criteria->getAssociation('categories')
+            ->addAggregation(new EntityAggregation('entity-agg', 'mediaId', 'media'));
+
+        yield 'Missing permissions for entity aggregation in association' => [
+            ['product:read', 'category:read'],
+            $criteria,
             false,
         ];
     }

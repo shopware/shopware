@@ -4,7 +4,7 @@
  * @sw-package framework
  */
 
-import { deprecations } from 'test/_helper_/deprecations';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const { Module, Application } = Shopware;
 const ModuleFactory = Module;
@@ -13,6 +13,7 @@ const register = ModuleFactory.register;
 describe('core/factory/module.factory.js', () => {
     // We're clearing the modules registry to register the same module multiple times throughout the test suite
     beforeEach(async () => {
+        allowDeprecation('ModuleFactory.getModuleSnippets() is deprecated');
         const modules = ModuleFactory.getModuleRegistry();
         modules.clear();
     });
@@ -305,6 +306,89 @@ describe('core/factory/module.factory.js', () => {
         const module = ModuleFactory.getModuleByEntityName('bar');
 
         expect(typeof module).toBe('undefined');
+    });
+
+    describe('getModuleByChildEntity', () => {
+        const routes = {
+            index: {
+                path: 'index',
+                component: 'sw-foo-bar-index',
+            },
+        };
+
+        function getModuleByChildEntity(entity) {
+            return Application.getContainer('factory').module.getModuleByChildEntity(entity);
+        }
+
+        it('should return the module that lists the child entity', () => {
+            const registeredModule = register('sw-foo', {
+                entity: 'foo',
+                childEntities: ['foo_document'],
+                routes,
+            });
+
+            expect(getModuleByChildEntity('foo_document')).toEqual(registeredModule);
+        });
+
+        it('should not match the module by its own entity', () => {
+            register('sw-foo', {
+                entity: 'foo',
+                childEntities: ['foo_document'],
+                routes,
+            });
+
+            expect(getModuleByChildEntity('foo')).toBeUndefined();
+        });
+
+        it('should return undefined when no module lists the child entity', () => {
+            register('sw-foo', {
+                entity: 'foo',
+                childEntities: ['foo_document'],
+                routes,
+            });
+
+            expect(getModuleByChildEntity('unknown')).toBeUndefined();
+        });
+
+        it('should keep the first module and warn when a child entity is claimed twice', () => {
+            const spy = jest.fn();
+            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
+            const firstModule = register('sw-foo', {
+                entity: 'foo',
+                childEntities: ['shared_child'],
+                routes,
+            });
+            register('sw-bar', {
+                entity: 'bar',
+                childEntities: ['shared_child'],
+                routes,
+            });
+
+            expect(getModuleByChildEntity('shared_child')).toEqual(firstModule);
+            expect(spy).toHaveBeenCalledWith(
+                '[ModuleFactory]',
+                expect.stringContaining('the child entity "shared_child" is already claimed by module "sw-foo"'),
+            );
+        });
+
+        it('should warn and ignore childEntities when it is not an array', () => {
+            const spy = jest.fn();
+            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
+            register('sw-foo', {
+                entity: 'foo',
+                childEntities: 'foo_document',
+                routes,
+            });
+
+            expect(getModuleByChildEntity('foo_document')).toBeUndefined();
+            expect(spy).toHaveBeenCalledWith(
+                '[ModuleFactory]',
+                expect.stringContaining('"childEntities" has to be an array'),
+                'foo_document',
+            );
+        });
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the module `snippets` property.

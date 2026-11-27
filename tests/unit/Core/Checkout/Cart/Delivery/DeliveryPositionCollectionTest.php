@@ -148,6 +148,27 @@ class DeliveryPositionCollectionTest extends TestCase
         static::assertSame(80.0, $deliveryPositionCollection->getWithoutDeliveryFree()->getWeight());
     }
 
+    public function testWeightAndVolumeCountThePositionQuantityInsteadOfTheLineItemQuantity(): void
+    {
+        $lineItem = $this->getLineItem(weight: 10, quantity: 3, height: 1, width: 2, length: 3);
+
+        $price = $lineItem->getPrice();
+        static::assertNotNull($price);
+
+        $deliveryPositionCollection = new DeliveryPositionCollection([
+            new DeliveryPosition(
+                $lineItem->getId(),
+                $lineItem,
+                2,
+                $price,
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
+            ),
+        ]);
+
+        static::assertSame(20.0, $deliveryPositionCollection->getWeight());
+        static::assertSame(12.0, $deliveryPositionCollection->getVolume());
+    }
+
     #[DataProvider('volumeDataProvider')]
     public function testCalculateVolumeWithMultipleLineItemsWithMultipleQuantities(
         ?float $height,

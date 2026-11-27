@@ -237,6 +237,9 @@ class PromotionItemBuilder
 
         // set value of discount in payload
         $payload['value'] = (string) $discount->getValue();
+        if ($discount->getType() !== PromotionDiscountEntity::TYPE_PERCENTAGE) {
+            $payload['value'] = (string) $this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId, $currencyFactor);
+        }
 
         // specifies the type of the promotion code (fixed, individual, global)
         $promotionCodeType = self::PROMOTION_TYPE_FIXED;

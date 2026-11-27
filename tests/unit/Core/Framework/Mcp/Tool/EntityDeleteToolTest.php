@@ -49,10 +49,10 @@ class EntityDeleteToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn($context);
 
         $tool = new EntityDeleteTool($registry, $contextProvider, static::createStub(Connection::class));
-        $result = $this->decode(($tool)('product', '["abc123"]'));
+        $result = ($tool)('product', '["abc123"]');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('product:delete', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('product:delete', $result->error->message);
     }
 
     public function testReturnsErrorWhenEntityNotFound(): void
@@ -64,11 +64,11 @@ class EntityDeleteToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntityDeleteTool($registry, $contextProvider, static::createStub(Connection::class));
-        $result = $this->decode(($tool)('unknown_entity', '["abc"]'));
+        $result = ($tool)('unknown_entity', '["abc"]');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('unknown_entity', $result['error']);
-        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result['code']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('unknown_entity', $result->error->message);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result->error->code);
     }
 
     public function testParsesCommaSeparatedIds(): void
@@ -81,27 +81,27 @@ class EntityDeleteToolTest extends TestCase
             }));
 
         $tool = $this->createTool($repository);
-        $result = $this->decode(($tool)('product', 'id1, id2, id3', false));
+        $result = ($tool)('product', 'id1, id2, id3', false);
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
     }
 
     public function testReturnsErrorForEmptyIds(): void
     {
         $tool = $this->createTool();
-        $result = $this->decode(($tool)('product', '[]'));
+        $result = ($tool)('product', '[]');
 
-        static::assertFalse($result['success']);
-        static::assertSame('No valid IDs provided.', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertSame('No valid IDs provided.', $result->error->message);
     }
 
     public function testReturnsErrorForBlankCommaString(): void
     {
         $tool = $this->createTool();
-        $result = $this->decode(($tool)('product', ', , '));
+        $result = ($tool)('product', ', , ');
 
-        static::assertFalse($result['success']);
-        static::assertSame('No valid IDs provided.', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertSame('No valid IDs provided.', $result->error->message);
     }
 
     public function testDryRunRollsBackAndReturnsDeleteResult(): void
@@ -119,12 +119,12 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
-        $result = $this->decode(($tool)('product', '["abc"]', true));
+        $result = ($tool)('product', '["abc"]', true);
 
-        static::assertTrue($result['success']);
-        static::assertTrue($result['_meta']['dryRun']);
-        static::assertSame('product', $result['data'][0]['entity']);
-        static::assertSame(['abc'], $result['data'][0]['ids']);
+        static::assertFalse($result->isError());
+        static::assertTrue($result->meta['dryRun']);
+        static::assertSame('product', $result->data[0]['entity']);
+        static::assertSame(['abc'], $result->data[0]['ids']);
     }
 
     public function testReportsTheLinkedEntitiesOfAMappingDeleteAsUpdatedNotDeleted(): void
@@ -142,12 +142,12 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
-        $result = $this->decode(($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}]', false));
+        $result = ($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}]', false);
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
         static::assertSame(
             [['product_category', 'delete'], ['product', 'update'], ['category', 'update']],
-            array_map(static fn (array $row): array => [$row['entity'], $row['operation']], $result['data']),
+            array_map(static fn (array $row): array => [$row['entity'], $row['operation']], $result->data),
         );
     }
 
@@ -161,10 +161,10 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())->method('delete')->willThrowException(new \RuntimeException('FK constraint'));
 
         $tool = $this->createTool($repository, $connection);
-        $result = $this->decode(($tool)('product', '["abc"]', true));
+        $result = ($tool)('product', '["abc"]', true);
 
-        static::assertFalse($result['success']);
-        static::assertSame('FK constraint', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertSame('FK constraint', $result->error->message);
     }
 
     public function testRealDeleteDoesNotRollBack(): void
@@ -180,10 +180,10 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
-        $result = $this->decode(($tool)('product', '["abc123"]', false));
+        $result = ($tool)('product', '["abc123"]', false);
 
-        static::assertTrue($result['success']);
-        static::assertFalse($result['_meta']['dryRun']);
+        static::assertFalse($result->isError());
+        static::assertFalse($result->meta['dryRun']);
     }
 
     public function testIgnoresNonStringIdsForSinglePrimaryKey(): void
@@ -195,9 +195,9 @@ class EntityDeleteToolTest extends TestCase
             ->willReturn($this->emptyEvents());
 
         $tool = $this->createTool($repository);
-        $result = $this->decode(($tool)('tax', '[{"id":"nested"}, 42, "id1"]', false));
+        $result = ($tool)('tax', '[{"id":"nested"}, 42, "id1"]', false);
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
     }
 
     public function testDeletesMappingRowByCompositeKeyAndFillsVersionFields(): void
@@ -214,13 +214,13 @@ class EntityDeleteToolTest extends TestCase
             ->willReturn($this->emptyEvents());
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
-        $result = $this->decode(($tool)(
+        $result = ($tool)(
             'product_category',
             '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}]',
             false,
-        ));
+        );
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
     }
 
     public function testKeepsVersionFieldsTheCallerNames(): void
@@ -238,13 +238,13 @@ class EntityDeleteToolTest extends TestCase
             ->willReturn($this->emptyEvents());
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition(), context: $this->versionedContext($draft));
-        $result = $this->decode(($tool)(
+        $result = ($tool)(
             'product_category',
             \sprintf('[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002","productVersionId":"%s","categoryVersionId":"%s"}]', $draft, Defaults::LIVE_VERSION),
             false,
-        ));
+        );
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
     }
 
     public function testRefusesToGuessVersionFieldsOutsideTheLiveVersion(): void
@@ -254,12 +254,12 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->never())->method('delete');
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition(), context: $this->versionedContext($draft));
-        $result = $this->decode(($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}]', false));
+        $result = ($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}]', false);
 
-        static::assertFalse($result['success']);
+        static::assertTrue($result->isError());
         static::assertSame(
             \sprintf('This request runs in version %s. Name every version field (productVersionId, categoryVersionId) in each ids object, for example the live version %s for a side that is not being edited.', $draft, Defaults::LIVE_VERSION),
-            $result['error'],
+            $result->error->message,
         );
     }
 
@@ -269,14 +269,14 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->never())->method('delete');
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
-        $result = $this->decode(($tool)(
+        $result = ($tool)(
             'product_category',
             '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002","productVersionId":"not-a-version"}]',
             false,
-        ));
+        );
 
-        static::assertFalse($result['success']);
-        static::assertSame('"productVersionId" must be a version UUID.', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertSame('"productVersionId" must be a version UUID.', $result->error->message);
     }
 
     public function testDeletesMappingRowByCompositeKeyInTheLiveVersionWhenNamedExplicitly(): void
@@ -285,13 +285,13 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())->method('delete')->willReturn($this->emptyEvents());
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
-        $result = $this->decode(($tool)(
+        $result = ($tool)(
             'product_category',
             \sprintf('[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002","productVersionId":"%s"}]', Defaults::LIVE_VERSION),
             false,
-        ));
+        );
 
-        static::assertTrue($result['success']);
+        static::assertFalse($result->isError());
     }
 
     /**
@@ -314,10 +314,10 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->never())->method('delete');
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
-        $result = $this->decode(($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"not-a-uuid"}]', false));
+        $result = ($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"not-a-uuid"}]', false);
 
-        static::assertFalse($result['success']);
-        static::assertStringStartsWith('"categoryId" must be a UUID.', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringStartsWith('"categoryId" must be a UUID.', $result->error->message);
     }
 
     public function testFailsWhenNoneOfTheRowsExists(): void
@@ -328,11 +328,11 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())->method('delete')->willReturn($this->eventsWithNotFound([$key]));
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
-        $result = $this->decode(($tool)('product_category', json_encode([$key], \JSON_THROW_ON_ERROR), false));
+        $result = ($tool)('product_category', json_encode([$key], \JSON_THROW_ON_ERROR), false);
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('none of these rows exist', $result['error']);
-        static::assertStringContainsString('0198c0de000070008000000000000002', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('none of these rows exist', $result->error->message);
+        static::assertStringContainsString('0198c0de000070008000000000000002', $result->error->message);
     }
 
     public function testReportsTheRowsThatDidNotExistWhenSomeDid(): void
@@ -341,10 +341,10 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())->method('delete')->willReturn($this->eventsWithNotFound(['0198c0de000070008000000000000002']));
 
         $tool = $this->createTool($repository);
-        $result = $this->decode(($tool)('tax', '["0198c0de000070008000000000000001","0198c0de000070008000000000000002"]', false));
+        $result = ($tool)('tax', '["0198c0de000070008000000000000001","0198c0de000070008000000000000002"]', false);
 
-        static::assertTrue($result['success']);
-        static::assertSame(['0198c0de000070008000000000000002'], $result['_meta']['notFound']);
+        static::assertFalse($result->isError());
+        static::assertSame(['0198c0de000070008000000000000002'], $result->meta['notFound']);
     }
 
     #[DataProvider('invalidCompositeKeyProvider')]
@@ -354,12 +354,12 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->never())->method('delete');
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
-        $result = $this->decode(($tool)('product_category', $ids, false));
+        $result = ($tool)('product_category', $ids, false);
 
-        static::assertFalse($result['success']);
+        static::assertTrue($result->isError());
         static::assertSame(
             'Entity "product_category" has a composite primary key. Pass ids as a JSON array of objects with productId and categoryId, e.g. [{"productId":"...","categoryId":"..."}].',
-            $result['error'],
+            $result->error->message,
         );
     }
 
@@ -417,13 +417,5 @@ class EntityDeleteToolTest extends TestCase
         $events->method('getEvents')->willReturn(new NestedEventCollection());
 
         return $events;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function decode(string $json): array
-    {
-        return json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

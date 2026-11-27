@@ -21,6 +21,8 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -50,57 +52,6 @@ class DocumentConfigLoaderTest extends TestCase
         $storage->method('forActiveApps')->willReturn([]);
 
         $this->documentTypeRegistry = new DocumentTypeRegistry([], $storage);
-    }
-
-    public function testLoadPicksMatchingSalesChannelRowWhenMultipleNonGlobalRowsReturned(): void
-    {
-        $matchingSalesChannelId = Uuid::randomHex();
-
-        $globalRow = $this->createBaseConfig(
-            global: true,
-            pageSize: 'A4',
-            companyName: 'Global GmbH',
-        );
-
-        $matchingRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'Letter',
-            companyName: 'Matching Channel GmbH',
-            salesChannelId: $matchingSalesChannelId,
-        );
-
-        $otherRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'A5',
-            companyName: 'Wrong Channel GmbH',
-        );
-
-        $documentRepo = new StaticEntityRepository(
-            [new DocumentBaseConfigCollection([$globalRow, $otherRow, $matchingRow])],
-            new DocumentBaseConfigDefinition(),
-        );
-
-        $countryRepo = new StaticEntityRepository(
-            [new CountryCollection([$this->createCountry()])],
-            new CountryDefinition(),
-        );
-
-        $loader = new DocumentConfigLoader(
-            $documentRepo,
-            $countryRepo,
-            $this->createMediaRepository(),
-            $this->createSystemConfigService(),
-            $this->documentTypeRegistry,
-        );
-
-        $bundle = $loader->load(
-            DocumentType::INVOICE->value,
-            $matchingSalesChannelId,
-            Context::createDefaultContext(),
-        );
-
-        static::assertSame('Letter', $bundle->config->pageSize);
-        static::assertSame('Matching Channel GmbH', $bundle->company->companyName);
     }
 
     public function testLoadSalesChannelFilenameInfixOverridesGlobalPerFormat(): void
@@ -443,6 +394,73 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame($expectedSuffix, $bundle->config->filenameSuffix);
     }
 
+    public function testLoadSearchesOnlyTheGlobalAndTheSalesChannelRows(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$this->createBaseConfig(global: true, pageSize: 'A4', companyName: 'Global GmbH')])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            new StaticEntityRepository([new CountryCollection([$this->createCountry()])], new CountryDefinition()),
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
+        );
+
+        $loader->load(DocumentType::INVOICE->value, $salesChannelId, Context::createDefaultContext());
+
+        static::assertCount(1, $documentRepo->searchedCriteria);
+        static::assertEquals(
+            [
+                new EqualsFilter('typeName', DocumentType::INVOICE->value),
+                new OrFilter([
+                    new EqualsFilter('global', true),
+                    new EqualsFilter('salesChannels.salesChannelId', $salesChannelId),
+                ]),
+            ],
+            $documentRepo->searchedCriteria[0]->getFilters(),
+        );
+        static::assertTrue($documentRepo->searchedCriteria[0]->hasAssociation('logo'));
+    }
+
+    #[DataProvider('legacyVisibilityProvider')]
+    public function testLoadLegacyConfigUsesSalesChannelOverrideWithoutLoadingLogo(?bool $globalVisibility, ?bool $channelVisibility, ?bool $expected): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $global = $this->createBaseConfig(global: true, pageSize: 'A4', companyName: 'Global');
+        $global->setConfig($globalVisibility === null ? [] : ['displayInCustomerAccount' => $globalVisibility]);
+        $channel = $this->createBaseConfig(global: false, pageSize: 'A4', companyName: 'Channel', salesChannelId: $salesChannelId);
+        $channel->setConfig($channelVisibility === null ? [] : ['displayInCustomerAccount' => $channelVisibility]);
+        $repository = new StaticEntityRepository([new DocumentBaseConfigCollection([$global, $channel])]);
+        $loader = new DocumentConfigLoader(
+            $repository,
+            new StaticEntityRepository([new CountryCollection()]),
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
+        );
+
+        $config = $loader->loadLegacyConfig(DocumentType::INVOICE->value, $salesChannelId, Context::createDefaultContext());
+
+        static::assertSame($expected, $config['displayInCustomerAccount'] ?? null);
+        static::assertFalse($repository->searchedCriteria[0]->hasAssociation('logo'));
+    }
+
+    /**
+     * @return iterable<string, array{?bool, ?bool, ?bool}>
+     */
+    public static function legacyVisibilityProvider(): iterable
+    {
+        yield 'channel enables visibility' => [false, true, true];
+        yield 'channel disables visibility' => [true, false, false];
+        yield 'global visibility is inherited' => [true, null, true];
+        yield 'visibility is not configured' => [null, null, null];
+    }
+
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void
     {
         $globalRow = $this->createBaseConfig(
@@ -451,14 +469,8 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Global GmbH',
         );
 
-        $unrelatedRow = $this->createBaseConfig(
-            global: false,
-            pageSize: 'A5',
-            companyName: 'Unrelated GmbH',
-        );
-
         $documentRepo = new StaticEntityRepository(
-            [new DocumentBaseConfigCollection([$globalRow, $unrelatedRow])],
+            [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 

@@ -25,6 +25,11 @@ export default {
             type: Boolean,
             default: false,
         },
+        showNewBadge: {
+            required: false,
+            type: Boolean,
+            default: false,
+        },
     },
 
     computed: {

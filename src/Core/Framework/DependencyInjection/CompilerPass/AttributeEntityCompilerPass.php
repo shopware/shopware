@@ -2,18 +2,25 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeManyToManyReverseExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -33,6 +40,9 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
     {
         $services = $container->findTaggedServiceIds('shopware.entity');
 
+        /** @var array<string, list<mixed>> $reverses */
+        $reverses = [];
+
         foreach ($services as $class => $_) {
             /** @var class-string<Entity> $class */
             $definitions = $this->compiler->compile($class);
@@ -50,6 +60,10 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
 
                 if ($definition['type'] === 'mapping') {
                     $this->mapping($definition, $container);
+                }
+
+                if ($definition['type'] === 'reverse') {
+                    $this->reverse($definition, $container, $reverses);
                 }
             }
         }
@@ -123,6 +137,48 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param array<string, mixed> $meta
+     * @param array<string, list<mixed>> $reverses Already registered reverse associations, keyed by target entity and property name
+     */
+    private function reverse(array $meta, ContainerBuilder $container, array &$reverses): void
+    {
+        /** @var array{name: string, args: list<string>, flags: array<string, array{class: string, args?: list<string>}>} $field */
+        $field = $meta['field'];
+        [$propertyName, $referenceEntity, $mappingEntity, $mappingLocalColumn, $mappingReferenceColumn] = $field['args'];
+
+        $target = (string) $meta['entity_name'];
+        $key = $target . '.' . $propertyName;
+
+        $apiSources = null;
+        if (isset($field['flags'][ApiAware::class])) {
+            /** @var list<string> $apiSources */
+            $apiSources = $field['flags'][ApiAware::class]['args'] ?? [];
+        }
+        $onDelete = match (true) {
+            isset($field['flags'][CascadeDelete::class]) => OnDelete::CASCADE->value,
+            isset($field['flags'][SetNullOnDelete::class]) => OnDelete::SET_NULL->value,
+            isset($field['flags'][RestrictDelete::class]) => OnDelete::RESTRICT->value,
+            default => null,
+        };
+
+        $arguments = [$target, $propertyName, $referenceEntity, $mappingEntity, $mappingLocalColumn, $mappingReferenceColumn, $apiSources, $onDelete];
+
+        if (isset($reverses[$key])) {
+            if ($reverses[$key] === $arguments) {
+                return;
+            }
+
+            throw DependencyInjectionException::duplicateReverseManyToManyAssociation($propertyName, $target);
+        }
+        $reverses[$key] = $arguments;
+
+        $definition = new Definition(AttributeManyToManyReverseExtension::class, $arguments);
+        $definition->setPublic(true);
+        $definition->addTag('shopware.entity.extension');
+        $container->setDefinition($key . '.reverse_many_to_many_extension', $definition);
     }
 
     /**

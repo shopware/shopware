@@ -14,7 +14,6 @@ const NON_GENERIC_MATCH_ANY_CONDITIONS = ['cartLineItem', 'cartLineItemCustomFie
  * @component-example
  * <sw-condition-base-line-item :condition="condition"></sw-condition-base-line-item>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

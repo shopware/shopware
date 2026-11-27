@@ -1,0 +1,43 @@
+{% block component_checkout_shipment %}
+    {# @var shipment \Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity|\Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery #}
+    {% set shippingAddress = shipment.shippingOrderAddress ?? shipment.location.address ?? null %}
+    {% set deliveryDateEarliest = shipment.shippingDateEarliest ?? shipment.deliveryDate.earliest ?? null %}
+    {% set deliveryDateLatest = shipment.shippingDateLatest ?? shipment.deliveryDate.latest ?? null %}
+
+    <div class="checkout-shipment mb-3">
+        {% block component_checkout_shipment_title %}
+            <p class="checkout-shipment-title fw-bold mb-1">
+                {{ 'checkout.shipmentHeader'|trans({
+                    '%number%': shipmentNumber,
+                    '%shippingMethod%': shipment.shippingMethod.translated.name,
+                })|sw_sanitize }}
+            </p>
+        {% endblock %}
+
+        {% block component_checkout_shipment_address %}
+            {% if shippingAddress %}
+                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                    address: shippingAddress
+                } %}
+            {% endif %}
+        {% endblock %}
+
+        {% block component_checkout_shipment_costs %}
+            <p class="checkout-shipment-costs mb-0">
+                {{ 'account.orderItemShippingcosts'|trans|sw_sanitize }}
+                {{ shipment.shippingCosts.totalPrice|currency(currencyIsoCode ?? null) }}
+            </p>
+        {% endblock %}
+
+        {% block component_checkout_shipment_delivery_date %}
+            {% if deliveryDateEarliest and deliveryDateLatest %}
+                <p class="checkout-shipment-delivery-date mb-0">
+                    {{ 'checkout.lineItemDeliveryDate'|trans({
+                        '%earliest%': deliveryDateEarliest|format_date('short', locale=app.request.locale),
+                        '%latest%': deliveryDateLatest|format_date('short', locale=app.request.locale)
+                    })|sw_sanitize }}
+                </p>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

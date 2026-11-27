@@ -17,6 +17,7 @@ use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -27,6 +28,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Shopware\Storefront\Page\MetaInformation;
+use Shopware\Storefront\Page\Page;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -45,7 +47,8 @@ class LandingPageLoaderTest extends TestCase
         $landingPageLoader = new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $landingPageRouteMock,
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class)
         );
 
         $request = new Request([], [], []);
@@ -63,7 +66,8 @@ class LandingPageLoaderTest extends TestCase
         $landingPageLoader = new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $landingPageRouteMock,
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class)
         );
 
         $landingPageId = Uuid::randomHex();
@@ -169,7 +173,8 @@ class LandingPageLoaderTest extends TestCase
         return new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
             $this->createLandingPageRoute($landingPage, $request, $salesChannelContext),
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class)
         );
     }
 
@@ -182,6 +187,11 @@ class LandingPageLoaderTest extends TestCase
         Request $request,
         SalesChannelContext $salesChannelContext
     ): LandingPageLoader {
+        $genericPage = new Page();
+        $genericPage->setMetaInformation(new MetaInformation());
+        $genericPageLoaderMock = $this->createMock(GenericPageLoader::class);
+        $genericPageLoaderMock->expects($this->once())->method('load')->willReturn($genericPage);
+
         $productId = Uuid::randomHex();
         $product = $this->getProduct($productId);
         $cmsPage = $this->getCmsPage($product);
@@ -193,9 +203,10 @@ class LandingPageLoaderTest extends TestCase
         $landingPage->setName('INCORRECT_NAME');
 
         return new LandingPageLoader(
-            static::createStub(GenericPageLoader::class),
+            $genericPageLoaderMock,
             $this->createLandingPageRoute($landingPage, $request, $salesChannelContext),
-            static::createStub(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class)
         );
     }
 

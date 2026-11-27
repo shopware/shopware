@@ -22,7 +22,11 @@
  * already drifted does not block the PRs that had nothing to do with it.
  */
 
-import { MILESTONE_LABEL_PREFIX, SKIP_CHECK_LABEL as MILESTONE_SKIP_LABEL, pullRequestNumbersInMergeGroup } from './milestone-label.ts';
+import {
+    MILESTONE_LABEL_PREFIX,
+    SKIP_CHECK_LABEL as MILESTONE_SKIP_LABEL,
+    pullRequestNumbersInMergeGroup,
+} from './milestone-label.ts';
 
 export const STATUS_CONTEXT = 'release-info/section';
 
@@ -192,7 +196,13 @@ function milestoneVersionOf(labels: string[]): string | undefined {
     return /^\d+\.\d+\.\d+\.\d+$/.test(version) ? version : undefined;
 }
 
-export function evaluateReleaseInfoSections({ labels, files }: { labels: string[]; files: ReleaseInfoFile[] }): ReleaseInfoVerdict {
+export function evaluateReleaseInfoSections({
+    labels,
+    files,
+}: {
+    labels: string[];
+    files: ReleaseInfoFile[];
+}): ReleaseInfoVerdict {
     const releaseInfoFiles = files.filter((file) => RELEASE_INFO_PATTERN.test(file.filename));
     if (releaseInfoFiles.length === 0) {
         return { status: 'ok', message: 'does not change a RELEASE_INFO file', short: 'no RELEASE_INFO changes' };
@@ -265,24 +275,32 @@ export function evaluateReleaseInfoSections({ labels, files }: { labels: string[
     // A misfiled entry is reported first: it is the more fundamental fault, and moving
     // the lines into the right section can resolve the repetition on its way.
     if (mismatches.length === 0 && duplicates.length > 0) {
-        const details = duplicates.map(({ filename, section, heading, lines }) =>
-            `\`${heading}\` appears ${lines.length}× in ${sectionLabel(section, filename)} (lines ${lines.join(', ')})`);
+        const details = duplicates.map(
+            ({ filename, section, heading, lines }) =>
+                `\`${heading}\` appears ${lines.length}× in ${sectionLabel(section, filename)} (lines ${lines.join(', ')})`,
+        );
         const first = duplicates[0];
         const where = first.section === null ? 'the preamble' : `the ${first.section} section`;
 
         return {
             status: 'invalid',
-            message: `${details.join('; ')}. A heading belongs once per version section: put a new entry under the category heading that is already there, `
-                + `and drop or retitle a \`###\` entry the section documents already. For a deliberate repetition, set \`${SKIP_CHECK_LABEL}\`.`,
-            short: duplicates.length === 1
-                ? `duplicate "${clip(first.heading, 60)}" in ${where} of ${first.filename}`
-                : `${duplicates.length} duplicate headings, first "${clip(first.heading, 40)}" in ${where} of ${first.filename}`,
+            message:
+                `${details.join('; ')}. A heading belongs once per version section: put a new entry under the category heading that is already there, ` +
+                `and drop or retitle a \`###\` entry the section documents already. For a deliberate repetition, set \`${SKIP_CHECK_LABEL}\`.`,
+            short:
+                duplicates.length === 1
+                    ? `duplicate "${clip(first.heading, 60)}" in ${where} of ${first.filename}`
+                    : `${duplicates.length} duplicate headings, first "${clip(first.heading, 40)}" in ${where} of ${first.filename}`,
         };
     }
 
     if (!milestoneTrusted) {
         if (labels.includes(MILESTONE_SKIP_LABEL)) {
-            return { status: 'skipped', message: `\`${MILESTONE_SKIP_LABEL}\` is set, so no milestone names the section the entries belong to`, short: `${MILESTONE_SKIP_LABEL} is set` };
+            return {
+                status: 'skipped',
+                message: `\`${MILESTONE_SKIP_LABEL}\` is set, so no milestone names the section the entries belong to`,
+                short: `${MILESTONE_SKIP_LABEL} is set`,
+            };
         }
 
         // Missing, duplicated, or malformed labels are the milestone/label
@@ -305,15 +323,17 @@ export function evaluateReleaseInfoSections({ labels, files }: { labels: string[
     const details = mismatches.map(({ filename, section, lines }) =>
         section === null
             ? `adds ${lines} line(s) above the first version heading of \`${filename}\``
-            : `adds ${lines} line(s) to the \`${section}\` section of \`${filename}\``);
+            : `adds ${lines} line(s) to the \`${section}\` section of \`${filename}\``,
+    );
     const sectionNames = [...new Set(mismatches.map(({ section }) => section ?? 'preamble'))].join(', ');
 
     return {
         status: 'invalid',
-        message: `${details.join(', ')} while carrying \`${MILESTONE_LABEL_PREFIX}${version}\`. `
-            + `Move the entries into the \`# ${version}\` section, or fix the milestone label if the entries are right — `
-            + `writing into a released line takes a backport PR whose milestone matches, see the \`milestone/label\` check. `
-            + `For a deliberate edit of a past release's section, set \`${SKIP_CHECK_LABEL}\`.`,
+        message:
+            `${details.join(', ')} while carrying \`${MILESTONE_LABEL_PREFIX}${version}\`. ` +
+            `Move the entries into the \`# ${version}\` section, or fix the milestone label if the entries are right — ` +
+            `writing into a released line takes a backport PR whose milestone matches, see the \`milestone/label\` check. ` +
+            `For a deliberate edit of a past release's section, set \`${SKIP_CHECK_LABEL}\`.`,
         short: `RELEASE_INFO entries in ${sectionNames}, but the milestone is ${version}`,
     };
 }
@@ -324,18 +344,43 @@ type GithubClient = {
             get(options: { owner: string; repo: string; pull_number: number }): Promise<{
                 data: { number: number; head: { sha: string }; labels: { name: string }[] };
             }>;
-            listFiles(options: { owner: string; repo: string; pull_number: number; per_page: number; page: number }): Promise<{
+            listFiles(options: {
+                owner: string;
+                repo: string;
+                pull_number: number;
+                per_page: number;
+                page: number;
+            }): Promise<{
                 data: { filename: string; status: string; patch?: string }[];
             }>;
         };
         repos: {
-            getContent(options: { owner: string; repo: string; path: string; ref: string; mediaType: { format: string } }): Promise<{ data: unknown }>;
+            getContent(options: {
+                owner: string;
+                repo: string;
+                path: string;
+                ref: string;
+                mediaType: { format: string };
+            }): Promise<{ data: unknown }>;
             createCommitStatus(options: {
-                owner: string; repo: string; sha: string;
-                state: 'success' | 'failure'; context: string; description: string; target_url?: string;
+                owner: string;
+                repo: string;
+                sha: string;
+                state: 'success' | 'failure';
+                context: string;
+                description: string;
+                target_url?: string;
             }): Promise<unknown>;
-            compareCommitsWithBasehead(options: { owner: string; repo: string; basehead: string }): Promise<{ data: { commits: { sha: string }[] } }>;
-            listPullRequestsAssociatedWithCommit(options: { owner: string; repo: string; commit_sha: string }): Promise<{ data: { number: number }[] }>;
+            compareCommitsWithBasehead(options: {
+                owner: string;
+                repo: string;
+                basehead: string;
+            }): Promise<{ data: { commits: { sha: string }[] } }>;
+            listPullRequestsAssociatedWithCommit(options: {
+                owner: string;
+                repo: string;
+                commit_sha: string;
+            }): Promise<{ data: { number: number }[] }>;
         };
     };
 };
@@ -374,40 +419,58 @@ async function pullRequestsToCheck({ github, core, context }: Toolkit): Promise<
             throw new Error('This function can only be called on pull request events.');
         }
 
-        return [{
-            number: pullRequest.number,
-            labels: (pullRequest.labels ?? []).map((label) => label.name),
-            headSha: pullRequest.head.sha,
-        }];
+        return [
+            {
+                number: pullRequest.number,
+                labels: (pullRequest.labels ?? []).map((label) => label.name),
+                headSha: pullRequest.head.sha,
+            },
+        ];
     }
 
     const numbers = await pullRequestNumbersInMergeGroup(github, core, context.repo, mergeGroup);
 
-    return Promise.all(numbers.map(async (number) => {
-        const { data } = await github.rest.pulls.get({ ...context.repo, pull_number: number });
+    return Promise.all(
+        numbers.map(async (number) => {
+            const { data } = await github.rest.pulls.get({ ...context.repo, pull_number: number });
 
-        return { number: data.number, labels: data.labels.map((label) => label.name), headSha: data.head.sha };
-    }));
+            return { number: data.number, labels: data.labels.map((label) => label.name), headSha: data.head.sha };
+        }),
+    );
 }
 
 /** The PR's RELEASE_INFO changes, each paired with the file as it looks at the head. */
-async function releaseInfoFilesOf(github: GithubClient, repo: Repo, pullRequest: CheckedPullRequest): Promise<ReleaseInfoFile[]> {
+async function releaseInfoFilesOf(
+    github: GithubClient,
+    repo: Repo,
+    pullRequest: CheckedPullRequest,
+): Promise<ReleaseInfoFile[]> {
     const files: { filename: string; status: string; patch?: string }[] = [];
     for (let page = 1; ; page++) {
-        const { data } = await github.rest.pulls.listFiles({ ...repo, pull_number: pullRequest.number, per_page: 100, page });
+        const { data } = await github.rest.pulls.listFiles({
+            ...repo,
+            pull_number: pullRequest.number,
+            per_page: 100,
+            page,
+        });
         files.push(...data);
         if (data.length < 100) {
             break;
         }
     }
 
-    return Promise.all(files
-        .filter((file) => RELEASE_INFO_PATTERN.test(file.filename))
-        .map(async (file) => ({
-            filename: file.filename,
-            patch: file.patch,
-            headContent: file.status === 'removed' ? undefined : await rawContent(github, repo, file.filename, pullRequest.headSha),
-        })));
+    return Promise.all(
+        files
+            .filter((file) => RELEASE_INFO_PATTERN.test(file.filename))
+            .map(async (file) => ({
+                filename: file.filename,
+                patch: file.patch,
+                headContent:
+                    file.status === 'removed'
+                        ? undefined
+                        : await rawContent(github, repo, file.filename, pullRequest.headSha),
+            })),
+    );
 }
 
 async function rawContent(github: GithubClient, repo: Repo, path: string, ref: string): Promise<string | undefined> {
@@ -456,31 +519,36 @@ export async function checkReleaseInfoSections(toolkit: Toolkit): Promise<void> 
     const { github, core, context } = toolkit;
     const pullRequests = await pullRequestsToCheck(toolkit);
 
-    const judged = await Promise.all(pullRequests.map(async (pullRequest) => ({
-        pullRequest,
-        verdict: evaluateReleaseInfoSections({
-            labels: pullRequest.labels,
-            files: await releaseInfoFilesOf(github, context.repo, pullRequest),
-        }),
-    })));
+    const judged = await Promise.all(
+        pullRequests.map(async (pullRequest) => ({
+            pullRequest,
+            verdict: evaluateReleaseInfoSections({
+                labels: pullRequest.labels,
+                files: await releaseInfoFilesOf(github, context.repo, pullRequest),
+            }),
+        })),
+    );
 
     for (const { pullRequest, verdict } of judged) {
         core.info(`PR #${pullRequest.number} ${verdict.message}`);
     }
 
-    const summary = judged.map(({ pullRequest, verdict }) =>
-        `- ${{ ok: '✅', skipped: '➖', invalid: '❌' }[verdict.status]} #${pullRequest.number} ${verdict.message}`);
+    const summary = judged.map(
+        ({ pullRequest, verdict }) =>
+            `- ${{ ok: '✅', skipped: '➖', invalid: '❌' }[verdict.status]} #${pullRequest.number} ${verdict.message}`,
+    );
     await core.summary.addRaw(`## Release info sections\n\n${summary.join('\n')}\n`).write();
 
     const invalid = judged.filter(({ verdict }) => verdict.status === 'invalid');
 
     // A single pull request speaks for itself; a batched merge group has to name the
     // offenders, because the status is the only thing the queue shows.
-    const description = judged.length === 1
-        ? judged[0].verdict.short
-        : invalid.length === 0
-            ? `all ${judged.length} queued pull requests keep their RELEASE_INFO sections consistent`
-            : invalid.map(({ pullRequest, verdict }) => `#${pullRequest.number} ${verdict.short}`).join('; ');
+    const description =
+        judged.length === 1
+            ? judged[0].verdict.short
+            : invalid.length === 0
+              ? `all ${judged.length} queued pull requests keep their RELEASE_INFO sections consistent`
+              : invalid.map(({ pullRequest, verdict }) => `#${pullRequest.number} ${verdict.short}`).join('; ');
 
     const target = runUrl(context.repo);
     await github.rest.repos.createCommitStatus({

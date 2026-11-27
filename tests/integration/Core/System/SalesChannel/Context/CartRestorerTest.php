@@ -20,6 +20,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -153,6 +154,8 @@ class CartRestorerTest extends TestCase
         $guestProductLineItem2 = $guestCart->getLineItems()->getAt(1);
         static::assertInstanceOf(LineItem::class, $guestProductLineItem1);
         static::assertInstanceOf(LineItem::class, $guestProductLineItem2);
+        $guestCart->addExtension('delivery-choice', new ArrayStruct(['shippingMethodId' => 'guest']));
+        $this->cartPersister->save($guestCart, $guestContext);
 
         // Create Saved Customer cart
         $customerLineItemQuantity = 4;
@@ -197,6 +200,8 @@ class CartRestorerTest extends TestCase
         $restoredCustomerLineItem2 = $restoredLineItems->get($customerLineItem2->getReferencedId());
         static::assertNotNull($restoredCustomerLineItem2);
         static::assertSame(3, $restoredCustomerLineItem2->getQuantity());
+
+        static::assertEquals(new ArrayStruct(['shippingMethodId' => 'guest']), $restoredCart->getExtension('delivery-choice'));
     }
 
     public function testRestoreByTokenWithNotExistingToken(): void
@@ -423,11 +428,13 @@ class CartRestorerTest extends TestCase
         $productLineItem2 = $this->createLineItem($currentContext, $guestProductQuantity);
 
         // Create Guest cart
-        $this->createAndSaveUnmodifiedCart(
+        $guestCart = $this->createAndSaveUnmodifiedCart(
             $currentContext,
             $productLineItem1,
             $productLineItem2
         );
+        $guestCart->addExtension('delivery-choice', new ArrayStruct(['shippingMethodId' => 'guest']));
+        $this->cartPersister->save($guestCart, $currentContext);
 
         // Create Saved Customer cart
         $customerToken = Uuid::randomHex();
@@ -476,6 +483,8 @@ class CartRestorerTest extends TestCase
         static::assertSame(1, $p1->getQuantity());
         static::assertNotNull($savedItem = $restoreCart->getLineItems()->get($savedLineItem->getId()));
         static::assertSame($savedLineItemQuantity + $guestProductQuantity, $savedItem->getQuantity());
+
+        static::assertEquals(new ArrayStruct(['shippingMethodId' => 'guest']), $restoreCart->getExtension('delivery-choice'));
     }
 
     public function testCartMergedEventIsFiredWithCustomerCart(): void

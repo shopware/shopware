@@ -13,6 +13,10 @@
         {% set skipToMainNav = false %}
     {% endif %}
 
+    {% if productListing is not defined %}
+        {% set productListing = null %}
+    {% endif %}
+
     {% block component_skip_to_content_element %}
         <div id="page-top" class="skip-to-content bg-primary-subtle text-primary-emphasis overflow-hidden" tabindex="-1">
             <div class="container skip-to-content-container d-flex justify-content-center visually-hidden-focusable">
@@ -37,6 +41,14 @@
                         {% if skipToMainNav %}
                             <a href="#main-navigation-menu" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2 d-none d-lg-block">
                                 {{ 'general.skipToNavigation'|trans|sw_sanitize }}
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block component_skip_to_content_product_listing %}
+                        {% if productListing and productListing.total > 0 and productListing.aggregations.elements|length > 0 %}
+                            <a href="#product-listing" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2 d-none d-lg-block">
+                                {{ 'general.skipToProductListing'|trans|sw_sanitize }}
                             </a>
                         {% endif %}
                     {% endblock %}

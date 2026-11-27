@@ -796,7 +796,7 @@ export default class CookieConfiguration extends Plugin {
 
         AjaxOffCanvas.open(route, false, () => {
             window.PluginManager.initializePlugins();
-            const offcanvas = document.querySelector('.offcanvas');
+            const offcanvas = this._getOffCanvas();
             if (!offcanvas){
                 return;
             }
@@ -1026,8 +1026,7 @@ export default class CookieConfiguration extends Plugin {
      * Public method to accept all cookies.
      * Uses the API endpoint to fetch and accept all cookies.
      *
-     * @param {boolean} _loadIntoMemory - Deprecated parameter, kept for backward compatibility
-     * @deprecated tag:v6.8.0 - The _loadIntoMemory parameter is deprecated and has no effect
+     * @param {boolean} _loadIntoMemory @deprecated tag:v6.8.0 - The parameter is deprecated and has no effect.
      */
     // eslint-disable-next-line no-unused-vars
     async acceptAllCookies(_loadIntoMemory = false) {
@@ -1163,7 +1162,7 @@ export default class CookieConfiguration extends Plugin {
         e.preventDefault();
         AjaxOffCanvas.close();
         this.openOffCanvas(() => {
-            const offcanvasElement = document.querySelector('.offcanvas');
+            const offcanvasElement = this._getOffCanvas();
             if (!offcanvasElement) {
                 return;
             }

@@ -56,12 +56,14 @@ function verify(git: GitReader) {
 
 test('a heading with a reachable feature commit is confirmed', () => {
     const content = releaseInfo('### Feature A');
-    const result = verify(createFakeGitReader({
-        files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
-        introducing: { '### Feature A': 'aaaa1111' },
-        ancestors: ['aaaa1111'],
-        changed: { aaaa1111: [FILE, 'src/Feature.php'] },
-    }));
+    const result = verify(
+        createFakeGitReader({
+            files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
+            introducing: { '### Feature A': 'aaaa1111' },
+            ancestors: ['aaaa1111'],
+            changed: { aaaa1111: [FILE, 'src/Feature.php'] },
+        }),
+    );
 
     assert.equal(result.total, 1);
     assert.equal(result.confirmed, 1);
@@ -70,11 +72,13 @@ test('a heading with a reachable feature commit is confirmed', () => {
 });
 
 test('a heading absent from the branch with an unreachable commit is missing', () => {
-    const result = verify(createFakeGitReader({
-        files: { [`${TRUNK}:${FILE}`]: releaseInfo('### Feature A'), [`${BRANCH}:${FILE}`]: releaseInfo() },
-        introducing: { '### Feature A': 'aaaa1111' },
-        changed: { aaaa1111: [FILE, 'src/Feature.php'] },
-    }));
+    const result = verify(
+        createFakeGitReader({
+            files: { [`${TRUNK}:${FILE}`]: releaseInfo('### Feature A'), [`${BRANCH}:${FILE}`]: releaseInfo() },
+            introducing: { '### Feature A': 'aaaa1111' },
+            changed: { aaaa1111: [FILE, 'src/Feature.php'] },
+        }),
+    );
 
     assert.equal(result.confirmed, 0);
     assert.deepEqual(result.missing, [{ heading: '### Feature A', sha: 'aaaa1111' }]);
@@ -82,42 +86,50 @@ test('a heading absent from the branch with an unreachable commit is missing', (
 
 test('a heading present but with an unreachable commit is warned', () => {
     const content = releaseInfo('### Feature A');
-    const result = verify(createFakeGitReader({
-        files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
-        introducing: { '### Feature A': 'aaaa1111' },
-        changed: { aaaa1111: [FILE, 'src/Feature.php'] },
-    }));
+    const result = verify(
+        createFakeGitReader({
+            files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
+            introducing: { '### Feature A': 'aaaa1111' },
+            changed: { aaaa1111: [FILE, 'src/Feature.php'] },
+        }),
+    );
 
     assert.deepEqual(result.missing, []);
     assert.deepEqual(result.warnings, [{ heading: '### Feature A', sha: 'aaaa1111', note: NOTE_TEXT_WITHOUT_COMMIT }]);
 });
 
 test('a reachable commit whose heading is missing from the branch is warned', () => {
-    const result = verify(createFakeGitReader({
-        files: { [`${TRUNK}:${FILE}`]: releaseInfo('### Feature A'), [`${BRANCH}:${FILE}`]: releaseInfo() },
-        introducing: { '### Feature A': 'aaaa1111' },
-        ancestors: ['aaaa1111'],
-        changed: { aaaa1111: [FILE, 'src/Feature.php'] },
-    }));
+    const result = verify(
+        createFakeGitReader({
+            files: { [`${TRUNK}:${FILE}`]: releaseInfo('### Feature A'), [`${BRANCH}:${FILE}`]: releaseInfo() },
+            introducing: { '### Feature A': 'aaaa1111' },
+            ancestors: ['aaaa1111'],
+            changed: { aaaa1111: [FILE, 'src/Feature.php'] },
+        }),
+    );
 
     assert.deepEqual(result.warnings, [{ heading: '### Feature A', sha: 'aaaa1111', note: NOTE_COMMIT_WITHOUT_TEXT }]);
 });
 
 test('a docs-only introducing commit is warned', () => {
     const content = releaseInfo('### Feature A');
-    const result = verify(createFakeGitReader({
-        files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
-        introducing: { '### Feature A': 'aaaa1111' },
-        ancestors: ['aaaa1111'],
-        changed: { aaaa1111: [FILE] },
-    }));
+    const result = verify(
+        createFakeGitReader({
+            files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
+            introducing: { '### Feature A': 'aaaa1111' },
+            ancestors: ['aaaa1111'],
+            changed: { aaaa1111: [FILE] },
+        }),
+    );
 
     assert.equal(result.confirmed, 0);
     assert.deepEqual(result.warnings, [{ heading: '### Feature A', sha: 'aaaa1111', note: NOTE_DOCS_ONLY }]);
 });
 
 test('no headings on trunk yields nothing to verify', () => {
-    const result = verify(createFakeGitReader({ files: { [`${TRUNK}:${FILE}`]: '# 6.7.11.0\n\nno feature headings here\n' } }));
+    const result = verify(
+        createFakeGitReader({ files: { [`${TRUNK}:${FILE}`]: '# 6.7.11.0\n\nno feature headings here\n' } }),
+    );
 
     assert.equal(result.total, 0);
     assert.deepEqual(result.missing, []);
@@ -126,13 +138,18 @@ test('no headings on trunk yields nothing to verify', () => {
 
 test('entries are sorted by the introducing commit', () => {
     const content = releaseInfo('### Feature Z', '### Feature A');
-    const result = verify(createFakeGitReader({
-        files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: releaseInfo() },
-        introducing: { '### Feature Z': 'zzzz9999', '### Feature A': 'aaaa1111' },
-        changed: { zzzz9999: [FILE, 'src/Z.php'], aaaa1111: [FILE, 'src/A.php'] },
-    }));
+    const result = verify(
+        createFakeGitReader({
+            files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: releaseInfo() },
+            introducing: { '### Feature Z': 'zzzz9999', '### Feature A': 'aaaa1111' },
+            changed: { zzzz9999: [FILE, 'src/Z.php'], aaaa1111: [FILE, 'src/A.php'] },
+        }),
+    );
 
-    assert.deepEqual(result.missing.map((entry) => entry.sha), ['aaaa1111', 'zzzz9999']);
+    assert.deepEqual(
+        result.missing.map((entry) => entry.sha),
+        ['aaaa1111', 'zzzz9999'],
+    );
 });
 
 test('extractHeadings collects third-level headings within the version section', () => {
@@ -186,7 +203,12 @@ test('consoleReport shows only the OK line when everything is confirmed', () => 
 
 test('consoleReport renders warnings with a linked commit and keeps the OK line', () => {
     const report = consoleReport(
-        { total: 2, confirmed: 1, missing: [], warnings: [{ heading: '### Feature A', sha: 'aaaa11112222', note: NOTE_DOCS_ONLY }] },
+        {
+            total: 2,
+            confirmed: 1,
+            missing: [],
+            warnings: [{ heading: '### Feature A', sha: 'aaaa11112222', note: NOTE_DOCS_ONLY }],
+        },
         FILE,
         'https://github.com/shopware/shopware/commit',
     );
@@ -197,7 +219,10 @@ test('consoleReport renders warnings with a linked commit and keeps the OK line'
 });
 
 test('consoleReport shows the failure epilogue and no OK line when entries are missing', () => {
-    const report = consoleReport({ total: 1, confirmed: 0, missing: [{ heading: '### Feature A', sha: '' }], warnings: [] }, FILE);
+    const report = consoleReport(
+        { total: 1, confirmed: 0, missing: [{ heading: '### Feature A', sha: '' }], warnings: [] },
+        FILE,
+    );
 
     assert.match(report, /MISSING: 1 of 1 entries documented on trunk are absent/);
     assert.match(report, /x ### Feature A \[unknown]/);
@@ -206,7 +231,10 @@ test('consoleReport shows the failure epilogue and no OK line when entries are m
 });
 
 test('markdownSummary shows the success line for a clean run', () => {
-    const markdown = markdownSummary({ total: 2, confirmed: 2, missing: [], warnings: [] }, { versionPrefix: VERSION, branchRef: BRANCH, releaseInfoFile: FILE });
+    const markdown = markdownSummary(
+        { total: 2, confirmed: 2, missing: [], warnings: [] },
+        { versionPrefix: VERSION, branchRef: BRANCH, releaseInfoFile: FILE },
+    );
 
     assert.match(markdown, /## Release content verification — `6\.7\.11\.\*`/);
     assert.match(markdown, /\*\*2\*\* confirmed · \*\*0\*\* warning\(s\) · \*\*0\*\* missing \(of 2\)/);
@@ -216,11 +244,19 @@ test('markdownSummary shows the success line for a clean run', () => {
 test('markdownSummary renders the missing table with a linked commit and escaped pipes', () => {
     const markdown = markdownSummary(
         { total: 1, confirmed: 0, missing: [{ heading: '### Feature | A', sha: 'aaaa11112222' }], warnings: [] },
-        { versionPrefix: VERSION, branchRef: BRANCH, releaseInfoFile: FILE, commitUrlBase: 'https://github.com/shopware/shopware/commit' },
+        {
+            versionPrefix: VERSION,
+            branchRef: BRANCH,
+            releaseInfoFile: FILE,
+            commitUrlBase: 'https://github.com/shopware/shopware/commit',
+        },
     );
 
     assert.match(markdown, /### ❌ Missing from this release branch/);
-    assert.match(markdown, /\| Feature \\\| A \| \[`aaaa1111`]\(https:\/\/github\.com\/shopware\/shopware\/commit\/aaaa11112222\) \|/);
+    assert.match(
+        markdown,
+        /\| Feature \\\| A \| \[`aaaa1111`]\(https:\/\/github\.com\/shopware\/shopware\/commit\/aaaa11112222\) \|/,
+    );
 });
 
 test('markdownSummary escapes backslashes in a heading before the pipe', () => {
@@ -239,11 +275,27 @@ test('commitStatusDescription summarises the three outcomes', () => {
         'no entries for 6.7.11.* on trunk — nothing to verify',
     );
     assert.equal(
-        commitStatusDescription({ total: 3, confirmed: 1, missing: [{ heading: '### A', sha: 'a' }, { heading: '### B', sha: 'b' }], warnings: [] }, VERSION, '6.7.11.x'),
+        commitStatusDescription(
+            {
+                total: 3,
+                confirmed: 1,
+                missing: [
+                    { heading: '### A', sha: 'a' },
+                    { heading: '### B', sha: 'b' },
+                ],
+                warnings: [],
+            },
+            VERSION,
+            '6.7.11.x',
+        ),
         '2 of 3 documented entries missing from 6.7.11.x',
     );
     assert.equal(
-        commitStatusDescription({ total: 4, confirmed: 3, missing: [], warnings: [{ heading: '### A', sha: 'a', note: NOTE_DOCS_ONLY }] }, VERSION, '6.7.11.x'),
+        commitStatusDescription(
+            { total: 4, confirmed: 3, missing: [], warnings: [{ heading: '### A', sha: 'a', note: NOTE_DOCS_ONLY }] },
+            VERSION,
+            '6.7.11.x',
+        ),
         '3 of 4 entries confirmed, 1 need manual verification',
     );
 });
@@ -354,7 +406,17 @@ const runGit = (args: string[]): string => execFileSync('git', args, { cwd: repo
 
 function commit(message: string): string {
     runGit(['add', '-A']);
-    runGit(['-c', 'user.email=test@example.com', '-c', 'user.name=Test', '-c', 'commit.gpgsign=false', 'commit', '-m', message]);
+    runGit([
+        '-c',
+        'user.email=test@example.com',
+        '-c',
+        'user.name=Test',
+        '-c',
+        'commit.gpgsign=false',
+        'commit',
+        '-m',
+        message,
+    ]);
 
     return runGit(['rev-parse', 'HEAD']).trim();
 }

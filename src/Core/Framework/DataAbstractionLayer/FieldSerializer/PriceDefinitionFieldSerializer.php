@@ -22,7 +22,11 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\UnknownConditionRule;
+use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -66,13 +70,8 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         QuantityPriceDefinition::getConstraints(),
                         $parameters->getPath()
                     );
-                    if (!\array_key_exists('taxRules', $value)) {
-                        break;
-                    }
 
-                    foreach ($value['taxRules'] as $key => $taxRule) {
-                        $this->validateProperties($taxRule, TaxRule::getConstraints(), $parameters->getPath() . '/taxRules/' . $key);
-                    }
+                    $this->validateEntries($value['taxRules'], TaxRule::getConstraints(), $parameters->getPath() . '/taxRules');
 
                     break;
                 case AbsolutePriceDefinition::TYPE:
@@ -97,6 +96,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         CurrencyPriceDefinition::getConstraints(),
                         $parameters->getPath()
                     );
+
+                    $this->validateEntries($value['price'], $this->getCurrencyPriceConstraints(), $parameters->getPath() . '/price');
+
                     if (!\array_key_exists('filter', $value) || $value['filter'] === null) {
                         break;
                     }
@@ -155,7 +157,8 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($decoded);
             case AbsolutePriceDefinition::TYPE:
-                return new AbsolutePriceDefinition($decoded['price'], $this->decodeFilter($decoded));
+                // `Type('numeric')` accepts numeric strings on write
+                return new AbsolutePriceDefinition((float) $decoded['price'], $this->decodeFilter($decoded));
             case CurrencyPriceDefinition::TYPE:
                 $collection = new PriceCollection();
                 foreach ($decoded['price'] as $price) {
@@ -164,7 +167,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
                 return new CurrencyPriceDefinition($collection, $this->decodeFilter($decoded));
             case PercentagePriceDefinition::TYPE:
-                return new PercentagePriceDefinition($decoded['percentage'], $this->decodeFilter($decoded));
+                return new PercentagePriceDefinition((float) $decoded['percentage'], $this->decodeFilter($decoded));
         }
 
         throw DataAbstractionLayerException::invalidPriceFieldType($decoded['type']);
@@ -271,6 +274,37 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 $path
             );
         }
+    }
+
+    /**
+     * Validates each entry of a list inside the price definition, so that `decode()` can read all of them again.
+     *
+     * @param array<array-key, mixed> $entries
+     * @param array<string, list<Constraint>> $constraints
+     */
+    private function validateEntries(array $entries, array $constraints, string $path): void
+    {
+        foreach ($entries as $key => $entry) {
+            $this->validate([new Type('array')], new KeyValuePair((string) $key, $entry, true), $path);
+
+            /** @var array<string, mixed> $entry */
+            $this->validateProperties($entry, $constraints, $path . '/' . $key);
+        }
+    }
+
+    /**
+     * Only the properties that `decode()` reads, so further properties of a serialized `Price` stay allowed.
+     *
+     * @return array<string, list<Constraint>>
+     */
+    private function getCurrencyPriceConstraints(): array
+    {
+        return [
+            'currencyId' => [new NotBlank(), new Uuid()],
+            'net' => [new NotNull(), new Type('numeric')],
+            'gross' => [new NotNull(), new Type('numeric')],
+            'linked' => [new NotNull(), new Type('bool')],
+        ];
     }
 
     /**

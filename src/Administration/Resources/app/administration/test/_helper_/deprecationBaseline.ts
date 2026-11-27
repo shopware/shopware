@@ -5,7 +5,7 @@
 import deprecationBaseline from 'src/core/deprecation-baseline.json';
 import { deprecationBaselineKey } from 'src/core/feature';
 import { isBaselineUpdateRun } from './isBaselineUpdateRun';
-import { isMajorRun, loadFeatureConfig } from './majorFeatureFlags';
+import { isMajorRun, loadFeatureConfig } from '../../scripts/feature-flags';
 import { recordUsedBaselineEntry as recordUsedEntry } from './usedBaselineEntries';
 import type { RecordedDeprecation } from './deprecations';
 

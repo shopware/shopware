@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Contracts\Service\ResetInterface;
@@ -55,7 +56,7 @@ class HookableEventCollector implements ResetInterface
     {
         $privileges = [];
         foreach ($businessEventDefinition->getData() as $data) {
-            if ($data['type'] !== 'entity') {
+            if ($data['type'] !== 'entity' || ($data[EventDataCollection::HIDDEN_FROM_WEBHOOK] ?? false)) {
                 continue;
             }
 

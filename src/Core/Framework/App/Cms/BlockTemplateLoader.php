@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Cms;
 
-use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -14,11 +15,13 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
 {
     public function getTemplateForBlock(CmsExtensions $cmsExtensions, string $blockName): string
     {
+        $blockDirectory = $this->getBlockDirectory($cmsExtensions, $blockName);
+
         try {
             $templateFiles = (new Finder())
                 ->files()
                 ->name('preview.html')
-                ->in(\sprintf('%s/cms/blocks/%s', $cmsExtensions->getPath(), $blockName));
+                ->in($blockDirectory);
 
             foreach ($templateFiles as $templateFile) {
                 return $templateFile->getContents();
@@ -26,16 +29,18 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
         } catch (\Exception) {
         }
 
-        throw new AppCmsExtensionException(\sprintf('Preview file for block "%s" is missing', $blockName));
+        throw AppException::cmsBlockFileMissing($blockName, 'preview.html');
     }
 
     public function getStylesForBlock(CmsExtensions $cmsExtensions, string $blockName): string
     {
+        $blockDirectory = $this->getBlockDirectory($cmsExtensions, $blockName);
+
         try {
             $styleFiles = (new Finder())
                 ->files()
                 ->name('styles.css')
-                ->in(\sprintf('%s/cms/blocks/%s', $cmsExtensions->getPath(), $blockName));
+                ->in($blockDirectory);
 
             foreach ($styleFiles as $styleFile) {
                 return $styleFile->getContents();
@@ -43,6 +48,19 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
         } catch (\Exception) {
         }
 
-        throw new AppCmsExtensionException(\sprintf('Style file for block "%s" is missing', $blockName));
+        throw AppException::cmsBlockFileMissing($blockName, 'styles.css');
+    }
+
+    private function getBlockDirectory(CmsExtensions $cmsExtensions, string $blockName): string
+    {
+        $blocksDirectory = Path::join($cmsExtensions->getPath(), 'cms/blocks');
+        $blockDirectory = Path::join($blocksDirectory, $blockName);
+
+        // the block name comes from the cms.xml of the app
+        if (!Path::isBasePath($blocksDirectory, $blockDirectory)) {
+            throw AppException::cmsBlockOutsideOfBlocksDirectory($blockName);
+        }
+
+        return $blockDirectory;
     }
 }

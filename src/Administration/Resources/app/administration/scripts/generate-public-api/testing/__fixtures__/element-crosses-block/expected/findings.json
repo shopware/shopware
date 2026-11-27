@@ -1,0 +1,11 @@
+[
+    {
+        "group": "Break",
+        "rule": "element_crosses_block",
+        "element": "component:sw-example-card/crossing:div@sw_example_card_header>sw_example_card_header_label_manual",
+        "states": ["current", "major"],
+        "explanation": "The <div> element opens in block sw_example_card_header and closes in block sw_example_card_header_label_manual, so plugin overrides of either block without {% parent %} break the markup.",
+        "fix": "open and close the element inside the same block.",
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:8"
+    }
+]

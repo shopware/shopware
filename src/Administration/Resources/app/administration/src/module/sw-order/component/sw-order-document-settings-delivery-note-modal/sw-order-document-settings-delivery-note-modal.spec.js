@@ -2,6 +2,7 @@
  * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const orderFixture = {
     id: 'order1',
@@ -105,6 +106,10 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-delivery-note-modal', () => {
+    beforeEach(() => {
+        allowDeprecation('The component "sw-order-document-settings-delivery-note-modal" is deprecated');
+    });
+
     it('should disable/enable create & preview buttons by delivery date value', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

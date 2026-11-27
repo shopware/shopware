@@ -22,6 +22,7 @@ final readonly class McpToolResult
      * @param \DateTimeImmutable|null $generatedAt when the data was produced; the renderer uses the current time when null
      * @param \DateTimeImmutable|null $expiresAt until when the result is valid, when that is known
      * @param list<McpToolResultLink> $links data the client fetches separately, for example a stored large result
+     * @param string|null $text plain text for the model, sent as is on every revision in place of the data; see {@see self::text()}
      */
     public function __construct(
         public mixed $data = null,
@@ -31,6 +32,7 @@ final readonly class McpToolResult
         public ?\DateTimeImmutable $generatedAt = null,
         public ?\DateTimeImmutable $expiresAt = null,
         public array $links = [],
+        public ?string $text = null,
     ) {
     }
 
@@ -43,6 +45,17 @@ final readonly class McpToolResult
     }
 
     /**
+     * A result that is only text for the model, for a tool that has no data to return. It replaces a plain
+     * string returned from `__invoke()`, and like it, the text reaches every client as is.
+     *
+     * @param array<string, mixed> $meta
+     */
+    public static function text(string $text, array $meta = []): self
+    {
+        return new self(meta: $meta, text: $text);
+    }
+
+    /**
      * @param array<string, mixed> $details
      */
     public static function failure(string $message, string $code = McpToolError::TOOL_ERROR, array $details = []): self
@@ -50,6 +63,11 @@ final readonly class McpToolResult
         return new self(error: new McpToolError($message, $code, $details));
     }
 
+    /**
+     * @phpstan-assert-if-true !null $this->error
+     *
+     * @phpstan-assert-if-false null $this->error
+     */
     public function isError(): bool
     {
         return $this->error !== null;

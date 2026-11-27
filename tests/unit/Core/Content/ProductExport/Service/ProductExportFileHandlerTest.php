@@ -2,7 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Service;
 
+use League\Flysystem\DirectoryListing;
+use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\UnableToMoveFile;
+use League\Flysystem\UnableToWriteFile;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -88,6 +93,83 @@ class ProductExportFileHandlerTest extends TestCase
         );
     }
 
+    public function testWriteDoesNotRemoveExistingFeedBeforeNewContentIsInPlace(): void
+    {
+        $inner = new Filesystem(new InMemoryFilesystemAdapter());
+        $inner->write('export/feed.xml', 'old');
+        $fileSystem = new FeedWatchingFilesystem($inner, 'export/feed.xml');
+
+        $handler = new ProductExportFileHandler($fileSystem, 'export', new FrozenClock());
+        $handler->writeProductExportContent('new', 'export/feed.xml');
+
+        static::assertSame([], $fileSystem->missingAfter);
+        static::assertSame('new', $inner->read('export/feed.xml'));
+        static::assertSame(['export/feed.xml'], $this->listFiles($inner));
+    }
+
+    public function testFinalizeDoesNotRemoveExistingFeedBeforeNewContentIsInPlace(): void
+    {
+        $inner = new Filesystem(new InMemoryFilesystemAdapter());
+        $inner->write('export/feed.xml', 'old');
+        $inner->write('export/feed.xml.partial', 'body');
+        $fileSystem = new FeedWatchingFilesystem($inner, 'export/feed.xml');
+
+        $handler = new ProductExportFileHandler($fileSystem, 'export', new FrozenClock());
+        $handler->finalizePartialProductExport('export/feed.xml.partial', 'export/feed.xml', '<h>', '</h>');
+
+        static::assertSame([], $fileSystem->missingAfter);
+        static::assertSame('<h>body</h>', $inner->read('export/feed.xml'));
+        static::assertSame(['export/feed.xml'], $this->listFiles($inner));
+    }
+
+    public function testFailedMoveRemovesTemporaryFileAndKeepsExistingFeed(): void
+    {
+        $inner = new Filesystem(new InMemoryFilesystemAdapter());
+        $inner->write('export/feed.xml', 'old');
+        $fileSystem = new FeedWatchingFilesystem($inner, 'export/feed.xml', failOn: 'move');
+
+        $handler = new ProductExportFileHandler($fileSystem, 'export', new FrozenClock());
+
+        $this->expectException(UnableToMoveFile::class);
+
+        try {
+            $handler->writeProductExportContent('new', 'export/feed.xml');
+        } finally {
+            static::assertSame('old', $inner->read('export/feed.xml'));
+            static::assertSame(['export/feed.xml'], $this->listFiles($inner));
+        }
+    }
+
+    public function testFailedWriteRemovesTemporaryFileAndKeepsExistingFeed(): void
+    {
+        $inner = new Filesystem(new InMemoryFilesystemAdapter());
+        $inner->write('export/feed.xml', 'old');
+        $inner->write('export/feed.xml.partial', 'body');
+        $fileSystem = new FeedWatchingFilesystem($inner, 'export/feed.xml', failOn: 'write');
+
+        $handler = new ProductExportFileHandler($fileSystem, 'export', new FrozenClock());
+
+        $this->expectException(UnableToWriteFile::class);
+
+        try {
+            $handler->finalizePartialProductExport('export/feed.xml.partial', 'export/feed.xml', '<h>', '</h>');
+        } finally {
+            static::assertSame('old', $inner->read('export/feed.xml'));
+            static::assertSame(['export/feed.xml'], $this->listFiles($inner));
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function listFiles(FilesystemOperator $fileSystem): array
+    {
+        return array_values(array_map(
+            static fn ($item) => $item->path(),
+            $fileSystem->listContents('export', true)->toArray()
+        ));
+    }
+
     private function createFileHandler(bool $fileExists): ProductExportFileHandler
     {
         $fileSystem = static::createStub(FilesystemOperator::class);
@@ -115,5 +197,158 @@ class ProductExportFileHandlerTest extends TestCase
         }
 
         return $export;
+    }
+}
+
+/**
+ * @internal
+ */
+class FrozenClock implements ClockInterface
+{
+    public function now(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable('2026-07-21 12:00:00');
+    }
+}
+
+/**
+ * @internal
+ */
+class FeedWatchingFilesystem implements FilesystemOperator
+{
+    /**
+     * @var list<string>
+     */
+    public array $missingAfter = [];
+
+    public function __construct(
+        private readonly FilesystemOperator $inner,
+        private readonly string $feed,
+        private readonly ?string $failOn = null,
+    ) {
+    }
+
+    public function fileExists(string $location): bool
+    {
+        return $this->inner->fileExists($location);
+    }
+
+    public function directoryExists(string $location): bool
+    {
+        return $this->inner->directoryExists($location);
+    }
+
+    public function has(string $location): bool
+    {
+        return $this->inner->has($location);
+    }
+
+    public function read(string $location): string
+    {
+        return $this->inner->read($location);
+    }
+
+    public function readStream(string $location)
+    {
+        return $this->inner->readStream($location);
+    }
+
+    public function listContents(string $location, bool $deep = self::LIST_SHALLOW): DirectoryListing
+    {
+        return $this->inner->listContents($location, $deep);
+    }
+
+    public function lastModified(string $path): int
+    {
+        return $this->inner->lastModified($path);
+    }
+
+    public function fileSize(string $path): int
+    {
+        return $this->inner->fileSize($path);
+    }
+
+    public function mimeType(string $path): string
+    {
+        return $this->inner->mimeType($path);
+    }
+
+    public function visibility(string $path): string
+    {
+        return $this->inner->visibility($path);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function write(string $location, string $contents, array $config = []): void
+    {
+        $this->inner->write($location, $contents, $config);
+        if ($this->failOn === 'write') {
+            throw UnableToWriteFile::atLocation($location, 'simulated failure');
+        }
+        $this->check('write ' . $location);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function writeStream(string $location, $contents, array $config = []): void
+    {
+        $this->inner->writeStream($location, $contents, $config);
+        $this->check('writeStream ' . $location);
+    }
+
+    public function setVisibility(string $path, string $visibility): void
+    {
+        $this->inner->setVisibility($path, $visibility);
+    }
+
+    public function delete(string $location): void
+    {
+        $this->inner->delete($location);
+        $this->check('delete ' . $location);
+    }
+
+    public function deleteDirectory(string $location): void
+    {
+        $this->inner->deleteDirectory($location);
+        $this->check('deleteDirectory ' . $location);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function createDirectory(string $location, array $config = []): void
+    {
+        $this->inner->createDirectory($location, $config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function move(string $source, string $destination, array $config = []): void
+    {
+        if ($this->failOn === 'move') {
+            throw UnableToMoveFile::fromLocationTo($source, $destination);
+        }
+        $this->inner->move($source, $destination, $config);
+        $this->check('move ' . $source . ' -> ' . $destination);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function copy(string $source, string $destination, array $config = []): void
+    {
+        $this->inner->copy($source, $destination, $config);
+        $this->check('copy ' . $source . ' -> ' . $destination);
+    }
+
+    private function check(string $operation): void
+    {
+        if (!$this->inner->fileExists($this->feed)) {
+            $this->missingAfter[] = $operation;
+        }
     }
 }

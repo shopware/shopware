@@ -18,6 +18,9 @@ test(
         DefaultSalesChannel,
         CreateCustomField,
     }) => {
+        // Creating two fields and checking six Administration pages exceeds the default test budget on CI.
+        test.slow();
+
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
         const order = await TestDataService.createOrder([{ product: product, quantity: 5 }], customer);

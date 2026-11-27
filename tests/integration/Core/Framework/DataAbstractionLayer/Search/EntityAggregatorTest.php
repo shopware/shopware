@@ -39,7 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
@@ -141,6 +140,22 @@ class EntityAggregatorTest extends TestCase
         static::assertFalse($agg->has($ids->get('white')));
         static::assertFalse($agg->has($ids->get('xs')));
         static::assertFalse($agg->has($ids->get('foo')));
+    }
+
+    /**
+     * A segment that only contains `extensions` as a substring stays intact,
+     * so the accessor is unmapped and the query is rejected while it is built.
+     */
+    public function testAggregationFieldIsResolvedPerSegment(): void
+    {
+        $accessor = 'product.mediextensions.a.media';
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new TermsAggregation('media', $accessor));
+
+        $this->expectExceptionObject(DataAbstractionLayerException::unmappedField($accessor, $this->definition));
+
+        $this->aggregator->aggregate($this->definition, $criteria, Context::createDefaultContext());
     }
 
     public function testSingleTermsAggregation(): void
@@ -1335,11 +1350,8 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
 
-        if (Feature::isActive('v6.8.0.0')) {
-            static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('`taxRate`'));
-        } else {
-            static::expectExceptionObject(new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier'));
-        }
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('`taxRate`'));
+
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
@@ -1350,6 +1362,12 @@ class EntityAggregatorTest extends TestCase
     {
         yield 'question mark' => ['foo?foo'];
         yield 'control character' => ["foo\nfoo"];
+        yield 'single quote' => ['foo\'foo'];
+        yield 'double quote' => ['foo"foo'];
+        yield 'double dash comment' => ['foo--foo'];
+        yield 'backslash' => ['foo\\foo'];
+        yield 'semicolon' => ['foo;foo'];
+        yield 'block comment alias t/*' => ['t/*'];
     }
 
     #[DataProvider('provideDisallowedAggregationNames')]

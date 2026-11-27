@@ -37,11 +37,7 @@ class Migration1785810496ConvertLineItemProductStatesRuleCondition extends Migra
             ['legacyType' => 'cartLineItemProductStates']
         );
 
-        if ($conditions === []) {
-            return;
-        }
-
-        $migrated = false;
+        $converted = false;
 
         foreach ($conditions as $condition) {
             $newValue = $this->conditionPayload($condition['value']);
@@ -59,10 +55,18 @@ class Migration1785810496ConvertLineItemProductStatesRuleCondition extends Migra
                 ['id' => $condition['id']]
             );
 
-            $migrated = true;
+            $converted = true;
         }
 
-        if ($migrated) {
+        // A serialized payload that still holds the legacy rule throws once the v6.8.0.0 flag is active.
+        // This also covers rules converted by the V6_7 destructive migration whose indexer message was not consumed yet.
+        // A null payload is rebuilt on the next load, so the shop does not depend on the async indexer.
+        $connection->executeStatement(
+            'UPDATE `rule` SET `payload` = NULL WHERE `payload` LIKE :legacyRule',
+            ['legacyRule' => '%LineItemProductStatesRule%']
+        );
+
+        if ($converted) {
             $this->registerIndexer($connection, 'rule.indexer');
         }
     }

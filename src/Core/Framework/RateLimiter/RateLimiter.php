@@ -18,6 +18,10 @@ class RateLimiter
 
     final public const RESET_PASSWORD = 'reset_password';
 
+    final public const RESET_PASSWORD_USER = 'reset_password_user';
+
+    final public const RESET_PASSWORD_CLIENT = 'reset_password_client';
+
     final public const OAUTH = 'oauth';
 
     final public const OAUTH_USER = 'oauth_user';
@@ -25,6 +29,10 @@ class RateLimiter
     final public const OAUTH_CLIENT = 'oauth_client';
 
     final public const USER_RECOVERY = 'user_recovery';
+
+    final public const USER_RECOVERY_USER = 'user_recovery_user';
+
+    final public const USER_RECOVERY_CLIENT = 'user_recovery_client';
 
     final public const CONTACT_FORM = 'contact_form';
 
@@ -45,6 +53,8 @@ class RateLimiter
     final public const APP_SHOP_VERIFY = 'app_shop_verify';
 
     final public const IMPORT_EXPORT_FILE_DOWNLOAD = 'import_export_file_download';
+
+    final public const CHECKOUT_DRAFT = 'checkout_draft';
 
     /**
      * @var array<string, RateLimiterFactory>

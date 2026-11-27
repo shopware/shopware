@@ -270,6 +270,10 @@ export default class RuleConditionService {
             }
         }
 
+        if (this.isDeliveryContainer({ type } as Condition)) {
+            return { type, label: 'global.sw-condition.condition.deliveryCondition.delivery' } as Condition;
+        }
+
         return this.$store[type];
     }
 
@@ -527,6 +531,19 @@ export default class RuleConditionService {
         return condition.type === 'allLineItemsContainer';
     }
 
+    isDeliveryContainer(condition: Condition) {
+        return condition.type === 'deliveryContainer';
+    }
+
+    getMovableConditionData(condition: Entity<'rule_condition'>) {
+        return {
+            type: condition.type,
+            value: condition.value,
+            scriptId: condition.scriptId,
+            appScriptCondition: condition.appScriptCondition,
+        };
+    }
+
     getComponentByCondition(condition: Condition) {
         if (this.isAndContainer(condition)) {
             return 'sw-condition-and-container';
@@ -538,6 +555,10 @@ export default class RuleConditionService {
 
         if (this.isAllLineItemsContainer(condition)) {
             return 'sw-condition-all-line-items-container';
+        }
+
+        if (this.isDeliveryContainer(condition)) {
+            return 'sw-condition-delivery-container';
         }
 
         if (!condition.type) {

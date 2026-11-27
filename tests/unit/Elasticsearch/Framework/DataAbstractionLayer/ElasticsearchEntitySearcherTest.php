@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 use OpenSearch\Client;
 use OpenSearch\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -357,6 +358,72 @@ class ElasticsearchEntitySearcherTest extends TestCase
         );
 
         static::assertSame(0, $result->getTotal());
+    }
+
+    /**
+     * @param list<string> $fields
+     */
+    #[DataProvider('groupingFieldsProvider')]
+    public function testGroupingFieldsArePassedAsScriptParameters(array $fields, ?int $precisionThreshold): void
+    {
+        $criteria = new Criteria();
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        foreach ($fields as $field) {
+            $criteria->addGroupField(new FieldGrouping($field));
+        }
+
+        $request = null;
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())->method('search')->willReturnCallback(static function (array $params) use (&$request): array {
+            $request = $params;
+
+            return [];
+        });
+
+        $helper = static::createStub(ElasticsearchHelper::class);
+        $helper->method('allowSearch')->willReturn(true);
+
+        $criteriaParser = static::createStub(CriteriaParser::class);
+        $criteriaParser->method('buildAccessor')->willReturnArgument(1);
+
+        $searcher = new ElasticsearchEntitySearcher(
+            $client,
+            static::createStub(EntitySearcherInterface::class),
+            $helper,
+            $criteriaParser,
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
+            new EventDispatcher(),
+            '10s',
+            'dfs_query_then_fetch',
+            $precisionThreshold
+        );
+
+        $searcher->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
+
+        static::assertNotNull($request);
+        $cardinality = $request['body']['aggregations']['total-count']['cardinality'];
+        static::assertIsArray($cardinality['script']);
+        static::assertSame($fields, $cardinality['script']['params']['fields']);
+        static::assertStringContainsString('for (def field : params.fields)', $cardinality['script']['source']);
+        static::assertStringContainsString('doc[field]', $cardinality['script']['source']);
+        foreach ($fields as $field) {
+            static::assertStringNotContainsString($field, $cardinality['script']['source']);
+        }
+        if ($precisionThreshold === null) {
+            static::assertArrayNotHasKey('precision_threshold', $cardinality);
+        } else {
+            static::assertSame($precisionThreshold, $cardinality['precision_threshold']);
+        }
+    }
+
+    /**
+     * @return \Generator<string, array{list<string>, int|null}>
+     */
+    public static function groupingFieldsProvider(): \Generator
+    {
+        yield 'multiple grouping fields' => [['manufacturerId', 'displayGroup'], null];
+        yield 'configured precision with three grouping fields' => [['manufacturerId', 'displayGroup', 'active'], 40000];
+        yield 'quotes and backslashes in field names remain data' => [['customFields.brand\'name', 'customFields.brand\\name'], null];
     }
 
     public function testSearchWithGroupingDoesNotSendPrecisionThresholdByDefault(): void

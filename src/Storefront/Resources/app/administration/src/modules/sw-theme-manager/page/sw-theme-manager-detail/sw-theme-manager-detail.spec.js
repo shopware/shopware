@@ -2,6 +2,9 @@
  * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
+
+const labelDeprecation = 'Theme config labels & helpTexts are deprecated';
 
 describe('sw-theme-manager-detail', () => {
     function ensureThemeMixinRegistered() {
@@ -225,6 +228,7 @@ describe('sw-theme-manager-detail', () => {
     }
 
     beforeEach(() => {
+        allowDeprecation(labelDeprecation);
         Shopware.Store.get('session').currentLocale = 'en-GB';
     });
 
@@ -486,6 +490,28 @@ describe('sw-theme-manager-detail', () => {
         });
     });
 
+    it('passes snippet labels and help texts to boolean theme config fields', async () => {
+        const { methods } = await Shopware.Component.build('sw-theme-manager-detail');
+        const context = {
+            ...methods,
+            inheritedSnippetPrefixes: ['MyTheme'],
+            $t: (key) =>
+                ({
+                    'sw-theme.MyTheme.field.label': 'Snippet label',
+                    'sw-theme.MyTheme.field.helpText': 'Snippet help',
+                })[key] ?? key,
+        };
+
+        const bind = methods.getBind.call(context, {
+            type: 'switch',
+            labelSnippetKey: 'field.label',
+            helpTextSnippetKey: 'field.helpText',
+        });
+
+        expect(bind.config.label).toBe('Snippet label');
+        expect(bind.config.helpText).toBe('Snippet help');
+    });
+
     it('attaches inheritance event listeners to fields handling inheritance themselves', async () => {
         const wrapper = await createWrapper();
         const inheritance = {
@@ -526,25 +552,30 @@ describe('sw-theme-manager-detail', () => {
         expect(wrapper.vm.getElementEventListeners({ type: 'text' }, inheritance)).toEqual({});
     });
 
-    it('gets snippets with prefix fallback and warns when missing', async () => {
-        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-        const wrapper = await createWrapper();
-        wrapper.vm.inheritedSnippetPrefixes = ['MyTheme'];
+    describe('getSnippet', () => {
+        let wrapper;
 
-        wrapper.vm.$t = (key) => {
-            if (key === 'sw-theme.MyTheme.label.key') {
-                return 'Translated';
-            }
-            return key;
-        };
+        beforeEach(async () => {
+            wrapper = await createWrapper();
+            wrapper.vm.inheritedSnippetPrefixes = ['MyTheme'];
+            wrapper.vm.$t = (key) => (key === 'sw-theme.MyTheme.label.key' ? 'Translated' : key);
+        });
 
-        expect(wrapper.vm.getSnippet('label.key', 'Fallback')).toBe('Translated');
+        it('returns the snippet of the inherited theme that translates the key', () => {
+            expect(wrapper.vm.getSnippet('label.key', 'Fallback')).toBe('Translated');
+        });
 
-        wrapper.vm.$t = (key) => key;
-        expect(wrapper.vm.getSnippet('missing.key', 'Fallback')).toBe('Fallback');
-        expect(warnSpy).toHaveBeenCalled();
+        it('returns the deprecated fallback and reports it as deprecated when no theme translates the key', () => {
+            expect(wrapper.vm.getSnippet('missing.key', 'Fallback')).toBe('Fallback');
+            expect(deprecations).toHaveTriggered(
+                'Theme config labels & helpTexts are deprecated and will be removed entirely in v6.8.0.0. Please use the snippet translation for key "sw-theme.MyTheme.missing.key" instead.',
+            );
+        });
 
-        warnSpy.mockRestore();
+        it('does not report a deprecation when no deprecated fallback is supplied', () => {
+            expect(wrapper.vm.getSnippet('missing.key')).toBe('');
+            expect(deprecations).not.toHaveTriggered(labelDeprecation);
+        });
     });
 
     it('returns field labels with fallback to field name', async () => {

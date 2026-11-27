@@ -422,6 +422,44 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(ruleConditionService.getOperatorSet('datetime')).toEqual(expected);
     });
 
+    it('should take the type, value and app script of a condition that moves in the tree', () => {
+        const ruleConditionService = new RuleConditionService();
+        const appScriptCondition = { id: 'app-script-condition-id' };
+
+        expect(
+            ruleConditionService.getMovableConditionData({
+                id: 'condition-id',
+                parentId: 'parent-id',
+                position: 3,
+                type: 'scriptRule',
+                value: { operator: '=' },
+                scriptId: 'script-id',
+                appScriptCondition,
+            }),
+        ).toEqual({
+            type: 'scriptRule',
+            value: { operator: '=' },
+            scriptId: 'script-id',
+            appScriptCondition,
+        });
+    });
+
+    it('should name the delivery container in restriction messages', () => {
+        const ruleConditionService = new RuleConditionService();
+
+        expect(ruleConditionService.getByType('deliveryContainer').label).toBe(
+            'global.sw-condition.condition.deliveryCondition.delivery',
+        );
+    });
+
+    it('should render a delivery container with the delivery container component', () => {
+        const ruleConditionService = new RuleConditionService();
+
+        expect(ruleConditionService.getComponentByCondition({ type: 'deliveryContainer' })).toBe(
+            'sw-condition-delivery-container',
+        );
+    });
+
     it('should get the restrictedConditions', () => {
         const ruleConditionService = new RuleConditionService();
 

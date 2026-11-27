@@ -57,7 +57,7 @@ class ToolSearchTest extends TestCase
             new Tool(
                 name: 'entity-read',
                 title: null,
-                inputSchema: ['type' => 'object'], // @phpstan-ignore argument.type (malformed schema covers defensive fallback)
+                inputSchema: ['type' => 'object'],
                 description: null,
                 annotations: null,
             ),

@@ -202,7 +202,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NotificationService::class),
             service(ThemeMergedConfigBuilder::class),
             service(ThemeRuntimeConfigService::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ResolvedConfigLoader::class)
         ->lazy()
@@ -387,6 +388,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ThemeService::class),
             service(ScssPhpCompiler::class),
+            service(Connection::class),
+            service(ThemeRuntimeConfigService::class),
             param('storefront.theme.allowed_scss_values'),
         ])
         ->call('setContainer', [service('service_container')]);
@@ -516,7 +519,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(Connection::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ThemeExceptionHandler::class)
         ->tag('shopware.dal.exception_handler');

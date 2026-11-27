@@ -12,6 +12,7 @@ elasticsearch:
     search:
         timeout: 5s
         term_max_length: 300
+        term_max_words: 10
         search_type: "query_then_fetch"
         # Optional: improves grouped Storefront product count accuracy in OpenSearch, but higher values also increase memory usage.
         # precision_threshold: 40000

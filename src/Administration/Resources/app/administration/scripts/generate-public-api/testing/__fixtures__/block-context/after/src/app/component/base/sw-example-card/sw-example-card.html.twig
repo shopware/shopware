@@ -1,0 +1,44 @@
+{% block sw_example_card %}
+<mt-card
+    class="sw-example-card"
+    :title="title"
+>
+    {% block sw_example_card_header %}
+    <template #headerRight>
+        {% block sw_example_card_header_title %}
+        <h3
+            v-if="title"
+            class="sw-example-card__title"
+        >
+            {{ title }}
+        </h3>
+        {% endblock %}
+
+        {% block sw_example_card_header_label_manual %}
+        <mt-badge
+            v-else-if="isManual"
+            class="sw-example-card__manual-label"
+        >
+            {{ $t('sw-example-card.labelManual') }}
+        </mt-badge>
+        {% endblock %}
+
+        <hr class="sw-example-card__divider">
+
+        {% block sw_example_card_header_label_default %}
+        <mt-badge class="sw-example-card__default-label">
+            {{ $t('sw-example-card.labelDefault') }}
+        </mt-badge>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_example_card_list %}
+    <div class="sw-example-card__first-item">
+        {% block sw_example_card_list_item %}
+        {{ items[0]?.label }}
+        {% endblock %}
+    </div>
+    {% endblock %}
+</mt-card>
+{% endblock %}

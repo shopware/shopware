@@ -74,6 +74,28 @@ class AppExtractorTest extends TestCase
         }
     }
 
+    /**
+     * The app filesystem relies on this: a symlink inside an app ZIP must not become a symlink on disk.
+     */
+    public function testSymlinkEntriesAreExtractedAsRegularFiles(): void
+    {
+        $zip = new \ZipArchive();
+        $zip->open($this->temporaryFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $zip->addFromString('TestApp/manifest.xml', '<manifest/>');
+        $zip->addFromString('TestApp/icon.png', '/etc/passwd');
+        // marks the entry as a symlink to "/etc/passwd" for unzip tools that honour Unix attributes
+        $zip->setExternalAttributesName('TestApp/icon.png', \ZipArchive::OPSYS_UNIX, 0120777 << 16);
+        $zip->close();
+
+        $extractor = new AppExtractor(static::createStub(AppArchiveValidator::class));
+        $extractor->extract($this->temporaryFilePath, $this->extractPath, 'TestApp');
+
+        $icon = $this->extractPath . '/TestApp/icon.png';
+        static::assertFalse(is_link($icon));
+        static::assertTrue(is_file($icon));
+        static::assertSame('/etc/passwd', file_get_contents($icon));
+    }
+
     private function createZip(string $appDirectory): void
     {
         $appDirectory = (string) realpath($appDirectory);

@@ -155,6 +155,9 @@ async function createWrapper(
                     ...mocks,
                 },
                 provide: {
+                    mediaDefaultFolderService: {
+                        getDefaultFolderId: () => Promise.resolve('default-folder-id'),
+                    },
                     repositoryFactory: {
                         create: (entityName) => {
                             if (entityName === 'media_default_folder' || entityName === 'user_config') {

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
-use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
+use Shopware\Core\System\SalesChannel\File\SalesChannel\SalesChannelFileRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class SalesChannelFileNotFoundSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly SalesChannelFileLoader $loader,
+        private readonly SalesChannelFileRoute $route,
         private readonly SalesChannelFileRequestPathResolver $requestPathResolver,
         private readonly SalesChannelContextRequestRestorer $contextRestorer,
     ) {
@@ -60,11 +60,10 @@ class SalesChannelFileNotFoundSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $fileName = ltrim($request->getPathInfo(), '/');
+
         try {
-            $templatePath = $this->requestPathResolver->buildTemplatePath(
-                SalesChannelFile::DEFAULT_FILE_FAMILY,
-                ltrim($request->getPathInfo(), '/'),
-            );
+            $this->requestPathResolver->buildTemplatePath(SalesChannelFile::DEFAULT_FILE_FAMILY, $fileName);
         } catch (SalesChannelException) {
             return;
         }
@@ -74,18 +73,15 @@ class SalesChannelFileNotFoundSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $file = $this->loader->load($templatePath, $context);
-        if ($file === null) {
+        try {
+            $response = $this->route->load($fileName, $context);
+        } catch (SalesChannelException) {
             return;
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
 
         $event->allowCustomResponseCode();
-        $event->setResponse(new Response(
-            $file->content,
-            Response::HTTP_OK,
-            ['content-type' => $file->contentType],
-        ));
+        $event->setResponse($response);
     }
 }

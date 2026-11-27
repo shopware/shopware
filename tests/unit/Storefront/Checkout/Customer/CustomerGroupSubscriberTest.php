@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -29,7 +31,7 @@ use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
 #[CoversClass(CustomerGroupSubscriber::class)]
 class CustomerGroupSubscriberTest extends TestCase
 {
-    public function testGeneratedUrlsAreActive(): void
+    public function testGeneratedUrlsAreActiveForActiveLanguages(): void
     {
         $context = Context::createDefaultContext();
         $customerGroupId = Uuid::randomHex();
@@ -55,15 +57,22 @@ class CustomerGroupSubscriberTest extends TestCase
         $customerGroup->setRegistrationSalesChannels(new SalesChannelCollection([$salesChannel]));
         $customerGroup->setTranslations(new CustomerGroupTranslationCollection([$translation]));
 
-        $customerGroupRepository = new StaticEntityRepository([new CustomerGroupCollection([$customerGroup])]);
+        $customerGroupRepository = StaticEntityRepository::of(CustomerGroupCollection::class, [
+            static function (Criteria $criteria) use ($customerGroup): CustomerGroupCollection {
+                static::assertEquals(
+                    [new EqualsFilter('active', true)],
+                    $criteria->getAssociation('registrationSalesChannels.languages')->getFilters()
+                );
 
-        $languageRepository = new StaticEntityRepository([new LanguageCollection([$language])]);
+                return new CustomerGroupCollection([$customerGroup]);
+            },
+        ]);
 
         $persister = $this->createMock(SeoUrlPersister::class);
         $persister->expects($this->once())
             ->method('updateSeoUrls')
             ->with(
-                static::isInstanceOf(Context::class),
+                static::callback(static fn (Context $context): bool => $context->getLanguageId() === $languageId),
                 'frontend.account.customer-group-registration.page',
                 [$customerGroupId],
                 static::callback(static function (iterable $seoUrls): bool {
@@ -84,7 +93,6 @@ class CustomerGroupSubscriberTest extends TestCase
         $subscriber = new CustomerGroupSubscriber(
             $customerGroupRepository,
             static::createStub(EntityRepository::class),
-            $languageRepository,
             $persister,
             $slugify
         );

@@ -21,6 +21,7 @@ import 'src/app/store/tabs.store';
 import 'src/app/store/session.store';
 import 'src/app/store/sw-bulk-edit.store';
 import 'src/app/store/media-modal.store';
+import 'src/app/store/whats-new.store';
 
 /**
  * @sw-package framework

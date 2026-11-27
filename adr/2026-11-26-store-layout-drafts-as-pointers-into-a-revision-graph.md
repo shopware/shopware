@@ -19,7 +19,7 @@ The solution has to respect these constraints:
   They read the `layout` column, and that column has to stay the published state.
 * The `layout` column is also written outside any draft flow: live persisted mutations, the Sync API and migrations.
   A draft must never silently revert such a write.
-* Every write to the `layout` column runs the full write gate, including resolvability of bindings.
+* Every DAL write to the `layout` column runs the full write gate, the validation of the tree that includes the resolvability of its bindings.
   A draft may contain bindings that do not resolve yet.
 * Editing a draft must reuse the existing persisted mutation routes instead of a second editing API.
 * Every draft edit produces a full tree, so storage must not grow without bound.
@@ -30,11 +30,11 @@ Affected domains: the content layout storage, the persisted mutation pipeline (`
 
 ### Revisions form a graph, drafts point into it
 
-Two new tables sit next to `content_layout`; they are no DAL entities and are read and written through `LayoutRevisionStore`.
+Two new tables sit next to `content_layout`; they are not DAL entities and are read and written through `LayoutRevisionStore`.
 
 * `content_layout_revision` holds immutable saved states.
   Each row has the full tree, a `parent_id`, `created_by_id` (the admin user of the edit), `published_at` and `published_by_id` for the first time it went live, and `last_live_at` for the latest.
-  The revision the `layout` column holds carries the live pointer `live_content_layout_id`, which is unique, so there is exactly one live revision per layout.
+  `live_content_layout_id` is the live pointer: it is set on the one revision whose tree the `layout` column holds and `NULL` on every other, and a unique key allows at most one live revision per layout.
 * `content_layout_draft` holds a name, `created_by_id` and three pointers into that graph:
   * `base` (`base_revision_id`): the revision the draft was opened from,
   * `head` (`head_revision_id`): its current state,
@@ -49,14 +49,14 @@ Solid arrows are `parent_id`, dashed arrows are pointers: the live pointer of th
 Each step shows the rows of `content_layout_revision` after compaction.
 
 **1. Open a draft.**
-The layout has no revision yet, so the first write adopts the `layout` column as `R1`.
+The layout has no revision yet, so opening the draft first copies the `layout` column into a revision, `R1`, and marks it live; a later section calls this adopting the column.
 The draft copies nothing; all three pointers name the live revision.
 
 ```mermaid
 flowchart RL
     R1["R1"]
     live(["live"]) -.-> R1
-    draft(["Draft"]) -.->|base · liveAtOpen · head| R1
+    draft(["Draft"]) -.->|"base · liveAtOpen · head"| R1
 ```
 
 **2. Edit the draft twice.**
@@ -67,8 +67,8 @@ The first edit creates `R2`, the second `R3`; compaction then deletes `R2`, whic
 flowchart RL
     R3["R3"] --> R1["R1"]
     live(["live"]) -.-> R1
-    draft(["Draft"]) -.->|head| R3
-    draft -.->|base · liveAtOpen| R1
+    draft(["Draft"]) -.->|"head"| R3
+    draft -.->|"base · liveAtOpen"| R1
 ```
 
 **3. Publish the draft.**
@@ -89,8 +89,8 @@ flowchart RL
 flowchart RL
     R3["R3"] --> R1["R1"]
     live(["live"]) -.-> R3
-    draft(["Rollback draft"]) -.->|base · head| R1
-    draft -.->|liveAtOpen| R3
+    draft(["Rollback draft"]) -.->|"base · head"| R1
+    draft -.->|"liveAtOpen"| R3
 ```
 
 **5. Publish the rollback.**
@@ -111,17 +111,39 @@ flowchart RL
 | 4. Open a rollback draft | `R1`, `R3` | `R3` | `R1` | `R3` | `R1` |
 | 5. Publish the rollback | `R1`, `R3` | `R1` | – | – | – |
 
-A draft creates at most one revision of its own: its edited `head`.
+A draft keeps at most one revision of its own: its edited `head`.
 `base` and `liveAtOpen` point at revisions that already existed and keep them for as long as the draft is open.
 They differ only for a rollback and for a draft branched from another draft's `head`, whose `base` is that `head`.
-`base` keeps that origin after the draft is edited, so a client can tell a rollback from a draft whose live state moved on.
+The publish rule does not read `base`.
+It keeps that origin after the draft is edited, so a client can still tell a rollback or a branched draft from a draft opened on the live state.
+
+**Several drafts at once.**
+Anna and Clara open drafts on `R1` and edit them into `R2` and `R3`.
+Ben branches from Anna's draft with `create-draft` and `fromRevisionId` `R2`, and edits it into `R4`.
+Anna publishes first:
+
+```mermaid
+flowchart RL
+    R2["R2"] --> R1["R1"]
+    R3["R3"] --> R1
+    R4["R4"] --> R2
+    live(["live"]) -.-> R2
+    clara(["Clara"]) -.->|"head"| R3
+    clara -.->|"base · liveAtOpen"| R1
+    ben(["Ben"]) -.->|"head"| R4
+    ben -.->|"base"| R2
+    ben -.->|"liveAtOpen"| R1
+```
+
+Ben can still publish: live only moved forward from `R1` to `R2`, and his `R4` contains `R2`.
+Clara's publish is a `409`: her `R3` does not contain `R2`, so publishing it would silently drop Anna's change.
 
 ### The `layout` column stays the source of truth for live
 
 Publishing writes the draft `head` into the `layout` column through the DAL, as any other layout write.
 The write gate validates the tree, including resolvability, and `content_layout.written` invalidates caches.
 
-On the same write, the write boundary normalises the tree with the registries at publish time, for example by seeding a type default added since the draft was edited.
+On the same write, `LayoutWriteBoundary`, the normalisation step of every layout write, normalises the tree with the registries at publish time, for example by seeding a type default added since the draft was edited.
 The column can then differ from `head`.
 In that case the column becomes a new revision on top of `head`, attributed to the publisher, and the live pointer moves onto it.
 
@@ -161,12 +183,12 @@ publish(draft, expectedHeadRevisionId):
     compact()
 ```
 
-Containment alone is not enough: after a rollback, every newer draft contains the restored revision and would undo the rollback.
+Containment, live being an ancestor of the draft's `head`, alone is not enough: after a rollback, every newer draft contains the restored revision and would undo the rollback.
 A draft branched from another draft's `head` can still be published after that draft, because live only moved forward into it.
 This does not hold when publishing that draft made the column a new revision on top of its `head`:
 the branched draft does not contain that revision, so it conflicts and has to be reopened from live.
 
-### Compaction after every write
+### Compaction on every edit, publish and discard
 
 After every edit, publish and discard, `RevisionGraph::compaction()` decides what stays:
 
@@ -204,7 +226,7 @@ A draft in a response is `{id, name, baseRevisionId, headRevisionId, liveAtOpenR
   It was the first prototype: a draft was a DAL version of the layout row, and publishing merged it into the live version.
   A merge replays the writes recorded for the version onto the live row without comparing them with its current state.
   The tree is one column, so the merge replaces the whole live tree, including a change made after the draft was opened.
-  A scheduled task deletes versions and their recorded writes after `shopware.dal.versioning.expire_days`, 30 by default; an older draft can no longer be merged.
+  A scheduled task deletes versions and their recorded writes after `shopware.dal.versioning.expire_days`, 30 by default, unless a `CleanupVersionEvent` subscriber protects them; an unprotected older draft can no longer be merged.
   The DAL has no operation that restores an earlier state of the live row, and a version does not record what it was created from, which the publish rule needs.
 * **The whole revision graph in one JSON column of `content_layout`.**
   It was the second prototype: all revisions, all drafts and the published pointer of a layout were one JSON value.
@@ -219,10 +241,11 @@ A draft in a response is `{id, name, baseRevisionId, headRevisionId, liveAtOpenR
 ## Consequences
 
 * Storefront reads and the `content_layout` entity are unchanged.
+* Deleting a layout deletes its revisions and drafts through `ON DELETE CASCADE`.
 * Any write to the `layout` column outside publishing, for example a live mutation or a Sync API write, becomes a new live revision on the next draft write, and drafts opened before it can no longer be published.
 * A client can still publish such a draft by opening a new draft from its `head`: that draft's `liveAtOpen` is the current live revision.
   The conflict therefore forces the author to see the new live state, it does not prevent replacing it.
-* A rollback reaches the last 20 live states.
+* A rollback reaches the 20 most recently live states, the current one included.
   An older `fromRevisionId` is a `404` `CONTENT_LAYOUT_REVISION_NOT_FOUND`.
 * A rollback is a publish and runs the current write gate.
   A revision whose element types or references have changed since can be refused or normalised differently.

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Twig\DoctrineExtension;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
 
 /**
  * @internal
@@ -105,6 +106,44 @@ class DoctrineExtensionTest extends TestCase
     public function testEscapeBooleanParameter(): void
     {
         static::assertSame('1', DoctrineExtension::escapeFunction(true));
+    }
+
+    public function testBinaryToHexConvertsBinaryValuesOnly(): void
+    {
+        $id = pack('H*', '9d40b8c1417f42d099af4782ec4b20b6');
+        $otherId = pack('H*', '0190ad8bba7c7ba5a0ed2b2e35d6c0b4');
+
+        $result = (new DoctrineExtension())->binaryToHex([$id, [$id, $otherId], 'shirt', 3, null]);
+
+        static::assertSame(
+            ['9d40b8c1417f42d099af4782ec4b20b6', ['9d40b8c1417f42d099af4782ec4b20b6', '0190ad8bba7c7ba5a0ed2b2e35d6c0b4'], 'shirt', 3, null],
+            $result->getValue(true)
+        );
+    }
+
+    public function testBinaryToHexReadsClonedParameters(): void
+    {
+        $parameters = (new VarCloner())->cloneVar(['id' => pack('H*', '9d40b8c1417f42d099af4782ec4b20b6')]);
+
+        static::assertSame(['id' => '9d40b8c1417f42d099af4782ec4b20b6'], (new DoctrineExtension())->binaryToHex($parameters)->getValue(true));
+    }
+
+    public function testBinaryToHexKeepsParametersWithoutBinaryValues(): void
+    {
+        $parameters = (new VarCloner())->cloneVar(['shirt', 3, new DummyClass('foo')]);
+
+        static::assertSame($parameters, (new DoctrineExtension())->binaryToHex($parameters));
+    }
+
+    public function testBinaryToHexKeepsLongLists(): void
+    {
+        $ids = array_fill(0, 3000, pack('H*', '9d40b8c1417f42d099af4782ec4b20b6'));
+
+        $result = (new DoctrineExtension())->binaryToHex([$ids])->getValue(true);
+
+        static::assertIsArray($result);
+        static::assertIsArray($result[0]);
+        static::assertCount(3000, $result[0]);
     }
 
     public function testItUsesCssOnThePreTag(): void

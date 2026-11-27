@@ -13,7 +13,7 @@ type Pattern = { columns: Column[]; cells: number[][] };
 type LayoutColumn = { type: Column['type']; value?: number | string };
 type LayoutConfiguration = { columns: LayoutColumn[]; areas: string[][] };
 type GridLayout = Partial<Record<ContentSystemBreakpoint, LayoutConfiguration>>;
-type BreakpointPatterns = Partial<Record<ContentSystemBreakpoint, Pattern>> & { lg: Pattern };
+type BreakpointPatterns = Partial<Record<ContentSystemBreakpoint, Pattern>> & Record<typeof BASE_BREAKPOINT, Pattern>;
 
 function initialPattern(value?: LayoutConfiguration | null): Pattern {
     if (!value || !Array.isArray(value.columns) || !Array.isArray(value.areas)) {
@@ -50,7 +50,7 @@ function encodePattern(pattern: Pattern): LayoutConfiguration {
 }
 
 function parsePatterns(value: GridLayout = {}): BreakpointPatterns {
-    const patterns: BreakpointPatterns = { lg: initialPattern(value.lg) };
+    const patterns: BreakpointPatterns = { [BASE_BREAKPOINT]: initialPattern(value[BASE_BREAKPOINT]) };
     for (const breakpoint of orderedBreakpoints) {
         if (breakpoint !== BASE_BREAKPOINT && value[breakpoint] != null) {
             patterns[breakpoint] = initialPattern(value[breakpoint]);
@@ -61,7 +61,7 @@ function parsePatterns(value: GridLayout = {}): BreakpointPatterns {
 }
 
 function encodePatterns(patterns: BreakpointPatterns): GridLayout {
-    const result: GridLayout = { lg: encodePattern(patterns.lg) };
+    const result: GridLayout = { [BASE_BREAKPOINT]: encodePattern(patterns[BASE_BREAKPOINT]) };
     for (const breakpoint of orderedBreakpoints) {
         const pattern = patterns[breakpoint];
         if (breakpoint !== BASE_BREAKPOINT && pattern) result[breakpoint] = encodePattern(pattern);
@@ -146,8 +146,8 @@ export default Shopware.Component.wrapComponentConfig({
             patterns,
             syncedLayoutJson: JSON.stringify(encodePatterns(patterns)),
             selected: [] as number[],
-            nextId: nextAreaId(patterns.lg),
-            nextColumnId: patterns.lg.columns.length + 1,
+            nextId: nextAreaId(patterns[BASE_BREAKPOINT]),
+            nextColumnId: patterns[BASE_BREAKPOINT].columns.length + 1,
             focusedColumnId: null as number | null,
             draggingColumnId: null as number | null,
             dragStartPattern: '',

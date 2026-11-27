@@ -436,7 +436,7 @@ export default Shopware.Component.wrapComponentConfig({
             const value: ResponsiveValue = this.isResponsiveObjectValue(stored) ? { ...stored } : {};
 
             if (!this.isResponsiveObjectValue(stored) && stored != null) {
-                value.lg = this.normalizeResponsiveValue(field.property, stored);
+                value[BASE_BREAKPOINT] = this.normalizeResponsiveValue(field.property, stored);
             }
 
             if (rawValue == null || rawValue === '') {

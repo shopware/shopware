@@ -56,6 +56,7 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGe
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
@@ -80,6 +81,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {
@@ -281,8 +283,8 @@ class InfoControllerTest extends TestCase
         $rootSourceRegistry->method('knownRootSources')->willReturn(['category', 'header', 'none']);
 
         $mappingCandidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
-        $mappingCandidateRegistry->method('forRootSource')->willReturnCallback(
-            static fn (string $rootSource): array => $rootSource === 'category' ? [
+        $mappingCandidateRegistry->method('forRootSource')->willReturnMap([
+            ['category', [
                 'category.name' => new MappingCandidate(
                     path: 'category.name',
                     label: 'sw-experience-studio.mapping.category.name.label',
@@ -290,8 +292,10 @@ class InfoControllerTest extends TestCase
                     group: 'basic',
                     valueType: 'string',
                 ),
-            ] : []
-        );
+            ]],
+            ['header', []],
+            ['none', []],
+        ]);
 
         $controller = $this->createController(
             rootSourceRegistry: $rootSourceRegistry,
@@ -365,6 +369,23 @@ class InfoControllerTest extends TestCase
         static::assertFalse($catalogueCandidate['inlineMappable']);
         static::assertArrayHasKey('canonicalToken', $catalogueCandidate);
         static::assertNull($catalogueCandidate['canonicalToken']);
+    }
+
+    #[TestDox('encodes an empty root-source catalogue as a JSON object')]
+    public function testContentSystemMappingCandidatesEncodesEmptyRootSourcesAsObject(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('knownRootSources')->willReturn([]);
+
+        $controller = $this->createController(rootSourceRegistry: $rootSourceRegistry);
+        $response = $controller->contentSystemMappingCandidates();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertSame('{"mappingCandidates":{}}', $content);
     }
 
     #[TestDox('returns one root-source entry per known root source, in order, with its kind and provided context')]

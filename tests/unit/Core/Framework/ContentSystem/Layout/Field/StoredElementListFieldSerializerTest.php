@@ -173,12 +173,12 @@ class StoredElementListFieldSerializerTest extends TestCase
             new LayoutDefaultSeeder($typeRegistry, new StoredDefaultProvider()),
             new StoredTreeStyleNormalizer($this->styleNormalizer()),
             $this->passthroughReconciler(),
+            new ViolationConstraintMapper(),
         );
         $serializer = new StoredElementListFieldSerializer(
             $this->validator(),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->codec(),
-            new ViolationConstraintMapper(),
             $boundary,
             $this->treeConstraints(),
         );
@@ -219,7 +219,6 @@ class StoredElementListFieldSerializerTest extends TestCase
             $this->validator(),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->codec(),
-            new ViolationConstraintMapper(),
             $this->boundary($seeder),
             $this->treeConstraints(),
         );
@@ -662,7 +661,6 @@ class StoredElementListFieldSerializerTest extends TestCase
             $this->validator(),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->codec(),
-            new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver()),
         );
@@ -714,7 +712,6 @@ class StoredElementListFieldSerializerTest extends TestCase
             $validator,
             static::createStub(DefinitionInstanceRegistry::class),
             $this->codec(),
-            new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),
         );
@@ -733,7 +730,6 @@ class StoredElementListFieldSerializerTest extends TestCase
             $passthroughValidator,
             static::createStub(DefinitionInstanceRegistry::class),
             $codec ?? $this->codec(),
-            new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),
         );
@@ -751,7 +747,6 @@ class StoredElementListFieldSerializerTest extends TestCase
             static::createStub(ValidatorInterface::class),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->codec(),
-            new ViolationConstraintMapper(),
             $this->boundary(new LayoutDefaultSeeder($registry, new StoredDefaultProvider())),
             $this->treeConstraints(),
         );
@@ -811,13 +806,13 @@ class StoredElementListFieldSerializerTest extends TestCase
             new LayoutDefaultSeeder($typeRegistry, new StoredDefaultProvider()),
             new StoredTreeStyleNormalizer(new ElementStyleNormalizer($styleRegistry, new BoxSpacingNormalizer())),
             $reconciler,
+            new ViolationConstraintMapper(),
         );
 
         return new StoredElementListFieldSerializer(
             static::createStub(ValidatorInterface::class),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->codec(),
-            new ViolationConstraintMapper(),
             $boundary,
             $this->treeConstraints(),
         );
@@ -830,7 +825,7 @@ class StoredElementListFieldSerializerTest extends TestCase
      */
     private function boundary(LayoutDefaultSeeder $seeder): LayoutWriteBoundary
     {
-        return new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler());
+        return new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler(), new ViolationConstraintMapper());
     }
 
     private function passthroughSeeder(): LayoutDefaultSeeder

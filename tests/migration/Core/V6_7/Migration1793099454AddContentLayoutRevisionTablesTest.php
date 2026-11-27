@@ -55,6 +55,27 @@ class Migration1793099454AddContentLayoutRevisionTablesTest extends TestCase
         }
     }
 
+    public function testAuthorColumnsAreSetToNullWhenTheUserIsDeleted(): void
+    {
+        foreach (array_keys(self::TABLES) as $table) {
+            $this->connection->executeStatement('DROP TABLE IF EXISTS `' . $table . '`');
+        }
+
+        (new Migration1793099454AddContentLayoutRevisionTables())->update($this->connection);
+
+        $rules = $this->connection->fetchAllKeyValue(
+            'SELECT CONSTRAINT_NAME, DELETE_RULE FROM information_schema.REFERENTIAL_CONSTRAINTS
+                WHERE CONSTRAINT_SCHEMA = DATABASE() AND REFERENCED_TABLE_NAME = \'user\' AND TABLE_NAME IN (\'content_layout_revision\', \'content_layout_draft\')
+                ORDER BY CONSTRAINT_NAME',
+        );
+
+        static::assertSame([
+            'fk.content_layout_draft.created_by_id' => 'SET NULL',
+            'fk.content_layout_revision.created_by_id' => 'SET NULL',
+            'fk.content_layout_revision.published_by_id' => 'SET NULL',
+        ], $rules);
+    }
+
     public function testUpdateDestructiveDropsTheSupersededStorage(): void
     {
         if (!TableHelper::columnExists($this->connection, 'content_layout', 'revisions')) {

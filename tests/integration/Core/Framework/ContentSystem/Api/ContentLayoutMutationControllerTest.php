@@ -1156,7 +1156,7 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHeadRevisionId' => $draft->head]);
 
-        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::MUTATION_TOKEN_TARGET_MISMATCH);
     }
 
     #[TestDox('a live mutation refuses the draft head token')]
@@ -1166,7 +1166,7 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         $this->request('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => null, 'expectedHeadRevisionId' => $this->ids->get('head')]);
 
-        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::MUTATION_TOKEN_TARGET_MISMATCH);
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 

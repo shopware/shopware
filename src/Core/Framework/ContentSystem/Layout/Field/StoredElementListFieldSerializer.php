@@ -9,7 +9,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
-use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -40,7 +39,6 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
         private readonly StoredTreeCodec $treeCodec,
-        private readonly ViolationConstraintMapper $violationMapper,
         private readonly LayoutWriteBoundary $writeBoundary,
         private readonly StoredTreeConstraints $treeConstraints
     ) {
@@ -49,7 +47,7 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
 
     /**
      * The write's first decode, and the admission that follows it. The payload is decoded into the typed tree,
-     * the tree's global invariants are checked, {@see LayoutWriteBoundary} admits it, and the result is
+     * {@see LayoutWriteBoundary} admits it, rejecting a repeated element id first, and the result is
      * re-encoded to the arrays the DAL's constraint pass and {@see encode()} expect. The boundary-processed
      * tree is then memoized on the write `Context` ({@see LayoutWriteContext}) so {@see PreWriteValidationEvent}
      * gates the very tree that is about to be stored. That removes the gate's own decode, not {@see encode()}'s:
@@ -84,15 +82,9 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         }
 
         try {
-            $this->rejectIllFormedTree($tree);
-        } catch (ContentSystemException $exception) {
-            throw ContentSystemException::layoutWriteRejection($exception, $key, $value, $parameters->getPath());
-        }
-
-        try {
             $tree = $this->writeBoundary->apply($tree);
         } catch (ContentSystemException $exception) {
-            if (!ContentSystemException::isClientDefect($exception)) {
+            if (!ContentSystemException::isClientDefect($exception) && $exception->getErrorCode() !== ContentSystemException::INVALID_LAYOUT_STRUCTURE) {
                 throw $exception;
             }
 
@@ -235,24 +227,6 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         }
 
         return $this->treeCodec->decode($value);
-    }
-
-    /**
-     * The tree-global invariants the codec cannot see, checked before the boundary rebuilds anything: a
-     * forest that repeats an element id addresses two nodes under one id, and every later stage — the
-     * boundary's own walks included — would silently pick one of them.
-     */
-    private function rejectIllFormedTree(StoredTree $tree): void
-    {
-        $duplicates = $tree->duplicateElementIds();
-
-        if ($duplicates === []) {
-            return;
-        }
-
-        throw ContentSystemException::invalidLayoutStructure(
-            $this->violationMapper->fromDuplicateElementIds($duplicates)
-        );
     }
 
     /**

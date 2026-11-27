@@ -62,7 +62,7 @@ The body carries `expectedHeadRevisionId`, the draft head revision id as last re
 A stale `expectedHeadRevisionId` is a `409`, a missing one a `400` `MISSING_REQUEST_FIELD`, and nothing is appended in either case.
 The controller reads the three fields into an `Api/MutationTarget`, which rejects every other combination.
 The response is the mutation response plus `draft`; the next mutation sends `draft.headRevisionId` as its `expectedHeadRevisionId`.
-A live mutation with `expectedHeadRevisionId`, or a draft mutation with `expectedVersion`, is a `400` `UNKNOWN_REQUEST_FIELD`.
+A live mutation with `expectedHeadRevisionId`, or a draft mutation with `expectedVersion`, is a `400` `MUTATION_TOKEN_TARGET_MISMATCH`.
 
 ## Request
 

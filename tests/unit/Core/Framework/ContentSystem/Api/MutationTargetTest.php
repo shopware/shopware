@@ -47,7 +47,7 @@ class MutationTargetTest extends TestCase
     #[TestDox('a live target refuses the head token')]
     public function testLiveTargetRejectsTheHeadToken(): void
     {
-        $this->expectExceptionObject(ContentSystemException::unknownRequestField(['expectedHeadRevisionId']));
+        $this->expectExceptionObject(ContentSystemException::mutationTokenTargetMismatch('expectedHeadRevisionId', false));
 
         MutationTarget::fromRequest(null, null, 'head');
     }
@@ -55,7 +55,7 @@ class MutationTargetTest extends TestCase
     #[TestDox('a draft target refuses the version token')]
     public function testDraftTargetRejectsTheVersionToken(): void
     {
-        $this->expectExceptionObject(ContentSystemException::unknownRequestField(['expectedVersion']));
+        $this->expectExceptionObject(ContentSystemException::mutationTokenTargetMismatch('expectedVersion', true));
 
         MutationTarget::fromRequest('draft', '2026-06-22T10:00:00.000+00:00', 'head');
     }

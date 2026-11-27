@@ -42,7 +42,7 @@
                     },
                     "createdById": {
                         "type": ["string", "null"],
-                        "description": "Id of the admin user who created the draft, `null` when an integration or the system created it.",
+                        "description": "Id of the admin user who created the draft, `null` when an integration or the system created it, or the user was deleted.",
                         "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3f"
                     },
                     "updatedAt": {
@@ -74,7 +74,7 @@
                     },
                     "createdById": {
                         "type": ["string", "null"],
-                        "description": "Id of the admin user who saved the revision, `null` when an integration, the system or a layout write that bypassed publishing created it.",
+                        "description": "Id of the admin user who saved the revision, `null` when an integration, the system or a layout write that bypassed publishing created it, or the user was deleted.",
                         "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3f"
                     },
                     "publishedAt": {
@@ -85,7 +85,7 @@
                     },
                     "publishedById": {
                         "type": ["string", "null"],
-                        "description": "Id of the admin user who first published the revision, `null` when an integration, the system or a layout write that bypassed publishing did.",
+                        "description": "Id of the admin user who first published the revision, `null` when an integration, the system or a layout write that bypassed publishing did, or the user was deleted.",
                         "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3f"
                     },
                     "lastLiveAt": {

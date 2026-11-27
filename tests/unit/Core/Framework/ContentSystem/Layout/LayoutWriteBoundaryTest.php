@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
+use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
@@ -93,13 +94,32 @@ class LayoutWriteBoundaryTest extends TestCase
         static::assertSame([self::BREAKPOINT_AWARE => ['xs' => false]], $tree->roots[0]->style->toArray());
     }
 
+    #[TestDox('rejects a forest repeating an element id before any pass runs')]
+    public function testApplyRejectsADuplicateElementIdBeforeAnyPass(): void
+    {
+        $seeder = $this->createMock(LayoutDefaultSeeder::class);
+        $seeder->expects($this->never())->method('seed');
+
+        $boundary = new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler(), new ViolationConstraintMapper());
+
+        try {
+            $boundary->apply(new StoredTree([
+                StoredElementBuilder::create('Sw:Block', 'twin')->build(),
+                StoredElementBuilder::create('Sw:Block', 'twin')->build(),
+            ]));
+            static::fail('Expected the repeated element id to be rejected.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+        }
+    }
+
     #[TestDox('rejects a collaborator that hands back something other than a stored element')]
     public function testApplyRejectsANonElementNode(): void
     {
         $seeder = static::createStub(LayoutDefaultSeeder::class);
         $seeder->method('seed')->willReturn(['not-an-element']);
 
-        $boundary = new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler());
+        $boundary = new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler(), new ViolationConstraintMapper());
 
         $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType('layout', StoredElement::class, 'string')
@@ -113,7 +133,7 @@ class LayoutWriteBoundaryTest extends TestCase
         $seeder = static::createStub(LayoutDefaultSeeder::class);
         $seeder->method('seed')->willReturnArgument(0);
 
-        return new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler());
+        return new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler(), new ViolationConstraintMapper());
     }
 
     /**

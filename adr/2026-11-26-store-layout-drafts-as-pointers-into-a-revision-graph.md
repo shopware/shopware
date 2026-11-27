@@ -142,6 +142,7 @@ Clara's publish is a `409`: her `R3` does not contain `R2`, so publishing it wou
 
 Publishing writes the draft `head` into the `layout` column through the DAL, as any other layout write.
 The write gate validates the tree, including resolvability, and `content_layout.written` invalidates caches.
+The publish invalidates the layout's cache tag again after the commit, because the DAL write runs inside the lock transaction and a storefront request before the commit could cache the old tree.
 
 On the same write, `LayoutWriteBoundary`, the normalisation step of every layout write, normalises the tree with the registries at publish time, for example by seeding a type default added since the draft was edited.
 The column can then differ from `head`.
@@ -242,6 +243,7 @@ A draft in a response is `{id, name, baseRevisionId, headRevisionId, liveAtOpenR
 
 * Storefront reads and the `content_layout` entity are unchanged.
 * Deleting a layout deletes its revisions and drafts through `ON DELETE CASCADE`.
+* Deleting an admin user keeps their revisions and drafts and sets `created_by_id` and `published_by_id` to `NULL` through `ON DELETE SET NULL`.
 * Any write to the `layout` column outside publishing, for example a live mutation or a Sync API write, becomes a new live revision on the next draft write, and drafts opened before it can no longer be published.
 * A client can still publish such a draft by opening a new draft from its `head`: that draft's `liveAtOpen` is the current live revision.
   The conflict therefore forces the author to see the new live state, it does not prevent replacing it.

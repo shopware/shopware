@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
@@ -40,6 +42,7 @@ readonly class PersistedLayoutMutator
         private DefaultMappingSeeder $defaultMappingSeeder,
         private MutationPipeline $pipeline,
         private LayoutRevisionService $revisions,
+        private CacheInvalidator $cacheInvalidator,
     ) {
     }
 
@@ -47,7 +50,7 @@ readonly class PersistedLayoutMutator
     {
         $writePrivilege = $this->checkWritePrivilege($mutation, $context);
 
-        return $this->rowLock->run($layoutId, function () use ($layoutId, $expectedVersion, $mutation, $writePrivilege, $context): MutationResult {
+        $result = $this->rowLock->run($layoutId, function () use ($layoutId, $expectedVersion, $mutation, $writePrivilege, $context): MutationResult {
             $layout = $this->load($layoutId, $context);
 
             if (!$this->versionMatches($expectedVersion, $layout->getUpdatedAt())) {
@@ -66,6 +69,12 @@ readonly class PersistedLayoutMutator
 
             return MutationResult::fromAnalyzedMutation($mutated, $analysis, $mutation);
         });
+
+        // The DAL update invalidated the layout's cache tag inside the lock transaction, so a storefront request
+        // before the commit could cache the old tree again.
+        $this->cacheInvalidator->invalidate([ContentSection::MAIN->buildLayoutTag($layoutId)]);
+
+        return $result;
     }
 
     /**

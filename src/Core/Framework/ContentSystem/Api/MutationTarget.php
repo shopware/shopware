@@ -25,14 +25,14 @@ final readonly class MutationTarget
     {
         if ($draftId === null) {
             if ($expectedHeadRevisionId !== null) {
-                throw ContentSystemException::unknownRequestField(['expectedHeadRevisionId']);
+                throw ContentSystemException::mutationTokenTargetMismatch('expectedHeadRevisionId', false);
             }
 
             return new self(null, $expectedVersion, null);
         }
 
         if ($expectedVersion !== null) {
-            throw ContentSystemException::unknownRequestField(['expectedVersion']);
+            throw ContentSystemException::mutationTokenTargetMismatch('expectedVersion', true);
         }
 
         if ($expectedHeadRevisionId === null) {

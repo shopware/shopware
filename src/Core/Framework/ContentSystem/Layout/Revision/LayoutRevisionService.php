@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Revision;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
@@ -58,6 +60,7 @@ readonly class LayoutRevisionService
         private ViolationConstraintMapper $violationMapper,
         private EntityRepository $contentLayoutRepository,
         private ClockInterface $clock,
+        private CacheInvalidator $cacheInvalidator,
     ) {
     }
 
@@ -168,6 +171,10 @@ readonly class LayoutRevisionService
             $this->store->markPublished($layoutId, $published, $this->now(), $this->userId($context));
             $this->compact($layoutId, $published);
         });
+
+        // The DAL update invalidated the layout's cache tag inside the lock transaction, so a storefront request
+        // before the commit could cache the old tree again.
+        $this->cacheInvalidator->invalidate([ContentSection::MAIN->buildLayoutTag($layoutId)]);
     }
 
     public function discardDraft(string $layoutId, string $draftId): void
@@ -293,6 +300,8 @@ readonly class LayoutRevisionService
      * column that no longer holds the live revision's tree becomes the live revision, so a new draft
      * starts from the live state and publishing a draft opened before that write fails instead of reverting it.
      * The revision id is derived from the content, so the column's state is one revision however often it is read.
+     * A first adoption dates from the row's last write; a later one from now, because a raw SQL write leaves
+     * `updated_at` at the previous publish and would date the adopted state before the revision it replaced.
      */
     private function reconcile(string $layoutId): string
     {
@@ -303,7 +312,7 @@ readonly class LayoutRevisionService
         }
 
         $revisionId = $this->columnRevisionId($layoutId, $publication['checksum']);
-        $createdAt = $publication['revisionId'] === null ? $publication['createdAt'] : $this->now();
+        $createdAt = $publication['revisionId'] === null ? $publication['writtenAt'] : $this->now();
 
         $this->store->adoptLayoutColumn($layoutId, $revisionId, $publication['revisionId'], $createdAt, null);
         $this->store->markPublished($layoutId, $revisionId, $createdAt, null);

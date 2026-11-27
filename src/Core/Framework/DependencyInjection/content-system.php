@@ -206,7 +206,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ValidatorInterface::class),
             service(DefinitionInstanceRegistry::class),
             service(StoredTreeCodec::class),
-            service(ViolationConstraintMapper::class),
             service(LayoutWriteBoundary::class),
             service(StoredTreeConstraints::class),
         ])
@@ -258,6 +257,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LayoutDefaultSeeder::class),
             service(StoredTreeStyleNormalizer::class),
             service(AttributionReconciler::class),
+            service(ViolationConstraintMapper::class),
         ]);
 
     // Content Data Loaders
@@ -981,6 +981,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefaultMappingSeeder::class),
             service(MutationPipeline::class),
             service(LayoutRevisionService::class),
+            service(CacheInvalidator::class),
         ]);
 
     // Layout provisioning from presets (default layouts on install and update)
@@ -1031,6 +1032,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ViolationConstraintMapper::class),
             service('content_layout.repository'),
             service(ClockInterface::class),
+            service(CacheInvalidator::class),
         ]);
 
     // Layout Draft Actions (Admin API)

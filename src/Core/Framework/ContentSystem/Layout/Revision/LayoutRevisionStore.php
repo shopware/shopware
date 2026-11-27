@@ -49,9 +49,10 @@ readonly class LayoutRevisionStore
     /**
      * The live revision and whether the `layout` column still holds its tree; `null` when no layout has this id.
      * Revisions are encoded like the column, so the column holds the tree published to it byte for byte, and a
-     * different checksum means a write that bypassed publishing.
+     * different checksum means a write that bypassed publishing. `writtenAt` is when the layout row was last
+     * written, so the column's state dates from its last edit rather than from the layout's creation.
      *
-     * @return array{revisionId: string|null, current: bool, createdAt: \DateTimeImmutable, checksum: string}|null
+     * @return array{revisionId: string|null, current: bool, writtenAt: \DateTimeImmutable, checksum: string}|null
      */
     public function publication(string $layoutId): ?array
     {
@@ -60,7 +61,7 @@ readonly class LayoutRevisionStore
                 SELECT LOWER(HEX(`live`.`id`)) AS `revision_id`,
                     SHA2(`live`.`layout`, 256) = SHA2(`layout`.`layout`, 256) AS `current`,
                     SHA2(`layout`.`layout`, 256) AS `checksum`,
-                    `layout`.`created_at`
+                    COALESCE(`layout`.`updated_at`, `layout`.`created_at`) AS `written_at`
                 FROM `content_layout` `layout`
                 LEFT JOIN `content_layout_revision` `live` ON `live`.`live_content_layout_id` = `layout`.`id`
                 WHERE `layout`.`id` = :id
@@ -75,7 +76,7 @@ readonly class LayoutRevisionStore
         return [
             'revisionId' => $row['revision_id'] !== null ? (string) $row['revision_id'] : null,
             'current' => (bool) $row['current'],
-            'createdAt' => $this->date((string) $row['created_at']),
+            'writtenAt' => $this->date((string) $row['written_at']),
             'checksum' => (string) $row['checksum'],
         ];
     }

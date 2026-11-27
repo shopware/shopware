@@ -6,7 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
@@ -61,6 +63,30 @@ class LayoutRevisionServiceTest extends TestCase
         $this->appendThroughBoundaryFailing($fault);
     }
 
+    #[TestDox('a draft edit repeating an element id is rejected as an invalid layout structure before the write boundary rebuilds it')]
+    public function testAppendRevisionRejectsADuplicateElementIdBeforeTheBoundaryPasses(): void
+    {
+        $reconciler = static::createStub(AttributionReconciler::class);
+        $reconciler->method('reconcile')->willThrowException(ContentSystemException::invalidFieldValueType('layout', 'StoredElement', 'string'));
+        $events = [];
+
+        try {
+            $this->service($reconciler, $this->observedRowLock($events), $this->store($events))->appendRevision(
+                self::LAYOUT_ID,
+                self::DRAFT_ID,
+                self::HEAD,
+                static fn (): StoredTree => new StoredTree([
+                    StoredElementBuilder::create('Sw:Block', 'twin')->build(),
+                    StoredElementBuilder::create('Sw:Block', 'twin')->build(),
+                ]),
+                Context::createDefaultContext(),
+            );
+            static::fail('Expected the repeated element id to be rejected.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+        }
+    }
+
     #[TestDox('a client defect the write boundary finds on a draft edit is rejected as an invalid layout write')]
     public function testAppendRevisionRejectsABoundaryClientDefect(): void
     {
@@ -91,6 +117,22 @@ class LayoutRevisionServiceTest extends TestCase
         static::assertContains($write, $events);
         static::assertNotContains('enter', $events);
         static::assertNotContains('commit', $events);
+    }
+
+    #[TestDox('publishing invalidates the layout cache once the row lock transaction has committed')]
+    public function testPublishingInvalidatesTheLayoutCacheAfterTheCommit(): void
+    {
+        $events = [];
+        $cacheInvalidator = static::createStub(CacheInvalidator::class);
+        $cacheInvalidator->method('invalidate')->willReturnCallback(static function (array $tags) use (&$events): void {
+            $events[] = 'invalidate ' . implode(', ', $tags);
+        });
+
+        $this->service(static::createStub(AttributionReconciler::class), $this->observedRowLock($events), $this->store($events), $cacheInvalidator)
+            ->publish(self::LAYOUT_ID, self::DRAFT_ID, self::HEAD, Context::createDefaultContext());
+
+        static::assertSame('commit', $events[\count($events) - 2]);
+        static::assertSame('invalidate ' . ContentSection::MAIN->buildLayoutTag(self::LAYOUT_ID), $events[\count($events) - 1]);
     }
 
     public static function graphOperations(): \Generator
@@ -173,7 +215,7 @@ class LayoutRevisionServiceTest extends TestCase
         $store->method('publication')->willReturnCallback(static function () use ($record, $now): array {
             $record('publication');
 
-            return ['revisionId' => self::HEAD, 'current' => true, 'createdAt' => $now, 'checksum' => ''];
+            return ['revisionId' => self::HEAD, 'current' => true, 'writtenAt' => $now, 'checksum' => ''];
         });
         $store->method('draft')->willReturn(new LayoutDraft(self::DRAFT_ID, 'Draft', self::HEAD, self::HEAD, self::HEAD, $now, null, $now));
         $store->method('tree')->willReturn([]);
@@ -186,7 +228,7 @@ class LayoutRevisionServiceTest extends TestCase
         return $store;
     }
 
-    private function service(AttributionReconciler $reconciler, LayoutRowLock $rowLock, LayoutRevisionStore $store): LayoutRevisionService
+    private function service(AttributionReconciler $reconciler, LayoutRowLock $rowLock, LayoutRevisionStore $store, ?CacheInvalidator $cacheInvalidator = null): LayoutRevisionService
     {
         $seeder = static::createStub(LayoutDefaultSeeder::class);
         $seeder->method('seed')->willReturnArgument(0);
@@ -206,6 +248,7 @@ class LayoutRevisionServiceTest extends TestCase
                 $seeder,
                 new StoredTreeStyleNormalizer(new ElementStyleNormalizer($styleOptions, new BoxSpacingNormalizer())),
                 $reconciler,
+                new ViolationConstraintMapper(),
             ),
             new StoredTreeCodec(new StoredElementCodec($configProvider)),
             new StoredTreeConstraints($styleOptions, new StyleOptionConstraintDeriver()),
@@ -214,6 +257,7 @@ class LayoutRevisionServiceTest extends TestCase
             new ViolationConstraintMapper(),
             StaticEntityRepository::of(ContentLayoutCollection::class, []),
             new MockClock(),
+            $cacheInvalidator ?? static::createStub(CacheInvalidator::class),
         );
     }
 }

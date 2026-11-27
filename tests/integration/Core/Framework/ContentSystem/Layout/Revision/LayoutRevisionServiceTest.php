@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
@@ -50,8 +51,8 @@ class LayoutRevisionServiceTest extends TestCase
     {
         $layoutId = $this->createLayout(['live-a']);
         $initial = $this->adoptLiveRevision($layoutId);
-        $creator = Uuid::randomHex();
-        $publisher = Uuid::randomHex();
+        $creator = $this->createUser();
+        $publisher = $this->createUser();
 
         $draft = $this->service->createDraft($layoutId, $this->asUser($creator));
         static::assertSame($creator, $draft->createdBy);
@@ -61,11 +62,49 @@ class LayoutRevisionServiceTest extends TestCase
         $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->asUser($publisher));
 
         $restore = $this->service->createDraft($layoutId, $this->context, fromRevisionId: $initial);
-        $this->service->publish($layoutId, $restore->id, $restore->head, $this->asUser(Uuid::randomHex()));
+        $this->service->publish($layoutId, $restore->id, $restore->head, $this->asUser($this->createUser()));
 
         $history = $this->graph($layoutId);
         static::assertSame($publisher, $history->revision($saved['revision']->id)?->publishedBy);
         static::assertNull($history->revision($initial)?->publishedBy);
+    }
+
+    #[TestDox('deleting an admin user keeps their drafts and revisions and forgets who created and published them')]
+    public function testDeletingTheUserClearsTheAuthorship(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $user = $this->createUser();
+        $draft = $this->service->createDraft($layoutId, $this->asUser($user));
+        $saved = $this->save($layoutId, $draft->id, ['draft'], $draft->head, $this->asUser($user));
+        $kept = $this->service->createDraft($layoutId, $this->asUser($user));
+        $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->asUser($user));
+
+        static::getContainer()->get(Connection::class)->delete('user', ['id' => Uuid::fromHexToBytes($user)]);
+
+        static::assertNull($this->service->listDrafts($layoutId)[0]->createdBy);
+        static::assertSame($kept->id, $this->service->listDrafts($layoutId)[0]->id);
+        $published = $this->graph($layoutId)->revision($saved['revision']->id);
+        static::assertNotNull($published);
+        static::assertNull($published->createdBy);
+        static::assertNull($published->publishedBy);
+    }
+
+    #[TestDox('the first adoption dates the layout column from its last write, not from the layout creation')]
+    public function testFirstAdoptionDatesTheColumnFromItsLastWrite(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `content_layout` SET `created_at` = :createdAt, `updated_at` = :updatedAt WHERE `id` = :id',
+            ['createdAt' => '2025-01-01 00:00:00.000', 'updatedAt' => '2026-06-01 12:00:00.000', 'id' => Uuid::fromHexToBytes($layoutId)],
+        );
+
+        $adopted = $this->adoptLiveRevision($layoutId);
+        $revision = $this->graph($layoutId)->revision($adopted);
+
+        static::assertNotNull($revision);
+        static::assertSame('2026-06-01 12:00:00', $revision->createdAt->format('Y-m-d H:i:s'));
+        static::assertSame('2026-06-01 12:00:00', $revision->publishedAt?->format('Y-m-d H:i:s'));
+        static::assertSame('2026-06-01 12:00:00', $revision->lastLiveAt?->format('Y-m-d H:i:s'));
     }
 
     #[TestDox('the first write adopts the layout column as the single published revision, however often it is written')]
@@ -160,7 +199,7 @@ class LayoutRevisionServiceTest extends TestCase
         $layoutId = $this->createLayout(['live-a']);
         $this->writeColumnPastTheWriteGate($layoutId, [new StoredElement('unseeded', TestElementTypeLoader::DEFAULTED_PRIMITIVE)]);
         $draft = $this->service->createDraft($layoutId, $this->context);
-        $publisher = Uuid::randomHex();
+        $publisher = $this->createUser();
 
         $this->service->publish($layoutId, $draft->id, $draft->head, $this->asUser($publisher));
 
@@ -576,14 +615,14 @@ class LayoutRevisionServiceTest extends TestCase
      *
      * @return array{revision: LayoutRevision, draft: LayoutDraft, layout: list<StoredElement>}
      */
-    private function save(string $layoutId, string $draftId, array $elementIds, string $expectedHeadRevisionId): array
+    private function save(string $layoutId, string $draftId, array $elementIds, string $expectedHeadRevisionId, ?Context $context = null): array
     {
         return $this->service->appendRevision(
             $layoutId,
             $draftId,
             $expectedHeadRevisionId,
             fn (): StoredTree => new StoredTree($this->storedTree($elementIds)),
-            $this->context,
+            $context ?? $this->context,
         );
     }
 
@@ -649,6 +688,11 @@ class LayoutRevisionServiceTest extends TestCase
         $draft = $this->service->createDraft($layoutId, $this->context);
         $saved = $this->save($layoutId, $draft->id, $elementIds, $draft->head);
         $this->service->publish($layoutId, $draft->id, $saved['draft']->head, $this->context);
+    }
+
+    private function createUser(): string
+    {
+        return TestUser::createNewTestUser(static::getContainer()->get(Connection::class))->getUserId();
     }
 
     private function asUser(string $userId): Context

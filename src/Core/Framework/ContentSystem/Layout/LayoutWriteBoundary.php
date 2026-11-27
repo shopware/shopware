@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -12,8 +13,10 @@ use Shopware\Core\Framework\Log\Package;
  * {@see apply()}, whichever route built it — the mutations, a plain DAL write, the Sync API, an import or a
  * fixture — so a rule about what a stored tree looks like is stated once here instead of once per route.
  *
- * Three passes run in a fixed order. Type defaults are seeded first, so the style pass and the attribution
- * pass both see the properties a stored element will actually carry. Style is canonicalised next, against
+ * A forest that repeats an element id is rejected before anything is rebuilt: a stored tree addresses its
+ * elements by id, so every consumer after this one would pick one of the two nodes. Three passes then run in a
+ * fixed order. Type defaults are seeded first, so the style pass and the attribution pass both see the
+ * properties a stored element will actually carry. Style is canonicalised next, against
  * the option registry. Attribution is reconciled last, because it compares stored wiring against the
  * specification that claims it and must judge the wiring as it will be stored.
  *
@@ -28,11 +31,18 @@ final class LayoutWriteBoundary
         private readonly LayoutDefaultSeeder $defaultSeeder,
         private readonly StoredTreeStyleNormalizer $styleNormalizer,
         private readonly AttributionReconciler $attributionReconciler,
+        private readonly ViolationConstraintMapper $violationMapper,
     ) {
     }
 
     public function apply(StoredTree $tree): StoredTree
     {
+        $duplicates = $tree->duplicateElementIds();
+
+        if ($duplicates !== []) {
+            throw ContentSystemException::invalidLayoutStructure($this->violationMapper->fromDuplicateElementIds($duplicates));
+        }
+
         $seeded = $this->elements($this->defaultSeeder->seed($tree->roots));
 
         $styled = $this->styleNormalizer->normalize($tree->withRoots($seeded))->roots;

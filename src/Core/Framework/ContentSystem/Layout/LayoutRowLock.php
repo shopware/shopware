@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * Every writer of a layout that reads before it writes, persisted mutations and the revision graph alike, runs
  * under this one lock, so a publish and a mutation of the same layout serialize instead of overwriting each other.
  * The lock is taken before anything else is read: under REPEATABLE READ the transaction's snapshot starts at its
- * first plain read, which then already sees the write of the transaction this one waited for.
+ * first plain read, which then already sees the write of the transaction this one waited for. That holds only when
+ * `run()` opens the outermost transaction: nested in one that has already read, the lock still serializes writers,
+ * but the plain reads see the outer snapshot. Its callers are Admin API actions, which open no transaction.
  *
  * @internal
  *

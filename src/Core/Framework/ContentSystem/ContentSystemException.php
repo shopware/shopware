@@ -95,6 +95,7 @@ class ContentSystemException extends HttpException
     public const DEFAULT_CONTENT_LAYOUT_DELETION = 'CONTENT_SYSTEM__DEFAULT_CONTENT_LAYOUT_DELETION';
     public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
     public const MISSING_REQUEST_FIELD = 'CONTENT_SYSTEM__MISSING_REQUEST_FIELD';
+    public const MUTATION_TOKEN_TARGET_MISMATCH = 'CONTENT_SYSTEM__MUTATION_TOKEN_TARGET_MISMATCH';
     public const UNSUPPORTED_STYLE_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_STYLE_VALUE_TYPE';
     public const STYLE_OPTION_DUPLICATE = 'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE';
     public const STYLE_OPTION_LOAD_FAILED = 'CONTENT_SYSTEM__STYLE_OPTION_LOAD_FAILED';
@@ -1087,6 +1088,22 @@ class ContentSystemException extends HttpException
             self::MISSING_REQUEST_FIELD,
             'The request is missing the field(s): {{ fields }}.',
             ['fields' => implode(', ', $fields)]
+        );
+    }
+
+    /**
+     * The client-facing 400 for a concurrency token that belongs to the other mutation target: `expectedVersion`
+     * guards the live layout, `expectedHeadRevisionId` a draft.
+     */
+    public static function mutationTokenTargetMismatch(string $field, bool $draft): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_TOKEN_TARGET_MISMATCH,
+            $draft
+                ? '"{{ field }}" cannot be combined with "draftId"; a draft mutation is guarded by "expectedHeadRevisionId".'
+                : '"{{ field }}" requires "draftId"; a live mutation is guarded by "expectedVersion".',
+            ['field' => $field]
         );
     }
 

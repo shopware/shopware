@@ -28,7 +28,7 @@
             "ContentLayoutVersionEnvelope": {
                 "title": "Content layout version envelope",
                 "type": "object",
-                "description": "The mutation target shared by every persisted mutation request: the live layout, guarded by `expectedVersion`, or a draft, named by `draftId` and guarded by `expectedHeadRevisionId`. `expectedVersion` together with `draftId`, or `expectedHeadRevisionId` without it, is rejected with `400` (`unknownRequestField`); `draftId` without `expectedHeadRevisionId` with `400` (`missingRequestField`).",
+                "description": "The mutation target shared by every persisted mutation request: the live layout, guarded by `expectedVersion`, or a draft, named by `draftId` and guarded by `expectedHeadRevisionId`. `expectedVersion` together with `draftId`, or `expectedHeadRevisionId` without it, is rejected with `400` (`mutationTokenTargetMismatch`); `draftId` without `expectedHeadRevisionId` with `400` (`missingRequestField`).",
                 "properties": {
                     "expectedVersion": {
                         "type": ["string", "null"],

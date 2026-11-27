@@ -782,6 +782,48 @@ class ContentSystemExceptionTest extends TestCase
             'Content layout "layout-1" was not found.',
         ];
 
+        yield 'content layout draft not found' => [
+            ContentSystemException::contentLayoutDraftNotFound('layout-1', 'draft-1'),
+            Response::HTTP_NOT_FOUND,
+            'CONTENT_SYSTEM__CONTENT_LAYOUT_DRAFT_NOT_FOUND',
+            'Content layout "layout-1" has no draft "draft-1".',
+        ];
+
+        yield 'content layout revision not found' => [
+            ContentSystemException::contentLayoutRevisionNotFound('layout-1', 'revision-1'),
+            Response::HTTP_NOT_FOUND,
+            'CONTENT_SYSTEM__CONTENT_LAYOUT_REVISION_NOT_FOUND',
+            'Content layout "layout-1" has no revision "revision-1".',
+        ];
+
+        yield 'layout publish conflict' => [
+            ContentSystemException::layoutPublishConflict('layout-1', 'revision-1'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__LAYOUT_PUBLISH_CONFLICT',
+            'Content layout "layout-1" went live as revision "revision-1" in the meantime',
+        ];
+
+        yield 'missing request field' => [
+            ContentSystemException::missingRequestField(['name', 'type']),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MISSING_REQUEST_FIELD',
+            'The request is missing the field(s): name, type.',
+        ];
+
+        yield 'version token on a draft mutation' => [
+            ContentSystemException::mutationTokenTargetMismatch('expectedVersion', true),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_TOKEN_TARGET_MISMATCH',
+            '"expectedVersion" cannot be combined with "draftId"; a draft mutation is guarded by "expectedHeadRevisionId".',
+        ];
+
+        yield 'head token on a live mutation' => [
+            ContentSystemException::mutationTokenTargetMismatch('expectedHeadRevisionId', false),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_TOKEN_TARGET_MISMATCH',
+            '"expectedHeadRevisionId" requires "draftId"; a live mutation is guarded by "expectedVersion".',
+        ];
+
         // The gated half of the root-source pair: membership is checked with this 400 on every write and
         // mutation path, before resolve()/sourceFor() is reached.
         yield 'unknown root source as the gating 400' => [

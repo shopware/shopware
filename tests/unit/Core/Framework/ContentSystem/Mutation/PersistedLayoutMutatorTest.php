@@ -8,8 +8,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
@@ -75,7 +77,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $orphaning = $this->orphaningMutation('block-a');
 
-        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         $result = $mutator->mutate($id, null, $orphaning, $context);
 
@@ -95,7 +97,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, self::VERSION), $id, $context);
 
-        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         $result = $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), $context);
 
@@ -115,7 +117,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
             return $tree->remove('block-a');
         });
-        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         $result = $mutator->mutate($id, null, $mutation, $context);
 
@@ -152,7 +154,7 @@ class PersistedLayoutMutatorTest extends TestCase
             )
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         $result = $mutator->mutate($id, null, new RemoveElement('block-a'), $context);
 
@@ -166,7 +168,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'), $id, $context);
 
-        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), $context);
 
@@ -252,14 +254,14 @@ class PersistedLayoutMutatorTest extends TestCase
         $mutation->expects($this->never())->method('apply');
         $mutation->method('writePrivilege')->willReturn('content_layout:translate');
 
-        $mutator = new PersistedLayoutMutator($rowLock, $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($rowLock, $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         $this->expectExceptionObject(ContentSystemException::missingPrivileges(['content_layout:translate']));
 
         $mutator->mutate($id, null, $mutation, $context);
     }
 
-    #[TestDox('loads, checks, writes and diagnoses inside the layout row lock that publishing also takes')]
+    #[TestDox('loads, checks, writes and diagnoses inside the layout row lock that publishing also takes, and invalidates the layout cache once committed')]
     public function testRunsTheWholeMutationInsideTheRowLock(): void
     {
         $id = $this->ids->get('layout');
@@ -285,11 +287,15 @@ class PersistedLayoutMutatorTest extends TestCase
         $observe = static function (string $event) use (&$events): void {
             $events[] = $event;
         };
-        $mutator = new PersistedLayoutMutator($this->rowLock($observe), $repository, $this->registry(), $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $cacheInvalidator = static::createStub(CacheInvalidator::class);
+        $cacheInvalidator->method('invalidate')->willReturnCallback(static function (array $tags) use (&$events): void {
+            $events[] = 'invalidate ' . implode(', ', $tags);
+        });
+        $mutator = new PersistedLayoutMutator($this->rowLock($observe), $repository, $this->registry(), $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), $cacheInvalidator);
 
         $mutator->mutate($id, null, new RemoveElement('block-a'), $context);
 
-        static::assertSame(['enter', 'search', 'diagnose', 'commit'], $events);
+        static::assertSame(['enter', 'search', 'diagnose', 'commit', 'invalidate ' . ContentSection::MAIN->buildLayoutTag($id)], $events);
         static::assertCount(1, $repository->updates);
     }
 
@@ -306,7 +312,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $observe = static function (string $event) use (&$events): void {
             $events[] = $event;
         };
-        $mutator = new PersistedLayoutMutator($this->rowLock($observe), $repository, $this->registry(), $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($this->rowLock($observe), $repository, $this->registry(), $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         try {
             $mutator->mutate($id, null, new RemoveElement('block-a'), $context);
@@ -355,7 +361,7 @@ class PersistedLayoutMutatorTest extends TestCase
                 return ['revision' => $revision, 'draft' => $draft, 'layout' => $derived->roots];
             });
 
-        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder(), $pipeline, $revisions);
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder(), $pipeline, $revisions, static::createStub(CacheInvalidator::class));
 
         $result = $mutator->mutateDraft($id, 'draft', 'revision-1', $mutation, $context);
 
@@ -374,7 +380,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
         $repository->method('update')->willThrowException($writeException);
 
-        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         $this->expectExceptionObject($writeException);
 
@@ -462,7 +468,7 @@ class PersistedLayoutMutatorTest extends TestCase
     ): void {
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($entity, $layoutId, $context);
-        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
 
         try {
             $mutator->mutate($layoutId, $token, new RemoveElement('block-a'), $context);
@@ -555,7 +561,7 @@ class PersistedLayoutMutatorTest extends TestCase
             }
         );
 
-        return new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+        return new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class), static::createStub(CacheInvalidator::class));
     }
 
     /**

@@ -98,7 +98,7 @@ class DraftLayoutStyleParityTest extends TestCase
         $reconciler = static::createStub(AttributionReconciler::class);
         $reconciler->method('reconcile')->willReturnArgument(0);
 
-        return new LayoutWriteBoundary($seeder, $normalizer, $reconciler);
+        return new LayoutWriteBoundary($seeder, $normalizer, $reconciler, new ViolationConstraintMapper());
     }
 
     /**

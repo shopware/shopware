@@ -42,7 +42,13 @@ class Migration1793099454AddContentLayoutRevisionTables extends MigrationStep
                 CONSTRAINT `json.content_layout_revision.layout` CHECK (JSON_VALID(`layout`)),
                 CONSTRAINT `fk.content_layout_revision.content_layout_id`
                     FOREIGN KEY (`content_layout_id`) REFERENCES `content_layout` (`id`)
-                    ON DELETE CASCADE ON UPDATE CASCADE
+                    ON DELETE CASCADE ON UPDATE CASCADE,
+                CONSTRAINT `fk.content_layout_revision.created_by_id`
+                    FOREIGN KEY (`created_by_id`) REFERENCES `user` (`id`)
+                    ON DELETE SET NULL ON UPDATE CASCADE,
+                CONSTRAINT `fk.content_layout_revision.published_by_id`
+                    FOREIGN KEY (`published_by_id`) REFERENCES `user` (`id`)
+                    ON DELETE SET NULL ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
@@ -61,7 +67,10 @@ class Migration1793099454AddContentLayoutRevisionTables extends MigrationStep
                 KEY `fk.content_layout_draft.content_layout_id` (`content_layout_id`),
                 CONSTRAINT `fk.content_layout_draft.content_layout_id`
                     FOREIGN KEY (`content_layout_id`) REFERENCES `content_layout` (`id`)
-                    ON DELETE CASCADE ON UPDATE CASCADE
+                    ON DELETE CASCADE ON UPDATE CASCADE,
+                CONSTRAINT `fk.content_layout_draft.created_by_id`
+                    FOREIGN KEY (`created_by_id`) REFERENCES `user` (`id`)
+                    ON DELETE SET NULL ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

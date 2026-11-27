@@ -38,6 +38,8 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class SearchKeywordUpdater implements ResetInterface
 {
+    private const INSERT_BATCH_SIZE = 500;
+
     /**
      * @var array<string, array<int, ConfigField>>
      */
@@ -157,7 +159,7 @@ class SearchKeywordUpdater implements ResetInterface
         }
 
         $this->insertKeywords($keywords);
-        $this->insertDictionary($dictionary);
+        $this->insertDictionary($dictionary, $languageId);
 
         return $existingProducts;
     }
@@ -207,7 +209,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function insertKeywords(array $keywords): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, true);
+        $queue = new MultiInsertQueryQueue($this->connection, self::INSERT_BATCH_SIZE, ignoreErrors: true);
         foreach ($keywords as $insert) {
             $queue->addInsert(ProductSearchKeywordDefinition::ENTITY_NAME, $insert);
         }
@@ -217,14 +219,28 @@ class SearchKeywordUpdater implements ResetInterface
     /**
      * @param array<string, array{id: string, language_id: string, keyword: string}> $dictionary
      */
-    private function insertDictionary(array $dictionary): void
+    private function insertDictionary(array $dictionary, string $languageId): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, true, true);
+        $queue = new MultiInsertQueryQueue($this->connection, self::INSERT_BATCH_SIZE, ignoreErrors: true);
 
-        foreach ($dictionary as $insert) {
-            $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);
+        ksort($dictionary, \SORT_STRING);
+
+        foreach (array_chunk($dictionary, self::INSERT_BATCH_SIZE) as $chunk) {
+            $existing = array_fill_keys($this->connection->fetchFirstColumn(
+                'SELECT keyword FROM product_keyword_dictionary WHERE language_id = :languageId AND keyword IN (:keywords)',
+                ['languageId' => $languageId, 'keywords' => array_column($chunk, 'keyword')],
+                ['keywords' => ArrayParameterType::STRING]
+            ), true);
+
+            foreach ($chunk as $insert) {
+                if (!isset($existing[$insert['keyword']])) {
+                    $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);
+                }
+            }
+
+            // Flush each chunk to keep queued writes bounded.
+            $queue->execute();
         }
-        $queue->execute();
     }
 
     /**

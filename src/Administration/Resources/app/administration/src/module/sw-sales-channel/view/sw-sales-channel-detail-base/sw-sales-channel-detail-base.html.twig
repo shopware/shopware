@@ -556,6 +556,16 @@
         />
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_general_input_product_comparison_include_inactive_products %}
+        <mt-switch
+            v-model="productExport.includeInactiveProducts"
+            bordered
+            :disabled="!acl.can('sales_channel.editor') || undefined"
+            :label="$t('sw-sales-channel.detail.productComparison.includeInactiveProducts')"
+            :help-text="$t('sw-sales-channel.detail.productComparison.includeInactiveProductsHelpText')"
+        />
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
         <mt-select
             :model-value="productExport.interval"

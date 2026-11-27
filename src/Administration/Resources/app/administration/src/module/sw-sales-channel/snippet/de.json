@@ -191,6 +191,8 @@
                     "xml": "XML"
                 },
                 "includeVariants": "Varianten als eigene Produkte exportieren",
+                "includeInactiveProducts": "Inaktive Produkte exportieren",
+                "includeInactiveProductsHelpText": "Exportiert auch inaktive Produkte. Inaktive Produkte haben keine Produktseite in der Storefront, daher führen ihre Links im Feed zu einer Seite, die nicht gefunden wird.",
                 "interval": "Generierungsintervall",
                 "generateByCronjob": "Per Scheduler generieren",
                 "notificationMessageValidateSuccessful": "Keine Fehler gefunden.",

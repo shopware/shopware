@@ -62,6 +62,14 @@ Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now
 PHP configuration files also receive the current environment through `$container->env()`.
 Check existing environment-specific configuration that was previously ignored, including Monolog handler levels.
 
+### Product comparison exports can include inactive products
+
+Product comparison exports have a new switch "Export inactive products", stored in the new `includeInactiveProducts` field of the `product_export` entity.
+When it is on, the export also contains inactive products that are visible in the storefront sales channel, for scheduled, live and CLI generation and for the preview.
+It is off by default, so existing exports do not change.
+Plugins that add their own `ProductAvailableFilter` in a `ProductExportProductCriteriaEvent` subscriber to export inactive products can use the switch instead.
+The `--include-inactive` option of `product-export:generate` is unchanged: it still only selects exports of inactive sales channels.
+
 ### Regenerating a document keeps its deep link and its stored files
 
 `DocumentGenerator::generate()` with the id of an existing document now keeps the document's deep link code and its stored PDF and HTML files, and renders only the file type that is missing.

@@ -58,6 +58,9 @@ class ProductExportHydrator extends EntityHydrator
         if (isset($row[$root . '.includeVariants'])) {
             $entity->includeVariants = (bool) $row[$root . '.includeVariants'];
         }
+        if (isset($row[$root . '.includeInactiveProducts'])) {
+            $entity->includeInactiveProducts = (bool) $row[$root . '.includeInactiveProducts'];
+        }
         if (isset($row[$root . '.generateByCronjob'])) {
             $entity->generateByCronjob = (bool) $row[$root . '.generateByCronjob'];
         }

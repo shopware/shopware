@@ -78,6 +78,7 @@ class ProductExportHydratorTest extends TestCase
             'test.provider' => 'open-ai',
             'test.feedLabel' => 'US_ELECTRONICS',
             'test.includeVariants' => 1,
+            'test.includeInactiveProducts' => 1,
             'test.generateByCronjob' => 0,
             'test.isRunning' => 1,
             'test.generatedAt' => '2026-03-23 10:15:00.000',
@@ -109,6 +110,7 @@ class ProductExportHydratorTest extends TestCase
         static::assertSame(Uuid::fromBytesToHex($currencyId), $entity->getCurrencyId());
         static::assertSame('open-ai', $entity->getProvider());
         static::assertSame('US_ELECTRONICS', $entity->getFeedLabel());
+        static::assertTrue($entity->isIncludeInactiveProducts());
         static::assertSame('2026-03-23 10:15:00', $entity->getGeneratedAt()?->format('Y-m-d H:i:s'));
     }
 

@@ -889,6 +889,37 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
+    describe('include inactive products switch', () => {
+        const INCLUDE_INACTIVE_PRODUCTS_SELECTOR =
+            '.mt-switch input[aria-label="sw-sales-channel.detail.productComparison.includeInactiveProducts"]';
+
+        it('is disabled without the sales channel editor privilege', async () => {
+            const wrapper = await createWrapper({
+                props: { salesChannel: { typeId: PRODUCT_COMPARISON_TYPE_ID } },
+            });
+
+            expect(wrapper.get(INCLUDE_INACTIVE_PRODUCTS_SELECTOR).attributes().disabled).toBeDefined();
+        });
+
+        it('writes the switch state back to productExport.includeInactiveProducts', async () => {
+            global.activeAclRoles = ['sales_channel.editor'];
+
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: { typeId: PRODUCT_COMPARISON_TYPE_ID },
+                    productExport: { includeInactiveProducts: false },
+                },
+            });
+
+            const field = wrapper.get(INCLUDE_INACTIVE_PRODUCTS_SELECTOR);
+            expect(field.attributes().disabled).toBeUndefined();
+
+            await field.setChecked(true);
+
+            expect(wrapper.props('productExport').includeInactiveProducts).toBe(true);
+        });
+    });
+
     it('should have the select number field for product export interval disabled', async () => {
         const wrapper = await createWrapper();
 

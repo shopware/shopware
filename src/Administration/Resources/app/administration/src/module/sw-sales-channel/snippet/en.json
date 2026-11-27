@@ -191,6 +191,8 @@
                     "xml": "XML"
                 },
                 "includeVariants": "Export variants as discrete products",
+                "includeInactiveProducts": "Export inactive products",
+                "includeInactiveProductsHelpText": "Also exports products that are inactive. Inactive products have no product page in the Storefront, so their links in the feed lead to a page that is not found.",
                 "interval": "Interval",
                 "generateByCronjob": "Generate via scheduler",
                 "notificationMessageValidateSuccessful": "No errors occurred.",

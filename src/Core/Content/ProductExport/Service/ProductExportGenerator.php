@@ -5,7 +5,9 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -27,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelReposit
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -137,6 +140,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         } else {
             // Only fetch main and standalone products
             $criteria->addFilter(new EqualsFilter('parentId', null));
+        }
+
+        if ($productExport->isIncludeInactiveProducts()) {
+            $criteria->addFilter($this->createAvailableFilterWithoutActiveCheck($context->getSalesChannelId()));
         }
 
         foreach ($associations as $association) {
@@ -278,6 +285,17 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             offset: $iterator->getOffset(),
             hasNextBatch: $exportBehavior->batchMode() && $fetched === $this->readBufferSize
         );
+    }
+
+    private function createAvailableFilterWithoutActiveCheck(string $salesChannelId): ProductAvailableFilter
+    {
+        $availableFilter = new ProductAvailableFilter($salesChannelId, ProductVisibilityDefinition::VISIBILITY_LINK);
+        $availableFilter->assign(['queries' => array_values(array_filter(
+            $availableFilter->getQueries(),
+            static fn (Filter $query): bool => !$query instanceof EqualsFilter || $query->getField() !== 'product.active'
+        ))]);
+
+        return $availableFilter;
     }
 
     private function normalizeJsonlRow(ProductExportEntity $productExport, string $renderedBody): string

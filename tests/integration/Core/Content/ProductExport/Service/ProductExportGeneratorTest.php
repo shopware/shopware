@@ -384,6 +384,48 @@ class ProductExportGeneratorTest extends TestCase
         yield 'excluded variants' => [false, ['parent-1', 'stand-alone-1']];
     }
 
+    /**
+     * @param list<string> $expectedKeys
+     */
+    #[DataProvider('includeInactiveProductsDataProvider')]
+    public function testExportIncludesInactiveProductsOnlyWhenSwitchedOn(bool $includeInactiveProducts, array $expectedKeys): void
+    {
+        $ids = new IdsCollection();
+        $storefrontSalesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
+
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'active'))->price(10)->visibility($storefrontSalesChannelId)->build(),
+            (new ProductBuilder($ids, 'inactive'))->price(10)->active(false)->visibility($storefrontSalesChannelId)->build(),
+            (new ProductBuilder($ids, 'inactive-without-visibility'))->price(10)->active(false)->build(),
+        ], $this->context);
+
+        $productExportId = $this->createProductExportForProductStream(
+            $this->getProductStreamId(array_values($ids->all())),
+            [
+                'headerTemplate' => 'id',
+                'bodyTemplate' => '{{ product.id }}',
+                'includeInactiveProducts' => $includeInactiveProducts,
+            ]
+        );
+
+        $productExport = $this->repository->search($this->createProductExportCriteria($productExportId), $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        static::assertSame(
+            'id' . \PHP_EOL . implode(\PHP_EOL, $ids->getList($expectedKeys)) . \PHP_EOL,
+            $exportResult->getContent()
+        );
+    }
+
+    public static function includeInactiveProductsDataProvider(): \Generator
+    {
+        yield 'switch off exports only active products' => [false, ['active']];
+        yield 'switch on also exports inactive products that are visible in the storefront sales channel' => [true, ['active', 'inactive']];
+    }
+
     public function testExportWithHeadlessSalesChannel(): void
     {
         $headlessSalesChannelId = Uuid::randomHex();

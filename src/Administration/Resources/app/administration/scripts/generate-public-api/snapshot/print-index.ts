@@ -1,13 +1,15 @@
 /**
  * @sw-package framework
  *
- * Prints `index.json`, the components with their file, visibility, parent and block names for tools.
+ * Prints `index.json` for tools: the components with their file, visibility, parent and block names, and the
+ * services with their file and visibility.
  */
 import { byCodePoint } from '../helpers/code-point-order';
 import type { Model } from '../model/model';
 
 /** @private */
-export function printIndex({ components }: Model): string {
+export function printIndex({ components, services }: Model): string {
+    const serviceEntries = services.map(({ name, file, visibility }): [string, object] => [name, { file, visibility }]);
     const entries = components.map((unit): [string, object] => [
         unit.name,
         {
@@ -18,5 +20,9 @@ export function printIndex({ components }: Model): string {
         },
     ]);
 
-    return `${JSON.stringify({ components: Object.fromEntries(entries) }, null, 4)}\n`;
+    return `${JSON.stringify(
+        { components: Object.fromEntries(entries), services: Object.fromEntries(serviceEntries) },
+        null,
+        4,
+    )}\n`;
 }

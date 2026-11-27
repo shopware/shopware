@@ -7,29 +7,12 @@
  */
 import ts from 'typescript';
 import { byCodePoint } from '../../helpers/code-point-order';
-import { parseMarkers } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
-import type { Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
-import { BOTH_STATES } from '../../model/flag-states';
-import type { ComponentMembers, DefaultValue, Member, OptionKind, Parameter } from '../../model/members';
-import {
-    docOf,
-    isFunctionNode,
-    lineOf,
-    memberName,
-    memberValue,
-    returnedObject,
-    returnedValues,
-    textOf,
-    withoutTypeSyntax,
-} from '../script-nodes';
+import type { UnitMembers, DefaultValue, Member, OptionKind } from '../../model/members';
+import { functionOf, parametersOf, Reading, signatureOf } from '../member-reading';
+import { isFunctionNode, lineOf, memberName, returnedObject, withoutTypeSyntax } from '../script-nodes';
 import type { FunctionNode } from '../script-nodes';
 import type { ComponentOptions } from './component-options';
 import { spreadNames } from './option-helpers';
-
-const PRIVATE_TAG = /^[\s*]*@private\b/m;
-
-// Enough of an expression to find it in the source, without printing a whole function into the report.
-const NOTE_LENGTH = 80;
 
 // The types of the built-in prop constructors. Any other constructor is a class, which stands for its own type.
 const PROP_TYPES: Record<string, string> = {
@@ -42,42 +25,6 @@ const PROP_TYPES: Record<string, string> = {
     Date: 'Date',
     Symbol: 'symbol',
 };
-
-/** The name, line and JSDoc every member has. */
-type Common = Pick<Member, 'name' | 'at' | 'markers' | 'isPrivate' | 'states'>;
-
-class Reading {
-    public readonly notes: string[] = [];
-
-    public constructor(public readonly source: ts.SourceFile) {}
-
-    public common(name: string, node: ts.Node): Common {
-        const doc = docOf(node, this.source);
-
-        return {
-            name,
-            at: lineOf(node, this.source),
-            markers: parseMarkers(doc).flatMap((match): Marker[] => ('marker' in match ? [match.marker] : [])),
-            isPrivate: PRIVATE_TAG.test(doc),
-            states: BOTH_STATES,
-        };
-    }
-
-    /** Notes what `section` holds besides the members that were read, with the start of its source text. */
-    public unresolved(section: string, node: ts.Node): void {
-        const text = textOf(node, this.source);
-
-        this.notes.push(`unresolved ${section} ${text.length > NOTE_LENGTH ? `${text.slice(0, NOTE_LENGTH)}...` : text}`);
-    }
-
-    public value(member: ts.ObjectLiteralElementLike): ts.Node {
-        return memberValue(member, this.source);
-    }
-
-    public text(node: ts.Node): string {
-        return textOf(node, this.source);
-    }
-}
 
 interface Entry {
     name: string;
@@ -337,19 +284,6 @@ function props(value: ts.Node, reading: Reading): Member<'prop'>[] {
     }));
 }
 
-function parametersOf(fn: FunctionNode, reading: Reading): Parameter[] {
-    return fn.parameters
-        .filter(({ name }) => !ts.isIdentifier(name) || name.text !== 'this')
-        .map(({ name, type, initializer, questionToken, dotDotDotToken }, position) => ({
-            name: ts.isIdentifier(name) ? name.text : `arg${position}`,
-            pattern: ts.isIdentifier(name) ? null : reading.text(name),
-            type: type === undefined ? null : reading.text(type),
-            default: initializer === undefined ? { kind: 'none' } : { kind: 'value', text: reading.text(initializer) },
-            optional: initializer !== undefined || questionToken !== undefined,
-            rest: dotDotDotToken !== undefined,
-        }));
-}
-
 function emits(value: ts.Node, reading: Reading): Member<'emit'>[] {
     if (ts.isArrayLiteralExpression(value)) {
         return literalNames(value, 'emits', reading).map((name) => ({
@@ -438,82 +372,6 @@ function computed(value: ts.Node, reading: Reading): Member<'computed'>[] {
     });
 }
 
-/** The function behind a method, also when a helper such as `debounce(function () {}, 400)` wraps it. */
-function functionOf(value: ts.Node): FunctionNode | undefined {
-    if (isFunctionNode(value)) {
-        return value;
-    }
-
-    const [wrapped] = ts.isCallExpression(value) ? value.arguments : [];
-
-    return wrapped !== undefined && isFunctionNode(wrapped) ? wrapped : undefined;
-}
-
-// The methods that chain on a promise and return a new one.
-const PROMISE_CHAIN = ['then', 'catch', 'finally'];
-
-/** `load().then(...)`, `Promise.all(...)` or `new Promise(...)`: a promise the source visibly builds. */
-function isVisiblePromise(expression: ts.Expression): boolean {
-    const value = withoutTypeSyntax(expression);
-
-    if (ts.isNewExpression(value)) {
-        return ts.isIdentifier(value.expression) && value.expression.text === 'Promise';
-    }
-
-    if (!ts.isCallExpression(value) || !ts.isPropertyAccessExpression(value.expression)) {
-        return false;
-    }
-
-    const { expression: receiver, name } = value.expression;
-
-    return PROMISE_CHAIN.includes(name.text) || (ts.isIdentifier(receiver) && receiver.text === 'Promise');
-}
-
-function isPromiseType(type: ts.TypeNode | undefined): boolean {
-    return (
-        type !== undefined &&
-        ts.isTypeReferenceNode(type) &&
-        ts.isIdentifier(type.typeName) &&
-        type.typeName.text === 'Promise'
-    );
-}
-
-/** `this.$super('onSave', ...)` inside the method `onSave`. */
-function isSuperCall(expression: ts.Expression, method: string): boolean {
-    const value = withoutTypeSyntax(expression);
-
-    if (!ts.isCallExpression(value) || !ts.isPropertyAccessExpression(value.expression)) {
-        return false;
-    }
-
-    const [name] = value.arguments;
-
-    return (
-        value.expression.expression.kind === ts.SyntaxKind.ThisKeyword &&
-        value.expression.name.text === '$super' &&
-        name !== undefined &&
-        ts.isStringLiteralLike(name) &&
-        name.text === method
-    );
-}
-
-/** The function has at least one `return`, and each of them hands back a value that `matches`. */
-function everyReturn(fn: FunctionNode, matches: (value: ts.Expression) => boolean): boolean {
-    const values = returnedValues(fn);
-
-    return values.length > 0 && values.every((value) => value !== undefined && matches(value));
-}
-
-/**
- * Whether callers get a promise. A plain call such as `this.repository.save()` may return one, but only the
- * type checker knows, so the reader does not count it.
- */
-function returnsPromise(fn: FunctionNode): boolean {
-    const isAsync = fn.modifiers?.some(({ kind }) => kind === ts.SyntaxKind.AsyncKeyword) ?? false;
-
-    return isAsync || isPromiseType(fn.type) || everyReturn(fn, isVisiblePromise);
-}
-
 function methods(value: ts.Node, reading: Reading): Member<'method'>[] {
     if (!ts.isObjectLiteralExpression(value)) {
         reading.unresolved('methods', value);
@@ -524,14 +382,7 @@ function methods(value: ts.Node, reading: Reading): Member<'method'>[] {
     return entriesOf(value, 'methods', reading, (spread) => helperEntries(spread, reading)).map(({ name, member }) => {
         const fn = ts.isSpreadAssignment(member) ? undefined : functionOf(reading.value(member));
 
-        return {
-            kind: 'method',
-            ...reading.common(name, member),
-            parameters: fn === undefined ? null : parametersOf(fn, reading),
-            returns: fn?.type === undefined ? null : reading.text(fn.type),
-            returnsPromise: fn !== undefined && returnsPromise(fn),
-            returnsSuper: fn !== undefined && everyReturn(fn, (returned) => isSuperCall(returned, name)),
-        };
+        return { kind: 'method', ...reading.common(name, member), ...signatureOf(fn, name, reading) };
     });
 }
 
@@ -558,9 +409,9 @@ const UNREADABLE_OPTIONS = ['setup', 'extends'];
  * The members the options object declares itself. The members of its mixins and of the component it extends
  * are in their own units.
  */
-export function readOptionMembers({ object, source }: ComponentOptions): ComponentMembers {
+export function readOptionMembers({ object, source }: ComponentOptions): UnitMembers {
     const reading = new Reading(source);
-    const sections: ComponentMembers['sections'] = {};
+    const sections: UnitMembers['sections'] = {};
     const members = object.properties.flatMap((option): Member[] => {
         const name = memberName(option);
 

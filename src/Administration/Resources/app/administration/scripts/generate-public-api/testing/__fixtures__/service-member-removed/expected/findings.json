@@ -1,0 +1,14 @@
+[
+    {
+        "group": "Break",
+        "rule": "method_missing",
+        "explanation": "The method is gone, so plugin code that calls Shopware.Service('cacheApiService').indexProducts() throws at runtime.",
+        "fix": "pattern \"Removal\". Keep the method and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.",
+        "element": "service:cacheApiService/method:indexProducts",
+        "states": [
+            "current",
+            "major"
+        ],
+        "at": "src/core/service/api/cache.api.service.js:4"
+    }
+]

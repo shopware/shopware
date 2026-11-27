@@ -1,0 +1,4 @@
+{
+    "description": "Three services are gone, one of them deprecated and one private, and one is new",
+    "majorFlags": ["v6.8.0.0"]
+}

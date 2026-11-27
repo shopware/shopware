@@ -6,7 +6,7 @@
  */
 import { ADMINISTRATION_ROOT } from '../source/checkout';
 import { generateCurrentSnapshot, readCommittedSnapshot } from './committed-snapshot';
-import { GENERATE_COMMAND } from './print-report';
+import { GENERATE_COMMAND } from './report-outline';
 
 function blockNames(files: Record<string, string>): Set<string> {
     const { components } = JSON.parse(files['index.json']) as { components: Record<string, { blocks: string[] }> };

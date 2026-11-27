@@ -1,11 +1,11 @@
 /**
  * @sw-package framework
  *
- * What the break check compares about the members of a component in one flag state.
+ * What the break check compares about the members of a unit in one flag state.
  */
 import type { FlagState } from '../../model/flag-states';
-import { isKind, isTemplateMember, memberId, namePath } from '../../model/members';
-import type { ComponentMembers, Member, MemberKind } from '../../model/members';
+import { isKind, isTemplateMember, KINDS, memberId, namePath } from '../../model/members';
+import type { UnitMembers, Member, MemberKind } from '../../model/members';
 import type { ComponentUnit } from '../../model/model';
 import type { SourceLine } from '../../model/source-line';
 
@@ -20,11 +20,11 @@ export type MembersByKind = { [Kind in MemberKind]: ReadonlyMap<string, Member<K
 /**
  * @private
  *
- * `sections` are the lines of the options the source declares.
+ * `sections` are the lines of the places that declare the members of a kind.
  */
 export interface MemberFacts {
     members: MembersByKind;
-    sections: ComponentMembers['sections'];
+    sections: UnitMembers['sections'];
 }
 
 /**
@@ -53,24 +53,13 @@ function placesOf<Kind extends MemberKind>(members: Member[], kind: Kind): Reado
 /**
  * @private
  *
- * The members of the component that exist in `state`.
+ * The members of the unit that exist in `state`.
  */
-export function memberFactsOf(unit: ComponentUnit, state: FlagState): MemberFacts {
+export function memberFactsOf(unit: UnitMembers, state: FlagState): MemberFacts {
     const existing = unit.members.filter(({ states }) => states[state]);
 
     return {
-        members: {
-            mixin: placesOf(existing, 'mixin'),
-            inject: placesOf(existing, 'inject'),
-            provide: placesOf(existing, 'provide'),
-            prop: placesOf(existing, 'prop'),
-            emit: placesOf(existing, 'emit'),
-            slot: placesOf(existing, 'slot'),
-            data: placesOf(existing, 'data'),
-            computed: placesOf(existing, 'computed'),
-            method: placesOf(existing, 'method'),
-            ref: placesOf(existing, 'ref'),
-        },
+        members: Object.fromEntries(KINDS.map((kind) => [kind, placesOf(existing, kind)])) as MembersByKind,
         sections: unit.sections,
     };
 }

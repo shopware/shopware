@@ -1,9 +1,10 @@
 /**
  * @sw-package framework
  *
- * The members of a component besides its blocks: what the options object declares and what the template offers
- * to `this.$refs` and to slots. Every kind is a list of named members, so the printers and the
- * rules of the break check treat them alike and only differ in the details of a kind.
+ * The members of a unit: what the options object of a component declares, what its template offers to
+ * `this.$refs` and to slots, and what the object behind a service holds. Every kind is a list of named
+ * members, so the printers and the rules of the break check treat them alike and only differ in the details
+ * of a kind.
  */
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagStates } from './flag-states';
@@ -54,7 +55,8 @@ export type DefaultValue = { kind: 'none' } | { kind: 'factory' } | { kind: 'val
  * - `data.nested`: the value is an object literal, whose keys are members of their own named `parent.key`.
  * - `method.parameters`: `null` when the method is no function in the source, for example an imported one.
  * - `method.returnsPromise`: the method is `async`, declares a `Promise` return type, or every `return` hands
- *   back a promise it visibly builds, such as `.then()` or `Promise.all()`.
+ *   back a promise it visibly builds, such as `.then()` or `Promise.all()`. `false` when the declared type or
+ *   every returned value is visibly no promise, and `null` when only the type checker knows.
  * - `method.returnsSuper`: every `return` hands back `this.$super()` of the same method, so the method returns
  *   whatever the method it overrides returns.
  */
@@ -66,7 +68,21 @@ interface OptionDetails {
     emit: { payload: Parameter[] | null };
     data: { nested: boolean };
     computed: { type: string | null };
-    method: { parameters: Parameter[] | null; returns: string | null; returnsPromise: boolean; returnsSuper: boolean };
+    method: {
+        parameters: Parameter[] | null;
+        returns: string | null;
+        returnsPromise: boolean | null;
+        returnsSuper: boolean;
+    };
+}
+
+/**
+ * What a kind of a plain object knows besides the name, as the object behind a service has them. A component
+ * declares its values as `data` and `computed` instead. `property.type` is the annotation of the property, or
+ * what its getter declares to return.
+ */
+interface ObjectDetails {
+    property: { type: string | null };
 }
 
 /**
@@ -87,7 +103,7 @@ interface TemplateDetails {
     ref: TemplatePlace & { target: string; list: boolean };
 }
 
-type MemberDetails = OptionDetails & TemplateDetails;
+type MemberDetails = OptionDetails & ObjectDetails & TemplateDetails;
 
 /** @private */
 export type OptionKind = keyof OptionDetails;
@@ -96,14 +112,21 @@ export type OptionKind = keyof OptionDetails;
 export type TemplateKind = keyof TemplateDetails;
 
 /** @private */
-export type MemberKind = OptionKind | TemplateKind;
+export type MemberKind = OptionKind | keyof ObjectDetails | TemplateKind;
+
+/**
+ * @private
+ *
+ * The kinds a script declares. Each one has a place in the source that holds its members.
+ */
+export type DeclaredKind = Exclude<MemberKind, TemplateKind>;
 
 /**
  * @private
  *
  * The kinds in the order of their sections in a report, which stand before or after the blocks. `fromTemplate`
- * kinds are read from the template a component renders, the others from its options object. `label` is how a
- * finding names a member of the kind.
+ * kinds are read from the template a component renders, the others from a script. `label` is how a finding
+ * names a member of the kind.
  */
 export const MEMBER_KINDS: {
     [Kind in MemberKind]: {
@@ -121,6 +144,7 @@ export const MEMBER_KINDS: {
     slot: { heading: 'slots', label: 'slot', placement: 'beforeBlocks', fromTemplate: true },
     data: { heading: 'data', label: 'data property', placement: 'beforeBlocks', fromTemplate: false },
     computed: { heading: 'computed', label: 'computed property', placement: 'beforeBlocks', fromTemplate: false },
+    property: { heading: 'properties', label: 'property', placement: 'beforeBlocks', fromTemplate: false },
     method: { heading: 'methods', label: 'method', placement: 'beforeBlocks', fromTemplate: false },
     ref: { heading: 'refs', label: 'template ref', placement: 'afterBlocks', fromTemplate: true },
 };
@@ -141,7 +165,7 @@ interface MemberBase {
 /**
  * @private
  *
- * One member of a component. `Member<'prop'>` is a prop with its details.
+ * One member of a unit. `Member<'prop'>` is a prop with its details.
  */
 export type Member<Kind extends MemberKind = MemberKind> = {
     [K in Kind]: MemberBase & { kind: K } & MemberDetails[K];
@@ -183,7 +207,7 @@ export function isTemplateMember(member: Member): member is Member<TemplateKind>
 /**
  * @private
  *
- * The part of an element id that names the member below its component, `method:onSave`.
+ * The part of an element id that names the member below its unit, `method:onSave`.
  */
 export function memberId({ kind, name }: Pick<Member, 'kind' | 'name'>): string {
     return `${kind}:${name}`;
@@ -192,12 +216,13 @@ export function memberId({ kind, name }: Pick<Member, 'kind' | 'name'>): string 
 /**
  * @private
  *
- * The members of a component with what the generator could not read. A note is a line of the `notes` section
- * of the report, so a member the snapshot misses is visible there. `sections` holds the line of each option
- * the source declares, where a finding about a removed member points to.
+ * The members of a unit with what the generator could not read. A note is a line of the `notes` section of the
+ * report, so a member the snapshot misses is visible there. `sections` holds the line of the place that declares
+ * the members of a kind, where a finding about a removed member points to: an option of a component, or the
+ * class or object behind a service.
  */
-export interface ComponentMembers {
+export interface UnitMembers {
     members: Member[];
     notes: string[];
-    sections: Partial<Record<OptionKind, SourceLine>>;
+    sections: Partial<Record<DeclaredKind, SourceLine>>;
 }

@@ -4,7 +4,7 @@
  * Decides in which flag states a piece of source runs or renders, from the feature checks in its conditions.
  */
 import ts from 'typescript';
-import { BOTH_STATES, perState } from '../model/flag-states';
+import { BOTH_STATES, inBothStates, perState } from '../model/flag-states';
 import type { FlagContext, FlagState, FlagStates } from '../model/flag-states';
 
 /** `null` when the value depends on something else than the major flags. */
@@ -53,12 +53,10 @@ function featureCheck(node: ts.CallExpression, flags: FlagContext): Truths {
 }
 
 /**
- * @private
- *
  * Evaluates the feature checks of a condition per flag state. Only `feature.isActive('<major flag>')` with `!`,
  * `&&` and `||` is decided, everything else may be true in both states.
  */
-export function conditionTruths(node: ts.Expression, flags: FlagContext): Truths {
+function conditionTruths(node: ts.Expression, flags: FlagContext): Truths {
     if (ts.isParenthesizedExpression(node)) {
         return conditionTruths(node.expression, flags);
     }
@@ -111,4 +109,26 @@ export class ConditionChain {
     public elseBranch(): FlagStates {
         return this.branch(BOTH_STATES);
     }
+}
+
+/**
+ * @private
+ *
+ * The flag states in which the `if` statements around `node` let it run.
+ */
+export function guardStates(node: ts.Node, flags: FlagContext): FlagStates {
+    let states = BOTH_STATES;
+
+    for (let child = node; child.parent !== undefined; child = child.parent) {
+        const { parent } = child;
+
+        if (ts.isIfStatement(parent) && child !== parent.expression) {
+            const chain = new ConditionChain();
+            const thenStates = chain.branch(conditionTruths(parent.expression, flags));
+
+            states = inBothStates(states, child === parent.thenStatement ? thenStates : chain.elseBranch());
+        }
+    }
+
+    return states;
 }

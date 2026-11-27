@@ -15,6 +15,7 @@
             ]
         }
     },
+    "services": {},
     "mixins": {},
     "modules": {},
     "positionIdentifiers": {},

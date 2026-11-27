@@ -16758,5 +16758,551 @@
                 "sw_wizard_page_slot_default"
             ]
         }
+    },
+    "services": {
+        "InvalidActionButtonParameterError": {
+            "file": "core/service/api/errors/InvalidActionButtonParameterError",
+            "visibility": "private"
+        },
+        "acl": {
+            "file": "app/service/acl.service",
+            "visibility": "public"
+        },
+        "aclApiService": {
+            "file": "core/service/api/acl.api.service",
+            "visibility": "public"
+        },
+        "appAclService": {
+            "file": "app/service/app-acl.service",
+            "visibility": "public"
+        },
+        "appActionButtonService": {
+            "file": "core/service/api/app-action-button.service",
+            "visibility": "public"
+        },
+        "appCmsBlocks": {
+            "file": "core/service/api/app-cms-blocks.service",
+            "visibility": "public"
+        },
+        "appCmsService": {
+            "file": "app/service/app-cms.service",
+            "visibility": "public"
+        },
+        "appModulesService": {
+            "file": "core/service/api/app-modules.service",
+            "visibility": "private"
+        },
+        "bulkEditApiFactory": {
+            "file": "module/sw-bulk-edit/service/bulk-edit.api.factory",
+            "visibility": "public"
+        },
+        "businessEventService": {
+            "file": "core/service/api/business-events.api.service",
+            "visibility": "public"
+        },
+        "cacheApiService": {
+            "file": "core/service/api/cache.api.service",
+            "visibility": "public"
+        },
+        "cacheService": {
+            "file": "app/service/cache.service",
+            "visibility": "public"
+        },
+        "calculate-price": {
+            "file": "core/service/api/calculate-price.api.service",
+            "visibility": "public"
+        },
+        "captchaService": {
+            "file": "module/sw-settings-basic-information/service/captcha.service",
+            "visibility": "public"
+        },
+        "cartStoreService": {
+            "file": "core/service/api/cart-store-api.api.service",
+            "visibility": "public"
+        },
+        "checkoutStoreService": {
+            "file": "core/service/api/checkout-store.api.service",
+            "visibility": "public"
+        },
+        "cmsBlockFavorites": {
+            "file": "module/sw-cms/service/cms-block-favorites.service",
+            "visibility": "public"
+        },
+        "cmsDataResolverService": {
+            "file": "module/sw-cms/service/cmsDataResolver.service",
+            "visibility": "public"
+        },
+        "cmsElementFavorites": {
+            "file": "module/sw-cms/service/cms-element-favorites.service",
+            "visibility": "public"
+        },
+        "cmsPageTypeService": {
+            "file": "module/sw-cms/service/cms-page-type.service",
+            "visibility": "private"
+        },
+        "cmsService": {
+            "file": "module/sw-cms/service/cms.service",
+            "visibility": "public"
+        },
+        "configService": {
+            "file": "core/service/api/config.api.service",
+            "visibility": "public"
+        },
+        "consentApiService": {
+            "file": "core/consent/consent.api.service",
+            "visibility": "private"
+        },
+        "contextStoreService": {
+            "file": "core/service/api/store-context.api.service",
+            "visibility": "public"
+        },
+        "customEntityDefinitionService": {
+            "file": "app/service/custom-entity-definition.service",
+            "visibility": "private"
+        },
+        "customFieldDataProviderService": {
+            "file": "app/service/custom-field.service",
+            "visibility": "private"
+        },
+        "customSnippetApiService": {
+            "file": "core/service/api/custom-snippet.api.service",
+            "visibility": "public"
+        },
+        "customerGroupRegistrationService": {
+            "file": "core/service/api/customer-group-registration.api.service",
+            "visibility": "public"
+        },
+        "customerValidationService": {
+            "file": "core/service/api/customer-validation.api.service",
+            "visibility": "public"
+        },
+        "documentService": {
+            "file": "core/service/api/document.api.service",
+            "visibility": "public"
+        },
+        "documentV2ApiService": {
+            "file": "core/service/api/documentV2.api.service",
+            "visibility": "private"
+        },
+        "documentV2Service": {
+            "file": "module/sw-order/service/documentV2.service",
+            "visibility": "private"
+        },
+        "domainLinkService": {
+            "file": "module/sw-sales-channel/service/domain-link.service",
+            "visibility": "public"
+        },
+        "entityFactory": {
+            "file": "app/init/repository.init",
+            "visibility": "public"
+        },
+        "entityHydrator": {
+            "file": "app/init/repository.init",
+            "visibility": "public"
+        },
+        "entityMappingService": {
+            "file": "core/service/entity-mapping.service",
+            "visibility": "public"
+        },
+        "entityValidationService": {
+            "file": "app/service/entity-validation.service",
+            "visibility": "private"
+        },
+        "excludedSearchTermService": {
+            "file": "core/service/api/excludedSearchTerm.api.service",
+            "visibility": "public"
+        },
+        "exportTemplateService": {
+            "file": "module/sw-sales-channel/service/export-template.service",
+            "visibility": "public"
+        },
+        "extensionErrorService": {
+            "file": "module/sw-extension/service/extension-error.service",
+            "visibility": "private"
+        },
+        "extensionHelperService": {
+            "file": "app/service/extension-helper.service",
+            "visibility": "private"
+        },
+        "extensionSdkService": {
+            "file": "core/service/api/extension-sdk.service",
+            "visibility": "public"
+        },
+        "extensionStoreActionService": {
+            "file": "module/sw-extension/service/extension-store-action.service",
+            "visibility": "private"
+        },
+        "feature": {
+            "file": "app/service/feature.service",
+            "visibility": "public"
+        },
+        "fileValidationService": {
+            "file": "app/service/file-validation.service",
+            "visibility": "private"
+        },
+        "filterFactory": {
+            "file": "app/init/filter-factory.init",
+            "visibility": "public"
+        },
+        "filterService": {
+            "file": "app/service/filter.service",
+            "visibility": "public"
+        },
+        "firstRunWizardService": {
+            "file": "core/service/api/first-run-wizard.api.service",
+            "visibility": "private"
+        },
+        "flowActionService": {
+            "file": "core/service/api/flow-actions.api.service",
+            "visibility": "public"
+        },
+        "flowBuilderService": {
+            "file": "module/sw-flow/service/flow-builder.service",
+            "visibility": "private"
+        },
+        "guestCustomerConvertService": {
+            "file": "core/service/api/guest-customer-convert.service",
+            "visibility": "public"
+        },
+        "importExport": {
+            "file": "module/sw-import-export/service/importExport.service",
+            "visibility": "private"
+        },
+        "importExportProfileMapping": {
+            "file": "module/sw-import-export/service/importExportProfileMapping.service",
+            "visibility": "public"
+        },
+        "importExportService": {
+            "file": "core/service/api/import-export.api.service",
+            "visibility": "public"
+        },
+        "importExportUpdateByMapping": {
+            "file": "module/sw-import-export/service/importExportUpdateByMapping.service",
+            "visibility": "public"
+        },
+        "integrationService": {
+            "file": "core/service/api/integration.api.service",
+            "visibility": "public"
+        },
+        "jsonApiParserService": {
+            "file": "core/service/jsonapi-parser.service",
+            "visibility": "public"
+        },
+        "knownIpsService": {
+            "file": "core/service/api/known-ips.api.service",
+            "visibility": "public"
+        },
+        "languageAutoFetchingService": {
+            "file": "app/main",
+            "visibility": "public"
+        },
+        "languagePluginService": {
+            "file": "core/service/api/language-plugin.api.service",
+            "visibility": "public"
+        },
+        "licenseViolationService": {
+            "file": "app/service/license-violations.service",
+            "visibility": "private"
+        },
+        "liveSearchService": {
+            "file": "module/sw-settings-search/service/livesearch.api.service",
+            "visibility": "public"
+        },
+        "localeHelper": {
+            "file": "app/service/locale-helper.service",
+            "visibility": "private"
+        },
+        "localeToLanguageService": {
+            "file": "app/service/locale-to-language.service",
+            "visibility": "public"
+        },
+        "loginService": {
+            "file": "core/service/login.service",
+            "visibility": "public"
+        },
+        "mailService": {
+            "file": "core/service/api/mail.api.service",
+            "visibility": "public"
+        },
+        "mcpToolService": {
+            "file": "core/service/api/mcp-tool.api.service",
+            "visibility": "public"
+        },
+        "mediaDefaultFolderService": {
+            "file": "app/service/media-default-folder.service",
+            "visibility": "public"
+        },
+        "mediaFolderService": {
+            "file": "core/service/api/media-folder.api.service",
+            "visibility": "public"
+        },
+        "mediaPresignedUploadService": {
+            "file": "core/service/api/media-presigned-upload.api.service",
+            "visibility": "public"
+        },
+        "mediaService": {
+            "file": "core/service/api/media.api.service",
+            "visibility": "public"
+        },
+        "menuService": {
+            "file": "app/service/menu.service",
+            "visibility": "private"
+        },
+        "messageQueueService": {
+            "file": "core/service/api/message-queue.api.service",
+            "visibility": "public"
+        },
+        "messageStatsService": {
+            "file": "core/service/api/message-stats.api.service",
+            "visibility": "public"
+        },
+        "notificationsService": {
+            "file": "core/service/api/notifications.service",
+            "visibility": "public"
+        },
+        "numberRangeService": {
+            "file": "core/service/api/number-range.api.service",
+            "visibility": "public"
+        },
+        "oauthAuthorizeApiService": {
+            "file": "core/service/api/oauth-authorize.api.service",
+            "visibility": "private"
+        },
+        "orderDocumentApiService": {
+            "file": "core/service/api/order-document.api.service",
+            "visibility": "private"
+        },
+        "orderService": {
+            "file": "core/service/api/order.api.service",
+            "visibility": "public"
+        },
+        "orderStateMachineService": {
+            "file": "core/service/api/order-state-machine.api.service",
+            "visibility": "public"
+        },
+        "privileges": {
+            "file": "app/service/privileges.service",
+            "visibility": "private"
+        },
+        "productDocumentVariantService": {
+            "file": "module/sw-product/service/product-document-variant.service",
+            "visibility": "private"
+        },
+        "productExportService": {
+            "file": "core/service/api/product-export.api.service",
+            "visibility": "public"
+        },
+        "productIndexService": {
+            "file": "module/sw-settings-search/service/productIndex.api.service",
+            "visibility": "public"
+        },
+        "productStorefrontUrlApiService": {
+            "file": "module/sw-product/service/product-storefront-url.api.service",
+            "visibility": "private"
+        },
+        "productStreamConditionService": {
+            "file": "app/service/product-stream-condition.service",
+            "visibility": "private"
+        },
+        "productStreamPreviewService": {
+            "file": "core/service/api/product-stream-preview.service",
+            "visibility": "private"
+        },
+        "productTypeService": {
+            "file": "app/service/product-type.api.service",
+            "visibility": "public"
+        },
+        "promotionCodeApiService": {
+            "file": "module/sw-promotion-v2/service/promotion-code.api.service",
+            "visibility": "public"
+        },
+        "promotionSyncService": {
+            "file": "core/service/api/promotion-sync.api.service",
+            "visibility": "public"
+        },
+        "recentlySearchService": {
+            "file": "app/service/recently-search.service",
+            "visibility": "public"
+        },
+        "recommendationsService": {
+            "file": "core/service/api/recommendations.api.service",
+            "visibility": "public"
+        },
+        "repositoryFactory": {
+            "file": "app/init/repository.init",
+            "visibility": "public"
+        },
+        "ruleConditionDataProviderService": {
+            "file": "app/service/rule-condition.service",
+            "visibility": "private"
+        },
+        "ruleConditionsConfigApiService": {
+            "file": "core/service/api/rule-conditions-config.api.service",
+            "visibility": "private"
+        },
+        "salesChannelFavorites": {
+            "file": "module/sw-sales-channel/service/sales-channel-favorites.service",
+            "visibility": "public"
+        },
+        "salesChannelFileApiService": {
+            "file": "module/sw-sales-channel/service/sales-channel-file.api.service",
+            "visibility": "public"
+        },
+        "salesChannelProductAssignmentApiService": {
+            "file": "module/sw-sales-channel/service/sales-channel-product-assignment.api.service",
+            "visibility": "public"
+        },
+        "salesChannelService": {
+            "file": "core/service/api/sales-channel.api.service",
+            "visibility": "public"
+        },
+        "scheduledTaskService": {
+            "file": "core/service/api/scheduled-task.api.service",
+            "visibility": "public"
+        },
+        "searchPreferencesService": {
+            "file": "app/service/search-preferences.service",
+            "visibility": "public"
+        },
+        "searchRankingService": {
+            "file": "app/service/search-ranking.service",
+            "visibility": "public"
+        },
+        "searchService": {
+            "file": "core/service/api/search.api.service",
+            "visibility": "public"
+        },
+        "searchTypeService": {
+            "file": "app/service/search-type.service",
+            "visibility": "public"
+        },
+        "seoUrlService": {
+            "file": "core/service/api/seo-url.api.service",
+            "visibility": "public"
+        },
+        "seoUrlTemplateService": {
+            "file": "core/service/api/seo-url-template.api.service",
+            "visibility": "public"
+        },
+        "serviceRegistryClient": {
+            "file": "module/sw-settings-services/service/service-registry-client",
+            "visibility": "private"
+        },
+        "shopIdChangeService": {
+            "file": "core/service/api/shop-id-change.service",
+            "visibility": "private"
+        },
+        "shopwareDiscountCampaignService": {
+            "file": "app/service/discount-campaign.service",
+            "visibility": "private"
+        },
+        "shopwareExtensionService": {
+            "file": "module/sw-extension/service/shopware-extension.service",
+            "visibility": "private"
+        },
+        "shopwareServicesService": {
+            "file": "module/sw-settings-services/service/shopware-services.service",
+            "visibility": "private"
+        },
+        "shortcutService": {
+            "file": "app/service/shortcut.service",
+            "visibility": "private"
+        },
+        "snackbarService": {
+            "file": "app/service/snackbar.service",
+            "visibility": "public"
+        },
+        "snippetService": {
+            "file": "core/service/api/snippet.api.service",
+            "visibility": "public"
+        },
+        "snippetSetService": {
+            "file": "core/service/api/snippet-set.api.service",
+            "visibility": "public"
+        },
+        "ssoInvitationService": {
+            "file": "core/service/api/sso-invitation.service",
+            "visibility": "public"
+        },
+        "ssoSettingsService": {
+            "file": "core/service/api/sso-settings.service",
+            "visibility": "public"
+        },
+        "stateMachineService": {
+            "file": "core/service/api/state-machine.api.service",
+            "visibility": "public"
+        },
+        "stateStyleDataProviderService": {
+            "file": "app/service/state-style.service",
+            "visibility": "public"
+        },
+        "storeService": {
+            "file": "core/service/api/store.api.service",
+            "visibility": "private"
+        },
+        "syncService": {
+            "file": "core/service/api/sync.api.service",
+            "visibility": "public"
+        },
+        "systemConfigApiService": {
+            "file": "core/service/api/system-config.api.service",
+            "visibility": "public"
+        },
+        "tagApiService": {
+            "file": "core/service/api/tag.api.service",
+            "visibility": "public"
+        },
+        "timezoneService": {
+            "file": "core/service/timezone.service",
+            "visibility": "private"
+        },
+        "translationService": {
+            "file": "core/service/api/translation.api.service",
+            "visibility": "private"
+        },
+        "unitUneceCodeService": {
+            "file": "core/service/api/unit-unece-code.api.service",
+            "visibility": "public"
+        },
+        "updateService": {
+            "file": "core/service/api/update.api.service",
+            "visibility": "public"
+        },
+        "userActivityApiService": {
+            "file": "core/service/api/user-activity.service",
+            "visibility": "public"
+        },
+        "userActivityService": {
+            "file": "app/service/user-activity.service",
+            "visibility": "private"
+        },
+        "userConfigService": {
+            "file": "core/service/api/user-config.api.service",
+            "visibility": "private"
+        },
+        "userInputSanitizeService": {
+            "file": "core/service/api/user-input-sanitize.service",
+            "visibility": "public"
+        },
+        "userRecoveryService": {
+            "file": "core/service/api/user-recovery.api.service",
+            "visibility": "public"
+        },
+        "userService": {
+            "file": "core/service/api/user.api.service",
+            "visibility": "public"
+        },
+        "userValidationService": {
+            "file": "core/service/api/user-validation.api.service",
+            "visibility": "public"
+        },
+        "validationApiService": {
+            "file": "core/service/api/validation.api.service",
+            "visibility": "public"
+        },
+        "validationService": {
+            "file": "core/service/validation.service",
+            "visibility": "public"
+        }
     }
 }

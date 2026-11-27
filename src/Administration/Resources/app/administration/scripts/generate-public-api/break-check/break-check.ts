@@ -2,26 +2,28 @@
  * @sw-package framework
  *
  * The break check: compares the models of the base and the head commit and reports what changed for plugins.
- * The rules find the changes per component and flag state. This file decides what each change counts as: a
- * break, a change that a marker announced (see `announcements.ts`), or a change to a private component.
+ * The rules find the changes per unit and flag state. This file decides what each change counts as: a break,
+ * a change that a marker announced (see `announcements.ts`), or a change to a private unit. A unit that only
+ * one of the commits has is the business of `unit-changes.ts`.
  */
 import { byCodePoint } from '../helpers/code-point-order';
 import { FLAG_STATES } from '../model/flag-states';
 import type { FlagContext, FlagState } from '../model/flag-states';
-import type { ComponentUnit, Model } from '../model/model';
+import type { Model } from '../model/model';
 import { announced } from './announcements';
-import { changedFactsOf } from './facts/component-facts';
-import type { ChangedFacts } from './facts/component-facts';
-import { withInheritedMembers } from './facts/member-facts';
-import { FINDING_GROUPS } from './finding';
+import type { ChangedFacts } from './facts/unit-facts';
+import { FINDING_GROUPS, findingFor } from './finding';
 import type { Finding } from './finding';
 import { RULES } from './rules';
 import type { Detection, Rule } from './rules/rule';
+import { unitFindings } from './unit-changes';
+import { checkedUnits, UNIT_KINDS } from './units';
+import type { CheckedUnit } from './units';
 
-/** A component that both commits register, with its facts in each flag state. */
-interface ComponentChange extends ChangedFacts {
-    base: ComponentUnit;
-    head: ComponentUnit;
+/** A unit that both commits have, with its facts in each flag state. */
+interface ComparedUnit extends ChangedFacts {
+    base: CheckedUnit;
+    head: CheckedUnit;
 }
 
 /** What a rule found for one element, with the flag states it found it in. */
@@ -31,37 +33,24 @@ interface Found {
     states: FlagState[];
 }
 
-/** A finding whose `element` is still the id below its component. */
-interface ComponentFinding {
-    component: string;
+/** A finding whose `element` is still the id below its unit. */
+interface UnitFinding {
+    unit: CheckedUnit;
     finding: Finding;
 }
 
-function byName({ components }: Model): Map<string, ComponentUnit> {
-    return new Map(components.map((unit) => [unit.name, unit]));
-}
+function unitsInBoth(base: ReadonlyMap<string, CheckedUnit>, head: ReadonlyMap<string, CheckedUnit>): ComparedUnit[] {
+    return [...head.values()].flatMap((unit) => {
+        const baseUnit = base.get(unit.id);
 
-/** An extend child is compared with the members it inherits, so an override it drops is no change to it. */
-function componentChanges(base: Model, head: Model): ComponentChange[] {
-    const before = byName(base);
-    const after = byName(head);
-
-    return head.components.flatMap((unit) => {
-        const baseUnit = before.get(unit.name);
-
-        if (baseUnit === undefined) {
-            return [];
-        }
-
-        const was = withInheritedMembers(baseUnit, before);
-        const now = withInheritedMembers(unit, after);
-
-        return [{ base: was, head: now, ...changedFactsOf(was, now) }];
+        return baseUnit === undefined
+            ? []
+            : [{ base: baseUnit, head: unit, baseFacts: baseUnit.facts, headFacts: unit.facts }];
     });
 }
 
-/** A component that one commit registers in a flag state and the other does not is no change to its elements. */
-function foundBy(rule: Rule, { base, head, baseFacts, headFacts }: ComponentChange): Found[] {
+/** A unit that one commit has in a flag state and the other has not is no change to its elements. */
+function foundBy(rule: Rule, { base, head, baseFacts, headFacts }: ComparedUnit): Found[] {
     const byElement = new Map<string, Found>();
 
     FLAG_STATES.filter((state) => base.states[state] && head.states[state]).forEach((state) => {
@@ -84,66 +73,85 @@ function foundBy(rule: Rule, { base, head, baseFacts, headFacts }: ComponentChan
 }
 
 /**
- * A component that becomes private in the change was public API until then, so its changes still break plugins.
- * A private element of a public component never was public API.
+ * A unit that becomes private in the change was public API until then, so its changes still break plugins.
+ * A private element of a public unit never was public API.
  */
-function isPrivate({ base }: ComponentChange, detection: Detection): boolean {
+function isPrivate({ base }: ComparedUnit, detection: Detection): boolean {
     return base.visibility === 'private' || detection.isPrivate === true;
 }
 
-function findingOf(result: Found, change: ComponentChange, flags: FlagContext): Finding {
+function findingOf(result: Found, change: ComparedUnit, flags: FlagContext): Finding {
     const { rule, detection, states } = result;
+    const { kind, name } = change.head;
     const judged = announced(detection.announcement, states, change, flags) ?? {
         group: rule.group,
         rule: rule.id,
-        ...detection.texts({ component: change.head.name, states, flags }),
+        ...detection.texts({ unit: name, use: UNIT_KINDS[kind].use(name), states, flags }),
     };
 
-    return {
-        ...judged,
-        group: isPrivate(change, detection) ? 'Private' : judged.group,
+    return findingFor(judged, {
         element: detection.element,
         states,
-        ...(detection.at === undefined ? {} : { at: `${detection.at.file}:${detection.at.line}` }),
-    };
+        isPrivate: isPrivate(change, detection),
+        at: detection.at,
+    });
 }
 
 function sameChange(a: Finding, b: Finding): boolean {
     return a.group === b.group && a.rule === b.rule && a.element === b.element && a.states.join() === b.states.join();
 }
 
-/**
- * An extend child inherits the elements of its parent, so a change to the parent shows up in the child too.
- * It is reported once, on the component closest to the root of the chain that has it, with the children it
- * reaches. A public child of a private parent keeps its finding, because the two differ in their group.
- */
-function reportedOnce(findings: ComponentFinding[], parentOf: (component: string) => string | null): Finding[] {
-    const inherited = (reported: ComponentFinding): ComponentFinding | undefined => {
-        const parent = parentOf(reported.component);
+function reportedOn({ unit, finding }: UnitFinding, reached: UnitFinding[]): Finding {
+    const alsoAffects = reached.map((other) => other.unit.name).sort(byCodePoint);
 
-        return findings.find(({ component, finding }) => component === parent && sameChange(finding, reported.finding));
+    return {
+        ...finding,
+        element: `${unit.id}/${finding.element}`,
+        ...(alsoAffects.length === 0 ? {} : { alsoAffects }),
     };
-    const ownerOf = (reported: ComponentFinding): ComponentFinding => {
+}
+
+/** The unit that reports a change its chain shares: the owner, and a grouping only when two units share it. */
+function reporterOf(owner: UnitFinding, affected: UnitFinding[]): UnitFinding | undefined {
+    return UNIT_KINDS[owner.unit.kind].role.is === 'api' || affected.length > 1 ? owner : undefined;
+}
+
+/**
+ * A unit inherits the elements of its parent: an extend child those of the component it extends, and a service
+ * those of its class. A change to the parent shows up in the child too. It is reported once, on the unit closest
+ * to the root of the chain that has it, with the units it reaches. A class is no API of its own, so it only
+ * reports a change that at least two services share, see `reporterOf`. A child keeps its own finding when its group differs from
+ * the one of its parent, such as a public child of a private parent.
+ */
+function reportedOnce(findings: UnitFinding[]): Finding[] {
+    const inherited = (reported: UnitFinding): UnitFinding | undefined =>
+        findings.find(({ unit, finding }) => unit.id === reported.unit.parent && sameChange(finding, reported.finding));
+    const ownerOf = (reported: UnitFinding): UnitFinding => {
         const fromParent = inherited(reported);
 
         return fromParent === undefined ? reported : ownerOf(fromParent);
     };
-    const children = new Map<ComponentFinding, string[]>();
+    const shared = new Map<UnitFinding, UnitFinding[]>();
 
     findings.forEach((reported) => {
         const owner = ownerOf(reported);
 
-        children.set(owner, [
-            ...(children.get(owner) ?? []),
-            ...(owner === reported ? [] : [reported.component]),
-        ]);
+        shared.set(owner, [...(shared.get(owner) ?? []), reported]);
     });
 
-    return [...children].map(([{ component, finding }, alsoAffects]) => ({
-        ...finding,
-        element: `component:${component}/${finding.element}`,
-        ...(alsoAffects.length === 0 ? {} : { alsoAffects: alsoAffects.sort(byCodePoint) }),
-    }));
+    return [...shared].flatMap(([owner, reached]) => {
+        const affected = reached.filter(({ unit }) => UNIT_KINDS[unit.kind].role.is === 'api');
+        const reporter = reporterOf(owner, affected);
+
+        return reporter === undefined
+            ? affected.map((reported) => reportedOn(reported, []))
+            : [
+                  reportedOn(
+                      reporter,
+                      affected.filter((reported) => reported !== reporter),
+                  ),
+              ];
+    });
 }
 
 function inSummaryOrder(a: Finding, b: Finding): number {
@@ -158,17 +166,17 @@ function inSummaryOrder(a: Finding, b: Finding): number {
 /**
  * @private
  *
- * Classifies the difference between the base and the head commit. Only the components that both commits
- * register are compared.
+ * Classifies the difference between the base and the head commit.
  */
 export function classifyChanges(base: Model, head: Model): Finding[] {
-    const findings = componentChanges(base, head).flatMap((change) =>
+    const before = checkedUnits(base);
+    const after = checkedUnits(head);
+    const findings = unitsInBoth(before, after).flatMap((change) =>
         RULES.flatMap((rule) => foundBy(rule, change)).map((result) => ({
-            component: change.head.name,
+            unit: change.head,
             finding: findingOf(result, change, head.flags),
         })),
     );
-    const parents = byName(head);
 
-    return reportedOnce(findings, (component) => parents.get(component)?.extends ?? null).sort(inSummaryOrder);
+    return [...reportedOnce(findings), ...unitFindings(before, after, head.flags)].sort(inSummaryOrder);
 }

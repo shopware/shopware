@@ -1,0 +1,24 @@
+Public API check failed: 4 unannounced breaks.
+
+Break (4)
+  method_signature_changed  service:exampleSearchService/method:reset  current, major
+    The method now returns a Promise, so plugin code that uses the return value of Shopware.Service('exampleSearchService').reset() gets a Promise instead.
+    Fix: keep the method sync and add an async method under a new name.
+    At: src/module/sw-example/service/example-search.service.js:23
+  param_default_changed  service:exampleSearchService/method:search/param:limit  current, major
+    The default of the parameter limit changed from 25 to 50, so plugin calls of Shopware.Service('exampleSearchService').search() that do not pass it get another value.
+    Fix: keep the default, or mark the method @bc-change ParameterDefaultValueChange version:v6.8.0 parameter:limit default:50.
+    At: src/module/sw-example/service/example-search.service.js:15
+  param_missing  service:exampleSearchService/method:getFields/param:forceReload  current, major
+    The parameter forceReload is gone, so the value that plugin calls of Shopware.Service('exampleSearchService').getFields() pass for it is ignored.
+    Fix: pattern "Parameter removal". Keep forceReload, mark the method @bc-change ParameterRemoval version:v6.8.0 parameter:forceReload, and remove it in the major.
+    At: src/module/sw-example/service/example-search.service.js:19
+  property_missing  service:exampleSearchService/property:maxResults  current, major
+    The property is gone, so plugin code that reads Shopware.Service('exampleSearchService').maxResults gets undefined.
+    Fix: pattern "Removal". Keep the property and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.
+    At: src/module/sw-example/service/example-search.service.js:9
+
+Addition (1)
+  param_added  service:exampleSearchService/method:search/param:offset  current, major
+    A new optional parameter offset.
+    At: src/module/sw-example/service/example-search.service.js:15

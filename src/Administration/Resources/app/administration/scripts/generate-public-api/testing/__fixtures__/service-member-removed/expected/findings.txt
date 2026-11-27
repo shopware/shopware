@@ -1,0 +1,7 @@
+Public API check failed: 1 unannounced break.
+
+Break (1)
+  method_missing  service:cacheApiService/method:indexProducts  current, major
+    The method is gone, so plugin code that calls Shopware.Service('cacheApiService').indexProducts() throws at runtime.
+    Fix: pattern "Removal". Keep the method and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.
+    At: src/core/service/api/cache.api.service.js:4

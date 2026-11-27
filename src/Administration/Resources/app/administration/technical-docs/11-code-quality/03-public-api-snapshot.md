@@ -4,14 +4,15 @@
 
 The Administration gets a generated snapshot of its public API and a check that blocks unannounced breaks, see [#22591](https://github.com/shopware/shopware/issues/22591).
 Both are built in steps.
-Four parts exist so far: the snapshot of the components with the blocks they render, the markers that announce a change, the break check for blocks, and the fixtures that the generator and the break check have to satisfy.
+Five parts exist so far: the snapshot of the components with their blocks and members, the snapshot of the services, the markers that announce a change, the break check for both, and the fixtures that the generator and the break check have to satisfy.
 The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`, the code of the generator in `scripts/generate-public-api/`.
 
 ## Snapshot
 
 The snapshot is committed in `public-api/`.
 It lists every component that core registers, with the members its options object declares and the blocks of the template it renders.
-A pull request that adds, renames, moves or removes a block, a prop or a method therefore shows that change in its diff.
+It also lists every service that core registers, with the properties and methods of the object behind it.
+A pull request that adds, renames, moves or removes a block, a prop, a method or a service therefore shows that change in its diff.
 
 Regenerate it after such a change and commit the result:
 
@@ -30,10 +31,13 @@ It runs on demand so far and blocks nothing.
 A component has one report, named after the component and placed beside its folder, without the leading `src/`.
 `src/module/sw-order/page/sw-order-detail/index.js` gives `public-api/module/sw-order/page/sw-order-detail.api.md`.
 
+The services of a source file share one report, named after that file without the leading `src/`.
+`src/core/service/api/cache.api.service.js` gives `public-api/core/service/api/cache.api.service.api.md`.
+
 | File | Content |
 |---|---|
 | `<name>.api.md` | The report for reviewers, which merges both flag states |
-| `index.json` | The components with their file, visibility, parent and the names of the blocks they render, for tools such as ESLint rules |
+| `index.json` | The components with their file, visibility, parent and the names of the blocks they render, and the services with their file and visibility, for tools such as ESLint rules |
 
 The `.d.ts` contracts follow once they can be type-checked, see "Not covered yet".
 All files are marked as generated, so GitHub collapses them in a diff.
@@ -221,6 +225,7 @@ The sections stand in this order, with `blocks` and `crossings` between `methods
   A list of constructors is printed in code point order, so reordering it changes nothing.
 - A method returns a promise when it is `async`, declares a `Promise` return type, or every `return` hands back a promise the source builds: a `.then()`, `.catch()` or `.finally()` chain, a `Promise.*()` call or `new Promise()`.
   A plain call such as `this.repository.save()` may return a promise too, but only the type checker knows, so it does not count.
+  A method returns no promise when it declares a type such as `void` or `string[]`, or when every `return` hands back nothing or a value the source builds, such as a literal, an object, an array or a comparison.
 - The options object is found behind `wrapComponentConfig`, `defineComponent` and a `const` of the same file.
 - `mapPropertyErrors`, `mapCollectionPropertyErrors`, `mapState`, `mapGetters`, `mapWritableState`, `mapActions` and `mapMutations` add the members they list as literals.
   A method keeps its parameters when a helper such as `debounce` wraps the function.
@@ -241,6 +246,51 @@ A note says that a section may miss members, with the start of the source the ge
 `scripts/generate-public-api/read/options/option-members.spec/runtime.spec.ts` loads every component of the Administration and compares the names with the options object at runtime.
 A section with a note may hold fewer names than the runtime, every other section has to hold the same.
 
+### Services
+
+A service is the object that `Shopware.Service('<name>')` returns.
+The generator finds a service by its registration and reads the object behind it from the syntax, without running it.
+
+```text
+service exampleSearchService  public  js  untyped  provider
+  registered src/module/sw-example/init/services.init.js
+  source src/module/sw-example/service/example-search.service.js
+
+properties
+  maxResults: any
+
+methods
+  getFields(entity: any, forceReload: any): any
+  reset(): Promise<any>  [deprecated tag:v6.8.0]
+  search(term: any, limit?: any = 25): any
+```
+
+- The header line names the service, its visibility, the language of its source, what the `ServiceContainer` interface declares for the name, and how the service is registered.
+  `typed` is an entry with a type, `any` an entry with `$TSFixMe` or `any`, and `untyped` a name without an entry.
+- `provider` is a call of `addServiceProvider('<name>', <provider>)` or of `Shopware.Service().register('<name>', <provider>)`.
+  `api-service` is a class below `src/core/service/api/`.
+  The boot sequence creates one instance per file there and registers it under the name the constructor assigns to `this.name`.
+- The generator follows the provider to the object: through `new`, through the call of a factory function, and through names and imports, down to a class or an object literal.
+  `source` is the file of that class or literal.
+  An object that the provider writes itself has the file of the registration as its source.
+- A class gives its methods, properties and getters, what its constructor assigns to `this`, and what it inherits along its `extends` chain.
+  `private`, `protected`, `#private` and static members are left out, because code that holds the service cannot reach them.
+- An object literal gives its keys.
+  A key that names a function of the same file, as in `return { search }`, has the signature and the comment of that function.
+- A method is printed like the method of a component, and a property with the type the source declares for it.
+- A service that is a function has no members, and neither has one whose provider returns nothing.
+- Core registers some services twice with the same object, which is one service in the snapshot.
+
+What the generator cannot follow becomes a line under `notes`, and the service stays in the snapshot with its name:
+
+| Note | Reason |
+|---|---|
+| `unresolved provider ...` | The provider returns something the generator cannot follow, such as an instance of a class it reads from `Shopware.Classes` |
+| `unresolved parent ...` | The class extends one that the sources do not declare under that name |
+| `unresolved members ...` | An object literal spreads something that is no object literal, or has a computed key |
+
+The Administration has 10 of these notes today.
+
 ### Flag states
 
 The snapshot covers two flag states: `current`, with the next major flag off, and `major`, with that flag and every flag that names it as its `major` in `feature.yaml` on.
@@ -253,6 +303,7 @@ A break behind the major flag would be invisible in a single state.
   Any other condition can be true in both states.
 - A component that is registered inside `if (!Shopware.Feature.isActive('v6.8.0.0'))` exists in the current state only.
   Its report marks the `component` line and its blocks `[until v6.8.0]`.
+  The same holds for a service and its members.
 
 ### Visibility
 
@@ -260,6 +311,9 @@ Everything without `@private` is public.
 A component is private when the comment directly above its `export default`, or directly above its registration, has an `@private` tag.
 A private component stays in the snapshot, and its report marks every line `[private]`.
 A key inside a `@private` data object is private too.
+A service is private when the comment directly above its class, or above the factory function that returns it, has an `@private` tag.
+The comment above an `export default` of that class or function below it counts too.
+A `@deprecated` or `@bc-change` marker in the same comment is the marker of the service.
 
 ### Not covered yet
 
@@ -270,6 +324,11 @@ A key inside a `@private` data object is private too.
 - A mixin has no unit of its own, so a member that a mixin loses is not reported.
 - The members of a core `Component.override` are missing.
 - The keys of `data()` have no types.
+- A decorator or a middleware that core adds to a service changes its members at runtime and is not read.
+- A service whose provider reads its class from the `Shopware` object has no members, see its note.
+  The same holds for the members a service inherits from such a class.
+- The types of a service are those the source writes, so an inferred type is `any`.
+- No spec compares the services with the container at runtime, as `option-members.spec/runtime.spec.ts` does for the options of a component.
 - The `.d.ts` contracts are not generated yet.
   They arrive together with the entry points `current.d.ts` and `major.d.ts`, so they can be type-checked from the start.
   Until then, the fixture views `block-contract` and `member-contract` are on the expected-fail list.
@@ -282,6 +341,9 @@ The generator stops with an error when it cannot read something:
 - a component name that is registered twice
 - an extend chain that names an unregistered component, loops, or has a child with blocks below a parent without a Twig template
 - a core override of an unregistered component, or one that is registered in one flag state only
+- a service registration whose name is no string literal, outside `src/app/init-pre/api-services.init.ts` and `src/core/factory/service.factory.ts`, which pass a service on under a name they get at runtime
+- a file below `src/core/service/api/` whose default export is no class with a literal `this.name`, or an `index.ts` there that loads the files with another glob
+- a service name that two registrations give to two different objects
 
 ## Markers
 
@@ -419,7 +481,7 @@ The rules below those are about what only one kind has.
 | `method_signature_changed` | Break | A method starts or stops returning a promise, its parameters changed their order, or a new parameter stands in front of an existing one | The return value is a Promise, or values arrive in the wrong place |
 | `method_param_renamed` | Info | A parameter has another name at the same position | Nothing |
 | `ref_target_changed` | Break | A ref sits on another tag, or moved into or out of a `v-for` | Methods it calls on the ref are gone |
-| `type_changed` | Break | The declared type of a prop changed | Values it passes may no longer fit |
+| `type_changed` | Break | The declared type of a prop or of a property changed | Values it passes or reads may no longer fit |
 | `return_type_changed` | Break | The declared type of a computed property or the return type of a method changed | Code that uses the value may no longer fit |
 | `type_widened` | Info | An untyped member got a type, a typed one lost it, or a prop got a `PropType` on the constructors it had | Nothing |
 | `prop_default_changed` | Break | An optional prop lost its default, or its default value changed | Templates that do not pass it get `undefined` or another value |
@@ -435,6 +497,8 @@ The rules below those are about what only one kind has.
 - `type_changed` and `return_type_changed` compare the text of the declaration.
   Whether another type still fits needs the type checker, so every other text fails the check until a reviewer has checked it.
   A method with two declared return types is compared by `return_type_changed` only, also when one of them is a `Promise`.
+- A method starts or stops returning a promise only when the source shows it on both sides.
+  `return this.httpClient.get(...)` that gains a `.then()` or becomes `async` is no finding, because the call may already return a promise.
 - A `PropType` on the constructors a prop had is `type_widened`, because Vue checks a value against the same constructors as before.
   Another constructor or another `PropType` is `type_changed`.
 - The defaults compare the text of the value, also when it names a `const` of the same file.
@@ -448,10 +512,36 @@ The rules below those are about what only one kind has.
 - A removed member with exactly one new member of the same kind that differs in the name only gets a `Possible rename`.
 - A removed member has no line in the head commit.
   The finding points to the option that held it, and for a slot or a ref to the closest block around it that is left.
-- The id of a member is `<kind>:<name>`, with the kinds `mixin`, `inject`, `provide`, `prop`, `emit`, `slot`, `data`, `computed`, `method` and `ref`.
+- The id of a member is `<kind>:<name>`, with the kinds `mixin`, `inject`, `provide`, `prop`, `emit`, `slot`, `data`, `computed`, `property`, `method` and `ref`.
   A nested data key is named by its path, `data:pagination.limit`, and a parameter below its method, `method:onDeleteItem/param:itemIndex`.
 - The arguments of an event and the props of a slot are not compared yet.
 - The break check does not validate markers yet: a `@bc-change` that names a parameter the method does not have is reported as `bc_change_added`.
+
+### Rules for services
+
+The rules for members apply to the properties and methods of a service too, with the kinds `property` and `method`.
+A finding about a service says how plugin code reaches the member, `Shopware.Service('<name>').<member>`, where a finding about a component names `$super`.
+`break-check/plugin-use.ts` holds both wordings.
+
+`break-check/unit-changes.ts` reports a service as a whole:
+
+| Rule | Group | Reported when | A plugin notices |
+|---|---|---|---|
+| `service_missing` | Break | A service is gone, in both flag states or in one | `Shopware.Service('<name>')` returns `undefined` |
+| `service_added` | Addition | A new service | Nothing, plugins can rely on it from now on |
+| `visibility_became_private` | Break | A public service became `@private` | Its code may change in any release |
+
+- A `@deprecated` marker on the service announces `service_missing`, and `@bc-change BecomesPrivate` announces `visibility_became_private`.
+- A service that is private in the base commit, and a new private one, are listed as `Private`.
+- A removed service has no line in the head commit, so its finding has none.
+  The finding about a removed member points to the class or object literal of the service.
+- A service is compared with the members it inherits from its parent classes.
+  A change that several services share through a class is reported once, on the class closest to the root of the chain, as in `class:ApiService/property:httpClient`, and the finding lists the services under `Also affects`.
+  Its text names the services as `<instance of ApiService>`.
+  A change that only one service has stays on the service, and so does a change to a service that overrides the member.
+  A class has no entry in the snapshot. Two classes of one name report nothing, and their services keep their own findings.
+- The id of a service is `service:<name>`, and a member stands below it, as in `service:acl/method:can`.
+- A marker that a service gets is not reported yet, while one on a member is `deprecation_added` or `bc_change_added`.
 
 ### Groups
 
@@ -462,7 +552,7 @@ The rule of a finding names the change, and its group says what the change count
 | `Break` | An unannounced break. Only this group fails the check |
 | `Addition` | New public API |
 | `Allowed` | A change that a marker on the block or the member announced |
-| `Private` | A change to a component that is `@private` in the base commit, or to a `@private` member of a public component |
+| `Private` | A change to a component or service that is `@private` in the base commit, or to a `@private` member of a public one |
 | `Info` | A change that a reviewer may want to look at |
 
 A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag, or in the comment directly above the member:
@@ -488,7 +578,9 @@ The command takes the version the base branch releases next from the major flag:
 
 An extend child inherits the blocks of its parent, so a change to the parent shows up in the child too.
 It is reported once, on the parent, and the finding lists the children under `Also affects`.
+The services of a class are reported the same way, see "Rules for services".
 A public child of a private parent keeps its own finding, because the change is a break for the child only.
+For the same reason a private service keeps its own finding apart from the one of its public class.
 A component that becomes `@private` with the change was public API until then, so its findings keep their group.
 
 An accepted break, which a file in the repository would allow, does not exist yet.
@@ -496,7 +588,7 @@ An accepted break, which a file in the repository would allow, does not exist ye
 ### Summary
 
 `classifyChanges` in `break-check/break-check.ts` returns the findings as data, and `printFindings` in `break-check/print-findings.ts` prints them as the summary of the break check.
-A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename, the extend children it also affects and the location in the head commit.
+A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename, the extend children or services it also affects and the location in the head commit.
 
 ```text
 Public API check failed: 1 unannounced break.
@@ -516,7 +608,8 @@ Break (1)
 
 The element id names the owner first and the element below it, for example `component:sw-example-card/block:sw_example_card_list_item/scope:item`.
 A crossing is named `crossing:<tag>@<opening block>><closing block>`, with `v-if` as the tag of a chain.
-The kind of the element below the owner, `block` in this example, decides which unit kind the finding belongs to.
+A finding about a service as a whole has the id of the service alone, `service:acl`.
+The owner and the kind of the element below it, `component` and `block` in this example, decide which unit kind the finding belongs to.
 
 ## Fixtures
 
@@ -563,12 +656,24 @@ The members have three unit kinds:
 | `member-contract` | The members of a component besides its blocks in the `.d.ts` contracts |
 | `member-findings` | The findings on props, computed properties, methods and refs |
 
+A service has two unit kinds:
+
+| Unit kind | Compares |
+|---|---|
+| `service-units` | The header of a service in the reports, its entry in the index, and the findings about the service as a whole |
+| `service-members` | The sections `properties` and `methods` of a service in the reports, and the findings on its properties and methods |
+
+A unit kind belongs to components or to services, and it only reads the outlines, index entries and findings of those.
+The `methods` section of a service is therefore no part of `component-members`.
+
 A unit kind can only list a part that some case expects.
 No case has mixins, provided values or notes, so `read/options/option-members.spec/snapshot.spec.ts` covers those sections.
 
 `testing/expected-failures.ts` lists what cannot pass yet, in two lists:
 
 - `views` names a unit kind, or `complete`, that no case passes yet.
+  It marks the cases that expect something of that view.
+  A case that expects nothing of it, as a service case does of the blocks, has to pass it already.
 - `comparisons` names single comparisons such as `block-moved/block-findings`, for a view that other cases pass already.
 
 The spec runs every listed comparison with `it.failing`, so the run is green while they fail and turns red as soon as one of them passes.

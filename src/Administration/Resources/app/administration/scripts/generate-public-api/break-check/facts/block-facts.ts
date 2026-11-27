@@ -116,7 +116,10 @@ function ancestorsOf(block: string, parents: ReadonlyMap<string, (string | null)
  *
  * The blocks and crossings of the component that exist in `state`.
  */
-export function blockStructureFactsOf(unit: ComponentUnit, state: FlagState): BlockStructureFacts {
+export function blockStructureFactsOf(
+    unit: Pick<ComponentUnit, 'blocks' | 'crossings'>,
+    state: FlagState,
+): BlockStructureFacts {
     const places = new Map<string, TemplateBlock[]>();
 
     unit.blocks

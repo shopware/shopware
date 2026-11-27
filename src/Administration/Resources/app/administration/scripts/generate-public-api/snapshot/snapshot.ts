@@ -8,6 +8,7 @@ import { readSourceTree } from '../source/source-tree';
 import type { SourceTree } from '../source/source-tree';
 import { printIndex } from './print-index';
 import { printReport } from './print-report';
+import { printServiceReports } from './print-service-report';
 
 /**
  * @private
@@ -45,16 +46,26 @@ function assertEveryTemplateIsUsed({ unusedBlocks }: Model): void {
  * @private
  *
  * The snapshot of a source tree that is already read. It holds the unit kinds built so far: the registered
- * components with the blocks of their templates. `testing/expected-failures.ts` lists what is missing.
+ * components and the registered services. `testing/expected-failures.ts` lists what is missing.
  */
 export function snapshotOf(tree: SourceTree, options: SnapshotOptions): Snapshot {
     const model = buildModel(tree, options);
 
     assertEveryTemplateIsUsed(model);
+    const reports = [
+        ...model.components.map((unit): [string, string] => [unit.file, printReport(unit, model.flags)]),
+        ...printServiceReports(model.services, model.flags),
+    ];
     const files: Record<string, string> = { 'index.json': printIndex(model) };
 
-    model.components.forEach((unit) => {
-        files[`${unit.file}.api.md`] = printReport(unit, model.flags);
+    reports.forEach(([file, report]) => {
+        const path = `${file}.api.md`;
+
+        if (Object.hasOwn(files, path)) {
+            throw new Error(`Two units of the snapshot would both write ${path}.`);
+        }
+
+        files[path] = report;
     });
 
     return { files, model };

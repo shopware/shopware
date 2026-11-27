@@ -2,13 +2,13 @@
  * @sw-package framework
  *
  * Builds the model of a source tree: finds the registered components, merges their templates along the extend
- * chains, and reads the blocks and members of each one.
+ * chains, and reads the blocks and members of each one. The services come from `services/service-units.ts`.
  */
 import { isTemplateSourceFile } from '../../public-api-source-files';
 import { byCodePoint } from '../helpers/code-point-order';
-import { createFlagContext, FLAG_STATES, inBothStates } from '../model/flag-states';
-import type { FlagContext, FlagStates } from '../model/flag-states';
-import type { ComponentMembers } from '../model/members';
+import { createFlagContext, existingIn, FLAG_STATES } from '../model/flag-states';
+import type { FlagContext } from '../model/flag-states';
+import type { UnitMembers } from '../model/members';
 import type { ComponentUnit, Model, Registration, UnusedBlock } from '../model/model';
 import type { SourceTree } from '../source/source-tree';
 import { componentCalls, markupOf } from './component-registry';
@@ -17,6 +17,7 @@ import { componentOptions } from './options/component-options';
 import { readOptionMembers } from './options/option-members';
 import { readStructure } from './template/block-structure';
 import { listBlocks } from './template/block-tree';
+import { serviceUnits } from './services/service-units';
 import { resolveTemplates } from './template/extend-chain';
 import type { ComponentTemplate, OverrideTemplate, ResolvedTemplate, TemplateSource } from './template/extend-chain';
 import { renderTemplate } from './template/rendered-template';
@@ -40,13 +41,6 @@ function snapshotFile(name: string, source: string): string {
         ...folders,
         name,
     ].join('/');
-}
-
-/** An element of a component that is registered in one flag state only exists in that state at most. */
-function existingIn<Element extends { states: FlagStates }>(states: FlagStates, elements: Element[]): Element[] {
-    return elements
-        .map((element) => ({ ...element, states: inBothStates(states, element.states) }))
-        .filter((element) => FLAG_STATES.some((state) => element.states[state]));
 }
 
 function flagBranch(flags: FlagContext): string {
@@ -134,19 +128,19 @@ function componentTemplates(
     });
 }
 
-const NO_MEMBERS: ComponentMembers = { members: [], notes: [], sections: {} };
+const NO_MEMBERS: UnitMembers = { members: [], notes: [], sections: {} };
 
 /** What several readers found about one component, as one result. */
-function mergeMembers(...parts: ComponentMembers[]): ComponentMembers {
+function mergeMembers(...parts: UnitMembers[]): UnitMembers {
     return {
         members: parts.flatMap(({ members }) => members),
         notes: parts.flatMap(({ notes }) => notes),
-        sections: Object.assign({}, ...parts.map(({ sections }) => sections)) as ComponentMembers['sections'],
+        sections: Object.assign({}, ...parts.map(({ sections }) => sections)) as UnitMembers['sections'],
     };
 }
 
 /** A source without an options object that can be read declares members the snapshot does not know. */
-function declaredMembers(registration: Registration, sources: SourceTree): ComponentMembers {
+function declaredMembers(registration: Registration, sources: SourceTree): UnitMembers {
     const options = componentOptions(registration, sources);
 
     return options === undefined
@@ -203,5 +197,11 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
         .flatMap(({ dropped }) => dropped)
         .sort((a, b) => byCodePoint(a.file, b.file) || byCodePoint(a.block, b.block));
 
-    return { flags, components, droppedBlocks, unusedBlocks: unusedBlocks(calls, templates) };
+    return {
+        flags,
+        components,
+        ...serviceUnits(tree, flags),
+        droppedBlocks,
+        unusedBlocks: unusedBlocks(calls, templates),
+    };
 }

@@ -1,22 +1,26 @@
 /**
  * @sw-package framework
  *
- * What a rule of the break check is made of. A rule compares one component in one flag state at the base and
- * at the head commit. It knows nothing about flag states, markers or visibility, which `break-check.ts` and `announcements.ts` add.
+ * What a rule of the break check is made of. A rule compares one unit in one flag state at the base and at the
+ * head commit. It knows nothing about flag states, markers or visibility, which `break-check.ts` and
+ * `announcements.ts` add.
  */
 import type { Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagContext, FlagState } from '../../model/flag-states';
 import type { SourceLine } from '../../model/source-line';
-import type { ComponentFacts } from '../facts/component-facts';
+import type { UnitFacts } from '../facts/unit-facts';
 import type { Finding, FindingGroup } from '../finding';
+import type { PluginUse } from '../plugin-use';
 
 /**
  * @private
  *
- * What the text of a finding can refer to besides the change itself.
+ * What the text of a finding can refer to besides the change itself: the name of the unit, and how plugin code
+ * uses its members.
  */
 export interface TextContext {
-    component: string;
+    unit: string;
+    use: PluginUse;
     states: FlagState[];
     flags: FlagContext;
 }
@@ -34,17 +38,17 @@ export type FindingTexts = Pick<Finding, 'explanation' | 'fix' | 'possibleRename
 export interface Announcement {
     rule: string;
     subject: string;
-    markers: (facts: ComponentFacts) => Marker[];
+    markers: (facts: UnitFacts) => Marker[];
     matches: (marker: Marker) => boolean;
 }
 
 /**
  * @private
  *
- * One change a rule found in one flag state. `element` is the element id below the component, for example
+ * One change a rule found in one flag state. `element` is the element id below the unit, for example
  * `block:sw_card_title/scope:item`. Two flag states with the same `element` and `variant` are one finding,
  * so `variant` holds everything the texts are made of. `isPrivate` says that the element itself is `@private`
- * inside a public component.
+ * inside a public unit.
  */
 export interface Detection {
     element: string;
@@ -59,7 +63,7 @@ export interface Detection {
 export interface Rule {
     id: string;
     group: FindingGroup;
-    detect: (base: ComponentFacts, head: ComponentFacts) => Detection[];
+    detect: (base: UnitFacts, head: UnitFacts) => Detection[];
 }
 
 /** The element a change is about. */
@@ -74,10 +78,10 @@ type Element = Pick<Detection, 'element' | 'at' | 'isPrivate'>;
 export interface RuleDefinition<Change> {
     id: string;
     group: FindingGroup;
-    changes: (base: ComponentFacts, head: ComponentFacts) => (Change & Element)[];
+    changes: (base: UnitFacts, head: UnitFacts) => (Change & Element)[];
     texts: (change: Change, context: TextContext) => FindingTexts;
     announcement?: Pick<Announcement, 'rule' | 'subject'> & {
-        markers: (change: Change, facts: ComponentFacts) => Marker[];
+        markers: (change: Change, facts: UnitFacts) => Marker[];
         matches: (change: Change, marker: Marker) => boolean;
     };
 }

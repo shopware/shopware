@@ -1,0 +1,16 @@
+{
+    "components": {},
+    "services": {
+        "exampleImportService": {
+            "file": "app/service/example-import.service",
+            "visibility": "public"
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

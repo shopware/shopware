@@ -10,7 +10,7 @@ import type { Crossing } from '../../model/blocks';
 import type { FlagContext } from '../../model/flag-states';
 import { sourceLabel } from '../facts/block-facts';
 import type { BlockFacts } from '../facts/block-facts';
-import type { ComponentFacts } from '../facts/component-facts';
+import type { UnitFacts } from '../facts/unit-facts';
 import { isMajorOnly } from '../finding';
 import { rule } from './rule';
 import type { Rule } from './rule';
@@ -21,7 +21,7 @@ function blockElement({ name, at }: BlockFacts, below = '') {
 }
 
 /** The markers in the comments before the block of a change, which can announce it. */
-function blockMarkers({ block }: { block: string }, facts: ComponentFacts): Marker[] {
+function blockMarkers({ block }: { block: string }, facts: UnitFacts): Marker[] {
     return facts.blocks.get(block)?.markers ?? [];
 }
 
@@ -33,7 +33,7 @@ function quoted(values: string[]): string {
     return `"${values.join('" or "')}"`;
 }
 
-function inBoth(base: ComponentFacts, head: ComponentFacts): { was: BlockFacts; now: BlockFacts }[] {
+function inBoth(base: UnitFacts, head: UnitFacts): { was: BlockFacts; now: BlockFacts }[] {
     return [...base.blocks.values()].flatMap((was) => {
         const now = head.blocks.get(was.name);
 
@@ -41,19 +41,19 @@ function inBoth(base: ComponentFacts, head: ComponentFacts): { was: BlockFacts; 
     });
 }
 
-function added(base: ComponentFacts, head: ComponentFacts): BlockFacts[] {
+function added(base: UnitFacts, head: UnitFacts): BlockFacts[] {
     return [...head.blocks.values()].filter(({ name }) => !base.blocks.has(name));
 }
 
 /** A new block under a parent of the removed one is probably the same block under a new name. */
-function possibleRename(removed: BlockFacts, base: ComponentFacts, head: ComponentFacts): string | undefined {
+function possibleRename(removed: BlockFacts, base: UnitFacts, head: UnitFacts): string | undefined {
     const candidates = added(base, head).filter(({ parents }) => parents.some((parent) => removed.parents.includes(parent)));
 
     return candidates.length === 1 ? candidates[0].name : undefined;
 }
 
 /** The blocks around the removed block that the head still has. */
-function remainingParents({ parents }: BlockFacts, head: ComponentFacts): BlockFacts[] {
+function remainingParents({ parents }: BlockFacts, head: UnitFacts): BlockFacts[] {
     return parents.flatMap((parent) => {
         const block = parent === null ? undefined : head.blocks.get(parent);
 
@@ -62,7 +62,7 @@ function remainingParents({ parents }: BlockFacts, head: ComponentFacts): BlockF
 }
 
 /** The block of an extend child that stopped keeping the parent content, which held the removed block. */
-function droppedWith(removed: BlockFacts, base: ComponentFacts, head: ComponentFacts): BlockFacts | undefined {
+function droppedWith(removed: BlockFacts, base: UnitFacts, head: UnitFacts): BlockFacts | undefined {
     if (!removed.origins.includes('inherited')) {
         return undefined;
     }
@@ -94,7 +94,7 @@ const blockMissing = rule({
                     droppedWith: dropped?.name,
                 };
             }),
-    texts: ({ block: name, rename, droppedWith: parent }, { flags, component, states }) => {
+    texts: ({ block: name, rename, droppedWith: parent }, { flags, unit: component, states }) => {
         const majorOnly = isMajorOnly(states);
         const explanation = majorOnly
             ? `The block is gone in the major state, so plugin template overrides of ${name} render nothing with ${flags.majorFlag} on.`
@@ -140,7 +140,7 @@ const blockAdded = rule({
 });
 
 /** The blocks of `around` that both commits have and that `other` does not have around the block. */
-function onlyAround(around: BlockFacts, other: BlockFacts, base: ComponentFacts, head: ComponentFacts): string[] {
+function onlyAround(around: BlockFacts, other: BlockFacts, base: UnitFacts, head: UnitFacts): string[] {
     return [...around.ancestors].filter(
         (ancestor) => base.blocks.has(ancestor) && head.blocks.has(ancestor) && !other.ancestors.has(ancestor),
     );
@@ -199,7 +199,7 @@ const blockMovedParent = rule({
     },
 });
 
-function lostIfContext(base: ComponentFacts, head: ComponentFacts): { was: BlockFacts; now: BlockFacts }[] {
+function lostIfContext(base: UnitFacts, head: UnitFacts): { was: BlockFacts; now: BlockFacts }[] {
     return inBoth(base, head).filter(({ was, now }) => was.afterIf && !now.afterIf);
 }
 
@@ -303,7 +303,7 @@ const blockScopeSourceChanged = rule({
     }),
 });
 
-function crossingsOnlyIn(commit: ComponentFacts, other: ComponentFacts): Crossing[] {
+function crossingsOnlyIn(commit: UnitFacts, other: UnitFacts): Crossing[] {
     return [...commit.crossings.values()].filter((crossing) => !other.crossings.has(crossingId(crossing)));
 }
 

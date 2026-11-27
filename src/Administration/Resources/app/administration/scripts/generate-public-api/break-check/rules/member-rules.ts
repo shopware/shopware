@@ -1,9 +1,10 @@
 /**
  * @sw-package framework
  *
- * The rules of the break check for the members of a component. A member that is gone or new is one rule per
- * kind, built from the table of kinds. The rules below them are about what only one kind has, such as the
- * parameters of a method. Each rule says in its texts what a plugin notices of the change.
+ * The rules of the break check for the members of a unit. A member that is gone or new is one rule per kind,
+ * built from the table of kinds. The rules below them are about what only one kind has, such as the parameters
+ * of a method. Each rule says in its texts what a plugin notices of the change, in the words of `plugin-use.ts`
+ * where a component and a service differ.
  */
 import type { BcChangeKind, Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagContext } from '../../model/flag-states';
@@ -12,14 +13,24 @@ import type { DefaultValue, Member, MemberKind, Parameter } from '../../model/me
 import type { SourceLine } from '../../model/source-line';
 import { coveringDeprecation } from '../facts/block-facts';
 import type { BlockFacts } from '../facts/block-facts';
-import type { ComponentFacts } from '../facts/component-facts';
+import type { UnitFacts } from '../facts/unit-facts';
 import { sectionLine } from '../facts/member-facts';
-import { isMajorOnly } from '../finding';
+import type { PluginUse } from '../plugin-use';
 import { rule } from './rule';
+import {
+    ADDITION_FIX,
+    additionText,
+    announcesBecomingPrivate,
+    becamePrivateTexts,
+    deprecation,
+    inMajorState,
+    isBcChange,
+    removalFix,
+} from './texts';
 import type { FindingTexts, Rule, RuleDefinition, TextContext } from './rule';
 
 /** The first place of every member of the kind. What a rule compares of all places, it reads from the facts. */
-function membersOf<Kind extends MemberKind>(facts: ComponentFacts, kind: Kind): Member<Kind>[] {
+function membersOf<Kind extends MemberKind>(facts: UnitFacts, kind: Kind): Member<Kind>[] {
     return [...facts.members[kind].values()].map(([member]) => member);
 }
 
@@ -29,7 +40,7 @@ interface Kept<Kind extends MemberKind = MemberKind> {
     now: Member<Kind>;
 }
 
-function inBoth<Kind extends MemberKind>(base: ComponentFacts, head: ComponentFacts, kind: Kind): Kept<Kind>[] {
+function inBoth<Kind extends MemberKind>(base: UnitFacts, head: UnitFacts, kind: Kind): Kept<Kind>[] {
     return membersOf(base, kind).flatMap((was) => {
         const [now] = head.members[kind].get(was.name) ?? [];
 
@@ -55,7 +66,7 @@ function withoutNestedKeys<Item>(changed: Item[], memberOf: (item: Item) => { ki
     });
 }
 
-function onlyIn<Kind extends MemberKind>(facts: ComponentFacts, other: ComponentFacts, kind: Kind): Member<Kind>[] {
+function onlyIn<Kind extends MemberKind>(facts: UnitFacts, other: UnitFacts, kind: Kind): Member<Kind>[] {
     return withoutNestedKeys(
         membersOf(facts, kind).filter(({ name }) => !other.members[kind].has(name)),
         ({ name }) => ({ kind, name }),
@@ -76,12 +87,12 @@ function keptElement({ was, now }: Kept, below = '') {
 }
 
 /** The markers in the comment above the member, in all its places. */
-function ownMarkers({ kind, name }: Pick<Member, 'kind' | 'name'>, facts: ComponentFacts): Marker[] {
+function ownMarkers({ kind, name }: Pick<Member, 'kind' | 'name'>, facts: UnitFacts): Marker[] {
     return facts.members[kind].get(name)?.flatMap(({ markers }) => markers) ?? [];
 }
 
 /** The markers that announce a change to a member: its own and, for a nested data key, those of its objects. */
-function announcingMarkers(member: Pick<Member, 'kind' | 'name'>, facts: ComponentFacts): Marker[] {
+function announcingMarkers(member: Pick<Member, 'kind' | 'name'>, facts: UnitFacts): Marker[] {
     return namePath(member).flatMap((_key, index, path) =>
         ownMarkers({ kind: member.kind, name: path.slice(0, index + 1).join('.') }, facts),
     );
@@ -95,7 +106,7 @@ function serialized(marker: Marker): string {
  * A slot or a ref carries no comment of its own. It goes away with a deprecated block around it, when it does so
  * in every place.
  */
-function enclosingDeprecations({ kind, name }: Pick<Member, 'kind' | 'name'>, facts: ComponentFacts): Marker[] {
+function enclosingDeprecations({ kind, name }: Pick<Member, 'kind' | 'name'>, facts: UnitFacts): Marker[] {
     return coveringDeprecation(
         (facts.members[kind].get(name) ?? [])
             .filter(isTemplateMember)
@@ -103,26 +114,13 @@ function enclosingDeprecations({ kind, name }: Pick<Member, 'kind' | 'name'>, fa
     );
 }
 
-/** A `@bc-change` of the kind whose keys hold the `expected` values. */
-function isBcChange(marker: Marker, kind: BcChangeKind, expected: Record<string, string> = {}): boolean {
-    return (
-        marker.tag === 'bc-change' &&
-        marker.kind === kind &&
-        Object.entries(expected).every(([key, value]) => marker.parameters[key] === value)
-    );
-}
-
 function label(kind: MemberKind): string {
     return MEMBER_KINDS[kind].label;
 }
 
-function deprecation(flags: FlagContext, text: string): string {
-    return `/** @deprecated tag:${flags.majorVersion} - ${text} */`;
-}
-
 /** What a finding about a removed member says, besides what a plugin notices of it, and what announces it. */
 interface RemovalPolicy {
-    markers: (member: Pick<Member, 'kind' | 'name'>, facts: ComponentFacts) => Marker[];
+    markers: (member: Pick<Member, 'kind' | 'name'>, facts: UnitFacts) => Marker[];
     /** How the finding says that the member is gone. */
     gone: (kind: MemberKind, name: string) => string;
     fix: (removed: { kind: MemberKind; name: string; rename: string | undefined }, flags: FlagContext) => string;
@@ -136,9 +134,9 @@ const DECLARED: RemovalPolicy = {
     gone: (kind) => `The ${label(kind)} is gone`,
     fix: ({ kind, name, rename }, flags) =>
         rename === undefined
-            ? `pattern "Removal". Keep the ${label(kind)} and mark it ${deprecation(flags, 'Will be removed.')}.`
+            ? removalFix(label(kind), flags)
             : `pattern "Rename". Keep ${name} and mark it ${deprecation(flags, `Use {@link ${rename}} instead.`)}.`,
-    additionFix: 'mark it @private if it is not meant for plugins.',
+    additionFix: ADDITION_FIX,
 };
 
 /** The line of a finding about a member of the template is that of a block, so the finding names the member. */
@@ -155,7 +153,7 @@ const RENDERED: RemovalPolicy = {
  */
 const COMING_AND_GOING: Record<
     MemberKind,
-    { effect: (name: string) => string; removal: RemovalPolicy; isAddition: boolean }
+    { effect: (name: string, use: PluginUse) => string; removal: RemovalPolicy; isAddition: boolean }
 > = {
     mixin: {
         effect: (name) => `plugin overrides that use a member of ${name} through this fail`,
@@ -198,8 +196,13 @@ const COMING_AND_GOING: Record<
         removal: DECLARED,
         isAddition: true,
     },
+    property: {
+        effect: (name, use) => use.withoutProperty(name),
+        removal: DECLARED,
+        isAddition: true,
+    },
     method: {
-        effect: (name) => `plugin overrides that call $super('${name}') throw at runtime`,
+        effect: (name, use) => use.withoutMethod(name),
         removal: DECLARED,
         isAddition: true,
     },
@@ -216,14 +219,14 @@ function shapeOf(member: Member): string {
 }
 
 /** A new member of the same kind that looks the same is probably the removed one under a new name. */
-function possibleRename(removed: Member, base: ComponentFacts, head: ComponentFacts): string | undefined {
+function possibleRename(removed: Member, base: UnitFacts, head: UnitFacts): string | undefined {
     const candidates = onlyIn(head, base, removed.kind).filter((added) => shapeOf(added) === shapeOf(removed));
 
     return candidates.length === 1 ? candidates[0].name : undefined;
 }
 
 /** The block, or the closest block around it at the base, that the head still has. */
-function remainingBlock(block: string | null, base: ComponentFacts, head: ComponentFacts): BlockFacts | undefined {
+function remainingBlock(block: string | null, base: UnitFacts, head: UnitFacts): BlockFacts | undefined {
     if (block === null) {
         return undefined;
     }
@@ -237,7 +240,7 @@ function remainingBlock(block: string | null, base: ComponentFacts, head: Compon
  * The line a finding about a removed member points to. The member has no line at the head, so it is the option
  * that held it, or for a member of the template the block around it.
  */
-function lineOfRemoved(removed: Member, base: ComponentFacts, head: ComponentFacts): SourceLine | undefined {
+function lineOfRemoved(removed: Member, base: UnitFacts, head: UnitFacts): SourceLine | undefined {
     return isTemplateMember(removed) ? remainingBlock(removed.block, base, head)?.at : sectionLine(removed, head);
 }
 
@@ -253,8 +256,8 @@ function memberMissing(kind: MemberKind): Rule {
                 at: lineOfRemoved(removed, base, head),
                 rename: possibleRename(removed, base, head),
             })),
-        texts: ({ name, rename }, { flags, states }) => ({
-            explanation: `${removal.gone(kind, name)}${isMajorOnly(states) ? ' in the major state' : ''}, so ${effect(name)}.`,
+        texts: ({ name, rename }, { flags, states, use }) => ({
+            explanation: `${removal.gone(kind, name)}${inMajorState(states)}, so ${effect(name, use)}.`,
             fix: removal.fix({ kind, name, rename }, flags),
             ...(rename === undefined ? {} : { possibleRename: rename }),
         }),
@@ -276,7 +279,7 @@ function memberAdded(kind: MemberKind): Rule {
         group: 'Addition',
         changes: (base, head) => onlyIn(head, base, kind).map((added) => memberElement(added)),
         texts: () => ({
-            explanation: `A new public ${label(kind)} that plugins can rely on from now on.`,
+            explanation: additionText(label(kind)),
             ...(additionFix === undefined ? {} : { fix: additionFix }),
         }),
     });
@@ -291,15 +294,12 @@ function memberBecamePrivate(kind: MemberKind): Rule {
                 inBoth(base, head, kind).filter(({ was, now }) => !was.isPrivate && now.isPrivate),
                 ({ now }) => now,
             ).map((member) => keptElement(member)),
-        texts: ({ name }, { flags }) => ({
-            explanation: `The ${label(kind)} became @private, which removes it from the public API, so plugin code that uses ${name} can break with any later change.`,
-            fix: `pattern "Becomes private". Keep it public, mark it @bc-change BecomesPrivate version:${flags.majorVersion}, and make it @private in the major.`,
-        }),
+        texts: ({ name }, { flags }) => becamePrivateTexts(label(kind), name, flags),
         announcement: {
             rule: 'announced_change',
             subject: `The ${label(kind)}`,
             markers: (change, facts) => announcingMarkers(change, facts),
-            matches: (_change, marker) => isBcChange(marker, 'BecomesPrivate'),
+            matches: (_change, marker) => announcesBecomingPrivate(marker),
         },
     });
 }
@@ -311,7 +311,7 @@ const propNowRequired = rule({
         inBoth(base, head, 'prop')
             .filter(({ was, now }) => !was.required && now.required)
             .map((prop) => keptElement(prop)),
-    texts: ({ name }, { component, flags }) => ({
+    texts: ({ name }, { unit: component, flags }) => ({
         explanation: `The prop is now required, so plugin templates that render ${component} without ${name} fail prop validation.`,
         fix: `pattern "Prop becomes required". Keep ${name} optional, call triggerDeprecationOrThrow when it is missing, and mark it @bc-change PropBecomesRequired version:${flags.majorVersion}.`,
     }),
@@ -427,7 +427,7 @@ const propDefaultChanged = defaultChanged({
             return change === null ? [] : [{ ...keptElement(prop), ...change }];
         }),
     subject: () => 'prop',
-    callers: ({ name }, { component }) => `plugin templates that render ${component} without ${name}`,
+    callers: ({ name }, { unit: component }) => `plugin templates that render ${component} without ${name}`,
     marker: { kind: 'PropDefaultValueChange', holder: 'prop', keys: () => ({}) },
 });
 
@@ -440,18 +440,19 @@ function declaredTypes<Kind extends MemberKind>(members: Kept<Kind>[], typeOf: (
     });
 }
 
-type TypedKind = 'prop' | 'computed' | 'method';
+type TypedKind = 'prop' | 'computed' | 'property' | 'method';
 
 /** The kinds that declare a type, with where each one holds it. A method declares what it returns. */
 const DECLARED_TYPE: { [Kind in TypedKind]: (member: Member<Kind>) => string | null } = {
     prop: propType,
     computed: ({ type }) => type,
+    property: ({ type }) => type,
     method: ({ returns }) => returns,
 };
 
 const TYPED_KINDS = Object.keys(DECLARED_TYPE) as TypedKind[];
 
-function typeChanges<Kind extends TypedKind>(base: ComponentFacts, head: ComponentFacts, kind: Kind) {
+function typeChanges<Kind extends TypedKind>(base: UnitFacts, head: UnitFacts, kind: Kind) {
     return declaredTypes(inBoth(base, head, kind), DECLARED_TYPE[kind] as (member: Member<Kind>) => string | null);
 }
 
@@ -464,19 +465,27 @@ function markerType(type: string | null): string {
     return (type ?? '').replace(/\s+/g, '');
 }
 
+/** Who holds a value of the old type, per kind that holds a value plugins pass or read directly. */
+const RETYPED = {
+    prop: (name: string) => `values that plugin templates pass as ${name} may no longer fit`,
+    property: (name: string) => `plugin code that reads or sets ${name} may no longer fit`,
+};
+
 /*
  * Whether another type still fits what plugins pass or read needs the type checker. The rules compare the text
  * of the declaration, so every other text is a break until a reviewer has checked it.
  */
-const typeChanged = rule({
-    id: 'type_changed',
-    group: 'Break',
-    changes: (base, head) => typeChanges(base, head, 'prop').filter(isRetyped),
-    texts: ({ kind, name, from, to }) => ({
-        explanation: `The declared type of the ${label(kind)} changed from ${from} to ${to}, so values that plugin templates pass as ${name} may no longer fit.`,
-        fix: `pattern "Rename". Keep ${name} with the type ${from} and add a ${label(kind)} with the new type under a new name.`,
-    }),
-});
+function typeChanged(kind: keyof typeof RETYPED): Rule {
+    return rule({
+        id: 'type_changed',
+        group: 'Break',
+        changes: (base, head) => typeChanges(base, head, kind).filter(isRetyped),
+        texts: ({ name, from, to }) => ({
+            explanation: `The declared type of the ${label(kind)} changed from ${from} to ${to}, so ${RETYPED[kind](name)}.`,
+            fix: `pattern "Rename". Keep ${name} with the type ${from} and add a ${label(kind)} with the new type under a new name.`,
+        }),
+    });
+}
 
 const RETURN_TYPE_MARKERS: readonly BcChangeKind[] = ['ReturnTypeNarrowing', 'ReturnTypeWidening'];
 
@@ -601,7 +610,7 @@ function compareParameters(method: Kept<'method'>, before: Parameter[], after: P
 }
 
 /** The methods that both commits declare with parameters the source names. */
-function parameterChanges(base: ComponentFacts, head: ComponentFacts): ParameterChanges[] {
+function parameterChanges(base: UnitFacts, head: UnitFacts): ParameterChanges[] {
     return inBoth(base, head, 'method').flatMap((method) =>
         method.was.parameters === null || method.now.parameters === null
             ? []
@@ -625,26 +634,26 @@ type SignatureChange =
     | { change: 'order'; before: string; after: string }
     | { change: 'inserted'; parameter: string; before: string };
 
-function signatureTexts(change: SignatureChange, name: string): FindingTexts {
+function signatureTexts(change: SignatureChange, name: string, use: PluginUse): FindingTexts {
     switch (change.change) {
         case 'promise':
             return change.nowReturnsPromise
                 ? {
-                      explanation: `The method now returns a Promise, so plugin overrides that use the return value of $super('${name}') get a Promise instead.`,
+                      explanation: `The method now returns a Promise, so ${use.gettingPromise(name)}.`,
                       fix: 'keep the method sync and add an async method under a new name.',
                   }
                 : {
-                      explanation: `The method no longer returns a Promise, so plugin overrides that chain a .then() on $super('${name}') fail.`,
+                      explanation: `The method no longer returns a Promise, so ${use.losingPromise(name)}.`,
                       fix: 'keep returning a Promise and add a sync method under a new name.',
                   };
         case 'order':
             return {
-                explanation: `The parameters of the method changed their order from (${change.before}) to (${change.after}), so plugin calls and $super('${name}', ...) calls pass their values in the wrong place.`,
+                explanation: `The parameters of the method changed their order from (${change.before}) to (${change.after}), so ${use.calls(name)} pass their values in the wrong place.`,
                 fix: 'keep the order of the parameters and add a method under a new name.',
             };
         case 'inserted':
             return {
-                explanation: `The new parameter ${change.parameter} stands in front of ${change.before}, so plugin calls and $super('${name}', ...) calls pass the value meant for ${change.before} as ${change.parameter}.`,
+                explanation: `The new parameter ${change.parameter} stands in front of ${change.before}, so ${use.calls(name)} pass the value meant for ${change.before} as ${change.parameter}.`,
                 fix: `add ${change.parameter} behind the existing parameters.`,
             };
         default:
@@ -660,15 +669,18 @@ const methodSignatureChanged = rule({
     id: 'method_signature_changed',
     group: 'Break',
     changes: (base, head) => [
-        ...inBoth(base, head, 'method')
+        ...inBoth(base, head, 'method').flatMap((method) => {
+            const { was, now } = method;
             // Two declared return types are compared by `return_type_changed`, which a marker can announce.
-            .filter(
-                ({ was, now }) =>
-                    (was.returns === null || now.returns === null) && was.returnsPromise !== now.returnsPromise,
-            )
-            .map((method) =>
-                withSignature(keptElement(method), { change: 'promise', nowReturnsPromise: method.now.returnsPromise }),
-            ),
+            const isDeclaredTwice = was.returns !== null && now.returns !== null;
+
+            return isDeclaredTwice ||
+                was.returnsPromise === null ||
+                now.returnsPromise === null ||
+                was.returnsPromise === now.returnsPromise
+                ? []
+                : [withSignature(keptElement(method), { change: 'promise', nowReturnsPromise: now.returnsPromise })];
+        }),
         ...parameterChanges(base, head).flatMap(({ method, reordered, before, after, inserted }) => [
             ...(reordered
                 ? [
@@ -688,7 +700,7 @@ const methodSignatureChanged = rule({
             ),
         ]),
     ],
-    texts: ({ name, signature }) => signatureTexts(signature, name),
+    texts: ({ name, signature }, { use }) => signatureTexts(signature, name, use),
 });
 
 const paramMissing = rule({
@@ -698,11 +710,11 @@ const paramMissing = rule({
         parameterChanges(base, head).flatMap(({ method, removed }) =>
             removed.map(({ parameter, moved }) => ({ ...parameterElement(method, parameter), moved })),
         ),
-    texts: ({ name, parameter, moved }, { flags }) => ({
+    texts: ({ name, parameter, moved }, { flags, use }) => ({
         explanation:
             moved.length === 0
-                ? `The parameter ${parameter} is gone, so plugin overrides of ${name} that read it get undefined.`
-                : `The parameter ${parameter} is gone and ${moved.join(', ')} moved up, so plugin calls and $super('${name}', ...) calls pass their values in the wrong place.`,
+                ? `The parameter ${parameter} is gone, so ${use.withoutParameter(name)}.`
+                : `The parameter ${parameter} is gone and ${moved.join(', ')} moved up, so ${use.calls(name)} pass their values in the wrong place.`,
         fix: `pattern "Parameter removal". Keep ${parameter}, mark the method @bc-change ParameterRemoval version:${flags.majorVersion} parameter:${parameter}, and remove it in the major.`,
     }),
     announcement: {
@@ -723,10 +735,10 @@ const paramNowRequired = rule({
                 .filter(({ was, now }) => !isRequired(was) && isRequired(now))
                 .map(({ now }) => ({ ...parameterElement(method, now), isNew: false })),
         ]),
-    texts: ({ name, parameter, isNew }, { flags }) => ({
+    texts: ({ name, parameter, isNew }, { flags, use }) => ({
         explanation: isNew
-            ? `The method has a new required parameter ${parameter}, so plugin calls and $super('${name}', ...) calls that pass the old arguments leave it undefined.`
-            : `The parameter ${parameter} lost its default, so plugin calls and $super('${name}', ...) calls that do not pass it leave it undefined.`,
+            ? `The method has a new required parameter ${parameter}, so ${use.calls(name)} that pass the old arguments leave it undefined.`
+            : `The parameter ${parameter} lost its default, so ${use.calls(name)} that do not pass it leave it undefined.`,
         fix: `pattern "New required parameter". Keep ${parameter} optional, call triggerDeprecationOrThrow when it is missing, and mark the method @bc-change NewRequiredParameter version:${flags.majorVersion} parameter:${parameter}.`,
     }),
     announcement: {
@@ -749,7 +761,7 @@ const paramDefaultChanged = defaultChanged({
             }),
         ),
     subject: ({ parameter }) => `parameter ${parameter}`,
-    callers: ({ name }) => `plugin calls and $super('${name}', ...) calls that do not pass it`,
+    callers: ({ name }, { use }) => `${use.calls(name)} that do not pass it`,
     marker: { kind: 'ParameterDefaultValueChange', holder: 'method', keys: ({ parameter }) => ({ parameter }) },
 });
 
@@ -760,8 +772,8 @@ const paramAdded = rule({
         parameterChanges(base, head).flatMap(({ method, appended }) =>
             appended.filter((added) => !isRequired(added)).map((added) => parameterElement(method, added)),
         ),
-    texts: ({ parameter }) => ({
-        explanation: `A new optional parameter ${parameter}. Plugin overrides that call $super with explicit arguments do not pass it on.`,
+    texts: ({ parameter }, { use }) => ({
+        explanation: [`A new optional parameter ${parameter}.`, use.newOptionalParameter].filter(Boolean).join(' '),
     }),
 });
 
@@ -778,7 +790,7 @@ const methodParamRenamed = rule({
 });
 
 /** What a ref points to in all its places: a tag, and `[]` behind it for a ref inside a `v-for`. */
-function refTargets(facts: ComponentFacts, name: string): string {
+function refTargets(facts: UnitFacts, name: string): string {
     const targets = (facts.members.ref.get(name) ?? []).map(({ target, list }) => `${target}${list ? '[]' : ''}`);
 
     return [...new Set(targets)].sort().join(' or ');
@@ -819,7 +831,7 @@ function parameterOf(marker: Marker): string {
     return parameter === undefined ? '' : `/param:${parameter}`;
 }
 
-function newMarkers(base: ComponentFacts, head: ComponentFacts, tag: Marker['tag']) {
+function newMarkers(base: UnitFacts, head: UnitFacts, tag: Marker['tag']) {
     return KINDS.flatMap((kind): Kept[] => inBoth(base, head, kind)).flatMap((member) => {
         const known = new Set(ownMarkers(member.was, base).map(serialized));
 
@@ -855,7 +867,8 @@ export const MEMBER_RULES: readonly Rule[] = [
     ...KINDS.filter((kind) => !MEMBER_KINDS[kind].fromTemplate).map(memberBecamePrivate),
     propNowRequired,
     propDefaultChanged,
-    typeChanged,
+    typeChanged('prop'),
+    typeChanged('property'),
     returnTypeChanged('computed'),
     returnTypeChanged('method'),
     typeWidened,

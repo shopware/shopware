@@ -18,6 +18,36 @@ class TwigAppVariableTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    public function testAdministrationPreservesTrustedProxyUrlWithHttpCache(): void
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $trustedProxies = Request::getTrustedProxies();
+        $trustedHeaderSet = Request::getTrustedHeaderSet();
+
+        try {
+            Request::setTrustedProxies(['10.0.0.2'], Request::HEADER_X_FORWARDED_TRAEFIK);
+
+            $browser->request('GET', 'http://backend.internal:8000/admin', server: [
+                'REMOTE_ADDR' => '10.0.0.2',
+                'HTTP_X_FORWARDED_FOR' => '192.0.2.1',
+                'HTTP_X_FORWARDED_HOST' => 'shop.example',
+                'HTTP_X_FORWARDED_PROTO' => 'https',
+                'HTTP_X_FORWARDED_PORT' => '443',
+                'HTTP_X_FORWARDED_PREFIX' => '/shop',
+            ]);
+
+            static::assertSame(200, $browser->getResponse()->getStatusCode());
+            $content = $browser->getResponse()->getContent();
+            static::assertIsString($content);
+            static::assertStringContainsString('schemeAndHttpHost: \'https://shop.example\'', $content);
+            static::assertStringContainsString('basePath: \'/shop\'', $content);
+            static::assertStringContainsString('uri: \'https://shop.example/shop/admin\'', $content);
+        } finally {
+            // @phpstan-ignore argument.type (Restore Symfony's original header set, including its -1 default.)
+            Request::setTrustedProxies($trustedProxies, $trustedHeaderSet);
+        }
+    }
+
     public function testRequestCycleDoesntTouchActualRequest(): void
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());

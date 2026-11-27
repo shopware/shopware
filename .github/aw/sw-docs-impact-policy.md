@@ -47,7 +47,7 @@ Report nothing for the developer audience when:
 - the docs never covered the area and the change is minor,
 - the change is internal: `@internal` code, refactorings, tests, CI, tooling, performance
   work without a changed contract, dependency updates,
-- the change is a bug fix that restores the behaviour the docs describe,
+- the change is a bug fix, unless a page describes the old, broken behaviour,
 - the PR body links a `shopware/docs` pull request that covers it.
 
 ## End-user documentation: check the docs, then decide
@@ -67,8 +67,11 @@ Changes a merchant would notice:
 - changed Storefront behaviour customers notice: checkout, account, listing, search,
 - a feature flag removed or switched on by default.
 
-Report nothing for bug fixes, copy and snippet fixes, layout tweaks, or small hints and
-helper texts.
+Report nothing for bug fixes unless a page describes the old, broken behaviour. Report
+nothing for copy and snippet fixes, layout tweaks, or small hints and helper texts.
+
+A bug fix makes existing behaviour work as intended. A change that adds a setting, option,
+field or config key is not a bug fix, whatever its title type.
 
 ## Output
 

@@ -6,6 +6,7 @@
   "types": "./types/index.d.ts",
   "scripts": {
     "build": "export VITE_MODE=production && ts-node -T build.ts",
+    "build-public-api-page": "ts-node --transpileOnly ./scripts/generate-public-api/compare-page/build.ts",
     "check-public-api": "ts-node --transpileOnly ./scripts/generate-public-api/check.ts",
     "code-mods": "node code-mods.js",
     "codemod:js-vue3-feature-flag-removal": "ts-node --transpileOnly ./scripts/codemods/js-vue3-feature-flag-removal/index.ts",

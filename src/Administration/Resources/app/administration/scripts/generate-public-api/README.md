@@ -21,9 +21,10 @@ A spec also imports from `testing/` and from the step it observes the result thr
 | `read/` | Turns the sources into the model, with `template/` for Twig and Vue templates, `options/` for the options object of a component, `services/` for the registered services, `stores/` for the registered stores and `globals/` for the `Shopware` object |
 | `snapshot/` | Prints the model into the files of `public-api/` |
 | `break-check/` | Compares two models, with `facts/` for what the rules compare about a unit and `rules/` for the rules |
+| `compare-page/` | A static page that runs the break check in the browser, on two commits it loads from GitHub. See "Compare page" |
 | `testing/` | The fixture cases, their runner, and the example components, services, stores and `Shopware` objects the specs share |
 
-`generate.ts` and `check.ts` are the two commands.
+`generate.ts` and `check.ts` are the two commands, and `compare-page/build.ts` builds the page.
 `snapshot/` and `break-check/` take one thing from `read/`: `buildModel` with its options, which they call to get a model.
 
 ## How a run works
@@ -162,6 +163,36 @@ A new kind of unit is one entry in `UNIT_KINDS` in `units.ts`, with how the mode
 The rules for another part of a component get a file of their own in `rules/` and join `RULES` in `rules/index.ts`.
 Its facts get a file of their own in `facts/` and join `UnitFacts` in `facts/unit-facts.ts`.
 
+## Compare page
+
+The break check is a function of two source trees, so it also runs in a browser.
+`compare-page/` is a static page that takes a pull request, or two branches, tags or commits, and shows the findings with a filter.
+It loads the file lists of both commits from the GitHub REST API and the files from raw.githubusercontent.com, without a login.
+That also works for the commits of a fork.
+
+Build it in the Administration folder:
+
+```bash
+npm run build-public-api-page
+```
+
+The result is `compare-page/dist/`, with `index.html` and one script.
+It can be opened as a file or served from any static host.
+`?pr=23448` or `?base=v6.7.0.0&head=trunk` in the address starts a comparison.
+
+| File | What it does |
+|---|---|
+| `remote-source-tree.ts` | Loads the source trees of commits from a remote, as `source/git-source-tree.ts` reads them from git. A file that two commits share is loaded once |
+| `github.ts` | The remote: resolves a pull request to its head and the commit it branched off, lists the files of a commit and reads them |
+| `content-cache.ts` | Keeps loaded files in the Cache Storage of the browser by their git hash, so the next comparison only loads what changed |
+| `report-view.ts` | Renders the findings: the verdict, a switch per group, a text filter, and the summary as the command prints it |
+| `page.ts`, `main.ts`, `index.html` | The form, the progress and the wiring: `page.ts` loads both trees and hands them to `compareSourceTrees` of the break check. `main.ts` is the entry of the bundle |
+| `build.ts`, `browser-stubs/` | Builds the bundle with Vite. The stubs stand in for `node:fs` and `node:path`, which the generator modules import for reading a checkout |
+
+The bundle holds the generator and the major flags of the checkout it was built from, as the command uses those of its checkout.
+The page is a prototype: it reports what the command reports for the same two commits, but the check in the pipeline decides.
+GitHub allows 60 API requests per hour and address without a login, and a comparison takes two to four.
+
 ## Rules the code follows
 
 - The generator throws when it cannot read something, for example a block that belongs to no registered component.
@@ -194,6 +225,8 @@ Its facts get a file of their own in `facts/` and join `UnitFacts` in `facts/uni
 | `break-check/break-check.spec/store-rules.spec.ts` | What the break check reports for a store that is gone, new or private, and for a change to its state, getters and actions |
 | `break-check/break-check.spec/verdict.spec.ts` | What the break check reports as announced, private or inherited by an extend child |
 | `break-check/commit-check.spec.ts` | The break check on the commits of a repository that the spec creates |
+| `compare-page/remote-source-tree.spec.ts`, `compare-page/github.spec.ts` | The break check on two commits that a stand-in for GitHub serves from a fixture case, and what the page asks GitHub for |
+| `compare-page/page.spec.ts`, `compare-page/report-view.spec.ts`, `compare-page/content-cache.spec.ts` | The page from the address or the form to the report, the filter and the switches of the report, and the cache |
 | `snapshot/committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |
 | `testing/fixture-runner.spec/`, `break-check/print-findings.spec.ts` | The fixture comparison and the summary of the break check |
 

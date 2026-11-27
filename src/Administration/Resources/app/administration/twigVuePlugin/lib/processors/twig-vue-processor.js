@@ -9,9 +9,13 @@ const eslintPluginVueProcessor = eslintPluginVueProcessorModule.default ?? eslin
 
 const templateTagBefore = '<template>\n';
 const templateTagAfter = '</template>';
+const byteOrderMark = '\uFEFF';
 
 function twigPreParser(code) {
-    return `${templateTagBefore}${code}${templateTagAfter}`;
+    // ESLint applies fixes to the text without its byte order mark, so the fix ranges must not count it
+    const text = code.startsWith(byteOrderMark) ? code.slice(byteOrderMark.length) : code;
+
+    return `${templateTagBefore}${text}${templateTagAfter}`;
 }
 
 module.exports = {

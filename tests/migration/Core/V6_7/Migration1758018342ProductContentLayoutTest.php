@@ -27,6 +27,12 @@ class Migration1758018342ProductContentLayoutTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    #[TestDox('returns its creation timestamp')]
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1758018342, (new Migration1758018342ProductContentLayout())->getCreationTimestamp());
+    }
+
     #[TestDox('content_layout_id foreign key restricts layout deletion while its sibling foreign key still cascades')]
     public function testContentLayoutForeignKeyRestrictsDeletionWhileSiblingCascades(): void
     {

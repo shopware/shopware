@@ -10,6 +10,7 @@
 | FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off the steps the [mode table](rendering.md#structure-is-a-function-independent-of-rendering-mode) lists. | [rendering.md](rendering.md) |
 | write gate / write boundary | Both sit on the DAL write path of a layout tree. | The write boundary (`LayoutWriteBoundary::apply()`) returns a new tree from its passes, while the write gate (`LayoutGate`, `StoredTreeConstraints`) only checks the tree. | [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md) |
 | client defect / internal fault | Both are defects that `ContentSystemException` throws. | A code a client causes through the element tree is a client defect (`CLIENT_DEFECT_CODES`), while a defect whose only possible cause is a core or plugin bug or data that bypassed the write gate is an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
+| no lookup / found nothing | Both are a loader result without data. | With no lookup the loader read nothing outside the stored layout. A loader that found nothing ran a lookup, and its empty result depends on what it requested. | [caching.md](caching.md) |
 | interface translation / content translation | Both make text appear in more than one language. | Interface translation resolves snippet keys for declaration text the Administration shows, while content translation stores per-language property values as language maps. | [extending.md](../extending.md#administration-translations), [translation.md](translation.md) |
 
 ## Glossary
@@ -43,6 +44,8 @@
 - language map: the stored value of a translatable property, one entry per language id: [translation.md](translation.md#translations-live-inline-in-the-element-tree-as-language-maps).
 - language reduction: the FULL mode step of `StoredTreePreparer` that replaces each language map with one entry: [translation.md](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map).
 - loss, dropped, orphaned: what a mutation response reports, a discarded property or wiring key (dropped) or a detached child it returns (orphaned): [failure-and-loss.md](failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).
+- covering tag: a recorded cache tag that every change of a value invalidates: [caching.md](caching.md#a-render-is-cached-only-when-a-recorded-tag-covers-every-value-it-shows).
+- no lookup, found nothing: a loader result without data, returned before any lookup (no lookup) or after a lookup that returned no data (found nothing): [caching.md](caching.md#a-render-is-cached-only-when-a-recorded-tag-covers-every-value-it-shows).
 
 In this module, "context" is the per-element delivery map. In the platform, `Context` is the Shopware context object.
 
@@ -82,6 +85,7 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - A mapping is unavailable, has the wrong value, or is overridden: [data-mapping.md](data-mapping.md)
 - A rendered value is wrong: [rendering.md](rendering.md), [data-loading.md](data-loading.md), [context-wiring.md](context-wiring.md)
 - A client shows the wrong error: [failure-and-loss.md](failure-and-loss.md)
+- A cached page shows outdated data, or a page is not cached: [caching.md](caching.md)
 - A listener changed the tree: [rendering.md](rendering.md), [extension-surface.md](extension-surface.md)
 - A preview differs from the storefront or rejects a draft: [preview.md](preview.md)
 
@@ -96,6 +100,7 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - [data-mapping.md](data-mapping.md): curated sources, authored choices, admission, runtime outcomes, and guarded overrides
 - [mutation.md](mutation.md): a mutation operation as a pure tree transform
 - [data-loading.md](data-loading.md): loaders as consumers of typed inputs
+- [caching.md](caching.md): a covering tag for every value, or no cached render
 - [context-wiring.md](context-wiring.md): context between adjacent elements
 - [rendering.md](rendering.md): the render checks and the two tree-replacement events
 - [preview.md](preview.md): preview as a second entry into the render path

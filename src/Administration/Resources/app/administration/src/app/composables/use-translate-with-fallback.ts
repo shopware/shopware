@@ -18,7 +18,7 @@ import { useI18n } from 'vue-i18n';
  *
  * Keep this and `src/app/mixin/translate-with-fallback.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useTranslateWithFallback(): {
     tWithFallback: (key: string) => string;

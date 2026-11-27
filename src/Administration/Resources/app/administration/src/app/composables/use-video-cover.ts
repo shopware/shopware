@@ -7,7 +7,7 @@ import { computed, ref, type ComputedRef, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useNotification from './use-notification';
 
-/** @private */
+/** @public */
 export type VideoCoverMedia = {
     id?: EntityKey<'media'>;
     isLoading?: boolean;
@@ -20,7 +20,7 @@ export type VideoCoverMedia = {
  * The mixin read the media item off `this.item`, a prop of its host. The composable takes a getter so
  * the item stays reactive and so writes to `isLoading` still land on the entity the host passed.
  *
- * @private
+ * @public
  */
 export interface UseVideoCoverOptions {
     item: () => VideoCoverMedia | null | undefined;
@@ -36,7 +36,7 @@ export interface UseVideoCoverOptions {
  *
  * Keep this and `src/module/sw-media/mixin/video-cover.mixin.js` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useVideoCover(options: UseVideoCoverOptions): {
     showCoverSelectionModal: Ref<boolean>;

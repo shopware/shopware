@@ -12,13 +12,13 @@ import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 /* The listing contract predates typing; several values cross untyped service boundaries */
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-explicit-any */
 
-/** @private */
+/** @public */
 export interface ListingFilter {
     active: boolean;
     [key: string]: any;
 }
 
-/** @private */
+/** @public */
 export interface ListingParams {
     limit?: unknown;
     page?: unknown;
@@ -34,7 +34,7 @@ export interface ListingParams {
  * other option is the initial value of a listing field — the component used to set those in its own
  * `data()`, where Vue merged them into the mixin's state.
  *
- * @private
+ * @public
  */
 export interface UseListingOptions {
     getList: () => void | Promise<void>;
@@ -55,7 +55,7 @@ export interface UseListingOptions {
     filterCriteria?: any[];
 }
 
-/** @private */
+/** @public */
 export interface UseListingReturn {
     page: Ref<number>;
     limit: Ref<number>;
@@ -106,7 +106,7 @@ export interface UseListingReturn {
  *
  * Keep this and `src/app/mixin/listing.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useListing(options: UseListingOptions): UseListingReturn {
     const route = useRoute();

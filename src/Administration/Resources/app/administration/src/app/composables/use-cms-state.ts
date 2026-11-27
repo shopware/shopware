@@ -32,7 +32,7 @@ type CmsPageStore = PiniaRootState['cmsPage'];
  *
  * Keep this and `src/module/sw-cms/mixin/sw-cms-state.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useCmsState(): {
     cmsPageState: ComputedRef<CmsPageStore>;

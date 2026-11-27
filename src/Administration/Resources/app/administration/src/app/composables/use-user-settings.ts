@@ -34,7 +34,7 @@ interface CurrentUser {
  *
  * Keep this and `src/app/mixin/user-settings.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useUserSettings(): {
     getUserSettingsEntity: (identifier: string, userId?: string | null) => Promise<UserSettingsEntity | null>;

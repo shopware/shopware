@@ -5,7 +5,7 @@
  */
 import { inject } from 'vue';
 
-/** @private */
+/** @public */
 export type ValidationRules = string | boolean | Array<string | boolean> | Record<string, unknown> | null;
 
 type ValidationService = Record<string, (value: unknown) => boolean> | null;
@@ -14,7 +14,7 @@ type ValidationService = Record<string, (value: unknown) => boolean> | null;
  * The mixin declared the `validation` prop itself; the composable takes a getter so the rules stay
  * reactive.
  *
- * @private
+ * @public
  */
 export interface UseValidationOptions {
     validation: () => ValidationRules;
@@ -30,7 +30,7 @@ export interface UseValidationOptions {
  *
  * Keep this and `src/app/mixin/validation.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useValidation(options: UseValidationOptions): {
     validationService: ValidationService;

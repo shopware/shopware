@@ -1,6 +1,7 @@
 /**
  * @sw-package checkout
  */
+import { AxiosError } from 'axios';
 import BulkEditCustomerHandler from './bulk-edit-customer.handler';
 
 type BulkEditCustomerHandlerTestDouble = Omit<BulkEditCustomerHandler, 'customerGroupRegistrationService'> & {
@@ -96,7 +97,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-customer.handler', () =>
         jest.useFakeTimers();
         const handler = createHandler();
         handler.customerGroupRegistrationService[reply]
-            .mockRejectedValueOnce(new Error('Network error'))
+            .mockRejectedValueOnce(new AxiosError('Network Error', AxiosError.ERR_NETWORK))
             .mockResolvedValueOnce({});
 
         const result = handler.bulkEditRequestedGroup(['1'], [{ value: reply }]);
@@ -109,7 +110,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-customer.handler', () =>
     it.each(replies)('fails when every %s reply fails', async (reply) => {
         jest.useFakeTimers();
         const handler = createHandler();
-        const error = new Error('Network error');
+        const error = new AxiosError('Network Error', AxiosError.ERR_NETWORK);
         handler.customerGroupRegistrationService[reply].mockRejectedValue(error);
 
         await Promise.all([

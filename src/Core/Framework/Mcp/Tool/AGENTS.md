@@ -257,7 +257,7 @@ You can also set `limit` inside the criteria JSON string directly — the parame
 | Response risk | Large on wide entities | Bounded — no row data |
 | Typical use | "Show me the last 10 orders" | "How many opt-in newsletter recipients?" |
 
-**Why not combine them?** Entity rows can already fill most of the inline 100 KB budget for typical searches. Bucket aggregations (like `terms` on product names or `date-histogram` by day) can produce hundreds or thousands of result entries on their own. Mixing both in one response means a single oversized result is much more likely to spill out of the inline budget into the resource cache, hiding the actual data behind a `resourceUri` round-trip. Separate tools remove the ambiguity: `entity-search` is always bounded by `limit`, `entity-aggregate` is always bounded by the aggregation definitions.
+**Why not combine them?** Entity rows can already fill most of the inline 100 KB budget for typical searches. Bucket aggregations (like `terms` on product names or `histogram` by day) can produce hundreds or thousands of result entries on their own. Mixing both in one response means a single oversized result is much more likely to spill out of the inline budget into the resource cache, hiding the actual data behind a `resourceUri` round-trip. Separate tools remove the ambiguity: `entity-search` is always bounded by `limit`, `entity-aggregate` is always bounded by the aggregation definitions.
 
 **Rule:** Never add aggregation output to `EntitySearchTool`. If you need both records and metrics for the same entity, make two sequential tool calls.
 

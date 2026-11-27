@@ -108,6 +108,12 @@ The notice SVGs are now `aria-hidden`, and the notice link is described by the n
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
+### Larger batches for dynamic product group rebuilds
+
+Dynamic product group rebuilds use batches of up to 50,000 matching products per language.
+With OpenSearch enabled, batches are limited by the configured `elasticsearch.index_settings.max_result_window`, which defaults to 10,000.
+Larger batches reduce query round trips and increase peak memory per batch.
+
 # 6.7.17.0
 
 ## Critical Fixes
@@ -127,11 +133,6 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
-### Larger batches for dynamic product group rebuilds
-
-Dynamic product group rebuilds use batches of up to 50,000 matching products per language.
-With OpenSearch enabled, batches are limited by the configured `elasticsearch.index_settings.max_result_window`, which defaults to 10,000.
-Larger batches reduce query round trips and increase peak memory per batch.
 ### Address-format snippets use Twig whitespace control
 
 The shared address-format renderer uses Twig whitespace control instead of the deprecated `spaceless` filter.

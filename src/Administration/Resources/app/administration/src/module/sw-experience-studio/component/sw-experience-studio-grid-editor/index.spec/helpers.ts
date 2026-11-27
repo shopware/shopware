@@ -6,7 +6,8 @@ import { mount } from '@vue/test-utils';
 import type { Component } from 'vue';
 import { MtTextField } from '@shopware-ag/meteor-component-library';
 import gridPattern from '../index';
-import BreakpointSelect, { type GridBreakpoint } from '../../sw-experience-studio-breakpoint-select';
+import type { ContentSystemBreakpoint } from 'src/core/service/api/content-system-element-type.api.service';
+import BreakpointSelect from '../../sw-experience-studio-breakpoint-select';
 
 const containerStub = { template: '<div><slot /></div>' };
 const buttonStub = {
@@ -117,7 +118,7 @@ export function createWrapper(props: Record<string, unknown> = {}, realComponent
 }
 
 /** @private */
-export async function selectBreakpoint(wrapper: ReturnType<typeof createWrapper>, breakpoint: GridBreakpoint) {
+export async function selectBreakpoint(wrapper: ReturnType<typeof createWrapper>, breakpoint: ContentSystemBreakpoint) {
     wrapper.getComponent(BreakpointSelect).vm.$emit('update:modelValue', breakpoint);
     await wrapper.vm.$nextTick();
 }

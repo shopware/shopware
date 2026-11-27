@@ -1,5 +1,6 @@
 import type Repository from 'src/core/data/repository.data';
 import type {
+    ContentSystemBreakpoint,
     ContentSystemBreakpointFallbacks,
     ContentSystemElementTypeProperty,
     ContentSystemElementTypeSpecification,
@@ -22,16 +23,12 @@ import {
     isMappableProperty,
 } from '../../util/element-mapping.util';
 import { translateContentSystemText } from '../../util/content-system-translation.util';
-import BreakpointSelect, {
-    GRID_BASE_BREAKPOINT,
-    gridBreakpoints,
-    type GridBreakpoint,
-} from '../sw-experience-studio-breakpoint-select';
+import BreakpointSelect, { BASE_BREAKPOINT, orderedBreakpoints } from '../sw-experience-studio-breakpoint-select';
 import template from './sw-experience-studio-settings-fields.html.twig';
 import './sw-experience-studio-settings-fields.scss';
 
 type PrimitiveValue = string | number | boolean | null | Record<string, unknown>;
-type ResponsiveValue = Partial<Record<GridBreakpoint, PrimitiveValue>>;
+type ResponsiveValue = Partial<Record<ContentSystemBreakpoint, PrimitiveValue>>;
 type RadioPanelOption = {
     value: string;
     label: string;
@@ -164,7 +161,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             radioPanelDescriptionIdPrefix: Shopware.Utils.createId(),
-            selectedBreakpoints: {} as Partial<Record<string, GridBreakpoint>>,
+            selectedBreakpoints: {} as Partial<Record<string, ContentSystemBreakpoint>>,
             mappingModalFieldKey: null as string | null,
         };
     },
@@ -405,17 +402,17 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        getSelectedBreakpoint(key: string): GridBreakpoint {
-            return this.selectedBreakpoints[key] ?? GRID_BASE_BREAKPOINT;
+        getSelectedBreakpoint(key: string): ContentSystemBreakpoint {
+            return this.selectedBreakpoints[key] ?? BASE_BREAKPOINT;
         },
 
-        getResponsiveOverrides(key: string): GridBreakpoint[] {
+        getResponsiveOverrides(key: string): ContentSystemBreakpoint[] {
             const value = this.getRawPropertyValue(key);
             if (!this.isResponsiveObjectValue(value)) {
                 return [];
             }
 
-            return gridBreakpoints.filter((breakpoint) => breakpoint !== GRID_BASE_BREAKPOINT && value[breakpoint] != null);
+            return orderedBreakpoints.filter((breakpoint) => breakpoint !== BASE_BREAKPOINT && value[breakpoint] != null);
         },
 
         getResponsiveValue(field: SettingsFieldDefinition): PrimitiveValue {

@@ -10,31 +10,30 @@ import {
     MtStatusDot,
 } from '@shopware-ag/meteor-component-library';
 import type { PropType } from 'vue';
+import type { ContentSystemBreakpoint } from 'src/core/service/api/content-system-element-type.api.service';
 import template from './sw-experience-studio-breakpoint-select.html.twig';
 import './sw-experience-studio-breakpoint-select.scss';
 
 /** @private */
-export const GRID_BASE_BREAKPOINT = 'lg';
+export const BASE_BREAKPOINT = 'lg' satisfies ContentSystemBreakpoint;
 
 const sizes = [
     { id: 'xs', labelSnippet: 'sw-experience-studio.breakpointSelect.extraSmall', icon: 'regular-mobile' },
     { id: 'sm', labelSnippet: 'sw-experience-studio.detail.toolbar.viewportMobile', short: true, icon: 'regular-mobile' },
     { id: 'md', labelSnippet: 'sw-experience-studio.detail.toolbar.viewportTablet', short: true, icon: 'regular-tablet' },
     {
-        id: GRID_BASE_BREAKPOINT,
+        id: BASE_BREAKPOINT,
         labelSnippet: 'sw-experience-studio.detail.toolbar.viewportDesktop',
         short: true,
         icon: 'regular-desktop',
     },
     { id: 'xl', labelSnippet: 'sw-experience-studio.breakpointSelect.extraLarge', icon: 'regular-desktop' },
     { id: 'xxl', labelSnippet: 'sw-experience-studio.breakpointSelect.ultrawide', icon: 'regular-desktop' },
-] as const;
+] as const satisfies readonly { id: ContentSystemBreakpoint; labelSnippet: string; icon: string; short?: true }[];
 
 type Size = (typeof sizes)[number];
 /** @private */
-export type GridBreakpoint = Size['id'];
-/** @private */
-export const gridBreakpoints = sizes.map(({ id }) => id);
+export const orderedBreakpoints: readonly ContentSystemBreakpoint[] = sizes.map(({ id }) => id);
 
 /**
  * @private
@@ -56,10 +55,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     props: {
-        modelValue: { type: String as PropType<GridBreakpoint>, required: true },
-        overrides: { type: Array as PropType<GridBreakpoint[]>, required: true },
+        modelValue: { type: String as PropType<ContentSystemBreakpoint>, required: true },
+        overrides: { type: Array as PropType<ContentSystemBreakpoint[]>, required: true },
         canReset: { type: Boolean, default: false },
-        invalidBreakpoints: { type: Array as PropType<GridBreakpoint[]>, default: () => [] },
+        invalidBreakpoints: { type: Array as PropType<ContentSystemBreakpoint[]>, default: () => [] },
     },
 
     emits: ['update:modelValue', 'reset'],
@@ -70,13 +69,13 @@ export default Shopware.Component.wrapComponentConfig({
             expanded: false,
             closedOnBlur: false,
             windowBlurHandler: null as (() => void) | null,
-            base: GRID_BASE_BREAKPOINT,
+            base: BASE_BREAKPOINT,
         };
     },
 
     computed: {
         showReset(): boolean {
-            return this.canReset && this.modelValue !== GRID_BASE_BREAKPOINT && this.overrides.includes(this.modelValue);
+            return this.canReset && this.modelValue !== BASE_BREAKPOINT && this.overrides.includes(this.modelValue);
         },
         selectedSize(): Size {
             return sizes.find(({ id }) => id === this.modelValue) ?? sizes[3];

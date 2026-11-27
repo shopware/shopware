@@ -1,11 +1,10 @@
 import { MtText } from '@shopware-ag/meteor-component-library';
-import type { ContentSystemBreakpointFallbacks } from 'src/core/service/api/content-system-element-type.api.service';
+import type {
+    ContentSystemBreakpoint,
+    ContentSystemBreakpointFallbacks,
+} from 'src/core/service/api/content-system-element-type.api.service';
 import { resolveBreakpointValue } from '../../util/breakpoint.util';
-import BreakpointSelect, {
-    GRID_BASE_BREAKPOINT,
-    gridBreakpoints,
-    type GridBreakpoint,
-} from '../sw-experience-studio-breakpoint-select';
+import BreakpointSelect, { BASE_BREAKPOINT, orderedBreakpoints } from '../sw-experience-studio-breakpoint-select';
 import template from './sw-experience-studio-grid-editor.html.twig';
 import './sw-experience-studio-grid-editor.scss';
 
@@ -13,8 +12,8 @@ type Column = { id: number; type: 'auto' | 'px' | 'percent' | 'fraction'; value:
 type Pattern = { columns: Column[]; cells: number[][] };
 type LayoutColumn = { type: Column['type']; value?: number | string };
 type LayoutConfiguration = { columns: LayoutColumn[]; areas: string[][] };
-type GridLayout = Partial<Record<GridBreakpoint, LayoutConfiguration>>;
-type BreakpointPatterns = Partial<Record<GridBreakpoint, Pattern>> & { lg: Pattern };
+type GridLayout = Partial<Record<ContentSystemBreakpoint, LayoutConfiguration>>;
+type BreakpointPatterns = Partial<Record<ContentSystemBreakpoint, Pattern>> & { lg: Pattern };
 
 function initialPattern(value?: LayoutConfiguration | null): Pattern {
     if (!value || !Array.isArray(value.columns) || !Array.isArray(value.areas)) {
@@ -52,8 +51,8 @@ function encodePattern(pattern: Pattern): LayoutConfiguration {
 
 function parsePatterns(value: GridLayout = {}): BreakpointPatterns {
     const patterns: BreakpointPatterns = { lg: initialPattern(value.lg) };
-    for (const breakpoint of gridBreakpoints) {
-        if (breakpoint !== GRID_BASE_BREAKPOINT && value[breakpoint] != null) {
+    for (const breakpoint of orderedBreakpoints) {
+        if (breakpoint !== BASE_BREAKPOINT && value[breakpoint] != null) {
             patterns[breakpoint] = initialPattern(value[breakpoint]);
         }
     }
@@ -63,9 +62,9 @@ function parsePatterns(value: GridLayout = {}): BreakpointPatterns {
 
 function encodePatterns(patterns: BreakpointPatterns): GridLayout {
     const result: GridLayout = { lg: encodePattern(patterns.lg) };
-    for (const breakpoint of gridBreakpoints) {
+    for (const breakpoint of orderedBreakpoints) {
         const pattern = patterns[breakpoint];
-        if (breakpoint !== GRID_BASE_BREAKPOINT && pattern) result[breakpoint] = encodePattern(pattern);
+        if (breakpoint !== BASE_BREAKPOINT && pattern) result[breakpoint] = encodePattern(pattern);
     }
 
     return result;
@@ -143,7 +142,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         const patterns = parsePatterns(this.gridLayout ?? {});
         return {
-            breakpoint: GRID_BASE_BREAKPOINT as GridBreakpoint,
+            breakpoint: BASE_BREAKPOINT as ContentSystemBreakpoint,
             patterns,
             syncedLayoutJson: JSON.stringify(encodePatterns(patterns)),
             selected: [] as number[],
@@ -160,13 +159,13 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        overrides(): GridBreakpoint[] {
-            return gridBreakpoints.filter(
-                (breakpoint) => breakpoint !== GRID_BASE_BREAKPOINT && this.patterns[breakpoint] !== undefined,
+        overrides(): ContentSystemBreakpoint[] {
+            return orderedBreakpoints.filter(
+                (breakpoint) => breakpoint !== BASE_BREAKPOINT && this.patterns[breakpoint] !== undefined,
             );
         },
-        invalidBreakpoints(): GridBreakpoint[] {
-            return gridBreakpoints.filter((breakpoint) => this.patterns[breakpoint]?.columns.some(invalidWidth));
+        invalidBreakpoints(): ContentSystemBreakpoint[] {
+            return orderedBreakpoints.filter((breakpoint) => this.patterns[breakpoint]?.columns.some(invalidWidth));
         },
         pattern(): Pattern {
             return resolveBreakpointValue(this.patterns, this.breakpoint, this.breakpointFallbacks) ?? initialPattern();
@@ -279,7 +278,7 @@ export default Shopware.Component.wrapComponentConfig({
                 (this.$el as HTMLElement).querySelector<HTMLButtonElement>(`[data-area-id="${id}"]`)?.focus();
             });
         },
-        setBreakpoint(breakpoint: GridBreakpoint): void {
+        setBreakpoint(breakpoint: ContentSystemBreakpoint): void {
             this.onColumnDragEnd();
             this.breakpoint = breakpoint;
             this.selected = [];

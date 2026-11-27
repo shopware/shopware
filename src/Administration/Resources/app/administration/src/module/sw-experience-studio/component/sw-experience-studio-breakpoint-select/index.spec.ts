@@ -1,7 +1,8 @@
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import { MtDropdownMenuRoot, MtIcon, MtStatusDot } from '@shopware-ag/meteor-component-library';
-import breakpointSelect, { type GridBreakpoint } from './index';
+import type { ContentSystemBreakpoint } from 'src/core/service/api/content-system-element-type.api.service';
+import breakpointSelect from './index';
 
 describe('Experience Studio breakpoint selection', () => {
     let wrapper: VueWrapper;
@@ -138,7 +139,7 @@ describe('Experience Studio breakpoint selection', () => {
     });
 
     it('shows the desktop size when the selected breakpoint is unrecognized', () => {
-        wrapper = mount(breakpointSelect, { props: { modelValue: 'unknown' as GridBreakpoint, overrides: [] } });
+        wrapper = mount(breakpointSelect, { props: { modelValue: 'unknown' as ContentSystemBreakpoint, overrides: [] } });
 
         expect(wrapper.get('button').text()).toBe('LG');
         expect(wrapper.getComponent(MtIcon).props('name')).toBe('regular-desktop');

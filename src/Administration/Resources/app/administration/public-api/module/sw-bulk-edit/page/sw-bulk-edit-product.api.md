@@ -43,6 +43,7 @@ computed
   advancedPricesFormFields: any
   assignmentFormFields: any
   currencyRepository: any
+  currentLocale: any
   customFieldSetCriteria: any  [deprecated tag:v6.8.0]
   customFieldSetRepository: any  [deprecated tag:v6.8.0]
   defaultCurrency: any
@@ -73,6 +74,7 @@ computed
   sellingPackagingFields: any
   seoFormFields: any
   taxCriteria: any
+  taxRateFormatter: any
   taxRepository: any
   taxes: any
 
@@ -87,6 +89,7 @@ methods
   definePricesBulkEdit(): any
   getBulkEditFormGroups(): any
   getParentProduct(): Promise<any>
+  getTaxLabel(tax: any): any
   loadBulkEditData(): any
   loadCurrencies(): Promise<any>
   loadCustomFieldSets(): Promise<any>

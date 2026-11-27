@@ -94,7 +94,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                                             :key="option.value"
                                             :value="option.value"
                                         >
-                                            {{ option.label }}
+                                            {{ getOptionLabel(option) }}
                                         </option>
                                     </select>
                                 </template>
@@ -136,8 +136,15 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                                 type: Array,
                                 default: () => customMocks.options || [],
                             },
+                            config: {
+                                type: Object,
+                                default: () => ({}),
+                            },
                         },
                         methods: {
+                            getOptionLabel(option) {
+                                return this.config.labelCallback?.(option) ?? option.label;
+                            },
                             onInput(event) {
                                 this.$emit('update:model-value', event.target.value);
                                 this.$emit('update:value', event.target.value);
@@ -451,6 +458,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     afterEach(() => {
+        Shopware.Store.get('session').currentLocale = 'en-GB';
         jest.restoreAllMocks();
     });
 
@@ -565,7 +573,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.product.messageEmptyTitle');
     });
 
-    it('should be selected taxRate on click change tax field', async () => {
+    it('should select a tax rate', async () => {
         const productEntity = {
             taxId: null,
         };
@@ -582,10 +590,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     {
                         value: 'taxRate1',
                         label: 'Rate 1',
+                        name: 'Rate 1',
+                        taxRate: 7,
                     },
                     {
                         value: 'taxRate2',
                         label: 'Rate 2',
+                        name: 'Rate 2',
+                        taxRate: 19,
                     },
                 ],
             },
@@ -604,6 +616,43 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const taxId = Shopware.Store.get('swProductDetail').product.taxId;
         expect(taxId).toBe('taxRate2');
+    });
+
+    it('should display tax rates using the current locale', async () => {
+        Shopware.Store.get('session').currentLocale = 'de-DE';
+        jest.spyOn(config.global.mocks, '$te').mockReturnValue(false);
+
+        const wrapper = await createWrapper(
+            {},
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'null' },
+            },
+            {
+                templateType: 'select',
+                options: [
+                    {
+                        value: 'taxRate1',
+                        name: 'Rate 1',
+                        taxRate: 7.12345,
+                    },
+                    {
+                        value: 'taxRate2',
+                        name: 'Rate 2',
+                        taxRate: 19,
+                    },
+                ],
+            },
+        );
+
+        await flushPromises();
+
+        const taxField = wrapper.find('.sw-bulk-edit-change-field-taxId');
+        const percentageSpace = '\u00A0';
+        expect(taxField.findAll('.sw-form-field-renderer__option').map((option) => option.text())).toEqual([
+            `Rate 1 (7,123${percentageSpace}%)`,
+            `Rate 2 (19${percentageSpace}%)`,
+        ]);
     });
 
     it('should be correct data when the user overwrite minPurchase', async () => {
@@ -1322,6 +1371,24 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             },
         });
         expect(wrapper.find('.sw-button-process').attributes('disabled')).toBeUndefined();
+    });
+
+    it('should display the purchase price at the end of the prices card', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        const priceFields = wrapper.findAll('.sw-bulk-edit-product-base__prices .sw-bulk-edit-change-field__container');
+
+        expect(
+            priceFields.map((field) => {
+                return field.classes().find((className) => className.startsWith('sw-bulk-edit-change-field-'));
+            }),
+        ).toEqual([
+            'sw-bulk-edit-change-field-taxId',
+            'sw-bulk-edit-change-field-price',
+            'sw-bulk-edit-change-field-listPrice',
+            'sw-bulk-edit-change-field-regulationPrice',
+            'sw-bulk-edit-change-field-purchasePrices',
+        ]);
     });
 
     it('should get parent product when component created', async () => {

@@ -10,6 +10,67 @@ component sw-order-general-info  public  js
   source src/module/sw-order/component/sw-order-general-info/index.js
   template src/module/sw-order/component/sw-order-general-info/sw-order-general-info.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  orderStateMachineService
+  repositoryFactory
+  stateMachineService
+  stateStyleDataProviderService
+  swOrderDetailAskAndSaveEdits
+  swOrderDetailOnSaveEdits
+
+props
+  order: object
+
+emits
+  save-edits(...args: any[])
+
+data
+  currentActionName: any
+  currentStateType: any
+  deliveryStateOptions: any
+  liveOrder: any
+  modalConfirmed: any
+  orderStateOptions: any
+  paymentStateOptions: any
+  showModal: any
+  tagCollection: any
+
+computed
+  currencyFilter: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  delivery: any
+  emailIdnFilter: any
+  isLoading: any
+  lastChangedByCriteria: any
+  lastChangedDateTime: any
+  lastChangedUser: any
+  orderRepository: any
+  orderTagRepository: any
+  savedSuccessful: any
+  stateMachineStateCriteria: any
+  stateMachineStateRepository: any
+  transaction: any
+
+methods
+  backgroundStyle(stateType: any): any  [deprecated tag:v6.8.0]
+  buildTransitionOptions(stateMachineName: any, allTransitions: any, possibleTransitions: any): any
+  createStateChangeErrorNotification(errorMessage: any): any
+  createdComponent(): any
+  getAllStates(): any
+  getLiveOrder(): any
+  getTransitionOptions(): Promise<any>
+  loadHistory(): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any = true, internalComment?: any = null): any
+  onStateSelected(stateType: any, actionName: any): Promise<any>
+  onTagAdd(item: any): any
+  onTagRemove(item: any): any
+  syncTagCollection(): any
+
 blocks
   sw_order_detail_base_general_info
     sw_order_detail_base_general_info_order_states  [after v-if]

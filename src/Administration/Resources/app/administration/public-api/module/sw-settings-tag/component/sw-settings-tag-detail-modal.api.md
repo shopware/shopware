@@ -10,6 +10,49 @@ component sw-settings-tag-detail-modal  public  js
   source src/module/sw-settings-tag/component/sw-settings-tag-detail-modal/index.js
   template src/module/sw-settings-tag/component/sw-settings-tag-detail-modal/sw-settings-tag-detail-modal.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  repositoryFactory
+  syncService
+
+props
+  counts?: object  default=factory
+  editedTag?: object  default=null
+  entity?: string  default=null
+  property?: string  default=null
+
+emits
+  close(...args: any[])
+  finish(...args: any[])
+
+data
+  assignmentsToBeAdded: any
+  assignmentsToBeDeleted: any
+  initialTab: any
+  isLoading: any
+  tag: any
+
+computed
+  allowSave: any
+  computedCounts: any
+  tagDefinition: any
+  tagDetailModalTabs: any
+  tagNameError: any
+  tagRepository: any
+  title: any
+  tooltipSave: any
+
+methods
+  addAssignment(assignment: any, id: any, item: any): any
+  createdComponent(): any
+  onCancel(): any
+  onSave(): Promise<any>
+  removeAssignment(assignment: any, id: any, item: any): any
+
 blocks
   sw_settings_tag_detail_modal
     sw_settings_tag_detail_modal_footer

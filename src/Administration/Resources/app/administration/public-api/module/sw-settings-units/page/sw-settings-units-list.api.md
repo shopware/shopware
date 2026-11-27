@@ -11,6 +11,47 @@ component sw-settings-units-list  private  js  [private]
   template src/module/sw-settings-units/page/sw-settings-units-list/sw-settings-units.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  acl  [private]
+  repositoryFactory  [private]
+  unitUneceCodeService  [private]
+
+data
+  isLoading: any  [private]
+  newUnit: any  [private]
+  placeholderAmount: any  [private]
+  uneceCodeNames: any  [private]
+  units: any  [private]
+  unitsCriteria: any  [private]
+
+computed
+  isAddingUnitsDisabled: any  [private]
+  isEmpty: any  [private]
+  tooltipCreate: any  [private]
+  unitList: any  [private]
+  unitRepository: any  [private]
+
+methods
+  activateInlineEdit(id: any): any  [private]
+  cancelUnit(): any  [private]
+  createNewUnit(): any  [private]
+  createUnitsCriteria(): any  [private]
+  createdComponent(): any  [private]
+  deleteUnit(unit: any): any  [private]
+  editUnit(unit: any): any  [private]
+  getUneceCodeLabel(uneceCode: any): any  [private]
+  loadUneceCodeNames(): any  [private]
+  loadUnits(): any  [private]
+  onChangeLanguage(): any  [private]
+  saveUnit(unit: any): any  [private]
+  unitColumns(): any  [private]
+
 blocks
   sw_settings_units  [private]
+
+refs
+  swDataGrid  -> sw-data-grid  block=sw_settings_units  [private]
 ```

@@ -23,30 +23,30 @@
                     },
                     "mimeType": {
                         "description": "A string sent along with a file indicating the type of the file. For example: image/jpeg.",
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "fileExtension": {
                         "description": "Type of file indication. For example: jpeg, png.",
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "uploadedAt": {
                         "description": "Date and time at which media was added.",
-                        "type": "string",
+                        "type": ["string", "null"],
                         "format": "date-time",
                         "readOnly": true
                     },
                     "fileName": {
                         "description": "Name of the media file uploaded.",
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "fileSize": {
                         "description": "Size of the file media file uploaded.",
-                        "type": "integer",
+                        "type": ["integer", "null"],
                         "format": "int64",
                         "readOnly": true
                     },
                     "metaData": {
-                        "type": "object",
+                        "type": ["object", "null"],
                         "readOnly": true,
                         "properties": {
                             "height": {
@@ -60,20 +60,20 @@
                         }
                     },
                     "config": {
-                        "type": "object"
+                        "type": ["object", "null"]
                     },
                     "alt": {
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "title": {
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "url": {
                         "description": "Runtime field, cannot be used as part of the criteria.",
                         "type": "string"
                     },
                     "path": {
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "hasFile": {
                         "description": "Runtime field, cannot be used as part of the criteria.",
@@ -84,7 +84,7 @@
                         "type": "boolean"
                     },
                     "customFields": {
-                        "type": "object"
+                        "type": ["object", "null"]
                     },
                     "createdAt": {
                         "type": "string",
@@ -92,7 +92,7 @@
                         "readOnly": true
                     },
                     "updatedAt": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "format": "date-time",
                         "readOnly": true
                     },

@@ -11,6 +11,24 @@ component sw-cms-el-youtube-video  private  js  [private]
   template src/module/sw-cms/elements/youtube-video/component/sw-cms-el-youtube-video.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+computed
+  disableKeyboard: any  [private]
+  displayModeClass: any  [private]
+  end: any  [private]
+  iframeTitle: any  [private]
+  loop: any  [private]
+  relatedVideos: any  [private]
+  showControls: any  [private]
+  start: any  [private]
+  videoID: any  [private]
+  videoUrl: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_element_youtube_video  [private]
 ```

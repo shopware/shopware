@@ -11,6 +11,40 @@ component sw-text-editor-toolbar-button  private  js  [private]
   template src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/sw-text-editor-toolbar-button.html.twig  [private]
   visibility-source export  [private]
 
+props
+  buttonConfig: object  [private]
+  disabled?: boolean  default=false  [private]
+  isInlineEdit?: boolean  default=false  [private]
+
+emits
+  button-click(...args: any[])  [private]
+  menu-toggle(...args: any[])  [private]
+
+slots
+  buttonSlot  {}  block=sw_text_editor_toolbar_button_slot  [private]
+
+data
+  childSearchTerm: any  [private]
+  flyoutClasses: any  [private]
+
+computed
+  classes: any  [private]
+  filteredChildren: any  [private]
+  showChildSearchEmptyState: any  [private]
+  tooltipAppearance: any  [private]
+
+methods
+  buttonHandler(event: any, button: any): any  [private]
+  childActive(child: any): any  [private]
+  getDropdownClasses(buttonConfig: any): any  [private]
+  getTooltipConfig(buttonConfig: any, child: any): any  [private]
+  handleButtonClick(button: any, parent?: any = null): any  [private]
+  handleChildClick(child: any): any  [private]
+  mountedComponent(): any  [private]
+  onChildMounted(): any  [private]
+  onToggleMenu(event: any, button: any): any  [private]
+  positionLinkMenu(): any  [private]
+
 blocks
   sw_text_editor_toolbar_button  [private]
     sw_text_editor_toolbar_button_child  [after v-if] [private]
@@ -30,4 +64,8 @@ crossings
   v-if  sw_text_editor_toolbar_button_icon -> sw_text_editor_toolbar_button_name  [private]
   v-if  sw_text_editor_toolbar_button_link_menu -> sw_text_editor_toolbar_button_table  [private]
   v-if  sw_text_editor_toolbar_button_name -> sw_text_editor_toolbar_button_color  [private]
+
+refs
+  flyoutLinkMenu  -> div  block=sw_text_editor_toolbar_button_link_menu  [private]
+  flyoutMenu  -> div  block=sw_text_editor_toolbar_button_table  [private]
 ```

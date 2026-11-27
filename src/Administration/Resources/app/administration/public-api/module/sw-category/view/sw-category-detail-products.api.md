@@ -10,6 +10,47 @@ component sw-category-detail-products  public  js
   source src/module/sw-category/view/sw-category-detail-products/index.js
   template src/module/sw-category/view/sw-category-detail-products/sw-category-detail-products.html.twig
 
+mixins
+  placeholder
+
+inject
+  acl
+  repositoryFactory
+
+props
+  isLoading: boolean
+
+data
+  manualAssignedProductsCount: any
+  parentProducts: any
+  productStreamFilter: any
+  productStreamInvalid: any
+
+computed
+  assetFilter: any
+  category: any
+  categoryProductAssignmentTypeError: any
+  categoryProductStreamIdError: any
+  dynamicProductGroupHelpText: any
+  manufacturerColumn: any
+  nameColumn: any
+  productAssignmentTypes: any
+  productColumns: any
+  productCriteria: any
+  productRepository: any
+  productStreamCriteria: any
+  productStreamInvalidError: any
+  productStreamRepository: any
+
+methods
+  createdComponent(): any
+  getItemName(product: any): any
+  getManufacturer(product: any): any
+  getParentProducts(products: any): any
+  loadProductStreamPreview(): any
+  onPaginateManualProductAssignment(assignment: any): any
+  onUpdateProductAssignmentType(value: any): any
+
 blocks
   sw_category_detail_products
     sw_category_detail_product_assignment

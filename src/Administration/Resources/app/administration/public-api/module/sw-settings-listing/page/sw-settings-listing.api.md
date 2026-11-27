@@ -10,6 +10,72 @@ component sw-settings-listing  public  js
   source src/module/sw-settings-listing/page/sw-settings-listing/index.js
   template src/module/sw-settings-listing/page/sw-settings-listing/sw-settings-listing.html.twig
 
+mixins
+  notification, sw-inline-snippet
+
+inject
+  repositoryFactory
+  systemConfigApiService
+
+data
+  customFields: any
+  hasDefaultSearchResultSortingError: any
+  hasDefaultSortingError: any
+  isDefaultSalesChannelLoading: any
+  isLoading: any
+  isProductSortingOptionsCardLoading: any
+  isSaveSuccessful: any
+  modalVisible: any
+  productSortingOptions: any
+  productSortingOptionsSearchTerm: any
+  searchResultSortingOptions: any
+  sortingOptionsGridLimit: any
+  sortingOptionsGridPage: any
+  toBeDeletedProductSortingOption: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  customFieldCriteria: any
+  customFieldRepository: any
+  productSortingOptionColumns: any
+  productSortingOptionRepository: any
+  productSortingOptionsSearchCriteria: any
+  productSortingsOptionsCriteria: any
+  salesChannelDefaultSortingError: any
+  salesChannelRepository: any
+  searchResultSortingOptionCriteria: any
+  sortingOptionsGridTotal: any
+  systemConfigRepository: any
+
+methods
+  allowProductSortingOptionDelete(productSortingOption: any): any
+  checkForPagination(): any
+  createdComponent(): any
+  fetchCustomFields(): any
+  fetchProductSortingOptions(): any
+  fetchSearchResultSortingOptions(): any
+  formatProductSortingOptionField(fields: any): any
+  getCustomFieldById(id: any): any
+  getCustomFieldByName(technicalName: any): any
+  getCustomFieldLabelByCriteriaName(criteriaName: any): any
+  getProductSortingOptionDeleteTooltip(item: any): any
+  isItemACustomField(fieldName: any): any
+  isItemDefaultSorting(sortingId: any): any
+  onAddNewProductSortingOption(): any
+  onChangeLanguage(): any
+  onDeleteProductSorting(item: any): any
+  onEditProductSortingOption(productSortingId: any): any
+  onLoadingChanged(loading: any): any
+  onPageChange(arg0: any): any
+  onSave(): Promise<any>
+  onSaveProductSortingOptionInlineEdit(newProductSortingOption: any): any
+  onSearchProductSortingOptions(): any
+  saveFinish(): any
+  saveProductSortingOptions(): any
+  saveSearchResultSortingOptions(): any
+  setDefaultSortingActive(): any
+  stripCustomFieldPath(fieldName: any): any
+
 blocks
   sw_settings_listing_index
     sw_settings_listing_content
@@ -17,7 +83,7 @@ blocks
         sw_settings_listing_content_card_view_default_sales_channel
         sw_settings_listing_content_card_view_options_card
           sw_settings_listing_content_card_view_options_card_empty_state  [after v-if]
-          sw_settings_listing_content_card_view_options_card_empty_state_icon
+          sw_settings_listing_content_card_view_options_card_empty_state_icon  [deprecated tag:v6.8.0]
           sw_settings_listing_content_card_view_options_card_grid
             sw_settings_listing_content_card_view_options_card_grid_column_actions
               sw_settings_listing_content_card_view_options_card_grid_column_actions_delete  [scope: item]
@@ -43,4 +109,8 @@ blocks
 
 crossings
   v-if  sw_settings_listing_content_card_view_options_card_grid -> sw_settings_listing_content_card_view_options_card_empty_state
+
+refs
+  defaultSalesChannelCard  -> sw-settings-listing-default-sales-channel  block=sw_settings_listing_content_card_view_default_sales_channel
+  systemConfig  -> sw-system-config  block=sw_settings_listing_content_card_view_system_config
 ```

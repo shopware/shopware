@@ -11,6 +11,52 @@ component sw-meteor-page  private  ts  [private]
   template src/app/component/meteor/sw-meteor-page/sw-meteor-page.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  fromLink?: RouteLocationNamedRaw | null  default=null  [private]
+  fullWidth?: boolean  default=false  [private]
+  hideIcon?: boolean  default=false  [private]
+  hideSmartBar?: boolean  default=false  [private]
+
+emits
+  new-item-active(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_meteor_page_content  [private]
+  page-tabs  {}  block=sw_meteor_page_smart_bar_tabs  [until v6.8.0] [private]
+  search-bar  {}  block=sw_meteor_page  [private]
+  smart-bar-actions  {}  block=sw_meteor_page_smart_bar_actions  [private]
+  smart-bar-back  {}  block=sw_meteor_page  [private]
+  smart-bar-context-buttons  {}  block=sw_meteor_page_smart_bar_context_buttons  [private]
+  smart-bar-description  {}  block=sw_meteor_page_smart_bar_description  [private]
+  smart-bar-header  {}  block=sw_meteor_page  [private]
+  smart-bar-header-meta  {}  block=sw_meteor_page_smart_bar_meta  [private]
+  smart-bar-icon  {}  block=sw_meteor_page  [private]
+
+data
+  module: any  [private]
+  parentRoute: any  [private]
+
+computed
+  defaultTab: string  [private]
+  hasIcon: boolean  [private]
+  hasIconOrIconSlot: boolean  [private]
+  hasTabs: boolean  [private]
+  pageClasses: object  [private]
+  tabItems: TabItem[]  [private]
+
+methods
+  createTabItem(item: VNode): TabItem  [private]
+  emitNewTab(tabItem: string): void  [private]
+  getRouteName(route: RouteLocationRaw | undefined): string | undefined  [private]
+  getTabItemDefaultSlotText(item: VNode): string | undefined  [private]
+  getTabItemsFromSlot(): TabItem[]  [private]
+  initPage(): void  [private]
+  isTabItem(item: VNode): boolean  [private]
+  mountedComponent(): void  [private]
+
 blocks
   sw_meteor_page  [private]
     sw_meteor_page_content  [private]
@@ -24,4 +70,8 @@ blocks
     sw_meteor_page_smart_bar_meta  [private]
     sw_meteor_page_smart_bar_tabs  [private]
     sw_meteor_page_smart_bar_title  [private]
+
+refs
+  pageBody  -> div  block=sw_meteor_page  [private]
+  pageHeader  -> header  block=sw_meteor_page  [private]
 ```

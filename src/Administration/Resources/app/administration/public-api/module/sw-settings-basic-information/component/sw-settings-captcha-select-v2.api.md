@@ -10,6 +10,33 @@ component sw-settings-captcha-select-v2  public  js
   source src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/index.js
   template src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/sw-settings-captcha-select-v2.html.twig
 
+mixins
+  sw-inline-snippet
+
+inject
+  captchaService
+  feature
+
+props
+  value?: object  default=null
+
+emits
+  update:value(...args: any[])
+
+data
+  availableCaptchas: any
+
+computed
+  activeCaptchaSelect: any
+  attributes: any
+  currentValue: any
+
+methods
+  createdComponent(): any
+  getTranslations(): any
+  renderCaptchaOption(technicalName: any): any
+  setCaptchaOptions(list: any): any
+
 blocks
   sw_settings_captcha_select_v2
     sw_settings_captcha_select_v2_basic_captcha_notice  [after v-if]

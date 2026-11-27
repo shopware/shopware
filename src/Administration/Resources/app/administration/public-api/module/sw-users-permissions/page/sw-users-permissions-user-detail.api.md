@@ -10,6 +10,108 @@ component sw-users-permissions-user-detail  public  js
   source src/module/sw-users-permissions/page/sw-users-permissions-user-detail/index.js
   template src/module/sw-users-permissions/page/sw-users-permissions-user-detail/sw-users-permissions-user-detail.html.twig
 
+mixins
+  notification, salutation
+
+inject
+  acl
+  feature
+  integrationService
+  loginService
+  mediaDefaultFolderService
+  repositoryFactory
+  userService
+  userValidationService
+
+data
+  confirmPasswordModal: any
+  currentIntegration: any
+  currentUser: any
+  integrations: any
+  isEmailAlreadyInUse: any
+  isIntegrationsLoading: any
+  isLoading: any
+  isModalLoading: any
+  isSaveSuccessful: any
+  isUsernameUsed: any
+  languages: any
+  mediaDefaultFolderId: any
+  mediaItem: any
+  newPassword: any
+  newPasswordConfirm: any
+  showDeleteModal: any
+  showMediaModal: any
+  showSecretAccessKey: any
+  skeletonItemAmount: any
+  timezoneOptions: any
+  user: any
+  userId: any
+  userModuleIconColorsSelection: any
+  userThemeSelection: any
+
+computed
+  aclRoleCriteria: any
+  avatarMedia: any
+  disableConfirm: any
+  fullName: any
+  hasLanguage: any
+  identifier: any
+  integrationColumns: any
+  isCurrentUser: any
+  isError: any
+  languageCriteria: any
+  languageId: any
+  languageRepository: any
+  localeOptions: any
+  localeRepository: any
+  mcpGrantedPrivileges: any
+  mediaRepository: any
+  moduleIconColorsOptions: any
+  tooltipCancel: any
+  tooltipSave: any
+  userCriteria: any
+  userEmailError: any
+  userFirstNameError: any
+  userLastNameError: any
+  userLocaleIdError: any
+  userModuleIconColors: any
+  userPasswordError: any
+  userRepository: any
+  userTheme: any
+  userUsernameError: any
+
+methods
+  addAccessKey(): any
+  checkEmail(): Promise<any>
+  checkUsername(): Promise<any>
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  loadCurrentUser(): Promise<any>
+  loadKeys(): any
+  loadLanguages(): Promise<any>
+  loadMediaItem(targetId: any): any
+  loadUser(): Promise<any>
+  onCancel(): any
+  onCloseConfirmPasswordModal(): any
+  onCloseDeleteModal(): any
+  onCloseDetailModal(): any
+  onConfirmDelete(id: any): any
+  onDropMedia(mediaItem: any): any
+  onMcpAllowlistUpdate(allowlist: any): any
+  onMediaSelectionChange(arg0: any): any
+  onOpenMedia(): any
+  onSave(): any
+  onSaveIntegration(): any
+  onSearch(value: any): any
+  onShowDetailModal(id: any): any
+  onUnlinkLogo(): any
+  saveFinish(): any
+  saveUser(context: any): Promise<any>
+  setMediaItem(arg0: any): any
+  setPassword(password: any): any
+  updateAuthToken(): Promise<any>
+  updateCurrentUser(): Promise<any>
+
 blocks
   sw_settings_user_detail
     sw_settings_user_detail_actions

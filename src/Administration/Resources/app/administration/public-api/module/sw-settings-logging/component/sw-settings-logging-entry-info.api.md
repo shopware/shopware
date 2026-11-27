@@ -10,6 +10,25 @@ component sw-settings-logging-entry-info  public  js
   source src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.js
   template src/module/sw-settings-logging/component/sw-settings-logging-entry-info/sw-settings-logging-entry-info.html.twig
 
+inject
+  feature
+
+props
+  logEntry: object
+
+emits
+  close(...args: any[])
+
+data
+  activeTab: any
+
+computed
+  displayString: any
+  entryInfoTabs: any
+
+methods
+  onClose(): any
+
 blocks
   sw_settings_logging_entry_info
     sw_settings_logging_entry_info_footer

@@ -11,6 +11,21 @@ component sw-flow-detail-general  private  js  [private]
   template src/module/sw-flow/view/detail/sw-flow-detail-general/sw-flow-detail-general.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+
+props
+  isLoading?: boolean  default=false  [private]
+  isNewFlow?: boolean  default=false  [private]
+  isTemplate?: boolean  default=false  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
+
+computed
+  flow: any  [private]
+  flowNameError: any  [private]
+  isFlowTemplate: any  [private]
+  logGridColumns: any  [private]
+
 blocks
   sw_flow_detail_general  [private]
     sw_flow_detail_general_information  [private]

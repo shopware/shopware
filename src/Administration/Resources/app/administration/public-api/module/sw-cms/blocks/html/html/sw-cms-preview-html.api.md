@@ -11,6 +11,14 @@ component sw-cms-preview-html  private  ts  [private]
   template src/module/sw-cms/blocks/html/html/preview/sw-cms-preview-html.html.twig  [private]
   visibility-source export  [private]
 
+data
+  demoValue: any  [private]
+  editorConfig: object  [private]
+    cursorStyle: any  [private]
+    highlightActiveLine: any  [private]
+    highlightGutterLine: any  [private]
+    showFoldWidgets: any  [private]
+
 blocks
   sw_cms_preview_html  [private]
 ```

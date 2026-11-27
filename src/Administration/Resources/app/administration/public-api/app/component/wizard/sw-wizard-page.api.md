@@ -11,6 +11,27 @@ component sw-wizard-page  private  js  [private]
   template src/app/component/wizard/sw-wizard-page/sw-wizard-page.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  swWizardPageAdd  [private]
+  swWizardPageRemove  [private]
+
+props
+  isActive?: boolean  default=factory  [private]
+  position?: number  default=factory  [private]
+  title?: string  default=factory  [private]
+
+slots
+  default  {}  block=sw_wizard_page  [private]
+
+data
+  isCurrentlyActive: any  [private]
+  modalTitle: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+
 blocks
   sw_wizard_page  [private]
     sw_wizard_page_slot_default  [private]

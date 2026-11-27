@@ -16,12 +16,14 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
@@ -517,7 +519,12 @@ class AdministrationControllerTest extends TestCase
                 ]
             );
 
-        $controller = $this->createAdministrationController(connection: $connection, eventDispatcher: $eventDispatcher);
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([CachedSearchConfigLoader::CACHE_KEY], true);
+
+        $controller = $this->createAdministrationController(connection: $connection, eventDispatcher: $eventDispatcher, cacheInvalidator: $cacheInvalidator);
 
         $response = $controller->resetExcludedSearchTerm($context);
 
@@ -749,6 +756,7 @@ class AdministrationControllerTest extends TestCase
         ?HtmlSanitizer $htmlSanitizer = null,
         ?DefinitionInstanceRegistry $definitionRegistry = null,
         ?PrefixFilesystem $fileSystemOperator = null,
+        ?CacheInvalidator $cacheInvalidator = null,
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
@@ -777,6 +785,7 @@ class AdministrationControllerTest extends TestCase
             $languageRepository ?? $this->languageRepository,
             $this->analyticsGatewayUrl,
             $customerEmailUniqueChecker,
+            $cacheInvalidator ?? static::createStub(CacheInvalidator::class),
             $this->refreshTokenTtl,
         );
     }

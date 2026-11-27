@@ -10,6 +10,21 @@ component sw-order-state-change-modal-attach-documents  public  js
   source src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/index.js
   template src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/sw-order-state-change-modal-attach-documents.html.twig
 
+props
+  isLoading: boolean
+  order: object
+
+emits
+  on-confirm(...args: any[])
+
+data
+  internalComment: any
+  sendMail: any
+
+methods
+  loadSendMail(): any
+  onConfirm(): any
+
 blocks
   sw_order_state_change_modal_attach_documents
     sw_order_state_change_modal_attach_documents_button_wrapper
@@ -17,4 +32,7 @@ blocks
       sw_order_state_change_modal_attach_documents_send_mail_switch
     sw_order_state_change_modal_attach_documents_documents_grid
     sw_order_state_change_modal_attach_documents_internal_comment
+
+refs
+  attachDocuments  -> sw-order-document-card  block=sw_order_state_change_modal_attach_documents_documents_grid
 ```

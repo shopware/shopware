@@ -11,6 +11,33 @@ component sw-radio-panel  private  js  [private]
   template src/app/component/base/sw-radio-panel/sw-radio-panel.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  description?: string  default=''  [private]
+  disabled?: boolean  default=false  [private]
+  icon?: string  default=''  [private]
+  id?: string  default=factory  [private]
+  modelValue?: string  [private]
+  name?: string  default=null  [private]
+  required?: boolean  default=false  [private]
+  title?: string  default=''  [private]
+  truncate?: boolean  default=false  [private]
+  value?: string  [private]
+
+emits
+  update:modelValue(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_radio_panel_body_slot  [private]
+
+computed
+  checked: any  [private]
+
+methods
+  toggle(): any  [private]
+
 blocks
   sw_radio_panel  [private]
     sw_radio_panel_body  [private]

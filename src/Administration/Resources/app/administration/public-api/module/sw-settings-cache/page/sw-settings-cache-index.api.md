@@ -10,6 +10,46 @@ component sw-settings-cache-index  public  js
   source src/module/sw-settings-cache/page/sw-settings-cache-index/index.js
   template src/module/sw-settings-cache/page/sw-settings-cache-index/sw-settings-cache-index.html.twig
 
+mixins
+  notification
+
+inject
+  cacheApiService
+  feature
+
+data
+  cacheInfo: any
+  componentIsBuilding: any
+  indexerSelection: any
+  indexingMethod: any
+  isLoading: any
+  processSuccess: object  [deprecated tag:v6.8.0]
+    normalClearCache: any
+    updateIndexes: any
+  processes: object
+    normalClearCache: any
+    refreshCache: any
+    updateIndexes: any
+
+computed
+  cacheAdapterValue: any
+  environmentValue: any
+  httpCacheValue: any
+  indexers: any
+  indexingMethodOptions: any
+  isIndexSelectionComplete: any
+
+methods
+  changeSelection(selected: any, name: any): any
+  clearCache(): any
+  clearDataCache(): any
+  clearIndexerSelection(): any
+  createOnlySelection(only: any): any
+  createdComponent(): any
+  decreaseWorkerPoll(): any
+  resetButtons(): any  [deprecated tag:v6.8.0]
+  updateIndexes(): any
+
 blocks
   sw_settings_cache_index
     sw_settings_cache_content

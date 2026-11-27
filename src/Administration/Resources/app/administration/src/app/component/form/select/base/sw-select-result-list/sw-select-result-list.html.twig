@@ -1,9 +1,11 @@
 {% block sw_select_result_list %}
 <div class="sw-select-result-list">
-    <sw-popover
+    {# Open whenever mounted: sw-select-base mounts this list only while the select is expanded.
+    Keep it that way: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
+    <mt-floating-ui
         class="sw-select-result-list-popover"
-        :popover-class="popoverClass"
-        :z-index="1100"
+        :class="popoverClass"
+        :is-opened="true"
         :match-reference-width="popoverResizeWidth"
     >
         <div
@@ -42,6 +44,6 @@
                 {% endblock %}
             </div>
         </div>
-    </sw-popover>
+    </mt-floating-ui>
 </div>
 {% endblock %}

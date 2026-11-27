@@ -11,6 +11,38 @@ component mt-tabs  private  ts  [private]
   template src/app/component/meteor-wrapper/mt-tabs/mt-tabs.html.twig  [private]
   visibility-source export  [private]
 
+props
+  defaultItem?: string  default=''  [private]
+  items: TabItem[]  [private]
+  positionIdentifier: string  default=null  [private]
+  small?: boolean  default=false  [private]
+  useRoutesForExtensions?: boolean  default=undefined  [private]
+  vertical?: boolean  default=false  [private]
+
+emits
+  new-item-active(...args: any[])  [private]
+
+slots
+  content  { ...{ active: activeItem } }  block=mt_tabs  [private]
+
+data
+  activeItem: any  [private]
+
+computed
+  activeItemName: string  [private]
+  activeTabExtension: TabItemEntry | undefined  [private]
+  extensionTabsUseRoutes: boolean  [private]
+  hasCustomContent: boolean  [private]
+  mergedItems: TabItem[]  [private]
+  meteorAttributes: Record<string, unknown>  [private]
+  tabExtensions: TabItemEntry[]  [private]
+
+methods
+  onNewItemActive(itemName: string): void  [private]
+
 blocks
   mt_tabs  [private]
+
+refs
+  mtTabsOriginal  -> mt-tabs-original  block=mt_tabs  [private]
 ```

@@ -11,6 +11,36 @@ component sw-extension-rating-stars  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars/sw-extension-rating-stars.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  editable?: boolean  default=false  [private]
+  rating?: number  default=0  [private]
+  size?: number  default=8  [private]
+
+emits
+  update:rating(...args: any[])  [private]
+
+data
+  maxRating: any  [private]
+  ratingValue: any  [private]
+
+computed
+  defaultSizeForEditable: any  [private]
+  editableClass: any  [private]
+  partialStarSize: any  [private]
+  partialStarWidth: any  [private]
+  scaleFactor: any  [private]
+  sizeValue: any  [private]
+  starSize: any  [private]
+
+methods
+  addRating(rating: any): any  [private]
+  colorClass(key: any): any  [private]
+  createdComponent(): any  [private]
+  showPartialStar(key: any): any  [private]
+
 blocks
   sw_extension_rating_stars  [private]
     sw_extension_rating_stars_wrapper  [private]

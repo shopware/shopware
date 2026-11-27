@@ -11,6 +11,13 @@ component sw-sales-channel-create-base  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-create-base/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-create-base/sw-sales-channel-create-base.html.twig
 
+computed
+  activationNeedsTheme: any
+
+methods
+  createdComponent(): any
+  prefillAgenticCommerceDefaults(): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_sales_channel_detail_base  [inherited]
     sw_sales_channel_detail_agentic_commerce_tracking  [inherited] [after v-if]
@@ -71,4 +78,7 @@ blocks
       sw_sales_channel_detail_base_general_input_currencies  [inherited] [after v-if]
       sw_sales_channel_detail_base_general_input_payments_methods  [inherited] [after v-if]
       sw_sales_channel_detail_base_general_input_shipping_methods  [inherited] [after v-if]
+
+refs
+  salesChannelDomains  -> sw-sales-channel-detail-domains  block=sw_sales_channel_detail_base_options_domains
 ```

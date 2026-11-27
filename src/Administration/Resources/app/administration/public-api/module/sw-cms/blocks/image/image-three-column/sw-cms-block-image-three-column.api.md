@@ -11,6 +11,11 @@ component sw-cms-block-image-three-column  private  js  [private]
   template src/module/sw-cms/blocks/image/image-three-column/component/sw-cms-block-image-three-column.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center  {}  block=sw_cms_block_image_three_column  [private]
+  left  {}  block=sw_cms_block_image_three_column  [private]
+  right  {}  block=sw_cms_block_image_three_column  [private]
+
 blocks
   sw_cms_block_image_three_column  [private]
 ```

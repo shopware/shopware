@@ -11,6 +11,19 @@ component sw-dashboard-index  private  js  [private]
   template src/module/sw-dashboard/page/sw-dashboard-index/sw-dashboard-index.html.twig  [private]
   visibility-source export  [private]
 
+data
+  cachedHeadlineGreetingKey: any  [private]
+
+computed
+  greetingName: any  [private]
+  welcomeMessage: any  [private]
+  welcomeSubline: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getGreetingTimeKey(type?: any = 'daytimeHeadline'): any  [private]
+  getGreetings(type?: any = 'daytimeHeadline'): any  [private]
+
 blocks
   sw_dashboard_index  [private]
     sw_dashboard_index_content  [private]

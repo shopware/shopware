@@ -10,4 +10,23 @@ component sw-settings-services-index  private  ts  [private]
   source src/module/sw-settings-services/page/sw-settings-services-index/index.ts  [private]
   template src/module/sw-settings-services/page/sw-settings-services-index/sw-settings-services-index.html.twig  [private]
   visibility-source export  [private]
+
+inject
+  acl  [private]
+
+data
+  grantPermissionsCardBackground: any  [private]
+  loadingError: any  [private]
+  services: any  [private]
+  suspended: any  [private]
+
+computed
+  config: any  [private]
+  consentGiven: any  [private]
+  currentRevision: any  [private]
+  servicesWithAccountRequirement: ServiceWithShopwareAccountRequirement[]  [private]
+
+methods
+  activateServices(): Promise<any>  [private]
+  reloadServices(): Promise<any>  [private]
 ```

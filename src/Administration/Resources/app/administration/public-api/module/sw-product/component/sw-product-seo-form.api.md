@@ -10,6 +10,59 @@ component sw-product-seo-form  public  js
   source src/module/sw-product/component/sw-product-seo-form/index.js
   template src/module/sw-product/component/sw-product-seo-form/sw-product-seo-form.html.twig
 
+mixins
+  placeholder
+
+inject
+  repositoryFactory
+
+props
+  allowEdit?: boolean  default=true
+
+data
+  canonicalProductSwitchEnabled: any
+  openGraphMediaItem: any
+  openGraphMediaUploadTag: any
+  searchTerm: any
+  selectValue: any
+  shouldKeepSelectValue: any
+  showOgMediaModal: any
+  switchStateHasBeenSet: any
+  variants: any
+
+computed
+  currentOpenGraphMediaId: any
+  hasParent: any
+  hasVariants: any
+  isCanonicalUrlSelectLoading: any
+  isLoading: any
+  mediaRepository: any
+  parentProduct: any
+  product: any
+  productKeywordsError: any
+  productMetaDescriptionError: any
+  productMetaTitleError: any
+  productOgDescriptionError: any
+  productOgTitleError: any
+  productRepository: any
+  recommendedMetaDescriptionLength: any
+  recommendedMetaTitleLength: any
+  variantCriteria: any
+  variantsWithResetOption: any
+
+methods
+  fetchVariants(): Promise<any>
+  getItemName(item: any): any
+  getLoadedOpenGraphMedia(mediaId: any): any
+  getRecommendedLengthClass(value: any, max: any): any
+  getRecommendedLengthHint(value: any, max: any): any
+  onCloseOgMediaModal(): any
+  onOgMediaSelectionChange(selection: any, updateCurrentValue: any): any
+  onOgMediaUploadFinish(arg0: any, updateCurrentValue: any): any
+  onOpenOgMediaModal(): any
+  onRemoveOgMedia(updateCurrentValue: any): any
+  onSearch(searchTerm: any): any
+
 blocks
   sw_product_seo_form
     sw_product_seo_form_canonical_url
@@ -26,4 +79,7 @@ blocks
       sw_product_seo_form_og_description
       sw_product_seo_form_og_image
       sw_product_seo_form_og_title
+
+refs
+  canonicalProductSelect  -> sw-single-select  block=sw_product_seo_form_canonical_url_select
 ```

@@ -9,4 +9,14 @@ component sw-error-boundary  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/utils/sw-error-boundary/index.js  [private]
   visibility-source export  [private]
+
+inject
+  repositoryFactory  [private]
+
+computed
+  logEntryRepository: any  [private]
+
+methods
+  _getLocationHref(): any  [private]
+  logErrorInEntries(err: any, vm: any): any  [private]
 ```

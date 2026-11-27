@@ -11,6 +11,17 @@ component sw-order-nested-line-items-row  private  js  [private]
   template src/module/sw-order/component/sw-order-nested-line-items-row/sw-order-nested-line-items-row.html.twig  [private]
   visibility-source export  [private]
 
+props
+  currency: object  [private]
+  lineItem: object  [private]
+  renderParent?: boolean  default=factory  [private]
+
+computed
+  currencyFilter: any  [private]
+
+methods
+  getNestingClasses(nestingLevel: any): any  [private]
+
 blocks
   sw_order_nested_line_items_row  [private]
     sw_order_nested_line_items_row_content  [private]

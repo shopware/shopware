@@ -9,4 +9,12 @@ component sw-highlight-text  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/base/sw-highlight-text/index.js  [private]
   visibility-source export  [private]
+
+props
+  searchTerm?: string  default=null  [private]
+  text?: string  default=null  [private]
+
+methods
+  escapeRegExp(string: any): any  [private]
+  getParts(): any  [private]
 ```

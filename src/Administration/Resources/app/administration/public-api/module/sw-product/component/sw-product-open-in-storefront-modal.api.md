@@ -11,6 +11,49 @@ component sw-product-open-in-storefront-modal  private  ts  [private]
   template src/module/sw-product/component/sw-product-open-in-storefront-modal/sw-product-open-in-storefront-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  productStorefrontUrlApiService  [private]
+  repositoryFactory  [private]
+  systemConfigApiService  [private]
+
+props
+  hasUnsavedChanges?: boolean  default=false  [private]
+  parentProduct?: Entity<'product'> | null  default=null  [private]
+  product: Entity<'product'>  [private]
+  productName: string  [private]
+  salesChannels: Entity<'sales_channel'>[]  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  loadedSalesChannel: any  [private]
+  selectedSalesChannelId: any  [private]
+
+computed
+  invalidDomainUrls: string[]  [private]
+  isProductActive: boolean  [private]
+  languageRepository: RepositoryType<'language'>  [private]
+  modalSubtitle: string  [private]
+  persistedParentProduct: EntitySchema.Entities['product'] | null  [private]
+  persistedProduct: EntitySchema.Entities['product']  [private]
+  productRepository: RepositoryType<'product'>  [private]
+  result: SalesChannelResult | null  [private]
+  salesChannelOptions: { value: string; label: string }[]  [private]
+  selectedSalesChannel: Entity<'sales_channel'> | null  [private]
+
+methods
+  createdComponent(): void  [private]
+  getFailingReasons(productUrls: ProductStorefrontUrls | null, stockReason: StockReason | null): FailingReason[]  [private]
+  isSoldOutClearanceSale(): Promise<boolean>  [private]
+  loadLanguageNames(domains: ProductStorefrontUrls['domains']): Promise<Record<string, string>>  [private]
+  loadSelectedSalesChannel(isCancelled: () => boolean): Promise<void>  [private]
+  loadStockReason(salesChannelId: string): Promise<StockReason | null>  [private]
+  onLoadError(error: unknown, isCancelled: () => boolean): void  [private]
+  onModalRootChange(isOpen: boolean): void  [private]
+
 blocks
   sw_product_open_in_storefront_modal  [private]
     sw_product_open_in_storefront_modal_banners  [after v-if] [private]

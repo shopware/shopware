@@ -10,6 +10,93 @@ component sw-sales-channel-detail  public  js
   source src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js
   template src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  exportTemplateService
+  feature
+  repositoryFactory
+  systemConfigApiService
+
+provide
+  swSalesChannelDetailGetAgenticCommerceExportConfig: any  [deprecated tag:v6.8.0]
+
+data
+  agenticCommerceExportConfig: any  [deprecated tag:v6.8.0]
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  productComparison: object
+    invalidFileName: any
+    newProductExport: any
+    previousTemplateName: any
+    productComparisonAccessUrl: any
+    selectedTemplate: any
+    showTemplateModal: any
+    templateName: any
+    templateOptions: any
+    templates: any
+  salesChannel: any
+
+computed
+  allowSaving: any
+  customFieldRepository: any  [deprecated tag:v6.8.0]
+  defaultAgenticCommerceExportConfig: any  [deprecated tag:v6.8.0]
+  hasSwagAgenticCommercePlugin: any  [deprecated tag:v6.8.0]
+  identifier: any
+  isAgenticCommerce: any  [deprecated tag:v6.8.0]
+  isHeadless: any
+  isProductComparison: any
+  isProductExportChannel: any
+  isStorefront: any
+  productExport: any
+  productExportRepository: any
+  salesChannelAnalyticsRepository: any
+  salesChannelDetailTabs: any
+  salesChannelRepository: any
+  showAgenticCommerceDeprecationBanner: any  [deprecated tag:v6.8.0]
+  storefrontSalesChannelCriteria: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  addRequiredSalesChannelFieldError(fieldName: any): any
+  clearRequiredSalesChannelFieldError(fieldName: any): any
+  clearRequiredSalesChannelFieldErrors(): any
+  clearResolvedRequiredSalesChannelFieldErrors(): any
+  createdComponent(): any
+  detectCurrentTemplate(): any
+  generateAccessUrl(): any
+  getLoadSalesChannelCriteria(): any
+  getRequiredSalesChannelFieldError(fieldName: any): any
+  getRequiredSalesChannelFieldErrorExpression(fieldName: any): any
+  getRequiredSalesChannelFields(): any
+  getSalesChannelEntityName(): any
+  isRequiredFieldEmpty(value: any): any
+  loadAgenticCommerceExportConfig(): Promise<any>  [deprecated tag:v6.8.0]
+  loadCustomFieldSets(): any
+  loadEntityData(): any
+  loadProductExportTemplates(): any
+  loadSalesChannel(): any
+  onChangeLanguage(): any
+  onClickInstallAgenticCommercePlugin(): any  [deprecated tag:v6.8.0]
+  onSave(): Promise<any>
+  onTemplateModalClose(): any
+  onTemplateModalConfirm(): any
+  onTemplateSelected(templateName: any): any
+  prepareSaveData(): any
+  saveAgenticCommerceExportConfig(): Promise<any>  [deprecated tag:v6.8.0]
+  saveFinish(): any
+  saveOnLanguageChange(): Promise<any>
+  saveSalesChannel(): Promise<any>
+  setInvalidFileName(invalidFileName: any): any
+  updateAnalytics(): any
+  validateAgenticCommerceExportConfig(): any  [deprecated tag:v6.8.0]
+  validateRequiredSalesChannelFields(): any
+
 blocks
   sw_sales_channel_detail
     sw_sales_channel_detail_actions
@@ -22,7 +109,7 @@ blocks
         sw_sales_channel_detail_content_tab_agentic_commerce_integration  [after v-if] [until v6.8.0]
         sw_sales_channel_detail_content_tab_analytics  [after v-if] [until v6.8.0]
         sw_sales_channel_detail_content_tab_export_template  [after v-if] [until v6.8.0]
-          sw_sales_channel_detail_content_tab_product_comparison  [after v-if] [until v6.8.0]
+          sw_sales_channel_detail_content_tab_product_comparison  [after v-if] [until v6.8.0] [deprecated tag:v6.8.0]
         sw_sales_channel_detail_content_tab_general  [until v6.8.0]
         sw_sales_channel_detail_content_tab_product_export_insights  [until v6.8.0]
         sw_sales_channel_detail_content_tab_products  [after v-if] [until v6.8.0]

@@ -34,7 +34,18 @@
       "actionSetSecret": "Set signing secret",
       "deletedRole": "Deleted role",
       "allOwnerRoles": "All roles of the owner",
-      "tooltipWebhookNotOwned": "Only the owner of this webhook or an administrator can delete it."
+      "tooltipWebhookNotOwned": "Only the owner of this webhook or an administrator can delete it.",
+      "actionEditRoles": "Limit to roles",
+      "tooltipAppWebhookNotEditable": "Webhooks of apps can't be limited to roles.",
+      "tooltipWebhookNotOwnedEdit": "Only the owner of this webhook or an administrator can change it."
+    },
+    "roles": {
+      "title": "Limit \"{name}\" to roles",
+      "label": "Roles",
+      "placeholder": "All roles of the owner",
+      "helpText": "The webhook only sends events that these roles are allowed to see. Leave empty to use all of the owner's roles.",
+      "messageEventNotCovered": "These roles don't allow the event of \"{name}\". Choose roles that can see it.",
+      "hintUnheldRoles": "The owner no longer has these roles, so the webhook can't use them: {roles}"
     },
     "secret": {
       "title": "Signing secret of \"{name}\"",

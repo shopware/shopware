@@ -10,6 +10,17 @@ component sw-media-replace  public  js
   registered src/app/component/index.ts
   source src/app/component/media/sw-media-replace/index.js
 
+props
+  itemToReplace: object
+
+data
+  multiSelect: any
+
+methods
+  cleanUpFailure(mediaEntity: any, message: any): any
+  getMediaEntityForUpload(): any
+  handlePresignedUpload(files: any): any
+
 blocks
   sw_media_upload_v2  [inherited]
     sw_media_upload_v2_compact  [inherited]
@@ -38,4 +49,9 @@ blocks
 
 crossings
   v-if  sw_media_upload_v2_regular_preview_file -> sw_media_upload_v2_regular_preview_fallback
+
+refs
+  dropzone  -> div  block=sw_media_upload_v2_regular_drop_zone
+  fileForm  -> form  block=sw_media_upload_v2_file_input
+  fileInput  -> input  block=sw_media_upload_v2_file_input
 ```

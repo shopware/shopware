@@ -11,6 +11,9 @@ component sw-cms-preview-video  private  ts  [private]
   template src/module/sw-cms/blocks/video/video/preview/sw-cms-preview-video.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: (value: string) => string  [private]
+
 blocks
   sw_cms_block_video_preview  [private]
 ```

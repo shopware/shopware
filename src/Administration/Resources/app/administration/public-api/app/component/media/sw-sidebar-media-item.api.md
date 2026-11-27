@@ -10,6 +10,48 @@ component sw-sidebar-media-item  public  js
   source src/app/component/media/sw-sidebar-media-item/index.js
   template src/app/component/media/sw-sidebar-media-item/sw-sidebar-media-item.html.twig
 
+inject
+  repositoryFactory
+
+props
+  disabled?: boolean  default=false
+  initialFolderId?: string  default=null
+  isParentLoading?: boolean  default=false
+
+slots
+  context-menu-items  { media-item }  block=sw_sidebar_media_item_context_items
+
+data
+  isLoading: any
+  limit: any
+  mediaFolderId: any
+  mediaItems: any
+  page: any
+  subFolders: any
+  term: any
+  total: any
+
+computed
+  itemsLoaded: any
+  mediaFolderRepository: any
+  mediaRepository: any
+  showMore: any
+
+methods
+  createdComponent(): any
+  debouncedSearch(): any
+  extendList(): Promise<any>
+  getList(): Promise<any>
+  getListingCriteria(): any
+  getSubFolders(): Promise<any>
+  handleFolderGridItemDelete(): any
+  handleMediaGridItemDelete(): any
+  initializeContent(): any
+  onLoadMore(): any
+  onNavigateToFolder(folderId: any): any
+  onSearchTermChange(): any
+  openContent(): any
+
 blocks
   sw_sidebar_media_item
     sw_sidebar_media_item_content
@@ -21,4 +63,7 @@ blocks
         sw_sidebar_media_item_media_item_list_media_item  [after v-if]
           sw_sidebar_media_item_context_items  [scope: mediaItem]
       sw_sidebar_media_item_search_field
+
+refs
+  sidebarItem  -> sw-sidebar-item  block=sw_sidebar_media_item
 ```

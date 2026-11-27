@@ -11,6 +11,20 @@ component sw-cms-el-buy-box  private  js  [private]
   template src/module/sw-cms/elements/buy-box/component/sw-cms-el-buy-box.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element, placeholder  [private]
+
+computed
+  alignStyle: any  [private]
+  currencyFilter: any  [private]
+  currentDemoEntity: any  [private]
+  isProductPageType: any  [private]
+  pageType: any  [private]
+  product: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_el_buy_box  [private]
     sw_cms_el_buy_box_product_info  [private]

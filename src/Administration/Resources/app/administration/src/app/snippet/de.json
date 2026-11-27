@@ -77,6 +77,9 @@
         "saveError": "Erscheinungsbild konnte nicht gewechselt werden"
       }
     },
+    "sw-extension-floating-section": {
+      "label": "Inhalte von Erweiterungen"
+    },
     "theme": {
       "names": {
         "light": "Hell",

@@ -11,6 +11,10 @@ component sw-settings-payment-create  public  js
   source src/module/sw-settings-payment/page/sw-settings-payment-create/index.js
   template src/module/sw-settings-payment/page/sw-settings-payment-create/sw-settings-payment-create.html.twig
 
+methods
+  createdComponent(): any
+  onSave(): any
+
 blocks
   sw_settings_payment_detail  [inherited]
     sw_settings_payment_detail_actions  [inherited]
@@ -38,4 +42,7 @@ blocks
         sw_settings_payment_detail_top_rule_select  [inherited]
     sw_settings_payment_detail_header  [inherited]
     sw_settings_payment_detail_language_switch  [replaced]
+
+refs
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_settings_payment_detail
 ```

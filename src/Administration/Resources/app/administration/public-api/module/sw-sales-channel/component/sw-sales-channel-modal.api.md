@@ -10,6 +10,30 @@ component sw-sales-channel-modal  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-modal/sw-sales-channel-modal.html.twig
 
+inject
+  repositoryFactory
+
+emits
+  modal-close(...args: any[])
+
+data
+  detailType: any
+  productStreamsExist: any
+  productStreamsLoading: any
+
+computed
+  addChannelAction: any
+  modalTitle: any
+  productStreamRepository: any
+
+methods
+  createdComponent(): any
+  isProductComparisonSalesChannelType(salesChannelTypeId: any): any
+  onAddChannel(id: any): any
+  onCloseModal(): any
+  onGridOpenDetails(detailType: any): any
+  openRoute(route: any): any
+
 blocks
   sw_sales_channel_modal
     sw_sales_channel_modal_detail  [after v-if]

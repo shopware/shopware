@@ -10,6 +10,37 @@ component sw-property-list  public  js
   source src/module/sw-property/page/sw-property-list/index.js
   template src/module/sw-property/page/sw-property-list/sw-property-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  propertyGroup: any
+  searchConfigEntity: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  adminEsEnable: any
+  defaultCriteria: any
+  productRepository: any
+  propertyRepository: any
+  useNaturalSorting: any
+
+methods
+  getList(): Promise<any>
+  getPropertyColumns(): any
+  onChangeLanguage(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  usePropertyCriteria(id: any): any
+
 blocks
   sw_property_list
     sw_property_list_
@@ -37,4 +68,7 @@ blocks
 crossings
   v-if  sw_property_list_empty_state -> sw_property_list_grid
   v-if  sw_property_list_grid_columns_filterable_inline_edit -> sw_property_list_grid_columns_filterable_content
+
+refs
+  propertyList  -> sw-entity-listing  block=sw_property_list_grid
 ```

@@ -10,6 +10,21 @@ component sw-order-inline-field  public  js
   source src/module/sw-order/component/sw-order-inline-field/index.js
   template src/module/sw-order/component/sw-order-inline-field/sw-order-inline-field.html.twig
 
+props
+  displayValue: string  default=''
+  editable: boolean  default=false
+  required?: boolean  default=false
+  value?: string  default=''
+
+emits
+  update:value(...args: any[])
+
+slots
+  default  {}  block=sw_order_document_order_inline_field
+
+methods
+  onInput(value: any): any
+
 blocks
   sw_order_document_order_inline_field
 ```

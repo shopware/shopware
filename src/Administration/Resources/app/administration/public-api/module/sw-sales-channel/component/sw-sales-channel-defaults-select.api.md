@@ -10,6 +10,46 @@ component sw-sales-channel-defaults-select  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-defaults-select/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-defaults-select/sw-sales-channel-defaults-select.html.twig
 
+mixins
+  notification
+
+inject
+  feature
+
+props
+  criteria?: object  default=undefined
+  defaultPropertyLabel: string
+  defaultPropertyName: string
+  disabled?: boolean  default=false
+  disabledTooltipMessage?: string  default=''
+  helpText?: string  default=null
+  propertyLabel: string
+  propertyName: string
+  propertyNameInDomain?: string  default=null
+  salesChannel?: object  default=null
+  shouldShowActiveState?: boolean  default=false
+
+computed
+  defaultId: any
+  defaultsValueError: any
+  labelProperty: any
+  multiSelectClass: any
+  propertyCollection: any
+  propertyEntityName: any
+  propertyNameKebabCase: any
+  showClearableButtonForDefault: any
+  singleSelectClass: any
+
+methods
+  addItem(collection: any): any
+  getActiveIconColor(item: any): any
+  getDomainUsingValue(item: any): any
+  getNotInCollection(collectionWith: any, collectionWithout: any): any
+  isDisabledItem(item: any): any
+  removeItem(collection: any): any
+  updateCollection(collection: any): any
+  updateDefault(defaultId: any, defaultEntity: any): any
+
 blocks
   sw_sales_channel_defaults_select
 ```

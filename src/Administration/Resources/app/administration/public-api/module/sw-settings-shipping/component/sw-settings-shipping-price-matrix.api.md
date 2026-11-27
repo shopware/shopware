@@ -10,6 +10,72 @@ component sw-settings-shipping-price-matrix  public  js
   source src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.js
   template src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/sw-settings-shipping-price-matrix.html.twig
 
+mixins
+  placeholder, notification
+
+inject
+  repositoryFactory
+
+props
+  disabled?: boolean  default=false
+  priceGroup: object
+
+emits
+  delete-price-matrix(...args: any[])
+  duplicate-price-matrix(...args: any[])
+
+data
+  calculationTypes: any
+  isLoading: any
+  ruleColumns: any
+  showAllPrices: any
+  showDeleteModal: any
+
+computed
+  cardTitle: any
+  confirmDeleteText: any
+  currencies: any
+  currencyColumns: any
+  defaultCurrency: any
+  disableDeleteButton: any
+  isRuleMatrix: any
+  labelQuantityEnd: any
+  labelQuantityStart: any
+  mainRulePlaceholder: any
+  newPriceMatrixExists: any
+  numberFieldType: any
+  prices: any
+  restrictedRuleIds: any
+  ruleFilterCriteria: any
+  ruleRepository: any
+  shippingMethod: any
+  shippingPriceRepository: any
+  shippingRuleFilterCriteria: any  [deprecated tag:v6.8.0]
+  shippingRuleFilterCriteriaDeprecated: any  [deprecated tag:v6.8.0] [private]
+  showDataGrid: any
+  taxRateId: any
+  unrestrictedPriceMatrixExists: any
+  usedCalculationRules: any
+
+methods
+  convertDefaultPriceToCurrencyPrice(item: any, currency: any): any
+  convertPrice(value: any, currency: any): any
+  createdComponent(): any
+  getPrice(shippingPrice: any, currency: any): any
+  getPriceOfCurrency(priceArray: any, currency: any): any
+  initCurrencyPrice(shippingPrice: any): any
+  onAddNewShippingPrice(): any
+  onCalculationChange(calculation: any): any
+  onCloseDeleteModal(): any
+  onConfirmDeleteShippingPrice(): any
+  onDeletePriceMatrix(): any
+  onDeleteShippingPrice(shippingPrice: any): any
+  onQuantityEndChange(price: any): any
+  onSaveCustomShippingRule(ruleId: any, shippingPrice: any): any
+  onSaveMainRule(ruleId: any): any
+  setPrice(shippingPrice: any, currency: any, value: any): any
+  updateShowAllPrices(): any
+
 blocks
   sw_settings_shipping_price_matrix
     sw_settings_shipping_price_matrix_delete_modal

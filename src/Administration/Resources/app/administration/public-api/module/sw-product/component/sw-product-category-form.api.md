@@ -10,6 +10,41 @@ component sw-product-category-form  public  js
   source src/module/sw-product/component/sw-product-category-form/index.js
   template src/module/sw-product/component/sw-product-category-form/sw-product-category-form.html.twig
 
+mixins
+  notification
+
+inject
+  feature
+  repositoryFactory
+  systemConfigApiService
+
+props
+  allowEdit?: boolean  default=true
+
+data
+  defaultVisibility: any
+  displayVisibilityDetail: any
+  multiSelectVisible: any
+  salesChannel: any
+
+computed
+  hasSelectedVisibilities: any
+  isChild: any
+  loading: any
+  parentProduct: any
+  product: any
+  productActiveError: any
+  productTagsError: any
+  productVisibilityRepository: any
+  salesChannelRepository: any
+  showModeSetting: any
+
+methods
+  closeAdvancedVisibility(): any
+  createdComponent(): any
+  displayAdvancedVisibility(): any
+  visibilitiesRemoveInheritanceFunction(newValue: any): any
+
 blocks
   sw_product_category_form
     sw_product_category_form_category_field  [after v-if]
@@ -22,4 +57,8 @@ blocks
     sw_product_category_form_visibility_field_link
       sw_product_category_form_active_field
     sw_product_category_form_visibility_title
+
+refs
+  productVisibilitiesInheritance  -> sw-inherit-wrapper  block=sw_product_category_form_visibility_field
+  productVisibility  -> sw-product-visibility-select  block=sw_product_category_form_visibility_field
 ```

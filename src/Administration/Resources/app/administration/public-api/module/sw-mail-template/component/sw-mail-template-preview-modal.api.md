@@ -11,6 +11,13 @@ component sw-mail-template-preview-modal  private  js  [private]
   template src/module/sw-mail-template/component/sw-mail-template-preview-modal/sw-mail-template-preview-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  isLoading?: boolean  default=false  [private]
+  mailPreview: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
 blocks
   sw_mail_template_detail_preview_modal_footer  [after v-if] [private]
     sw_mail_template_detail_preview_modal_footer_cancel  [private]

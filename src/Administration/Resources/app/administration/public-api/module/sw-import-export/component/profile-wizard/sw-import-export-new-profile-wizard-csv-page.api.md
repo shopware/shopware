@@ -10,8 +10,30 @@ component sw-import-export-new-profile-wizard-csv-page  public  js
   source src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/index.js
   template src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/sw-import-export-new-profile-wizard-csv-page.html.twig
 
+mixins
+  notification
+
+inject
+  importExport
+  repositoryFactory
+
+props
+  profile: object
+
+emits
+  next-allow(...args: any[])
+  next-disable(...args: any[])
+
+data
+  csvFile: any
+
+methods
+  createdComponent(): any
+  onFileChange(): Promise<any>
+  transformMapping(mapping: any): any
+
 blocks
   sw_import_export_new_profile_wizard_csv_page
     sw_import_export_new_profile_wizard_csv_page_csv_upload
-    sw_import_export_new_profile_wizard_csv_page_text
+    sw_import_export_new_profile_wizard_csv_page_text  [deprecated tag:v6.8.0]
 ```

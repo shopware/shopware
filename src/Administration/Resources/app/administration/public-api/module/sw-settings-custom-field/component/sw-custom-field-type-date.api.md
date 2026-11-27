@@ -11,6 +11,16 @@ component sw-custom-field-type-date  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-date/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-type-date/sw-custom-field-type-date.html.twig
 
+data
+  propertyNames: object
+    helpText: any
+    label: any
+  timeForms: any
+  types: any
+
+methods
+  createdComponent(): any
+
 blocks
   sw_custom_field_type_base  [inherited]
     sw_custom_field_type_base_content  [keepsParent]

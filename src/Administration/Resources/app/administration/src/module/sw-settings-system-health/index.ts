@@ -114,6 +114,14 @@ Shopware.Component.register(
 /**
  * @private
  */
+Shopware.Component.register(
+    'sw-settings-system-health-app-system',
+    () => import('./component/sw-settings-system-health-app-system'),
+);
+
+/**
+ * @private
+ */
 Shopware.Module.register('sw-settings-system-health', {
     type: 'core',
     name: 'system-health',

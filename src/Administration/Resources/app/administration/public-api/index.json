@@ -15301,6 +15301,14 @@
                 "sw_settings_system_health_administration"
             ]
         },
+        "sw-settings-system-health-app-system": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-app-system",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_app_system"
+            ]
+        },
         "sw-settings-system-health-app-url": {
             "file": "module/sw-settings-system-health/component/sw-settings-system-health-app-url",
             "visibility": "private",

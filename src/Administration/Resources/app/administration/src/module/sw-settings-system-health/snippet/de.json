@@ -52,7 +52,8 @@
             "ProductDetailReadiness": "Produktseiten",
             "ProductListingReadiness": "Kategorieseiten",
             "AppUrlVerification": "App-URL",
-            "ShopId": "Shop-Identität"
+            "ShopId": "Shop-Identität",
+            "AppSystem": "App-Verbindungen"
         },
         "storefront-pages": {
             "summary": "{failed} von {total} Seiten wurden nicht geladen."
@@ -81,6 +82,10 @@
             },
             "AppUrlVerification": {
                 "impact": "Apps lassen sich nur installieren und erhalten nur Daten, wenn dieser Shop unter der APP_URL erreichbar ist. Prüfe die Umgebungsvariable APP_URL und ob der Shop aus dem Internet erreichbar ist."
+            },
+            "AppSystem": {
+                "impact": "Betroffene Apps funktionieren eventuell nicht wie erwartet. Den Grund pro App findest du in der Tabelle; meist hilft der Support der App oder eine Neuinstallation.",
+                "action": "Meine Erweiterungen öffnen"
             }
         },
         "section": {
@@ -165,6 +170,23 @@
                 "storedValue": "Gespeicherter Wert",
                 "currentValue": "Aktueller Wert",
                 "matches": "Status"
+            }
+        },
+        "app-system": {
+            "column": {
+                "name": "App",
+                "status": "Status",
+                "reason": "Grund",
+                "lastStatusCode": "Letzter Antwortcode"
+            },
+            "reason": {
+                "inactive": "App ist inaktiv",
+                "registration_incomplete": "Registrierung wurde nicht abgeschlossen",
+                "credentials_rejected": "App-Server lehnt den Shop ab",
+                "delivery_failing": "Webhook-Zustellungen schlagen fehl",
+                "webhooks_suspended": "Webhooks nach Fehlern ausgesetzt",
+                "no_app_activity": "Seit 7 Tagen keine API-Aktivität",
+                "no_signal": "Noch kein Signal"
             }
         }
     },

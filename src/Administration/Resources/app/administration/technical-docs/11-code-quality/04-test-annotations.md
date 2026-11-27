@@ -112,7 +112,8 @@ Do not fall back to `@characterization` when the source is merely unusual.
 
 - has more than one of `@regression`, `@behavior` and `@characterization`
 - is a `describe` tagged `@characterization`
-- is tagged `@regression` or `@behavior` without a `@see`, on itself or on a `describe` with the same tag
+- is a test tagged `@regression` or `@behavior` without a `@see`, on itself or on a `describe` with the same tag
+- is a `describe` tagged `@regression` or `@behavior` without its own `@see`
 - links a `@see` outside the accepted sources without a `@seeException`
 - has a `@seeException` reason shorter than 20 characters
 
@@ -125,4 +126,4 @@ Tag one when you change it and know why it exists; otherwise leave it.
 
 ## Fixing a bug
 
-A fix for a bug that Jest can cover comes with at least one `@regression` test whose `@see` links the bug.
+The test that reproduces the fixed bug is tagged `@regression` and links the bug.

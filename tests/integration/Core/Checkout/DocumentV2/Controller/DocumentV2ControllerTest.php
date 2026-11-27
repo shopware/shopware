@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator as LegacyDocumentGenerator;
@@ -476,6 +477,50 @@ class DocumentV2ControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
         static::assertSame($content, $response->getContent());
+    }
+
+    #[TestWith([true, 'invoice-1000'])]
+    #[TestWith([false, 'invoice-1001'])]
+    #[TestWith([true, ''])]
+    public function testUploadedInvoiceUsesCustomerAccountVisibilityFromBaseConfig(bool $visible, string $documentNumber): void
+    {
+        $this->upsertBaseConfig(['displayInCustomerAccount' => $visible], DocumentType::INVOICE->value);
+
+        $orderId = $this->createDraftOrder();
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+        $mediaId = $this->createDocumentMedia('uploaded invoice');
+
+        $browser = $this->getBrowser(true, [], [
+            'document:create',
+            'document:read',
+            'document_file:create',
+            'document_file:read',
+            'media:read',
+        ]);
+        $browser->jsonRequest('POST', '/api/_action/order/document-v2/upload', [
+            'documentType' => DocumentType::INVOICE->value,
+            'format' => DocumentFormat::PDF->value,
+            'orderId' => $orderId,
+            'orderVersionId' => $orderVersionId,
+            'mediaId' => $mediaId,
+            'documentNumber' => $documentNumber,
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $document = static::getContainer()->get('document.repository')
+            ->search(new Criteria([$payload['documentId']]), $this->context)
+            ->getEntities()->first();
+
+        static::assertInstanceOf(DocumentEntity::class, $document);
+        static::assertArrayHasKey('displayInCustomerAccount', $document->getConfig());
+        static::assertSame($visible, $document->getConfig()['displayInCustomerAccount']);
+        if ($documentNumber === '') {
+            static::assertArrayNotHasKey('documentNumber', $document->getConfig());
+        } else {
+            static::assertSame($documentNumber, $document->getConfig()['documentNumber']);
+        }
     }
 
     public function testUploadAcceptsPublicLibraryMedia(): void

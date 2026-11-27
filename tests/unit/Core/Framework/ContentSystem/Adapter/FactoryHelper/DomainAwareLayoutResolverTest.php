@@ -3,11 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -33,36 +36,9 @@ class DomainAwareLayoutResolverTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
-    #[TestDox('returns assignment when domain ID is known and repository returns entity')]
-    public function testReturnsAssignmentWhenDomainIsKnown(): void
-    {
-        $entity = new SectionContentLayoutAssignmentEntity();
-        $entity->setId($this->ids->get('assignment'));
-        $entity->setContentLayoutId($this->ids->get('layout'));
-
-        $context = Generator::generateSalesChannelContext();
-
-        $repository = StaticEntityRepository::of(SectionContentLayoutAssignmentCollection::class, [
-            static function (Criteria $criteria) use ($entity): array {
-                $filters = $criteria->getFilters();
-                static::assertCount(1, $filters);
-                static::assertInstanceOf(OrFilter::class, $filters[0]);
-
-                static::assertSame(1, $criteria->getLimit());
-                static::assertContains('contentLayout', array_keys($criteria->getAssociations()));
-
-                return [$entity];
-            },
-        ]);
-
-        $resolver = new DomainAwareLayoutResolver();
-        $result = $resolver->resolve($context, $repository);
-
-        static::assertSame($entity, $result);
-    }
-
-    #[TestDox('returns assignment when domain ID is null using salesChannel-only filter')]
-    public function testReturnsAssignmentWhenDomainIsNull(): void
+    #[DataProvider('domainIdProvider')]
+    #[TestDox('returns the assignment the domain-scoped criteria resolves for a known or a null domain ID')]
+    public function testReturnsResolvedAssignment(?string $domainId): void
     {
         $entity = new SectionContentLayoutAssignmentEntity();
         $entity->setId($this->ids->get('assignment'));
@@ -72,15 +48,22 @@ class DomainAwareLayoutResolverTest extends TestCase
         $salesChannel->setId($this->ids->get('salesChannel'));
 
         $context = static::createStub(SalesChannelContext::class);
-        $context->method('getDomainId')->willReturn(null);
+        $context->method('getDomainId')->willReturn($domainId);
         $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
         $repository = StaticEntityRepository::of(SectionContentLayoutAssignmentCollection::class, [
-            static function (Criteria $criteria) use ($entity): array {
+            static function (Criteria $criteria) use ($entity, $domainId): array {
                 $filters = $criteria->getFilters();
                 static::assertCount(1, $filters);
                 static::assertInstanceOf(OrFilter::class, $filters[0]);
+
+                $domainScoped = $filters[0]->getQueries()[0];
+                static::assertInstanceOf(MultiFilter::class, $domainScoped);
+                $domainFilter = $domainScoped->getQueries()[0];
+                static::assertInstanceOf(EqualsFilter::class, $domainFilter);
+                static::assertSame('domainId', $domainFilter->getField());
+                static::assertSame($domainId, $domainFilter->getValue());
 
                 static::assertSame(1, $criteria->getLimit());
                 static::assertContains('contentLayout', array_keys($criteria->getAssociations()));
@@ -89,10 +72,18 @@ class DomainAwareLayoutResolverTest extends TestCase
             },
         ]);
 
-        $resolver = new DomainAwareLayoutResolver();
-        $result = $resolver->resolve($context, $repository);
+        $result = (new DomainAwareLayoutResolver())->resolve($context, $repository);
 
         static::assertSame($entity, $result);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function domainIdProvider(): iterable
+    {
+        yield 'known domain id' => ['domain-known-id'];
+        yield 'null domain id' => [null];
     }
 
     #[TestDox('returns most specific assignment when multiple candidates exist')]

@@ -1,0 +1,61 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-s);
+    line-height: var(--font-line-height-s);
+    color: var(--color-text-primary-default);
+    background: var(--color-background-secondary-default);
+}
+
+h1,
+h2,
+h3,
+p {
+    margin: 0;
+}
+
+code,
+.mono {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.92em;
+}
+
+/* Unstyled buttons for list rows; :where keeps the reset below the styles of the row. */
+:where(button.plain) {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+button.plain:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--color-border-brand-selected);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-xs);
+}
+
+/* The directions place fields and banners in their own layouts, so the default outer spacing goes. */
+.mt-field {
+    margin-bottom: 0;
+}
+
+.mt-banner {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+
+.mt-switch {
+    margin: 0;
+}
+
+/* Puts a source link at the end of its row; Meteor's link styles keep their own margins. */
+.at-end {
+    margin-left: auto;
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+}

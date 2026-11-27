@@ -33,7 +33,7 @@ explicit `/name` (Claude Code) or `$name` (Codex) invocation.
 
 A skill can additionally run unattended in CI via [GitHub Agentic Workflows](https://github.com/githubnext/gh-aw): a workflow source at `.github/workflows/<name>.md` plus a `runtime-import`-ed policy fragment at `.github/aw/<name>-policy.md`. When both surfaces exist, the shared rubric lives in `.github/aw/shared/<name>-policy.md` and is loaded by both surfaces — they cannot drift on the policy.
 
-Current twins: `sw-triage`, `sw-bugfixer`, and `sw-review` (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
+Current twins: `sw-triage`, `sw-bugfixer`, `sw-review`, and `sw-security-review`, a security-only run of `sw-review` that uses the `sw-review` policy (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
 
 For the gh aw setup, secrets, and registration mechanics, see [`.github/aw/README.md`](../../.github/aw/README.md).
 

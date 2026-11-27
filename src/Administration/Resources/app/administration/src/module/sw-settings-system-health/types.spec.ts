@@ -7,6 +7,7 @@ function check(status: SystemHealthStatus | null) {
     return {
         name: 'MyCheck',
         category: 'FEATURE',
+        tags: [],
         result:
             status === null
                 ? null

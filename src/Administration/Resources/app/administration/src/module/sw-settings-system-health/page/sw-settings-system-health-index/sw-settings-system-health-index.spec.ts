@@ -4,10 +4,16 @@
 import { mount } from '@vue/test-utils';
 import type { SystemHealthCheck, SystemHealthResult } from '../../types';
 
-function check(name: string, category: string, result: Partial<SystemHealthResult> | null): SystemHealthCheck {
+function check(
+    name: string,
+    category: string,
+    result: Partial<SystemHealthResult> | null,
+    tags: string[] = [],
+): SystemHealthCheck {
     return {
         name,
         category,
+        tags,
         result:
             result === null
                 ? null
@@ -15,12 +21,24 @@ function check(name: string, category: string, result: Partial<SystemHealthResul
     };
 }
 
-async function createWrapper(getChecks: jest.Mock, run = jest.fn(() => Promise.resolve())) {
+async function createWrapper(getChecks: jest.Mock, run = jest.fn(() => Promise.resolve()), query = {}) {
+    const replace = jest.fn();
+
     const wrapper = mount(await wrapTestComponent('sw-settings-system-health-index', { sync: true }), {
         global: {
             provide: { systemHealthApiService: { getChecks, run } },
+            mocks: { $route: { query }, $router: { replace } },
             stubs: {
-                'sw-page': { template: '<div><slot name="content"></slot></div>' },
+                'sw-page': { template: '<div><slot name="content"></slot><slot name="sidebar"></slot></div>' },
+                'sw-sidebar': { template: '<div><slot></slot></div>' },
+                'sw-sidebar-item': { template: '<div><slot></slot></div>' },
+                'sw-sidebar-collapse': { template: '<div><slot name="content"></slot></div>' },
+                'mt-select': {
+                    props: ['options'],
+                    emits: ['update:modelValue'],
+                    template:
+                        '<select class="tag-filter" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="option in options" :value="option.value">{{ option.label }}</option></select>',
+                },
                 'sw-card-view': { template: '<div><slot></slot></div>' },
                 'mt-card': {
                     template: '<div><div class="card-header"><slot name="headerRight"></slot></div><slot></slot></div>',
@@ -36,7 +54,7 @@ async function createWrapper(getChecks: jest.Mock, run = jest.fn(() => Promise.r
     });
     await flushPromises();
 
-    return { wrapper, run };
+    return { wrapper, run, replace };
 }
 
 describe('module/sw-settings-system-health/page/sw-settings-system-health-index', () => {
@@ -108,5 +126,31 @@ describe('module/sw-settings-system-health/page/sw-settings-system-health-index'
         expect(run).toHaveBeenCalledTimes(1);
         expect(run).toHaveBeenCalledWith(null);
         expect(wrapper.find('.check-row').attributes('data-running')).toBe('true');
+    });
+
+    it('should only list the checks with the tag from the route', async () => {
+        const { wrapper } = await createWrapper(
+            jest.fn(() =>
+                Promise.resolve([
+                    check('AppUrlVerification', 'EXTERNAL', { status: 'ERROR', healthy: false }, ['apps']),
+                    check('LocalesReadiness', 'FEATURE', { status: 'WARNING', healthy: false }),
+                ]),
+            ),
+            jest.fn(() => Promise.resolve()),
+            { tag: 'apps' },
+        );
+
+        expect(wrapper.findAll('.check-row').map((row) => row.attributes('data-name'))).toEqual(['AppUrlVerification']);
+        expect(wrapper.findAll('.tag-filter option').map((option) => option.attributes('value'))).toEqual(['', 'apps']);
+    });
+
+    it('should put the chosen tag into the route', async () => {
+        const { wrapper, replace } = await createWrapper(
+            jest.fn(() => Promise.resolve([check('AppUrlVerification', 'EXTERNAL', {}, ['apps'])])),
+        );
+
+        await wrapper.find('.tag-filter').setValue('apps');
+
+        expect(replace).toHaveBeenCalledWith({ query: { tag: 'apps' } });
     });
 });

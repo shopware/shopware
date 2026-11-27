@@ -9,6 +9,7 @@ describe('module/sw-settings-system-health/component/sw-settings-system-health-c
         const check: SystemHealthCheck = {
             name: 'MyCheck',
             category: 'FEATURE',
+            tags: [],
             result: {
                 status: 'OK',
                 healthy: true,

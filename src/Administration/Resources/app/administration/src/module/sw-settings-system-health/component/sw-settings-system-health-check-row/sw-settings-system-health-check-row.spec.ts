@@ -36,23 +36,31 @@ const result = {
 
 describe('module/sw-settings-system-health/component/sw-settings-system-health-check-row', () => {
     it('should show the registered component of the check', async () => {
-        const wrapper = await createWrapper({ name: 'AppUrlVerification', category: 'EXTERNAL', result });
+        const wrapper = await createWrapper({ name: 'AppUrlVerification', category: 'EXTERNAL', tags: [], result });
 
         expect(wrapper.find('.own-view').exists()).toBe(true);
         expect(wrapper.find('.default-view').exists()).toBe(false);
     });
 
     it('should show the default view for a check without its own component', async () => {
-        const wrapper = await createWrapper({ name: 'MyCheck', category: 'EXTERNAL', result });
+        const wrapper = await createWrapper({ name: 'MyCheck', category: 'EXTERNAL', tags: [], result });
 
         expect(wrapper.find('.default-view').exists()).toBe(true);
     });
 
     it('should offer to run a check that never ran', async () => {
-        const wrapper = await createWrapper({ name: 'MyCheck', category: 'EXTERNAL', result: null });
+        const wrapper = await createWrapper({ name: 'MyCheck', category: 'EXTERNAL', tags: [], result: null });
 
         await wrapper.find('.sw-settings-system-health-check-row__panel .mt-button').trigger('click');
 
         expect(wrapper.emitted('run')).toEqual([['MyCheck']]);
+    });
+
+    it('should name the tags of the check', async () => {
+        const wrapper = await createWrapper({ name: 'AppUrlVerification', category: 'EXTERNAL', tags: ['apps'], result });
+
+        expect(wrapper.find('.sw-settings-system-health-check-row__meta').text()).toContain(
+            'sw-settings-system-health.check-row.tags',
+        );
     });
 });

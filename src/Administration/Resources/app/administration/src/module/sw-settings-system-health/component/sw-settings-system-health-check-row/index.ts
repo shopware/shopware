@@ -3,6 +3,7 @@ import template from './sw-settings-system-health-check-row.html.twig';
 import './sw-settings-system-health-check-row.scss';
 import { STATUS_COLORS, STATUS_LABELS, type SystemHealthCheck } from '../../types';
 import shortDate from '../../short-date';
+import tagLabel from '../../tag-label';
 
 const DEFAULT_COMPONENT = 'sw-settings-system-health-check-default';
 
@@ -65,6 +66,18 @@ export default Shopware.Component.wrapComponentConfig({
 
         categoryDescription(): string {
             return this.$t(`sw-settings-system-health.category.${this.check.category}.description`);
+        },
+
+        tags(): string {
+            return this.check.tags
+                .map((tag) =>
+                    tagLabel(
+                        tag,
+                        (key) => this.$t(key),
+                        (key) => this.$te(key),
+                    ),
+                )
+                .join(', ');
         },
 
         checkedAt(): string | null {

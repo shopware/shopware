@@ -9,6 +9,7 @@ function check(status: SystemHealthStatus): SystemHealthCheck {
     return {
         name: 'LocalesReadiness',
         category: 'FEATURE',
+        tags: [],
         result: { status, healthy: status === 'OK', message: '', extra: {}, checkedAt: '2026-11-24T10:00:00+00:00' },
     };
 }

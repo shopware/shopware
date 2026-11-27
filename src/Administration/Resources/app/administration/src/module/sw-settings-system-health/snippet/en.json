@@ -8,7 +8,9 @@
             "loading-error": "The system checks could not be loaded.",
             "checks-title": "Checks",
             "checks-subtitle": "The last result of each check.",
-            "run-all": "Run all"
+            "run-all": "Run all",
+            "filter-tag": "Tag",
+            "filter-all": "All"
         },
         "status": {
             "OK": "OK",
@@ -40,7 +42,8 @@
             "run": "Run check",
             "not-run": "This check has not run yet.",
             "category-line": "{category} check",
-            "checked-at": "Last run {date}"
+            "checked-at": "Last run {date}",
+            "tags": "Tag: {tags}"
         },
         "check": {
             "LocalesReadiness": "Languages and locales",
@@ -141,6 +144,9 @@
         "locales": {
             "summary": "{count} locale code is not valid. | {count} locale codes are not valid.",
             "codes": "Invalid locale codes"
+        },
+        "tag": {
+            "apps": "Apps"
         }
     },
     "sw-privileges": {

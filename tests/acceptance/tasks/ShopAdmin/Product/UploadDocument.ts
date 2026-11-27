@@ -39,8 +39,8 @@ export const UploadDocument = base.extend<{ UploadDocument: Task }, FixtureTypes
                 // Wait for the upload to settle (modal closes on success, error shows on rejection)
                 // so a following SaveProduct cannot run mid-upload and persist without the media.
                 await Promise.race([
-                    AdminProductDetail.addDocumentsModal.waitFor({ state: 'hidden' }).catch(() => {}),
-                    AdminProductDetail.documentUploadError.waitFor({ state: 'visible' }).catch(() => {}),
+                    AdminProductDetail.addDocumentsModal.waitFor({ state: 'hidden' }).catch(() => undefined),
+                    AdminProductDetail.documentUploadError.waitFor({ state: 'visible' }).catch(() => undefined),
                 ]);
 
                 // The file lives independently of the product; register it so cleanup removes it.

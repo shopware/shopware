@@ -11,8 +11,19 @@ component sw-address  private  ts  [private]
   template src/app/component/base/sw-address/sw-address.html.twig  [private]
   visibility-source export  [private]
 
+props
+  address?: Address  default=factory  [private]
+  editLink?: RouteLocationNamedRaw | null  default=null  [private]
+  formattingAddress?: string  default=null  [private]
+  headline?: string  default=''  [private]
+  showEditButton?: boolean  default=false  [private]
+
+computed
+  addressClasses: Record<string, boolean | string>  [private]
+  displayFormattingAddress: string  [private]
+
 blocks
   sw_address  [private]
-    sw_address_formatting  [private]
+    sw_address_formatting  [after v-if] [private]
     sw_address_headline  [private]
 ```

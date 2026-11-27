@@ -10,6 +10,45 @@ component sw-users-permissions-role-detail  public  js
   source src/module/sw-users-permissions/page/sw-users-permissions-role-detail/index.js
   template src/module/sw-users-permissions/page/sw-users-permissions-role-detail/sw-users-permissions-role-detail.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  appAclService
+  feature
+  loginService
+  privileges
+  repositoryFactory
+  ssoSettingsService
+  userService
+
+data
+  confirmPasswordModal: any
+  detailedPrivileges: any
+  isLoading: any
+  isSaveSuccessful: any
+  role: any
+
+computed
+  languageId: any
+  roleDetailTabs: any
+  roleId: any
+  roleRepository: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  createNewRole(): any
+  createdComponent(): any
+  getRole(): Promise<any>
+  onCancel(): any
+  onCloseConfirmPasswordModal(): any
+  onSave(): Promise<any>
+  saveFinish(): any
+  saveRole(context: any): Promise<any>
+  updateCurrentUser(): Promise<any>
+
 blocks
   sw_users_permissions_role_detail
     sw_users_permissions_role_detail_content

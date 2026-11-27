@@ -11,6 +11,17 @@ component sw-card-section  private  js  [private]
   template src/app/component/base/sw-card-section/sw-card-section.html.twig  [private]
   visibility-source export  [private]
 
+props
+  divider?: string  default=''  [private]
+  secondary?: boolean  default=false  [private]
+  slim?: boolean  default=false  [private]
+
+slots
+  default  {}  block=sw_card_section  [private]
+
+computed
+  cardSectionClasses: any  [private]
+
 blocks
   sw_card_section  [private]
 ```

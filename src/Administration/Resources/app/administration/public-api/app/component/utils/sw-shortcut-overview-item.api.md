@@ -11,6 +11,19 @@ component sw-shortcut-overview-item  private  js  [private]
   template src/app/component/utils/sw-shortcut-overview-item/sw-shortcut-overview-item.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+
+props
+  content: string  [private]
+  privilege?: string  default=null  [private]
+  title: string  [private]
+
+computed
+  keys: any  [private]
+  platform: any  [private]
+  showItem: any  [private]
+
 blocks
   sw_shortcut_overview_item  [private]
 ```

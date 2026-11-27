@@ -10,15 +10,42 @@ component sw-settings-captcha-select-v2  public  js
   source src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/index.js
   template src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/sw-settings-captcha-select-v2.html.twig
 
+mixins
+  sw-inline-snippet
+
+inject
+  captchaService
+  feature
+
+props
+  value?: object  default=null
+
+emits
+  update:value(...args: any[])
+
+data
+  availableCaptchas: any
+
+computed
+  activeCaptchaSelect: any
+  attributes: any
+  currentValue: any
+
+methods
+  createdComponent(): any
+  getTranslations(): any
+  renderCaptchaOption(technicalName: any): any
+  setCaptchaOptions(list: any): any
+
 blocks
   sw_settings_captcha_select_v2
-    sw_settings_captcha_select_v2_basic_captcha_notice
+    sw_settings_captcha_select_v2_basic_captcha_notice  [after v-if]
     sw_settings_captcha_select_v2_google_recaptcha_v2
       sw_settings_captcha_select_v2_google_recaptcha_v2_description
       sw_settings_captcha_select_v2_google_recaptcha_v2_invisible
       sw_settings_captcha_select_v2_google_recaptcha_v2_secret_key
       sw_settings_captcha_select_v2_google_recaptcha_v2_site_key
-    sw_settings_captcha_select_v2_google_recaptcha_v3
+    sw_settings_captcha_select_v2_google_recaptcha_v3  [after v-if]
       sw_settings_captcha_select_v2_google_recaptcha_v3_description
       sw_settings_captcha_select_v2_google_recaptcha_v3_secret_key
       sw_settings_captcha_select_v2_google_recaptcha_v3_site_key

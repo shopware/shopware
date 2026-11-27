@@ -55,6 +55,18 @@ export default {
         },
 
         /**
+         * @private
+         * @deprecated tag:v6.8.0 - will be removed with `personaRuleFilter`, the rule select then uses its default rule filter
+         */
+        personaRuleFilterDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return undefined;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.personaRuleFilter);
+        },
+
+        /**
          * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
          */
         cartConditionsRuleFilter() {
@@ -84,6 +96,18 @@ export default {
             criteria.addAssociation('conditions').addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - will be removed with `orderConditionsFilter`, the rule select then uses its default rule filter
+         */
+        orderConditionsFilterDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return undefined;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.orderConditionsFilter);
         },
     },
 

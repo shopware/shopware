@@ -11,6 +11,25 @@ component sw-cms-el-vimeo-video  private  js  [private]
   template src/module/sw-cms/elements/vimeo-video/component/sw-cms-el-vimeo-video.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+computed
+  byLine: any  [private]
+  color: any  [private]
+  controls: any  [private]
+  doNotTrack: any  [private]
+  iframeTitle: any  [private]
+  loop: any  [private]
+  mute: any  [private]
+  portrait: any  [private]
+  title: any  [private]
+  videoID: any  [private]
+  videoUrl: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_el_vimeo_video  [private]
 ```

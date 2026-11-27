@@ -11,6 +11,48 @@ component sw-image-preview-modal  private  js  [private]
   template src/app/component/modal/sw-image-preview-modal/sw-image-preview-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  activeItemId?: string  default=''  [private]
+  itemPerPage?: number  default=10  [private]
+  mediaItems: any[]  [private]
+  zoomSteps?: number  default=5  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  activeItemIndex: any  [private]
+  image: any  [private]
+  imageSliderMounted: any  [private]
+  isDisabledReset: any  [private]
+  isDisabledZoomIn: any  [private]
+  isDisabledZoomOut: any  [private]
+  scale: any  [private]
+
+computed
+  images: any  [private]
+  maxZoomValue: any  [private]
+
+methods
+  afterComponentsMounted(): any  [private]
+  beforeDestroyComponent(): any  [private]
+  buttonClass(isDisabled: any): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  getActiveImage(): Promise<any>  [private]
+  loadImage(element: any): Promise<any>  [private]
+  onClickClose(): any  [private]
+  onClickReset(): any  [private]
+  onClickZoomIn(): any  [private]
+  onClickZoomOut(): any  [private]
+  onImageSliderChange(index: any): any  [private]
+  onMouseWheel(event: any): any  [private]
+  onThumbnailSliderChange(index: any): any  [private]
+  setActionButtonState(): any  [private]
+  setTransition(): any  [private]
+  updateTransform(): any  [private]
+  updatedComponent(): any  [private]
+
 blocks
   sw_image_preview_modal  [private]
     sw_image_preview_modal_element  [private]
@@ -21,5 +63,10 @@ blocks
       sw_image_preview_modal_button_close  [private]
       sw_image_preview_modal_divider  [private]
       sw_image_preview_modal_image_slider  [private]
-      sw_image_preview_modal_thumbnail_slider  [private]
+      sw_image_preview_modal_thumbnail_slider  [after v-if] [private]
+
+refs
+  btnReset  -> button  block=sw_image_preview_modal_button_zoom_reset  [private]
+  btnZoomIn  -> button  block=sw_image_preview_modal_button_zoom_in  [private]
+  btnZoomOut  -> button  block=sw_image_preview_modal_button_zoom_out  [private]
 ```

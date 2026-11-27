@@ -131,13 +131,115 @@ class CheapestPriceUpdaterTest extends TestCase
 
         $rulePrices = $container->getPricesForVariant($variantId);
         static::assertArrayHasKey('default', $rulePrices);
-        static::assertSame($salesChannelIds, $rulePrices['default']['sales_channel_ids']);
+        static::assertArrayNotHasKey('sales_channel_ids', $rulePrices['default']);
+        static::assertSame(
+            ['parent' => [], 'variants' => $salesChannelIds === [] ? [] : [$variantId => $salesChannelIds]],
+            $container->getVars()['salesChannelIds']
+        );
+    }
+
+    #[TestDox('The sales channel ids of the parent are written once, not into every price entry')]
+    public function testUpdateWritesInheritedSalesChannelIdsOncePerProduct(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantIds = [Uuid::randomHex(), Uuid::randomHex()];
+        $salesChannelIds = [Uuid::randomHex(), Uuid::randomHex()];
+        $priceJson = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":16.806722689076,"gross":20,"linked":true,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca"}}';
+
+        $mockedData = [];
+        foreach ($variantIds as $variantId) {
+            $mockedData[] = $this->createPriceRow($parentId, $variantId, Uuid::randomHex(), $priceJson);
+            $mockedData[] = $this->createPriceRow($parentId, $variantId, Uuid::randomHex(), $priceJson);
+        }
+
+        $mockedVisibility = array_map(
+            static fn (string $salesChannelId): array => ['product_id' => $parentId, 'sales_channel_id' => $salesChannelId],
+            $salesChannelIds
+        );
+
+        $updater = $this->createMockedUpdater($mockedData, $mockedVisibility);
+        $capturedPrices = $this->captureWrittenCheapestPrices();
+
+        $updater->update([$parentId], Context::createDefaultContext());
+
+        $writtenPrices = $capturedPrices->getArrayCopy();
+        static::assertCount(1, $writtenPrices);
+        foreach ($salesChannelIds as $salesChannelId) {
+            static::assertSame(1, substr_count($writtenPrices[0], $salesChannelId));
+        }
+
+        $container = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $writtenPrices[0]);
+        foreach ($variantIds as $variantId) {
+            foreach ($container->getPricesForVariant($variantId) as $price) {
+                static::assertIsArray($price);
+                static::assertArrayNotHasKey('sales_channel_ids', $price);
+            }
+        }
+
+        static::assertSame(['parent' => $salesChannelIds, 'variants' => []], $container->getVars()['salesChannelIds']);
+    }
+
+    #[TestDox('A variant with own visibility keeps its own sales channel ids')]
+    public function testUpdateWritesOwnSalesChannelIdsOfVariant(): void
+    {
+        $parentId = Uuid::randomHex();
+        $inheritingVariantId = Uuid::randomHex();
+        $ownVariantId = Uuid::randomHex();
+        $parentSalesChannelId = Uuid::randomHex();
+        $variantSalesChannelId = Uuid::randomHex();
+        $priceJson = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":16.806722689076,"gross":20,"linked":true,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca"}}';
+
+        $updater = $this->createMockedUpdater(
+            [
+                $this->createPriceRow($parentId, $inheritingVariantId, Uuid::randomHex(), $priceJson),
+                $this->createPriceRow($parentId, $ownVariantId, Uuid::randomHex(), $priceJson),
+            ],
+            [
+                ['product_id' => $parentId, 'sales_channel_id' => $parentSalesChannelId],
+                ['product_id' => $ownVariantId, 'sales_channel_id' => $variantSalesChannelId],
+            ]
+        );
+        $capturedPrices = $this->captureWrittenCheapestPrices();
+
+        $updater->update([$parentId], Context::createDefaultContext());
+
+        $writtenPrices = $capturedPrices->getArrayCopy();
+        static::assertCount(1, $writtenPrices);
+        $container = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $writtenPrices[0]);
+
+        static::assertSame(
+            ['parent' => [$parentSalesChannelId], 'variants' => [$ownVariantId => [$variantSalesChannelId]]],
+            $container->getVars()['salesChannelIds']
+        );
     }
 
     public static function salesChannelVisibilityProvider(): \Generator
     {
         yield 'variant visible in two sales channels' => [[Uuid::randomHex(), Uuid::randomHex()]];
         yield 'variant without visibility rows' => [[]];
+    }
+
+    /**
+     * @return \ArrayObject<int, string>
+     */
+    private function captureWrittenCheapestPrices(): \ArrayObject
+    {
+        $writtenPrices = new \ArrayObject();
+        $this->connection->method('transactional')->willReturnCallback(
+            fn (\Closure $closure): mixed => $closure($this->connection)
+        );
+        $this->connection->method('executeStatement')->willReturnCallback(
+            static function (string $sql, array $params = []) use ($writtenPrices): int {
+                // the payload of a single-row batch is the THEN value following the CASE key
+                if (str_contains($sql, '`cheapest_price` = CASE')) {
+                    $writtenPrices->append((string) $params[1]);
+                }
+
+                return 1;
+            }
+        );
+
+        return $writtenPrices;
     }
 
     /**

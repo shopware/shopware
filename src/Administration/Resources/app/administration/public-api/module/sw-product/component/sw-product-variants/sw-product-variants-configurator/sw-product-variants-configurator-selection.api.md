@@ -11,28 +11,65 @@ component sw-product-variants-configurator-selection  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/sw-product-variants-configurator-selection.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  product: object
+
+emits
+  option-select(...args: any[])
+
+slots
+  toolbar  {}  block=sw_property_search_field
+  toolbar-search-field  {}  block=sw_property_search_field
+
+data
+  removedOptions: any  [private]
+
+computed
+  configuratorSettingsRepository: any
+
+methods
+  addOptionCount(): any
+  createConfiguratorSetting(option: any): any  [private]
+  onOptionSelect(selection: any, item: any): any
+  selectOptions(grid: any): any
+
 blocks
   sw_property_search  [inherited]
     sw_property_search_field  [replaced]
       sw_product_variants_configurator_selection_search_field
-    sw_property_search_inner_after  [inherited]
+    sw_property_search_inner_after  [inherited] [after v-if]
     sw_property_search_inner_before  [inherited]
-    sw_property_search_option_search  [inherited]
-      sw_property_search_empty  [inherited]
+    sw_property_search_option_search  [inherited] [after v-if]
+      sw_property_search_empty  [inherited] [after v-if]
         sw_property_search_empty_image  [inherited]
       sw_property_search_option_search_grid  [inherited]
         sw_property_search_option_search_grid_columns  [inherited]
-          sw_property_search_option_search_grid_columns_name  [inherited]
+          sw_property_search_option_search_grid_columns_name  [inherited] [scope: item]
         sw_property_search_option_search_grid_pagination  [inherited]
     sw_property_search_tree  [inherited]
       sw_property_search_tree_container  [inherited]
         sw_property_search_tree_group_grid  [inherited]
           sw_property_search_tree_group_grid_columns  [inherited]
-            sw_property_search_tree_group_grid_columns_name  [inherited]
-            sw_property_search_tree_group_grid_columns_options  [inherited]
+            sw_property_search_tree_group_grid_columns_name  [inherited] [scope: item]
+            sw_property_search_tree_group_grid_columns_options  [inherited] [scope: item]
           sw_property_search_tree_group_grid_pagination  [inherited]
         sw_property_search_tree_option_grid  [inherited]
           sw_property_search_tree_option_grid_columns  [inherited]
-            sw_property_search_tree_option_grid_columns_name  [inherited]
+            sw_property_search_tree_option_grid_columns_name  [inherited] [scope: item]
           sw_property_search_tree_option_grid_pagination  [inherited]
+
+crossings
+  v-if  sw_property_search_option_search_grid -> sw_property_search_empty
+
+refs
+  groupGrid  -> sw-grid  block=sw_property_search_tree_group_grid
+  optionGrid  -> sw-grid  block=sw_property_search_tree_option_grid
+  optionSearchGrid  -> sw-grid  block=sw_property_search_option_search_grid
+  searchField  -> sw-simple-search-field  block=sw_product_variants_configurator_selection_search_field
 ```

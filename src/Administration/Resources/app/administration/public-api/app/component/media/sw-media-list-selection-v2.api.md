@@ -10,9 +10,57 @@ component sw-media-list-selection-v2  public  js
   source src/app/component/media/sw-media-list-selection-v2/index.js
   template src/app/component/media/sw-media-list-selection-v2/sw-media-list-selection-v2.html.twig
 
+mixins
+  notification
+
+inject
+  mediaService
+  repositoryFactory
+
+props
+  defaultFolderName?: string  default=null
+  disabled?: boolean  default=false
+  entity: object
+  entityMediaItems: any[]
+  uploadTag?: string  default=null
+
+emits
+  item-remove(...args: any[])
+  item-sort(...args: any[])
+  open-sidebar(...args: any[])
+  upload-finish(...args: any[])
+
+data
+  columnCount: any
+  columnWidth: any
+
+computed
+  currentCount: any
+  defaultFolder: any
+  gridAutoRows: any
+  listItems: any
+  mediaItems: any
+  mediaRepository: any
+  uploadId: any
+
+methods
+  createPlaceholders(count: any): any
+  mountedComponent(): any
+  onDeboundDragDrop(dragData: any, dropData: any, validDrop: any): any
+  onMediaItemDragSort(dragData: any, dropData: any, validDrop: any): any
+  onMediaUploadButtonOpenSidebar(): any
+  onUploadFailed(uploadTask: any): any
+  onUploadsAdded(arg0: any): Promise<any>
+  removeItem(mediaItem: any, index: any): any
+  successfulUpload(arg0: any): Promise<any>
+  updateColumnCount(): any
+
 blocks
   sw_media_list_selection_v2
     sw_media_list_selection_v2_grid
-      sw_media_list_selection_v2_grid_items
+      sw_media_list_selection_v2_grid_items  [after v-if]
     sw_media_list_selection_v2_upload
+
+refs
+  grid  -> div  block=sw_media_list_selection_v2_grid
 ```

@@ -11,6 +11,24 @@ component sw-settings-number-range-create  public  js
   source src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js
   template src/module/sw-settings-number-range/page/sw-settings-number-range-create/sw-settings-number-range-create.html.twig
 
+data
+  hasProductNumberRange: any
+  isShowProductWarning: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  numberRangeTypeCriteria: any
+  productNumberRangeCriteria: any
+  showNumberRangeStateFields: any
+
+methods
+  checkPatternCollision(): Promise<any>
+  createdComponent(): Promise<any>
+  getProductNumberRanges(): Promise<any>
+  onChangeType(id: any, numberRange: any): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_number_range_detail  [inherited]
     sw_settings_number_range_detail_actions  [inherited]
@@ -18,8 +36,8 @@ blocks
       sw_settings_number_range_detail_actions_save  [inherited]
     sw_settings_number_range_detail_content  [inherited]
       sw_settings_number_range_detail_assignment_card  [inherited]
-        sw_sales_channel_detail_base_general_input_sales_channel  [inherited]
-        sw_sales_channel_detail_base_general_input_type  [inherited]
+        sw_sales_channel_detail_base_general_input_sales_channel  [inherited] [after v-if]
+        sw_sales_channel_detail_base_general_input_type  [inherited] [after v-if]
         sw_settings_number_range_detail_assignment_card_global_warning  [replaced]
         sw_settings_number_range_detail_content_global_product_warning  [replaced]
       sw_settings_number_range_detail_content_card  [inherited]
@@ -29,11 +47,11 @@ blocks
         sw_settings_number_range_detail_content_field_name  [inherited]
         sw_settings_number_range_detail_content_field_pattern  [inherited]
         sw_settings_number_range_detail_content_field_prefix  [inherited]
-        sw_settings_number_range_detail_content_field_preview  [inherited]
+        sw_settings_number_range_detail_content_field_preview  [inherited] [after v-if]
         sw_settings_number_range_detail_content_field_start  [inherited]
         sw_settings_number_range_detail_content_field_suffix  [inherited]
         sw_settings_number_range_detail_content_global_warning  [inherited]
-        sw_settings_number_range_detail_content_pattern_collision_warning  [inherited]
+        sw_settings_number_range_detail_content_pattern_collision_warning  [inherited] [after v-if]
       sw_settings_number_range_detail_custom_field_sets  [inherited]
       sw_settings_number_range_detail_language_info  [inherited]
     sw_settings_number_range_detail_header  [inherited]

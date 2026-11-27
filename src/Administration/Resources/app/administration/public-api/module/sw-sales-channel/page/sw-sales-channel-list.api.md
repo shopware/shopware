@@ -10,6 +10,37 @@ component sw-sales-channel-list  public  js
   source src/module/sw-sales-channel/page/sw-sales-channel-list/index.js
   template src/module/sw-sales-channel/page/sw-sales-channel-list/sw-sales-channel-list.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  domainLinkService
+  repositoryFactory
+
+data
+  isLoading: any
+  lastSortedColumn: any
+  productsForSalesChannel: any
+  salesChannels: any
+  searchConfigEntity: any
+  sortBy: any
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  salesChannelColumns: any
+  salesChannelCriteria: any
+  salesChannelFavoritesService: any
+  salesChannelRepository: any
+
+methods
+  checkForDomainLink(salesChannel: any): any
+  getList(): Promise<any>
+  isFavorite(salesChannelId: any): any
+  isStorefrontSalesChannel(salesChannel: any): any
+  onAddSalesChannel(): any
+  openStorefrontLink(storeFrontLink: any): any
+
 blocks
   sw_sales_channel_list
     sw_sales_channel_list_actions
@@ -18,14 +49,14 @@ blocks
       sw_sales_channel_list_content_card
         sw_sales_channel_list_grid
           sw_sales_channel_list_grid_actions
-            sw_sales_channel_list_grid_actions_item_detail
-            sw_sales_channel_list_grid_actions_item_open_storefront
+            sw_sales_channel_list_grid_actions_item_detail  [scope: item]
+            sw_sales_channel_list_grid_actions_item_open_storefront  [scope: item]
           sw_sales_channel_list_grid_column_created_at
           sw_sales_channel_list_grid_column_favorite
           sw_sales_channel_list_grid_column_name
           sw_sales_channel_list_grid_column_status
-      sw_sales_channel_list_empty_state
-        sw_sales_channel_list_empty_state_no_sales_channels
+      sw_sales_channel_list_empty_state  [after v-if]
+        sw_sales_channel_list_empty_state_no_sales_channels  [after v-if]
     sw_sales_channel_list_search_bar
     sw_sales_channel_list_smart_bar_header
       sw_sales_channel_list_smart_bar_header_title

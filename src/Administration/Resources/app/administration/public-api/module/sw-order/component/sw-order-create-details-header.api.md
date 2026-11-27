@@ -10,19 +10,44 @@ component sw-order-create-details-header  public  js
   source src/module/sw-order/component/sw-order-create-details-header/index.js
   template src/module/sw-order/component/sw-order-create-details-header/sw-order-create-details-header.html.twig
 
+props
+  cartPrice?: object
+  currency?: object
+  customer?: object
+  orderDate: string
+
+emits
+  on-select-existing-customer(...args: any[])
+
+slots
+  default  {}  block=sw_order_create_details_header_profile
+
+data
+  showNewCustomerModal: any
+
+computed
+  currencyFilter: any
+  customerCriteria: any
+  customerId: any
+
+methods
+  onCloseNewCustomerModal(): any
+  onSelectExistingCustomer(customerId: any): any
+  onShowNewCustomerModal(): any
+
 blocks
   sw_order_create_details_header
-    sw_order_create_details_header_profile
+    sw_order_create_details_header_profile  [after v-if]
       sw_order_create_details_header_profile_avatar
       sw_order_create_details_header_profile_searching
         sw_order_create_search_customer
           sw_order_create_search_customer_slot_result_item
-            sw_order_create_search_customer_slot_result_item_content_container
-              sw_order_create_search_customer_slot_result_item_address
-              sw_order_create_search_customer_slot_result_item_company
-              sw_order_create_search_customer_slot_result_item_firstname
-              sw_order_create_search_customer_slot_result_item_lastname
-              sw_order_create_search_customer_slot_result_item_number
+            sw_order_create_search_customer_slot_result_item_content_container  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+              sw_order_create_search_customer_slot_result_item_address  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+              sw_order_create_search_customer_slot_result_item_company  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+              sw_order_create_search_customer_slot_result_item_firstname  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+              sw_order_create_search_customer_slot_result_item_lastname  [after v-if] [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+              sw_order_create_search_customer_slot_result_item_number  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
           sw_order_create_search_customer_slot_selection_label_property
       sw_order_create_details_header_profile_summary
     sw_order_create_details_new_customer_modal

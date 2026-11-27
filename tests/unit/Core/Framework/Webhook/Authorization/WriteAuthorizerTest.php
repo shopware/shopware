@@ -149,6 +149,29 @@ class WriteAuthorizerTest extends TestCase
         $this->assertViolation($this->authorize([$update]), WebhookException::WEBHOOK_NOT_OWNED);
     }
 
+    public function testAnAppsIntegrationCannotGiveItsWebhookASecret(): void
+    {
+        $appIntegrationId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
+
+        $this->assertSecretViolation($this->authorize(
+            [$this->insertWebhook(secret: 'my-secret', ownerType: IdentityType::AppIntegration, ownerId: $appIntegrationId)],
+            new Context(new AdminApiSource(null, $appIntegrationId))
+        ));
+        static::assertSame([], $this->authorize(
+            [$this->insertWebhook(secret: 'my-secret', ownerType: IdentityType::Integration, ownerId: $integrationId)],
+            new Context(new AdminApiSource(null, $integrationId))
+        ));
+    }
+
+    public function testASecretCannotBeSetOnAWebhookOfAnAppsIntegrationEvenByAnAdmin(): void
+    {
+        $update = $this->updateWebhook(['secret' => 'my-secret']);
+        $this->storeWebhook($update, IdentityType::AppIntegration, Uuid::randomHex());
+
+        $this->assertSecretViolation($this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)));
+    }
+
     public function testAnEmptyAclRoleListIsRejected(): void
     {
         $violations = $this->authorize([$this->insertWebhook(aclRoleIds: [])]);
@@ -357,12 +380,6 @@ class WriteAuthorizerTest extends TestCase
      */
     private function storeWebhook(WriteCommand $command, IdentityType $ownerType, string $ownerId, string $eventName = 'product.written', ?array $aclRoleIds = null): void
     {
-        $ownerColumn = match ($ownerType) {
-            IdentityType::App => 'app_id',
-            IdentityType::Integration, IdentityType::AppIntegration => 'owner_integration_id',
-            IdentityType::User => 'owner_user_id',
-        };
-
         $row = [
             'id' => $command->getPrimaryKey()['id'],
             'app_id' => null,
@@ -372,10 +389,19 @@ class WriteAuthorizerTest extends TestCase
             'event_name' => $eventName,
             'acl_role_ids' => $aclRoleIds === null ? null : json_encode($aclRoleIds, \JSON_THROW_ON_ERROR),
         ];
-        $row[$ownerColumn] = Uuid::fromHexToBytes($ownerId);
+        $row[$this->ownerColumn($ownerType)] = Uuid::fromHexToBytes($ownerId);
 
         $this->rowLoader = static::createStub(RowLoader::class);
         $this->rowLoader->method('load')->willReturn([$row]);
+    }
+
+    private function ownerColumn(IdentityType $ownerType): string
+    {
+        return match ($ownerType) {
+            IdentityType::App => 'app_id',
+            IdentityType::Integration, IdentityType::AppIntegration => 'owner_integration_id',
+            IdentityType::User => 'owner_user_id',
+        };
     }
 
     private function userContext(string $userId, bool $isAdmin = false): Context
@@ -397,12 +423,21 @@ class WriteAuthorizerTest extends TestCase
     /**
      * @param list<string>|null $aclRoleIds
      */
-    private function insertWebhook(string $eventName = 'product.written', ?array $aclRoleIds = null): InsertCommand
-    {
+    private function insertWebhook(
+        string $eventName = 'product.written',
+        ?array $aclRoleIds = null,
+        ?string $secret = null,
+        IdentityType $ownerType = IdentityType::User,
+        string $ownerId = self::USER_ID,
+    ): InsertCommand {
         $id = Uuid::randomBytes();
-        $payload = ['id' => $id, 'event_name' => $eventName, 'owner_user_id' => Uuid::fromHexToBytes(self::USER_ID), 'owner_type' => IdentityType::User->value];
+        $payload = ['id' => $id, 'event_name' => $eventName, $this->ownerColumn($ownerType) => Uuid::fromHexToBytes($ownerId), 'owner_type' => $ownerType->value];
         if ($aclRoleIds !== null) {
             $payload['acl_role_ids'] = json_encode($aclRoleIds, \JSON_THROW_ON_ERROR);
+        }
+
+        if ($secret !== null) {
+            $payload['secret'] = $secret;
         }
 
         return new InsertCommand($this->webhookDefinition(), $payload, ['id' => $id], static::createStub(EntityExistence::class), '/insert');
@@ -429,6 +464,16 @@ class WriteAuthorizerTest extends TestCase
     {
         static::assertCount(1, $violations);
         static::assertSame($errorCode, $violations[0]->getErrorCode());
+    }
+
+    /**
+     * @param list<HttpException> $violations
+     */
+    private function assertSecretViolation(array $violations): void
+    {
+        static::assertCount(1, $violations);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $violations[0]);
+        static::assertSame('/secret', $violations[0]->getViolations()->get(0)->getPropertyPath());
     }
 
     /**

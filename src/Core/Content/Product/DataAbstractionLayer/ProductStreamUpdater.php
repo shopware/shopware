@@ -353,7 +353,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             foreach ($criteria->getFilters() as $filter) {
                 foreach ($filter->getFields() as $accessor) {
                     $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($this->productDefinition, $accessor, false);
-                    $path = EntityDefinitionQueryHelper::removeExtensionPathSegments($accessor);
+                    $path = EntityDefinitionQueryHelper::removeExtensionPathSegments($accessor, $this->productDefinition);
                     $segments = explode('.', $path);
                     if ($segments[0] === ProductDefinition::ENTITY_NAME) {
                         array_shift($segments);

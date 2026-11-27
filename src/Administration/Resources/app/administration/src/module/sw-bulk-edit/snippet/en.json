@@ -249,19 +249,15 @@
         "alertTitle": "The following triggers/flows might be executed:",
         "triggeredFlows": {
           "orderDeliveries": {
-            "key": "orderDeliveries",
             "label": "Delivery state changes"
           },
           "orderTransactions": {
-            "key": "orderTransactions",
             "label": "Payment state changes"
           },
           "orders": {
-            "key": "orders",
             "label": "Order state changes"
           },
           "requestedCustomerGroupId": {
-            "key": "requestedCustomerGroupId",
             "label": "Customer group registration request"
           }
         },

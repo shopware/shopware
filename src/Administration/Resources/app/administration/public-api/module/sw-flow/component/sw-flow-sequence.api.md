@@ -11,12 +11,24 @@ component sw-flow-sequence  private  js  [private]
   template src/module/sw-flow/component/sw-flow-sequence/sw-flow-sequence.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
+  sequence: object  [private]
+
+computed
+  isActionSequence: any  [private]
+  isConditionSequence: any  [private]
+  isSelectorSequence: any  [private]
+  sequenceData: any  [private]
+  trueBlockClasses: any  [private]
+
 blocks
   sw_flow_sequence  [private]
-    sw_flow_sequence_action  [private]
-    sw_flow_sequence_condition  [private]
+    sw_flow_sequence_action  [after v-if] [private]
+    sw_flow_sequence_condition  [after v-if] [private]
     sw_flow_sequence_extension  [private]
-    sw_flow_sequence_false_block  [private]
+    sw_flow_sequence_false_block  [after v-if] [private]
     sw_flow_sequence_selector  [private]
     sw_flow_sequence_true_block  [private]
 ```

@@ -11,12 +11,71 @@ component sw-flow-set-entity-custom-field-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/sw-flow-set-entity-custom-field-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-inline-snippet, notification  [private]
+
+inject
+  flowBuilderService  [private]
+  repositoryFactory  [private]
+
+props
+  action?: string  default=null  [private]
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  config: any  [private]
+  customField: object  [private]
+    config: object  [private]
+      label: any  [private]
+  customFieldError: any  [private]
+  customFieldId: any  [private]
+  customFieldSetError: any  [private]
+  customFieldSetId: any  [private]
+  customFieldValue: any  [private]
+  entity: any  [private]
+  entityError: any  [private]
+  entityOptions: any  [private]
+  fieldOptionSelected: any  [private]
+  fieldOptions: any  [private]
+  renderedFieldConfig: any  [private]
+
+computed
+  customFieldCriteria: any  [private]
+  customFieldRepository: any  [private]
+  customFieldSetCriteria: any  [private]
+  customFieldSets: any  [private]
+  customFields: any  [private]
+  defaultFieldOptions: any  [private]
+  labelProperty: any  [private]
+  multipleFieldOptions: any  [private]
+  showFieldValue: any  [private]
+  triggerActions: any  [private]
+  triggerEvent: any  [private]
+
+methods
+  convertToEntityTechnicalName(camelCaseText: any): any  [private]
+  createdComponent(): any  [private]
+  fieldError(field: any): any  [private]
+  getCustomFieldRendered(): any  [private]
+  getEntityOptions(): any  [private]
+  getFieldOptions(fieldConfig: any): any  [private]
+  onAddAction(): any  [private]
+  onClose(): any  [private]
+  onCustomFieldChange(id: any, customField: any): any  [private]
+  onCustomFieldSetChange(id: any, customFieldSet: any): any  [private]
+  onEntityChange(): any  [private]
+  validateOptionSelectFieldLabel(config: any): any  [private]
+
 blocks
   sw_flow_set_entity_custom_field_modal  [private]
     sw_flow_set_entity_custom_field_modal_content  [private]
       sw_flow_set_entity_custom_field_modal_category  [private]
       sw_flow_set_entity_custom_field_modal_field_name  [private]
-      sw_flow_set_entity_custom_field_modal_field_value  [private]
+      sw_flow_set_entity_custom_field_modal_field_value  [after v-if] [private]
       sw_flow_set_entity_custom_field_modal_field_value_options  [private]
       sw_flow_tag_modal_to_field  [private]
     sw_flow_set_entity_custom_field_modal_custom  [private]

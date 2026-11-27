@@ -10,22 +10,57 @@ component sw-product-detail-reviews  public  js
   source src/module/sw-product/view/sw-product-detail-reviews/index.js
   template src/module/sw-product/view/sw-product-detail-reviews/sw-product-detail-reviews.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+data
+  dataSource: any
+  deleteReviewId: any
+  limit: any
+  page: any
+  showReviewDeleteModal: any
+  total: any
+
+computed
+  assetFilter: any
+  cardTitle: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  isLoading: any
+  product: any
+  reviewColumns: any
+  reviewCriteria: any
+  reviewRepository: any
+
+methods
+  createdComponent(): any
+  getReviews(): any
+  onCancelReviewDelete(): any
+  onChangePage(data: any): any
+  onCloseReviewDeleteModal(): any
+  onConfirmReviewDelete(): any
+  onShowReviewDeleteModal(): any
+  onStartReviewDelete(review: any): any
+
 blocks
   sw_product_detail_reviews
     sw_product_detail_reviews_data
       sw_product_detail_reviews_data_action
-        sw_product_detail_reviews_data_action_delete
-        sw_product_detail_reviews_data_action_edit
+        sw_product_detail_reviews_data_action_delete  [scope: item]
+        sw_product_detail_reviews_data_action_edit  [scope: item]
       sw_product_detail_reviews_data_created_at
       sw_product_detail_reviews_data_pagination
       sw_product_detail_reviews_data_stars
-        sw_product_detail_reviews_data_stars_content
+        sw_product_detail_reviews_data_stars_content  [scope: item]
       sw_product_detail_reviews_data_status
     sw_product_detail_reviews_empty_state
       sw_product_detail_reviews_empty_state_button
-    sw_product_detail_reviews_modal_delete
+    sw_product_detail_reviews_modal_delete  [after v-if]
       sw_product_detail_reviews_modal_delete_body
       sw_product_detail_reviews_modal_delete_footer
         sw_product_detail_reviews_modal_delete_button_cancel
         sw_product_detail_reviews_modal_delete_button_confirm
+
+refs
+  gridReview  -> sw-data-grid  block=sw_product_detail_reviews_data
 ```

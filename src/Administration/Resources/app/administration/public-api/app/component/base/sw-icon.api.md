@@ -11,6 +11,17 @@ component sw-icon  private  js  [private]
   template src/app/component/base/sw-icon/sw-icon.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  name: string  [private]
+
+slots
+  default  {}  block=sw_icon  [private]
+  default  {}  block=(root)  [private]
+
 blocks
   sw_icon  [private]
+
+crossings
+  v-if  sw_icon -> (root)  [private]
 ```

@@ -10,14 +10,54 @@ component sw-settings-country-state  public  js
   source src/module/sw-settings-country/component/sw-settings-country-state/index.js
   template src/module/sw-settings-country/component/sw-settings-country-state/sw-settings-country-state.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+
+props
+  country: object
+  countryStateRepository?: object  default=null
+  isLoading?: boolean  default=false
+
+data
+  countryStateLoading: any
+  currentCountryState: any
+  deleteButtonDisabled: any
+  showEmptyState: any
+  term: any
+
+computed
+  countryStates: any
+  stateColumns: any
+
+methods
+  checkEmptyState(): any
+  countryStateSelectionChanged(selection: any, selectionCount: any): any
+  getCountryStateName(item: any): any
+  getStateColumns(): any
+  mountedComponent(): any
+  onAddCountryState(): any
+  onCancelCountryState(): any
+  onClickCountryState(item: any): any
+  onDeleteCountryStates(): Promise<any>
+  onSaveCountryState(countryState: any): Promise<any>
+  onSearchCountryState(): any
+  refreshCountryStateList(): any
+
 blocks
   sw_settings_country_state_list_card
     sw_attribute_list_toolbar_searchfield
     sw_settings_country_state_detail
     sw_settings_country_state_list_empty
     sw_settings_country_state_list_listing
-      sw_settings_country_state_list_listing_action_edit
-      sw_settings_country_state_list_listing_column_name
+      sw_settings_country_state_list_listing_action_edit  [scope: item]
+      sw_settings_country_state_list_listing_column_name  [scope: item]
     sw_settings_country_state_list_toolbar_add
     sw_settings_country_state_list_toolbar_delete
+
+refs
+  countryStateGrid  -> sw-one-to-many-grid  block=sw_settings_country_state_list_listing
 ```

@@ -11,6 +11,10 @@ component sw-settings-country-create  public  js
   source src/module/sw-settings-country/page/sw-settings-country-create/index.js
   template src/module/sw-settings-country/page/sw-settings-country-create/sw-settings-country-create.html.twig
 
+methods
+  createdComponent(): any
+  saveFinish(): any
+
 blocks
   sw_settings_country_detail  [inherited]
     sw_settings_country_detail_actions  [inherited]

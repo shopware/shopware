@@ -10,19 +10,52 @@ component sw-promotion-v2-list  public  js
   source src/module/sw-promotion-v2/page/sw-promotion-v2-list/index.js
   template src/module/sw-promotion-v2/page/sw-promotion-v2-list/sw-promotion-v2-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  promotions: any
+  searchConfigEntity: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  total: any
+
+computed
+  addButtonTooltip: any
+  adminEsEnable: any
+  allowBulkDelete: any
+  dateFilter: any
+  promotionColumns: any
+  promotionCriteria: any
+  promotionRepository: any
+
+methods
+  deleteDisabledTooltip(promotion: any): any
+  getList(): Promise<any>
+  getPromotionColumns(): any
+  onChangeLanguage(): any
+  onDuplicatePromotion(referencePromotion: any): Promise<any>
+  updateTotal(arg0: any): any
+
 blocks
   sw_promotion_v2_list
     sw_promotion_v2_list_content
       sw_promotion_v2_list_empty_state
-        sw_promotion_v2_list_empty_state_actions
-      sw_promotion_v2_list_grid
+        sw_promotion_v2_list_empty_state_actions  [deprecated tag:v6.8.0]
+      sw_promotion_v2_list_grid  [after v-if]
         sw_promotion_v2_list_grid_columns
           sw_promotion_v2_list_grid_columns_active
           sw_promotion_v2_list_grid_columns_valid_from
           sw_promotion_v2_list_grid_columns_valid_until
         sw_promotion_v2_list_grid_columns_actions
           sw_promotion_v2_list_grid_columns_actions_delete
-          sw_promotion_v2_list_grid_columns_actions_duplicate
+          sw_promotion_v2_list_grid_columns_actions_duplicate  [scope: item]
     sw_promotion_v2_list_language_switch
     sw_promotion_v2_list_sidebar
       sw_promotion_v2_list_sidebar_refresh
@@ -33,4 +66,10 @@ blocks
         sw_promotion_v2_list_smart_bar_header_amount
         sw_promotion_v2_list_smart_bar_header_title_text
     sw_promotion_v2_search_bar
+
+crossings
+  v-if  sw_promotion_v2_list_empty_state -> sw_promotion_v2_list_grid
+
+refs
+  listing  -> sw-entity-listing  block=sw_promotion_v2_list_grid
 ```

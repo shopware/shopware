@@ -10,8 +10,67 @@ component sw-order-user-card  public  js
   source src/module/sw-order/component/sw-order-user-card/index.js
   template src/module/sw-order/component/sw-order-user-card/sw-order-user-card.html.twig
 
+mixins
+  salutation
+
+inject
+  customSnippetApiService
+  orderService
+  repositoryFactory
+
+props
+  currentOrder: object
+  isEditing: boolean
+  isLoading: boolean
+  versionContext: object
+
+emits
+  error(...args: any[])
+  onEditDeliveryAddress(...args: any[])
+  order-change(...args: any[])
+  order-reset(...args: any[])
+
+slots
+  additional-actions  {}  block=sw_order_user_card_row_primary
+
+data
+  addressBeingEdited: any
+  countries: any
+  formattingAddress: any
+
+computed
+  OrderTagRepository: any
+  billingAddress: any
+  countryRepository: any
+  currencyFilter: any
+  delivery: any
+  fullName: any
+  hasDeliveries: any
+  hasDeliveryTrackingCode: any
+  hasDifferentBillingAndShippingAddress: any
+  hasTags: any
+  lastChangedDate: any
+  orderAddressRepository: any
+  orderDate: any
+
+methods
+  countryCriteria(): any
+  createdComponent(): any
+  emitChange(): any
+  onAddNewDeliveryAddress(): any
+  onAddTag(item: any): any
+  onAddressModalAddressSelected(address: any): any
+  onAddressModalSave(): any
+  onEditBillingAddress(): any
+  onEditDeliveryAddress(): any
+  onRemoveTag(item: any): any
+  onResetOrder(): any
+  reload(): any
+  renderFormattingAddress(): any
+  renderTrackingUrl(trackingCode: any, shippingMethod: any): any
+
 blocks
-  sw_order_detail_base_order_overview
+  sw_order_detail_base_order_overview  [deprecated tag:v6.8.0]
     sw_order_detail_base_address_modal
     sw_order_user_card_row_primary
       sw_order_detail_base_order_overview_columns
@@ -28,7 +87,7 @@ blocks
           sw_order_detail_base_info_summary_entries
         sw_order_user_card_avatar
         sw_order_user_card_metadata
-          sw_order_user_card_metadata_tags
+          sw_order_user_card_metadata_tags  [after v-if]
           sw_order_user_card_metadata_user_name
       sw_order_user_card_slot_additional_actions
     sw_order_user_card_row_secondary
@@ -36,7 +95,7 @@ blocks
         sw_order_detail_base_secondary_info_order_overview_contents
           sw_order_detail_base_secondary_info_order_overview_left_column
             sw_order_detail_base_secondary_info_affiliate
-            sw_order_detail_base_secondary_info_delivery
+            sw_order_detail_base_secondary_info_delivery  [after v-if]
             sw_order_detail_base_secondary_info_order_overview_left_column_slot
             sw_order_detail_base_secondary_info_payment
             sw_order_detail_base_secondary_info_sales_channel
@@ -44,7 +103,7 @@ blocks
             sw_order_detail_base_secondary_info_campaign
             sw_order_detail_base_secondary_info_last_change
             sw_order_detail_base_secondary_info_order_language
-            sw_order_detail_base_secondary_info_order_overview_right_column_slot
+            sw_order_detail_base_secondary_info_order_overview_right_column_slot  [after v-if]
             sw_order_detail_base_secondary_info_tracking_codes
               sw_order_detail_base_secondary_info_tracking_codes_display
                 sw_order_detail_base_secondary_info_tracking_codes_display_content

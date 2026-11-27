@@ -9,4 +9,10 @@ component sw-media-entity-mapper  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/media/sw-media-entity-mapper/index.js  [private]
   visibility-source export  [private]
+
+props
+  item: object  [private]
+
+computed
+  mapEntity: any  [private]
 ```

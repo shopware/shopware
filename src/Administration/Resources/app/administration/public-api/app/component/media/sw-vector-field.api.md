@@ -10,6 +10,45 @@ component sw-vector-field  public  ts
   source src/app/component/media/sw-vector-field/index.ts
   template src/app/component/media/sw-vector-field/sw-vector-field.html.twig
 
+mixins
+  sw-form-field, remove-api-error, validation
+
+inject
+  feature
+
+props
+  description?: string  default=''
+  disabled?: boolean  default=false
+  label?: string  default=''
+  linkable?: boolean  default=false
+  step?: number  default=null
+  value: object
+  variant?: string  default='colored'
+
+emits
+  input-change(...args: any[])
+  link-change(...args: any[])
+  update:value(...args: any[])
+
+slots
+  label  {}  block=sw_vector_field_label
+
+data
+  currentValue: object
+    x: any
+    y: any
+    z: any
+  linked: any
+
+computed
+  classes: Record<string, boolean>
+
+methods
+  onChange(event: Event, axis: 'x' | 'y' | 'z'): any
+  onInput(event: Event, axis: 'x' | 'y' | 'z'): any
+  onLinkToggle(): any
+  updateCurrentValue(event: Event, axis: 'x' | 'y' | 'z'): any
+
 blocks
   sw_vector_field_input
     sw_vector_field_input_inner

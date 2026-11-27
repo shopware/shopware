@@ -11,6 +11,14 @@ component sw-cms-block-app-preview-renderer  private  ts  [private]
   template src/module/sw-cms/blocks/app/app-renderer/preview/sw-cms-block-app-preview-renderer.html.twig  [private]
   visibility-source export  [private]
 
+props
+  block?: { previewImage?: string; appName?: string; label?: string; }  default=factory  [private]
+
+computed
+  appName: string  [private]
+  blockLabel: string  [private]
+  previewImage: string | undefined  [private]
+
 blocks
   sw_cms_block_app_preview_renderer  [private]
 ```

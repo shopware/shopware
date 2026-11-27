@@ -1,0 +1,121 @@
+{% block sw_product_document_edit_modal %}
+<mt-modal-root
+    :is-open="true"
+    @change="!$event && !isApplying && $emit('close')"
+>
+    <mt-modal
+        :title="modalTitle"
+        width="m"
+    >
+        <div class="sw-product-document-form__edit-content">
+        {% block sw_product_document_form_title_input %}
+            <mt-text-field
+                v-model="title"
+                class="sw-product-document-form__name-input"
+                :label="$t('sw-product.documentForm.columnTitle')"
+                :hint="isSystemDefaultLanguage ? $t('sw-product.documentForm.nameHint') : undefined"
+                :placeholder="titlePlaceholder"
+                :error="titleError"
+                :disabled="isDisabled"
+                :required="isSystemDefaultLanguage"
+                :max-length="255"
+            />
+        {% endblock %}
+        {% block sw_product_document_form_replace_file %}
+            <sw-upload-listener
+                :upload-tag="uploadTag"
+                auto-upload
+                @media-upload-finish="onUploadFinished"
+            />
+            <div>
+                <sw-media-upload-v2
+                    :source="editingMedia"
+                    :upload-tag="uploadTag"
+                    variant="regular"
+                    role="group"
+                    :aria-label="$t('sw-product.documentForm.columnFileName')"
+                    :label="$t('sw-product.documentForm.columnFileName')"
+                    :required="isSystemDefaultLanguage"
+                    default-folder="product_document"
+                    :allow-multi-select="false"
+                    :extension-accept="uploadRules.allowedExtensions.join(',')"
+                    :extension-mime-types-by-extension="uploadRules.allowedMimeTypesByExtension"
+                    :max-file-size="uploadRules.maxFileSize"
+                    :disabled="isDisabled"
+                    @media-upload-sidebar-open="showMediaModal = true"
+                    @media-upload-remove-image="removeFile"
+                />
+                {% block sw_product_document_form_file_error %}
+                <sw-field-error
+                    v-if="fileError"
+                    class="sw-product-document-form__file-error"
+                    :error="fileError"
+                    role="alert"
+                />
+                {% endblock %}
+                <mt-text
+                    v-if="!fileError"
+                    size="xs"
+                    color="color-text-secondary-default"
+                    class="sw-product-document-form__upload-hint"
+                >
+                    <mt-icon
+                        name="solid-info-circle"
+                        size="var(--scale-size-12)"
+                    />
+                    {{ fileHint }}
+                </mt-text>
+            </div>
+        {% endblock %}
+
+        {% block sw_product_document_form_apply_to_variants %}
+            <mt-checkbox
+                v-if="hasVariants"
+                v-model:checked="applyToVariants"
+                class="sw-product-document-form__apply-to-variants"
+                :label="$t('sw-product.documentForm.applyToVariants')"
+                :help-text="$t('sw-product.documentForm.applyToVariantsHelp')"
+                :disabled="isDisabled"
+            />
+        {% endblock %}
+            <mt-text
+                size="xs"
+            >
+                {{ $t('sw-product.documentForm.draftHint') }}
+            </mt-text>
+        </div>
+        <template #footer>
+            <div class="sw-product-document-form__upload-footer">
+                <mt-button
+                    size="small"
+                    variant="secondary"
+                    :disabled="isApplying"
+                    @click="$emit('close')"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+                <mt-button
+                    class="sw-product-document-form__save-document"
+                    variant="primary"
+                    size="small"
+                    :disabled="isDisabled"
+                    @click="apply"
+                >
+                    {{ $t('global.default.apply') }}
+                </mt-button>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>
+{% block sw_product_document_edit_modal_media_modal %}
+<sw-media-modal-v2
+    v-if="showMediaModal && mediaFolderId !== undefined"
+    entity-context="product_document"
+    :initial-folder-id="mediaFolderId"
+    :file-accept="uploadRules.fileAccept"
+    :allow-multi-select="false"
+    @media-modal-selection-change="selectMedia"
+    @modal-close="showMediaModal = false"
+/>
+{% endblock %}
+{% endblock %}

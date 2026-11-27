@@ -12,6 +12,12 @@ component sw-extension-select-rating  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-select-rating/sw-extension-select-rating.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  update:value(...args: any[])  [private]
+
+methods
+  onChange(value: any): any  [private]
+
 blocks
   sw_text_field  [replaced] [private]
     sw_select_rating  [private]

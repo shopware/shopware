@@ -11,6 +11,27 @@ component sw-number-field  private  ts  [private]
   template src/app/component/form/sw-number-field/sw-number-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  modelValue?: number  default=undefined  [private]
+  value?: number  default=null  [private]
+
+slots
+  default  {}  block=sw_number_field  [private]
+  default  {}  block=(root)  [private]
+
+computed
+  currentValue: number | undefined  [private]
+
+methods
+  getSlots(): any  [private]
+
 blocks
   sw_number_field  [private]
+
+crossings
+  v-if  sw_number_field -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

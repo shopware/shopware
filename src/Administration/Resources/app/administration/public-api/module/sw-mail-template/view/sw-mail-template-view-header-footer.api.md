@@ -11,7 +11,13 @@ component sw-mail-template-view-header-footer  private  js  [private]
   template src/module/sw-mail-template/view/sw-mail-template-view-header-footer/sw-mail-template-view-header-footer.html.twig  [private]
   visibility-source export  [private]
 
+methods
+  getList(): any  [private]
+
 blocks
   sw_mail_template_view_header_footer  [private]
     sw_mail_template_view_header_footer_list  [private]
+
+refs
+  mailHeaderFooterList  -> sw-mail-header-footer-list  block=sw_mail_template_view_header_footer_list  [private]
 ```

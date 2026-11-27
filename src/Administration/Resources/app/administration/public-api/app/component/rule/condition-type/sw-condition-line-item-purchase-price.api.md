@@ -11,6 +11,17 @@ component sw-condition-line-item-purchase-price  public  js
   source src/app/component/rule/condition-type/sw-condition-line-item-purchase-price/index.js
   template src/app/component/rule/condition-type/sw-condition-line-item-purchase-price/sw-condition-line-item-purchase-price.html.twig
 
+inject
+  feature
+
+data
+  inputKey: any
+
+computed
+  amount: any
+  isNetOperators: any
+  operators: any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -20,7 +31,7 @@ blocks
         sw_condition_base_field_delete_action  [inherited]
       sw_condition_base_field_condition  [inherited]
       sw_condition_value_before_content  [inherited]
-      sw_condition_value_content  [replaced]
+      sw_condition_value_content  [replaced] [after v-if]
         sw_condition_line_item_purchase_price_field_amount
         sw_condition_line_item_purchase_price_field_gross_net
         sw_condition_line_item_purchase_price_field_operator

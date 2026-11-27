@@ -11,7 +11,13 @@ component sw-skeleton-bar  private  ts  [private]
   template src/app/component/utils/sw-skeleton-bar/sw-skeleton-bar.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  useMeteorComponent: any  [private]
+
 blocks
   sw_skeleton_bar  [private]
-  sw_skeleton_bar_deprecated  [private]
+  sw_skeleton_bar_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_skeleton_bar -> sw_skeleton_bar_deprecated  [private]
 ```

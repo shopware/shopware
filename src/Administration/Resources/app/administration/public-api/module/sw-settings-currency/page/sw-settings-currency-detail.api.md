@@ -10,6 +10,64 @@ component sw-settings-currency-detail  public  js
   source src/module/sw-settings-currency/page/sw-settings-currency-detail/index.js
   template src/module/sw-settings-currency/page/sw-settings-currency-detail/sw-settings-currency-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  feature
+  repositoryFactory
+
+props
+  currencyId?: string  default=null
+
+data
+  currency: any
+  currencyCountryLoading: any
+  currencyCountryRoundings: any
+  currentCurrencyCountry: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  searchTerm: any
+
+computed
+  currencyCountryColumns: any
+  currencyCountryRoundingCriteria: any
+  currencyCountryRoundingRepository: any
+  currencyDecimalPrecisionError: any
+  currencyFactorError: any
+  currencyIsDefaultError: any
+  currencyIsoCodeError: any
+  currencyNameError: any
+  currencyRepository: any
+  currencyShortNameError: any
+  currencySymbolError: any
+  emptyStateText: any
+  identifier: any
+  showCustomFields: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): Promise<any>
+  invalidateCurrencyCaches(): any
+  loadCurrencyCountryRoundings(): Promise<any>
+  loadCustomFieldSets(): any
+  loadEntityData(): Promise<any>
+  onAddCountry(): any
+  onCancel(): any
+  onCancelEditCountry(): any
+  onChangeCountrySearch(value: any): any
+  onChangeLanguage(): any
+  onClickEdit(item: any): any
+  onSave(): Promise<any>
+  onSaveCurrencyCountry(): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+
 blocks
   sw_settings_currency_detail
     sw_settings_currency_detail_actions
@@ -24,7 +82,7 @@ blocks
         sw_settings_currency_detail_content_field_symbol
         sw_settings_currency_detail_content_field_tax_free_from
       sw_settings_currency_detail_content_card_country_price_rounding
-        sw_settings_currency_detail_content_card_country_price_rounding_empty
+        sw_settings_currency_detail_content_card_country_price_rounding_empty  [after v-if]
         sw_settings_currency_detail_content_card_country_price_rounding_listing
           sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column
           sw_settings_currency_detail_content_card_country_price_rounding_listing_item_interval_column
@@ -38,7 +96,10 @@ blocks
           sw_settings_currency_detail_content_card_country_price_rounding_toolbar_filter
       sw_settings_currency_detail_content_card_price_rounding
       sw_settings_currency_detail_content_language_info
-      sw_settings_currency_detail_custom_field_sets
+      sw_settings_currency_detail_custom_field_sets  [after v-if]
     sw_settings_currency_detail_header
     sw_settings_currency_detail_language_switch
+
+crossings
+  v-if  sw_settings_currency_detail_content_card_country_price_rounding_listing -> sw_settings_currency_detail_content_card_country_price_rounding_empty
 ```

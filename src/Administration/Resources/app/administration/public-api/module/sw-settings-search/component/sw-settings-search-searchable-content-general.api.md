@@ -10,23 +10,57 @@ component sw-settings-search-searchable-content-general  public  js
   source src/module/sw-settings-search/component/sw-settings-search-searchable-content-general/index.js
   template src/module/sw-settings-search/component/sw-settings-search-searchable-content-general/sw-settings-search-searchable-content-general.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+
+props
+  columns: any[]
+  fieldConfigs: any[]
+  isEmpty: boolean
+  isLoading?: boolean  default=false
+  repository: object
+  searchConfigs?: any[]  default=factory
+
+emits
+  config-save(...args: any[])
+  data-load(...args: any[])
+
+computed
+  assetFilter: any
+
+methods
+  getConfigRankingDefault(fieldName: any): any
+  getList(): any
+  getMatchingFields(fieldName: any): any
+  onInlineEditCancel(): any
+  onInlineEditItem(item: any): any
+  onInlineEditSave(promise: any): any
+  onResetRanking(currentField: any): any
+  onSelectField(currentField: any): any
+
 blocks
   sw_settings_search_searchable_content_general
     sw_settings_search_searchable_content_general_empty_state
-      sw_settings_search_searchable_content_general_state_image
-    sw_settings_search_searchable_content_general_grid
+      sw_settings_search_searchable_content_general_state_image  [deprecated tag:v6.8.0]
+    sw_settings_search_searchable_content_general_grid  [after v-if]
       sw_settings_search_searchable_content_general_columns_actions
-        sw_settings_search_searchable_content_general_columns_actions_edit
+        sw_settings_search_searchable_content_general_columns_actions_edit  [scope: item]
       sw_settings_search_searchable_content_general_field
-        sw_settings_search_searchable_content_general_field_editor
-        sw_settings_search_searchable_content_general_field_label
+        sw_settings_search_searchable_content_general_field_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_general_field_label  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_general_pagination
       sw_settings_search_searchable_content_general_ranking
-        sw_settings_search_searchable_content_general_ranking_editor
+        sw_settings_search_searchable_content_general_ranking_editor  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_general_searchable
-        sw_settings_search_searchable_content_general_searchable_editor
-        sw_settings_search_searchable_content_general_searchable_label
+        sw_settings_search_searchable_content_general_searchable_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_general_searchable_label  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_general_tokenize
-        sw_settings_search_searchable_content_general_tokenize_editor
-        sw_settings_search_searchable_content_general_tokenize_label
+        sw_settings_search_searchable_content_general_tokenize_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_general_tokenize_label  [scope: isInlineEdit, item]
+
+refs
+  swSettingsSearchableContentGrid  -> sw-entity-listing  block=sw_settings_search_searchable_content_general_grid
 ```

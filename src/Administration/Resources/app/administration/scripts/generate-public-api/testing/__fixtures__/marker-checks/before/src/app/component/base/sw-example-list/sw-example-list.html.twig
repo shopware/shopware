@@ -1,0 +1,39 @@
+{% block sw_example_list %}
+<div class="sw-example-list">
+    {% block sw_example_list_items %}
+    <ul class="sw-example-list__items">
+        <li
+            v-for="(item, index) in items"
+            :key="item.id"
+            class="sw-example-list__item"
+        >
+            {% block sw_example_list_item_label %}
+            <span class="sw-example-list__item-label">
+                {{ item.name }}
+            </span>
+            {% endblock %}
+
+            {% block sw_example_list_item_delete %}
+            <button
+                type="button"
+                class="sw-example-list__item-delete"
+                :disabled="isLoading"
+                @click="onDeleteItem(item, index)"
+            >
+                {{ $t('global.default.delete') }}
+            </button>
+            {% endblock %}
+        </li>
+    </ul>
+    {% endblock %}
+
+    {% block sw_example_list_pagination %}
+    <sw-pagination
+        :total="items.length"
+        :limit="25"
+        :page="1"
+        @page-change="({ page }) => onPageChange(page)"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

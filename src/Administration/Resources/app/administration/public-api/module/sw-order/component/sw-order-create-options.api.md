@@ -10,6 +10,45 @@ component sw-order-create-options  public  ts
   source src/module/sw-order/component/sw-order-create-options/index.ts
   template src/module/sw-order/component/sw-order-create-options/sw-order-create-options.html.twig
 
+props
+  context: ContextSwitchParameters
+  disabledAutoPromotion: boolean
+  promotionCodes: string[]
+  sendOrderConfirmationMail?: boolean  default=true
+
+emits
+  auto-promotion-toggle(...args: any[])
+  promotions-change(...args: any[])
+  send-order-confirmation-mail-toggle(...args: any[])
+  shipping-cost-change(...args: any[])
+
+data
+  isSameAsBillingAddress: any
+  promotionCodeTags: any
+  shippingCost: any
+
+computed
+  cart: Cart
+  cartDelivery: CartDelivery | null
+  currency: Entity<'currency'>
+  customer: Entity<'customer'> | null
+  paymentMethodCriteria: CriteriaType
+  salesChannelCriteria: CriteriaType
+  salesChannelId: EntityKey<'sales_channel'>
+  shippingMethodCriteria: CriteriaType
+
+methods
+  changePromotionCodes(value: string[]): void
+  createdComponent(): void
+  loadCart(): Promise<void>
+  onChangeShippingCost(value: number): void
+  onToggleAutoPromotion(value: boolean): void
+  onToggleSendOrderConfirmationMail(value: boolean): void
+  updateCartContext(): Promise<void>
+  updateOrderContext(): Promise<void>
+  updateSameAsBillingAddressToggle(): void
+  validatePromotions(searchTerm: string): boolean
+
 blocks
   sw_order_create_options
     sw_order_create_options_container

@@ -2,6 +2,7 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 Shopware.Service().register('syncService', () => {
     return {
@@ -32,7 +33,7 @@ async function createWrapper() {
                     },
                     'sw-select-rule-create': {
                         template: '<div class="sw-select-rule-create"></div>',
-                        props: ['disabled'],
+                        props: ['disabled', 'ruleFilter'],
                     },
                     'sw-context-menu-item': true,
                     'sw-select-field': true,
@@ -126,12 +127,48 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
         );
     });
 
-    it('should add conditions association', async () => {
-        global.activeAclRoles = [];
+    describe('rule filter of the cart rule select', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-promotion-v2-cart-condition-form');
+        });
 
-        const wrapper = await createWrapper();
-        const criteria = wrapper.vm.ruleFilter;
+        // @deprecated tag:v6.8.0 - The test will be removed with the ruleFilter computed.
+        it.deprecated('v6.8.0.0')('passes ruleFilter to the rule select without reporting its deprecation', async () => {
+            const wrapper = await createWrapper();
 
-        expect(criteria.associations[0].association).toBe('conditions');
+            expect(
+                wrapper
+                    .getComponent('.sw-promotion-v2-cart-condition-form__rule-select-cart')
+                    .props('ruleFilter')
+                    .hasAssociation('conditions'),
+            ).toBe(true);
+            expect(deprecations).not.toHaveTriggered('sw-promotion-v2-cart-condition-form.ruleFilter is deprecated');
+        });
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the ruleFilter computed.
+        it.deprecated('v6.8.0.0')('passes an override of ruleFilter to the rule select', async () => {
+            const overriddenCriteria = new Shopware.Data.Criteria(1, 5);
+            Shopware.Component.override('sw-promotion-v2-cart-condition-form', {
+                computed: {
+                    ruleFilter() {
+                        return overriddenCriteria;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.getComponent('.sw-promotion-v2-cart-condition-form__rule-select-cart').props('ruleFilter')).toBe(
+                overriddenCriteria,
+            );
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {
+            const wrapper = await createWrapper();
+
+            expect(
+                wrapper.getComponent('.sw-promotion-v2-cart-condition-form__rule-select-cart').props('ruleFilter'),
+            ).toBeUndefined();
+        });
     });
 });

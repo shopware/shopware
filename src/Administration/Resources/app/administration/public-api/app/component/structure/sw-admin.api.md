@@ -11,6 +11,26 @@ component sw-admin  private  ts  [private]
   template src/app/component/structure/sw-admin/sw-admin.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  loginService  [private]
+  userActivityService  [private]
+
+data
+  channel: any  [private]
+  toasts: any  [private]
+
+computed
+  isLoggedIn: any  [private]
+  overrideComponents: any  [private] [private]
+
+methods
+  onRemoveToast(id: number): any  [private]
+  onUserActivity(): any  [private]
+
 blocks
   sw_admin  [private]
+
+refs
+  notifications  -> sw-notifications  block=sw_admin  [private]
 ```

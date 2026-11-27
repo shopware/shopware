@@ -11,6 +11,30 @@ component sw-cms-el-cross-selling  private  js  [private]
   template src/module/sw-cms/elements/cross-selling/component/sw-cms-el-cross-selling.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element, placeholder  [private]
+
+data
+  resizeObserver: any  [private]
+  sliderBoxLimit: any  [private]
+
+computed
+  crossSelling: any  [private]
+  crossSellingProducts: any  [private]
+  currentDemoEntity: any  [private]
+  currentDeviceView: any  [private]
+  demoProductElement: any  [private]
+  sliderBoxMinWidth: any  [private]
+
+methods
+  beforeUnmountComponent(): any  [private]
+  createdComponent(): any  [private]
+  destroyResizeObserver(): any  [private]
+  getProductEl(product: any): any  [private]
+  initResizeObserver(): any  [private]
+  mountedComponent(): any  [private]
+  setSliderRowLimit(): any  [private]
+
 blocks
   sw_cms_element_cross_selling  [private]
     sw_cms_element_cross_selling_content  [private]
@@ -20,4 +44,7 @@ blocks
         sw_cms_element_cross_selling_demo_data  [private]
         sw_cms_element_cross_selling_products  [private]
     sw_cms_element_cross_selling_title  [private]
+
+refs
+  productHolder  -> div  block=sw_cms_element_cross_selling_product_holder  [private]
 ```

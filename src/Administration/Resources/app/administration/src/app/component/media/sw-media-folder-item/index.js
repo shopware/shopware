@@ -119,7 +119,9 @@ export default {
                 return;
             }
 
-            const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
+            const module =
+                this.moduleFactory.getModuleByEntityName(defaultFolder.entity) ??
+                this.moduleFactory.getModuleByChildEntity(defaultFolder.entity);
 
             if (!module) {
                 warn('Missing module for default folder entity', defaultFolder.entity);

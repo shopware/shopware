@@ -10,6 +10,64 @@ component sw-customer-detail-addresses  public  js
   source src/module/sw-customer/view/sw-customer-detail-addresses/index.js
   template src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.html.twig
 
+mixins
+  notification
+
+inject
+  customFieldDataProviderService
+  repositoryFactory
+
+props
+  customer: object
+  customerEditMode: boolean
+
+data
+  activeCustomer: any
+  addressSortDirection: any
+  addressSortProperty: any
+  currentAddress: any
+  customerAddressCustomFieldSets: any
+  isLoading: any
+  showAddAddressModal: any
+  showDeleteAddressModal: any
+  showEditAddressModal: any
+
+computed
+  addressColumns: any
+  addressRepository: any
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+  customerAddressRepository: any
+  customerRepository: any
+  salutationCriteria: any
+  salutationRepository: any
+  sortedAddresses: any
+
+methods
+  clearAddressErrors(address: any): any
+  createNewCustomerAddress(): Promise<any>
+  createPrefix(string: any, replace: any): any
+  createdComponent(): any
+  getAddressColumns(): any
+  getDefaultSalutation(): Promise<any>
+  getLoadedAddress(id: any): any
+  isDefaultAddress(addressId: any): any
+  isValidAddress(address: any): any
+  onChange(term: any): any
+  onChangeDefaultAddress(data: any): any
+  onChangeDefaultBillingAddress(billingAddressId: any): any
+  onChangeDefaultShippingAddress(shippingAddressId: any): any
+  onCloseAddressModal(): any
+  onCloseDeleteAddressModal(): any
+  onConfirmDeleteAddress(id: any): Promise<any>
+  onCreateNewAddress(): any
+  onDeleteAddress(id: any): any
+  onDuplicateAddress(addressId: any): Promise<any>
+  onEditAddress(id: any): any
+  onSaveAddress(): any
+  refreshList(): any
+  removeRequiredFieldError(addressId: any, field: any): any
+  setAddressSorting(column: any): any
+
 blocks
   sw_customer_detail_addresses
     sw_customer_detail_addresses_card
@@ -18,24 +76,27 @@ blocks
         sw_customer_detail_addresses_add_modal_footer
           sw_customer_detail_addresses_add_modal_apply
           sw_customer_detail_addresses_add_modal_cancel
-      sw_customer_detail_addresses_grid
+      sw_customer_detail_addresses_grid  [after v-if]
         sw_customer_detail_addresses_grid_columns
           sw_customer_detail_addresses_grid_columns_default_billing_address
           sw_customer_detail_addresses_grid_columns_default_shipping_address
           sw_customer_detail_addresses_grid_columns_last_name
         sw_customer_detail_addresses_grid_columns_action_modals
-          sw_customer_detail_addresses_delete_modal
-            sw_customer_detail_addresses_delete_modal_address_item
-            sw_customer_detail_addresses_delete_modal_confirm_delete_text
-            sw_customer_detail_addresses_delete_modal_footer
-              sw_customer_detail_addresses_delete_modal_cancel
-              sw_customer_detail_addresses_delete_modal_confirm
+          sw_customer_detail_addresses_delete_modal  [scope: item]
+            sw_customer_detail_addresses_delete_modal_address_item  [scope: item]
+            sw_customer_detail_addresses_delete_modal_confirm_delete_text  [scope: item]
+            sw_customer_detail_addresses_delete_modal_footer  [scope: item]
+              sw_customer_detail_addresses_delete_modal_cancel  [scope: item]
+              sw_customer_detail_addresses_delete_modal_confirm  [scope: item]
         sw_customer_detail_addresses_grid_columns_actions
-          sw_customer_detail_addresses_grid_columns_actions_defaultBillingAddress
-          sw_customer_detail_addresses_grid_columns_actions_defaultShippingAddress
-          sw_customer_detail_addresses_grid_columns_actions_delete
-          sw_customer_detail_addresses_grid_columns_actions_duplicate
-          sw_customer_detail_addresses_grid_columns_actions_edit
+          sw_customer_detail_addresses_grid_columns_actions_defaultBillingAddress  [scope: item]
+          sw_customer_detail_addresses_grid_columns_actions_defaultShippingAddress  [scope: item]
+          sw_customer_detail_addresses_grid_columns_actions_delete  [scope: item]
+          sw_customer_detail_addresses_grid_columns_actions_duplicate  [scope: item]
+          sw_customer_detail_addresses_grid_columns_actions_edit  [scope: item]
       sw_customer_detail_addresses_toolbar
         sw_customer_detail_addresses_add_button
+
+refs
+  addressGrid  -> sw-one-to-many-grid  block=sw_customer_detail_addresses_grid
 ```

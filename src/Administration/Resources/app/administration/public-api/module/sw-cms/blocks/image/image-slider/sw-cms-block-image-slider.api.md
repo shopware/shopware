@@ -11,6 +11,9 @@ component sw-cms-block-image-slider  private  js  [private]
   template src/module/sw-cms/blocks/image/image-slider/component/sw-cms-block-image-slider.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  imageSlider  {}  block=sw_cms_block_image_slider  [private]
+
 blocks
   sw_cms_block_image_slider  [private]
 ```

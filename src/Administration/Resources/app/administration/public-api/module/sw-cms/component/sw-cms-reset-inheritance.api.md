@@ -10,4 +10,18 @@ component sw-cms-reset-inheritance  private  ts  [private]
   source src/module/sw-cms/component/sw-cms-reset-inheritance/index.ts  [private]
   template src/module/sw-cms/component/sw-cms-reset-inheritance/sw-cms-reset-inheritance.html.twig  [private]
   visibility-source export  [private]
+
+mixins
+  cms-state  [private]
+
+data
+  showModal: any  [private]
+
+computed
+  cmsPageStore: any  [private]
+  hasOverrides: any  [private]
+
+methods
+  onConfirm(): Promise<any>  [private]
+  resetSlotOverrides(): any  [private]
 ```

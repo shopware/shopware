@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Symfony\AI\McpBundle\DependencyInjection\ElementMatcher;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -653,9 +654,9 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
 #[McpTool(name: 'shopware-discovery-store-api-tool', description: 'test store api tool')]
 class McpDiscoveryTestStoreApiTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -665,9 +666,9 @@ class McpDiscoveryTestStoreApiTool extends McpToolResponse
 #[McpTool(name: 'shopware-discovery-core-tool', description: 'same name as the admin tool')]
 class McpDiscoveryTestSameNameStoreApiTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -677,9 +678,9 @@ class McpDiscoveryTestSameNameStoreApiTool extends McpToolResponse
 #[McpTool(name: 'shopware-discovery-core-tool', description: 'test core tool')]
 class McpDiscoveryTestCoreTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -689,9 +690,9 @@ class McpDiscoveryTestCoreTool extends McpToolResponse
 #[McpTool(name: 'my-discovery-namespaced-tool', description: 'test namespaced tool')]
 class McpDiscoveryTestNamespacedTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -702,9 +703,9 @@ class McpDiscoveryTestNamespacedTool extends McpToolResponse
 #[McpToolGroup('discovery')]
 class McpDiscoveryTestDiscoveryGroupTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -715,9 +716,9 @@ class McpDiscoveryTestMethodLevelDiscoveryGroupTool extends McpToolResponse
 {
     #[McpTool(name: McpToolsetRegistry::LIST_TOOLSETS_TOOL, description: 'test method visible tool')]
     #[McpToolGroup('discovery')]
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -728,9 +729,9 @@ class McpDiscoveryTestMethodLevelDiscoveryGroupTool extends McpToolResponse
 #[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP)]
 class McpDiscoveryTestExtensionClaimingDiscoveryTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -739,9 +740,9 @@ class McpDiscoveryTestExtensionClaimingDiscoveryTool extends McpToolResponse
  */
 class McpDiscoveryTestNoAttribute
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }
 
@@ -751,8 +752,8 @@ class McpDiscoveryTestNoAttribute
 #[McpTool(name: 'shopware-theme-config', description: 'stands in for the Storefront theme config tool')]
 class McpDiscoveryTestThemeConfigTool extends McpToolResponse
 {
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
-        return '';
+        return McpToolResult::success([]);
     }
 }

@@ -68,17 +68,20 @@ class ProductCategoryDenormalizer
             }
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($allIds, $versionId): void {
+        // One transaction: until the new rows are inserted, other connections would see these products without
+        // categories, and e.g. ProductStreamUpdater::updateProducts() would drop them from category based streams
+        RetryableTransaction::retryable($this->connection, function () use ($allIds, $versionId, $updates, $inserts): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_category_tree WHERE `product_id` IN (:ids) AND `product_version_id` = :version',
                 ['ids' => $allIds, 'version' => $versionId],
                 ['ids' => ArrayParameterType::BINARY]
             );
+
+            // Executing clears the queue; retain the original for retries of the outer transaction.
+            (clone $updates)->execute(['version_id' => $versionId]);
+
+            $this->insertTree($inserts);
         });
-
-        $updates->execute(['version_id' => $versionId]);
-
-        $this->insertTree($inserts);
     }
 
     /**

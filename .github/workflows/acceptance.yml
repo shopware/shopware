@@ -68,6 +68,8 @@ jobs:
     runs-on: ${{ github.repository == 'shopware/shopware-private' && format('runs-on={0}/runner=sw-amd64/cpu=4', github.run_id) || 'ubuntu-24.04' }}
     env:
       V6_8_0_0: ${{ matrix.major && '1' || '' }}
+      # The administration build peaks just above Node's default heap limit of ~2 GB.
+      NODE_OPTIONS: "--max-old-space-size=4096"
     permissions:
       contents: read
       id-token: write
@@ -318,7 +320,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: lts/*
+          node-version: 26
       - name: Install npm
         run: npm install -g npm@11.8.0
 

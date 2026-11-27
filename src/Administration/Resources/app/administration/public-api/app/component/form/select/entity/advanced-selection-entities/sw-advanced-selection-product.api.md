@@ -11,22 +11,49 @@ component sw-advanced-selection-product  private  js  [private]
   template src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-product/sw-advanced-selection-product.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  selection-submit(...args: any[])  [private]
+
+data
+  currencies: any  [private]
+
+computed
+  currenciesColumns: any  [private]
+  currencyFilter: any  [private]
+  currencyRepository: any  [private]
+  dateFilter: any  [private]
+  productAssociations: any  [private]
+  productColumns: any  [private]
+  productContext: any  [private]
+  productFilters: any  [private]
+  stockColorVariantFilter: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getCategoryBreadcrumb(item: any): any  [private]
+  getCurrencyPriceByCurrencyId(currencyId: any, prices: any): any  [private]
+  productHasVariants(productEntity: any): any  [private]
+
 blocks
   sw_advanced_selection_product  [private]
     sw_advanced_selection_product_list_grid_columns_active  [private]
-      sw_advanced_selection_product_list_grid_columns_active_content  [private]
+      sw_advanced_selection_product_list_grid_columns_active_content  [scope: item] [private]
     sw_advanced_selection_product_list_grid_columns_categories  [private]
-      sw_advanced_selection_product_list_grid_columns_categories_content  [private]
+      sw_advanced_selection_product_list_grid_columns_categories_content  [scope: category, item] [private]
     sw_advanced_selection_product_list_grid_columns_name  [private]
-      sw_advanced_selection_product_list_grid_columns_name_content  [private]
+      sw_advanced_selection_product_list_grid_columns_name_content  [scope: item] [private]
     sw_advanced_selection_product_list_grid_columns_name_preview  [private]
     sw_advanced_selection_product_list_grid_columns_price  [private]
     sw_advanced_selection_product_list_grid_columns_release_date  [private]
-      sw_advanced_selection_product_list_grid_columns_release_date_content  [private]
+      sw_advanced_selection_product_list_grid_columns_release_date_content  [scope: item] [private]
     sw_advanced_selection_product_list_grid_columns_stock  [private]
-      sw_advanced_selection_product_list_grid_columns_stock_content  [private]
+      sw_advanced_selection_product_list_grid_columns_stock_content  [scope: compact, item] [private]
     sw_advanced_selection_product_list_grid_columns_tags  [private]
-      sw_advanced_selection_product_list_grid_columns_tags_content  [private]
+      sw_advanced_selection_product_list_grid_columns_tags_content  [scope: item, tag] [private]
     sw_advanced_selection_product_list_grid_columns_visibilities  [private]
-      sw_advanced_selection_product_list_grid_columns_visibilities_content  [private]
+      sw_advanced_selection_product_list_grid_columns_visibilities_content  [scope: item, visibility] [private]
 ```

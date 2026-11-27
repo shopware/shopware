@@ -11,6 +11,25 @@ component sw-bulk-edit-order-documents-delete-documents  private  js  [private]
   template src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-delete-documents/sw-bulk-edit-order-documents-delete-documents.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  documentV2Service  [private]
+  feature  [private]
+  repositoryFactory  [private]
+
+data
+  isLoading: any  [private]
+
+computed
+  documentTypeCriteria: any  [private]
+  documentTypeRepository: any  [private]
+  documentTypes: any  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+
 blocks
   sw_bulk_edit_order_documents_delete_documents  [private]
 ```

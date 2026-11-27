@@ -10,11 +10,57 @@ component sw-settings-country-currency-dependent-modal  public  js
   source src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal/index.js
   template src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal/sw-settings-country-currency-dependent-modal.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  countryId: string
+  currencyDependsValue: any[]
+  isLoading: boolean
+  menuOptions: any[]
+  taxFreeType?: string  default=''
+  userConfig: object
+  userConfigValues: object
+
+emits
+  base-item-change(...args: any[])
+  modal-close(...args: any[])
+  modal-save(...args: any[])
+
+data
+  basedItem: any
+  checkBox: any
+  inputId: any
+
+computed
+  countryCurrencyColumns: any
+  currencyTaxFreeDependentRepository: any
+  currentUserId: any
+  radioButtonName: any
+
+methods
+  addCurrencyDependentRow(currencyId: any): any
+  calculateInheritedPrice(currencyId: any): any
+  changeCurrencyDependentRow(currencyId: any, isChecked: any): any
+  closeModal(): any
+  createNewUserConfig(): any
+  createUserConfigValue(): any
+  getCurrencyById(currencyId: any): any
+  getCurrencyNameById(currencyId: any): any
+  getPriceByCurrency(basePrice: any, currencyId: any): any
+  onChangeBaseCurrency(item: any): any
+  reCalculatorInherited(basePrice: any): any
+  removeCurrencyDependentRow(currencyId: any): any
+  saveModal(): any
+  updateCheckBoxHamburgerMenu(currencyId: any): any
+  updateExistedValue(): any
+
 blocks
   sw_settings_country_currency_dependent_modal
     sw_settings_country_currency_dependent_modal_content
       sw_settings_country_currency_dependent_column_actions
-        sw_settings_country_currency_dependent_grid_column_action_delete
+        sw_settings_country_currency_dependent_grid_column_action_delete  [scope: item]
       sw_settings_country_currency_dependent_grid_column_is_base_currency
       sw_settings_country_currency_dependent_grid_column_value
       sw_settings_country_currency_dependent_modal_content_currency_name

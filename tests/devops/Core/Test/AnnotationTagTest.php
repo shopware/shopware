@@ -41,6 +41,8 @@ class AnnotationTagTest extends TestCase
         // some eslint rules check for @deprecated and therefore produce false positives
         'administration/eslint-rules',
         'storefront/eslint-rules',
+        // the public API break check parses and generates @deprecated markers
+        'administration/scripts/generate-public-api',
         // checks for deprecations too and annotation fails
         'DataAbstractionLayer/DefinitionValidator.php',
         // Test/AnnotationTagTest.php

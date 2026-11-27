@@ -10,9 +10,60 @@ component sw-bulk-edit-save-modal-process  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/sw-bulk-edit-save-modal-process.html.twig
 
+mixins
+  notification
+
+inject
+  documentV2ApiService
+  feature
+  orderDocumentApiService  [deprecated tag:v6.9.0]
+  repositoryFactory
+  syncService
+
+emits
+  buttons-update(...args: any[])
+  changes-apply(...args: any[])
+  redirect(...args: any[])
+  title-set(...args: any[])
+
+data
+  document: object
+    credit_note: object
+      isReached: any
+    delivery_note: object
+      isReached: any
+    invoice: object
+      isReached: any
+    storno: object
+      isReached: any
+  maxDependentDocumentsToShow: any
+  requestsPerPayload: any
+
+computed
+  createDocumentPayload: any
+  deleteDocumentTypes: any
+  documentRepository: any
+  documentTypeConfigs: any
+  documentTypes: any
+  selectedDocumentTypes: any
+  selectedIds: any
+
+methods
+  createDocument(documentType: any, payload: any): Promise<any>  [deprecated tag:v6.9.0]
+  createDocumentV2(documentType: any, payload: any): Promise<any>
+  createDocuments(): Promise<any>
+  createdComponent(): Promise<any>
+  deleteDocuments(): Promise<any>
+  getDocumentGenerationResult(response: any, documentType: any, requested: any): any  [deprecated tag:v6.9.0]
+  getFailedDocumentGenerationItems(errors: any, documentType: any): any  [deprecated tag:v6.9.0]
+  getOrderIdsWithExistingDocument(documentType: any, orderIds: any): Promise<any>
+  setTitle(): any
+  truncateErrorMessage(detailedErrorMessage: any): any
+  updateButtons(): any
+
 blocks
   sw_bulk_edit_save_modal_process
-    sw_bulk_edit_save_modal_process_content
+    sw_bulk_edit_save_modal_process_content  [after v-if]
     sw_bulk_edit_save_modal_process_generate_document
     sw_bulk_edit_save_modal_process_icon
 ```

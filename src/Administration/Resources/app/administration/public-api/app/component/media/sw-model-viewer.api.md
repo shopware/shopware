@@ -10,6 +10,29 @@ component sw-model-viewer  public  ts
   source src/app/component/media/sw-model-viewer/index.ts
   template src/app/component/media/sw-model-viewer/sw-model-viewer.html.twig
 
+inject
+  repositoryFactory
+
+props
+  source: object
+
+data
+  canvas: any
+  isLoading: any
+  modelEntity: any
+  quickView: any
+
+computed
+  mediaRepository: Repository<'media'>
+
+methods
+  beforeUnmountedComponent(): void
+  createdComponent(): void
+  disposeQuickView(): Promise<void>
+  initializeQuickView(): Promise<void>
+  mountedComponent(): void
+  onMediaLibraryItemUpdated(mediaId: EntityKey<'media'>): void
+
 blocks
   sw_model_viewer
 ```

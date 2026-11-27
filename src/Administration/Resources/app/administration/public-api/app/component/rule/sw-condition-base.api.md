@@ -11,6 +11,47 @@ component sw-condition-base  private  js  [private]
   template src/app/component/rule/sw-condition-base/sw-condition-base.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  availableGroups  [private]
+  availableTypes  [private]
+  childAssociationField  [private]
+  conditionDataProviderService  [private]
+
+provide
+  conditionType: any  [private]
+
+props
+  condition?: object  default=null  [private]
+  disabled?: boolean  default=false  [private]
+
+emits
+  condition-delete(...args: any[])  [private]
+  create-after(...args: any[])  [private]
+  create-before(...args: any[])  [private]
+
+computed
+  conditionClasses: any  [private]
+  conditionTypeIdentifier: any  [private]
+  currentError: any  [private]
+  errorCount: any  [private]
+  errorTree: any  [private]
+  fieldErrors: any  [private]
+  hasError: any  [private]
+  hasNoComponent: any  [private]
+  isDisabled: any  [private]
+  isEmpty: any  [private]
+  listedErrors: any  [private]
+  operator: any  [private]
+  typeError: any  [private]
+  value: any  [private]
+  valueErrorPath: any  [private]
+
+methods
+  ensureValueExist(): any  [private]
+  onCreateAfter(): any  [private]
+  onCreateBefore(): any  [private]
+  onDeleteCondition(): any  [private]
+
 blocks
   sw_condition_base  [private]
     sw_condition_base_content  [private]

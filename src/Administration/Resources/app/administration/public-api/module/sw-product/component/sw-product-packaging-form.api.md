@@ -10,6 +10,22 @@ component sw-product-packaging-form  public  js
   source src/module/sw-product/component/sw-product-packaging-form/index.js
   template src/module/sw-product/component/sw-product-packaging-form/sw-product-packaging-form.html.twig
 
+mixins
+  placeholder
+
+props
+  allowEdit: boolean
+  showSettingPackaging: boolean
+
+computed
+  isLoading: any  [deprecated tag:v6.8.0]
+  parentProduct: any
+  product: any
+  productPackUnitError: any
+  productPackUnitPluralError: any
+  productPurchaseUnitError: any
+  productReferenceUnitError: any
+
 blocks
   sw_product_packaging_form
     sw_product_packaging_form_height_field

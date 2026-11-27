@@ -11,6 +11,9 @@ component sw-cms-el-form-template-revocation-request  private  js  [private]
   template src/module/sw-cms/elements/form/component/templates/form-revocation-request/sw-cms-el-form-revocation-request.html.twig  [private]
   visibility-source export  [private]
 
+props
+  formSettings: object  default=null  [private]
+
 blocks
   sw_cms_el_form_revocation_request  [private]
 ```

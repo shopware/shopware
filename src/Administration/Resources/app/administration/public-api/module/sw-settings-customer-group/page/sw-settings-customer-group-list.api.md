@@ -10,6 +10,39 @@ component sw-settings-customer-group-list  public  js
   source src/module/sw-settings-customer-group/page/sw-settings-customer-group-list/index.js
   template src/module/sw-settings-customer-group/page/sw-settings-customer-group-list/sw-settings-customer-group-list.html.twig
 
+mixins
+  listing, placeholder, notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  customerGroups: any
+  isLoading: any
+  limit: any
+  searchConfigEntity: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  allCustomerGroupsCriteria: any
+  columns: any
+  customerGroupRepository: any
+  showEmptyState: any
+
+methods
+  createErrorNotification(): any
+  createdComponent(): any
+  customerGroupCanBeDeleted(customerGroup: any): any
+  customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups: any): any
+  deleteCustomerGroup(customerGroup: any): any
+  deleteCustomerGroups(): any
+  getColumns(): any
+  getList(): Promise<any>
+  getPriceBasisLabel(customerGroup: any): any
+  onContextMenuDelete(customerGroup: any): any
+
 blocks
   sw_settings_customer_group_list
     sw_settings_customer_group_list_actions
@@ -17,17 +50,20 @@ blocks
     sw_settings_customer_group_list_cardview
       sw_settings_customer_group_list_card_content
         sw_settings_customer_group_list_grid
-          sw_settings_customer_group_list_empty_state
+          sw_settings_customer_group_list_empty_state  [after v-if]
           sw_settings_customer_group_list_grid_column_display_gross
-            sw_settings_customer_group_list_grid_column_display_gross_inner
+            sw_settings_customer_group_list_grid_column_display_gross_inner  [scope: item]
           sw_settings_customer_group_list_grid_column_price_basis
-            sw_settings_customer_group_list_grid_column_price_basis_inner
+            sw_settings_customer_group_list_grid_column_price_basis_inner  [scope: item]
           sw_settings_customer_group_list_grid_column_registration_active
-            sw_settings_customer_group_list_grid_column_registration_active_inner
+            sw_settings_customer_group_list_grid_column_registration_active_inner  [scope: item]
     sw_settings_customer_group_list_language_switch
     sw_settings_customer_group_list_search_bar
     sw_settings_customer_group_list_smart_bar_header
       sw_settings_customer_group_list_smart_bar_header_title
         sw_settings_customer_group_list_smart_bar_header_amount
         sw_settings_customer_group_list_smart_bar_header_title_text
+
+refs
+  listing  -> sw-entity-listing  block=sw_settings_customer_group_list_grid
 ```

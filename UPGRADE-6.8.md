@@ -1236,6 +1236,11 @@ The following unused exceptions were removed:
 * `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
 * `\Shopware\Core\Content\ImportExport\Exception\MappingException`
 
+## Removed `RuleException::unsupportedCommandType()`
+
+The factory method `\Shopware\Core\Content\Rule\RuleException::unsupportedCommandType()` was removed without replacement.
+The data abstraction layer reports unsupported write commands with `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException::unsupportedCommandType()`.
+
 ## SystemConfigService: `$silent` parameter changed default value from `false` to `true`
 
 `SystemConfigService::set()`, `setMultiple()`, and `delete()` changed the default value for the `$silent` parameter from `false` to `true`, meaning config writes **no longer invalidate the HTTP cache** (`system.config-{salesChannelId}` tag) by default. The internal config cache (`system-config`) is always cleared regardless.
@@ -1724,6 +1729,35 @@ The deprecated snippet key `sw-import-export.profile.addNewProfileTooltipLanguag
 ## Removal of deprecated `config` data property in `sw-system-config` component
 
 The deprecated data property `config` in `sw-system-config` component with the legacy card structure was removed. Please use the new data property `schema` with the tab structure instead.
+
+Removed together with it:
+* the data properties `isSyncingFromSchema` and `isSyncingFromConfig`
+* the `schema` and `config` watchers that kept both structures in sync
+* the methods `getSchemaForDomain()`, `assignConfigIds()`, `schemaToConfig()`, `getTabIndexByElementOverlap()` and `configToSchema()`
+* the `<template v-for="config in [tab.cards]">` wrapper in `sw-system-config.html.twig`, which scoped `config` to the active tab's cards for block overrides
+
+`systemConfigApiService.getConfig()` was removed as well; use `systemConfigApiService.getSchema()` instead.
+`sw-system-config` loads its schema only from `getSchema()`, so a decorated or overwritten `getConfig()` is no longer merged into the form.
+
+## Rule select filters removed from promotion and shipping components
+
+The following computed properties were removed:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-promotion-v2-settings-rule-selection` | `ruleCriteria`, `ruleCriteriaDeprecated` |
+| `sw-promotion-v2-settings-trigger` | `ruleCriteria`, `ruleCriteriaDeprecated` |
+| `sw-promotion-discount-component` | `ruleFilter`, `ruleFilterDeprecated` |
+| `sw-promotion-v2-cart-condition-form` | `ruleFilter`, `ruleFilterDeprecated` |
+| `sw-promotion-v2-conditions` | `personaRuleFilter`, `personaRuleFilterDeprecated`, `cartConditionsRuleFilter`, `orderConditionsFilter`, `orderConditionsFilterDeprecated` |
+| `sw-settings-shipping-price-matrix` | `shippingRuleFilterCriteria`, `shippingRuleFilterCriteriaDeprecated` |
+
+The promotion components use the default rule filter of the rule select instead, which filters the same way.
+
+In `sw-settings-shipping-price-matrix`, bind `ruleFilterCriteria` instead of `shippingRuleFilterCriteria`.
+The rule selects of the price matrix no longer offer rules that are only assigned to the `shipping` module type. They list rules assigned to the `price` module type or to no module type.
+
+`sw-promotion-discount-component.maxValueAdvancedPricesTooltip` was removed without replacement.
 
 ## Custom-field set loader computed properties removed
 
@@ -2650,6 +2684,11 @@ Use the parent blocks instead
 ## Removal of component sw-settings-storefront-configuration
 `sw-settings-storefront-configuration` is removed without replacement.
 The Storefront settings Administration page owns its settings fields directly.
+
+## Removal of component `sw-order-user-card`
+
+`sw-order-user-card` was removed without replacement, as no Administration page used it anymore.
+The order pages show the customer data in `sw-order-general-info`, `sw-order-detail-details` and `sw-order-create-details-header`; move overrides of `sw-order-user-card` to these components.
 
 ## The following template blocks have been replaced due to typos or misleading names:
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`

@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Product\Subscriber;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
@@ -19,7 +21,8 @@ class CustomFieldSearchableSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly ParameterBagInterface $parameterBag
+        private readonly ParameterBagInterface $parameterBag,
+        private readonly CacheInvalidator $cacheInvalidator
     ) {
     }
 
@@ -63,5 +66,7 @@ class CustomFieldSearchableSubscriber implements EventSubscriberInterface
             ['customFieldIds' => Uuid::fromHexToBytesList($customFieldIds)],
             ['customFieldIds' => ArrayParameterType::BINARY]
         );
+
+        $this->cacheInvalidator->invalidate([CachedSearchConfigLoader::CACHE_KEY], true);
     }
 }

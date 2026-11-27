@@ -27,11 +27,15 @@ slots
   toolbar  {}  block=sw_property_search_field
   toolbar-search-field  {}  block=sw_property_search_field
 
+data
+  removedOptions: any  [private]
+
 computed
   configuratorSettingsRepository: any
 
 methods
   addOptionCount(): any
+  createConfiguratorSetting(option: any): any  [private]
   onOptionSelect(selection: any, item: any): any
   selectOptions(grid: any): any
 

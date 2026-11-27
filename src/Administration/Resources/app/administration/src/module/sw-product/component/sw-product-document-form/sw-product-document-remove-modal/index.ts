@@ -4,6 +4,7 @@
 import type { PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
 import type { DocumentVariantOperation } from 'src/module/sw-product/service/product-document-variant.service';
+import { getSavedDocumentValues } from '../product-document.helper';
 import template from './sw-product-document-remove-modal.html.twig';
 import './sw-product-document-remove-modal.scss';
 
@@ -108,7 +109,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             return Object.fromEntries(
                 this.documents.flatMap((document) => {
-                    const { mediaId, title } = queuedOperations[document.id] ?? document.translated ?? {};
+                    const { mediaId, title } = queuedOperations[document.id] ?? getSavedDocumentValues(document);
                     return mediaId ? [[document.id, { ...removal, mediaId, title: title || null }]] : [];
                 }),
             );

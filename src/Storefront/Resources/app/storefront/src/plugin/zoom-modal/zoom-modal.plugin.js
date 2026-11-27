@@ -75,6 +75,7 @@ export default class ZoomModalPlugin extends Plugin {
         this._clickInterrupted = false;
         this._pixelsMoved = 0;
         this._mouseDown = false;
+        this._imagesLoading = false;
 
         this._registerEvents();
         this._registerViewportChangeEvent();
@@ -233,6 +234,10 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _loadImages(modal) {
+        if (this._imagesLoading) {
+            return;
+        }
+
         const imagesToLoad = Array.from(
             modal.querySelectorAll('img[' + this.options.imgDataSrcAttr + ']' + this.options.imgToLoadSelector),
         ).filter(img => img.getAttribute(this.options.imgDataSrcAttr));
@@ -246,6 +251,7 @@ export default class ZoomModalPlugin extends Plugin {
 
         let loadedCount = 0;
         let errorCount = 0;
+        this._imagesLoading = true;
 
         imagesToLoad.forEach(img => {
             const src = img.getAttribute(this.options.imgDataSrcAttr);
@@ -256,6 +262,7 @@ export default class ZoomModalPlugin extends Plugin {
 
                 // show modal if all images are loaded or error occured
                 if (loadedCount + errorCount === imageCount){
+                    this._imagesLoading = false;
                     this._showModal(modal);
                 }
             };
@@ -265,6 +272,7 @@ export default class ZoomModalPlugin extends Plugin {
 
                 // show modal if all images are loaded or error occured
                 if (loadedCount + errorCount === imageCount){
+                    this._imagesLoading = false;
                     this._showModal(modal);
                 }
             };

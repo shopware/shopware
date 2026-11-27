@@ -906,6 +906,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             wrapper.vm.createNotificationError = jest.fn();
             sync = jest.spyOn(Shopware.Service('productDocumentVariantService'), 'sync').mockResolvedValue([]);
             Shopware.Store.get('swProductDetail').documentVariantOperations = { 'document-id': operation };
+            Shopware.Store.get('swProductDetail').product.prices = [];
         });
 
         it('sends the queued operations for the saved product in its language after the product save', async () => {
@@ -963,15 +964,37 @@ describe('module/sw-product/page/sw-product-detail', () => {
             expect(wrapper.vm.abortOnLanguageChange()).toBe(false);
         });
 
-        it('sends the queued operations before the product is duplicated', async () => {
+        it('saves the product with the queued operations before it is duplicated', async () => {
             sync.mockImplementation(() => {
                 expect(wrapper.vm.cloning).toBe(false);
                 return Promise.resolve([]);
             });
 
             await wrapper.vm.onDuplicate();
+            await flushPromises();
 
             expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+            expect(wrapper.vm.cloning).toBe(true);
+        });
+
+        it('does not duplicate the product when its save fails', async () => {
+            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(true);
+            jest.spyOn(wrapper.vm.syncRepository, 'save').mockRejectedValue(new Error('Save failed'));
+
+            await wrapper.vm.onDuplicate();
+            await flushPromises();
+
+            expect(sync).not.toHaveBeenCalled();
+            expect(wrapper.vm.cloning).toBe(false);
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
+        });
+
+        it('duplicates the product right away when no operation is queued', () => {
+            Shopware.Store.get('swProductDetail').documentVariantOperations = {};
+
+            wrapper.vm.onDuplicate();
+
+            expect(sync).not.toHaveBeenCalled();
             expect(wrapper.vm.cloning).toBe(true);
         });
 

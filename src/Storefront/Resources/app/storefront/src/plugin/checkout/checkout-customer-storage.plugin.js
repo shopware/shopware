@@ -36,6 +36,7 @@ export default class CheckoutCustomerStoragePlugin extends Plugin {
         this._clearCurrentCustomerData = this._clearCurrentCustomerData.bind(this);
 
         this._restoreCurrentCustomerData();
+        this._persistDataEnteredBeforeInit();
         this._registerEvents();
     }
 
@@ -55,6 +56,27 @@ export default class CheckoutCustomerStoragePlugin extends Plugin {
 
         this._fields.forEach((field) => {
             field.writeValue(field.element, customerData[field.key] ?? null);
+        });
+    }
+
+    _persistDataEnteredBeforeInit() {
+        const customerData = this._getCurrentCustomerData();
+        const enteredData = this._fields.reduce((data, field) => {
+            const value = field.readValue(field.element);
+
+            if (value !== null && !(field.key in customerData)) {
+                data[field.key] = value;
+            }
+
+            return data;
+        }, {});
+
+        if (Object.keys(enteredData).length === 0) {
+            return;
+        }
+
+        this._updateCurrentCustomerData((data) => {
+            Object.assign(data, enteredData);
         });
     }
 
@@ -86,7 +108,9 @@ export default class CheckoutCustomerStoragePlugin extends Plugin {
             normalizeValue: (value) => value === true ? true : null,
             readValue: (element) => element.checked ? true : null,
             writeValue: (element, value) => {
-                element.checked = value === true;
+                if (value === true) {
+                    element.checked = true;
+                }
             },
         };
     }

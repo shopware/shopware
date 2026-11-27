@@ -2,7 +2,7 @@
 {%- set description = product.translated.description|default(title)|default('')|striptags|trim -%}
 {%- set price = product.calculatedPrice -%}
 {%- if product.calculatedPrices.count > 0 -%}
-    {%- set price = product.calculatedPrices.last -%}
+    {%- set price = product.calculatedPrices.first -%}
 {%- endif -%}
 {%- set unitPrice = price.unitPrice -%}
 {%- set regularPriceValue = unitPrice -%}

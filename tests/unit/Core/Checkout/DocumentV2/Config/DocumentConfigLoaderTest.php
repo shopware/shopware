@@ -424,6 +424,41 @@ class DocumentConfigLoaderTest extends TestCase
             ],
             $documentRepo->searchedCriteria[0]->getFilters(),
         );
+        static::assertTrue($documentRepo->searchedCriteria[0]->hasAssociation('logo'));
+    }
+
+    #[DataProvider('legacyVisibilityProvider')]
+    public function testLoadLegacyConfigUsesSalesChannelOverrideWithoutLoadingLogo(?bool $globalVisibility, ?bool $channelVisibility, ?bool $expected): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $global = $this->createBaseConfig(global: true, pageSize: 'A4', companyName: 'Global');
+        $global->setConfig($globalVisibility === null ? [] : ['displayInCustomerAccount' => $globalVisibility]);
+        $channel = $this->createBaseConfig(global: false, pageSize: 'A4', companyName: 'Channel', salesChannelId: $salesChannelId);
+        $channel->setConfig($channelVisibility === null ? [] : ['displayInCustomerAccount' => $channelVisibility]);
+        $repository = new StaticEntityRepository([new DocumentBaseConfigCollection([$global, $channel])]);
+        $loader = new DocumentConfigLoader(
+            $repository,
+            new StaticEntityRepository([new CountryCollection()]),
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
+        );
+
+        $config = $loader->loadLegacyConfig(DocumentType::INVOICE->value, $salesChannelId, Context::createDefaultContext());
+
+        static::assertSame($expected, $config['displayInCustomerAccount'] ?? null);
+        static::assertFalse($repository->searchedCriteria[0]->hasAssociation('logo'));
+    }
+
+    /**
+     * @return iterable<string, array{?bool, ?bool, ?bool}>
+     */
+    public static function legacyVisibilityProvider(): iterable
+    {
+        yield 'channel enables visibility' => [false, true, true];
+        yield 'channel disables visibility' => [true, false, false];
+        yield 'global visibility is inherited' => [true, null, true];
+        yield 'visibility is not configured' => [null, null, null];
     }
 
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void

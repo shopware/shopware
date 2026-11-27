@@ -207,6 +207,47 @@ class GetDataAndSendRequestResolverTest extends TestCase
         static::assertSame($mailPayload, $result->mailPayload);
     }
 
+    public function testResolveUsesContentInheritedFromParentLanguage(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailPayload = new MailPayload();
+
+        // The context language has no own content, so the raw fields stay empty
+        // and only the translated values carry the content of the parent language.
+        $mailTemplate = new MailTemplateEntity();
+        $mailTemplate->setMailTemplateType(new MailTemplateTypeEntity());
+        $mailTemplate->setSubject('own subject');
+        $mailTemplate->setTranslated([
+            'contentHtml' => '<p>inherited html</p>',
+            'contentPlain' => 'inherited plain',
+            'subject' => 'own subject',
+            'senderName' => 'inherited sender',
+        ]);
+
+        $request = $this->createRequest($context, [
+            'mailTemplateId' => 'template-id',
+        ]);
+
+        $this->mailTemplateService->expects($this->once())->method('loadTemplate')->willReturn($mailTemplate);
+
+        $this->mailPayloadFactory->expects($this->once())
+            ->method('make')
+            ->with(
+                static::isInstanceOf(RequestDataBag::class),
+                [
+                    'contentHtml' => '<p>inherited html</p>',
+                    'contentPlain' => 'inherited plain',
+                    'subject' => 'own subject',
+                    'senderName' => 'inherited sender',
+                ]
+            )
+            ->willReturn($mailPayload);
+
+        $result = $this->resolveRequest($request);
+
+        static::assertSame($mailPayload, $result->mailPayload);
+    }
+
     private function createMailTemplate(): MailTemplateEntity
     {
         $mailTemplateType = new MailTemplateTypeEntity();
@@ -220,6 +261,12 @@ class GetDataAndSendRequestResolverTest extends TestCase
         $mailTemplate->setContentPlain('plain');
         $mailTemplate->setSubject('template subject');
         $mailTemplate->setSenderName('template sender');
+        $mailTemplate->setTranslated([
+            'contentHtml' => '<p>html</p>',
+            'contentPlain' => 'plain',
+            'subject' => 'template subject',
+            'senderName' => 'template sender',
+        ]);
 
         return $mailTemplate;
     }

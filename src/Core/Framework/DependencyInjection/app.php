@@ -140,6 +140,7 @@ use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
 use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
+use Shopware\Core\Framework\App\SystemCheck\AppSystemCheck;
 use Shopware\Core\Framework\App\SystemCheck\AppUrlVerificationCheck;
 use Shopware\Core\Framework\App\SystemCheck\ShopIdCheck;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
@@ -1114,6 +1115,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AppUrlVerifier::class),
             env('APP_URL_CHECK_DISABLED')->bool(),
+        ])
+        ->tag('shopware.system_check');
+
+    $services->set(AppSystemCheck::class)
+        ->args([
+            service(Connection::class),
+            service(ClockInterface::class),
         ])
         ->tag('shopware.system_check');
 

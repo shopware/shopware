@@ -98,15 +98,19 @@ interface Parts {
 }
 
 /** The units a unit kind is about: `component` reads the outlines that start with `component`, and so on. */
-type Owner = 'component' | 'service';
+const OWNERS = [
+    'component',
+    'service',
+    'store',
+] as const;
+
+type Owner = (typeof OWNERS)[number];
 
 interface UnitKind extends Parts {
     owner: Owner;
 }
 
 const NO_PARTS: Parts = { reportSections: [], contractMembers: [], indexKeys: [], elementKinds: [] };
-
-const OWNERS: readonly Owner[] = ['component', 'service'];
 
 const PART_LABELS: Record<keyof Parts, (value: string) => string> = {
     reportSections: (section) => `report section ${section}`,
@@ -124,9 +128,9 @@ const BLOCK_CONTEXT = { reportSection: 'block-context', contractMember: 'blockCo
 
 /*
  * The block tree, its contract, the block structure and the findings on blocks are built in separate steps, and
- * so are the members of a component, their contract and the findings on them. A service is built in two: the
- * unit with its registration, and its members. A part can only be listed once a case expects it: the `mixins`,
- * `provide` and `notes` sections of a report are covered by the specs instead.
+ * so are the members of a component, their contract and the findings on them. A service and a store are built
+ * in two each: the unit with its registration, and its members. A part can only be listed once a case expects
+ * it: the `mixins`, `provide` and `notes` sections of a report are covered by the specs instead.
  */
 const UNIT_KINDS: Record<string, UnitKind> = {
     'block-tree': {
@@ -220,6 +224,30 @@ const UNIT_KINDS: Record<string, UnitKind> = {
         elementKinds: [
             'property',
             'method',
+        ],
+    },
+    'store-units': {
+        ...NO_PARTS,
+        owner: 'store',
+        reportSections: ['store'],
+        indexKeys: [
+            'file',
+            'visibility',
+        ],
+        elementKinds: ['store'],
+    },
+    'store-members': {
+        ...NO_PARTS,
+        owner: 'store',
+        reportSections: [
+            'state',
+            'getters',
+            'actions',
+        ],
+        elementKinds: [
+            'state',
+            'getter',
+            'action',
         ],
     },
 };

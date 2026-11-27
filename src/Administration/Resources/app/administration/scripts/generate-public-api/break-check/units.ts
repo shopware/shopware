@@ -6,16 +6,16 @@
  */
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagState, FlagStates } from '../model/flag-states';
-import type { ComponentUnit, Model } from '../model/model';
+import type { ComponentUnit, RegisteredUnit, Model } from '../model/model';
 import type { SourceLine } from '../model/source-line';
 import { withInheritedMembers } from './facts/member-facts';
 import { factsOf } from './facts/unit-facts';
 import type { UnitFacts } from './facts/unit-facts';
-import { classUse, componentUse, serviceUse } from './plugin-use';
+import { classUse, componentUse, serviceUse, storeUse } from './plugin-use';
 import type { PluginUse } from './plugin-use';
 
 /** @private */
-export type UnitKind = 'component' | 'service' | 'class';
+export type UnitKind = 'component' | 'service' | 'store' | 'class';
 
 /**
  * What a kind says about one of its units. `parent` is the id of the unit it inherits its elements from, which
@@ -35,7 +35,7 @@ interface UnitOfKind {
 /**
  * @private
  *
- * One unit of a commit. `id` starts every element id of the unit, `component:sw-card` or `service:acl`.
+ * One unit of a commit. `id` starts every element id of the unit, such as `component:sw-card` or `service:acl`.
  */
 export interface CheckedUnit extends UnitOfKind {
     kind: UnitKind;
@@ -75,10 +75,11 @@ function components(model: Model): UnitOfKind[] {
     }));
 }
 
-function services(model: Model): UnitOfKind[] {
-    return model.services.map((unit) => ({
+/** A unit that a script declares brings its own comment and line. `parentOf` gives the id of its parent. */
+function declared<Unit extends RegisteredUnit>(units: Unit[], parentOf: (unit: Unit) => string | null): UnitOfKind[] {
+    return units.map((unit) => ({
         name: unit.name,
-        parent: unit.class === null ? null : unitId('class', unit.class),
+        parent: parentOf(unit),
         visibility: unit.visibility,
         states: unit.states,
         markers: unit.markers,
@@ -105,7 +106,16 @@ function serviceClasses(model: Model): UnitOfKind[] {
  */
 export const UNIT_KINDS: Record<UnitKind, UnitKindDefinition> = {
     component: { units: components, use: componentUse, role: { is: 'api', reportedAsWhole: false } },
-    service: { units: services, use: serviceUse, role: { is: 'api', reportedAsWhole: true } },
+    service: {
+        units: ({ services }) => declared(services, (unit) => (unit.class === null ? null : unitId('class', unit.class))),
+        use: serviceUse,
+        role: { is: 'api', reportedAsWhole: true },
+    },
+    store: {
+        units: ({ stores }) => declared(stores, () => null),
+        use: storeUse,
+        role: { is: 'api', reportedAsWhole: true },
+    },
     class: { units: serviceClasses, use: classUse, role: { is: 'grouping' } },
 };
 

@@ -1,0 +1,17 @@
+{
+    "components": {},
+    "services": {},
+    "stores": {
+        "exampleCart": {
+            "file": "app/composables/use-example-cart",
+            "visibility": "public"
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

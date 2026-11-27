@@ -6,6 +6,7 @@
             "visibility": "public"
         }
     },
+    "stores": {},
     "mixins": {},
     "modules": {},
     "positionIdentifiers": {},

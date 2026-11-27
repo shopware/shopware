@@ -2,8 +2,8 @@
  * @sw-package framework
  *
  * How plugin code reaches the members of a unit, in the words of a finding. A plugin overrides a method of a
- * component and calls the original through `$super`, while it calls a service from outside. The rules are the
- * same for both, so each kind of unit brings the clauses that differ.
+ * component and calls the original through `$super`, while it calls a service or a store from outside. The
+ * rules are the same for all of them, so each kind of unit brings the clauses that differ.
  */
 
 /**
@@ -15,6 +15,8 @@
 export interface PluginUse {
     /** How plugin code names the unit itself. */
     unit: string;
+    /** What happens to plugin code once the unit is gone. */
+    withoutUnit: string;
     withoutMethod: (method: string) => string;
     withoutProperty: (property: string) => string;
     /** Who gets a Promise from a method that returned a plain value before. */
@@ -28,7 +30,7 @@ export interface PluginUse {
     newOptionalParameter: string | null;
 }
 
-const COMPONENT_MEMBERS: Omit<PluginUse, 'unit'> = {
+const COMPONENT_MEMBERS: Omit<PluginUse, 'unit' | 'withoutUnit'> = {
     withoutMethod: (method) => `plugin overrides that call $super('${method}') throw at runtime`,
     withoutProperty: (property) => `plugin overrides that read this.${property} get undefined`,
     gettingPromise: (method) => `plugin overrides that use the return value of $super('${method}') get a Promise instead`,
@@ -42,12 +44,13 @@ const COMPONENT_MEMBERS: Omit<PluginUse, 'unit'> = {
 export function componentUse(name: string): PluginUse {
     return {
         unit: name,
+        withoutUnit: `plugin templates that render ${name} fail to resolve it`,
         ...COMPONENT_MEMBERS,
     };
 }
 
-/** Plugin code calls the members of an object from outside, through `unit`. */
-function objectUse(unit: string): PluginUse {
+/** The wording for an object that plugin code gets from an accessor and calls from outside. */
+function objectUse(unit: string): Omit<PluginUse, 'withoutUnit'> {
     const member = (memberName: string): string => `${unit}.${memberName}`;
 
     return {
@@ -64,14 +67,26 @@ function objectUse(unit: string): PluginUse {
 
 /** @private */
 export function serviceUse(name: string): PluginUse {
-    return objectUse(`Shopware.Service('${name}')`);
+    const use = objectUse(`Shopware.Service('${name}')`);
+
+    return { ...use, withoutUnit: `plugin code that uses ${use.unit} gets undefined` };
+}
+
+/** @private */
+export function storeUse(name: string): PluginUse {
+    const use = objectUse(`Shopware.Store.get('${name}')`);
+
+    return { ...use, withoutUnit: `plugin code that calls ${use.unit} throws at runtime` };
 }
 
 /**
  * @private
  *
- * Plugin code reaches the members of a class through every service that is an instance of it.
+ * Plugin code reaches the members of a class through every service that is an instance of it. A class is never
+ * reported as a whole, so `withoutUnit` only completes the type.
  */
 export function classUse(name: string): PluginUse {
-    return objectUse(`<instance of ${name}>`);
+    const use = objectUse(`<instance of ${name}>`);
+
+    return { ...use, withoutUnit: `plugin code that uses ${use.unit} breaks` };
 }

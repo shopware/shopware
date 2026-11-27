@@ -66,6 +66,18 @@ export interface Rule {
     detect: (base: UnitFacts, head: UnitFacts) => Detection[];
 }
 
+/**
+ * @private
+ *
+ * A word or phrase of a finding that may depend on the change, as `The method` or `The action` does.
+ */
+export type Worded<Change> = string | ((change: Change) => string);
+
+/** @private */
+export function worded<Change>(phrase: Worded<Change>, change: Change): string {
+    return typeof phrase === 'string' ? phrase : phrase(change);
+}
+
 /** The element a change is about. */
 type Element = Pick<Detection, 'element' | 'at' | 'isPrivate'>;
 
@@ -80,7 +92,9 @@ export interface RuleDefinition<Change> {
     group: FindingGroup;
     changes: (base: UnitFacts, head: UnitFacts) => (Change & Element)[];
     texts: (change: Change, context: TextContext) => FindingTexts;
-    announcement?: Pick<Announcement, 'rule' | 'subject'> & {
+    announcement?: Pick<Announcement, 'rule'> & {
+        /** What the text says carries the marker. */
+        subject: Worded<Change>;
         markers: (change: Change, facts: UnitFacts) => Marker[];
         matches: (change: Change, marker: Marker) => boolean;
     };
@@ -102,7 +116,8 @@ export function rule<Change>({ id, group, changes, texts, announcement }: RuleDe
                     variant: JSON.stringify(detail),
                     texts: (context) => texts(change, context),
                     announcement: announcement && {
-                        ...announcement,
+                        rule: announcement.rule,
+                        subject: worded(announcement.subject, change),
                         markers: (facts) => announcement.markers(change, facts),
                         matches: (marker) => announcement.matches(change, marker),
                     },

@@ -4,21 +4,20 @@
  * Builds one unit per registered service: the object behind the registration with its members, where it is
  * declared, and whether it is public.
  */
-import ts from 'typescript';
-import type { Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
+import type ts from 'typescript';
 import { byCodePoint } from '../../helpers/code-point-order';
 import { existingIn, mergeStates, perState } from '../../model/flag-states';
 import type { FlagContext } from '../../model/flag-states';
 import type { Model, ServiceClass, ServiceUnit } from '../../model/model';
-import type { SourceLine } from '../../model/source-line';
 import type { SourceTree } from '../../source/source-tree';
-import { Declarations } from '../declarations';
-import type { Located } from '../declarations';
-import { markersIn, Reading } from '../member-reading';
-import { scriptLanguage, withoutScriptExtension } from '../modules';
-import { declarationDoc, isPrivateDoc, lineOf, statementOf, withoutTypeSyntax } from '../script-nodes';
+import { registeredUnit } from '../registered-units';
+import type { RegisteredObject } from '../registered-units';
+import type { Declarations } from '../declarations';
+import { interfaceEntries } from '../global-interfaces';
+import { Reading } from '../member-reading';
+import { lineOf } from '../script-nodes';
 import { classChain, objectMembers } from './object-members';
-import type { ClassMembers, ObjectMembers } from './object-members';
+import type { ClassMembers } from './object-members';
 import { isSameObject } from './provided-object';
 import type { ProvidedObject } from './provided-object';
 import { serviceRegistrations } from './service-registry';
@@ -29,43 +28,17 @@ const SERVICE_CONTAINER = 'ServiceContainer';
 // The alias the sources write for `any`.
 const UNTYPED_ENTRY = /^(?:\$TSFixMe|any)$/;
 
-function interfacesNamed(node: ts.Node, name: string): ts.InterfaceDeclaration[] {
-    const found = ts.isInterfaceDeclaration(node) && node.name.text === name ? [node] : [];
+/** What `ServiceContainer` says about a service name, given the type of its entry. */
+function declaredAs(type: string | undefined): ServiceUnit['declared'] {
+    if (type === undefined) {
+        return 'untyped';
+    }
 
-    ts.forEachChild(node, (child) => {
-        found.push(...interfacesNamed(child, name));
-    });
-
-    return found;
+    return UNTYPED_ENTRY.test(type) ? 'any' : 'typed';
 }
 
-/** What the `ServiceContainer` interface, which any file may extend, says about each service name. */
-function declaredServices(tree: SourceTree, declarations: Declarations): Map<string, ServiceUnit['declared']> {
-    const entries = tree.files
-        .filter((file) => file.endsWith('.ts') && tree.read(file).includes(`interface ${SERVICE_CONTAINER}`))
-        .flatMap((file) => {
-            const source = declarations.parse(file);
-
-            return interfacesNamed(source, SERVICE_CONTAINER)
-                .flatMap(({ members }) => members.filter(ts.isPropertySignature))
-                .flatMap((entry): [string, ServiceUnit['declared']][] => {
-                    const isNamed = ts.isIdentifier(entry.name) || ts.isStringLiteralLike(entry.name);
-                    const type = entry.type?.getText(source) ?? 'any';
-
-                    return isNamed ? [[entry.name.text, UNTYPED_ENTRY.test(type) ? 'any' : 'typed']] : [];
-                });
-        });
-
-    return new Map(entries);
-}
-
-/** What the reader found behind a registration: the members, and the node that declares them. */
-interface ServiceObject extends ObjectMembers {
-    /** The class or object literal that holds the members, `null` when there is none to point to. */
-    home: Located | null;
-    /** The declaration whose comment is about the service as a whole: its class, or the factory that builds it. */
-    holder: Located | null;
-    /** The class of an instance and the classes it extends, nearest first. */
+/** What the reader found behind a registration, with the class of an instance and the classes it extends. */
+interface ServiceObject extends RegisteredObject {
     classes: ClassMembers[];
 }
 
@@ -102,78 +75,10 @@ function serviceObject(provided: ProvidedObject, declarations: Declarations): Se
     }
 }
 
-/** `export default ExampleService;` below the declaration. */
-function defaultExportOf({ node, source }: Located): ts.Statement | undefined {
-    const name = (node as { name?: ts.Node }).name;
-
-    return name === undefined || !ts.isIdentifier(name)
-        ? undefined
-        : source.statements.filter(ts.isExportAssignment).find(({ expression }) => {
-              const exported = withoutTypeSyntax(expression);
-
-              return ts.isIdentifier(exported) && exported.text === name.text;
-          });
-}
-
-/** What the comments about a service as a whole say. */
-interface ServiceDoc {
-    isPrivate: boolean;
-    markers: Marker[];
-}
-
-/** The comment directly above the holder, and the one above its default export, where the sources often write it. */
-function serviceDoc(holder: Located | null): ServiceDoc {
-    const docs =
-        holder === null
-            ? []
-            : [statementOf(holder.node), defaultExportOf(holder)]
-                  .filter((statement) => statement !== undefined)
-                  .map((statement) => declarationDoc(statement, holder.source));
-
-    return { isPrivate: docs.some(isPrivateDoc), markers: docs.flatMap(markersIn) };
-}
-
-/** `src/core/service/api/cache.api.service.js` gives `core/service/api/cache.api.service`. */
-function snapshotFile(source: string): string {
-    return withoutScriptExtension(source).replace(/^src\//, '');
-}
-
 /** A service as the reader finds it, before the classes of all services are known. */
 interface ReadService {
     unit: Omit<ServiceUnit, 'class'>;
     chain: ClassMembers[];
-}
-
-function serviceUnit(
-    registration: ServiceRegistration,
-    declared: ServiceUnit['declared'],
-    declarations: Declarations,
-): ReadService {
-    const { members, notes, home, holder, classes } = serviceObject(registration.provided, declarations);
-    const { isPrivate, markers } = serviceDoc(holder);
-    const source = home?.source.fileName ?? registration.registeredIn;
-    const at: SourceLine = home === null ? registration.at : lineOf(home.node, home.source);
-
-    return {
-        unit: {
-            name: registration.name,
-            registration: registration.registration,
-            declared,
-            language: scriptLanguage(source),
-            visibility: isPrivate ? 'private' : 'public',
-            visibilitySource: isPrivate ? 'export' : 'default',
-            markers,
-            registeredIn: registration.registeredIn,
-            source,
-            at,
-            file: snapshotFile(source),
-            states: registration.states,
-            members: existingIn(registration.states, members),
-            notes,
-            sections: { method: at, property: at },
-        },
-        chain: classes,
-    };
 }
 
 interface NamedClass {
@@ -278,16 +183,28 @@ function assertOneObjectPerName(registrations: ServiceRegistration[]): void {
  *
  * The services of the tree, sorted by name, and the classes they are instances of.
  */
-export function serviceUnits(tree: SourceTree, flags: FlagContext): Pick<Model, 'services' | 'serviceClasses'> {
-    const declarations = new Declarations(tree);
+export function serviceUnits(
+    tree: SourceTree,
+    declarations: Declarations,
+    flags: FlagContext,
+): Pick<Model, 'services' | 'serviceClasses'> {
     const registrations = serviceRegistrations(tree, declarations, flags);
-    const declared = declaredServices(tree, declarations);
+    const declared = interfaceEntries(SERVICE_CONTAINER, tree, declarations);
 
     assertOneObjectPerName(registrations);
 
     return withClasses(
-        mergeStates(registrations, ({ name }) => name).map((registration) =>
-            serviceUnit(registration, declared.get(registration.name) ?? 'untyped', declarations),
-        ),
+        mergeStates(registrations, ({ name }) => name).map((registration) => {
+            const object = serviceObject(registration.provided, declarations);
+
+            return {
+                unit: {
+                    ...registeredUnit(registration, object),
+                    registration: registration.registration,
+                    declared: declaredAs(declared.get(registration.name)),
+                },
+                chain: object.classes,
+            };
+        }),
     );
 }

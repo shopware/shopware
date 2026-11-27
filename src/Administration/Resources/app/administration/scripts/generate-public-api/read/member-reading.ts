@@ -2,21 +2,24 @@
  * @sw-package framework
  *
  * What the readers of members share: the name, line and JSDoc every member has, the notes about what a reader
- * could not read, and the signature of a function. Only the syntax is read, so code inside a function never
+ * could not read, the entries and options of an object literal, and the signature of a function. Only the syntax is read, so code inside a function never
  * changes the result, apart from what its `return` statements hand back.
  */
 import ts from 'typescript';
 import { parseMarkers } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import { BOTH_STATES } from '../model/flag-states';
-import type { Member, Parameter } from '../model/members';
+import type { DeclaredKind, Member, Parameter, UnitMembers } from '../model/members';
+import type { Declarations, Located } from './declarations';
 import {
     docOf,
     isFunctionNode,
     isPrivateDoc,
     lineOf,
+    memberName,
     memberValue,
     returnedValues,
+    statementOf,
     textOf,
     withoutTypeSyntax,
 } from './script-nodes';
@@ -73,6 +76,108 @@ export class Reading {
     public text(node: ts.Node): string {
         return textOf(node, this.source);
     }
+
+    /** The type as the source writes it, `null` without one. */
+    public typeText(type: ts.TypeNode | undefined): string | null {
+        return type === undefined ? null : this.text(type);
+    }
+}
+
+/** @private */
+export interface Entry {
+    name: string;
+    member: ts.ObjectLiteralElementLike;
+}
+
+/**
+ * @private
+ *
+ * The members of an object literal with a literal name. `spread` turns a spread into entries, for the helpers
+ * whose names are known. Every other spread and every computed key is noted.
+ */
+export function entriesOf(
+    object: ts.ObjectLiteralExpression,
+    section: string,
+    reading: Reading,
+    spread: (member: ts.SpreadAssignment) => Entry[] | null = () => null,
+): Entry[] {
+    return object.properties.flatMap((member): Entry[] => {
+        const name = memberName(member);
+
+        if (name !== null) {
+            return [{ name, member }];
+        }
+
+        const fromSpread = ts.isSpreadAssignment(member) ? spread(member) : null;
+
+        if (fromSpread === null) {
+            reading.unresolved(section, member);
+        }
+
+        return fromSpread ?? [];
+    });
+}
+
+/**
+ * @private
+ *
+ * The value of `{ key: value }` or `{ key }` across files, and the node that carries its comment and its line.
+ * A value that the same file declares under a name, as `{ getToken }` does for a function, carries them where
+ * it is declared.
+ */
+export function literalValue(
+    member: ts.PropertyAssignment | ts.ShorthandPropertyAssignment,
+    declarations: Declarations,
+    reading: Reading,
+): { value: Located; at: ts.Node } {
+    const written = ts.isPropertyAssignment(member) ? member.initializer : member.name;
+    const value = declarations.valueOf(written, reading.source);
+    const isDeclaredHere =
+        ts.isIdentifier(withoutTypeSyntax(written)) && value.source === reading.source && !ts.isIdentifier(value.node);
+
+    return { value, at: isDeclaredHere ? statementOf(value.node) : member };
+}
+
+/**
+ * @private
+ *
+ * An option of an object literal that holds the members of one kind, with the function that reads them.
+ */
+export interface OptionReader {
+    option: string;
+    kind: DeclaredKind;
+    read: (value: ts.Node, reading: Reading) => Member[];
+}
+
+/**
+ * @private
+ *
+ * The members that the options of the object hold, with the line of each option that holds some. `other` gets
+ * every option that no reader takes.
+ */
+export function readOptions(
+    object: ts.ObjectLiteralExpression,
+    readers: readonly OptionReader[],
+    reading: Reading,
+    other: (option: ts.ObjectLiteralElementLike, name: string | null) => void = () => undefined,
+): Pick<UnitMembers, 'members' | 'sections'> {
+    const sections: UnitMembers['sections'] = {};
+    const members = object.properties.flatMap((option) => {
+        const name = memberName(option);
+        const reader = readers.find((candidate) => candidate.option === name);
+
+        if (reader === undefined) {
+            other(option, name);
+
+            return [];
+        }
+
+        sections[reader.kind] = lineOf(option, reading.source);
+
+        return reader.read(reading.value(option), reading);
+    });
+
+    return { members, sections };
 }
 
 /** @private */
@@ -82,7 +187,7 @@ export function parametersOf(fn: FunctionNode, reading: Reading): Parameter[] {
         .map(({ name, type, initializer, questionToken, dotDotDotToken }, position) => ({
             name: ts.isIdentifier(name) ? name.text : `arg${position}`,
             pattern: ts.isIdentifier(name) ? null : reading.text(name),
-            type: type === undefined ? null : reading.text(type),
+            type: reading.typeText(type),
             default: initializer === undefined ? { kind: 'none' } : { kind: 'value', text: reading.text(initializer) },
             optional: initializer !== undefined || questionToken !== undefined,
             rest: dotDotDotToken !== undefined,
@@ -287,7 +392,7 @@ export function signatureOf(
 ): Pick<Member<'method'>, 'parameters' | 'returns' | 'returnsPromise' | 'returnsSuper'> {
     return {
         parameters: fn === undefined ? null : parametersOf(fn, reading),
-        returns: fn?.type === undefined ? null : reading.text(fn.type),
+        returns: reading.typeText(fn?.type),
         returnsPromise: fn === undefined ? null : returnsPromise(fn),
         returnsSuper: fn !== undefined && everyReturn(fn, (returned) => isSuperCall(returned, name)),
     };

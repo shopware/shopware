@@ -8,7 +8,7 @@
 import ts from 'typescript';
 import type { Member } from '../../model/members';
 import type { Declarations, Located } from '../declarations';
-import { functionOf, Reading, signatureOf } from '../member-reading';
+import { functionOf, literalValue, Reading, signatureOf } from '../member-reading';
 import { memberName, statementOf, withoutTypeSyntax } from '../script-nodes';
 import type { FunctionNode } from '../script-nodes';
 
@@ -30,7 +30,7 @@ function method(name: string, node: ts.Node, fn: FunctionNode, reading: Reading,
 }
 
 function property(name: string, node: ts.Node, type: ts.TypeNode | undefined, reading: Reading): ObjectMember {
-    return { kind: 'property', ...reading.common(name, node), type: type === undefined ? null : reading.text(type) };
+    return { kind: 'property', ...reading.common(name, node), type: reading.typeText(type) };
 }
 
 /** A method or an accessor, which a class and an object literal declare alike. A getter is a property. */
@@ -243,10 +243,7 @@ export function classChain(
     ];
 }
 
-/**
- * The member of an object literal under a literal name. One that names a function of the same file, as
- * `{ getToken }` does, carries its comment where that function is declared.
- */
+/** The member of an object literal under a literal name. */
 function literalMember(
     element: ts.ObjectLiteralElementLike,
     name: string,
@@ -259,13 +256,9 @@ function literalMember(
         return declared ?? property(name, element, undefined, reading);
     }
 
-    const value = declarations.valueOf(
-        ts.isPropertyAssignment(element) ? element.initializer : element.name,
-        reading.source,
-    );
-    const isOwnFunction = ts.isFunctionDeclaration(value.node) && value.source === reading.source;
+    const { value, at } = literalValue(element, declarations, reading);
 
-    return valueMember(name, isOwnFunction ? value.node : element, value, undefined, reading);
+    return valueMember(name, at, value, undefined, reading);
 }
 
 /** The members of an object literal that another one spreads, `null` when it spreads something else. */

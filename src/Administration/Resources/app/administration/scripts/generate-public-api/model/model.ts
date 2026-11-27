@@ -63,23 +63,16 @@ export type ComponentUnit = Registration &
 /**
  * @private
  *
- * One registered service, the object that `Shopware.Service('<name>')` returns.
+ * What every unit has that a script declares and core registers under a name.
  *
- * - `registration`: `api-service` for a class below `src/core/service/api/`, which registers under the name its
- *   constructor sets, `provider` for a call that names the service and the function that provides it.
- * - `declared`: what `ServiceContainer` says about the name. `any` is an entry without a real type.
- * - `source`: the file that declares the object, which is the file of the registration when that could not be
- *   followed. `at` is the line of that declaration, where a finding about the service points to.
- * - `file`: the path of the snapshot files of `source` below `public-api/`, without extension. Services that
- *   share a source share a report.
- * - `markers`: the `@deprecated` and `@bc-change` markers above the declaration.
- * - `class`: the nearest class in its chain that a finding can name, see `ServiceClass`. `null` for an object
- *   literal.
+ * - `source`: the file that declares the object behind the name, which is the file of the registration when
+ *   that could not be followed. `at` is the line of that declaration, where a finding about the unit points to.
+ * - `file`: the path of the snapshot files of `source` below `public-api/`, without extension. Units of one
+ *   kind that share a source share a report.
+ * - `markers`: the `@deprecated` and `@bc-change` markers in the comment about the unit as a whole.
  */
-export type ServiceUnit = UnitMembers & {
+export type RegisteredUnit = UnitMembers & {
     name: string;
-    registration: 'api-service' | 'provider';
-    declared: 'typed' | 'any' | 'untyped';
     language: 'js' | 'ts';
     visibility: 'public' | 'private';
     visibilitySource: 'default' | 'export';
@@ -89,7 +82,6 @@ export type ServiceUnit = UnitMembers & {
     at: SourceLine;
     file: string;
     states: FlagStates;
-    class: string | null;
 };
 
 /**
@@ -113,6 +105,37 @@ export type ServiceClass = UnitMembers & {
 /**
  * @private
  *
+ * One registered service, the object that `Shopware.Service('<name>')` returns.
+ *
+ * - `registration`: `api-service` for a class below `src/core/service/api/`, which registers under the name its
+ *   constructor sets, `provider` for a call that names the service and the function that provides it.
+ * - `declared`: what `ServiceContainer` says about the name. `any` is an entry without a real type.
+ * - `class`: the nearest class in its chain that a finding can name, see `ServiceClass`. `null` for an object
+ *   literal.
+ */
+export type ServiceUnit = RegisteredUnit & {
+    registration: 'api-service' | 'provider';
+    declared: 'typed' | 'any' | 'untyped';
+    class: string | null;
+};
+
+/**
+ * @private
+ *
+ * One registered store, the object that `Shopware.Store.get('<name>')` returns.
+ *
+ * - `style`: `options` for a store that is given by its state, getters and actions, `setup` for one that a
+ *   function builds, and `unknown` for a definition the reader cannot follow to either.
+ * - `declared`: whether `PiniaRootState` has an entry for the name.
+ */
+export type StoreUnit = RegisteredUnit & {
+    style: 'options' | 'setup' | 'unknown';
+    declared: 'typed' | 'untyped';
+};
+
+/**
+ * @private
+ *
  * A block of a template that no registered component and no core override uses.
  */
 export interface UnusedBlock {
@@ -131,6 +154,7 @@ export interface Model {
     components: ComponentUnit[];
     services: ServiceUnit[];
     serviceClasses: ServiceClass[];
+    stores: StoreUnit[];
     droppedBlocks: DroppedBlock[];
     unusedBlocks: UnusedBlock[];
 }

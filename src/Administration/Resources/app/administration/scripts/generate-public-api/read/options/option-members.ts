@@ -8,8 +8,9 @@
 import ts from 'typescript';
 import { byCodePoint } from '../../helpers/code-point-order';
 import type { UnitMembers, DefaultValue, Member, OptionKind } from '../../model/members';
-import { functionOf, parametersOf, Reading, signatureOf } from '../member-reading';
-import { isFunctionNode, lineOf, memberName, returnedObject, withoutTypeSyntax } from '../script-nodes';
+import { entriesOf, functionOf, parametersOf, Reading, readOptions, signatureOf } from '../member-reading';
+import type { Entry, OptionReader } from '../member-reading';
+import { isFunctionNode, memberName, returnedObject, withoutTypeSyntax } from '../script-nodes';
 import type { FunctionNode } from '../script-nodes';
 import type { ComponentOptions } from './component-options';
 import { spreadNames } from './option-helpers';
@@ -25,38 +26,6 @@ const PROP_TYPES: Record<string, string> = {
     Date: 'Date',
     Symbol: 'symbol',
 };
-
-interface Entry {
-    name: string;
-    member: ts.ObjectLiteralElementLike;
-}
-
-/**
- * The members of an object literal with a literal name. `spread` turns a spread into entries, for the helpers
- * whose names are known. Every other spread and every computed key is noted.
- */
-function entriesOf(
-    object: ts.ObjectLiteralExpression,
-    section: string,
-    reading: Reading,
-    spread: (member: ts.SpreadAssignment) => Entry[] | null = () => null,
-): Entry[] {
-    return object.properties.flatMap((member): Entry[] => {
-        const name = memberName(member);
-
-        if (name !== null) {
-            return [{ name, member }];
-        }
-
-        const fromSpread = ts.isSpreadAssignment(member) ? spread(member) : null;
-
-        if (fromSpread === null) {
-            reading.unresolved(section, member);
-        }
-
-        return fromSpread ?? [];
-    });
-}
 
 function helperEntries(member: ts.SpreadAssignment, reading: Reading): Entry[] | null {
     return spreadNames(member.expression, reading.source)?.map((name) => ({ name, member })) ?? null;
@@ -367,7 +336,7 @@ function computed(value: ts.Node, reading: Reading): Member<'computed'>[] {
         return {
             kind: 'computed',
             ...reading.common(name, member),
-            type: returns === undefined ? null : reading.text(returns),
+            type: reading.typeText(returns),
         };
     });
 }
@@ -398,7 +367,7 @@ const SECTIONS: { [Kind in OptionKind]: { option: string; read: (value: ts.Node,
     method: { option: 'methods', read: methods },
 };
 
-const OPTION_KINDS = Object.keys(SECTIONS) as OptionKind[];
+const OPTION_READERS = (Object.keys(SECTIONS) as OptionKind[]).map((kind): OptionReader => ({ kind, ...SECTIONS[kind] }));
 
 // What these options add to `this` is decided at runtime.
 const UNREADABLE_OPTIONS = ['setup', 'extends'];
@@ -411,24 +380,11 @@ const UNREADABLE_OPTIONS = ['setup', 'extends'];
  */
 export function readOptionMembers({ object, source }: ComponentOptions): UnitMembers {
     const reading = new Reading(source);
-    const sections: UnitMembers['sections'] = {};
-    const members = object.properties.flatMap((option): Member[] => {
-        const name = memberName(option);
-
+    const read = readOptions(object, OPTION_READERS, reading, (option, name) => {
         if (name === null || UNREADABLE_OPTIONS.includes(name)) {
             reading.unresolved('options', name === null ? option : (option.name ?? option));
         }
-
-        const kind = OPTION_KINDS.find((candidate) => SECTIONS[candidate].option === name);
-
-        if (kind === undefined) {
-            return [];
-        }
-
-        sections[kind] = lineOf(option, source);
-
-        return SECTIONS[kind].read(reading.value(option), reading);
     });
 
-    return { members, notes: reading.notes, sections };
+    return { ...read, notes: reading.notes };
 }

@@ -72,6 +72,7 @@ describe('scripts/generate-public-api/snapshot/snapshot', () => {
                     },
                 },
                 services: {},
+                stores: {},
             });
         });
 

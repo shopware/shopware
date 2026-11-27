@@ -12,6 +12,7 @@ import { announcedBy } from './announcements';
 import type { MarkerSources } from './announcements';
 import { findingFor } from './finding';
 import type { Finding, Judgement } from './finding';
+import type { PluginUse } from './plugin-use';
 import {
     ADDITION_FIX,
     additionText,
@@ -54,8 +55,8 @@ function markersOf(base: CheckedUnit, head: CheckedUnit | undefined): MarkerSour
     return { base: () => base.markers, head: head?.markers ?? [] };
 }
 
-function reach({ kind, name }: CheckedUnit): string {
-    return UNIT_KINDS[kind].use(name).unit;
+function useOf({ kind, name }: CheckedUnit): PluginUse {
+    return UNIT_KINDS[kind].use(name);
 }
 
 function goneUnit({ base, head, flags }: Comparison): WholeChange[] {
@@ -72,7 +73,7 @@ function goneUnit({ base, head, flags }: Comparison): WholeChange[] {
             judged: {
                 group: 'Break',
                 rule: `${base.kind}_missing`,
-                explanation: `The ${base.kind} is gone${inMajorState(states)}, so plugin code that uses ${reach(base)} gets undefined.`,
+                explanation: `The ${base.kind} is gone${inMajorState(states)}, so ${useOf(base).withoutUnit}.`,
                 fix: removalFix(base.kind, flags),
             },
             announcement: {
@@ -120,7 +121,7 @@ function unitBecamePrivate({ base, head, flags }: Comparison): WholeChange[] {
             judged: {
                 group: 'Break',
                 rule: 'visibility_became_private',
-                ...becamePrivateTexts(head.kind, reach(head), flags),
+                ...becamePrivateTexts(head.kind, useOf(head).unit, flags),
             },
             at: head.at,
             announcement: {

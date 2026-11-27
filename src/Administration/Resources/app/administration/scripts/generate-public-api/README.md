@@ -18,10 +18,10 @@ A spec also imports from `testing/` and from the step it observes the result thr
 | `helpers/` | Small pure functions that every step may use, such as the code point order. It imports from no other folder |
 | `source/` | Lists and reads the source files, from a checkout or from a commit in git, and knows where this checkout is |
 | `model/` | The public API as data: the types every later step works on, without a parser and without file access |
-| `read/` | Turns the sources into the model, with `template/` for Twig and Vue templates, `options/` for the options object of a component and `services/` for the registered services |
+| `read/` | Turns the sources into the model, with `template/` for Twig and Vue templates, `options/` for the options object of a component, `services/` for the registered services and `stores/` for the registered stores |
 | `snapshot/` | Prints the model into the files of `public-api/` |
 | `break-check/` | Compares two models, with `facts/` for what the rules compare about a unit and `rules/` for the rules |
-| `testing/` | The fixture cases, their runner, and the example components and services the specs share |
+| `testing/` | The fixture cases, their runner, and the example components, services and stores the specs share |
 
 `generate.ts` and `check.ts` are the two commands.
 `snapshot/` and `break-check/` take one thing from `read/`: `buildModel` with its options, which they call to get a model.
@@ -42,8 +42,8 @@ flowchart TD
         templateMembers["template/template-members.ts<br/>reads the slots and refs of a merged template"]
         options["options/component-options.ts, options/option-members.ts<br/>find the options object and read the members it declares"]
         flags["flag-conditions.ts<br/>current state, major state or both"]
-        services["services/<br/>find the registered services and read the object behind each one"]
-        build["build-model.ts<br/>puts one unit per component together and adds the services"]
+        services["services/, stores/<br/>find the registered services and stores and read what is behind each one"]
+        build["build-model.ts<br/>puts one unit per component together and adds the services and stores"]
     end
     subgraph model["model/"]
         data["model.ts, blocks.ts, members.ts, flag-states.ts, source-line.ts<br/>the public API as data"]
@@ -89,8 +89,9 @@ What an override can rely on depends on the template Vue compiles, and a block o
 
 `model/members.ts` describes a member of a component: a prop, a method, a slot, a ref and so on.
 Every kind is a list of named members with a few details of its own, so the printer and the rules of the break check handle all kinds the same way.
-A new kind needs its details and its entry in `MEMBER_KINDS`, a reader, a line format in `snapshot/print-members.ts`, an entry in `break-check/facts/member-facts.ts` and one in `COMING_AND_GOING` in `break-check/rules/member-rules.ts`.
-The compiler reports each of these while it is missing.
+A new kind needs its details and its entry in `MEMBER_KINDS`, a reader, a line format in `snapshot/print-members.ts` and an entry in `COMING_AND_GOING` in `break-check/rules/member-rules.ts`.
+The compiler reports each of these while it is missing, and also a kind with a type that `TYPED` in `member-rules.ts` does not list.
+A kind that plugin code calls has to join `CALLABLE_KINDS` in `model/members.ts` by hand, which gives it the rules for parameters and results.
 `read/options/option-members.ts` reads the kinds of the options object from the syntax tree, with one reader per option in `SECTIONS`, and never runs the source.
 `read/options/option-helpers.ts` lists the helpers that components spread into `computed` and `methods`, with the names each call adds.
 What the reader cannot resolve becomes a note in the report, because a member that silently goes missing would look like a removed API.
@@ -101,9 +102,13 @@ What the reader cannot resolve becomes a note in the report, because a member th
 `object-members.ts` reads the members of that class or literal, and `service-units.ts` puts the units together, with the classes that services are instances of.
 `read/member-reading.ts` holds what the readers of members share: the name, line and comment of a member, and the signature of a function.
 A service has the member kinds `property` and `method`, so the printers and the rules for a method are those of a component.
+`read/stores/store-registry.ts` finds the `Store.register` calls, `store-members.ts` reads the state, getters and actions of an options store and of a setup store, and `store-units.ts` puts the units together.
+An action is a callable kind like a method, see `CALLABLE_KINDS` in `model/members.ts`, so the rules for a method run on it.
+`read/registered-units.ts` builds what a service and a store share: the files, the visibility and the markers of a unit that a script declares.
+`read/global-interfaces.ts` reads `ServiceContainer` and `PiniaRootState`.
 
 `snapshot/report-outline.ts` holds the lines and sections a report is made of, and the file around them.
-`print-report.ts` fills it for a component, `print-service-report.ts` for the services of a source file, and `print-members.ts` prints the member sections of both.
+`print-report.ts` fills it for a component, `print-registered-reports.ts` for the services and for the stores of a source file, and `print-members.ts` prints the member sections of all of them.
 
 ## How the break check works
 
@@ -112,13 +117,13 @@ flowchart TD
     git["source/git-source-tree.ts<br/>reads the sources of a commit out of git"]
     subgraph check["break-check/"]
         commits["commit-check.ts<br/>builds the models of two commits"]
-        units["units.ts<br/>the components and services of a model as units, and what the check knows per kind"]
+        units["units.ts<br/>the components, services and stores of a model as units, and what the check knows per kind"]
         facts["facts/<br/>what the rules compare about a unit in one flag state"]
         rules["rules/<br/>what a rule is made of, the rules per kind of change, and the list of all rules"]
         classify["break-check.ts<br/>runs the rules per unit and state, then decides the group"]
-        whole["unit-changes.ts<br/>reports a service that is gone, new or private"]
+        whole["unit-changes.ts<br/>reports a service or a store that is gone, new or private"]
         announced["announcements.ts<br/>decides whether a marker announced a change"]
-        use["plugin-use.ts<br/>how plugin code uses a component or a service, for the texts"]
+        use["plugin-use.ts<br/>how plugin code uses a component, a service or a store, for the texts"]
         print["print-findings.ts<br/>prints the summary"]
     end
 
@@ -133,13 +138,13 @@ flowchart TD
 `classifyChanges` in `break-check/break-check.ts` takes the models of two commits and returns findings, without touching git or the disk.
 A rule knows nothing about flag states, markers or visibility.
 It gets the facts of one unit in one state at the base and at the head, and returns the changes with the element each one is about.
-`units.ts` turns the components and the services of a model into units, so the rules run on both.
+`units.ts` turns the components, the services and the stores of a model into units, so the rules run on all of them.
 It also makes a unit of each class that services are instances of, which only reports a change that several of its services share.
-A service has no template, so its facts hold no blocks and the block rules find nothing.
+A service or a store has no template, so its facts hold no blocks and the block rules find nothing.
 `break-check.ts` joins what a rule found in both states, and then decides whether the unit is private and whether an extend child or a service only inherits the finding.
 `announcements.ts` decides whether a marker announced the change.
-The text of a finding gets the wording for its kind of unit from `plugin-use.ts`: a plugin reaches a method of a component through `$super`, and one of a service through `Shopware.Service('<name>')`.
-`unit-changes.ts` compares the units themselves and reports a service that only one commit has, or that became private.
+The text of a finding gets the wording for its kind of unit from `plugin-use.ts`: a plugin reaches a method of a component through `$super`, one of a service through `Shopware.Service('<name>')`, and an action of a store through `Shopware.Store.get('<id>')`.
+`unit-changes.ts` compares the units themselves and reports a service or a store that only one commit has, or that became private.
 `rules/texts.ts` holds the texts that such a finding shares with the one about a member, and `findingFor` in `finding.ts` puts both kinds of finding together.
 A new rule for blocks is one entry in `BLOCK_RULES`, and one for members an entry in `MEMBER_RULES`.
 A new kind of unit is one entry in `UNIT_KINDS` in `units.ts`, with how the model lists its units and how plugin code uses one.
@@ -169,16 +174,18 @@ Its facts get a file of their own in `facts/` and join `UnitFacts` in `facts/uni
 | `read/options/option-members.spec/snapshot.spec.ts` | How the snapshot shows each kind of member, in every form the sources write one |
 | `read/options/option-members.spec/runtime.spec.ts` | The member names against the options objects at runtime, for every component of the real Administration |
 | `read/services/service-units.spec.ts` | How the snapshot shows a service, for every way the sources register and declare one, and the registrations the generator rejects |
+| `read/stores/store-units.spec.ts` | How the snapshot shows an options store and a setup store, and the registrations the generator rejects |
 | `break-check/break-check.spec/block-rules.spec.ts` | What each rule of the break check reports for a change to the blocks |
 | `break-check/break-check.spec/member-rules.spec.ts` | What each rule of the break check reports for a change to the members |
 | `break-check/break-check.spec/method-rules.spec.ts` | What each rule of the break check reports for a change to the parameters, the result and the return type of a method |
 | `break-check/break-check.spec/service-rules.spec.ts` | What the break check reports for a service that is gone, new or private, and for a change to its members |
+| `break-check/break-check.spec/store-rules.spec.ts` | What the break check reports for a store that is gone, new or private, and for a change to its state, getters and actions |
 | `break-check/break-check.spec/verdict.spec.ts` | What the break check reports as announced, private or inherited by an extend child |
 | `break-check/commit-check.spec.ts` | The break check on the commits of a repository that the spec creates |
 | `snapshot/committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |
 | `testing/fixture-runner.spec/`, `break-check/print-findings.spec.ts` | The fixture comparison and the summary of the break check |
 
-`testing/example-components.ts` and `testing/example-services.ts` build the small source trees that the specs share.
+`testing/example-components.ts`, `testing/example-services.ts` and `testing/example-stores.ts` build the small source trees that the specs share.
 
 Run them in the Administration folder:
 

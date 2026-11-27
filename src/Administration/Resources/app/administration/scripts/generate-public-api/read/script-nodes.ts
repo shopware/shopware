@@ -49,9 +49,10 @@ export function valueOf(expression: ts.Expression, source: ts.SourceFile, seen: 
 /**
  * @private
  *
- * The name of an object member that is written as a literal, `null` for a computed key and for a spread.
+ * The name of a member of an object or of a type that is written as a literal, `null` for a computed key and
+ * for a spread.
  */
-export function memberName({ name }: ts.ObjectLiteralElementLike): string | null {
+export function memberName({ name }: { name?: ts.PropertyName }): string | null {
     if (name === undefined) {
         return null;
     }
@@ -74,6 +75,44 @@ export function memberValue(member: ts.ObjectLiteralElementLike, source: ts.Sour
     }
 
     return ts.isShorthandPropertyAssignment(member) ? valueOf(member.name, source) : member;
+}
+
+/**
+ * @private
+ *
+ * Every node below `node`, and `node` itself, that the guard accepts.
+ */
+export function collect<Found extends ts.Node>(node: ts.Node, guard: (candidate: ts.Node) => candidate is Found): Found[] {
+    const found: Found[] = guard(node) ? [node] : [];
+
+    ts.forEachChild(node, (child) => {
+        found.push(...collect(child, guard));
+    });
+
+    return found;
+}
+
+/**
+ * @private
+ *
+ * A call of a method, `receiver.method(...)`.
+ */
+export type MethodCall = ts.CallExpression & { expression: ts.PropertyAccessExpression };
+
+/** @private */
+export function isMethodCall(node: ts.Node): node is MethodCall {
+    return ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression);
+}
+
+/**
+ * @private
+ *
+ * The node as a call of one of the named functions, `ref(...)` for `['ref']`.
+ */
+export function callOf(node: ts.Node, names: readonly string[]): ts.CallExpression | undefined {
+    return ts.isCallExpression(node) && ts.isIdentifier(node.expression) && names.includes(node.expression.text)
+        ? node
+        : undefined;
 }
 
 /** @private */

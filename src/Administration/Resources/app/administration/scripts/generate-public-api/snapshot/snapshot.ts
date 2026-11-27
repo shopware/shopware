@@ -8,7 +8,7 @@ import { readSourceTree } from '../source/source-tree';
 import type { SourceTree } from '../source/source-tree';
 import { printIndex } from './print-index';
 import { printReport } from './print-report';
-import { printServiceReports } from './print-service-report';
+import { printRegisteredReports } from './print-registered-reports';
 
 /**
  * @private
@@ -46,7 +46,7 @@ function assertEveryTemplateIsUsed({ unusedBlocks }: Model): void {
  * @private
  *
  * The snapshot of a source tree that is already read. It holds the unit kinds built so far: the registered
- * components and the registered services. `testing/expected-failures.ts` lists what is missing.
+ * components, the registered services and the registered stores. `testing/expected-failures.ts` lists what is missing.
  */
 export function snapshotOf(tree: SourceTree, options: SnapshotOptions): Snapshot {
     const model = buildModel(tree, options);
@@ -54,7 +54,7 @@ export function snapshotOf(tree: SourceTree, options: SnapshotOptions): Snapshot
     assertEveryTemplateIsUsed(model);
     const reports = [
         ...model.components.map((unit): [string, string] => [unit.file, printReport(unit, model.flags)]),
-        ...printServiceReports(model.services, model.flags),
+        ...printRegisteredReports(model),
     ];
     const files: Record<string, string> = { 'index.json': printIndex(model) };
 

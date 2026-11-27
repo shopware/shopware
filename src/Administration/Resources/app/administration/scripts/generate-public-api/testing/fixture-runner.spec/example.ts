@@ -94,6 +94,24 @@ const SERVICE_REPORT = [
     '',
 ].join('\n');
 
+const STORE_REPORT = [
+    '# Stores of src/app/store/example.store.ts',
+    '',
+    '```text',
+    'store example  public  ts  typed  options',
+    '',
+    'state',
+    '  items: string[]',
+    '',
+    'getters',
+    '  hasItems: boolean',
+    '',
+    'actions',
+    '  addItem(item: string): void',
+    '```',
+    '',
+].join('\n');
+
 const INDEX = `${JSON.stringify(
     {
         components: {
@@ -101,6 +119,9 @@ const INDEX = `${JSON.stringify(
         },
         services: {
             exampleService: { file: 'app/service/example.service', visibility: 'public' },
+        },
+        stores: {
+            example: { file: 'app/store/example.store', visibility: 'public' },
         },
         mixins: {},
     },
@@ -168,19 +189,38 @@ const SERVICE_FINDINGS = [
     { ...SERVICE_METHOD_FINDING, element: 'service:exampleService/property:limit' },
 ];
 
+/** One finding about the store itself, and one per kind of its members. */
+const STORE_FINDINGS: Finding[] = [
+    'store:example',
+    'store:example/action:addItem',
+    'store:example/state:items',
+    'store:example/getter:hasItems',
+].map((element) => ({
+    group: 'Break',
+    rule: 'visibility_became_private',
+    element,
+    states: ['current', 'major'],
+    explanation: 'It became private.',
+}));
+
 /** @private */
 export const FINDINGS = [
     BLOCK_FINDING,
     CROSSING_FINDING,
     ...MEMBER_FINDINGS,
     ...SERVICE_FINDINGS,
+    ...STORE_FINDINGS,
 ];
+
+/** @private */
+export const [STORE_FINDING, STORE_ACTION_FINDING] = STORE_FINDINGS;
 
 /** @private */
 export const FILES = {
     'app/component/base/sw-example-card.api.md': REPORT,
     'app/component/base/sw-example-card.d.ts': CONTRACT,
     'app/service/example.service.api.md': SERVICE_REPORT,
+    'app/store/example.store.api.md': STORE_REPORT,
     'index.json': INDEX,
     'current.d.ts': '/// <reference path="./app/component/base/sw-example-card.d.ts" />\n',
 };
@@ -233,6 +273,8 @@ export const VIEWS = [
     'member-findings',
     'service-units',
     'service-members',
+    'store-units',
+    'store-members',
     'complete',
 ];
 

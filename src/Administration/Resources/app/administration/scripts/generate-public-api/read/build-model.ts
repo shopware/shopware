@@ -2,7 +2,8 @@
  * @sw-package framework
  *
  * Builds the model of a source tree: finds the registered components, merges their templates along the extend
- * chains, and reads the blocks and members of each one. The services come from `services/service-units.ts`.
+ * chains, and reads the blocks and members of each one. The services come from `services/service-units.ts`
+ * and the stores from `stores/store-units.ts`.
  */
 import { isTemplateSourceFile } from '../../public-api-source-files';
 import { byCodePoint } from '../helpers/code-point-order';
@@ -12,12 +13,14 @@ import type { UnitMembers } from '../model/members';
 import type { ComponentUnit, Model, Registration, UnusedBlock } from '../model/model';
 import type { SourceTree } from '../source/source-tree';
 import { componentCalls, markupOf } from './component-registry';
+import { Declarations } from './declarations';
 import type { ComponentCalls, Override } from './component-registry';
 import { componentOptions } from './options/component-options';
 import { readOptionMembers } from './options/option-members';
 import { readStructure } from './template/block-structure';
 import { listBlocks } from './template/block-tree';
 import { serviceUnits } from './services/service-units';
+import { storeUnits } from './stores/store-units';
 import { resolveTemplates } from './template/extend-chain';
 import type { ComponentTemplate, OverrideTemplate, ResolvedTemplate, TemplateSource } from './template/extend-chain';
 import { renderTemplate } from './template/rendered-template';
@@ -183,6 +186,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
             .map((file): [string, TemplateSource] => [file, { file, tree: templateTree(tree.read(file), file, flags) }]),
     );
     const calls = componentCalls(tree, flags);
+    const declarations = new Declarations(tree);
     const { registrations } = calls;
 
     assertUniqueNames(registrations, flags);
@@ -200,7 +204,8 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
     return {
         flags,
         components,
-        ...serviceUnits(tree, flags),
+        ...serviceUnits(tree, declarations, flags),
+        stores: storeUnits(tree, declarations, flags),
         droppedBlocks,
         unusedBlocks: unusedBlocks(calls, templates),
     };

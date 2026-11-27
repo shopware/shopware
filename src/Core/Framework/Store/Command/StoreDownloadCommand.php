@@ -61,12 +61,10 @@ class StoreDownloadCommand extends Command
         $pluginName = (string) $input->getOption('pluginName');
         $user = $input->getOption('user');
 
-        $context = $this->getUserContextFromInput($user, $context);
-
         $this->validatePluginIsNotManagedByComposer($pluginName, $context);
 
         try {
-            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $context);
+            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $this->getUserContextFromInput($user, $context));
         } catch (ClientException $exception) {
             throw StoreException::storeError($exception);
         }
@@ -96,15 +94,12 @@ class StoreDownloadCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $userName));
 
-        $user = $this->userRepository->search($criteria, $context)->getEntities()->first();
-        if ($user === null) {
+        $userId = $this->userRepository->searchIds($criteria, $context)->firstId();
+        if ($userId === null) {
             return $context;
         }
 
-        $source = new AdminApiSource($user->getId());
-        $source->setIsAdmin($user->isAdmin());
-
-        return Context::createCLIContext($source);
+        return Context::createCLIContext(new AdminApiSource($userId));
     }
 
     private function validatePluginIsNotManagedByComposer(string $pluginName, Context $context): void

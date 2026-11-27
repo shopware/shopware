@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableWriteTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -104,49 +106,59 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             return;
         }
 
-        $writeResults = $entityWrittenEvent->getWriteResults();
-        if ($writeResults === []) {
-            return;
-        }
-
-        $parentId = $writeResults[0]->getPrimaryKey();
+        $parentId = $event->getRecord()['id'] ?? null;
         if (!\is_string($parentId)) {
             return;
         }
 
+        $parentWriteResult = null;
+        foreach ($entityWrittenEvent->getWriteResults() as $writeResult) {
+            if ($writeResult->getPrimaryKey() === $parentId) {
+                $parentWriteResult = $writeResult;
+
+                break;
+            }
+        }
+
+        if ($parentWriteResult === null) {
+            return;
+        }
+
         $context = $event->getContext();
-        $payload = $this->getCombinationsPayload($variants, $parentId, $writeResults[0]->getPayload()['productNumber'], $context);
+        $payload = $this->getCombinationsPayload($variants, $parentId, $parentWriteResult->getPayload()['productNumber'], $context);
 
-        $variantIds = array_column($payload, 'id');
-        $this->connection->executeStatement(
-            'DELETE FROM `product_option` WHERE `product_id` IN (:ids);',
-            ['ids' => Uuid::fromHexToBytesList($variantIds)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-        $configuratorSettingPayload = $this->getProductConfiguratorSettingPayload($payload, $parentId);
-        $this->connection->executeStatement(
-            'DELETE FROM `product_configurator_setting` WHERE `product_id` = :parentId AND `id` NOT IN (:ids);',
-            [
-                'parentId' => Uuid::fromHexToBytes($parentId),
-                'ids' => Uuid::fromHexToBytesList(array_column($configuratorSettingPayload, 'id')),
-            ],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+        RetryableWriteTransaction::retryable($this->connection, function () use ($payload, $parentId, $context): void {
+            $configuratorSettingPayload = $this->getProductConfiguratorSettingPayload($payload, $parentId, $context);
 
-        $this->syncService->sync([
-            new SyncOperation(
-                'write',
-                ProductDefinition::ENTITY_NAME,
-                SyncOperation::ACTION_UPSERT,
-                $payload
-            ),
-            new SyncOperation(
-                'write',
-                ProductConfiguratorSettingDefinition::ENTITY_NAME,
-                SyncOperation::ACTION_UPSERT,
-                $configuratorSettingPayload
-            ),
-        ], $context, new SyncBehavior());
+            $this->connection->executeStatement(
+                'DELETE FROM `product_option` WHERE `product_id` IN (:ids);',
+                ['ids' => Uuid::fromHexToBytesList(array_column($payload, 'id'))],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+            $this->connection->executeStatement(
+                'DELETE FROM `product_configurator_setting` WHERE `product_id` = :parentId AND `property_group_option_id` NOT IN (:optionIds);',
+                [
+                    'parentId' => Uuid::fromHexToBytes($parentId),
+                    'optionIds' => Uuid::fromHexToBytesList(array_column($configuratorSettingPayload, 'optionId')),
+                ],
+                ['parentId' => ParameterType::BINARY, 'optionIds' => ArrayParameterType::BINARY]
+            );
+
+            $this->syncService->sync([
+                new SyncOperation(
+                    'write',
+                    ProductDefinition::ENTITY_NAME,
+                    SyncOperation::ACTION_UPSERT,
+                    $payload
+                ),
+                new SyncOperation(
+                    'write',
+                    ProductConfiguratorSettingDefinition::ENTITY_NAME,
+                    SyncOperation::ACTION_UPSERT,
+                    $configuratorSettingPayload
+                ),
+            ], $context, new SyncBehavior());
+        });
     }
 
     public function reset(): void
@@ -288,16 +300,26 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
      *
      * @return list<array{id: string, optionId: string, productId: string}>
      */
-    private function getProductConfiguratorSettingPayload(array $variantsPayload, string $parentId): array
+    private function getProductConfiguratorSettingPayload(array $variantsPayload, string $parentId, Context $context): array
     {
         $options = array_merge(...array_column($variantsPayload, 'options'));
         $optionIds = array_unique(array_column($options, 'id'));
+
+        $existingIds = [];
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT `id`, `property_group_option_id` FROM `product_configurator_setting` WHERE `product_id` = :parentId AND `version_id` = :versionId',
+            ['parentId' => Uuid::fromHexToBytes($parentId), 'versionId' => Uuid::fromHexToBytes($context->getVersionId())],
+            ['parentId' => ParameterType::BINARY, 'versionId' => ParameterType::BINARY]
+        );
+        foreach ($rows as $row) {
+            $existingIds[Uuid::fromBytesToHex($row['property_group_option_id'])] = Uuid::fromBytesToHex($row['id']);
+        }
 
         $payload = [];
 
         foreach ($optionIds as $optionId) {
             $payload[] = [
-                'id' => Uuid::fromStringToHex(\sprintf('%s_configurator', $optionId)),
+                'id' => $existingIds[$optionId] ?? Uuid::fromStringToHex(\sprintf('%s.%s_configurator', $parentId, $optionId)),
                 'optionId' => $optionId,
                 'productId' => $parentId,
             ];

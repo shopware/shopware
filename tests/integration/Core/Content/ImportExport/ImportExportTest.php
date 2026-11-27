@@ -54,6 +54,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
@@ -81,6 +82,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -687,6 +689,109 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertStringContainsString('size: M, L, XL, XXL | oops', $first['_error']);
         $second = $invalid[1];
         static::assertStringContainsString('size: , | color: Green, White, Black, Purple', $second['_error']);
+    }
+
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function testProductsWithSharedVariantOptionsKeepTheirOwnConfiguratorSettings(bool $useBatchImport): void
+    {
+        $taxId = $this->getTaxId();
+
+        $progress = $this->importProductCsv(
+            'id;product_number;stock;name;tax_id;price_net;price_gross;variants' . \PHP_EOL
+            . Uuid::randomHex() . ';VAR-A;10;Shirt A;' . $taxId . ';10;11.9;size: S, M' . \PHP_EOL
+            . Uuid::randomHex() . ';VAR-B;10;Shirt B;' . $taxId . ';10;11.9;size: M, L' . \PHP_EOL
+            . Uuid::randomHex() . ';VAR-C;10;Shirt C;' . $taxId . ';10;11.9;size: S, M',
+            $useBatchImport
+        );
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+        static::assertSame(
+            [
+                'VAR-A' => ['variantOptions' => ['M', 'S'], 'configuratorSettings' => ['M', 'S']],
+                'VAR-B' => ['variantOptions' => ['L', 'M'], 'configuratorSettings' => ['L', 'M']],
+                'VAR-C' => ['variantOptions' => ['M', 'S'], 'configuratorSettings' => ['M', 'S']],
+            ],
+            $this->readVariantOptionsAndConfiguratorSettings(['VAR-A', 'VAR-B', 'VAR-C'])
+        );
+    }
+
+    public function testFailingVariantWriteKeepsTheExistingVariantOptions(): void
+    {
+        $taxId = $this->getTaxId();
+        $parentId = Uuid::randomHex();
+
+        $progress = $this->importProductCsv(
+            'id;product_number;stock;name;tax_id;price_net;price_gross;variants' . \PHP_EOL
+            . $parentId . ';VAR-A;10;Shirt A;' . $taxId . ';10;11.9;size: S, M'
+        );
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $this->productRepository->create([[
+            'productNumber' => 'VAR-A.2',
+            'stock' => 1,
+            'name' => 'Product that takes the product number of the third variant',
+            'taxId' => $taxId,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false]],
+        ]], Context::createDefaultContext());
+
+        $progress = $this->importProductCsv(
+            'id;product_number;stock;name;tax_id;price_net;price_gross;variants' . \PHP_EOL
+            . $parentId . ';VAR-A;10;Shirt A;' . $taxId . ';10;11.9;size: S, M, L'
+        );
+
+        static::assertImportExportFailed($progress);
+        static::assertSame(
+            ['VAR-A' => ['variantOptions' => ['M', 'S'], 'configuratorSettings' => ['M', 'S']]],
+            $this->readVariantOptionsAndConfiguratorSettings(['VAR-A'])
+        );
+    }
+
+    public function testImportKeepsConfiguratorSettingsThatEarlierImportsWrote(): void
+    {
+        $taxId = $this->getTaxId();
+        $shirtId = Uuid::randomHex();
+        $shirtCsv = 'id;product_number;stock;name;tax_id;price_net;price_gross;variants' . \PHP_EOL
+            . $shirtId . ';VAR-A;10;Shirt A;' . $taxId . ';10;11.9;size: S, M';
+
+        $progress = $this->importProductCsv($shirtCsv);
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $shirtId), new EqualsFilter('option.name', 'M'));
+        $mediumSetting = static::getContainer()->get('product_configurator_setting.repository')
+            ->search($criteria, Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+        static::assertInstanceOf(ProductConfiguratorSettingEntity::class, $mediumSetting);
+        $earlierImportSettingId = Uuid::fromStringToHex($mediumSetting->getOptionId() . '_configurator');
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `product_configurator_setting` SET `id` = :id, `position` = 5 WHERE `id` = :settingId',
+            ['id' => Uuid::fromHexToBytes($earlierImportSettingId), 'settingId' => Uuid::fromHexToBytes($mediumSetting->getId())]
+        );
+
+        $progress = $this->importProductCsv(
+            'id;product_number;stock;name;tax_id;price_net;price_gross;variants' . \PHP_EOL
+            . Uuid::randomHex() . ';VAR-B;10;Shirt B;' . $taxId . ';10;11.9;size: M, L'
+        );
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $progress = $this->importProductCsv($shirtCsv);
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        static::assertSame(
+            [
+                'VAR-A' => ['variantOptions' => ['M', 'S'], 'configuratorSettings' => ['M', 'S']],
+                'VAR-B' => ['variantOptions' => ['L', 'M'], 'configuratorSettings' => ['L', 'M']],
+            ],
+            $this->readVariantOptionsAndConfiguratorSettings(['VAR-A', 'VAR-B'])
+        );
+        $setting = static::getContainer()->get('product_configurator_setting.repository')
+            ->search(new Criteria([$earlierImportSettingId]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+        static::assertInstanceOf(ProductConfiguratorSettingEntity::class, $setting);
+        static::assertSame(5, $setting->getPosition());
     }
 
     public function testProductsWithOwnIdentifier(): void
@@ -1997,5 +2102,64 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertIsString($csv);
 
         return $csv;
+    }
+
+    private function getTaxId(): string
+    {
+        $taxId = static::getContainer()->get('tax.repository')->searchIds((new Criteria())->setLimit(1), Context::createDefaultContext())->firstId();
+        static::assertIsString($taxId);
+
+        return $taxId;
+    }
+
+    private function importProductCsv(string $csv, bool $useBatchImport = false): Progress
+    {
+        $filesystem = new Filesystem();
+        $path = $filesystem->tempnam(sys_get_temp_dir(), 'products');
+        $filesystem->dumpFile($path, $csv);
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        try {
+            return $this->import($context, ProductDefinition::ENTITY_NAME, $path, 'products.csv', absolutePath: true, useBatchImport: $useBatchImport);
+        } finally {
+            $filesystem->remove($path);
+        }
+    }
+
+    /**
+     * @param list<string> $productNumbers
+     *
+     * @return array<string, array{variantOptions: list<string>, configuratorSettings: list<string>}>
+     */
+    private function readVariantOptionsAndConfiguratorSettings(array $productNumbers): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('productNumber', $productNumbers));
+        $criteria->addAssociation('children.options');
+        $criteria->addAssociation('configuratorSettings.option');
+
+        $products = [];
+        foreach ($this->productRepository->search($criteria, Context::createDefaultContext())->getEntities() as $product) {
+            $variantOptions = [];
+            foreach ($product->getChildren() ?? [] as $variant) {
+                foreach ($variant->getOptions() ?? [] as $option) {
+                    $variantOptions[] = (string) $option->getName();
+                }
+            }
+
+            $configuratorSettings = [];
+            foreach ($product->getConfiguratorSettings() ?? [] as $setting) {
+                $configuratorSettings[] = (string) $setting->getOption()?->getName();
+            }
+
+            sort($variantOptions);
+            sort($configuratorSettings);
+            $products[$product->getProductNumber()] = ['variantOptions' => $variantOptions, 'configuratorSettings' => $configuratorSettings];
+        }
+        ksort($products);
+
+        return $products;
     }
 }

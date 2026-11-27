@@ -26,6 +26,17 @@ class McpToolResultTest extends TestCase
         static::assertFalse($success->isError());
     }
 
+    public function testTextCarriesOnlyTheTextAndTheMeta(): void
+    {
+        $text = McpToolResult::text('Cache cleared.', ['dryRun' => false]);
+
+        static::assertSame('Cache cleared.', $text->text);
+        static::assertSame(['dryRun' => false], $text->meta);
+        static::assertNull($text->data);
+        static::assertNull($text->summary);
+        static::assertFalse($text->isError());
+    }
+
     public function testFailureCarriesAnErrorWithItsCodeAndDetails(): void
     {
         $failure = McpToolResult::failure('Nope', McpToolError::NOT_FOUND, ['id' => 'x']);

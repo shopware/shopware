@@ -50,6 +50,10 @@
             </noscript>
         {% endblock %}
 
+        {% block base_staging_info %}
+            {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
+        {% endblock %}
+
         {% block base_esi_header %}
             {{ render_esi(path('frontend.header', { headerParameters: headerParameters }), { ignore_errors: false } ) }}
         {% endblock %}

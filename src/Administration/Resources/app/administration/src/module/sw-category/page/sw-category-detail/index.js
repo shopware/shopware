@@ -135,11 +135,21 @@ export default {
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.customFieldSetCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'category'));
@@ -149,6 +159,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetLandingPageCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.customFieldSetLandingPageCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'landing_page'));
@@ -762,6 +777,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         extractSlotOverrides(origin, changes) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.extractSlotOverrides() is deprecated. Will be removed without replacement.',
+            );
+
             const slotOverrides = {};
 
             if (changes === null) {
@@ -807,6 +827,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         getCmsPageOverrides() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.getCmsPageOverrides() is deprecated. Will be removed without replacement.',
+            );
+
             if (this.cmsPage === null) {
                 return null;
             }
@@ -822,6 +847,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         deleteSpecifcKeys(sections) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.deleteSpecifcKeys() is deprecated. Will be removed without replacement.',
+            );
+
             if (!sections) {
                 return;
             }

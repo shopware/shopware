@@ -29,7 +29,7 @@ async function createWrapper(isSelectable, tooltip) {
                     return { isSelectable, tooltip };
                 },
                 columns: [{ property: 'name', label: 'Name' }],
-                items: new EntityCollection(
+                dataSource: new EntityCollection(
                     null,
                     null,
                     null,

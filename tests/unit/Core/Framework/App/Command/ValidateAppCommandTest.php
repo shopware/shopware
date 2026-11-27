@@ -7,8 +7,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\ValidateAppCommand;
+use Shopware\Core\Framework\App\Validation\AppValidator;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
+use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
+use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Result;
 use Symfony\Component\Console\Command\Command;
@@ -21,54 +23,85 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(ValidateAppCommand::class)]
 class ValidateAppCommandTest extends TestCase
 {
-    private MockObject&ManifestValidator $manifestValidator;
+    private MockObject&AppValidator $appValidator;
 
     private CommandTester $commandTester;
 
     protected function setUp(): void
     {
-        $this->manifestValidator = $this->createMock(ManifestValidator::class);
+        $this->appValidator = $this->createMock(AppValidator::class);
 
         $this->commandTester = new CommandTester(new ValidateAppCommand(
             __DIR__ . '/_fixtures/validate-apps',
-            $this->manifestValidator
+            $this->appValidator
         ));
     }
 
     #[TestDox('All apps in the app directory are validated when no name is given')]
     public function testValidatesAllApps(): void
     {
-        $this->manifestValidator->expects($this->once())->method('validate')->willReturn(Result::ok());
+        $this->appValidator->expects($this->once())->method('validate')->willReturn(Result::ok());
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([]));
-        static::assertStringContainsString('all apps valid', $this->commandTester->getDisplay());
+        static::assertSame('✔ 1 app valid', trim($this->commandTester->getDisplay()));
     }
 
     #[TestDox('A single app is validated by its folder name')]
     public function testValidatesSingleAppByName(): void
     {
-        $this->manifestValidator->expects($this->once())->method('validate')->willReturn(Result::ok());
+        $this->appValidator->expects($this->once())->method('validate')->willReturn(Result::ok());
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute(['name' => 'ValidApp']));
-        static::assertStringContainsString('app is valid', $this->commandTester->getDisplay());
+        static::assertSame('✔ 1 app valid', trim($this->commandTester->getDisplay()));
     }
 
-    #[TestDox('Validation errors are printed and fail the command')]
+    #[TestDox('Errors are listed under the app and fail the command')]
     public function testFailsWithValidationErrors(): void
     {
-        $this->manifestValidator
+        $this->appValidator
             ->expects($this->once())
             ->method('validate')
             ->willReturn(Result::failed([new MissingPermissionError(['product:read'])]));
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute([]));
-        static::assertStringContainsString('The app "test" is invalid', $this->commandTester->getDisplay());
+        static::assertSame(
+            "test\n  error   Missing permissions: product:read\n\n✖ 1 error, 0 notices (1 of 1 app invalid)",
+            trim($this->commandTester->getDisplay())
+        );
+    }
+
+    #[TestDox('Notices are listed under the app but do not fail the command')]
+    public function testNoticesDoNotFailTheCommand(): void
+    {
+        $this->appValidator
+            ->expects($this->once())
+            ->method('validate')
+            ->willReturn(Result::failed([new MissingTranslationError(['de-DE'])]));
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([]));
+        static::assertSame(
+            "test\n  notice  Missing label translations: de-DE\n\n✔ 0 errors, 1 notice",
+            trim($this->commandTester->getDisplay())
+        );
+    }
+
+    #[TestDox('Findings are escaped')]
+    public function testFindingsAreEscaped(): void
+    {
+        $this->appValidator
+            ->expects($this->once())
+            ->method('validate')
+            ->willReturn(Result::failed([new NotHookableError(['pre<info>mid</info>post' => 'product.written'])]));
+
+        $this->commandTester->execute([]);
+
+        static::assertStringContainsString('Webhooks not hookable: pre<info>mid</info>post (product.written)', $this->commandTester->getDisplay());
     }
 
     #[TestDox('An unknown app folder name fails the command')]
     public function testFailsForUnknownAppName(): void
     {
-        $this->manifestValidator->expects($this->never())->method('validate');
+        $this->appValidator->expects($this->never())->method('validate');
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute(['name' => 'MissingApp']));
         static::assertStringContainsString('No app with name "MissingApp" found.', $this->commandTester->getDisplay());

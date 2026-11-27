@@ -8,6 +8,10 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -33,6 +37,11 @@ class CategoryIndexer extends EntityIndexer
     final public const TREE_UPDATER = 'category.tree';
     final public const BREADCRUMB_UPDATER = 'category.breadcrumb';
     private const UPDATE_IDS_CHUNK_SIZE = 50;
+    private const PRODUCT_UPDATERS_AFTER_MOVE = [
+        ProductIndexer::CATEGORY_DENORMALIZER_UPDATER,
+        ProductIndexer::STREAM_UPDATER,
+        ProductIndexer::MANY_TO_MANY_ID_FIELD_UPDATER,
+    ];
 
     /**
      * @internal
@@ -48,6 +57,7 @@ class CategoryIndexer extends EntityIndexer
         private readonly CategoryBreadcrumbUpdater $breadcrumbUpdater,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly MessageBusInterface $messageBus,
+        private readonly EntityIndexer $productIndexer,
     ) {
     }
 
@@ -139,6 +149,8 @@ class CategoryIndexer extends EntityIndexer
                 $event->getContext(),
                 true
             );
+
+            $this->dispatchProductIndexing($idsWithChangedParentIds, $event->getContext());
         }
 
         if (!$runAllUpdaters && !$parentIdChanged && !$nameChanged && !$activeStateChanged) {
@@ -261,6 +273,56 @@ SQL;
 
         return $this->connection->fetchFirstColumn($sql, [
             'version' => Uuid::fromHexToBytes($versionId),
+            'categoryIds' => Uuid::fromHexToBytesList($categoryIds),
+        ], [
+            'categoryIds' => ArrayParameterType::BINARY,
+        ]);
+    }
+
+    /**
+     * Products denormalize the path of their categories, so a moved category invalidates
+     * the category tree of every product assigned to it or to one of its descendants.
+     *
+     * @param array<string> $movedCategoryIds
+     */
+    private function dispatchProductIndexing(array $movedCategoryIds, Context $context): void
+    {
+        if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
+        $skips = array_values(array_diff($this->productIndexer->getOptions(), self::PRODUCT_UPDATERS_AFTER_MOVE));
+
+        foreach (\array_chunk($this->fetchProductIds($movedCategoryIds), self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
+            $message = new ProductIndexingMessage($chunk, null, $context);
+            $message->setIndexer('product.indexer');
+            $message->addSkip(...$skips);
+            EntityIndexerRegistry::addSkips($message, $context);
+
+            $this->messageBus->dispatch($message);
+        }
+    }
+
+    /**
+     * The denormalized tree of a product lists every ancestor of its categories, so it already
+     * resolves the descendants of the given categories and the variants inheriting an assignment.
+     *
+     * @param array<string> $categoryIds
+     *
+     * @return array<string>
+     */
+    private function fetchProductIds(array $categoryIds): array
+    {
+        $sql = <<<'SQL'
+SELECT DISTINCT LOWER(HEX(product_id))
+FROM product_category_tree
+WHERE category_id IN (:categoryIds)
+  AND category_version_id = :version
+  AND product_version_id = :version
+SQL;
+
+        return $this->connection->fetchFirstColumn($sql, [
+            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'categoryIds' => Uuid::fromHexToBytesList($categoryIds),
         ], [
             'categoryIds' => ArrayParameterType::BINARY,

@@ -58,6 +58,65 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
     .sw-page__back-btn-container {
         grid-column: back-btn-start / back-btn-end;
+        display: flex;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .smart-bar__back-link {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--scale-size-6);
+        min-width: 0;
+        margin-inline-end: var(--scale-size-24);
+        padding-block: var(--scale-size-16);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-xs);
+        text-decoration: none;
+
+        .mt-icon {
+            flex: none;
+            color: var(--color-icon-secondary-default);
+        }
+
+        &:hover,
+        &:focus {
+            color: var(--color-text-secondary-default);
+            text-decoration: none;
+        }
+
+        &:hover .smart-bar__back-link-label {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: none;
+        }
+
+        &:focus-visible::before {
+            content: "";
+            position: absolute;
+            inset-block: var(--scale-size-12);
+            inset-inline: calc(var(--scale-size-6) * -1);
+            border: var(--scale-size-2) solid var(--color-border-brand-default);
+            border-radius: var(--border-radius-button);
+            pointer-events: none;
+        }
+    }
+
+    .smart-bar__back-link-label {
+        max-width: 240px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-underline-offset: 3px;
+    }
+
+    .smart-bar__back-btn.smart-bar__back-btn--compact {
+        display: none;
     }
 
     .smart-bar__content {
@@ -221,6 +280,19 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         // Keeps the title lead identical whether or not the back button is present
         .sw-page__back-btn-container:empty {
             display: none;
+        }
+
+        .sw-page__back-btn-container {
+            flex: 0 1 auto;
+            max-width: 25%;
+        }
+
+        .smart-bar__back-link {
+            display: none;
+        }
+
+        .smart-bar__back-btn.smart-bar__back-btn--compact {
+            display: inline-grid;
         }
 
         .sw-page__search-bar,

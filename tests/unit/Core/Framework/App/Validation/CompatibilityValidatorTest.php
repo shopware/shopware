@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 
@@ -40,5 +41,6 @@ class CompatibilityValidatorTest extends TestCase
         static::assertSame('App test is not compatible with this Shopware version', $error->getMessage());
         static::assertSame(AppException::NOT_COMPATIBLE, $error->getErrorCode());
         static::assertSame(['name' => 'test'], $error->getParameters());
+        static::assertSame(Severity::Fail, $error->getSeverity());
     }
 }

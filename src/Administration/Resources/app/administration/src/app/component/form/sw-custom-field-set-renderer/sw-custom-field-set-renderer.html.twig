@@ -64,7 +64,10 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     v-if="variant === 'tabs'"
                     ref="tabComponent"
@@ -143,7 +146,7 @@
                     </template>
                     {% endblock %}
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
         </template>
         {% endblock %}
 

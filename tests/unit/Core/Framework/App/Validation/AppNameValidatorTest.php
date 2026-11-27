@@ -55,6 +55,18 @@ class AppNameValidatorTest extends TestCase
         static::assertStringContainsString('The technical app name "notSameAppNameAsFolder" in the "manifest.xml" and the folder name must be equal.', $violations[0]->getMessage());
     }
 
+    public function testComposerManagedAppsAreNotCheckedAgainstTheirPackageFolder(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $manifest->setManagedByComposer(true);
+
+        $validator = new AppNameValidator($this->createResolverFor(
+            static fn () => '/var/www/vendor/swag/test-app'
+        ));
+
+        static::assertCount(0, $validator->validate($manifest, null));
+    }
+
     public function testTheNameComesFromTheResolvedFilesystemNotTheManifestPath(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');

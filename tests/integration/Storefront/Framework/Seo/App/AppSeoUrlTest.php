@@ -646,9 +646,9 @@ class AppSeoUrlTest extends TestCase
         /** @var list<string> $paths */
         $paths = $this->connection->fetchFirstColumn(
             'SELECT `seo_path_info` FROM `seo_url`
-             WHERE `route_name` = :routeName AND `is_canonical` = 1 AND `is_deleted` = 0
+             WHERE `route_name` = :routeName AND `sales_channel_id` = :salesChannelId AND `is_canonical` = 1 AND `is_deleted` = 0
              ORDER BY `seo_path_info`',
-            ['routeName' => $routeName]
+            ['routeName' => $routeName, 'salesChannelId' => Uuid::fromHexToBytes($this->getSalesChannelId())]
         );
 
         return $paths;

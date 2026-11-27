@@ -388,6 +388,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ThemeService::class),
             service(ScssPhpCompiler::class),
+            service(Connection::class),
+            service(ThemeRuntimeConfigService::class),
             param('storefront.theme.allowed_scss_values'),
         ])
         ->call('setContainer', [service('service_container')]);

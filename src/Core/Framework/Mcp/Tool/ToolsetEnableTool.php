@@ -3,19 +3,24 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolRequiresNoPrivilege;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
-#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, title: 'Enable Toolset', description: 'Enable one MCP toolset for the current session and ask the client to refresh tools/list. The toolset remains enabled only for this MCP session.')]
+#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, title: 'Enable Toolset', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false), description: 'Enable one MCP toolset for the current session and ask the client to refresh tools/list. The toolset remains enabled only for this MCP session.')]
 #[McpToolGroup('discovery')]
+#[McpToolRequiresNoPrivilege(reason: 'Discovery meta-tool, it only returns capabilities the allowlist of the caller already permits.')]
 class ToolsetEnableTool extends McpToolResponse
 {
     /**
@@ -28,17 +33,20 @@ class ToolsetEnableTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(string $toolset): string
+    public function __invoke(string $toolset): McpToolResult
     {
-        $definition = $this->toolsetRegistry->find($toolset);
-        if ($definition === null) {
-            return $this->error(\sprintf('Unknown MCP toolset "%s". Call %s first to list available toolsets.', $toolset, McpToolsetRegistry::LIST_TOOLSETS_TOOL));
-        }
-
         $request = $this->requestStack->getCurrentRequest();
         $sessionId = $request?->headers->get('Mcp-Session-Id') ?? '';
-        if ($sessionId === '') {
-            return $this->error('Cannot enable an MCP toolset without an active MCP session.');
+
+        // Not advertised on the stateless era (2026-07-28), which has no session to keep the toolset
+        // in. A client that kept the name from a handshake connection is pointed to `?toolsets=`.
+        if ($sessionId === '' || McpProtocolEra::isStateless($this->requestStack->getMainRequest())) {
+            return $this->errorResult(McpProtocolEra::toolsetToolUnavailableMessage(McpToolsetRegistry::ENABLE_TOOLSET_TOOL, $toolset));
+        }
+
+        $definition = $this->toolsetRegistry->find($toolset);
+        if ($definition === null) {
+            return $this->errorResult(\sprintf('Unknown MCP toolset "%s". Call %s first to list available toolsets.', $toolset, McpToolsetRegistry::LIST_TOOLSETS_TOOL));
         }
 
         $this->sessionStorage->enable($sessionId, $toolset);
@@ -49,7 +57,7 @@ class ToolsetEnableTool extends McpToolResponse
         // the SDK's post-tool session save).
         $request?->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
 
-        return $this->success([
+        return $this->successResult([
             'toolset' => [
                 ...$definition,
                 'enabled' => true,

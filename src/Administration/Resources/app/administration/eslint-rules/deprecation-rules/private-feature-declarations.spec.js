@@ -62,6 +62,17 @@ ruleTester.run('private-feature-declarations', rule, {
             `,
         },
         {
+            name: 'Default export with private declaration above ESLint directives',
+            code: `
+                /**
+                 * @private
+                 */
+                // eslint-disable-next-line no-console
+                /* eslint-disable-next-line no-debugger */
+                export default function testFunction() {}
+            `,
+        },
+        {
             name: 'Default exports with public declaration',
             code: `
                 /**
@@ -179,6 +190,18 @@ ruleTester.run('private-feature-declarations', rule, {
                 /**
                  * @public
                  */
+                // some comment
+                export const testFunction = () => {};
+            `,
+            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+        },
+        {
+            name: 'Named export with public declaration above an ESLint directive and an ordinary comment',
+            code: `
+                /**
+                 * @public
+                 */
+                // eslint-disable-next-line no-console
                 // some comment
                 export const testFunction = () => {};
             `,

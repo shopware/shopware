@@ -166,6 +166,39 @@ describe('src/module/sw-oauth-authorize/page/index', () => {
         expect(navigateTo).toHaveBeenCalledWith('http://127.0.0.1:53421/callback?code=abc&state=xyz');
     });
 
+    it('should forward the resource the client asked for to the info and decision requests', async () => {
+        const query = { ...validQuery, resource: 'http://localhost/api/_mcp' };
+        const { wrapper, getInfo, decide } = await createWrapper({ query });
+        spyOnNavigateTo(wrapper);
+
+        await wrapper.get('.sw-oauth-authorize__approve').trigger('click');
+        await flushPromises();
+
+        expect(getInfo).toHaveBeenCalledWith(query);
+        expect(decide).toHaveBeenCalledWith(query, true);
+    });
+
+    it('should say that the access is limited to the resource the authorization is bound to', async () => {
+        const { wrapper } = await createWrapper({
+            query: { ...validQuery, resource: 'http://localhost/api/_mcp' },
+            getInfo: jest.fn(() => Promise.resolve({ ...defaultInfo, resource: 'http://localhost/api/_mcp' })),
+        });
+
+        const description = wrapper.get('.sw-oauth-authorize__description');
+        expect(description.attributes('data-keypath')).toBe('sw-oauth-authorize.consent.permissionHintResource');
+        expect(wrapper.get('.sw-oauth-authorize__resource').text()).toBe('http://localhost/api/_mcp');
+        expect(description.text()).not.toContain('sw-oauth-authorize.consent.permissionHint');
+    });
+
+    it('should show the general permission hint when the authorization is not bound to a resource', async () => {
+        const { wrapper } = await createWrapper({
+            getInfo: jest.fn(() => Promise.resolve({ ...defaultInfo, resource: null })),
+        });
+
+        expect(wrapper.get('.sw-oauth-authorize__description').text()).toBe('sw-oauth-authorize.consent.permissionHint');
+        expect(wrapper.find('.sw-oauth-authorize__resource').exists()).toBe(false);
+    });
+
     it('should submit the denial and navigate to the returned redirect uri', async () => {
         const denyUri = 'http://127.0.0.1:53421/callback?error=access_denied&state=xyz';
         const { wrapper, decide } = await createWrapper({

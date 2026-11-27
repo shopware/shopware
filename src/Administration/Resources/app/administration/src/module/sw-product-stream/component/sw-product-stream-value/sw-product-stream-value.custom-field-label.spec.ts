@@ -76,8 +76,10 @@ async function createWrapper({ labelProperty, entity = 'product_manufacturer' }:
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-label': await wrapTestComponent('sw-label'),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
-                'sw-popover': { template: '<div><slot /></div>' },
-                'sw-popover-deprecated': { template: '<div><slot /></div>' },
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
+                },
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,

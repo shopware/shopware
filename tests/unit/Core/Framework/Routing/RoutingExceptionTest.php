@@ -49,6 +49,14 @@ class RoutingExceptionTest extends TestCase
         static::assertSame(RoutingException::APP_INTEGRATION_NOT_FOUND, $e->getErrorCode());
     }
 
+    public function testAppUserNotFound(): void
+    {
+        $e = RoutingException::appUserNotFound('foo');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $e->getStatusCode());
+        static::assertSame(RoutingException::APP_USER_NOT_FOUND, $e->getErrorCode());
+    }
+
     public function testCustomerNotLoggedIn(): void
     {
         $e = RoutingException::customerNotLoggedIn();

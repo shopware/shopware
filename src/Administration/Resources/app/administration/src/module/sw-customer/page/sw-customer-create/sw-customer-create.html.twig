@@ -68,6 +68,20 @@
                 />
             </mt-card>
             {% endblock %}
+
+            {% block sw_customer_create_custom_field_sets %}
+            <mt-card
+                v-if="showCustomFieldSets"
+                class="sw-customer-create__custom-field-sets"
+                :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                position-identifier="sw-customer-create-custom-field-sets"
+            >
+                <sw-custom-field-set-renderer
+                    :entity="customer"
+                    :sets="customerCustomFieldSets"
+                />
+            </mt-card>
+            {% endblock %}
         </sw-card-view>
     </template>
     {% endblock %}

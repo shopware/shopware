@@ -25,6 +25,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -280,6 +281,7 @@ class ProductPageLoaderTest extends TestCase
             $productDetailRouteMock,
             $reviewRepository,
             $systemConfigService,
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class),
             $breadcrumbBuilder ?? static::createStub(CategoryBreadcrumbBuilder::class)
         );
     }

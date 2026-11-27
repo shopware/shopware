@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Cors;
 
+use Mcp\Schema\Wire\McpHeader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 
@@ -29,9 +30,25 @@ final class CoreCorsHeaderProvider implements CorsHeaderProviderInterface
         PlatformRequest::HEADER_MCP_PROTOCOL_VERSION,
     ];
 
+    /**
+     * The stateless MCP era requires these request headers on every request, so a browser client can only
+     * send them when the preflight allows them. They are request headers only, so they are not exposed.
+     */
+    private const MCP_REQUEST_HEADERS = [
+        McpHeader::METHOD,
+        McpHeader::NAME,
+    ];
+
     public function provide(CorsHeaders $headers): void
     {
         $headers->addAllowed(...self::DEFAULT_HEADERS);
+        $headers->addAllowed(...self::MCP_REQUEST_HEADERS);
         $headers->addExposed(...self::DEFAULT_HEADERS);
+        // not CORS-safelisted, so a browser client could not read the wait time of a 429 response otherwise
+        $headers->addExposed('Retry-After');
+
+        // A 401 from the Admin API MCP endpoint names its OAuth protected resource metadata here, so a
+        // browser client must be able to read it to discover the authorization server.
+        $headers->addExposed('WWW-Authenticate');
     }
 }

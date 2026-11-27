@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -107,6 +108,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
                 'customerId' => $customer->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
+                SalesChannelContextService::PROSPECTIVE_CUSTOMER => null,
             ],
             $context->getSalesChannelId(),
             $customer->getId()

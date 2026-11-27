@@ -71,6 +71,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         defaultFolderRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-list.defaultFolderRepository is deprecated. Use mediaDefaultFolderService.getDefaultFolderId() instead.',
+            );
+
             return this.repositoryFactory.create('media_default_folder');
         },
 
@@ -144,6 +149,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, is not used anymore
          */
         associatedCategoryBuckets() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-list.associatedCategoryBuckets is deprecated. Will be removed, is not used anymore.',
+            );
+
             return this.pages.aggregations?.categories?.buckets || [];
         },
 
@@ -151,6 +161,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, is not used anymore
          */
         associatedProductBuckets() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-list.associatedProductBuckets is deprecated. Will be removed, is not used anymore.',
+            );
+
             return this.pages.aggregations?.products?.buckets || [];
         },
 
@@ -175,6 +190,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-list.dateFilter is deprecated. Will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 

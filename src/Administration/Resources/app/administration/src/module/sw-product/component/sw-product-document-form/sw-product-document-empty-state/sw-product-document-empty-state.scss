@@ -1,0 +1,20 @@
+.sw-product-document-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &--translated {
+        .mt-empty-state {
+            padding: 0;
+        }
+
+        .mt-empty-state__description {
+            display: none;
+        }
+    }
+
+    &__language-hint {
+        margin-top: var(--scale-size-8);
+        text-align: center;
+    }
+}

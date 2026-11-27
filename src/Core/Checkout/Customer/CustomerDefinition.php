@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
@@ -160,7 +159,6 @@ class CustomerDefinition extends EntityDefinition
             (new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, 'customer_id', 'tag_id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING), new ApiAware())->setDescription('Tags assigned to the customer for organization and segmentation'),
             new ManyToManyAssociationField('promotions', PromotionDefinition::class, PromotionPersonaCustomerDefinition::class, 'customer_id', 'promotion_id'),
             new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'customer_id'),
-            new OneToOneAssociationField('recoveryCustomer', 'id', 'customer_id', CustomerRecoveryDefinition::class, false),
             (new RemoteAddressField('remote_address', 'remoteAddress'))->setDescription('Anonymous IP address of the customer for last session.'),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new ApiAware())->setDescription('Unique identity of tag.'),
             (new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of requested group.'),

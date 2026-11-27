@@ -18,7 +18,19 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(OrderDeliveryCollection::class)]
 class OrderDeliveryCollectionTest extends TestCase
 {
-    public function testGetShipmentsLeavesOutShippingDiscountsAndSortsByShippingCostsAndId(): void
+    public function testGetShipmentsLeavesOutShippingDiscountsAndSortsByPosition(): void
+    {
+        $deliveries = new OrderDeliveryCollection([
+            $this->createDelivery('express', 9.99, position: 3),
+            $this->createDelivery('discount', -4.95, position: 4),
+            $this->createDelivery('primary', 4.95, position: 2),
+            $this->createDelivery('free', 0.0, position: 1),
+        ]);
+
+        static::assertSame(['free', 'primary', 'express'], array_values($deliveries->getShipments('primary')->getIds()));
+    }
+
+    public function testGetShipmentsOfAnOrderPlacedBeforePositionsSortsByShippingCostsAndId(): void
     {
         $deliveries = new OrderDeliveryCollection([
             $this->createDelivery('standard-b', 4.95),
@@ -34,7 +46,7 @@ class OrderDeliveryCollectionTest extends TestCase
         );
     }
 
-    public function testGetShipmentsPutsThePrimaryDeliveryFirst(): void
+    public function testGetShipmentsOfAnOrderPlacedBeforePositionsPutsThePrimaryDeliveryFirst(): void
     {
         $deliveries = new OrderDeliveryCollection([
             $this->createDelivery('express', 9.99),
@@ -46,10 +58,11 @@ class OrderDeliveryCollectionTest extends TestCase
         static::assertSame(['express', 'standard'], array_values($deliveries->getShipments('discount')->getIds()));
     }
 
-    private function createDelivery(string $id, float $shippingCosts): OrderDeliveryEntity
+    private function createDelivery(string $id, float $shippingCosts, int $position = 0): OrderDeliveryEntity
     {
         $delivery = new OrderDeliveryEntity();
         $delivery->setId($id);
+        $delivery->setPosition($position);
         $delivery->setShippingCosts(new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         return $delivery;

@@ -37,6 +37,7 @@ async function createWrapper({
                 },
                 'sw-card-view': { template: '<div><slot></slot></div>' },
                 'router-view': true,
+                'mt-tabs': true,
                 'mt-dropdown-menu-root': { template: '<div><slot /></div>' },
                 'mt-dropdown-menu-trigger': { template: '<div><slot /></div>' },
                 'mt-dropdown-menu-portal': { template: '<div><slot /></div>' },

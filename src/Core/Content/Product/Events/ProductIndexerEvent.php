@@ -21,7 +21,8 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     public function __construct(
         private readonly array $ids,
         private readonly Context $context,
-        private readonly array $skip = []
+        private readonly array $skip = [],
+        public readonly bool $isFullIndexing = false,
     ) {
     }
 

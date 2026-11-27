@@ -88,6 +88,13 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base/product-
     it.activeFeatureFlags(['v6.8.0.0'])(
         'filters the currencies by the storefront without loading the sales channels of each currency',
         async () => {
+            // The template still reads the baselined `isAgenticCommerce`, which logs an error when a test activates 6.8.
+            const { error } = console;
+            jest.spyOn(console, 'error').mockImplementation((...args) => {
+                if (!String(args[1]).includes('sw-sales-channel-detail-base.isAgenticCommerce is deprecated')) {
+                    error(...args);
+                }
+            });
             const wrapper = await createWrapper();
             await flushPromises();
 

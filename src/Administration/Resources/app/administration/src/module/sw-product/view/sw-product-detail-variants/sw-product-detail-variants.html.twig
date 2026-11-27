@@ -23,7 +23,10 @@
                 />
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     position-identifier="sw-variant-card-tabs"
                     :small="false"
@@ -51,7 +54,7 @@
                         {{ $t('sw-product.variations.variationCard.tabs.digitalProducts') }}
                     </sw-tabs-item>
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
         </template>
 
         <sw-skeleton v-if="isLoading" />

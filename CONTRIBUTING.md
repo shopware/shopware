@@ -289,7 +289,7 @@ All commands below should be run inside the Docker container prefixed with `dock
 | Command                                       | Description                                   |
 |-----------------------------------------------|-----------------------------------------------|
 | `composer admin:generate-entity-schema-types` | Generate TypeScript types from entity schema  |
-| `composer admin:generate-blocks-list`         | Generate the administration blocks list       |
+| `composer admin:generate-public-api`          | Generate the Administration API snapshot      |
 | `composer admin:upgrade-extensions`           | Run administration code mods                  |
 | `composer framework:schema:dump`              | Dump the entity schema for the administration |
 | `composer bc-check`                           | Run backward compatibility checks             |

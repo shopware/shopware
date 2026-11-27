@@ -276,7 +276,6 @@ function convertPendingOverride(
  * Options API shim overrides once, and returns a data scope that `sw-block` can read during slot
  * rendering.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createExtendableSetup<
     TProps extends Record<string, unknown>,
     TContext,
@@ -534,7 +533,6 @@ type ExtractedProps<T> = Omit<
  * Generated override SFCs call this during their hidden component setup so the base component can
  * apply replacement bindings when its own extendable setup wrapper runs.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function overrideComponentSetup<TOriginalComponent>() {
     return function <TComponentName extends keyof ComponentPublicApiMapping>(
         componentName: TComponentName,

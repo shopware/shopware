@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
@@ -142,6 +144,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Script\AppContextCreator;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Telemetry;
@@ -288,6 +291,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CachedSearchConfigLoader::class . '.inner'),
             service('cache.object'),
+            service(CacheTagCollector::class),
         ]);
 
     $services->set(CriteriaArrayConverter::class)
@@ -544,6 +548,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('lock.factory'),
             service(ClockInterface::class),
             service(ClonePayloadBuilder::class),
+            service(WriteCommandExtractor::class),
+            service(AclWriteValidator::class),
+            service(LanguageLoader::class),
         ]);
 
     $services->set(ClonePayloadBuilder::class)
@@ -990,7 +997,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.telemetry.subscriber');
 
     // shared entity-name bucketing for telemetry labels (DAL search collectors + HTTP request domain)
-    $services->set(EntityGroupResolver::class);
+    $services->set(EntityGroupResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 
     // injected into every EntityRepository by EntityCompilerPass; self-gates on the telemetry flag
     $services->set(DalSearchInstrumentor::class)

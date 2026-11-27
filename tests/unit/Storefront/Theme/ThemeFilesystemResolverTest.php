@@ -82,5 +82,6 @@ class ThemeFilesystemResolverTest extends TestCase
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
         static::assertSame('/some/project/custom/plugins/CoolPlugin', $fs->location);
+        static::assertFalse($fs->restrictToLocation);
     }
 }

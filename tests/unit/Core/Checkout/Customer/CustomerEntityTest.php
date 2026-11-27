@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -56,7 +55,6 @@ class CustomerEntityTest extends TestCase
         $tags = new TagCollection();
         $promotions = new PromotionCollection();
         $reviews = new ProductReviewCollection();
-        $recovery = new CustomerRecoveryEntity();
         $wishlists = new CustomerWishlistCollection();
         $createdBy = new UserEntity();
         $updatedBy = new UserEntity();
@@ -111,7 +109,6 @@ class CustomerEntityTest extends TestCase
         $customer->setTagIds(['tag-id']);
         $customer->setPromotions($promotions);
         $customer->setProductReviews($reviews);
-        $customer->setRecoveryCustomer($recovery);
         $customer->setAffiliateCode('affiliate');
         $customer->setCampaignCode('campaign');
         $customer->setRemoteAddress('127.0.0.1');
@@ -170,7 +167,6 @@ class CustomerEntityTest extends TestCase
         static::assertSame(['tag-id'], $customer->getTagIds());
         static::assertSame($promotions, $customer->getPromotions());
         static::assertSame($reviews, $customer->getProductReviews());
-        static::assertSame($recovery, $customer->getRecoveryCustomer());
         static::assertSame('affiliate', $customer->getAffiliateCode());
         static::assertSame('campaign', $customer->getCampaignCode());
         static::assertSame('127.0.0.1', $customer->getRemoteAddress());

@@ -20,9 +20,36 @@ const uploadTaskMock = {
 describe('components/utils/sw-duplicated-media-v2', () => {
     let wrapper;
     let uploads = {};
+    let mediaRepositoryMock;
+    let mediaServiceMock;
 
     beforeEach(async () => {
         uploads = {};
+        mediaRepositoryMock = {
+            search: () => Promise.resolve([{ id: 'foo' }]),
+            searchIds: () => Promise.resolve({ total: 1, data: ['foo'] }),
+            get: () =>
+                Promise.resolve({
+                    id: 'foo',
+                    hasFile: true,
+                }),
+            delete: jest.fn(() => Promise.resolve()),
+        };
+        mediaServiceMock = {
+            $listeners: {},
+            addDefaultListener: jest.fn(),
+            removeDefaultListener: jest.fn(),
+            runUploads: jest.fn(),
+            addUpload: (tag, uploadTask) => {
+                if (!uploads[tag]) uploads[tag] = [];
+
+                uploads[tag].push(uploadTask);
+            },
+            provideName: async (fileName) => {
+                return { fileName: `${fileName}_(2)` };
+            },
+            keepFile: jest.fn(),
+        };
         wrapper = mount(await wrapTestComponent('sw-duplicated-media-v2', { sync: true }), {
             global: {
                 provide: {
@@ -31,38 +58,14 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                         stopEventListener() {},
                     },
                     repositoryFactory: {
-                        create: () => {
-                            return {
-                                search: () => Promise.resolve([{ id: 'foo' }]),
-                                searchIds: () => Promise.resolve({ total: 1, data: ['foo'] }),
-                                get: () =>
-                                    Promise.resolve({
-                                        id: 'foo',
-                                        hasFile: true,
-                                    }),
-                                delete: () => Promise.resolve(),
-                            };
-                        },
+                        create: () => mediaRepositoryMock,
                     },
                     mediaPresignedUploadService: {
                         prepareUpload: jest.fn(),
                         uploadToPresignedUrl: jest.fn(),
                         finalizeUpload: jest.fn(),
                     },
-                    mediaService: {
-                        addDefaultListener: jest.fn(),
-                        removeDefaultListener: jest.fn(),
-                        runUploads: jest.fn(),
-                        addUpload: (tag, uploadTask) => {
-                            if (!uploads[tag]) uploads[tag] = [];
-
-                            uploads[tag].push(uploadTask);
-                        },
-                        provideName: async (fileName) => {
-                            return { fileName: `${fileName}_(2)` };
-                        },
-                        keepFile: jest.fn(),
-                    },
+                    mediaService: mediaServiceMock,
                 },
                 stubs: {
                     'sw-modal': {
@@ -132,4 +135,33 @@ describe('components/utils/sw-duplicated-media-v2', () => {
 
         expect(wrapper.vm.mediaService.runUploads).toHaveBeenCalledWith('upload-tag-sw-media-index');
     });
+
+    it.each([
+        { listeners: [], deleted: true },
+        { listeners: [jest.fn()], deleted: false },
+    ])(
+        'deletes the empty media of a failed rename upload only without an upload listener',
+        async ({ listeners, deleted }) => {
+            // The media field popover was closed, so its sw-upload-listener is no longer registered.
+            mediaServiceMock.$listeners[uploadTaskMock.uploadTag] = listeners;
+            mediaRepositoryMock.get = () => Promise.resolve({ id: uploadTaskMock.targetId, hasFile: false });
+
+            const [[handleMediaServiceUploadEvent]] = mediaServiceMock.addDefaultListener.mock.calls;
+            handleMediaServiceUploadEvent({
+                action: 'media-upload-fail',
+                payload: {
+                    ...uploadTaskMock,
+                    error: { response: { data: { errors: [{ code: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME' }] } } },
+                },
+            });
+            await flushPromises();
+
+            await wrapper.findAll('input[type="radio"]').at(1).setValue('checked');
+            await wrapper.find('.sw-duplicated-media-v2__upload').trigger('click');
+            await flushPromises();
+
+            expect(mediaServiceMock.runUploads).toHaveBeenCalledWith(uploadTaskMock.uploadTag);
+            expect(mediaRepositoryMock.delete).toHaveBeenCalledTimes(deleted ? 1 : 0);
+        },
+    );
 });

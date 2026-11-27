@@ -73,6 +73,10 @@ class WebhookLifecycleHandlerTest extends TestCase
             ['0', '1', '0'],
             array_column($fromDb, 'only_live_version')
         );
+        static::assertSame(
+            ['app', 'app', 'app'],
+            array_column($fromDb, 'owner_type')
+        );
     }
 
     public function testDoesNotPersistManifestWebhooksWithoutAppSecret(): void

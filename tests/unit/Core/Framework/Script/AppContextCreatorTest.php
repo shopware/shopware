@@ -34,7 +34,25 @@ class AppContextCreatorTest extends TestCase
         static::assertSame($hook->getContext(), $appContext);
     }
 
-    public function testMemoizesAppContextSource(): void
+    public function testBuildsDistinctSourcesPerAppContextButCachesPrivileges(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        // Privileges are fetched once and cached; the mutable source must not be shared.
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        $appContextCreator = new AppContextCreator($connection);
+        $hook = new TestHook('test-hook', Context::createDefaultContext());
+        $script = new DummyScript('dummy-script', Uuid::randomHex());
+
+        $appContext = $appContextCreator->getAppContext($hook, $script);
+        $secondAppContext = $appContextCreator->getAppContext($hook, $script);
+
+        static::assertNotSame($appContext->getSource(), $secondAppContext->getSource());
+    }
+
+    public function testContextFactoryBuildsAFreshSourceOnEveryCall(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -45,10 +63,22 @@ class AppContextCreatorTest extends TestCase
         $hook = new TestHook('test-hook', Context::createDefaultContext());
         $script = new DummyScript('dummy-script', Uuid::randomHex());
 
-        $appContext = $appContextCreator->getAppContext($hook, $script);
-        $memoizedAppContext = $appContextCreator->getAppContext($hook, $script);
+        $factory = $appContextCreator->createAppContextFactory($hook, $script);
 
-        static::assertSame($appContext->getSource(), $memoizedAppContext->getSource());
+        $first = $factory->create();
+        $second = $factory->create();
+
+        static::assertNotSame($first, $second);
+        static::assertNotSame($first->getSource(), $second->getSource());
+
+        $source = $first->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $source);
+        $source->setIsAdmin(true);
+
+        $secondSource = $second->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $secondSource);
+        // A change to one source must not reach a context built afterwards.
+        static::assertFalse($secondSource->isAdmin());
     }
 
     public function testContextSourceHasNoPermissionsIfAppHasNoPrivileges(): void

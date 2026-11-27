@@ -5,6 +5,8 @@ namespace Shopware\Core\System\SalesChannel\Api;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -155,7 +157,13 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            if (!$this->isAllowed($alias, (string) $property, $fields) && !$fields->hasNested($alias, (string) $property)) {
+            if ($this->isProtected($alias, (string) $property)) {
+                unset($data[$property]);
+
+                continue;
+            }
+
+            if (!$fields->isAllowed($alias, (string) $property) && !$fields->hasNested($alias, (string) $property)) {
                 unset($data[$property]);
 
                 continue;
@@ -176,7 +184,14 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), (string) $property, $value, $fields, \is_array($object) ? $object : null);
+            $data[$property] = $this->encodeNestedArray(
+                $struct->getApiAlias(),
+                (string) $property,
+                $value,
+                $fields,
+                \is_array($object) ? $object : null,
+                $this->getEntityName($struct)
+            );
         }
 
         $data['apiAlias'] = $struct->getApiAlias();
@@ -187,17 +202,20 @@ class StructEncoder implements ResetInterface
     /**
      * @param array<string, mixed> $data
      * @param array<int|string, mixed>|null $objects
+     * @param string|null $entityName entity whose field flags and custom field sets apply to the data, defaults to `$alias`
      *
      * @return array<string, mixed>
      */
-    private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields, ?array $objects = null): array
+    private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields, ?array $objects = null, ?string $entityName = null): array
     {
+        $entityName ??= $alias;
+
         if ($prefix === 'customFields' && $data) {
             if ($this->blockedCustomFields === null) {
                 $this->fetchBlockedCustomFields();
             }
 
-            $blockedFields = $this->blockedCustomFields[$alias] ?? [];
+            $blockedFields = $this->blockedCustomFields[$entityName] ?? [];
             $blockedFields = \array_merge($blockedFields, $this->blockedCustomFields['global'] ?? []);
             if ($blockedFields) {
                 $blockedFieldsLookup = \array_flip($blockedFields);
@@ -228,6 +246,12 @@ class StructEncoder implements ResetInterface
 
             $accessor = $prefix . '.' . $property;
             if ($prefix === 'translated') {
+                if ($this->isProtected($entityName, (string) $property)) {
+                    unset($data[$property]);
+
+                    continue;
+                }
+
                 $accessor = $property;
             }
 
@@ -241,12 +265,24 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $fields, \is_array($object) ? $object : null);
+            $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $fields, \is_array($object) ? $object : null, $entityName);
         }
 
         unset($value);
 
         return $data;
+    }
+
+    /**
+     * Breadcrumbs carry the translated values of their category, so the category definition applies to them
+     */
+    private function getEntityName(Struct $struct): string
+    {
+        if ($struct instanceof Breadcrumb) {
+            return CategoryDefinition::ENTITY_NAME;
+        }
+
+        return $struct->getApiAlias();
     }
 
     private function isAllowed(string $type, string $property, ResponseFields $fields): bool

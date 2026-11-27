@@ -59,6 +59,7 @@ class OAuthAuthorizeControllerTest extends TestCase
             'client' => ['id' => self::CLIENT_ID, 'name' => 'Shopware CLI'],
             'redirectUri' => self::REDIRECT_URI,
             'scopes' => ['write'],
+            'resource' => null,
         ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 

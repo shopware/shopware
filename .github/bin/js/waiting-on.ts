@@ -675,7 +675,11 @@ export function toReviewThreadEvents(nodes: ReviewThreadNode[]): TimelineEvent[]
 }
 
 /** Who wrote last in each unresolved thread, people only; see the rule for why it matters. */
-export function summarizeOpenThreads(nodes: ReviewThreadNode[], authorLogin?: string, approvers: ReadonlySet<string> = new Set()): OpenThreads {
+export function summarizeOpenThreads(
+    nodes: ReviewThreadNode[],
+    authorLogin?: string,
+    approvers: ReadonlySet<string> = new Set(),
+): OpenThreads {
     const open: OpenThreads = {};
 
     for (const thread of nodes.filter((candidate) => !candidate.isResolved)) {
@@ -709,7 +713,11 @@ export function factsOf(node: PullRequestNode): PullRequestFacts {
 
     return {
         ...summarizeActivity(events, node.latestOpinionatedReviews.nodes, node.author?.login),
-        ...summarizeOpenThreads(node.reviewThreads.nodes, node.author?.login, approversOf(node.latestOpinionatedReviews.nodes)),
+        ...summarizeOpenThreads(
+            node.reviewThreads.nodes,
+            node.author?.login,
+            approversOf(node.latestOpinionatedReviews.nodes),
+        ),
         createdAt: node.createdAt,
         isDraft: node.isDraft,
         isParked: node.labels.nodes.some((label) => label.name === PARKED_LABEL),

@@ -3,6 +3,9 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
+
+const wrapperDeprecation = 'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-tabs', { sync: true }), {
@@ -18,24 +21,16 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-tabs', () => {
-    it('should render the deprecated tabs by default', async () => {
-        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+    beforeEach(() => {
+        allowDeprecation(wrapperDeprecation);
+    });
+
+    it('should render the deprecated tabs by default and report them as deprecated until v6.9.0.0', async () => {
         const wrapper = await createWrapper();
 
+        expect(deprecations).toHaveTriggered(wrapperDeprecation);
         expect(wrapper.html()).toContain('sw-tabs-deprecated');
         expect(wrapper.html()).not.toContain('mt-tabs');
-        expect(warnSpy.mock.calls).toEqual(
-            Shopware.Feature.isActive('V6_8_0_0')
-                ? [
-                      [
-                          'sw-tabs',
-                          'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
-                      ],
-                  ]
-                : [],
-        );
-
-        warnSpy.mockRestore();
     });
 
     it('should render the mt-tabs with an opt-in before the v6.8.0.0 feature flag is active', async () => {
@@ -50,7 +45,6 @@ describe('src/app/component/base/sw-tabs', () => {
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should render the mt-tabs with an opt-in', async () => {
-        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
         const wrapper = await createWrapper({
             props: {
                 useMeteorComponent: true,
@@ -59,16 +53,11 @@ describe('src/app/component/base/sw-tabs', () => {
 
         expect(wrapper.html()).toContain('mt-tabs');
         expect(wrapper.html()).not.toContain('sw-tabs-deprecated');
-        expect(warnSpy).not.toHaveBeenCalled();
-
-        warnSpy.mockRestore();
+        expect(deprecations).not.toHaveTriggered(wrapperDeprecation);
     });
 
     it('should not read the slotted items on the deprecated branch', async () => {
-        // The default slot must not be invoked from `mounted`, which Vue reports as a console.warn and
-        // the test setup escalates to a failure. The spy only swallows the deprecation notice this
-        // branch emits once the major flag is active; Vue's own warning bypasses it and still fails.
-        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+        // The default slot must not be invoked from `mounted`: Vue warns about it, which fails the test.
         const wrapper = await createWrapper({
             global: {
                 stubs: {
@@ -88,8 +77,6 @@ describe('src/app/component/base/sw-tabs', () => {
 
         expect(wrapper.html()).toContain('sw-tabs-deprecated');
         expect(wrapper.vm.activeItem).toBeNull();
-
-        warnSpy.mockRestore();
     });
 
     it.each([
@@ -123,11 +110,7 @@ describe('src/app/component/base/sw-tabs', () => {
                     // Keep the real component name so the fragment branch recognizes the items.
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
-                        props: [
-                            'name',
-                            'title',
-                            'route',
-                        ],
+                        props: ['name', 'title', 'route'],
                         template: '<div class="sw-tabs-item"><slot /></div>',
                     },
                 },

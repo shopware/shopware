@@ -20,7 +20,7 @@ const REQUIRED_PARAMS = [
     'code_challenge_method',
 ] as const;
 
-const OPTIONAL_PARAMS = ['state', 'scope'] as const;
+const OPTIONAL_PARAMS = ['state', 'scope', 'resource'] as const;
 
 /**
  * @sw-package framework
@@ -85,6 +85,10 @@ export default Component.wrapComponentConfig({
 
         clientName(): string {
             return this.info?.client.name ?? '';
+        },
+
+        resource(): string {
+            return this.info?.resource ?? '';
         },
 
         redirectHost(): string {

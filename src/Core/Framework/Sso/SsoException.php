@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Sso;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Exceptions\SsoUserNotFoundException;
@@ -30,6 +32,11 @@ class SsoException extends HttpException
     public const SSO_LOGIN_INVALID_PUBLIC_KEY = 'SSO_LOGIN__INVALID_PUBLIC_KEY';
     public const SSO_LOGIN_NEGATIVE_TIME_TO_LIVE = 'SSO_LOGIN__NEGATIVE_TIME_TO_LIVE';
     public const SSO_LOGIN_TOKEN_NOT_FOUND = 'SSO_LOGIN__TOKEN_NOT_FOUND';
+
+    public static function refreshTokenResourceMismatch(): OAuthServerException
+    {
+        return ApiException::oauthInvalidTarget('The resource does not match the original grant.');
+    }
 
     public static function mailTemplateNotFound(): self
     {

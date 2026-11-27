@@ -57,7 +57,7 @@
   },
   "src/app/adapter/composition-extension-system/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 3
+      "count": 1
     },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
@@ -256,9 +256,6 @@
     }
   },
   "src/app/component/base/sw-chart/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -897,7 +894,7 @@
   },
   "src/app/component/form/sw-code-editor/index.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "filename-rules/not-match": {
       "count": 1
@@ -974,11 +971,6 @@
       "count": 8
     }
   },
-  "src/app/component/form/sw-datepicker/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/component/form/sw-dynamic-url-field/sw-dynamic-url-field.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 6
@@ -1041,11 +1033,6 @@
   },
   "src/app/component/form/sw-password-field-deprecated/index.js": {
     "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/app/component/form/sw-password-field/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
@@ -1230,17 +1217,11 @@
     }
   },
   "src/app/component/grid/sw-grid/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/grid/sw-pagination/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1263,7 +1244,7 @@
   },
   "src/app/component/list/sw-sortable-list/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 6
+      "count": 5
     }
   },
   "src/app/component/list/sw-sortable-list/sw-sortable-list.spec.js": {
@@ -1597,9 +1578,6 @@
     }
   },
   "src/app/component/modal/sw-confirm-modal/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1638,17 +1616,11 @@
     }
   },
   "src/app/component/rule/condition-type/sw-condition-billing-zip-code/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-customer-custom-field/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1659,9 +1631,6 @@
     }
   },
   "src/app/component/rule/condition-type/sw-condition-date-range/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1672,17 +1641,11 @@
     }
   },
   "src/app/component/rule/condition-type/sw-condition-generic-line-item/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-generic/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1693,25 +1656,16 @@
     }
   },
   "src/app/component/rule/condition-type/sw-condition-goods-count/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-goods-price/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-is-always-valid/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1725,65 +1679,41 @@
     }
   },
   "src/app/component/rule/condition-type/sw-condition-line-item-goods-total/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-line-item-in-category/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-line-item-property/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-line-item-purchase-price/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-line-item/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-not-found/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/rule/condition-type/sw-condition-order-custom-field/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1794,9 +1724,6 @@
     }
   },
   "src/app/component/rule/condition-type/sw-condition-script/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1807,9 +1734,6 @@
     }
   },
   "src/app/component/rule/condition-type/sw-condition-shipping-zip-code/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1843,9 +1767,6 @@
     }
   },
   "src/app/component/rule/sw-condition-base-line-item/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1861,9 +1782,6 @@
     }
   },
   "src/app/component/rule/sw-condition-is-net-select/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1965,9 +1883,6 @@
     }
   },
   "src/app/component/sidebar/sw-sidebar-item/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -1978,9 +1893,6 @@
     }
   },
   "src/app/component/sidebar/sw-sidebar/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2062,9 +1974,6 @@
     }
   },
   "src/app/component/structure/sw-card-view/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2088,9 +1997,6 @@
     }
   },
   "src/app/component/structure/sw-error/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2100,28 +2006,17 @@
       "count": 1
     }
   },
-  "src/app/component/structure/sw-in-app-purchase-checkout/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/component/structure/sw-in-app-purchase-checkout/sw-in-app-purchase-checkout.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
   "src/app/component/structure/sw-inheritance-warning/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/structure/sw-language-info/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2132,9 +2027,6 @@
     }
   },
   "src/app/component/structure/sw-language-switch/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2146,18 +2038,10 @@
   },
   "src/app/component/structure/sw-media-modal-renderer/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
-    }
-  },
-  "src/app/component/structure/sw-modals-renderer/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
   "src/app/component/structure/sw-page/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2178,17 +2062,11 @@
     }
   },
   "src/app/component/structure/sw-sales-channel-switch/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/structure/sw-search-bar-item/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2199,9 +2077,6 @@
     }
   },
   "src/app/component/structure/sw-search-bar/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "complexity": {
       "count": 1
     },
@@ -2221,9 +2096,6 @@
     }
   },
   "src/app/component/structure/sw-search-more-results/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2272,9 +2144,6 @@
     }
   },
   "src/app/component/tree/sw-tree/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "complexity": {
       "count": 1
     },
@@ -2297,15 +2166,7 @@
     }
   },
   "src/app/component/utils/sw-color-badge/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/app/component/utils/sw-dismissible-notices/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
@@ -2328,9 +2189,6 @@
     }
   },
   "src/app/component/utils/sw-external-link/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2346,9 +2204,6 @@
     }
   },
   "src/app/component/utils/sw-inherit-wrapper/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2359,9 +2214,6 @@
     }
   },
   "src/app/component/utils/sw-internal-link/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2372,9 +2224,6 @@
     }
   },
   "src/app/component/utils/sw-loader-deprecated/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2410,25 +2259,16 @@
     }
   },
   "src/app/component/utils/sw-overlay/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/utils/sw-popover-deprecated/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/utils/sw-progress-bar/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2457,17 +2297,11 @@
     }
   },
   "src/app/component/utils/sw-step-display/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/app/component/utils/sw-step-item/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2480,20 +2314,12 @@
       "count": 1
     }
   },
-  "src/app/component/utils/sw-time-ago/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/app/component/utils/sw-time-ago/sw-time-ago.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
     }
   },
   "src/app/component/utils/sw-upload-listener/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2532,9 +2358,6 @@
     }
   },
   "src/app/component/wizard/sw-wizard/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -2688,9 +2511,6 @@
     }
   },
   "src/app/directive/tooltip.directive.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 32
     },
@@ -2758,7 +2578,7 @@
   },
   "src/app/init-pre/state.init.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
@@ -2816,9 +2636,6 @@
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
       "count": 1
     }
   },
@@ -3253,21 +3070,7 @@
     }
   },
   "src/app/plugin/shortcut.plugin.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "complexity": {
-      "count": 1
-    },
     "filename-rules/not-match": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "src/app/plugin/shortcut.plugin.spec.js": {
-    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
@@ -3327,9 +3130,6 @@
     }
   },
   "src/app/service/custom-field.service.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     },
@@ -3339,7 +3139,7 @@
   },
   "src/app/service/entity-validation.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 11
+      "count": 10
     }
   },
   "src/app/service/feature.service.ts": {
@@ -3508,15 +3308,7 @@
     }
   },
   "src/app/service/shortcut.service.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
-      "count": 1
-    }
-  },
-  "src/app/service/snackbar.service.ts": {
-    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
@@ -3556,7 +3348,7 @@
   },
   "src/app/store/error.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 5
+      "count": 4
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 9
@@ -3588,11 +3380,6 @@
   "src/app/store/in-app-purchase-checkout.store.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
-    }
-  },
-  "src/app/store/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
     }
   },
   "src/app/store/marketing.store.spec.ts": {
@@ -3842,9 +3629,6 @@
     }
   },
   "src/core/factory/cache-adapter.factory.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -3872,16 +3656,6 @@
   "src/core/factory/filter.factory.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
-    }
-  },
-  "src/core/factory/http-client-adapter.spec.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 4
-    }
-  },
-  "src/core/factory/http-client-adapter.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 3
     }
   },
   "src/core/factory/http-client.types.ts": {
@@ -3997,7 +3771,7 @@
   },
   "src/core/factory/state.factory.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/no-restricted-types": {
       "count": 4
@@ -4729,7 +4503,7 @@
   },
   "src/core/service/validation.service.js": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 4
+      "count": 3
     },
     "filename-rules/not-match": {
       "count": 1
@@ -4778,9 +4552,6 @@
     }
   },
   "src/core/worker/worker-notification-listener.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 2
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -4790,7 +4561,7 @@
       "count": 4
     },
     "@typescript-eslint/no-restricted-types": {
-      "count": 40
+      "count": 39
     },
     "max-lines": {
       "count": 1
@@ -6347,11 +6118,6 @@
       "count": 1
     }
   },
-  "src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal/index.js": {
-    "filename-rules/not-match": {
-      "count": 1
-    }
-  },
   "src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid/index.js": {
     "filename-rules/not-match": {
       "count": 1
@@ -6890,14 +6656,6 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/page/sw-customer-create/sw-customer-create.spec.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 21
-    }
-  },
   "src/module/sw-customer/page/sw-customer-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -7433,9 +7191,6 @@
     }
   },
   "src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -7777,11 +7532,6 @@
       "count": 17
     }
   },
-  "src/module/sw-flow/page/sw-flow-index/index.ts": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    }
-  },
   "src/module/sw-flow/page/sw-flow-index/sw-flow-index.spec.js": {
     "sw-test-rules/no-vm-access": {
       "count": 2
@@ -7825,7 +7575,7 @@
   },
   "src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     }
   },
   "src/module/sw-flow/view/listing/sw-flow-list-flow-templates/sw-flow-list-flow-templates.spec.js": {
@@ -8586,9 +8336,6 @@
     }
   },
   "src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8618,9 +8365,6 @@
     }
   },
   "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8670,25 +8414,16 @@
     }
   },
   "src/module/sw-order/component/sw-order-create-address-modal/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/module/sw-order/component/sw-order-create-details-body/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/module/sw-order/component/sw-order-create-details-footer/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8699,9 +8434,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-create-details-header/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8834,9 +8566,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8847,25 +8576,16 @@
     }
   },
   "src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/module/sw-order/component/sw-order-document-settings-invoice-modal/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
   },
   "src/module/sw-order/component/sw-order-document-settings-modal/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8876,9 +8596,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-document-settings-storno-modal/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -8958,9 +8675,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-nested-line-items-row/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -9034,9 +8748,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-select-document-type-modal/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -9136,9 +8847,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-user-card/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -9248,9 +8956,6 @@
     }
   },
   "src/module/sw-order/view/sw-order-create-base/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -9649,9 +9354,6 @@
     }
   },
   "src/module/sw-product/component/sw-product-settings-mode/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -10196,11 +9898,6 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/sw-promotion-v2-cart-condition-form.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
   "src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero/index.js": {
     "filename-rules/not-match": {
       "count": 1
@@ -10468,9 +10165,6 @@
     }
   },
   "src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }
@@ -12049,9 +11743,6 @@
     }
   },
   "src/module/sw-settings-rule/page/sw-settings-rule-detail/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     },

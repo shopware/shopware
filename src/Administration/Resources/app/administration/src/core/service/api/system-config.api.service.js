@@ -45,6 +45,11 @@ class SystemConfigApiService extends ApiService {
      * @deprecated tag:v6.8.0 - Will be removed, use SystemConfigApiService.getSchema instead.
      */
     getConfig(domain, additionalParams = {}, additionalHeaders = {}) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'systemConfigApiService.getConfig() is deprecated. Use `getSchema` instead.',
+        );
+
         return this.httpClient
             .get('_action/system-config/schema', {
                 params: { domain, ...additionalParams },

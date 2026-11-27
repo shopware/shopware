@@ -43,7 +43,7 @@ class HookableValidator extends AbstractManifestValidator
 
         $subscriptions = [];
         foreach ($webhooks as $webhook) {
-            $subscriptions[$webhook->getName() . ': ' . $webhook->getEvent()] = $webhook->getEvent();
+            $subscriptions[$webhook->getName()] = $webhook->getEvent();
         }
 
         $refusals = $this->subscriptionValidator->validate(

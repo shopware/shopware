@@ -8,6 +8,12 @@ const { fileSize } = Shopware.Utils.format;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
+function isDuplicationException(error) {
+    return error?.response?.data?.errors?.some((err) => {
+        return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
+    });
+}
+
 /**
  * @status ready
  * @description The <u>sw-media-upload-v2</u> component is used wherever an upload is needed. It supports drag & drop-,
@@ -560,12 +566,17 @@ export default {
         },
 
         handleMediaServiceUploadEvent({ action, payload }) {
-            // Keep the id on failure so the orphaned entity is still cleaned up on teardown.
+            // Keep the id on failure so the orphaned entity is still cleaned up on teardown,
+            // except for duplicates, which sw-duplicated-media-v2 still needs and cleans up itself.
             if (action === 'media-upload-finish') {
                 this.pendingUploadMediaIds.delete(payload.targetId);
             }
 
             if (action === 'media-upload-fail') {
+                if (isDuplicationException(payload.error)) {
+                    this.pendingUploadMediaIds.delete(payload.targetId);
+                }
+
                 this.onRemoveMediaItem();
             }
         },
@@ -574,6 +585,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement. Upload failure notifications are now handled by `sw-upload-status`.
          */
         getUploadFailureMessage(task) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-media-upload-v2.getUploadFailureMessage() is deprecated. Will be removed without replacement. Upload failure notifications are now handled by `sw-upload-status`.',
+            );
+
             const detail = task?.error?.response?.data?.errors?.[0]?.detail;
 
             if (typeof detail === 'string' && detail.length > 0) {

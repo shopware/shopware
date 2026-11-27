@@ -572,8 +572,14 @@
       "imagesFilter": {
         "label": "Bild",
         "placeholder": "Wähle einen Bildstatus ...",
-        "textHasCriteria": "Verfügt über mind. eine Produktbildzuordnung",
-        "textNoCriteria": "Keine Produktbilder zugeordnet"
+        "textHasCriteria": "Mind. ein Bild zugeordnet",
+        "textNoCriteria": "Keine Bilder zugeordnet"
+      },
+      "documentsFilter": {
+        "label": "Dokumente",
+        "placeholder": "Wähle einen Dokumentstatus ...",
+        "textHasCriteria": "Mind. ein Dokument zugeordnet",
+        "textNoCriteria": "Keine Dokumente zugeordnet"
       },
       "releaseDateFilter": {
         "label": "Erscheinungsdatum"
@@ -621,6 +627,60 @@
     },
     "notification": {
       "notificationSaveErrorProductNoAlreadyExists": "Die Produktnummer \"{productNo}\" ist bereits vergeben."
+    },
+    "documentForm": {
+      "variantOnly": "Nur für diese Variante",
+      "cardTitle": "Dokumente ({count})",
+      "cardSubtitle": "Dateien, die Kunden auf der Produktdetailseite in der Storefront herunterladen können.",
+      "emptyState": "Noch keine Dokumente",
+      "emptyDescription": "Füge Dateien wie Anleitungen, Datenblätter oder Zertifikate hinzu. Kunden laden sie auf der Produktdetailseite in der Storefront herunter.",
+      "emptyDescriptionOtherLanguage": "Wechsle zur System-Standardsprache {language}, um Dokumente hinzuzufügen.",
+      "defaultLanguage": "Standardsprache",
+      "buttonAdd": "Dokumente hinzufügen",
+      "addLanguageVersion": "Version auf {language} hinzufügen",
+      "fileFallbackHint": "Ohne eigene Datei erhalten Kunden die Datei aus der Fallback-Sprache.",
+      "removeLanguageVersion": "Version auf {language} entfernen",
+      "removeLanguageVersionTitle": "Version auf {language} von „{name}“ entfernen?",
+      "removeLanguageVersionSuccess": "Die Version auf {language} von „{name}“ wurde entfernt.",
+      "removeLanguageVersionDescription": "Die Version auf {language} wird entfernt. Stattdessen werden Name und Datei aus der Fallback-Sprache verwendet. Die Datei bleibt unter „Medien“ verfügbar.",
+      "changedForLanguage": "Für diese Sprache geändert.",
+      "columnPosition": "Position",
+      "columnTitle": "Name",
+      "columnFileName": "Datei",
+      "columnFileType": "Format",
+      "columnFileSize": "Größe",
+      "contextMoveUp": "Nach oben verschieben",
+      "contextDownload": "Herunterladen",
+      "contextMoveDown": "Nach unten verschieben",
+      "editTitle": "Dokument bearbeiten",
+      "nameHint": "Kunden sehen diesen Namen auf der Produktdetailseite.",
+      "errorNameRequired": "Gib einen Namen ein.",
+      "errorFileRequired": "Wähle eine Datei aus.",
+      "applyToVariants": "Auch auf Varianten anwenden, bei denen die Dokumentvererbung aufgehoben wurde",
+      "applyToVariantsHelp": "Aktualisiert das Dokument auch in Varianten mit aufgehobener Vererbung, solange ihre Kopie noch denselben Namen und dieselbe Datei hat. Varianten, die die Dokumente des Hauptprodukts erben, werden in jedem Fall aktualisiert.",
+      "draftHint": "Die Änderungen werden nach dem Speichern des Produkts übernommen.",
+      "errorLoadVariants": "Die Variantendokumente konnten nicht geladen werden. Versuche es erneut.",
+      "errorSaveVariants": "Das Produkt wurde gespeichert, aber seine Varianten konnten nicht aktualisiert werden.",
+      "applySuccess": "Dokument „{name}“ wurde übernommen. | Dokument „{name}“ wurde übernommen und in {count} Variante aktualisiert. | Dokument „{name}“ wurde übernommen und in {count} Varianten aktualisiert.",
+      "removeSuccess": "„{name}“ wurde entfernt. | „{name}“ wurde auch aus {count} Variante entfernt. | „{name}“ wurde auch aus {count} Varianten entfernt.",
+      "bulkRemoveTitle": "{count} Dokumente entfernen?",
+      "bulkRemoveLanguageVersionTitle": "Die Versionen auf {language} von {count} Dokumenten entfernen?",
+      "bulkRemoveDescription": "Die ausgewählten Dokumente werden in allen Sprachen vom Produkt entfernt. Die Dateien bleiben unter „Medien“ verfügbar.",
+      "bulkRemoveSuccess": "{count} Dokumente wurden entfernt.",
+      "bulkRemoveLanguageVersionSuccess": "Die Versionen auf {language} von {count} Dokumenten wurden entfernt.",
+      "removeTitle": "„{name}“ entfernen?",
+      "removeDescription": "Das Dokument wird in allen Sprachen vom Produkt entfernt. Die Datei bleibt unter „Medien“ verfügbar.",
+      "restoreInheritanceTitle": "Vererbung für alle Dokumente wiederherstellen?",
+      "restoreInheritanceDescription": "Die Variante übernimmt wieder die Dokumente des Hauptprodukts – mit denselben Namen, Dateien und derselben Reihenfolge. Die Änderungen an den Dokumenten dieser Variante gehen verloren.",
+      "restoreInheritanceButton": "Vererbung wiederherstellen",
+      "restoreInheritanceSuccess": "Diese Variante verwendet wieder die Dokumente des Hauptprodukts.",
+      "removeFromVariants": "Auch aus Varianten entfernen, bei denen die Dokumentvererbung aufgehoben wurde",
+      "removeFromVariantsHelp": "Entfernt das Dokument auch aus Varianten mit aufgehobener Vererbung, solange ihre Kopie noch denselben Namen und dieselbe Datei hat. Aus Varianten, die die Dokumente des Hauptprodukts erben, wird das Dokument in jedem Fall entfernt.",
+      "errorLoadMedia": "Die hochgeladene Datei konnte nicht geladen werden. Versuche es erneut.",
+      "errorDocumentDuplicated": "Diese Datei ist dem Produkt bereits zugewiesen.",
+      "fileUploadLabel": "Datei-Upload",
+      "uploadHint": "{extensions}, jeweils bis zu {size}.",
+      "unlinkToAdd": "Hebe die Vererbung der Karte auf, um Dokumente für diese Variante hinzuzufügen."
     }
   },
   "sw-privileges": {

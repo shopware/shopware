@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -30,9 +31,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -241,6 +244,9 @@ class VersionManagerTest extends TestCase
             'lockFactory' => static::createStub(LockFactory::class),
             'clock' => new NativeClock(),
             'clonePayloadBuilder' => new ClonePayloadBuilder(new NativeClock()),
+            'writeCommandExtractor' => static::createStub(WriteCommandExtractor::class),
+            'aclWriteValidator' => static::createStub(AclWriteValidator::class),
+            'languageLoader' => static::createStub(LanguageLoaderInterface::class),
         ];
 
         $params = array_merge($defaults, $overrides);
@@ -259,6 +265,9 @@ class VersionManagerTest extends TestCase
             $params['lockFactory'],
             $params['clock'],
             $params['clonePayloadBuilder'],
+            $params['writeCommandExtractor'],
+            $params['aclWriteValidator'],
+            $params['languageLoader'],
         );
     }
 }

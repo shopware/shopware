@@ -1,0 +1,4 @@
+{
+    "description": "Block renamed only with the major flag on",
+    "majorFlags": ["v6.8.0.0"]
+}

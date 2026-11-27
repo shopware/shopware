@@ -203,7 +203,12 @@ test('a question left open for the author outweighs a missing second approval', 
     assert.equal(verdict.reason, 'open-question');
     assert.equal(verdict.since, '2026-10-22T11:23:24Z');
 
-    const answered = { ...facts, lastOpenQuestionAt: undefined, lastQuestionFromNonApproverAt: undefined, lastOpenAnswerAt: '2026-10-24T00:00:00Z' };
+    const answered = {
+        ...facts,
+        lastOpenQuestionAt: undefined,
+        lastQuestionFromNonApproverAt: undefined,
+        lastOpenAnswerAt: '2026-10-24T00:00:00Z',
+    };
     assert.equal(classify(answered).reason, 'second-review-missing');
 });
 
@@ -285,8 +290,18 @@ test('summarizeOpenThreads sets threads where an approver wrote last apart', () 
         new Set(['approver']),
     );
 
-    assert.deepEqual(open, { lastOpenQuestionAt: '2026-10-22T11:00:00Z', lastQuestionFromNonApproverAt: '2026-10-21T09:00:00Z' });
-    assert.equal(summarizeOpenThreads([{ isResolved: false, comments: { nodes: [comment('approver', '2026-10-22T11:00:00Z')] } }], 'contributor', new Set(['approver'])).lastQuestionFromNonApproverAt, undefined);
+    assert.deepEqual(open, {
+        lastOpenQuestionAt: '2026-10-22T11:00:00Z',
+        lastQuestionFromNonApproverAt: '2026-10-21T09:00:00Z',
+    });
+    assert.equal(
+        summarizeOpenThreads(
+            [{ isResolved: false, comments: { nodes: [comment('approver', '2026-10-22T11:00:00Z')] } }],
+            'contributor',
+            new Set(['approver']),
+        ).lastQuestionFromNonApproverAt,
+        undefined,
+    );
 });
 
 test('factsOf takes the approvers from the latest opinionated reviews', () => {

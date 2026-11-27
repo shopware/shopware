@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
@@ -29,9 +31,10 @@ use Shopware\Core\System\StateMachine\Transition;
 #[McpTool(
     name: 'shopware-order-state',
     title: 'Order State',
+    annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false),
     description: 'Change the state of an order, its transactions, and/or its deliveries in one call. Looks up the order by orderNumber or orderId. Provide at least one of orderAction, transactionAction, or deliveryAction. Common actions: cancel, process, complete, reopen, paid, refund, ship, retour. Always use dryRun=true (default) to preview available transitions before executing with dryRun=false. See shopware://state-machines resource for all valid states and transitions.'
 )]
-#[McpToolGroup('order')]
+#[McpToolGroup('order', description: 'Change the status of an order, its payment or its delivery, for example cancel, mark as paid, refund or ship. Reading orders is in the entity toolset.')]
 #[McpToolRequires('order:read')]
 #[McpToolRequires('order:update')]
 #[McpToolRequires('order_transaction:update')]
@@ -56,18 +59,18 @@ class OrderStateTool extends McpToolResponse
         string $transactionAction = '',
         string $deliveryAction = '',
         bool $dryRun = true,
-    ): string {
+    ): McpToolResult {
         if ($orderNumber === '' && $orderId === '') {
-            return $this->error('Provide either orderNumber or orderId.');
+            return $this->errorResult('Provide either orderNumber or orderId.');
         }
 
         if ($orderAction === '' && $transactionAction === '' && $deliveryAction === '') {
-            return $this->error('Provide at least one of orderAction, transactionAction, or deliveryAction.');
+            return $this->errorResult('Provide at least one of orderAction, transactionAction, or deliveryAction.');
         }
 
         $context = $this->contextProvider->getContext();
 
-        if ($error = $this->requirePrivilege($context, OrderDefinition::ENTITY_NAME . ':read')) {
+        if ($error = $this->requirePrivilegeResult($context, OrderDefinition::ENTITY_NAME . ':read')) {
             return $error;
         }
 
@@ -83,7 +86,7 @@ class OrderStateTool extends McpToolResponse
                 $writePrivileges[] = OrderDeliveryDefinition::ENTITY_NAME . ':update';
             }
 
-            if ($writePrivileges !== [] && ($error = $this->requirePrivilege($context, ...$writePrivileges))) {
+            if ($writePrivileges !== [] && ($error = $this->requirePrivilegeResult($context, ...$writePrivileges))) {
                 return $error;
             }
         }
@@ -91,7 +94,7 @@ class OrderStateTool extends McpToolResponse
         $order = $this->loadOrder($orderId, $orderNumber, $context);
 
         if (!$order instanceof OrderEntity) {
-            return $this->error('Order not found.', McpToolError::NOT_FOUND);
+            return $this->errorResult('Order not found.', McpToolError::NOT_FOUND);
         }
 
         $base = [
@@ -110,7 +113,7 @@ class OrderStateTool extends McpToolResponse
             );
         }
 
-        return $this->success(array_merge($base, $transitionResult), ['dryRun' => $dryRun]);
+        return $this->successResult(array_merge($base, $transitionResult), ['dryRun' => $dryRun]);
     }
 
     /**

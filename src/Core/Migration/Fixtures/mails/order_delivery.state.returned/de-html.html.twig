@@ -4,7 +4,7 @@
         {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
         <br/>
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) vom {{ order.orderDateTime|format_datetime('medium', 'short', locale='de-DE') }} hat sich geändert.<br/>
-        {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [b.id == order.primaryOrderDeliveryId, b.shippingCosts.unitPrice, a.id] <=> [a.id == order.primaryOrderDeliveryId, a.shippingCosts.unitPrice, b.id]) %}
+        {% set shipments = order.deliveries|filter(delivery => delivery.shippingCosts.totalPrice >= 0)|sort((a, b) => [a.position|default(0), b.id == order.primaryOrderDeliveryId, b.shippingCosts.unitPrice, a.id] <=> [b.position|default(0), a.id == order.primaryOrderDeliveryId, a.shippingCosts.unitPrice, b.id]) %}
         {% set changedShipment = orderDelivery is defined and orderDelivery ? shipments|filter(shipment => shipment.id == orderDelivery.id)|first : null %}
         {% if shipments|length > 1 and changedShipment %}
             {% set changedShipmentNumber = null %}

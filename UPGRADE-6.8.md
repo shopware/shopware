@@ -168,6 +168,11 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 ```
 
+## `--no-validate` removed from `app:install` and `app:refresh`
+
+The option had no effect since 6.7.
+Passing it now fails with an unknown-option error.
+
 ## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
@@ -365,6 +370,14 @@ This header also works on earlier Shopware 6 versions.
 Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
 Listing responses contain `data`, `total`, and `aggregations`.
 
+## Non-visible API associations are rejected
+
+Admin API and Store API requests, as well as app scripts using `services.repository` or `services.store`, now reject associations in the `associations` parameter that are not visible in the caller's API scope with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
+Selections in the `fields` parameter that traverse a non-visible association are also rejected.
+In 6.7, these requested associations and their nested criteria, and these field selections, were ignored with a deprecation notice in debug mode.
+Remove associations that are not exposed in the relevant API scope and field selections that traverse them from your criteria before upgrading.
+App permissions do not change association visibility through `services.store`.
+
 ## Product reviews require a rating
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
@@ -441,26 +454,14 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
 Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
-## MCP tool results no longer wrap their data in a `{"success": …}` text envelope
-
-Tool results of both MCP servers (`/api/_mcp` and `/store-api/_mcp`) carry their data in `structuredContent`, and a failed call sets `isError: true`. Until 6.8.0 the first text block additionally contained the legacy envelope `{"success": true, "data": …, "_meta": …}` or `{"success": false, "error": …}`. With 6.8.0 that envelope is removed:
-
-- The first text block holds the result data as plain JSON (the copy of `structuredContent` the MCP specification asks for), or the error message for a failed call.
-- A failed call follows with its details as a text block `{"details": {…}}`, when it has any.
-- A summary, if the tool gives one, follows as a separate text block.
-- The metadata (for example `dryRun`, `total`, `resourceUri`, `usage`) follows as a text block `{"_meta": {…}}`, and is also sent in the result's `_meta` with the prefix `shopware/` (for example `shopware/dryRun`).
-
-If your MCP client or integration parses `content[0].text` as `{"success": …, "data": …}`:
-
-- Read `structuredContent` for the data and `isError` for the outcome. Both are already sent on 6.7, so you can switch before updating. `structuredContent` requires protocol revision 2025-06-18 or later; on older revisions read the first text block.
-- Read metadata from the result's `_meta` (`shopware/<key>`) instead of the envelope's `_meta`.
-- For error details, read `structuredContent.error` (`code`, `message`, `details`) instead of the envelope's `error` and `code`.
-
-Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new format.
-
 </details>
 
 # Core
+
+## Recovery entity accessors
+
+`UserEntity::getRecoveryUser()`, `UserEntity::setRecoveryUser()`, `CustomerEntity::getRecoveryCustomer()`, and `CustomerEntity::setRecoveryCustomer()` were removed.
+Remove criteria using the `user.recoveryUser` or `customer.recoveryCustomer` associations, which were removed in a security update.
 
 <details>
 
@@ -932,7 +933,7 @@ Get the latest order transaction with `order.primaryOrderTransaction` so you sho
 
 The Administration's order detail no longer treats every delivery besides the primary one as a shipping discount.
 A delivery with negative shipping costs is a discount, every other delivery is a shipment, which matches how `Shopware\Core\Checkout\Cart\Order\RecalculationService` already tells the two apart.
-The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, the primary delivery first.
+The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, sorted by delivery `position` like the storefront, mails and documents.
 The order overview, the order list, the state history and the bulk edit keep showing and changing the primary delivery.
 
 Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` run once per shipment and must use the loop variable `shipment` instead of the `delivery` computed, which still points at the primary delivery.
@@ -1493,6 +1494,42 @@ If you have a decorator that extends `AbstractTranslationLoader`, remove your `p
  ```
 
 The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+
+## MCP tools returning the legacy `{"success": …}` string deprecated
+
+Returning the `{"success": …}` JSON string from an MCP tool was deprecated, whether it was built with `McpToolResponse::success()`, `::error()` and the other string helpers or by hand.
+The string can't carry a summary or error details, and a PHP tool that returns it fails.
+The string helpers `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` of `McpToolResponse` are removed.
+Return a `Shopware\Core\Framework\Mcp\Result\McpToolResult` instead, built with the helper of the same name plus `Result`.
+Two helpers drop their `Error` suffix: `invalidCriteriaError()` becomes `invalidCriteriaResult()` and `missingPrivilegesError()` becomes `missingPrivilegesResult()`.
+
+```php
+// Before
+public function __invoke(string $id): string
+{
+    return $this->success(['id' => $id]);
+}
+
+// After
+public function __invoke(string $id): McpToolResult
+{
+    return $this->successResult(['id' => $id]);
+}
+```
+
+A PHP tool that returns any other string, such as plain text, fails as well.
+Return `McpToolResult::text('…')` for a result that is only text for the model; every client gets the text as is.
+App tools are not affected: their responses keep the `{"success": …}` envelope or plain text.
+
+**Troubleshooting:** a plugin tool that fails with `MCP tool "…" returned a string` or `returned the legacy {"success": …} JSON string` still returns a string.
+Change the return type of `__invoke()` to `McpToolResult` and return `McpToolResult::text()` or the `…Result()` helper instead.
+
+The counterparts are `successResult()`, `errorResult()`, `requirePrivilegeResult()`, `missingPrivilegesResult()`, `invalidCriteriaResult()`, `decodeJsonOrErrorResult()` and `executeWithDryRunResult()`.
+App tools are not affected and keep their response format.
+
+The PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) moves from `core-rules.neon` to `rules.neon`.
+It reports a `#[McpTool]` method whose native return type is `string`, `?string`, a union containing `string`, `mixed`, or missing.
+
 ## `MediaUploadService::validateExternalUrl()` deprecated
 
 Use the new `assertValidExternalUrl()` instance method instead:
@@ -1615,6 +1652,11 @@ The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Sear
 
 The unused property was removed.
 
+## `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM` removed
+
+The constant was unused.
+Use `'sha256'` directly if you computed the imitation token hash yourself.
+
 # Administration
 
 ## Product prices card extension points
@@ -1654,6 +1696,21 @@ Remove calls to it.
 Move unrelated load-time customization to `sw-product-detail.loadProduct()`.
 `sw-product-detail.getDefaultPurchasePrices()` was deprecated during 6.7 and removed in 6.8.
 Set `product.purchasePrices` explicitly in a product-detail extension when a default purchase price is required.
+## Jest helper `test/_helper_/majorFeatureFlags` removed
+
+Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` to activate the major feature flags should run on the Jest harness of the extension tooling instead.
+It registers the feature flags of the installed Shopware version, including the major flags of a major run.
+
+```js
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
+```
+
+`composer admin:setup-extension-tooling` generates the `.shopware/jest.mjs` bridge.
+See *Running specs with Jest* in `src/Administration/Resources/app/administration/extension-tooling/README.md` for the accepted options.
 
 ## Sales channel detail components load fewer visibilities and sales channels
 
@@ -1730,6 +1787,11 @@ The component loads the product custom fields with the new `customFieldRepositor
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
 The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
+
+## Product indexing members removed from `sw-category-tree`
+
+The `syncProducts()` and `indexProducts()` methods and the `productRepository` computed property were removed from `sw-category-tree` without replacement.
+The server re-indexes the products of a moved category itself, so extensions should stop calling or overriding these members.
 
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
@@ -1950,99 +2012,99 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 />
 ```
 
-## Axios v1 is now the default HTTP client
+## Administration HTTP client ships only Axios 1.x
 
-Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2.
-This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
+The Administration HTTP client (`httpClient`) became a single Axios 1.x instance.
+The legacy Axios 0.x dependency and the `axios-v1` package alias were removed.
+The compatibility mode for Axios 0.x behaviour, the `CancelToken` shim and the version-specific aliases were removed with 6.8.
 
-### What changed
+### Axios 1.x behaviour for every request
 
-**Shopware 6.7.x:**
-- Default: axios 0.30.2
-- Opt-in to v1: `useAxiosV1: true`
-- Repository requests use axios 1.x internally so the standard data-access path is migrated before the global switch. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
+The `useAxiosV1` request option was removed.
+Every request now behaves like Axios 1.x:
 
-**Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
-- Direct HTTP request default: axios 1.x
-- Direct HTTP request opt-out to v0: `useAxiosV1: false`
+- **Query encoding.** `[` and `]` are percent-encoded (`?ids%5B%5D=1&ids%5B%5D=2`), Axios 0.x kept them literal (`?ids[]=1&ids[]=2`).
+  This also applies to `httpClient.getUri()`.
+  Pass an own `paramsSerializer` if a request depends on the literal form.
+- **Response headers.** `response.headers` is an `AxiosHeaders` instance instead of a plain object.
+  Lower-case property access such as `response.headers['content-type']` works as before.
 
-### Key differences between axios 0.30.2 and axios 1.x
+Remove the option from your requests:
 
-**Request Cancellation:**
 ```javascript
-// Axios 0.30.2 (deprecated CancelToken)
-const { CancelToken } = Axios;
-const source = CancelToken.source();
+// Before
+this.httpClient.get('/api/endpoint', { useAxiosV1: false });
 
-httpClient.get('/api/endpoint', {
-    cancelToken: source.token,
+// After
+this.httpClient.get('/api/endpoint');
+```
+
+### Request interceptors and header groups
+
+Request interceptors see the headers after Axios 1.x merged the `common` and method groups.
+An interceptor that wrote `config.headers.common[...]` or `config.headers.post[...]` failed with a `TypeError`, already on 6.7.
+Set the header on `config.headers` directly:
+
+```javascript
+// Before
+httpClient.interceptors.request.use((config) => {
+    config.headers.common['x-my-header'] = 'value';
+    return config;
 });
-source.cancel('Operation cancelled');
 
-// Axios 1.x (modern AbortController)
+// After
+httpClient.interceptors.request.use((config) => {
+    config.headers['x-my-header'] = 'value';
+    return config;
+});
+```
+
+### `CancelToken` replaced by `AbortController`
+
+`httpClient.CancelToken`, the `cancelToken` request option, and the `CancelToken` and `Cancel` exports of `src/core/factory/http.factory` were removed.
+Use `AbortController`:
+
+```javascript
+// Before
+const source = httpClient.CancelToken.source();
+httpClient.get('/api/endpoint', { cancelToken: source.token });
+source.cancel();
+
+// After
 const controller = new AbortController();
-
-httpClient.get('/api/endpoint', {
-    signal: controller.signal,
-    useAxiosV1: true,
-});
+httpClient.get('/api/endpoint', { signal: controller.signal });
 controller.abort();
 ```
 
-**Error Detection:**
-```javascript
-// Works for both versions
-if (httpClient.isCancel(error)) {
-    // Handle cancellation
-}
+Detect cancellations with `httpClient.isCancel(error)`.
 
-// Axios 1.x specific
-if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
-    // Handle cancellation
-}
-```
+`Shopware.Service('messageQueueService').consume(receiver, signal)` accepts only an `AbortSignal` as second argument.
 
-**Interceptors and Defaults:**
+### Version-specific escape hatches
 
-The Administration HTTP client is a Shopware-owned compatibility facade. Interceptors and defaults registered through its existing public API are mirrored to both internal axios clients:
+`httpClient.axiosV0`, `httpClient.axiosV1`, `httpClient.interceptorsV0`, `httpClient.interceptorsV1`, `httpClient.defaultsV0` and `httpClient.defaultsV1` were removed.
+Use `httpClient`, `httpClient.interceptors` and `httpClient.defaults` directly:
 
 ```javascript
-const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
-httpClient.defaults.headers.common['my-header'] = 'value';
+// Before
+httpClient.interceptorsV1.request.use(handler);
 
-// Removes the interceptor from both internal clients
-httpClient.interceptors.request.eject(interceptorId);
+// After
+httpClient.interceptors.request.use(handler);
 ```
 
-Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
+### TypeScript
 
-### Migration guide
+Type imports from `axios-v1` no longer resolve.
+Use Shopware's HTTP types instead of Axios types:
 
-Most code will work without changes.
-However, if you use request cancellation or depend on specific axios behavior:
-
-1. **Update cancellation logic** to use `AbortController` instead of `CancelToken`
-2. **Test your plugin** with axios v1 before the 6.8 release
-3. **Review error handling** for version-specific error codes
-
-**If a direct HTTP request needs axios 0.30.2 temporarily:**
-```javascript
-// Explicitly opt-out to use axios 0.30.2
-httpClient.request({
-    method: 'get',
-    url: '/api/endpoint',
-    useAxiosV1: false, // Force axios 0.30.2
-});
+```typescript
+import type { HttpClient, HttpError, HttpRequestConfig, HttpResponse } from 'src/core/factory/http-client.types';
 ```
 
-### Future removal
+`HttpClient` stays structurally compatible with `AxiosInstance`, so passing the client to `axios-mock-adapter` keeps compiling.
 
-Axios 0.30.2 support will be completely removed in a future major release.
-The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
-Plan to migrate all code to axios v1 as soon as possible.
-
-For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
-The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
+See the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md` and the [single-transport ADR](adr/2026-09-11-administration-http-client-single-transport.md).
 
 ## Removed empty state Twig block anchors
 
@@ -3249,6 +3311,16 @@ State-based invalidation is not supported anymore.
 -{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
 +{# No replacement #}
 ```
+
+## `AppCmsExtensionException` removed
+
+`Shopware\Core\Framework\App\Exception\AppCmsExtensionException` was removed.
+A missing CMS block file and a CMS block outside of the `cms/blocks` directory of the App are thrown as `Shopware\Core\Framework\App\AppException` instead.
+Catch `AppException` and check the error codes `FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING` and `FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY`.
+
+## Old shop ID format no longer read
+
+The system config key `core.app.shopId` is no longer read, read the shop ID from `core.app.shopIdV2` instead.
 
 </details>
 

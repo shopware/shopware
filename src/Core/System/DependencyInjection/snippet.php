@@ -30,6 +30,7 @@ use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTask;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
+use Shopware\Core\System\Snippet\Service\TranslationArchiveLoader;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationFilesystemFactory;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
@@ -122,6 +123,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationConfig::class),
             service(TranslationMetadataStore::class),
             service(TranslationUpdater::class),
+            service(TranslationArchiveLoader::class),
         ])
         ->tag('console.command');
 
@@ -129,6 +131,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AbstractTranslationLoader::class),
             service(TranslationConfig::class),
+            service(TranslationArchiveLoader::class),
         ])
         ->tag('console.command');
 
@@ -179,6 +182,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->alias(AbstractTranslationLoader::class, TranslationLoader::class);
+
+    $services->set(TranslationArchiveLoader::class)
+        ->args([
+            service('shopware.translation.client'),
+            service('shopware.filesystem.translation'),
+            service(AbstractTranslationLoader::class),
+            service(TranslationConfig::class),
+            service('filesystem'),
+            param('kernel.cache_dir'),
+        ]);
 
     $services->set(TranslationMetadataStore::class)
         ->args([

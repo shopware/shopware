@@ -55,6 +55,11 @@ class NumberRangeApiService extends ApiService {
      * @returns {Promise<T>}
      */
     previewPattern(typeName, pattern, start, additionalHeaders = {}) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'numberRangeApiService.previewPattern() is deprecated. Use previewPatternByNumberRangeId for persisted number range previews instead.',
+        );
+
         const headers = this.getBasicHeaders(additionalHeaders);
         const params = {
             pattern: pattern,

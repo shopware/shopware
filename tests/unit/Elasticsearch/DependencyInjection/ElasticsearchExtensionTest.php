@@ -32,6 +32,18 @@ class ElasticsearchExtensionTest extends TestCase
         static::assertSame('localhost', $parameters['elasticsearch.hosts']);
     }
 
+    public function testSearchTermMaxWordsDefaultsToTen(): void
+    {
+        $container = new ContainerBuilder();
+        (new ElasticsearchExtension())->load([
+            'elasticsearch' => [
+                'search' => [],
+            ],
+        ], $container);
+
+        static::assertSame(10, $container->getParameter('elasticsearch.search.term_max_words'));
+    }
+
     public function testGetConfiguration(): void
     {
         $extension = new ElasticsearchExtension();

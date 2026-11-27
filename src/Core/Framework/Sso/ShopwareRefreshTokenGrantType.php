@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Sso;
 
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
@@ -10,6 +11,8 @@ use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Api\OAuth\AccessToken;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\Api\OAuth\RefreshToken;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -26,6 +29,8 @@ class ShopwareRefreshTokenGrantType extends RefreshTokenGrant
 {
     private ?string $refreshTokenFamilyId = null;
 
+    private ?string $resource = null;
+
     public function __construct(
         private readonly RefreshTokenRepository $shopwareRefreshTokenRepository,
         private readonly UserService $userService,
@@ -41,11 +46,19 @@ class ShopwareRefreshTokenGrantType extends RefreshTokenGrant
         \DateInterval $accessTokenTTL
     ): ResponseTypeInterface {
         $this->refreshTokenFamilyId = null;
+        $this->resource = null;
         $client = $this->validateClient($request);
         $oldRefreshToken = $this->validateOldRefreshToken($request, $client->getIdentifier());
         $this->refreshTokenFamilyId = $this->shopwareRefreshTokenRepository->getRefreshTokenFamilyId($oldRefreshToken['refresh_token_id']);
         if ($this->refreshTokenFamilyId === null) {
             throw OAuthServerException::invalidRefreshToken('Token has been revoked');
+        }
+
+        // a refresh keeps the RFC 8707 resource of the original grant
+        $this->resource = $this->shopwareRefreshTokenRepository->getRefreshTokenResource($oldRefreshToken['refresh_token_id']);
+        $requestedResource = $this->getRequestParameter(OAuthResource::PARAMETER, $request);
+        if (\is_string($requestedResource) && ($this->resource === null || OAuthResource::normalize($requestedResource) !== $this->resource)) {
+            throw SsoException::refreshTokenResourceMismatch();
         }
 
         $userId = $oldRefreshToken['user_id'];
@@ -61,6 +74,21 @@ class ShopwareRefreshTokenGrantType extends RefreshTokenGrant
         }
 
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
+    }
+
+    protected function issueAccessToken(
+        \DateInterval $accessTokenTTL,
+        ClientEntityInterface $client,
+        ?string $userIdentifier,
+        array $scopes = []
+    ): AccessTokenEntityInterface {
+        $accessToken = parent::issueAccessToken($accessTokenTTL, $client, $userIdentifier, $scopes);
+
+        if ($this->resource !== null && $accessToken instanceof AccessToken) {
+            $accessToken->setResource($this->resource);
+        }
+
+        return $accessToken;
     }
 
     protected function issueRefreshToken(AccessTokenEntityInterface $accessToken): ?RefreshTokenEntityInterface

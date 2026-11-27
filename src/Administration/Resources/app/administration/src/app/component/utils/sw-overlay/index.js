@@ -13,7 +13,6 @@ import template from './sw-overlay.html.twig';
  * @component-example
  * <sw-overlay></sw-overlay>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 };

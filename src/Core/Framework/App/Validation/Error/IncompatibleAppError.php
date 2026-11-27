@@ -32,4 +32,9 @@ class IncompatibleAppError implements Error
     {
         return ['name' => $this->appName];
     }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Fail;
+    }
 }

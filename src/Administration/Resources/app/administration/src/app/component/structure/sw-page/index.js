@@ -22,6 +22,16 @@ function routeNameChain(router, route) {
 }
 
 /**
+ * Resolves the title snippet of the module that registers a route, e.g. `sw-product.general.mainMenuItemGeneral`
+ * for `sw.product.index`. Returns an empty string for routes no module owns.
+ */
+function moduleTitleOfRoute(routeName) {
+    const owner = Array.from(Shopware.Module.getModuleRegistry().values()).find((module) => module.routes.has(routeName));
+
+    return owner?.manifest?.title ?? '';
+}
+
+/**
  * @sw-package framework
  *
  * @private
@@ -58,7 +68,6 @@ function routeNameChain(router, route) {
  *     </template>
  * </sw-page>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -88,6 +97,24 @@ export default {
          * Overrides the module color as the bottom-border-color of the page's smart bar
          */
         headerBorderColor: {
+            type: String,
+            required: false,
+            default: '',
+        },
+        /**
+         * Replaces the target of the smart bar back button, for pages whose route hierarchy does not lead back
+         * to where the user expects, e.g. a variant leading back to its main product.
+         */
+        backRoute: {
+            type: [String, Object],
+            required: false,
+            default: null,
+        },
+        /**
+         * Replaces the visible label of the smart bar back button, translated. Without it the button shows
+         * the title of the parent route's module, or only an icon when `backRoute` is set.
+         */
+        backLabel: {
             type: String,
             required: false,
             default: '',
@@ -122,6 +149,36 @@ export default {
             return {
                 name: this.parentRoute,
             };
+        },
+
+        backTarget() {
+            if (this.backRoute) {
+                return this.backRoute;
+            }
+
+            return this.parentRoute ? this.routerBack : null;
+        },
+
+        backTitle() {
+            if (this.backLabel) {
+                return this.backLabel;
+            }
+
+            if (this.backRoute || !this.parentRoute) {
+                return '';
+            }
+
+            const title = moduleTitleOfRoute(this.parentRoute);
+
+            return title ? this.$t(title) : '';
+        },
+
+        backButtonLabel() {
+            if (!this.backTitle) {
+                return this.$t('global.sw-page.backButton');
+            }
+
+            return this.$t('global.sw-page.backButtonTo', { title: this.backTitle });
         },
 
         pageColor() {
@@ -180,6 +237,11 @@ export default {
          * @deprecated tag:v6.8.0 - There's no replacement
          */
         headerStyles() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-page.headerStyles is deprecated. There is no replacement.',
+            );
+
             return {
                 'border-bottom-color': this.pageColor,
                 'padding-right': this.pageOffset,

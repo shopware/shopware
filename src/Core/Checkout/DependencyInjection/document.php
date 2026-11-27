@@ -45,6 +45,7 @@ use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -335,6 +336,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(DocumentTypeRegistry::class),
             service_closure(DocumentV2RendererRegistry::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 };

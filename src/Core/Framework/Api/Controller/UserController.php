@@ -59,14 +59,16 @@ class UserController extends AbstractController
     )]
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
         $criteria = new Criteria([$userId]);
         $criteria->addAssociations(['aclRoles', 'avatarMedia']);
 
@@ -89,14 +91,16 @@ class UserController extends AbstractController
     )]
     public function updateMe(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
 
         $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
@@ -122,14 +126,16 @@ class UserController extends AbstractController
     )]
     public function status(Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
         $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
 
         if ($result->getTotal() === 0) {
@@ -146,14 +152,16 @@ class UserController extends AbstractController
     )]
     public function logout(Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
 
         $this->ssoService->revokeUserTokens($userId);
 
@@ -175,9 +183,10 @@ class UserController extends AbstractController
 
         $source = $context->getSource();
 
+        $isSelf = $source instanceof AdminApiSource && $source->isSelf($userId);
+
         if ((!$source instanceof AdminApiSource)
-            || (!$source->isAllowed('user:update')
-            && $source->getUserId() !== $userId)
+            || (!$source->isAllowed('user:update') && !$isSelf)
         ) {
             throw new PermissionDeniedException();
         }
@@ -236,7 +245,7 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isSelfUpdate = $source->getUserId() === $data['id'];
+        $isSelfUpdate = \is_string($data['id']) && $source->isSelf($data['id']);
         $canUpdateUsers = $source->isAllowed('user:update');
 
         if (!$canUpdateUsers && !$isSelfUpdate) {

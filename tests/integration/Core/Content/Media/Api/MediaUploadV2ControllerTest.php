@@ -154,6 +154,103 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertSame(['media:create'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
     }
 
+    public function testUploadStoresTitleAndAltWithTheMedia(): void
+    {
+        $browser = $this->getBrowser();
+        $browser->request(
+            'POST',
+            '/api/_action/media/upload',
+            [
+                'fileName' => Uuid::randomHex() . '.png',
+                'title' => 'Shopware logo',
+                'alt' => 'Blue Shopware logo',
+            ],
+            ['file' => new UploadedFile(self::TEST_IMAGE, self::TEST_IMAGE_NAME, 'image/png', null, true)],
+        );
+
+        $content = (string) $browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $content);
+
+        $mediaId = json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['id'];
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), Context::createDefaultContext())->getEntities()->first();
+
+        static::assertNotNull($media);
+        static::assertSame('Shopware logo', $media->getTitle());
+        static::assertSame('Blue Shopware logo', $media->getAlt());
+    }
+
+    public function testUploadStoresTitleAndAltInTheLanguageOfTheRequest(): void
+    {
+        $browser = $this->getBrowser();
+        $browser->setServerParameter('HTTP_SW_LANGUAGE_ID', $this->getDeDeLanguageId());
+        $browser->request(
+            'POST',
+            '/api/_action/media/upload',
+            [
+                'fileName' => Uuid::randomHex() . '.png',
+                'title' => 'Shopware-Logo',
+                'alt' => 'Blaues Shopware-Logo',
+            ],
+            ['file' => new UploadedFile(self::TEST_IMAGE, self::TEST_IMAGE_NAME, 'image/png', null, true)],
+        );
+
+        $content = (string) $browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $content);
+
+        $mediaId = json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['id'];
+        $criteria = new Criteria([$mediaId]);
+        $criteria->addAssociation('translations');
+        $media = $this->mediaRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($media);
+
+        $translations = $media->getTranslations();
+        static::assertNotNull($translations);
+        static::assertCount(1, $translations);
+
+        $translation = $translations->first();
+        static::assertNotNull($translation);
+        static::assertSame($this->getDeDeLanguageId(), $translation->getLanguageId());
+        static::assertSame('Shopware-Logo', $translation->getTitle());
+        static::assertSame('Blaues Shopware-Logo', $translation->getAlt());
+    }
+
+    public function testUploadRejectsATitleLongerThan255Characters(): void
+    {
+        $fileName = Uuid::randomHex();
+
+        $browser = $this->getBrowser();
+        $browser->request(
+            'POST',
+            '/api/_action/media/upload',
+            [
+                'fileName' => $fileName . '.png',
+                'title' => str_repeat('a', 256),
+            ],
+            ['file' => new UploadedFile(self::TEST_IMAGE, self::TEST_IMAGE_NAME, 'image/png', null, true)],
+        );
+
+        $content = (string) $browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode(), $content);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('fileName', $fileName));
+        static::assertSame(0, $this->mediaRepository->searchIds($criteria, Context::createDefaultContext())->getTotal());
+    }
+
+    public function testUploadWithDeduplicateKeepsTheTitleAndAltOfTheExistingMedia(): void
+    {
+        $existingMediaId = $this->uploadTestImage(['title' => 'Existing title', 'alt' => 'Existing alt']);
+
+        $mediaId = $this->uploadTestImage(['title' => 'New title', 'alt' => 'New alt', 'deduplicate' => '1']);
+
+        static::assertSame($existingMediaId, $mediaId);
+
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($media);
+        static::assertSame('Existing title', $media->getTitle());
+        static::assertSame('Existing alt', $media->getAlt());
+    }
+
     public function testUploadRequiresMediaCreatePrivilege(): void
     {
         $browser = $this->getBrowser(true, [], ['media:read']);
@@ -293,5 +390,24 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertSame($mediaId, $responseData['mediaId']);
 
         static::assertSame(0, $this->mediaThumbnailRepository->search($criteria, $context)->getTotal());
+    }
+
+    /**
+     * @param array<string, string> $parameters
+     */
+    private function uploadTestImage(array $parameters): string
+    {
+        $browser = $this->getBrowser();
+        $browser->request(
+            'POST',
+            '/api/_action/media/upload',
+            ['fileName' => Uuid::randomHex() . '.png', ...$parameters],
+            ['file' => new UploadedFile(self::TEST_IMAGE, self::TEST_IMAGE_NAME, 'image/png', null, true)],
+        );
+
+        $content = (string) $browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $content);
+
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['id'];
     }
 }

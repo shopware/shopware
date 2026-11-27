@@ -5,7 +5,7 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({ ShopAdmin,
     await test.step('Creates a screenshot of the Rule Builder general tab.', async () => {
         await ShopAdmin.goesTo(AdminRuleDetail.url(rule.id));
         await setViewport(AdminRuleDetail.page, {
-            waitForSelector: '.sw-condition-or-container',
+            waitForSelector: AdminRuleDetail.conditionORContainer,
         });
         await replaceElements(AdminRuleDetail.page, [
             AdminRuleDetail.header,
@@ -26,16 +26,21 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({ ShopAdmin,
                 2_500,
             ],
         });
+        // The assignment searches have already finished once the empty states are rendered, so waiting for one of their responses here would never resolve.
         await setViewport(AdminRuleDetail.page, {
-            requestURL: 'api/search/shipping-method',
+            waitForSelector: AdminRuleDetail.shippingMethodAvailabilityRulesCard,
         });
         await replaceElements(AdminRuleDetail.page, [AdminRuleDetail.header]);
         await assertScreenshot(AdminRuleDetail.page, 'Rule-Builder-Detail-Assignments.png');
     });
     await test.step('Creates a screenshot of the Rule Builder add assignments modal.', async () => {
+        const shippingMethodsLoaded = AdminRuleDetail.page.waitForResponse((response) =>
+            response.url().includes('api/search/shipping-method'),
+        );
         await AdminRuleDetail.shippingMethodAvailabilityRulesCard.getByText('Add assignment').click();
+        await shippingMethodsLoaded;
         await setViewport(AdminRuleDetail.page, {
-            requestURL: 'api/search/shipping-method',
+            waitForSelector: AdminRuleDetail.assignmentModal,
             width: 800,
             contentHeight: 600,
         });

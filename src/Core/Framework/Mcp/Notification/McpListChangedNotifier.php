@@ -22,7 +22,9 @@ use Symfony\Component\Uid\Uuid;
  * Queues `list_changed` notifications in a session's outgoing queue in the session store; the client
  * receives them with its next request. Changes for every session are pulled, not pushed: notify()
  * bumps a shared list version and syncSession() queues the notification when a session sees a version
- * it has not seen yet. See "List change notifications" in `Mcp/AGENTS.md`.
+ * it has not seen yet. Clients on the stateless era have no session; their `subscriptions/listen` streams
+ * read the same versions through {@see McpListVersionsNotificationBus}. See "List change notifications"
+ * in `Mcp/AGENTS.md`.
  */
 #[Package('framework')]
 class McpListChangedNotifier
@@ -55,8 +57,9 @@ class McpListChangedNotifier
     }
 
     /**
-     * Announces an installation-wide capability change (e.g. app install or uninstall) to every
-     * session, on every server. Costs one write; each session picks the change up on its next request.
+     * Announces an installation-wide capability change (e.g. app install or uninstall, or an allowlist edit) to every
+     * session, on every server. Costs one write; each session picks the change up on its next request,
+     * and each `subscriptions/listen` stream of the stateless era within about a second.
      */
     public function notify(McpListChangedNotificationSet $notifications): void
     {
@@ -64,7 +67,11 @@ class McpListChangedNotifier
             return;
         }
 
-        $this->listVersions?->bump($notifications);
+        if ($this->listVersions === null) {
+            return;
+        }
+
+        $this->listVersions->bump($notifications);
     }
 
     /**

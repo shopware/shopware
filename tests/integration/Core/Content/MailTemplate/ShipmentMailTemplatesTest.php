@@ -36,6 +36,8 @@ class ShipmentMailTemplatesTest extends TestCase
 
     private const FIXTURE_FOLDER = __DIR__ . '/../../../../../src/Core/Migration/Fixtures/mails/';
 
+    private const FIRST_STREET = 'First Street 1';
+
     private const SECOND_STREET = 'Second Street 2';
 
     /**
@@ -87,25 +89,57 @@ class ShipmentMailTemplatesTest extends TestCase
         static::assertStringContainsString(self::SECOND_STREET, $this->render($type, $variant, $data));
     }
 
+    #[DataProvider('templateProvider')]
+    public function testListsShipmentsByPosition(string $type, string $variant): void
+    {
+        $order = $this->loadOrder($this->createOrder(true, firstShipmentPosition: 2, secondShipmentPosition: 1));
+
+        $mail = $this->render($type, $variant, ['order' => $order]);
+
+        $secondStreetOffset = strpos($mail, self::SECOND_STREET);
+        static::assertIsInt($secondStreetOffset);
+        static::assertGreaterThan($secondStreetOffset, strpos($mail, self::FIRST_STREET));
+    }
+
     /**
-     * The order as workers of the previous version load it: its deliveries have no getShipments()
+     * The order as workers of the previous version load it: its deliveries have no getShipments() and no position
      */
     private static function asOnThePreviousVersion(OrderEntity $order): object
     {
-        /** @implements \IteratorAggregate<string, OrderDeliveryEntity> */
-        $deliveries = new class($order->getDeliveries() ?? new OrderDeliveryCollection()) implements \IteratorAggregate {
-            public function __construct(private readonly OrderDeliveryCollection $deliveries)
+        $withoutPosition = static fn (OrderDeliveryEntity $delivery): object => new class($delivery) {
+            public function __construct(private readonly OrderDeliveryEntity $delivery)
+            {
+            }
+
+            public function __isset(string $name): bool
+            {
+                return $name !== 'position' && method_exists($this->delivery, 'get' . ucfirst($name));
+            }
+
+            public function __get(string $name): mixed
+            {
+                // @phpstan-ignore method.dynamicName
+                return $this->delivery->{'get' . ucfirst($name)}();
+            }
+        };
+
+        /** @implements \IteratorAggregate<int, object> */
+        $deliveries = new class(array_values(($order->getDeliveries() ?? new OrderDeliveryCollection())->map($withoutPosition))) implements \IteratorAggregate {
+            /**
+             * @param list<object> $deliveries
+             */
+            public function __construct(private readonly array $deliveries)
             {
             }
 
             public function getIterator(): \Traversable
             {
-                return $this->deliveries->getIterator();
+                return new \ArrayIterator($this->deliveries);
             }
 
-            public function first(): ?OrderDeliveryEntity
+            public function first(): ?object
             {
-                return $this->deliveries->first();
+                return $this->deliveries[0] ?? null;
             }
         };
 
@@ -157,7 +191,7 @@ class ShipmentMailTemplatesTest extends TestCase
         );
     }
 
-    private function createOrder(bool $withSecondShipment): string
+    private function createOrder(bool $withSecondShipment, int $firstShipmentPosition = 0, int $secondShipmentPosition = 0): string
     {
         $context = Context::createDefaultContext();
         $orderId = Uuid::randomHex();
@@ -172,10 +206,13 @@ class ShipmentMailTemplatesTest extends TestCase
         ]];
 
         if ($withSecondShipment) {
+            $orderData[0]['deliveries'][0]['position'] = $firstShipmentPosition;
+            $orderData[0]['deliveries'][0]['shippingOrderAddress']['street'] = self::FIRST_STREET;
             $firstDelivery = $orderData[0]['deliveries'][0];
 
-            foreach ([[5.0, self::SECOND_STREET], [-2.0, $firstDelivery['shippingOrderAddress']['street']]] as [$shippingCosts, $street]) {
+            foreach ([[5.0, self::SECOND_STREET, $secondShipmentPosition], [-2.0, self::FIRST_STREET, 3]] as [$shippingCosts, $street, $position]) {
                 $orderData[0]['deliveries'][] = [
+                    'position' => $position,
                     'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                     'shippingMethodId' => $firstDelivery['shippingMethodId'],
                     'shippingCosts' => new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()),

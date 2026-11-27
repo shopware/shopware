@@ -132,6 +132,9 @@
                 "product_stream": {
                     "$ref": "#/definitions/product_stream"
                 },
+                "product_documents": {
+                    "$ref": "#/definitions/product_documents"
+                },
                 "mcp": {
                     "$ref": "#/definitions/mcp"
                 },
@@ -303,6 +306,25 @@
             },
             "title": "Product Stream"
         },
+        "product_documents": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_extensions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "max_file_size": {
+                    "type": [
+                        "integer",
+                        "string"
+                    ]
+                }
+            },
+            "title": "Product Documents"
+        },
         "webhook": {
             "type": "object",
             "additionalProperties": false,
@@ -395,6 +417,31 @@
                     "type": "integer",
                     "minimum": 60,
                     "title": "Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer."
+                },
+                "protocol_era": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "admin": {
+                            "type": "string",
+                            "enum": [
+                                "legacy",
+                                "auto"
+                            ],
+                            "default": "legacy",
+                            "title": "MCP protocol revisions the Admin API endpoint serves. \"legacy\" serves the handshake revisions up to 2025-11-25. \"auto\" also serves the stateless 2026-07-28 revision, and the client picks."
+                        },
+                        "store_api": {
+                            "type": "string",
+                            "enum": [
+                                "legacy",
+                                "auto"
+                            ],
+                            "default": "legacy",
+                            "title": "MCP protocol revisions the Store API endpoint serves. \"legacy\" serves the handshake revisions up to 2025-11-25. \"auto\" also serves the stateless 2026-07-28 revision, and the client picks."
+                        }
+                    },
+                    "title": "MCP protocol revisions each endpoint serves."
                 }
             },
             "title": "MCP (Model Context Protocol)"
@@ -598,6 +645,9 @@
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "import_export_file_download": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "checkout_draft": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "mcp": {
@@ -1630,6 +1680,14 @@
                 "use_local_filesystem": {
                     "type": "boolean",
                     "default": false
+                },
+                "archive_manifest_url": {
+                    "description": "Manifest of the archive with all translations. When set, `translation:download` and `translation:install --all` download all locales as one archive.",
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "default": null
                 },
                 "scheduled_task": {
                     "type": "object",

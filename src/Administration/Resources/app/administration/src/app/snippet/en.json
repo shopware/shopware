@@ -77,6 +77,9 @@
         "saveError": "The appearance could not be changed"
       }
     },
+    "sw-extension-floating-section": {
+      "label": "Content from extensions"
+    },
     "theme": {
       "names": {
         "light": "Light",
@@ -1254,7 +1257,8 @@
       }
     },
     "sw-page": {
-      "backButton": "Go back"
+      "backButton": "Go back",
+      "backButtonTo": "Back to {title}"
     }
   },
   "sw-text-editor-toolbar": {

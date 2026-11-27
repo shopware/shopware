@@ -412,6 +412,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DocumentRoute::class),
             service(LogoutRoute::class),
+            param('shopware.security.private_media_csp'),
         ])
         ->call('setContainer', [service('service_container')]);
 

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEn
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RegisterScheduledTaskMessage;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
@@ -31,14 +32,14 @@ use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 class MessageGroupResolverTest extends TestCase
 {
     /**
-     * Should correspond to metric definition in the tememetry.yaml
+     * Should correspond to the metric definition in telemetry.yaml
      */
     private const KNOWN_GROUPS = ['indexer', 'webhook', 'scheduled-task', 'mail', 'business', 'system', 'other'];
 
     #[DataProvider('messageProvider')]
     public function testResolve(string $messageClass, string $expected): void
     {
-        $resolved = (new MessageGroupResolver())->resolve($messageClass);
+        $resolved = $this->createResolver()->resolve($messageClass);
         static::assertSame($expected, $resolved);
         // Hard guard of the documented output set
         static::assertContains($resolved, self::KNOWN_GROUPS);
@@ -78,5 +79,29 @@ class MessageGroupResolverTest extends TestCase
 
         // unknown/plugin messages fall through to other
         yield 'unknown plugin message is other' => ['Swag\\Example\\Message\\DoThingMessage', 'other'];
+    }
+
+    public function testPluginOptsInWithPrefixEntry(): void
+    {
+        $resolver = $this->createResolver(['Swag\\Example\\Message\\*' => 'blog']);
+
+        static::assertSame('blog', $resolver->resolve('Swag\\Example\\Message\\DoThingMessage'));
+    }
+
+    public function testConfiguredEntryBeatsCodeLevelClassification(): void
+    {
+        // configured beats code-level: an extension or operator can correct the heuristic
+        $resolver = $this->createResolver([CleanupCartTask::class => 'cart']);
+
+        static::assertSame('cart', $resolver->resolve(CleanupCartTask::class));
+    }
+
+    /**
+     * @param array<string, string> $entries
+     */
+    private function createResolver(array $entries = []): MessageGroupResolver
+    {
+        // core ships an empty table: the core grouping is the resolver's code-level rule
+        return new MessageGroupResolver(new LabelMappingRegistry([MessageGroupResolver::MAPPING => $entries], 'other'));
     }
 }

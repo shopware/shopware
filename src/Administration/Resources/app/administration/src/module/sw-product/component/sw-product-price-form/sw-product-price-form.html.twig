@@ -45,9 +45,9 @@
             <sw-inherit-wrapper
                 label=" "
                 class="sw-product-price-form__price-list"
-                :value="getLegacyPrices()"
+                :value="readLegacyComputed('prices')"
                 :has-parent="!!parentProduct.id"
-                :inherited-value="getLegacyParentPrices()"
+                :inherited-value="readLegacyComputed('parentPrices')"
                 :custom-remove-inheritance-function="legacyRemovePriceInheritation"
                 :custom-inheritation-check-function="legacyInheritationCheckFunction"
                 @update:value="setLegacyPrices"

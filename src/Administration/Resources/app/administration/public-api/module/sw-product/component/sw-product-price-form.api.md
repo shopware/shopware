@@ -48,8 +48,6 @@ methods
   copyDefaultCurrencyPrice(prices: any, fallbackValue: any): any  [private]
   copyDefaultPrice(prices: any): any
   copyDefaultPurchasePrice(prices: any): any
-  getLegacyParentPrices(): any  [private]
-  getLegacyPrices(): any  [private]
   getTaxLabel(tax: any): any
   inheritationCheckFunction(): any  [deprecated tag:v6.8.0]
   isPriceInherited(prices: any): any

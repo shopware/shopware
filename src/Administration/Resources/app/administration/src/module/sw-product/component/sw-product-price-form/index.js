@@ -228,7 +228,7 @@ export default {
                 'sw-product-price-form.inheritationCheckFunction() is deprecated. Use isPriceInherited() instead.',
             );
 
-            const prices = this.getLegacyPrices();
+            const prices = this.readLegacyComputed('prices');
 
             return !prices.price.length && !prices.purchasePrices.length;
         },
@@ -249,16 +249,6 @@ export default {
         },
 
         /**
-         * Reads the deprecated `prices` for the legacy layout without reporting core's own usage.
-         * Remove it with the legacy layout in v6.8.0.
-         *
-         * @private
-         */
-        getLegacyPrices() {
-            return this.readLegacyComputed('prices');
-        },
-
-        /**
          * Writes the deprecated `prices` for the legacy layout without reporting core's own usage.
          * Remove it with the legacy layout in v6.8.0.
          *
@@ -268,16 +258,6 @@ export default {
             Shopware.Feature.silence('V6_8_0_0', () => {
                 this.prices = newValue;
             });
-        },
-
-        /**
-         * Reads the deprecated `parentPrices` for the legacy layout without reporting core's own usage.
-         * Remove it with the legacy layout in v6.8.0.
-         *
-         * @private
-         */
-        getLegacyParentPrices() {
-            return this.readLegacyComputed('parentPrices');
         },
 
         /**

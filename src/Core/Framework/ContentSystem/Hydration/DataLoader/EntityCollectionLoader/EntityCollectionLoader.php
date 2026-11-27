@@ -159,13 +159,13 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $tags = [];
 
         foreach ($entities as $entity) {
-            $tag = $this->cacheTagResolver->resolve($definition, $entity->getUniqueIdentifier());
+            $entityTags = $this->cacheTagResolver->resolve($definition, $entity->getUniqueIdentifier());
 
-            if ($tag === null) {
+            if ($entityTags === null) {
                 return ContentDataLoaderResult::uncacheable($entities);
             }
 
-            $tags[] = $tag;
+            array_push($tags, ...$entityTags);
         }
 
         return ContentDataLoaderResult::cached($entities, ...$tags);

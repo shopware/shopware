@@ -112,7 +112,7 @@ class EntityCollectionLoaderTest extends TestCase
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')
-            ->willReturnCallback(static fn (EntityDefinition $def, string $id) => 'tag-' . $id);
+            ->willReturnCallback(static fn (EntityDefinition $def, string $id) => ['tag-' . $id]);
 
         $loader = $this->createLoaderWithSalesChannelRepo(
             'product',
@@ -132,6 +132,24 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertContains('tag-' . $id1, $result->getCacheTags());
         static::assertContains('tag-' . $id2, $result->getCacheTags());
         static::assertCount(2, $result->getCacheTags());
+    }
+
+    #[TestDox('returns cached media without tags, the tags of the rendered layout evict them')]
+    public function testLoadReturnsCachedMediaWithoutTags(): void
+    {
+        $id1 = $this->ids->get('media-one');
+        $id2 = $this->ids->get('media-two');
+
+        $loader = $this->createLoaderWithSalesChannelRepo(
+            'media',
+            new EntityCollection([$this->createEntityWithId($id1), $this->createEntityWithId($id2)]),
+            new EntityCacheTagResolver(),
+        );
+
+        $result = $loader->load(self::inputs('media', [$id1, $id2]), self::requirement(), Generator::generateSalesChannelContext(), new Request());
+
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
     #[TestDox('lowercases entity IDs before loading')]
@@ -338,7 +356,7 @@ class EntityCollectionLoaderTest extends TestCase
         $defRegistry->register($definition);
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn('category-route-' . $categoryId);
+        $cacheTagResolver->method('resolve')->willReturn(['category-route-' . $categoryId]);
 
         $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')

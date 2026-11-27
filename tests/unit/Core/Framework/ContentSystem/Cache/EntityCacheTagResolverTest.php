@@ -18,27 +18,31 @@ use Shopware\Core\Framework\Log\Package;
 class EntityCacheTagResolverTest extends TestCase
 {
     /**
-     * @return \Generator<string, array{string, string}>
+     * @return \Generator<string, array{string, list<string>}>
      */
     public static function knownEntityProvider(): \Generator
     {
-        yield 'product' => ['product', 'product-abc123'];
-        yield 'category' => ['category', 'category-route-abc123'];
-        yield 'landing page' => ['landing_page', 'landing-page-route-abc123'];
-        yield 'cms page' => ['cms_page', 'cms-page-abc123'];
-        yield 'product stream' => ['product_stream', 'product-stream-abc123'];
+        yield 'product' => ['product', ['product-abc123']];
+        yield 'category' => ['category', ['category-route-abc123']];
+        yield 'landing page' => ['landing_page', ['landing-page-route-abc123']];
+        yield 'cms page' => ['cms_page', ['cms-page-abc123']];
+        yield 'product stream' => ['product_stream', ['product-stream-abc123']];
+        yield 'media, evicted by the tags of the rendered layout' => ['media', []];
     }
 
+    /**
+     * @param list<string> $expectedTags
+     */
     #[DataProvider('knownEntityProvider')]
-    #[TestDox('resolves $entityName to cache tag with correct prefix')]
-    public function testResolvesKnownEntityTypesToCacheTags(string $entityName, string $expectedTag): void
+    #[TestDox('resolves $entityName to its cache tags')]
+    public function testResolvesKnownEntityTypesToCacheTags(string $entityName, array $expectedTags): void
     {
         $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn($entityName);
 
         $resolver = new EntityCacheTagResolver();
 
-        static::assertSame($expectedTag, $resolver->resolve($definition, 'abc123'));
+        static::assertSame($expectedTags, $resolver->resolve($definition, 'abc123'));
     }
 
     #[TestDox('returns null for unsupported entity type')]

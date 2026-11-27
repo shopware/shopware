@@ -82,6 +82,8 @@ final readonly class StoredTree
     /**
      * The ids of an entity every element of the tree stores, see {@see StoredElement::getEntityIds()}
      *
+     * @internal
+     *
      * @return list<string>
      */
     public function getEntityIds(string $entity): array

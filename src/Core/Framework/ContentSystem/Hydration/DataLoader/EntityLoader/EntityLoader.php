@@ -155,13 +155,13 @@ class EntityLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        $cacheTag = $this->cacheTagResolver->resolve($definition, $entityId);
+        $cacheTags = $this->cacheTagResolver->resolve($definition, $entityId);
 
-        if ($cacheTag === null) {
+        if ($cacheTags === null) {
             return ContentDataLoaderResult::uncacheable($entity);
         }
 
-        return ContentDataLoaderResult::cached($entity, $cacheTag);
+        return ContentDataLoaderResult::cached($entity, ...$cacheTags);
     }
 
     /**

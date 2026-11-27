@@ -109,7 +109,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->willReturn(static::createStub(EntityDefinition::class));
 
         $this->cacheTagResolver->method('resolve')
-            ->willReturn($tagPrefix . $entityId);
+            ->willReturn([$tagPrefix . $entityId]);
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
@@ -164,7 +164,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $this->cacheTagResolver->method('resolve')
             ->willReturnCallback(fn (EntityDefinition $def, string $id) => match ($id) {
-                $productIdA => 'product-' . $productIdA,
+                $productIdA => ['product-' . $productIdA],
                 default => null,
             });
 
@@ -266,7 +266,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->willReturn(static::createStub(EntityDefinition::class));
 
         $this->cacheTagResolver->method('resolve')
-            ->willReturn('product-entity-id');
+            ->willReturn(['product-entity-id']);
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')

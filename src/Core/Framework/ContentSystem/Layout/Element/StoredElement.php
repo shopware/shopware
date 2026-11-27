@@ -69,6 +69,8 @@ final readonly class StoredElement implements \JsonSerializable
      * `entity_collection` loader for the entity names the stored key holding an id, or a list of ids.
      * A mapped value stores no id and is not returned.
      *
+     * @internal
+     *
      * @return list<string>
      */
     public function getEntityIds(string $entity): array

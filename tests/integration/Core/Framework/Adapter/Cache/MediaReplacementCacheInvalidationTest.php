@@ -12,17 +12,22 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Replacing the file of a media item must invalidate every cache tag of a response that renders the media.
@@ -278,11 +283,54 @@ class MediaReplacementCacheInvalidationTest extends TestCase
             ]],
         ]], $this->context);
 
+        $layoutTag = ContentSection::MAIN->buildLayoutTag($this->ids->get('content-layout'));
+        static::assertContains($layoutTag, $this->renderCategoryContentAndCollectTags($this->ids->get('content-layout')), 'the cached page must carry the tag of its content layout');
+
         $tags = $this->replaceFileAndCollectInvalidatedTags($this->ids->get('media'));
 
+        static::assertContains($layoutTag, $tags, 'replacing the media must invalidate the tag the cached page carries');
         foreach (ContentSection::cases() as $section) {
             static::assertContains($section->buildLayoutTag($this->ids->get('content-layout')), $tags);
         }
+    }
+
+    /**
+     * Renders the layout assigned to a new category, asserts the response stays cacheable and returns its tags
+     *
+     * @return list<string>
+     */
+    private function renderCategoryContentAndCollectTags(string $layoutId): array
+    {
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->get('category'),
+            'name' => 'category',
+            'active' => true,
+        ]], $this->context);
+
+        static::getContainer()->get('category_content_layout.repository')->create([[
+            'id' => $this->ids->get('category-content-layout'),
+            'categoryId' => $this->ids->get('category'),
+            'salesChannelId' => null,
+            'contentLayoutId' => $layoutId,
+        ]], $this->context);
+
+        $request = new Request();
+        $requestStack = static::getContainer()->get('request_stack');
+        $requestStack->push($request);
+
+        try {
+            static::getContainer()->get(AbstractContentRoute::class)->load(
+                '/category/' . $this->ids->get('category'),
+                $request,
+                static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL)
+            );
+        } finally {
+            $requestStack->pop();
+        }
+
+        static::assertNotFalse($request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE), 'the page showing the media must be cacheable');
+
+        return static::getContainer()->get(CacheTagCollector::class)->get($request);
     }
 
     /**

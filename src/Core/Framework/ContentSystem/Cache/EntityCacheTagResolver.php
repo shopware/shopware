@@ -3,10 +3,14 @@
 namespace Shopware\Core\Framework\ContentSystem\Cache;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
@@ -24,26 +28,18 @@ use Shopware\Core\Framework\Log\Package;
 class EntityCacheTagResolver
 {
     /**
-     * @var array<string, string>
+     * @return list<string>|null
      */
-    private const TAG_PATTERNS = [
-        ProductDefinition::ENTITY_NAME => 'product-',
-        CategoryDefinition::ENTITY_NAME => 'category-route-',
-        LandingPageDefinition::ENTITY_NAME => 'landing-page-route-',
-        CmsPageDefinition::ENTITY_NAME => 'cms-page-',
-        ProductStreamDefinition::ENTITY_NAME => 'product-stream-',
-    ];
-
-    public function resolve(EntityDefinition $definition, string $primaryKey): ?string
+    public function resolve(EntityDefinition $definition, string $primaryKey): ?array
     {
-        $entityName = $definition->getEntityName();
-
-        $prefix = self::TAG_PATTERNS[$entityName] ?? null;
-
-        if ($prefix === null) {
-            return null;
-        }
-
-        return $prefix . $primaryKey;
+        return match ($definition->getEntityName()) {
+            ProductDefinition::ENTITY_NAME => [EntityCacheKeyGenerator::buildProductTag($primaryKey)],
+            CategoryDefinition::ENTITY_NAME => [CategoryRoute::buildName($primaryKey)],
+            LandingPageDefinition::ENTITY_NAME => [LandingPageRoute::buildName($primaryKey)],
+            CmsPageDefinition::ENTITY_NAME => [EntityCacheKeyGenerator::buildCmsTag($primaryKey)],
+            ProductStreamDefinition::ENTITY_NAME => [EntityCacheKeyGenerator::buildStreamTag($primaryKey)],
+            MediaDefinition::ENTITY_NAME => [],
+            default => null,
+        };
     }
 }

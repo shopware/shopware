@@ -21,8 +21,9 @@ HTTP cache integration for content system routes. Manages cache tag collection d
 | product_stream | `product-stream-{id}`     |
 
 Unsupported entities return null → page becomes uncacheable.
+A media resolves to no tags but stays cacheable, the layout storing its id is evicted through the media usage table, see Invalidation.
 
-Category `category.media` mappings additionally record `content-system-mapped-media-{id}` for the media entity actually returned by the provider. The tag is added to the caller's rendering cache context and forwarded by `CacheFinalizer`. Reading only category text does not add it, even if the loaded category also has media. This does not add generic media support to `EntityCacheTagResolver` or make standalone media loaders cacheable.
+Category `category.media` mappings additionally record `content-system-mapped-media-{id}` for the media entity actually returned by the provider. The tag is added to the caller's rendering cache context and forwarded by `CacheFinalizer`. Reading only category text does not add it, even if the loaded category also has media. This does not add a tag pattern for media to `EntityCacheTagResolver`.
 
 ## Invalidation
 

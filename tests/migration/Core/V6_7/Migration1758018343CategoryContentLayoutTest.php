@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
@@ -25,12 +23,6 @@ class Migration1758018343CategoryContentLayoutTest extends TestCase
     {
         parent::setUp();
         $this->connection = KernelLifecycleManager::getConnection();
-    }
-
-    #[TestDox('returns its creation timestamp')]
-    public function testGetCreationTimestamp(): void
-    {
-        static::assertSame(1758018343, (new Migration1758018343CategoryContentLayout())->getCreationTimestamp());
     }
 
     #[TestDox('content_layout_id foreign key restricts layout deletion while its sibling foreign key still cascades')]

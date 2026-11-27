@@ -3,12 +3,7 @@ export default class ProductListing extends ShopwareComponent {
     static options = {
         contentUrl: null,
         pageParamName: 'p',
-        layoutParamName: 'listingLayout',
         sortingParamName: 'order',
-        layoutGridClasses: {
-            horizontal: ['columns-1'],
-            default: ['columns-xs-1', 'columns-sm-2', 'columns-md-3', 'columns-lg-4', 'columns-xl-4'],
-        },
     };
 
     init() {
@@ -22,17 +17,27 @@ export default class ProductListing extends ShopwareComponent {
 
             // contentUrl (Twig path()) already carries the base path and elementId; add the runtime params.
             const url = new URL(this.options.contentUrl, window.location.origin);
-            Object.entries(this.activeParams).forEach(([key, value]) => url.searchParams.set(key, value));
+            const params = new URLSearchParams(this.activeParams);
+            params.forEach((value, key) => url.searchParams.set(key, value));
 
             const response = await fetch(url);
             const html = await response.text();
+            if (params.toString() !== new URLSearchParams(this.activeParams).toString()) {
+                return;
+            }
+
             const fresh = this.domParser
                 .parseFromString(html, 'text/html')
                 .querySelector(`[data-element-id="${this.el.dataset.elementId}"]`);
 
             // Replacing the element re-initializes it; the component system rebinds on the fresh node.
             if (fresh) {
+                const layoutSwitchFocused = this.el.contains(document.activeElement)
+                    && document.activeElement.matches('.sw-product-layout-switch [data-layout]');
                 this.el.replaceWith(fresh);
+                if (layoutSwitchFocused) {
+                    fresh.querySelector('.sw-product-layout-switch [data-layout].is--active')?.focus();
+                }
             } else {
                 this.el.classList.remove('is--loading');
             }
@@ -132,7 +137,8 @@ export default class ProductListing extends ShopwareComponent {
 
     handleLayoutChange(name, layout) {
         this.activeParams[name] = layout;
-        this.changeLayout(layout);
+        this.updateHistory();
+        this.loadListing();
     }
 
     handleSortingChange(sorting) {
@@ -156,36 +162,6 @@ export default class ProductListing extends ShopwareComponent {
 
     loadListing() {
         this.debouncedLoad();
-    }
-
-    changeLayout(layout) {
-        const gridContainer = this.el.querySelector('.sw-product-listing__grid');
-        const grid = gridContainer.querySelector('.sw-grid-container__inner');
-        const productCards = grid.querySelectorAll('.sw-product-card');
-        const gridClasses = this.options.layoutGridClasses;
-        const layoutClasses = Object.keys(this.options.layoutGridClasses).map(layout => `is--layout-${layout}`);
-
-        grid.classList.add('is--layout-transition');
-
-        setTimeout(() => {
-            productCards.forEach((card) => {
-                card.classList.remove(...layoutClasses);
-                card.classList.add(`is--layout-${layout}`);
-            });
-
-            const removeGridClasses = Object.keys(gridClasses).map(layoutName => {
-                if (layoutName !== layout) {
-                    return gridClasses[layoutName];
-                }
-            });
-
-            grid.classList.remove(...removeGridClasses.flat());
-            grid.classList.add(...gridClasses[layout]);
-            grid.classList.remove('is--layout-transition');
-
-            this.activeParams[this.options.layoutParamName] = layout;
-            this.updateHistory();
-        }, 200);
     }
 
     destroy() {

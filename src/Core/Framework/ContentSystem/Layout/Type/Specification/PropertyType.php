@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * $type accepts primitives (`string`, `integer`, `boolean`, `number`), `object`,
+ * $type accepts primitives (`string`, `integer`, `boolean`, `number`), `object`, `array`,
  * class-string<Struct> FQCNs, and lists for union-like declarations.
  * `enum` is ignored for non-primitive types; `translatable` is a declaration error on any type but a lone
  * primitive. {@see TypedEnumValidator} {@see TranslatableTypeValidator}
@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *     contextTypes: list<string>,
  *     translatable: bool,
  *     enum: list<string|int|float|bool>|null,
+ *     items?: array<string, mixed>,
  *     default: string|int|float|bool|null,
  *     properties: array<string, array<string, mixed>>|null
  * }
@@ -39,9 +40,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 final readonly class PropertyType
 {
     /**
-     * The canonical primitive type set: any other `type` value is a `class-string<Struct>` FQCN.
+     * The canonical primitive type set. A `type` value outside it and {@see STRUCTURED_TYPES} is a
+     * `class-string<Struct>` FQCN.
      */
     public const PRIMITIVE_TYPES = ['string', 'integer', 'number', 'boolean'];
+
+    /**
+     * The non-primitive types that describe an authored value instead of naming a class.
+     */
+    public const STRUCTURED_TYPES = ['object', 'array'];
 
     /**
      * @param string|list<string> $type
@@ -54,6 +61,7 @@ final readonly class PropertyType
         private ?array $enum,
         private string|int|float|bool|null $default,
         private ?array $properties = null,
+        private ?PropertySpecification $items = null,
     ) {
     }
 
@@ -78,6 +86,7 @@ final readonly class PropertyType
             'enum' => $this->enum,
             'default' => $this->default,
             'properties' => $properties,
+            ...($this->items !== null ? ['items' => $this->items->toSchema()] : []),
         ];
     }
 
@@ -187,6 +196,24 @@ final readonly class PropertyType
     public function isPrimitive(): bool
     {
         return \in_array($this->type, self::PRIMITIVE_TYPES, true);
+    }
+
+    /**
+     * The class a loader or a context delivery fills this property with, or null when the stored value is served
+     * as authored: a primitive, a structured type and every union.
+     */
+    public function referenceFqcn(): ?string
+    {
+        return \is_string($this->type) && self::namesReference($this->type) ? $this->type : null;
+    }
+
+    /**
+     * Whether one declared type name is a class reference. Raw type declarations are read with it before a
+     * {@see PropertyType} exists.
+     */
+    public static function namesReference(string $type): bool
+    {
+        return !\in_array($type, self::PRIMITIVE_TYPES, true) && !\in_array($type, self::STRUCTURED_TYPES, true);
     }
 
     /**
@@ -350,6 +377,10 @@ final readonly class PropertyType
      */
     private function contextTypesFor(string $type): array
     {
+        if ($type === 'array') {
+            return [ContextType::Collection->value];
+        }
+
         // Bare `object` names an object without naming which, so it rules nothing out.
         if ($type === 'object') {
             return [ContextType::Single->value, ContextType::Collection->value];

@@ -22,14 +22,13 @@ layout:
         - component: Sw:Product:VariantSelection
         - component: Sw:Grid:Container
           properties:
-            mode: explicit
-            columns:
-              xs: 1
-              sm: 3
-              md: 3
-              lg: 3
-              xl: 3
-            rows: 1
+            gridLayout:
+              lg:
+                columns: [{ type: fraction, value: 4 }, { type: auto }]
+                areas: [[a1, a2]]
+              xs:
+                columns: [{ type: auto }]
+                areas: [[a1]]
             gap: 16
             align: start
             margin:
@@ -43,13 +42,6 @@ layout:
             content:
               - component: Sw:Product:QuantitySelector
               - component: Sw:Product:BuyButton
-                style:
-                  col-span:
-                    sm: 2
-                    md: 2
-                    lg: 2
-                    xl: 2
-                    xxl: 2
         - component: Sw:Content:Text
           properties:
             text: "<p><strong>Product number:</strong> {{map:product.productNumber}}</p>"

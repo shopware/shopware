@@ -380,7 +380,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
             'id' => $this->ids->get('root-grid'),
             'component' => 'Sw:Grid:Container',
             'properties' => [],
-            'style' => ['col-span' => ['xs' => 6]],
+            'style' => ['test-responsive-integer' => ['xs' => 6]],
             'slots' => [
                 'content' => [
                     [
@@ -392,7 +392,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
                         'id' => $this->ids->get('inner-grid'),
                         'component' => 'Sw:Grid:Container',
                         'properties' => [],
-                        'style' => ['col-span' => ['md' => 4]],
+                        'style' => ['test-responsive-integer' => ['md' => 4]],
                         'slots' => [
                             'content' => [[
                                 'id' => $this->ids->get('image'),

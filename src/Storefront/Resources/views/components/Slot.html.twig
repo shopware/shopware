@@ -6,6 +6,7 @@
     name = null,
     elements = [],
     maxScopeDepth = 6,
+    gridItems = false,
 %}
 
 {% if elements is empty and name is not null %}
@@ -32,6 +33,8 @@
 {% endif %}
 
 {% if elements is not empty %}
+    {% set breakpoints = enum_cases('Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\Breakpoint') %}
+    {% set gridItemAlignmentOptions = ['align-self', 'justify-self'] %}
     {% block elements %}
         {% for element in elements %}
             {% set elementProperties = element.properties %}
@@ -46,21 +49,40 @@
             {% endif %}
 
             {% set elementStyleClasses = '' %}
+            {% set gridItemDisplayClasses = '' %}
+            {% set gridItemAlignmentClasses = '' %}
 
             {% if element.style.values is not empty %}
                 {% for optionName, optionValue in element.style.values %}
-                    {% if optionValue is mapping %}
-                        {% for viewport, value in optionValue %}
-                            {% if value is not empty and value is not null and value is not same as(false) %}
-                                {% if value is same as(true) %}
-                                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
-                                {% else %}
-                                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}
-                                {% endif %}
+                    {% if optionName == 'display' and optionValue is mapping %}
+                        {% set visibilityClasses = '' %}
+                        {% for breakpoint in breakpoints %}
+                            {% if breakpoint.resolve(optionValue) %}
+                                {% set visibilityClasses = visibilityClasses ~ ' display-' ~ breakpoint.value %}
                             {% endif %}
                         {% endfor %}
-                    {% elseif optionValue is not empty %}
-                        {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ optionValue %}
+                        {% set visibilityClasses = visibilityClasses ?: ' d-none' %}
+                        {% if gridItems %}
+                            {% set gridItemDisplayClasses = visibilityClasses %}
+                        {% else %}
+                            {% set elementStyleClasses = elementStyleClasses ~ visibilityClasses %}
+                        {% endif %}
+                    {% elseif optionValue is mapping or optionValue is not empty %}
+                        {% set optionClasses = '' %}
+                        {% if optionValue is mapping %}
+                            {% for breakpoint in breakpoints %}
+                                {% set value = breakpoint.resolve(optionValue) %}
+                                {% if value is not empty and value is not null and value is not same as(false) %}
+                                    {% set optionClasses = optionClasses ~ ' ' ~ optionName ~ '-' ~ breakpoint.value ~ (value is same as(true) ? '' : '-' ~ value) %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {% set optionClasses = ' ' ~ optionName ~ '-' ~ optionValue %}
+                        {% endif %}
+                        {% set elementStyleClasses = elementStyleClasses ~ optionClasses %}
+                        {% if gridItems and optionName in gridItemAlignmentOptions %}
+                            {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ optionClasses %}
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
             {% endif %}
@@ -69,7 +91,11 @@
                 {% set elementProperties = elementProperties|merge({ 'class': elementStyleClasses|trim }) %}
             {% endif %}
 
-            {{ component(element.component, elementProperties) }}
+            {% if gridItems %}
+                <div class="sw-grid-container__item{{ gridItemDisplayClasses }}{{ gridItemAlignmentClasses }}">{{ component(element.component, elementProperties) }}</div>
+            {% else %}
+                {{ component(element.component, elementProperties) }}
+            {% endif %}
         {% endfor %}
     {% endblock %}
 {% else %}

@@ -1,0 +1,293 @@
+<div class="sw-experience-studio-grid-editor">
+    <div class="sw-experience-studio-grid-editor__breakpoint-heading">
+        <h3 class="sw-experience-studio-grid-editor__heading">
+            {{ label || $t('sw-experience-studio.elements.grid-container.gridLayout.title') }}
+        </h3>
+        <breakpoint-select
+            :model-value="breakpoint"
+            :overrides="overrides"
+            :can-reset="allowEdit && draggingColumnId === null"
+            :invalid-breakpoints="invalidBreakpoints"
+            @update:model-value="setBreakpoint"
+            @reset="resetBreakpoint"
+        />
+    </div>
+    <div class="sw-experience-studio-grid-editor__column-list">
+        <transition-group
+            name="sw-experience-studio-grid-editor__column"
+            tag="div"
+        >
+            <div
+                v-for="(column, index) in pattern.columns"
+                :key="column.id"
+                v-draggable="{ disabled: !canMove, dragGroup: 'grid-columns', data: column.id, onDragStart: onColumnDragStart, cancelOnUnmount: true }"
+                class="sw-experience-studio-grid-editor__column-entry"
+                :data-column-id="column.id"
+            >
+                <div class="sw-experience-studio-grid-editor__column">
+                    <button
+                        type="button"
+                        class="sw-experience-studio-grid-editor__handle"
+                        :disabled="!canMove"
+                        :title="$t('sw-experience-studio.gridEditor.move')"
+                    >
+                        <mt-icon
+                            name="regular-grip-vertical"
+                            size="16px"
+                            decorative
+                        />
+                    </button>
+                    <div
+                        class="sw-experience-studio-grid-editor__column-fields"
+                        @mousedown.stop
+                        @touchstart.stop
+                    >
+                        <mt-text-field
+                            v-if="column.type === 'px' || column.type === 'percent'"
+                            v-numeric-input
+                            class="sw-experience-studio-grid-editor__column-width sw-experience-studio-grid-editor__column-width--numeric"
+                            size="small"
+                            :class="{ 'has--error': focusedColumnId !== column.id && invalidColumn(column) }"
+                            :model-value="column.value"
+                            :disabled="!allowEdit"
+                            :label="`${$t('sw-experience-studio.gridEditor.width')} ${index + 1}`"
+                            @focus="focusedColumnId = column.id"
+                            @blur="focusedColumnId = null"
+                            @update:model-value="setColumnValue(index, $event)"
+                        />
+                        <mt-select
+                            v-if="column.type === 'fraction'"
+                            class="sw-experience-studio-grid-editor__column-width"
+                            small
+                            :enable-search="false"
+                            hide-clearable-button
+                            :model-value="column.value === null ? null : Number(column.value)"
+                            :options="fractionOptions"
+                            :disabled="!allowEdit"
+                            :label="`${$t('sw-experience-studio.gridEditor.width')} ${index + 1}`"
+                            @update:model-value="setColumnValue(index, $event)"
+                        />
+                        <mt-select
+                            class="sw-experience-studio-grid-editor__column-type"
+                            :class="{ 'sw-experience-studio-grid-editor__column-type--compact': column.type !== 'auto' }"
+                            small
+                            :enable-search="false"
+                            hide-clearable-button
+                            :model-value="column.type"
+                            :options="typeOptions(index)"
+                            :disabled="!allowEdit"
+                            :label="`${$t('sw-experience-studio.gridEditor.type')} ${index + 1}`"
+                            @update:model-value="setColumnType(index, $event)"
+                        >
+                            <template #result-label-property="{ item }">
+                                <span class="sw-experience-studio-grid-editor__unit-option">{{ item.label }}</span>
+                            </template>
+                        </mt-select>
+                    </div>
+                    <mt-dropdown-menu-root :modal="false">
+                        <mt-dropdown-menu-trigger as-child>
+                            <mt-button
+                                variant="tertiary"
+                                size="small"
+                                square
+                                :aria-label="`${$t('sw-experience-studio.gridEditor.columnActions')} ${index + 1}`"
+                                @mousedown.stop
+                                @touchstart.stop
+                            >
+                                <mt-icon
+                                    name="solid-ellipsis-h-s"
+                                    decorative
+                                />
+                            </mt-button>
+                        </mt-dropdown-menu-trigger>
+                        <mt-dropdown-menu-portal>
+                            <mt-action-menu align="end">
+                                <mt-action-menu-item
+                                    icon="regular-long-arrow-up"
+                                    :disabled="!canMove || index === 0"
+                                    @select="moveColumn(index, index - 1)"
+                                >
+                                    {{ $t('sw-experience-studio.gridEditor.moveUp') }}
+                                </mt-action-menu-item>
+                                <mt-action-menu-item
+                                    icon="regular-long-arrow-down"
+                                    :disabled="!canMove || index === pattern.columns.length - 1"
+                                    @select="moveColumn(index, index + 1)"
+                                >
+                                    {{ $t('sw-experience-studio.gridEditor.moveDown') }}
+                                </mt-action-menu-item>
+                                <mt-action-menu-item
+                                    variant="critical"
+                                    icon="regular-trash"
+                                    :disabled="!canRemoveColumn(index)"
+                                    @select="removeColumn(index)"
+                                >
+                                    {{ $t('global.default.remove') }}
+                                </mt-action-menu-item>
+                            </mt-action-menu>
+                        </mt-dropdown-menu-portal>
+                    </mt-dropdown-menu-root>
+                </div>
+                <mt-text
+                    v-if="(column.type === 'px' || column.type === 'percent') && focusedColumnId !== column.id && invalidColumn(column)"
+                    class="sw-experience-studio-grid-editor__column-error"
+                    size="xs"
+                    color="color-text-critical-default"
+                    as="div"
+                    role="alert"
+                >
+                    {{ $t(column.type === 'percent' ? 'sw-experience-studio.gridEditor.invalidPercentWidth' : 'sw-experience-studio.gridEditor.invalidPixelWidth') }}
+                </mt-text>
+            </div>
+        </transition-group>
+        <div class="sw-experience-studio-grid-editor__add">
+            <mt-button
+                size="small"
+                variant="tertiary"
+                :disabled="!allowEdit || pattern.columns.length >= 12"
+                @click="addColumn"
+            >
+                <mt-icon
+                    name="regular-plus-s"
+                    size="12px"
+                    decorative
+                />
+                {{ $t('sw-experience-studio.gridEditor.addColumn') }}
+            </mt-button>
+        </div>
+        <p
+            v-if="relativeUnits > 300"
+            class="sw-experience-studio-grid-editor__warning"
+        >
+            {{ $t('sw-experience-studio.gridEditor.tooMuch') }}
+        </p>
+        <p
+            v-else-if="relativeUnits === 300 && hasAuto"
+            class="sw-experience-studio-grid-editor__warning"
+        >
+            {{ $t('sw-experience-studio.gridEditor.noAutoSpace') }}
+        </p>
+    </div>
+    <section v-if="pattern.columns.length > 1">
+        <h3 class="sw-experience-studio-grid-editor__heading sw-experience-studio-grid-editor__heading--arrangement">
+            {{ $t('sw-experience-studio.gridEditor.pattern') }}
+        </h3>
+        <p class="sw-experience-studio-grid-editor__description">
+            {{ $t('sw-experience-studio.gridEditor.patternHelp') }}
+        </p>
+        <div class="sw-experience-studio-grid-editor__pattern-wrap">
+            <div
+                class="sw-experience-studio-grid-editor__grid"
+                :style="{
+                    '--sw-experience-studio-grid-editor-column-count': pattern.columns.length,
+                    '--sw-experience-studio-grid-editor-row-count': pattern.cells.length,
+                }"
+            >
+                <button
+                    v-for="area in areas"
+                    :key="area.id"
+                    type="button"
+                    :data-area-id="area.id"
+                    class="sw-experience-studio-grid-editor__area"
+                    :style="{ gridColumn: `${area.column + 1} / span ${area.columnSpan}`, gridRow: `${area.row + 1} / span ${area.rowSpan}` }"
+                    :aria-pressed="selected.includes(area.id)"
+                    :aria-label="$t('sw-experience-studio.gridEditor.areaLabel', { number: area.number, row: area.row + 1, column: area.column + 1, rows: area.rowSpan, columns: area.columnSpan })"
+                    :disabled="!allowEdit"
+                    @click="toggleArea(area.id)"
+                >
+                    {{ area.number }}
+                </button>
+            </div>
+            <div class="sw-experience-studio-grid-editor__rows">
+                <mt-link
+                    v-for="(row, index) in pattern.cells"
+                    :key="index"
+                    as="button"
+                    variant="critical"
+                    :disabled="!allowEdit || pattern.cells.length <= 1"
+                    :aria-label="$t('sw-experience-studio.gridEditor.removeRow', { number: index + 1 })"
+                    @click="removeRow(index)"
+                >
+                    <mt-icon
+                        name="regular-trash"
+                        size="12px"
+                        decorative
+                    />
+                </mt-link>
+            </div>
+        </div>
+        <div class="sw-experience-studio-grid-editor__add">
+            <mt-button
+                size="small"
+                variant="tertiary"
+                :disabled="!allowEdit || pattern.cells.length >= 12"
+                @click="addRow"
+            >
+                <mt-icon
+                    name="regular-plus-s"
+                    size="12px"
+                    decorative
+                />
+                {{ $t('sw-experience-studio.gridEditor.addRow') }}
+            </mt-button>
+        </div>
+        <div
+            v-if="selected.length > 0"
+            class="sw-experience-studio-grid-editor__actions"
+        >
+            <mt-button
+                v-if="!selectedArea || selectedArea.columnSpan === 1 || selectedArea.rowSpan === 1"
+                class="sw-experience-studio-grid-editor__action"
+                size="small"
+                variant="secondary"
+                :disabled="!allowEdit || !selectedArea || (selectedArea.columnSpan === 1 && selectedArea.rowSpan === 1)"
+                @click="split(selectedArea && selectedArea.columnSpan > 1 ? 'columns' : 'rows')"
+            >
+                {{ $t('sw-experience-studio.gridEditor.split') }}
+            </mt-button>
+            <mt-dropdown-menu-root
+                v-else
+                :modal="false"
+            >
+                <mt-dropdown-menu-trigger as-child>
+                    <mt-button
+                        class="sw-experience-studio-grid-editor__action"
+                        size="small"
+                        variant="secondary"
+                        :disabled="!allowEdit"
+                    >
+                        {{ $t('sw-experience-studio.gridEditor.split') }}
+                    </mt-button>
+                </mt-dropdown-menu-trigger>
+                <mt-dropdown-menu-portal><mt-action-menu align="end">
+                    <mt-action-menu-item
+                        @select="split('all')"
+                    >
+                        {{ $t('sw-experience-studio.gridEditor.split') }}
+                    </mt-action-menu-item>
+                    <mt-action-menu-item
+                        v-if="selectedArea && selectedArea.rowSpan > 1"
+                        @select="split('rows')"
+                    >
+                        {{ $t('sw-experience-studio.gridEditor.splitRows') }}
+                    </mt-action-menu-item>
+                    <mt-action-menu-item
+                        v-if="selectedArea && selectedArea.columnSpan > 1"
+                        @select="split('columns')"
+                    >
+                        {{ $t('sw-experience-studio.gridEditor.splitColumns') }}
+                    </mt-action-menu-item>
+                </mt-action-menu></mt-dropdown-menu-portal>
+            </mt-dropdown-menu-root>
+            <mt-button
+                class="sw-experience-studio-grid-editor__action"
+                size="small"
+                variant="secondary"
+                :disabled="!allowEdit || !canMerge"
+                @click="merge"
+            >
+                {{ $t('sw-experience-studio.gridEditor.merge') }}
+            </mt-button>
+        </div>
+    </section>
+</div>

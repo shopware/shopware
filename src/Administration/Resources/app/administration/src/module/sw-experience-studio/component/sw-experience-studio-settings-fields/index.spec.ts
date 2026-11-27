@@ -444,7 +444,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         ]);
     });
 
-    it('emits a numeric enum value from the responsive global radio panel path', () => {
+    it('emits a numeric enum value from the responsive base radio panel path', () => {
         const $emit = jest.fn();
         const property = {
             type: 'integer',
@@ -462,16 +462,15 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             allowEdit: true,
             getControlType: methods.getControlType,
             getRadioPanelEmitValue: methods.getRadioPanelEmitValue,
-            isResponsiveViewportMode: () => false,
+            getSelectedBreakpoint: () => 'lg',
+            getRawPropertyValue: () => undefined,
+            isResponsiveObjectValue: methods.isResponsiveObjectValue,
             normalizeResponsiveValue: methods.normalizeResponsiveValue,
-            persistBreakpointAwareValue: methods.persistBreakpointAwareValue,
             onUpdateField: methods.onUpdateField,
         };
 
-        methods.onUpdateResponsiveGlobalProperty.call(
+        methods.onUpdateResponsiveProperty.call(
             vm,
-            'columns',
-            property,
             {
                 key: 'columns',
                 property,
@@ -482,7 +481,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         expect($emit).toHaveBeenCalledTimes(1);
         expect($emit).toHaveBeenCalledWith('update-field', {
             key: 'columns',
-            value: 2,
+            value: { lg: 2 },
         });
     });
 });

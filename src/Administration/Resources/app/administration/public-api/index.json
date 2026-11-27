@@ -5419,6 +5419,12 @@
                 "sw_experience_studio_frame_menu"
             ]
         },
+        "sw-experience-studio-grid-editor": {
+            "file": "module/sw-experience-studio/component/sw-experience-studio-grid-editor",
+            "visibility": "private",
+            "extends": null,
+            "blocks": []
+        },
         "sw-experience-studio-inline-text-field": {
             "file": "module/sw-experience-studio/component/sw-experience-studio-inline-text-field",
             "visibility": "private",

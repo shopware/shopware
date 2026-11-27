@@ -26,13 +26,13 @@ class StoredTreeStyleNormalizerTest extends TestCase
 {
     private const BREAKPOINT_AWARE = 'display';
 
-    private const EXPANDED = ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true];
+    private const EXPANDED = ['xs' => false, 'sm' => false, 'md' => false, 'lg' => false, 'xl' => false, 'xxl' => false];
 
     #[TestDox('canonicalises the style of a root element against the option registry')]
     public function testNormalizesARootStyle(): void
     {
         $root = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
+            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => false]))
             ->build();
 
         $result = $this->normalizer()->normalize(new StoredTree([$root], 'product'));
@@ -46,7 +46,7 @@ class StoredTreeStyleNormalizerTest extends TestCase
     public function testNormalizesEveryDepth(): void
     {
         $grandchild = StoredElementBuilder::create('Sw:Block', 'grandchild-1')
-            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
+            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => false]))
             ->build();
 
         $child = StoredElementBuilder::create('Sw:Block', 'child-1')->withSlot('inner', [$grandchild])->build();
@@ -64,7 +64,7 @@ class StoredTreeStyleNormalizerTest extends TestCase
     public function testIsIdempotent(): void
     {
         $root = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
+            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => false]))
             ->build();
 
         $normalizer = $this->normalizer();
@@ -80,14 +80,14 @@ class StoredTreeStyleNormalizerTest extends TestCase
     public function testDoesNotMutateTheForestItWasGiven(): void
     {
         $root = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
+            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => false]))
             ->build();
 
         $tree = new StoredTree([$root]);
 
         $this->normalizer()->normalize($tree);
 
-        static::assertSame([self::BREAKPOINT_AWARE => ['xs' => false]], $tree->roots[0]->style->toArray());
+        static::assertSame([self::BREAKPOINT_AWARE => false], $tree->roots[0]->style->toArray());
     }
 
     #[TestDox('leaves everything that is not style alone, seeding no default and reconciling no attribution')]
@@ -106,8 +106,7 @@ class StoredTreeStyleNormalizerTest extends TestCase
     }
 
     /**
-     * A registry holding one breakpoint-aware boolean option with a declared default, so a partial
-     * breakpoint map has something to expand from.
+     * A registry holding the breakpoint-aware boolean option used by the fixture.
      */
     private function normalizer(): StoredTreeStyleNormalizer
     {

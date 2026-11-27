@@ -440,7 +440,7 @@ final class BindingSpecificationCanonicalizer
 
     /**
      * The declared reference FQCN for a type's property, or null when the key is not a declared property or the
-     * property is not a single-FQCN reference (primitive, union, or `object`). Mirrors the derivation
+     * property is not a single-FQCN reference (primitive, union, `object`, or `array`). Mirrors the derivation
      * {@see LayoutDiagnostics} uses.
      */
     private function declaredReferenceFqcn(ContentSystemElementTypeSpecification $type, string $key): ?string
@@ -451,14 +451,7 @@ final class BindingSpecificationCanonicalizer
             return null;
         }
 
-        $propertyType = $property->type();
-        $declaredType = $propertyType->type();
-
-        if ($propertyType->isPrimitive() || !\is_string($declaredType) || $declaredType === 'object') {
-            return null;
-        }
-
-        return $declaredType;
+        return $property->type()->referenceFqcn();
     }
 
     private function unrecognizedShape(string $refKey, string $id): ContentSystemException

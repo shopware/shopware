@@ -22,6 +22,10 @@ final class StructuredPropertyType extends Constraint
 
     public string $propertiesRequireObjectTypeMessage = 'properties are only allowed when type includes "object"';
 
+    public string $arrayRequiresItemsMessage = 'items are required when type includes "array"';
+
+    public string $itemsRequireArrayTypeMessage = 'items are only allowed when type includes "array"';
+
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

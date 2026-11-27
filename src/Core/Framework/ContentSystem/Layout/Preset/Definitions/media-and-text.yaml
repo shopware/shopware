@@ -8,6 +8,17 @@ category: "content"
 priority: 200
 layout:
   - component: Sw:Grid:Container
+    properties:
+      gridLayout:
+        lg:
+          columns: [{ type: auto }, { type: auto }]
+          areas: [[a1, a2]]
+        sm:
+          columns: [{ type: auto }]
+          areas: [[a1]]
+        md:
+          columns: [{ type: auto }]
+          areas: [[a1]]
     slots:
       content:
         - component: Sw:Media:Image

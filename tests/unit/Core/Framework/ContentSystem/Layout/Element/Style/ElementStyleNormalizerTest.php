@@ -92,40 +92,14 @@ class ElementStyleNormalizerTest extends TestCase
         static::assertSame(['col-span' => ['lg' => 1, 'xl' => 2]], $normalized->toArray());
     }
 
-    #[TestDox('fills the breakpoints a partial map omits with the option default')]
-    public function testExpandsPartialMapWithTheOptionDefaultForMissingBreakpoints(): void
+    #[TestDox('keeps a sparse breakpoint map and its explicit boolean values')]
+    public function testPreservesAuthoredBreakpointEntries(): void
     {
+        $value = ['sm' => false, 'lg' => true, 'xl' => true];
         $normalized = $this->normalizer($this->displayOption())
-            ->normalize(new ElementStyle(['display' => ['xs' => false, 'sm' => false, 'md' => false]]));
+            ->normalize(new ElementStyle(['display' => $value]));
 
-        static::assertSame([
-            'display' => [
-                'xs' => false,
-                'sm' => false,
-                'md' => false,
-                'lg' => true,
-                'xl' => true,
-                'xxl' => true,
-            ],
-        ], $normalized->toArray());
-    }
-
-    #[TestDox('keeps the explicit entries of a viewport-specific map while filling the rest')]
-    public function testKeepsExplicitValuesWhenExpandingAViewportSpecificMap(): void
-    {
-        $normalized = $this->normalizer($this->displayOption())
-            ->normalize(new ElementStyle(['display' => ['xs' => false, 'lg' => true, 'xl' => true, 'xxl' => true]]));
-
-        static::assertSame([
-            'display' => [
-                'xs' => false,
-                'sm' => true,
-                'md' => true,
-                'lg' => true,
-                'xl' => true,
-                'xxl' => true,
-            ],
-        ], $normalized->toArray());
+        static::assertSame(['display' => $value], $normalized->toArray());
     }
 
     #[TestDox('keeps a breakpoint map unchanged for an option that declares no default')]
@@ -143,6 +117,13 @@ class ElementStyleNormalizerTest extends TestCase
         $normalized = $this->normalizer($this->zIndexOption())->normalize(new ElementStyle(['z-index' => 10]));
 
         static::assertSame(['z-index' => 10], $normalized->toArray());
+    }
+
+    public function testPreservesAnAuthoredMapOnAFlatOptionForValidation(): void
+    {
+        $normalized = $this->normalizer($this->zIndexOption())->normalize(new ElementStyle(['z-index' => ['lg' => 10]]));
+
+        static::assertSame(['z-index' => ['lg' => 10]], $normalized->toArray());
     }
 
     #[TestDox('passes an option with no registry entry through untouched')]
@@ -186,6 +167,7 @@ class ElementStyleNormalizerTest extends TestCase
                 'xxl' => '0 8px',
             ],
             'col-span' => ['lg' => 6],
+            'align-self' => ['md' => 'auto', 'lg' => 'auto'],
         ], $normalized->toArray());
     }
 
@@ -282,13 +264,13 @@ class ElementStyleNormalizerTest extends TestCase
      * @param array<string, int> $value
      */
     #[DataProvider('rangeMinimumMapProvider')]
-    #[TestDox('omits a breakpoint map whose every entry is the declared range minimum')]
-    public function testOmitsBreakpointMapWhoseEntriesAreAllTheRangeMinimum(array $value): void
+    #[TestDox('keeps explicitly authored values equal to the range minimum')]
+    public function testKeepsBreakpointMapWhoseEntriesAreAllTheRangeMinimum(array $value): void
     {
         $normalized = $this->normalizer($this->colSpanOption())
             ->normalize(new ElementStyle(['col-span' => $value]));
 
-        static::assertSame([], $normalized->toArray());
+        static::assertSame(['col-span' => $value], $normalized->toArray());
     }
 
     #[TestDox('keeps a value equal to the range minimum when the option also declares a default')]
@@ -306,49 +288,31 @@ class ElementStyleNormalizerTest extends TestCase
         static::assertSame(['pin-min' => 1], $normalized->toArray());
     }
 
-    #[TestDox('replaces an empty-string entry with the option default when expanding')]
-    public function testExpansionReplacesAnEmptyStringEntryWithTheOptionDefault(): void
+    #[TestDox('drops an empty-string entry while keeping authored values')]
+    public function testDropsAnEmptyStringEntry(): void
     {
         $normalized = $this->normalizer($this->alignSelfOption())
             ->normalize(new ElementStyle(['align-self' => ['xs' => 'start', 'sm' => '']]));
 
-        static::assertSame([
-            'align-self' => [
-                'xs' => 'start',
-                'sm' => 'auto',
-                'md' => 'auto',
-                'lg' => 'auto',
-                'xl' => 'auto',
-                'xxl' => 'auto',
-            ],
-        ], $normalized->toArray());
+        static::assertSame(['align-self' => ['xs' => 'start', 'lg' => 'auto']], $normalized->toArray());
     }
 
-    #[TestDox('drops map keys that are not canonical breakpoints when expanding')]
-    public function testExpansionDropsKeysThatAreNotBreakpoints(): void
+    #[TestDox('seeds the declared default as the base entry of a map without one')]
+    public function testSeedsTheBaseEntryOfAMapWithoutOne(): void
     {
         $normalized = $this->normalizer($this->displayOption())
-            ->normalize(new ElementStyle(['display' => ['xs' => false, 'print' => false]]));
+            ->normalize(new ElementStyle(['display' => ['sm' => false]]));
 
-        static::assertSame([
-            'display' => [
-                'xs' => false,
-                'sm' => true,
-                'md' => true,
-                'lg' => true,
-                'xl' => true,
-                'xxl' => true,
-            ],
-        ], $normalized->toArray());
+        static::assertSame(['display' => ['sm' => false, 'lg' => true]], $normalized->toArray());
     }
 
-    #[TestDox('leaves a map unchanged when no canonical breakpoint carries an entry')]
-    public function testKeepsMapUnchangedWhenNoBreakpointCarriesAnEntry(): void
+    #[TestDox('keeps an authored base entry that differs from the declared default')]
+    public function testKeepsAnAuthoredBaseEntry(): void
     {
         $normalized = $this->normalizer($this->displayOption())
-            ->normalize(new ElementStyle(['display' => ['print' => false]]));
+            ->normalize(new ElementStyle(['display' => ['sm' => true, 'lg' => false]]));
 
-        static::assertSame(['display' => ['print' => false]], $normalized->toArray());
+        static::assertSame(['display' => ['sm' => true, 'lg' => false]], $normalized->toArray());
     }
 
     #[TestDox('leaves a map unchanged when every breakpoint carries the same entry')]

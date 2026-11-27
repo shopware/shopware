@@ -9,10 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Canonicalises an authored ElementStyle into the form a write stores: a box-spacing value becomes
- * explicit four-part CSS, a breakpoint-aware scalar is wrapped into the full breakpoint map, a partial
- * map of an option that declares a default is filled out from that default, and every value that is
- * indistinguishable from unset is dropped. A style whose every value drops normalises to an empty
- * ElementStyle, which the element encoders omit.
+ * explicit four-part CSS and a breakpoint-aware scalar is wrapped into the full breakpoint map.
+ * Breakpoint maps retain the authored entries so rendering can resolve their inherited values. A map
+ * without a base entry gets the option's declared default there, because every breakpoint falls back to
+ * the base and serving applies no defaults.
+ * A style whose every value drops normalises to an empty ElementStyle, which the element encoders omit.
  *
  * Idempotent by contract: normalising an already normalised style returns it unchanged.
  *
@@ -65,23 +66,39 @@ final class ElementStyleNormalizer
     {
         $resolved = $this->isBoxSpacingOption($option) ? $this->normalizeBoxSpacing($value) : $value;
 
+        $breakpointAware = $option?->breakpointAware() ?? false;
+
+        if (\is_array($resolved)) {
+            if (!$breakpointAware) {
+                return $this->isUnsetValue($resolved, $option) ? null : $resolved;
+            }
+
+            $entries = array_filter($resolved, static fn (mixed $entry): bool => $entry !== '');
+
+            return $entries === [] ? null : $this->withBaseDefault($entries, $option);
+        }
+
         if ($this->isUnsetValue($resolved, $option)) {
             return null;
         }
 
-        if ($option === null || !$option->breakpointAware()) {
-            return $resolved;
+        return $breakpointAware ? array_fill_keys(Breakpoint::values(), $resolved) : $resolved;
+    }
+
+    /**
+     * @param non-empty-array<string, StyleScalar> $entries
+     *
+     * @return non-empty-array<string, StyleScalar>
+     */
+    private function withBaseDefault(array $entries, ?StyleOptionSpecification $option): array
+    {
+        $default = $option?->valueType()->default();
+
+        if ($default === null || \array_key_exists(Breakpoint::Lg->value, $entries)) {
+            return $entries;
         }
 
-        if (!\is_array($resolved)) {
-            return array_fill_keys(Breakpoint::values(), $resolved);
-        }
-
-        if ($option->valueType()->default() === null) {
-            return $resolved;
-        }
-
-        return $this->expandBreakpointMap($resolved, $option);
+        return [...$entries, Breakpoint::Lg->value => $default];
     }
 
     /**
@@ -128,13 +145,9 @@ final class ElementStyleNormalizer
             return $this->isUnsetScalar($value, $option);
         }
 
-        $entries = $option->valueType()->default() === null
-            ? $value
-            : $this->expandBreakpointMap($value, $option);
-
         $defined = [];
 
-        foreach ($entries as $entryValue) {
+        foreach ($value as $entryValue) {
             if ($entryValue === '') {
                 continue;
             }
@@ -182,73 +195,5 @@ final class ElementStyleNormalizer
         $range = $valueType->range();
 
         return $range !== null && \array_key_exists('min', $range) && $value === $range['min'];
-    }
-
-    /**
-     * Rebuilds the map from the canonical breakpoints alone, so a key that is not one of them is dropped.
-     * A breakpoint with no entry, or an empty one, takes the option default.
-     *
-     * @param array<string, StyleScalar> $value
-     *
-     * @return array<string, StyleScalar>
-     */
-    private function expandBreakpointMap(array $value, StyleOptionSpecification $option): array
-    {
-        $default = $option->valueType()->default();
-
-        if ($default === null || !$this->isViewportSpecific($value)) {
-            return $value;
-        }
-
-        $expanded = [];
-
-        foreach (Breakpoint::values() as $breakpoint) {
-            $entryValue = $value[$breakpoint] ?? null;
-
-            $expanded[$breakpoint] = $entryValue !== null && $entryValue !== '' ? $entryValue : $default;
-        }
-
-        return $expanded;
-    }
-
-    /**
-     * False both when no breakpoint carries an entry and when every breakpoint carries the same entry —
-     * in either case there is nothing viewport-specific to expand.
-     *
-     * @param array<string, StyleScalar> $value
-     */
-    private function isViewportSpecific(array $value): bool
-    {
-        $breakpoints = Breakpoint::values();
-
-        $defined = [];
-
-        foreach ($breakpoints as $breakpoint) {
-            $entryValue = $value[$breakpoint] ?? null;
-
-            if ($entryValue === null) {
-                continue;
-            }
-
-            $defined[] = $entryValue;
-        }
-
-        if ($defined === []) {
-            return false;
-        }
-
-        if (\count($defined) < \count($breakpoints)) {
-            return true;
-        }
-
-        $first = $defined[0];
-
-        foreach ($defined as $entryValue) {
-            if ($entryValue !== $first) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

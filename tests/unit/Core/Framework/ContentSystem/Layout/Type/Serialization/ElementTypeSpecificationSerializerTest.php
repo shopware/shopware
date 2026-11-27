@@ -29,6 +29,59 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         $this->serializer = new ElementTypeSpecificationSerializer();
     }
 
+    public function testArrayItemsSurviveSerializationAndIntrospection(): void
+    {
+        $raw = [
+            'meta' => ['label' => 'Grid', 'description' => 'Grid.'],
+            'properties' => [
+                'areas' => [
+                    'type' => 'array', 'title' => 'Areas', 'description' => 'Area rows.',
+                    'items' => [
+                        'type' => 'array', 'title' => 'Row', 'description' => 'Area row.',
+                        'items' => ['type' => 'string', 'title' => 'Area', 'description' => 'Area ID.'],
+                    ],
+                ],
+            ],
+        ];
+
+        $dto = $this->serializer->denormalize($raw);
+        static::assertSame($raw['properties']['areas'], $this->serializer->normalize($dto)['properties']['areas']);
+        $schema = $dto->properties['areas']->toPropertySpecification()->type()->toSchema();
+        static::assertArrayHasKey('items', $schema);
+        static::assertSame('array', $schema['items']['type']);
+        static::assertSame('string', $schema['items']['items']['type']);
+    }
+
+    public function testObjectItemsSurviveJsonRoundTripAndIntrospection(): void
+    {
+        $raw = [
+            'properties' => [
+                'columns' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object', 'title' => 'Column', 'description' => 'A column.',
+                        'properties' => [
+                            'width' => ['type' => 'integer', 'title' => 'Width', 'description' => 'Column width.', 'default' => 1],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $dto = $this->serializer->denormalize($raw);
+        $json = json_encode($this->serializer->normalize($dto), \JSON_THROW_ON_ERROR);
+        $restored = $this->serializer->denormalize(json_decode($json, true, 512, \JSON_THROW_ON_ERROR));
+        $column = $restored->toContentSystemElementTypeSpecification('App:Grid', 'app:Demo')->toSchema()['properties']['columns'];
+        static::assertArrayHasKey('items', $column);
+        $items = $column['items'];
+
+        static::assertSame('object', $items['type']);
+        static::assertSame('Column', $items['title']);
+        static::assertSame('A column.', $items['description']);
+        static::assertSame('integer', $items['properties']['width']['type']);
+        static::assertSame('Width', $items['properties']['width']['title']);
+        static::assertSame(1, $items['properties']['width']['default']);
+    }
+
     public function testSnippetReferencesSurviveAppPersistenceAndIntrospection(): void
     {
         $raw = [

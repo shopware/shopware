@@ -1806,6 +1806,7 @@ class LayoutDiagnosticsTest extends TestCase
     {
         yield 'a primitive' => ['string'];
         yield 'a bare object' => ['object'];
+        yield 'an array' => ['array'];
         yield 'a union carrying object' => [['integer', 'object']];
     }
 

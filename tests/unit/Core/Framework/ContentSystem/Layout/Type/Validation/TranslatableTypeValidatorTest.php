@@ -118,6 +118,18 @@ class TranslatableTypeValidatorTest extends TestCase
         ];
     }
 
+    public function testRejectsTranslatableOnNestedArrayItem(): void
+    {
+        $item = new PropertySpecificationDto('items', 'string', false, true, 'Item', 'Item.', null, null, null, inlineMappable: false);
+        $row = new PropertySpecificationDto('items', 'array', false, false, 'Row', 'Row.', null, null, null, items: $item);
+        $dto = new PropertySpecificationDto('rows', 'array', false, false, 'Rows', 'Rows.', null, null, null, items: $row);
+        $violations = $this->validate($dto);
+
+        static::assertCount(1, $violations);
+        static::assertSame('items.items.translatable', $violations->get(0)->getPropertyPath());
+        static::assertSame((new TranslatableType())->nestedMessage, $violations->get(0)->getMessage());
+    }
+
     /**
      * @param class-string $expectedType
      */

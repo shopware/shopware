@@ -65,6 +65,21 @@ class ElementResolverTest extends TestCase
         static::assertSame([], $resolutions[0]->candidates);
     }
 
+    #[TestDox('resolves an array declaration as an authored value instead of a reference')]
+    public function testResolvesArrayAsAuthoredValue(): void
+    {
+        $resolutions = $this->resolve(
+            ContentSystemElementTypeSpecificationBuilder::create()->declared('columns', 'array')->build(),
+            new ResolutionContext('el-1', []),
+            new ContentSystemDataLoaderMap([], []),
+        );
+
+        static::assertCount(1, $resolutions);
+        static::assertSame(PropertyKind::Primitive, $resolutions[0]->kind);
+        static::assertSame('array', $resolutions[0]->type);
+        static::assertSame([], $resolutions[0]->candidates);
+    }
+
     /**
      * A primitive used to report nothing at all, which stopped being true the moment an author could bind one
      * to entity data: the Administration reads resolutions to show where a value comes from, and without this

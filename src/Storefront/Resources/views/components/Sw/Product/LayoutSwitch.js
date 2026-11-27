@@ -23,10 +23,10 @@ export default class LayoutSwitch extends ShopwareComponent {
 
     changeLayout(layout) {
         this.buttons.forEach((button) => {
-            button.classList.remove('is--active');
+            const active = button.dataset.layout === layout;
+            button.classList.toggle('is--active', active);
+            button.setAttribute('aria-pressed', String(active));
         });
-
-        event.currentTarget.classList.add('is--active');
 
         Shopware.emit('LayoutSwitch:Change', this.options.paramName, layout);
 

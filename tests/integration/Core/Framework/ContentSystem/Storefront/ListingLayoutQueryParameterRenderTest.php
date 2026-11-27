@@ -40,8 +40,8 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * `strict_variables` is false, so a template member that stops resolving renders empty and the route still
  * answers 200; a status assertion proves nothing on its own. The assertions therefore address concrete
- * rendered nodes — the one grid container and the per-product card roots — and read their presentation
- * classes, which are the two consumers of the parameter inside `Sw/Product/Listing.html.twig`. The response
+ * rendered nodes — the one grid container and the per-product card roots — and read their columns and card
+ * classes, the two consumers of the parameter inside `Sw/Product/Listing.html.twig`. The response
  * body is passed as the assertion message so a blank or restructured render is readable.
  *
  * @internal
@@ -95,8 +95,8 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
             $html
         );
         static::assertSame(
-            ['columns-1', 'columns-lg-1', 'columns-md-1', 'columns-sm-1', 'columns-xl-1'],
-            $this->gridColumnClasses($html),
+            ['xs' => 1, 'sm' => 1, 'md' => 1, 'lg' => 1, 'xl' => 1],
+            $this->gridColumnCounts($html),
             $html
         );
     }
@@ -139,11 +139,9 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
     }
 
     /**
-     * The column classes of the one inner grid, sorted so the assertion does not pin the CVA emission order.
-     *
-     * @return list<string>
+     * @return array<string, int>
      */
-    private function gridColumnClasses(string $html): array
+    private function gridColumnCounts(string $html): array
     {
         $grids = $this->query($html, self::GRID_XPATH);
         static::assertCount(1, $grids, $html);
@@ -151,14 +149,14 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
         $grid = $grids->item(0);
         static::assertInstanceOf(\DOMElement::class, $grid);
 
-        $columns = array_values(array_filter(
-            $this->classTokens($grid),
-            static fn (string $token): bool => str_starts_with($token, 'columns-')
-        ));
+        $style = $grid->getAttribute('style');
+        $counts = [];
+        foreach (['xs', 'sm', 'md', 'lg', 'xl'] as $breakpoint) {
+            static::assertSame(1, preg_match('/--sw-grid-columns-' . $breakpoint . ': ([^;]+);/', $style, $matches));
+            $counts[$breakpoint] = substr_count($matches[1], 'minmax(0, 1fr)');
+        }
 
-        sort($columns);
-
-        return $columns;
+        return $counts;
     }
 
     /**

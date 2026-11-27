@@ -19,7 +19,7 @@ Stored elements and `RenderedTreeEditor`, which edits a rendered forest. Element
 
 `Rendering/RenderedElementFactory` decides which keys a rendered element carries:
 
-- declared authored properties (every declared type except a single-FQCN reference, unions and bare `object` included) carrying the stored value and skipped when that value is the null variant
+- declared authored properties (every declared type except a single-FQCN reference, unions, bare `object` and `array` included) carrying the stored value and skipped when that value is the null variant
 - `dataRequirements[$key]` keys carrying the resolved loader value
 - the keys context was actually delivered under
 - stored keys that a parent's `KeyedDistributionConfig` names, excluding a declared reference property

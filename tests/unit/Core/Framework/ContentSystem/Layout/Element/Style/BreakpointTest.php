@@ -20,4 +20,25 @@ class BreakpointTest extends TestCase
     {
         static::assertSame(['xs', 'sm', 'md', 'lg', 'xl', 'xxl'], Breakpoint::values());
     }
+
+    public function testFallbackMapExposesTheOrderedCandidatesForEveryBreakpoint(): void
+    {
+        static::assertSame([
+            'xs' => ['sm', 'lg'],
+            'sm' => ['lg'],
+            'md' => ['lg'],
+            'lg' => [],
+            'xl' => ['lg'],
+            'xxl' => ['xl', 'lg'],
+        ], Breakpoint::fallbackMap());
+    }
+
+    public function testResolveUsesTheFirstPresentValue(): void
+    {
+        static::assertSame(0, Breakpoint::Xs->resolve(['xs' => 0, 'sm' => 1, 'lg' => 2]));
+        static::assertFalse(Breakpoint::Xs->resolve(['sm' => false, 'lg' => true]));
+        static::assertSame(2, Breakpoint::Xs->resolve(['md' => 1, 'lg' => 2]));
+        static::assertSame(2, Breakpoint::Md->resolve(['sm' => 1, 'lg' => 2]));
+        static::assertNull(Breakpoint::Lg->resolve(['sm' => 1]));
+    }
 }

@@ -44,18 +44,12 @@ class ElementStylePersistenceTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $id = $this->ids->get('layout');
-        // `display` declares a default, so the write boundary fills its unspecified breakpoints from it;
-        // `col-span` declares none, so its partial map is stored exactly as authored.
-        $style = ['col-span' => ['md' => 6, 'lg' => 4], 'display' => ['xs' => false]];
-        $expected = [
-            'col-span' => ['md' => 6, 'lg' => 4],
-            'display' => ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true],
-        ];
+        $style = ['test-responsive-integer' => ['md' => 6, 'lg' => 4], 'display' => ['lg' => true, 'sm' => false]];
 
         $this->repository()->create([$this->layout($id, $style)], $context);
 
         static::assertSame(
-            $this->byKey($expected),
+            $this->byKey($style),
             $this->byKey($this->readElement($id, $context)->style->toArray()),
         );
     }
@@ -67,7 +61,7 @@ class ElementStylePersistenceTest extends TestCase
         $id = $this->ids->get('layout');
         // The flat option stores a scalar; the breakpoint-aware option a per-breakpoint map. Both shapes
         // coexist in one element and must survive write -> JSON column -> registry-free decode unchanged.
-        $style = [TestStyleOptionLoader::FLAT_INTEGER => 10, 'col-span' => ['md' => 6]];
+        $style = [TestStyleOptionLoader::FLAT_INTEGER => 10, 'test-responsive-integer' => ['md' => 6]];
 
         $this->repository()->create([$this->layout($id, $style)], $context);
 
@@ -122,6 +116,16 @@ class ElementStylePersistenceTest extends TestCase
             ['removed-plugin-option' => ''],
             'removed-plugin-option',
         ];
+
+        yield 'the removed column span option' => [
+            ['col-span' => ['md' => 6]],
+            'col-span',
+        ];
+
+        yield 'the removed row span option' => [
+            ['row-span' => ['md' => 2]],
+            'row-span',
+        ];
     }
 
     #[TestDox('rejects a write whose style value falls outside the declared range')]
@@ -130,10 +134,10 @@ class ElementStylePersistenceTest extends TestCase
         $context = Context::createDefaultContext();
 
         try {
-            $this->repository()->create([$this->layout(null, ['col-span' => ['md' => 99]])], $context);
-            static::fail('Expected the field serializer to reject the out-of-range span value.');
+            $this->repository()->create([$this->layout(null, ['test-responsive-integer' => ['md' => 99]])], $context);
+            static::fail('Expected the field serializer to reject the out-of-range style value.');
         } catch (WriteException $exception) {
-            static::assertStringContainsString('col-span', $exception->getMessage());
+            static::assertStringContainsString('test-responsive-integer', $exception->getMessage());
             // The range-specific phrasing distinguishes a Range violation from a Type mismatch on the same field
             static::assertStringContainsString('between 1 and 12', $exception->getMessage());
         }
@@ -148,7 +152,7 @@ class ElementStylePersistenceTest extends TestCase
         try {
             // The decode gate runs before the constraint pass judges the tree; without the throw the write
             // would succeed with the unknown breakpoint silently stripped.
-            $this->repository()->create([$this->layout($layoutId, ['col-span' => ['bogus-breakpoint' => 6]])], $context);
+            $this->repository()->create([$this->layout($layoutId, ['test-responsive-integer' => ['bogus-breakpoint' => 6]])], $context);
             static::fail('Expected the decode gate to reject the unknown breakpoint key.');
         } catch (WriteException $exception) {
             static::assertSame(

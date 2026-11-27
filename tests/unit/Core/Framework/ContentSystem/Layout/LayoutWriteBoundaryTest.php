@@ -9,7 +9,6 @@ use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
@@ -33,8 +32,8 @@ class LayoutWriteBoundaryTest extends TestCase
 
     private const FLAT = 'test-flat-span';
 
-    #[TestDox('expands a partially specified breakpoint map from the option default')]
-    public function testStyleNormalizationExpandsAPartialBreakpointMap(): void
+    #[TestDox('preserves the authored entries in a partial breakpoint map and seeds its base default')]
+    public function testStyleNormalizationPreservesAPartialBreakpointMap(): void
     {
         $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
@@ -44,10 +43,9 @@ class LayoutWriteBoundaryTest extends TestCase
 
         static::assertSame('category', $result->rootSource);
         static::assertSame(
-            [self::BREAKPOINT_AWARE => ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true]],
+            [self::BREAKPOINT_AWARE => ['xs' => false, 'lg' => true]],
             $result->roots[0]->style->toArray()
         );
-        static::assertSame(Breakpoint::values(), array_keys($result->roots[0]->style->toArray()[self::BREAKPOINT_AWARE]));
     }
 
     #[TestDox('leaves an option declaring breakpointAware false as the flat scalar it was written as')]
@@ -66,7 +64,7 @@ class LayoutWriteBoundaryTest extends TestCase
     public function testStyleNormalizationReachesEveryDepth(): void
     {
         $child = StoredElementBuilder::create('Sw:Block', 'child-1')
-            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
+            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => false]))
             ->build();
 
         $root = StoredElementBuilder::create('Sw:Block', 'el-1')->withSlot('content', [$child])->build();
@@ -74,7 +72,7 @@ class LayoutWriteBoundaryTest extends TestCase
         $result = $this->boundary()->apply(new StoredTree([$root]));
 
         static::assertSame(
-            [self::BREAKPOINT_AWARE => ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true]],
+            [self::BREAKPOINT_AWARE => ['xs' => false, 'sm' => false, 'md' => false, 'lg' => false, 'xl' => false, 'xxl' => false]],
             $result->roots[0]->slots['content'][0]->style->toArray()
         );
     }
@@ -117,8 +115,7 @@ class LayoutWriteBoundaryTest extends TestCase
     }
 
     /**
-     * A registry holding exactly two options: a breakpoint-aware boolean with a declared default (the
-     * expansion case) and a flat integer with none (the pass-through case).
+     * A breakpoint-aware boolean with a declared default and a flat integer without a default.
      */
     private function styleNormalizer(): ElementStyleNormalizer
     {

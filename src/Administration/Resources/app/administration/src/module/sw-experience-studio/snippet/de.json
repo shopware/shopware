@@ -232,57 +232,48 @@
         "mode": {
           "title": "Modus",
           "options": {
+            "explicit": {
+              "label": "Eigenes Raster",
+              "description": "Lege fest, wie viele Spalten es gibt, wie breit sie sind und wo die Inhalte erscheinen."
+            },
             "auto-fit": {
-              "label": "Automatisch einpassen",
-              "description": "Passt automatisch so viele Spalten wie möglich ein."
+              "label": "Automatisch",
+              "description": "Passt so viele Spalten ein, wie die Mindestbreite der Elemente zulässt."
             },
             "max-content": {
-              "label": "Maximaler Inhalt",
-              "description": "Richtet die Spaltenbreite nach ihrer maximalen Inhaltsgröße aus."
-            },
-            "explicit": {
-              "label": "Festgelegt",
-              "description": "Verwendet eine festgelegte Spalten- und Zeilenkonfiguration."
+              "label": "Max-content",
+              "description": "Richtet jede Spalte nach der maximalen Breite ihres Inhalts aus."
             }
           }
         },
         "itemMinWidth": {
           "title": "Mindestbreite der Elemente"
         },
-        "columns": {
-          "title": "Spalten",
+        "gridLayout": {
+          "title": "Raster",
           "xs": {
-            "title": "Spalten (XS)"
+            "title": "Raster (XS)"
           },
           "sm": {
-            "title": "Spalten (SM)"
+            "title": "Raster (SM)"
           },
           "md": {
-            "title": "Spalten (MD)"
+            "title": "Raster (MD)"
           },
           "lg": {
-            "title": "Spalten (LG)"
+            "title": "Raster (LG)"
           },
           "xl": {
-            "title": "Spalten (XL)"
-          }
-        },
-        "rows": {
-          "title": "Zeilen",
-          "xs": {
-            "title": "Zeilen (XS)"
+            "title": "Raster (XL)"
           },
-          "sm": {
-            "title": "Zeilen (SM)"
+          "xxl": {
+            "title": "Raster (XXL)"
           },
-          "md": {
-            "title": "Zeilen (MD)"
+          "columns": {
+            "title": "Spalten"
           },
-          "lg": {
-            "title": "Zeilen (LG)"
-          },
-          "xl": {
-            "title": "Zeilen (XL)"
+          "areas": {
+            "title": "Rasterbereiche"
           }
         },
         "fullWidth": {
@@ -1088,7 +1079,6 @@
         "noEditableStyleOptions": "Es sind keine Layout-Stiloptionen verfügbar.",
         "panelGeneral": "Allgemein",
         "editingLanguage": "Bearbeitung auf {language}",
-        "viewportSettings": "Viewport-Einstellungen",
         "boxSpacingTop": "Oben",
         "boxSpacingRight": "Rechts",
         "boxSpacingBottom": "Unten",
@@ -1217,10 +1207,6 @@
           }
         }
       },
-      "col-span": {
-        "label": "Spaltenbreite",
-        "description": "Über wie viele Rasterspalten sich das Element erstreckt."
-      },
       "display": {
         "label": "Anzeige",
         "description": "Legt fest, ob das Element bei diesem Breakpoint angezeigt wird."
@@ -1245,11 +1231,43 @@
             "label": "Strecken"
           }
         }
-      },
-      "row-span": {
-        "label": "Zeilenhöhe",
-        "description": "Über wie viele Rasterzeilen sich das Element erstreckt."
       }
+    },
+    "breakpointSelect": {
+      "label": "Bildschirmgröße",
+      "extraSmall": "Extra klein",
+      "extraLarge": "Extra groß",
+      "ultrawide": "Ultrawide",
+      "base": "Basis",
+      "reset": "Zurücksetzen",
+      "override": "Eigener Wert",
+      "singleOverride": "{size}: eigener Wert",
+      "overrideCount": "{count} eigene Werte",
+      "more": "{count} weitere Größe anzeigen | {count} weitere Größen anzeigen",
+      "fewer": "Weniger Größen anzeigen"
+    },
+    "gridEditor": {
+      "invalidPercentWidth": "Gib eine ganze Zahl von 1 bis 100 ein.",
+      "invalidPixelWidth": "Gib eine ganze Zahl größer als 0 ein.",
+      "tooMuch": "Die Summe der relativen Spaltenbreiten überschreitet 100 %.",
+      "noAutoSpace": "Für Spalten mit automatischer Breite bleibt kein Platz.",
+      "width": "Breite",
+      "type": "Breitentyp",
+      "typeAuto": "Auto",
+      "columnActions": "Spaltenaktionen",
+      "move": "Spalte verschieben",
+      "moveUp": "Nach oben verschieben",
+      "moveDown": "Nach unten verschieben",
+      "addColumn": "Spalte hinzufügen",
+      "pattern": "Anordnung der Inhalte",
+      "patternHelp": "Wähle Bereiche aus, um die Anordnung anzupassen.",
+      "areaLabel": "Bereich {number}, Zeile {row}, Spalte {column}, Größe {columns} mal {rows}",
+      "removeRow": "Zeile {number} entfernen",
+      "addRow": "Zeile hinzufügen",
+      "split": "Teilen",
+      "splitColumns": "Nur Spalten teilen",
+      "splitRows": "Nur Zeilen teilen",
+      "merge": "Zusammenführen"
     }
   }
 }

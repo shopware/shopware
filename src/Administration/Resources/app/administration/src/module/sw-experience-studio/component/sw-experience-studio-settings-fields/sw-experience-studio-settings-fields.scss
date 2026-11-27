@@ -97,6 +97,12 @@
         display: grid;
         gap: 8px;
 
+        > p {
+            margin: 0;
+            color: var(--color-text-secondary-default);
+            font-size: var(--font-size-2xs);
+        }
+
         > .sw-experience-studio-settings-fields__radio-panel-label {
             margin-bottom: 0;
         }
@@ -136,6 +142,16 @@
         > .mt-select {
             margin-bottom: var(--scale-size-8);
         }
+    }
+
+    // WHY: The viewport heading shows the title visually; each control keeps its own label as its accessible name.
+    &__responsive-input .mt-field__label {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
     }
 
     &__responsive-slider {
@@ -232,95 +248,15 @@
         min-width: 0;
     }
 
-    &__viewport-toggle {
-        border: 0;
-        padding: 0;
-        margin: 0;
-        background: transparent;
-        color: var(--color-interaction-primary-default);
-        font-size: var(--font-size-xs);
-        text-align: left;
-        cursor: pointer;
-    }
-
-    &__viewport-toggle:disabled {
-        color: var(--color-text-disabled);
-        cursor: default;
-    }
-
-    &__viewport-settings {
-        display: grid;
-        gap: var(--scale-size-12);
-        padding-top: var(--scale-size-16);
-
-        .sw-experience-studio-settings-fields__responsive-slider-input {
-            &.mt-slider > .mt-block-field__block {
-                min-height: 0;
-            }
-
-            &.mt-slider .mt-field--default .mt-block-field__block {
-                min-height: 0;
-            }
-        }
-    }
-
-    &__viewport-row {
-        display: grid;
-        grid-template-columns: 16px 30px minmax(0, 1fr);
-        column-gap: 8px;
+    &__viewport-heading {
+        display: flex;
         align-items: center;
-    }
+        justify-content: space-between;
+        gap: var(--scale-size-8);
+        margin-bottom: var(--scale-size-8);
 
-    &__viewport-icon {
-        color: var(--color-text-secondary-default);
-        justify-self: center;
-    }
-
-    &__viewport-label {
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs);
-        width: 30px;
-        min-width: 30px;
-    }
-
-    &__viewport-control {
-        width: 100%;
-        min-width: 0;
-        margin-bottom: 0;
-
-        &.mt-switch {
+        .mt-field__label {
             margin: 0;
-            min-height: 0;
-            justify-self: start;
-
-            &.mt-switch--not-bordered {
-                min-height: 0;
-            }
-
-            .mt-switch__block {
-                min-height: auto;
-            }
-
-            .mt-switch__label {
-                display: none;
-            }
-        }
-
-        &.mt-text-field,
-        &.mt-select,
-        &.mt-field {
-            margin-bottom: 0;
-        }
-
-        &.sw-experience-studio-box-spacing-field {
-            margin-bottom: 0;
-        }
-
-        &.mt-text-field,
-        &.mt-select {
-            .mt-field__label:has(label:empty) {
-                display: none;
-            }
         }
     }
 

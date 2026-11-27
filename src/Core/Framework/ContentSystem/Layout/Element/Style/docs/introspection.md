@@ -11,20 +11,20 @@
 
 `GET /api/_info/content-system-style-options.json`
 
-The registered universal style options — presentation attributes (alignment, span, spacing, display) settable on every element regardless of its type — keyed by their wire name. Requires Admin API auth. The same options are folded into the `styleOptions` key on each entry of [`content-system-element-types.json`](../../../Type/docs/introspection.md).
+The registered universal style options — presentation attributes (alignment, spacing, display) settable on every element regardless of its type — keyed by their wire name. Requires Admin API auth. The same options are folded into the `styleOptions` key on each entry of [`content-system-element-types.json`](../../../Type/docs/introspection.md).
 
-Response:
+Example response with a registered custom option:
 
 ```json
 {
   "styleOptions": {
-    "col-span": {
+    "custom-size": {
       "type": "integer",
       "enum": null,
       "range": { "min": 1, "max": 12 },
       "maxLength": null,
       "default": null,
-      "adminUI": { "component": "number", "label": "Column Span" },
+      "adminUI": { "component": "number", "label": "Custom Size" },
       "breakpointAware": true
     }
   }

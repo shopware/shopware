@@ -232,57 +232,48 @@
         "mode": {
           "title": "Mode",
           "options": {
+            "explicit": {
+              "label": "Custom grid",
+              "description": "Choose the number and width of columns and where content appears."
+            },
             "auto-fit": {
-              "label": "Auto fit",
-              "description": "Automatically fits as many columns as possible."
+              "label": "Auto",
+              "description": "Fit as many columns as the minimum item width allows."
             },
             "max-content": {
-              "label": "Max content",
-              "description": "Size columns based on their maximum content size."
-            },
-            "explicit": {
-              "label": "Explicit",
-              "description": "Use explicit columns and rows configuration."
+              "label": "Max-content",
+              "description": "Size each column to its maximum content width."
             }
           }
         },
         "itemMinWidth": {
-          "title": "Item Min Width"
+          "title": "Minimum item width"
         },
-        "columns": {
-          "title": "Columns",
+        "gridLayout": {
+          "title": "Grid",
           "xs": {
-            "title": "Columns (XS)"
+            "title": "XS grid"
           },
           "sm": {
-            "title": "Columns (SM)"
+            "title": "SM grid"
           },
           "md": {
-            "title": "Columns (MD)"
+            "title": "MD grid"
           },
           "lg": {
-            "title": "Columns (LG)"
+            "title": "LG grid"
           },
           "xl": {
-            "title": "Columns (XL)"
-          }
-        },
-        "rows": {
-          "title": "Rows",
-          "xs": {
-            "title": "Rows (XS)"
+            "title": "XL grid"
           },
-          "sm": {
-            "title": "Rows (SM)"
+          "xxl": {
+            "title": "XXL grid"
           },
-          "md": {
-            "title": "Rows (MD)"
+          "columns": {
+            "title": "Columns"
           },
-          "lg": {
-            "title": "Rows (LG)"
-          },
-          "xl": {
-            "title": "Rows (XL)"
+          "areas": {
+            "title": "Grid areas"
           }
         },
         "fullWidth": {
@@ -1088,7 +1079,6 @@
         "noEditableStyleOptions": "No layout style options are available.",
         "panelGeneral": "General",
         "editingLanguage": "Editing in {language}",
-        "viewportSettings": "Viewport settings",
         "boxSpacingTop": "Top",
         "boxSpacingRight": "Right",
         "boxSpacingBottom": "Bottom",
@@ -1217,10 +1207,6 @@
           }
         }
       },
-      "col-span": {
-        "label": "Column Span",
-        "description": "How many grid columns the element spans."
-      },
       "display": {
         "label": "Display",
         "description": "Whether the element is rendered at this breakpoint."
@@ -1245,11 +1231,43 @@
             "label": "Stretch"
           }
         }
-      },
-      "row-span": {
-        "label": "Row Span",
-        "description": "How many grid rows the element spans."
       }
+    },
+    "breakpointSelect": {
+      "label": "Screen size",
+      "extraSmall": "Extra small",
+      "extraLarge": "Extra large",
+      "ultrawide": "Ultrawide",
+      "base": "Base",
+      "reset": "Reset",
+      "override": "Override",
+      "singleOverride": "{size} override",
+      "overrideCount": "{count} overrides",
+      "more": "Show {count} more size | Show {count} more sizes",
+      "fewer": "Show fewer sizes"
+    },
+    "gridEditor": {
+      "invalidPercentWidth": "Enter a whole number from 1 to 100.",
+      "invalidPixelWidth": "Enter a whole number greater than 0.",
+      "tooMuch": "Relative column widths add up to more than 100%.",
+      "noAutoSpace": "Auto columns have no space left.",
+      "width": "Width",
+      "type": "Width type",
+      "typeAuto": "Auto",
+      "columnActions": "Column actions",
+      "move": "Move column",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "addColumn": "Add column",
+      "pattern": "Content arrangement",
+      "patternHelp": "Select areas to customize the arrangement.",
+      "areaLabel": "Area {number}, row {row}, column {column}, size {columns} by {rows}",
+      "removeRow": "Remove row {number}",
+      "addRow": "Add row",
+      "split": "Split",
+      "splitColumns": "Split only columns",
+      "splitRows": "Split only rows",
+      "merge": "Merge"
     }
   }
 }

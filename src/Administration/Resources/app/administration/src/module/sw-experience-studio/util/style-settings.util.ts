@@ -20,59 +20,7 @@ const STYLE_FIELD_ORDER = [
     'display',
     'align-self',
     'justify-self',
-    'col-span',
-    'row-span',
 ] as const;
-
-/**
- * @private
- * @sw-package discovery
- */
-const STYLE_BREAKPOINTS = [
-    'xs',
-    'sm',
-    'md',
-    'lg',
-    'xl',
-    'xxl',
-] as const;
-
-/**
- * @private
- * @sw-package discovery
- */
-function isBreakpointMapValue(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function isViewportSpecificBreakpointMap(
-    value: unknown,
-    breakpoints: readonly string[] = STYLE_BREAKPOINTS,
-): boolean {
-    if (!isBreakpointMapValue(value)) {
-        return false;
-    }
-
-    const definedEntries = breakpoints
-        .map((breakpoint) => value[breakpoint])
-        .filter((entry) => entry !== undefined && entry !== null);
-
-    if (definedEntries.length === 0) {
-        return false;
-    }
-
-    if (definedEntries.length < breakpoints.length) {
-        return true;
-    }
-
-    const firstValue = definedEntries[0];
-
-    return !definedEntries.every((entry) => entry === firstValue);
-}
 
 /**
  * @private

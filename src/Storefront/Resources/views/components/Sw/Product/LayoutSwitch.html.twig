@@ -2,6 +2,8 @@
 {# @sw-package framework #}
 {# @internal #}
 
+{% props horizontal = false %}
+
 {% set attributeDefaults = {
     class: 'sw-product-layout-switch btn-group',
     'data-component': 'Sw:Product:LayoutSwitch',
@@ -9,7 +11,8 @@
 
 <div {{ attributes.defaults(attributeDefaults) }}>
     <twig:Sw:Button
-        class="sw-product-layout-switch__horizontal"
+        class="{{ 'sw-product-layout-switch__horizontal' ~ (horizontal ? ' is--active' : '') }}"
+        aria-pressed="{{ horizontal ? 'true' : 'false' }}"
         title="{{ 'listing.layoutSwitchList'|trans|sw_sanitize }}"
         data-layout="horizontal"
         variant="light"
@@ -18,7 +21,8 @@
     </twig:Sw:Button>
 
     <twig:Sw:Button
-        class="sw-product-layout-switch__default"
+        class="{{ 'sw-product-layout-switch__default' ~ (horizontal ? '' : ' is--active') }}"
+        aria-pressed="{{ horizontal ? 'false' : 'true' }}"
         title="{{ 'listing.layoutSwitchGrid'|trans|sw_sanitize }}"
         data-layout="default"
         variant="light"

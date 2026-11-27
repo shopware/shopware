@@ -140,7 +140,7 @@ class ContentSystemPreviewControllerTest extends TestCase
                 'id' => $containerId,
                 'component' => 'Sw:Grid:Container',
                 'properties' => [],
-                'style' => ['col-span' => ['md' => 6]],
+                'style' => ['align-self' => ['md' => 'center']],
                 'slots' => ['content' => [[
                     'id' => $textId,
                     'component' => 'Sw:Content:Text',
@@ -179,7 +179,7 @@ class ContentSystemPreviewControllerTest extends TestCase
         // `page.elements` and the root element's `id`.
         static::assertStringContainsString('data-element-id="' . $containerId . '"', $content);
         // `element.style.values`, which resolves through a getter because the property is private.
-        static::assertStringContainsString('col-span-md-6', $content);
+        static::assertStringContainsString('align-self-md-center', $content);
         // `element.slots`, carried into the container component and read back by the Slot component.
         static::assertStringContainsString('data-element-id="' . $textId . '"', $content);
         // `element.component` picked the Text component and `element.properties` fed it.

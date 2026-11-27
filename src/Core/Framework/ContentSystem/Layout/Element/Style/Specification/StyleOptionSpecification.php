@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Declared contract of one universal style option: its name (the Store-API wire key, e.g.
- * `col-span`), an optional kind discriminator, an adminUI passthrough block, and the value
+ * `align-self`), an optional kind discriminator, an adminUI passthrough block, and the value
  * vocabulary/bounds on the StyleOptionValueType. toSchema() serializes it for introspection.
  *
  * @phpstan-type StyleOptionSchema = array{

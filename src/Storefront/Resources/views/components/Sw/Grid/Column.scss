@@ -5,12 +5,6 @@
 .grid-column {
     min-width: 100%;
 
-    @for $i from 1 through 12 {
-        &.span-#{$i} {
-            grid-column: span #{$i};
-        }
-    }
-
     @each $breakpoint, $value in $grid-breakpoints {
         @include media-breakpoint-only($breakpoint) {
             @for $i from 1 through 12 {

@@ -416,6 +416,72 @@ describe('directives/dragdrop', () => {
         expect(dragDrop1.classes()).not.toContain('is--dragging');
     });
 
+    it.each([0, 100])('cancels a drag on unmount with delay %i', async (delay) => {
+        const onDrop = jest.fn();
+        wrapper = await createWrapper({ delay, onDrop, cancelOnUnmount: true });
+        const element = wrapper.find('#sw-dragdrop--1');
+
+        await element.trigger('mousedown', { buttons: 1 });
+        wrapper.unmount();
+        jest.advanceTimersByTime(200);
+        document.dispatchEvent(new MouseEvent('mouseup'));
+
+        expect(getCurrentDragElement()).toBeNull();
+        expect(onDrop).not.toHaveBeenCalled();
+    });
+
+    it('cancels a pending drag when its element is unmounted', async () => {
+        const onDragStart = jest.fn();
+        wrapper = await createWrapper({ delay: 100, onDragStart });
+        await wrapper.get('#sw-dragdrop--1').trigger('mousedown', { buttons: 1 });
+        wrapper.unmount();
+        jest.advanceTimersByTime(100);
+
+        expect(onDragStart).not.toHaveBeenCalled();
+        expect(getCurrentDragElement()).toBeNull();
+    });
+
+    it('continues an active drag when its element is reparented', async () => {
+        const onDrop = jest.fn();
+        const component = {
+            template: `
+                <div>
+                    <button @click="groups = [[], ['item']]">Move</button>
+                    <div v-for="(items, index) in groups" :key="index">
+                        <span v-for="item in items" :key="item" v-draggable="{ delay: 0, onDrop }">{{ item }}</span>
+                    </div>
+                </div>
+            `,
+            data: () => ({ groups: [['item'], []] }),
+            methods: { onDrop },
+        };
+        wrapper = shallowMount(component, { attachTo: document.body });
+        await wrapper.get('span').trigger('mousedown', { buttons: 1 });
+
+        await wrapper.get('button').trigger('click');
+        expect(getCurrentDragElement()).not.toBeNull();
+
+        document.dispatchEvent(new MouseEvent('mouseup'));
+        expect(onDrop).toHaveBeenCalledTimes(1);
+        expect(getCurrentDragElement()).toBeNull();
+        wrapper.unmount();
+    });
+
+    it('cancels an active drag on touchcancel without dropping', async () => {
+        const onDrop = jest.fn();
+        wrapper = await createWrapper({ delay: 0, onDrop });
+        const element = wrapper.find('#sw-dragdrop--1');
+
+        await element.trigger('mousedown', { buttons: 1 });
+        expect(element.classes()).toContain('is--dragging');
+        document.dispatchEvent(new Event('touchcancel'));
+
+        expect(element.classes()).not.toContain('is--dragging');
+        expect(getCurrentDragElement()).toBeNull();
+        expect(onDrop).not.toHaveBeenCalled();
+        wrapper.unmount();
+    });
+
     it('should execute the onDrop method when given', async () => {
         const mockMethod = jest.fn(() => null);
         wrapper = await createWrapper({
@@ -434,6 +500,26 @@ describe('directives/dragdrop', () => {
         });
 
         expect(mockMethod).toHaveBeenCalled();
+    });
+
+    it('passes drag and drop data to the drop zone callback', async () => {
+        const onDrop = jest.fn();
+        wrapper = await createWrapper({ delay: 0, onDrop: undefined });
+        const source = wrapper.get('#sw-dragdrop--1');
+        const target = wrapper.get('#sw-dragdrop--2');
+        droppable.updated(target.element, {
+            value: { data: { id: 2 }, dragGroup: 'sw-multi-snippet', onDrop },
+        });
+        target.element.getBoundingClientRect = () => ({ left: 100, x: 100, top: 0, y: 0, width: 100, height: 100 });
+
+        await source.trigger('mousedown', { buttons: 1 });
+        await target.trigger('touchmove', { touches: [{ pageX: 120, pageY: 60 }] });
+        await source.trigger('mouseup');
+
+        expect(onDrop).toHaveBeenCalledTimes(1);
+        expect(onDrop).toHaveBeenCalledWith({ id: 1 }, { id: 2 });
+        expect(getCurrentDragElement()).toBeNull();
+        wrapper.unmount();
     });
 
     it('should not do anything when event is no mouseEvent and no buttons were clicked', async () => {

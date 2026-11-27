@@ -468,24 +468,11 @@ class LayoutDiagnostics
 
     /**
      * The declared reference FQCN for a component's property, or null when the type is unregistered, the key
-     * is not a declared property, or the property is not a single-FQCN reference (primitive or union type).
+     * is not a declared property, or the property is not a single-FQCN reference.
      */
     private function declaredReferenceFqcn(string $component, string $key): ?string
     {
-        $property = $this->declaredProperty($component, $key);
-
-        if ($property === null) {
-            return null;
-        }
-
-        $propertyType = $property->type();
-        $declaredType = $propertyType->type();
-
-        if ($propertyType->isPrimitive() || !\is_string($declaredType) || $declaredType === 'object') {
-            return null;
-        }
-
-        return $declaredType;
+        return $this->declaredProperty($component, $key)?->type()->referenceFqcn();
     }
 
     /**

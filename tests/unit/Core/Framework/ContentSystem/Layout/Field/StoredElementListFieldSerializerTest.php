@@ -99,9 +99,8 @@ class StoredElementListFieldSerializerTest extends TestCase
      * reconcile, in that sequence rather than merely running each step: the three boundary passes record into
      * one shared log through the collaborators each of them reaches, and the two rejection tests below pin the
      * two links ahead of them by showing that neither an undecodable nor an ill-formed payload gets that far.
-     * Each pass also leaves its own trace in the returned data — the seeder's default, the style
-     * normalizer's expanded breakpoint map, and the reconciler's marker composed from the already-seeded
-     * headline — so the final result, not just the call log, shows all three ran on each other's output.
+     * The returned data also contains the seeded headline, the normalized breakpoint map and
+     * the reconciliation marker derived from the seeded headline.
      */
     #[TestDox('runs seeding, style normalization and attribution reconciliation in the pinned order')]
     public function testNormalizeRunsTheWriteChainInThePinnedOrder(): void
@@ -109,7 +108,7 @@ class StoredElementListFieldSerializerTest extends TestCase
         $calls = [];
         $field = $this->createField();
         $data = ['id' => 'layout-1', 'elements' => [
-            ['id' => 'el', 'component' => 'Sw:Block', 'properties' => [], 'style' => ['display' => ['xs' => false]]],
+            ['id' => 'el', 'component' => 'Sw:Block', 'properties' => [], 'style' => ['display' => false]],
         ]];
 
         $result = $this->recordingSerializer($calls)->normalize($field, $data, $this->parameters());
@@ -120,7 +119,7 @@ class StoredElementListFieldSerializerTest extends TestCase
         static::assertSame('seeded', $element['properties']['headline']);
         static::assertSame('reconciled:seeded', $element['properties']['reconciledFrom']);
         static::assertSame(
-            ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true],
+            ['xs' => false, 'sm' => false, 'md' => false, 'lg' => false, 'xl' => false, 'xxl' => false],
             $element['style']['display']
         );
     }
@@ -248,8 +247,8 @@ class StoredElementListFieldSerializerTest extends TestCase
         static::assertSame('/elements', $exception->getViolations()->get(0)->getPropertyPath());
     }
 
-    #[TestDox('expands a partially specified breakpoint map on a raw-array write that never passed the Administration')]
-    public function testNormalizeNormalizesStyleOnARawArrayPayload(): void
+    #[TestDox('preserves a partial breakpoint map and seeds its base default on a raw-array write')]
+    public function testNormalizePreservesAPartialBreakpointMapOnARawArrayPayload(): void
     {
         $field = $this->createField();
         $data = ['id' => 'layout-1', 'elements' => [
@@ -260,7 +259,7 @@ class StoredElementListFieldSerializerTest extends TestCase
 
         static::assertSame(
             [['id' => 'el', 'component' => 'Sw:Block', 'properties' => [], 'style' => [
-                'display' => ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true],
+                'display' => ['xs' => false, 'lg' => true],
             ]]],
             $result['elements']
         );
@@ -831,7 +830,7 @@ class StoredElementListFieldSerializerTest extends TestCase
     /**
      * A serializer whose three boundary passes append their own name to $calls as they run, and also produce a
      * real, distinguishing effect on the forest: the seeder actually seeds a declared default, the style
-     * normalizer actually expands a declared option, and the reconciler tags each element with a marker built
+     * normalizer wraps a scalar in a breakpoint map, and the reconciler tags each element with a marker built
      * from the value the seeder already wrote. Each pass is recorded through a collaborator it cannot skip: the
      * seeder asks the type registry whether a component is known, the style normalizer reads the option
      * registry, and the reconciler is called once per forest.

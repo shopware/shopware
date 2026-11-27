@@ -39,6 +39,14 @@ class StructuredPropertyTypeValidatorTest extends TestCase
             new PropertySpecificationDto('layout', 'string', false, false, 'Layout', 'Layout variant.', null, null, null),
         ];
 
+        yield 'array with item schema' => [
+            new PropertySpecificationDto('areas', 'array', false, false, 'Areas', 'Areas.', null, null, null, items: new PropertySpecificationDto('items', 'string', false, false, 'Area', 'Area.', null, null, null)),
+        ];
+
+        yield 'union including array with item schema' => [
+            new PropertySpecificationDto('areas', ['string', 'array'], false, false, 'Areas', 'Areas.', null, null, null, items: new PropertySpecificationDto('items', 'string', false, false, 'Area', 'Area.', null, null, null)),
+        ];
+
         yield 'union type without object' => [
             new PropertySpecificationDto('size', ['integer', 'string'], false, false, 'Size', 'Flexible size.', null, null, null),
         ];
@@ -78,6 +86,32 @@ class StructuredPropertyTypeValidatorTest extends TestCase
         ];
     }
 
+    public function testRejectsUnionWithoutItemsAndInvalidNestedItems(): void
+    {
+        $union = new PropertySpecificationDto('areas', ['string', 'array'], false, false, 'Areas', 'Areas.', null, null, null);
+        $nested = new PropertySpecificationDto('areas', 'array', false, false, 'Areas', 'Areas.', null, null, null, items: new PropertySpecificationDto('items', 'array', false, false, 'Row', 'Row.', null, null, null));
+
+        foreach ([$union, $nested] as $index => $dto) {
+            $violations = $this->validate($dto);
+            static::assertCount(1, $violations);
+            static::assertSame($index === 0 ? 'items' : 'items.items', $violations->get(0)->getPropertyPath());
+            static::assertSame((new StructuredPropertyType())->arrayRequiresItemsMessage, $violations->get(0)->getMessage());
+            static::assertNull($violations->get(0)->getCode());
+        }
+    }
+
+    public function testRejectsItemsOnATypeWithoutArray(): void
+    {
+        $item = new PropertySpecificationDto('items', 'string', false, false, 'Entry', 'Entry.', null, null, null);
+        $dto = new PropertySpecificationDto('label', 'string', false, false, 'Label', 'Label.', null, null, null, items: $item);
+
+        $violations = $this->validate($dto);
+
+        static::assertCount(1, $violations);
+        static::assertSame('items', $violations->get(0)->getPropertyPath());
+        static::assertSame((new StructuredPropertyType())->itemsRequireArrayTypeMessage, $violations->get(0)->getMessage());
+    }
+
     #[DataProvider('rejectsInvalidSpecificationProvider')]
     #[TestDox('rejects invalid structured property specification with violation at $expectedPath')]
     public function testRejectsInvalidPropertySpecification(PropertySpecificationDto $dto, string $expectedPath): void
@@ -106,6 +140,16 @@ class StructuredPropertyTypeValidatorTest extends TestCase
         yield 'object without properties' => [
             new PropertySpecificationDto('columns', 'object', false, false, 'Columns', 'Columns.', null, null, null),
             'properties',
+        ];
+
+        yield 'array without item schema' => [
+            new PropertySpecificationDto('areas', 'array', false, false, 'Areas', 'Areas.', null, null, null),
+            'items',
+        ];
+
+        yield 'item schema without array type' => [
+            new PropertySpecificationDto('areas', 'string', false, false, 'Areas', 'Areas.', null, null, null, items: new PropertySpecificationDto('items', 'string', false, false, 'Area', 'Area.', null, null, null)),
+            'items',
         ];
 
         yield 'properties without object type' => [

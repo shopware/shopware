@@ -99,214 +99,118 @@
                         </div>
                     </div>
 
-                    <template v-else-if="isBreakpointAwareField(field)">
-                        <div class="sw-experience-studio-settings-fields__responsive-control">
-                            <div
-                                v-if="getControlType(field.property) === 'responsive-number'"
-                                class="sw-experience-studio-settings-fields__responsive-slider"
-                            >
-                                <mt-slider
-                                    class="sw-experience-studio-settings-fields__responsive-slider-input"
-                                    :label="getPropertyTitle(field.property)"
-                                    :min="getResponsiveLimits(field.property).min"
-                                    :max="getResponsiveLimits(field.property).max"
-                                    :step="getResponsiveLimits(field.property).step"
-                                    :mark-count="0"
-                                    :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
-                                    :model-value="getResponsiveGlobalValue(field.key, field.property, field)"
-                                    @update:model-value="onUpdateResponsiveGlobalProperty(field.key, field.property, field, $event)"
-                                />
-                            </div>
-
-                            <mt-switch
-                                v-else-if="getControlType(field.property) === 'switch'"
-                                v-bind="getControlProps(field.property)"
-                                :label="getPropertyTitle(field.property)"
-                                :help-text="getPropertyHelpText(field.property)"
-                                :model-value="getResponsiveGlobalValue(field.key, field.property, field)"
-                                :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
-                                @update:model-value="onUpdateResponsiveGlobalProperty(field.key, field.property, field, $event)"
+                    <div
+                        v-else-if="isBreakpointAwareField(field)"
+                        class="sw-experience-studio-settings-fields__responsive-control"
+                    >
+                        <div class="sw-experience-studio-settings-fields__viewport-heading">
+                            <span class="mt-field__label label">{{ getPropertyTitle(field.property) }}</span>
+                            <breakpoint-select
+                                :model-value="getSelectedBreakpoint(field.key)"
+                                :overrides="getResponsiveOverrides(field.key)"
+                                :can-reset="allowEdit"
+                                @update:model-value="selectedBreakpoints[field.key] = $event"
+                                @reset="onUpdateResponsiveProperty(field, null)"
                             />
-
-                            <mt-select
-                                v-else-if="getControlType(field.property) === 'select'"
-                                v-bind="getControlProps(field.property)"
-                                :label="getPropertyTitle(field.property)"
-                                :help-text="getPropertyHelpText(field.property)"
-                                :model-value="getResponsiveGlobalValue(field.key, field.property, field)"
-                                :options="getSelectOptions(field.property)"
-                                :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
-                                @update:model-value="onUpdateResponsiveGlobalProperty(field.key, field.property, field, $event)"
-                            />
-
-                            <div
-                                v-else-if="getControlType(field.property) === 'radio-panel'"
-                                class="sw-experience-studio-settings-fields__radio-panel-group mt-field"
-                            >
-                                <label
-                                    class="sw-experience-studio-settings-fields__radio-panel-label mt-field__label label"
-                                    :for="getRadioPanelLabelTargetId(field.key, field.property, field)"
-                                >{{ getPropertyTitle(field.property) }}</label>
-
-                                <sw-button-group class="sw-experience-studio-settings-fields__radio-panel-options">
-                                    <mt-button
-                                        v-for="option in getRadioPanelOptions(field.property)"
-                                        :id="getRadioPanelOptionId(field.key, option.value)"
-                                        :key="option.value"
-                                        square
-                                        size="small"
-                                        class="sw-experience-studio-settings-fields__radio-panel-option"
-                                        :variant="String(getResponsiveGlobalValue(field.key, field.property, field) ?? '') === option.value ? 'primary' : 'secondary'"
-                                        :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || option.disabled || undefined"
-                                        :aria-label="option.label"
-                                        :title="option.label"
-                                        @click="onUpdateResponsiveGlobalProperty(field.key, field.property, field, getRadioPanelEmitValue(field.key, field.property, option.value))"
-                                    >
-                                        <span
-                                            v-if="option.cornerRadius"
-                                            class="sw-experience-studio-settings-fields__corner-radius-preview"
-                                            :style="{ borderRadius: option.cornerRadius }"
-                                        ></span>
-                                        <mt-icon
-                                            v-else
-                                            :name="option.icon || 'regular-square'"
-                                            size="16px"
-                                        />
-                                    </mt-button>
-                                </sw-button-group>
-                            </div>
-
-                            <sw-experience-studio-box-spacing-field
-                                v-else-if="getControlType(field.property) === 'box-spacing'"
-                                :field-key="getFieldControlKey(field.key)"
-                                :label="getPropertyTitle(field.property)"
-                                :help-text="getPropertyHelpText(field.property)"
-                                :model-value="String(getResponsiveGlobalValue(field.key, field.property, field) ?? '')"
-                                :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
-                                @update:model-value="onUpdateResponsiveGlobalProperty(field.key, field.property, field, $event)"
-                            />
-
-                            <mt-text-field
-                                v-else
-                                v-bind="getControlProps(field.property)"
-                                :label="getPropertyTitle(field.property)"
-                                :help-text="getPropertyHelpText(field.property)"
-                                :model-value="getResponsiveGlobalValue(field.key, field.property, field)"
-                                :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || undefined"
-                                @update:model-value="onUpdateResponsiveGlobalProperty(field.key, field.property, field, $event)"
-                            />
-
-                            <button
-                                type="button"
-                                class="sw-experience-studio-settings-fields__viewport-toggle"
-                                :disabled="!allowEdit"
-                                @click="onToggleResponsiveViewportMode(field.key, field.property, field)"
-                            >
-                                {{ $t('sw-experience-studio.detail.elementSettings.viewportSettings') }}
-                            </button>
-
-                            <div
-                                v-if="isResponsiveViewportMode(field.key, field)"
-                                class="sw-experience-studio-settings-fields__viewport-settings"
-                            >
-                                <div
-                                    v-for="viewport in getResponsiveViewports(field)"
-                                    :key="viewport"
-                                    class="sw-experience-studio-settings-fields__viewport-row"
-                                >
-                                    <mt-icon
-                                        :name="getViewportIcon(viewport)"
-                                        size="16px"
-                                        class="sw-experience-studio-settings-fields__viewport-icon"
-                                    />
-                                    <span class="sw-experience-studio-settings-fields__viewport-label">{{ viewport.toUpperCase() }}</span>
-
-                                    <sw-experience-studio-box-spacing-field
-                                        v-if="getControlType(field.property) === 'box-spacing'"
-                                        class="sw-experience-studio-settings-fields__viewport-control"
-                                        compact
-                                        :field-key="getFieldControlKey(`${field.key}-${viewport}`)"
-                                        :model-value="String(getResponsiveViewportValue(field.key, viewport, field.property, field) ?? '')"
-                                        :disabled="!allowEdit || undefined"
-                                        @update:model-value="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, $event)"
-                                    />
-
-                                    <mt-slider
-                                        v-else-if="getControlType(field.property) === 'responsive-number'"
-                                        class="sw-experience-studio-settings-fields__responsive-slider-input"
-                                        label=""
-                                        :min="getResponsiveLimits(field.property).min"
-                                        :max="getResponsiveLimits(field.property).max"
-                                        :step="getResponsiveLimits(field.property).step"
-                                        :mark-count="0"
-                                        :disabled="!allowEdit || undefined"
-                                        :model-value="getResponsiveViewportValue(field.key, viewport, field.property, field)"
-                                        @update:model-value="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, $event)"
-                                    />
-
-                                    <mt-switch
-                                        v-else-if="getControlType(field.property) === 'switch'"
-                                        class="sw-experience-studio-settings-fields__viewport-control"
-                                        remove-top-margin
-                                        :model-value="getResponsiveViewportValue(field.key, viewport, field.property, field)"
-                                        :disabled="!allowEdit || undefined"
-                                        @update:model-value="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, $event)"
-                                    />
-
-                                    <mt-select
-                                        v-else-if="getControlType(field.property) === 'select'"
-                                        class="sw-experience-studio-settings-fields__viewport-control"
-                                        label=""
-                                        small
-                                        :model-value="getResponsiveViewportValue(field.key, viewport, field.property, field)"
-                                        :options="getSelectOptions(field.property)"
-                                        :disabled="!allowEdit || undefined"
-                                        @update:model-value="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, $event)"
-                                    />
-
-                                    <sw-button-group
-                                        v-else-if="getControlType(field.property) === 'radio-panel'"
-                                        class="sw-experience-studio-settings-fields__radio-panel-options sw-experience-studio-settings-fields__viewport-control"
-                                    >
-                                        <mt-button
-                                            v-for="option in getRadioPanelOptions(field.property)"
-                                            :id="getRadioPanelOptionId(`${field.key}-${viewport}`, option.value)"
-                                            :key="option.value"
-                                            square
-                                            size="small"
-                                            class="sw-experience-studio-settings-fields__radio-panel-option"
-                                            :variant="String(getResponsiveViewportValue(field.key, viewport, field.property, field) ?? '') === option.value ? 'primary' : 'secondary'"
-                                            :disabled="!allowEdit || option.disabled || undefined"
-                                            :aria-label="option.label"
-                                            :title="option.label"
-                                            @click="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, getRadioPanelEmitValue(field.key, field.property, option.value))"
-                                        >
-                                            <span
-                                                v-if="option.cornerRadius"
-                                                class="sw-experience-studio-settings-fields__corner-radius-preview"
-                                                :style="{ borderRadius: option.cornerRadius }"
-                                            ></span>
-                                            <mt-icon
-                                                v-else
-                                                :name="option.icon || 'regular-square'"
-                                                size="16px"
-                                            />
-                                        </mt-button>
-                                    </sw-button-group>
-
-                                    <mt-text-field
-                                        v-else
-                                        class="sw-experience-studio-settings-fields__viewport-control"
-                                        label=""
-                                        size="small"
-                                        :model-value="getResponsiveViewportValue(field.key, viewport, field.property, field)"
-                                        :disabled="!allowEdit || undefined"
-                                        @update:model-value="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, $event)"
-                                    />
-                                </div>
-                            </div>
                         </div>
-                    </template>
+                        <div
+                            v-if="getControlType(field.property) === 'responsive-number'"
+                            class="sw-experience-studio-settings-fields__responsive-slider"
+                        >
+                            <mt-slider
+                                class="sw-experience-studio-settings-fields__responsive-slider-input sw-experience-studio-settings-fields__responsive-input"
+                                :label="getPropertyTitle(field.property)"
+                                :min="getResponsiveLimits(field.property).min"
+                                :max="getResponsiveLimits(field.property).max"
+                                :step="getResponsiveLimits(field.property).step"
+                                :mark-count="0"
+                                :disabled="!allowEdit || undefined"
+                                :model-value="getResponsiveValue(field)"
+                                @update:model-value="onUpdateResponsiveProperty(field, $event)"
+                            />
+                        </div>
+
+                        <mt-switch
+                            v-else-if="getControlType(field.property) === 'switch'"
+                            v-bind="getControlProps(field.property)"
+                            label=""
+                            :aria-label="getPropertyTitle(field.property)"
+                            :help-text="getPropertyHelpText(field.property)"
+                            :model-value="getResponsiveValue(field)"
+                            :disabled="!allowEdit || undefined"
+                            @update:model-value="onUpdateResponsiveProperty(field, $event)"
+                        />
+
+                        <mt-select
+                            v-else-if="getControlType(field.property) === 'select'"
+                            v-bind="getControlProps(field.property)"
+                            class="sw-experience-studio-settings-fields__responsive-input"
+                            :label="getPropertyTitle(field.property)"
+                            :help-text="getPropertyHelpText(field.property)"
+                            :model-value="getResponsiveValue(field)"
+                            :options="getSelectOptions(field.property)"
+                            :disabled="!allowEdit || undefined"
+                            @update:model-value="onUpdateResponsiveProperty(field, $event)"
+                        />
+
+                        <div
+                            v-else-if="getControlType(field.property) === 'radio-panel'"
+                            class="sw-experience-studio-settings-fields__radio-panel-group mt-field"
+                        >
+                            <sw-button-group
+                                class="sw-experience-studio-settings-fields__radio-panel-options"
+                                role="group"
+                                :aria-label="getPropertyTitle(field.property)"
+                            >
+                                <mt-button
+                                    v-for="option in getRadioPanelOptions(field.property)"
+                                    :id="getRadioPanelOptionId(field.key, option.value)"
+                                    :key="option.value"
+                                    square
+                                    size="small"
+                                    class="sw-experience-studio-settings-fields__radio-panel-option"
+                                    :variant="String(getResponsiveValue(field) ?? '') === option.value ? 'primary' : 'secondary'"
+                                    :disabled="!allowEdit || option.disabled || undefined"
+                                    :aria-label="option.label"
+                                    :title="option.label"
+                                    @click="onUpdateResponsiveProperty(field, getRadioPanelEmitValue(field.key, field.property, option.value))"
+                                >
+                                    <span
+                                        v-if="option.cornerRadius"
+                                        class="sw-experience-studio-settings-fields__corner-radius-preview"
+                                        :style="{ borderRadius: option.cornerRadius }"
+                                    ></span>
+                                    <mt-icon
+                                        v-else
+                                        :name="option.icon || 'regular-square'"
+                                        size="16px"
+                                    />
+                                </mt-button>
+                            </sw-button-group>
+                        </div>
+
+                        <sw-experience-studio-box-spacing-field
+                            v-else-if="getControlType(field.property) === 'box-spacing'"
+                            :field-key="getFieldControlKey(field.key)"
+                            class="sw-experience-studio-settings-fields__responsive-input"
+                            :label="getPropertyTitle(field.property)"
+                            :help-text="getPropertyHelpText(field.property)"
+                            :model-value="String(getResponsiveValue(field) ?? '')"
+                            :disabled="!allowEdit || undefined"
+                            @update:model-value="onUpdateResponsiveProperty(field, $event)"
+                        />
+
+                        <mt-text-field
+                            v-else
+                            v-bind="getControlProps(field.property)"
+                            class="sw-experience-studio-settings-fields__responsive-input"
+                            :label="getPropertyTitle(field.property)"
+                            :help-text="getPropertyHelpText(field.property)"
+                            :model-value="getResponsiveValue(field)"
+                            :disabled="!allowEdit || undefined"
+                            @update:model-value="onUpdateResponsiveProperty(field, $event)"
+                        />
+                    </div>
 
                     <template v-else>
                         <sw-experience-studio-inline-text-field
@@ -372,6 +276,15 @@
                             @update:model-value="onUpdateField(field.key, $event)"
                         />
 
+                        <sw-experience-studio-grid-editor
+                            v-else-if="getControlType(field.property) === 'grid-editor'"
+                            :breakpoint-fallbacks="breakpointFallbacks"
+                            :label="getPropertyTitle(field.property)"
+                            :grid-layout="getRawPropertyValue(field.key)"
+                            :allow-edit="allowEdit"
+                            @update:grid-layout="onUpdateField(field.key, $event)"
+                        />
+
                         <div
                             v-else-if="getControlType(field.property) === 'radio-panel'"
                             class="sw-experience-studio-settings-fields__radio-panel-group mt-field"
@@ -392,6 +305,7 @@
                                     :variant="String(getPropertyValue(field.key, field.property) ?? '') === option.value ? 'primary' : 'secondary'"
                                     :disabled="!allowEdit || option.disabled || undefined"
                                     :aria-label="option.label"
+                                    :aria-describedby="String(getPropertyValue(field.key, field.property) ?? '') === option.value && getRadioPanelDescription(field.property, getPropertyValue(field.key, field.property)) ? getRadioPanelDescriptionId(field.key) : undefined"
                                     :title="option.label"
                                     @click="onUpdateRadioPanelProperty(field.key, field.property, option.value)"
                                 >
@@ -407,6 +321,14 @@
                                     />
                                 </mt-button>
                             </sw-button-group>
+
+                            <p
+                                v-show="getRadioPanelDescription(field.property, getPropertyValue(field.key, field.property))"
+                                :id="getRadioPanelDescriptionId(field.key)"
+                                aria-live="polite"
+                            >
+                                {{ getRadioPanelDescription(field.property, getPropertyValue(field.key, field.property)) }}
+                            </p>
                         </div>
 
                         <sw-entity-single-select

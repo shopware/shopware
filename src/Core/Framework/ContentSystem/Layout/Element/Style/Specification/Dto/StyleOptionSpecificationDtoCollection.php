@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validation wrapper for a set of style option declarations. Keyed by option name (e.g.
- * `col-span`) so Symfony includes the name in violation property paths: options[col-span].type
+ * `align-self`) so Symfony includes the name in violation property paths: options[align-self].type
  *
  * @internal
  */

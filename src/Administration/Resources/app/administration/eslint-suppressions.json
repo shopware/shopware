@@ -6800,19 +6800,8 @@
     }
   },
   "src/module/sw-experience-studio/component/sw-experience-studio-settings-fields/index.ts": {
-    "@typescript-eslint/no-unnecessary-boolean-literal-compare": {
-      "count": 1
-    },
     "max-lines": {
       "count": 1
-    },
-    "max-params": {
-      "count": 1
-    }
-  },
-  "src/module/sw-experience-studio/component/sw-experience-studio-settings-fields/sw-experience-studio-settings-fields.html.twig": {
-    "vue/max-template-depth": {
-      "count": 5
     }
   },
   "src/module/sw-experience-studio/component/sw-experience-studio-sidebar-tree-node/index.ts": {

@@ -59,7 +59,7 @@ class YamlStyleOptionLoaderTest extends TestCase
 
         $options = $this->createLoader([new StyleOptionSourceDirectory('core', $coreDir)])->load();
 
-        static::assertCount(5, $options);
+        static::assertCount(3, $options);
     }
 
     #[TestDox('returns an empty array for a non-existent directory')]

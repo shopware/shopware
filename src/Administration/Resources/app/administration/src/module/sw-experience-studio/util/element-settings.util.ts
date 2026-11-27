@@ -22,6 +22,7 @@ export type ElementPropertyControlType =
     | 'richtext'
     | 'text'
     | 'responsive-number'
+    | 'grid-editor'
     | 'box-spacing';
 
 const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType> = {
@@ -52,6 +53,7 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     'sw-entity-multi-id-select': 'entity-multi',
     'responsive-number': 'responsive-number',
     'box-spacing': 'box-spacing',
+    'grid-editor': 'grid-editor',
 };
 
 /**

@@ -961,6 +961,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         yield 'a primitive property' => ['mediaId'];
         yield 'an undeclared key' => ['ghost'];
         yield 'an object property' => ['payload'];
+        yield 'an array property' => ['entries'];
         yield 'a union property' => ['identifier'];
     }
 
@@ -1237,6 +1238,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
                 'media' => new PropertySpecification('media', new PropertyType(Entity::class, false, null, null), false, '', '', null),
                 'mediaId' => new PropertySpecification('mediaId', new PropertyType('string', false, null, null), false, '', '', null),
                 'payload' => new PropertySpecification('payload', new PropertyType('object', false, null, null), false, '', '', null),
+                'entries' => new PropertySpecification('entries', new PropertyType('array', false, null, null), false, '', '', null),
                 'identifier' => new PropertySpecification('identifier', new PropertyType(['string', 'integer'], false, null, null), false, '', '', null),
             ],
             [],

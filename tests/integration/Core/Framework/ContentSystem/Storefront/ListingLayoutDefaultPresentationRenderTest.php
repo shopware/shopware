@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Pins the other leg of the two ternaries {@see ListingLayoutQueryParameterRenderTest} reads its `listingLayout`
- * value from: no `listingLayout` query parameter at all. `Sw/Product/Listing.html.twig:69` falls back to
- * `'default'` and `:64` falls back to the per-viewport column map, so a request that never supplies the
+ * value from: no `listingLayout` query parameter at all. `Sw/Product/Listing.html.twig` falls back to
+ * `'default'` and the per-viewport column map, so a request that never supplies the
  * parameter must render `is--layout-default` cards and the multi-viewport column set, not the horizontal ones.
  *
  * This case cannot live in {@see ListingLayoutQueryParameterRenderTest}: `TwigAppVariable::getRequest()`
@@ -78,8 +78,8 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
             $html
         );
         static::assertSame(
-            ['columns-1', 'columns-lg-4', 'columns-md-3', 'columns-sm-2', 'columns-xl-4'],
-            $this->gridColumnClasses($html),
+            ['xs' => 1, 'sm' => 2, 'md' => 3, 'lg' => 4, 'xl' => 4],
+            $this->gridColumnCounts($html),
             $html
         );
     }
@@ -119,11 +119,9 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
     }
 
     /**
-     * The column classes of the one grid container, sorted so the assertion does not pin the CVA emission order.
-     *
-     * @return list<string>
+     * @return array<string, int>
      */
-    private function gridColumnClasses(string $html): array
+    private function gridColumnCounts(string $html): array
     {
         $grids = $this->query($html, self::GRID_XPATH);
         static::assertCount(1, $grids, $html);
@@ -131,14 +129,14 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
         $grid = $grids->item(0);
         static::assertInstanceOf(\DOMElement::class, $grid);
 
-        $columns = array_values(array_filter(
-            $this->classTokens($grid),
-            static fn (string $token): bool => str_starts_with($token, 'columns-')
-        ));
+        $style = $grid->getAttribute('style');
+        $counts = [];
+        foreach (['xs', 'sm', 'md', 'lg', 'xl'] as $breakpoint) {
+            static::assertSame(1, preg_match('/--sw-grid-columns-' . $breakpoint . ': ([^;]+);/', $style, $matches));
+            $counts[$breakpoint] = substr_count($matches[1], 'minmax(0, 1fr)');
+        }
 
-        sort($columns);
-
-        return $columns;
+        return $counts;
     }
 
     /**

@@ -1,5 +1,7 @@
 import type Repository from 'src/core/data/repository.data';
 import type {
+    ContentSystemBreakpoint,
+    ContentSystemBreakpointFallbacks,
     ContentSystemElementTypeProperty,
     ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
@@ -12,6 +14,7 @@ import {
     getPropertyControlType,
 } from '../../util/element-settings.util';
 import { normalizeBoxSpacingCSSValue } from '../../util/box-spacing.util';
+import { resolveBreakpointValue } from '../../util/breakpoint.util';
 import {
     getCandidatesForProperty,
     getInlineMappingCandidates,
@@ -19,14 +22,13 @@ import {
     isInlineMappableProperty,
     isMappableProperty,
 } from '../../util/element-mapping.util';
-import { isViewportSpecificBreakpointMap } from '../../util/style-settings.util';
 import { translateContentSystemText } from '../../util/content-system-translation.util';
+import BreakpointSelect, { BASE_BREAKPOINT, orderedBreakpoints } from '../sw-experience-studio-breakpoint-select';
 import template from './sw-experience-studio-settings-fields.html.twig';
 import './sw-experience-studio-settings-fields.scss';
 
 type PrimitiveValue = string | number | boolean | null | Record<string, unknown>;
-type ResponsiveViewport = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
-type ResponsiveValue = Record<ResponsiveViewport, PrimitiveValue>;
+type ResponsiveValue = Partial<Record<ContentSystemBreakpoint, PrimitiveValue>>;
 type RadioPanelOption = {
     value: string;
     label: string;
@@ -74,6 +76,8 @@ export type SettingsFieldDefinition = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    components: { BreakpointSelect },
+
     inject: [
         'repositoryFactory',
     ],
@@ -86,6 +90,10 @@ export default Shopware.Component.wrapComponentConfig({
         values: {
             type: Object as PropType<Record<string, unknown>>,
             required: true,
+        },
+        breakpointFallbacks: {
+            type: Object as PropType<ContentSystemBreakpointFallbacks>,
+            default: () => ({}),
         },
         languageName: {
             type: String,
@@ -150,26 +158,10 @@ export default Shopware.Component.wrapComponentConfig({
         'retry-mapping-candidates',
     ],
 
-    watch: {
-        fields: {
-            handler() {
-                this.syncLoadedResponsiveState();
-            },
-            immediate: true,
-        },
-
-        values: {
-            handler() {
-                this.syncLoadedResponsiveState();
-            },
-        },
-    },
-
     data() {
         return {
-            expandedResponsiveProperties: {} as Record<string, boolean>,
-            responsiveGlobalSnapshots: {} as Record<string, PrimitiveValue>,
-            touchedBreakpointAwareProperties: {} as Record<string, boolean>,
+            radioPanelIdPrefix: Shopware.Utils.createId(),
+            selectedBreakpoints: {} as Partial<Record<string, ContentSystemBreakpoint>>,
             mappingModalFieldKey: null as string | null,
         };
     },
@@ -410,267 +402,50 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        getResponsiveViewports(field: SettingsFieldDefinition): ResponsiveViewport[] {
-            if (field.breakpointAware === true) {
-                return [
-                    'xs',
-                    'sm',
-                    'md',
-                    'lg',
-                    'xl',
-                    'xxl',
-                ];
-            }
-
-            return [
-                'xs',
-                'sm',
-                'md',
-                'lg',
-                'xl',
-            ];
+        getSelectedBreakpoint(key: string): ContentSystemBreakpoint {
+            return this.selectedBreakpoints[key] ?? BASE_BREAKPOINT;
         },
 
-        getViewportIcon(viewport: ResponsiveViewport): string {
-            if (viewport === 'xs' || viewport === 'sm') {
-                return 'regular-mobile';
+        getResponsiveOverrides(key: string): ContentSystemBreakpoint[] {
+            const value = this.getRawPropertyValue(key);
+            if (!this.isResponsiveObjectValue(value)) {
+                return [];
             }
 
-            if (viewport === 'md') {
-                return 'regular-tablet';
-            }
-
-            return 'regular-desktop';
+            return orderedBreakpoints.filter((breakpoint) => breakpoint !== BASE_BREAKPOINT && value[breakpoint] != null);
         },
 
-        isResponsiveViewportMode(key: string, field: SettingsFieldDefinition): boolean {
-            if (this.expandedResponsiveProperties[key]) {
-                return true;
-            }
+        getResponsiveValue(field: SettingsFieldDefinition): PrimitiveValue {
+            const value = this.getRawPropertyValue(field.key);
+            const resolved = this.isResponsiveObjectValue(value)
+                ? resolveBreakpointValue(value, this.getSelectedBreakpoint(field.key), this.breakpointFallbacks)
+                : value;
 
-            if (field.breakpointAware === true) {
-                return isViewportSpecificBreakpointMap(this.getRawPropertyValue(key), this.getResponsiveViewports(field));
-            }
-
-            return this.isBreakpointAwareField(field) && this.isResponsiveObjectValue(this.getRawPropertyValue(key));
+            return resolved == null
+                ? this.getResponsiveFallbackValue(field.property)
+                : this.normalizeResponsiveValue(field.property, resolved);
         },
 
-        getResponsiveGlobalValue(
-            key: string,
-            property: ContentSystemElementTypeProperty,
-            field?: SettingsFieldDefinition,
-        ): PrimitiveValue {
-            if (field && this.isResponsiveViewportMode(key, field)) {
-                const globalSnapshot = this.responsiveGlobalSnapshots[key];
-
-                if (globalSnapshot !== undefined) {
-                    return this.normalizeResponsiveValue(property, globalSnapshot);
-                }
-            }
-
-            return this.resolveResponsiveGlobalValueFromStorage(key, property);
-        },
-
-        resolveResponsiveGlobalValueFromStorage(key: string, property: ContentSystemElementTypeProperty): PrimitiveValue {
-            const rawValue = this.getRawPropertyValue(key);
-
-            if (this.isResponsiveObjectValue(rawValue)) {
-                const fallbackOrder: ResponsiveViewport[] = [
-                    'xs',
-                    'sm',
-                    'md',
-                    'lg',
-                    'xl',
-                    'xxl',
-                ];
-                for (const viewport of fallbackOrder) {
-                    const candidate = rawValue[viewport];
-                    if (candidate !== undefined) {
-                        return this.normalizeResponsiveValue(property, candidate);
-                    }
-                }
-            }
-
-            if (rawValue !== undefined && !this.isResponsiveObjectValue(rawValue)) {
-                return this.normalizeResponsiveValue(property, rawValue);
-            }
-
-            return this.getResponsiveFallbackValue(property);
-        },
-
-        deriveGlobalSnapshotFromBreakpointMap(
-            property: ContentSystemElementTypeProperty,
-            field: SettingsFieldDefinition,
-            rawValue: Partial<ResponsiveValue>,
-        ): PrimitiveValue {
-            const resolvedValues = this.getResponsiveViewports(field).map((viewport) => {
-                const viewportValue = rawValue[viewport];
-
-                if (viewportValue !== undefined) {
-                    return this.normalizeResponsiveValue(property, viewportValue);
-                }
-
-                return this.getResponsiveFallbackValue(property);
-            });
-
-            const firstValue = resolvedValues[0];
-
-            if (resolvedValues.every((value) => value === firstValue)) {
-                return firstValue;
-            }
-
-            return this.getResponsiveFallbackValue(property);
-        },
-
-        getResponsiveViewportValue(
-            key: string,
-            viewport: ResponsiveViewport,
-            property: ContentSystemElementTypeProperty,
-            field: SettingsFieldDefinition,
-        ): PrimitiveValue {
-            const rawValue = this.getRawPropertyValue(key);
-
-            if (this.isResponsiveObjectValue(rawValue)) {
-                const viewportValue = rawValue[viewport];
-                if (viewportValue !== undefined) {
-                    return this.normalizeResponsiveValue(property, viewportValue);
-                }
-
-                if (
-                    field.breakpointAware === true &&
-                    isViewportSpecificBreakpointMap(rawValue, this.getResponsiveViewports(field))
-                ) {
-                    return this.getResponsiveFallbackValue(property);
-                }
-            }
-
-            return this.resolveResponsiveGlobalValueFromStorage(key, property);
-        },
-
-        syncLoadedResponsiveState(): void {
-            for (const field of this.fields) {
-                if (field.breakpointAware !== true) {
-                    continue;
-                }
-
-                const rawValue = this.getRawPropertyValue(field.key);
-
-                if (rawValue === undefined) {
-                    continue;
-                }
-
-                this.touchedBreakpointAwareProperties[field.key] = true;
-
-                if (isViewportSpecificBreakpointMap(rawValue, this.getResponsiveViewports(field))) {
-                    this.expandedResponsiveProperties[field.key] = true;
-
-                    if (this.responsiveGlobalSnapshots[field.key] === undefined) {
-                        this.responsiveGlobalSnapshots[field.key] = this.deriveGlobalSnapshotFromBreakpointMap(
-                            field.property,
-                            field,
-                            rawValue as Partial<ResponsiveValue>,
-                        );
-                    }
-                }
-            }
-        },
-
-        onToggleResponsiveViewportMode(
-            key: string,
-            property: ContentSystemElementTypeProperty,
-            field: SettingsFieldDefinition,
-        ): void {
-            const nextState = !this.isResponsiveViewportMode(key, field);
-
-            if (nextState) {
-                this.responsiveGlobalSnapshots[key] = this.resolveResponsiveGlobalValueFromStorage(key, property);
-                this.expandedResponsiveProperties[key] = true;
-
-                const currentValue = this.getRawPropertyValue(key);
-
-                if (this.isResponsiveObjectValue(currentValue)) {
-                    return;
-                }
-
-                if (
-                    field.breakpointAware === true &&
-                    currentValue === undefined &&
-                    !this.touchedBreakpointAwareProperties[key]
-                ) {
-                    return;
-                }
-
-                const globalValue = this.responsiveGlobalSnapshots[key];
-                const responsiveValue = this.getResponsiveViewports(field).reduce<ResponsiveValue>(
-                    (accumulator, viewport) => {
-                        accumulator[viewport] = this.normalizeResponsiveValue(property, globalValue);
-
-                        return accumulator;
-                    },
-                    {} as ResponsiveValue,
-                );
-
-                this.onUpdateField(key, responsiveValue);
-
+        onUpdateResponsiveProperty(field: SettingsFieldDefinition, rawValue: unknown): void {
+            if (!this.allowEdit) {
                 return;
             }
 
-            const snapshot = this.responsiveGlobalSnapshots[key];
-            const globalValue =
-                snapshot !== undefined
-                    ? this.normalizeResponsiveValue(property, snapshot)
-                    : this.resolveResponsiveGlobalValueFromStorage(key, property);
+            const breakpoint = this.getSelectedBreakpoint(field.key);
+            const stored = this.getRawPropertyValue(field.key);
+            const value: ResponsiveValue = this.isResponsiveObjectValue(stored) ? { ...stored } : {};
 
-            delete this.responsiveGlobalSnapshots[key];
-            this.expandedResponsiveProperties[key] = false;
-            this.persistBreakpointAwareValue(key, property, field, globalValue);
-        },
-
-        onUpdateResponsiveGlobalProperty(
-            key: string,
-            property: ContentSystemElementTypeProperty,
-            field: SettingsFieldDefinition,
-            rawValue: unknown,
-        ): void {
-            if (this.isResponsiveViewportMode(key, field)) {
-                return;
+            if (!this.isResponsiveObjectValue(stored) && stored != null) {
+                value[BASE_BREAKPOINT] = this.normalizeResponsiveValue(field.property, stored);
             }
 
-            if (field.breakpointAware === true) {
-                this.touchedBreakpointAwareProperties[key] = true;
-            }
-
-            const normalizedValue = this.normalizeResponsiveValue(property, rawValue);
-            this.persistBreakpointAwareValue(key, property, field, normalizedValue);
-        },
-
-        onUpdateResponsiveViewportProperty(
-            key: string,
-            property: ContentSystemElementTypeProperty,
-            field: SettingsFieldDefinition,
-            viewport: ResponsiveViewport,
-            rawValue: unknown,
-        ): void {
-            if (field.breakpointAware === true) {
-                this.touchedBreakpointAwareProperties[key] = true;
-            }
-
-            const value = this.normalizeResponsiveValue(property, rawValue);
-            const current = this.getRawPropertyValue(key);
-            const base = this.isResponsiveObjectValue(current) ? { ...current } : {};
-
-            if (field.breakpointAware === true && this.isEffectiveUnsetViewportStyleValue(property, value)) {
-                delete base[viewport];
+            if (rawValue == null || rawValue === '') {
+                delete value[breakpoint];
             } else {
-                base[viewport] = value;
+                value[breakpoint] = this.normalizeResponsiveValue(field.property, rawValue);
             }
 
-            if (Object.keys(base).length === 0 || this.isEffectiveUnsetBreakpointMap(field, property, base)) {
-                this.onUpdateField(key, null);
-                return;
-            }
-
-            this.onUpdateField(key, base);
+            this.onUpdateField(field.key, Object.keys(value).length > 0 ? value : null);
         },
 
         getSelectOptions(property: ContentSystemElementTypeProperty): Array<Record<string, unknown>> {
@@ -838,33 +613,32 @@ export default Shopware.Component.wrapComponentConfig({
             }));
         },
 
-        getRadioPanelOptionId(key: string, optionValue: string): string {
-            const scopedKey = this.fieldIdPrefix ? `${this.fieldIdPrefix}-${key}` : key;
-            const normalizedKey = scopedKey.replace(/[^a-zA-Z0-9_-]/g, '-');
-            const normalizedOptionValue = optionValue.replace(/[^a-zA-Z0-9_-]/g, '-');
+        getRadioPanelDescription(property: ContentSystemElementTypeProperty, value: unknown): string | undefined {
+            const selected =
+                typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? String(value) : '';
+            return this.getRadioPanelOptions(property).find((option) => option.value === selected)?.description;
+        },
 
-            return `sw-experience-studio-radio-panel-${normalizedKey}-${normalizedOptionValue}`;
+        getRadioPanelDescriptionId(key: string): string {
+            return `sw-experience-studio-radio-panel-description-${this.radioPanelIdPrefix}-${encodeURIComponent(key)}`;
+        },
+
+        getRadioPanelOptionId(key: string, optionValue: string): string {
+            return `sw-experience-studio-radio-panel-${this.radioPanelIdPrefix}-${encodeURIComponent(JSON.stringify([key, optionValue]))}`;
         },
 
         getFieldControlKey(key: string): string {
             return this.fieldIdPrefix ? `${this.fieldIdPrefix}-${key}` : key;
         },
 
-        getRadioPanelLabelTargetId(
-            key: string,
-            property: ContentSystemElementTypeProperty,
-            field?: SettingsFieldDefinition,
-        ): string | undefined {
+        getRadioPanelLabelTargetId(key: string, property: ContentSystemElementTypeProperty): string | undefined {
             const options = this.getRadioPanelOptions(property);
 
             if (options.length === 0) {
                 return undefined;
             }
 
-            const currentValue =
-                field && this.isBreakpointAwareField(field)
-                    ? this.getResponsiveGlobalValue(key, property, field)
-                    : this.getPropertyValue(key, property);
+            const currentValue = this.getPropertyValue(key, property);
             const normalizedCurrentValue =
                 typeof currentValue === 'object' && currentValue !== null ? '' : String(currentValue ?? '');
             const selectedOption = options.find((option) => option.value === normalizedCurrentValue) ?? options[0];
@@ -872,7 +646,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.getRadioPanelOptionId(key, selectedOption.value);
         },
 
-        onUpdateField(key: string, value: PrimitiveValue | string[]): void {
+        onUpdateField(key: string, value: unknown): void {
             if (!this.allowEdit) {
                 return;
             }
@@ -1005,126 +779,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         isResponsiveObjectValue(value: unknown): value is Partial<ResponsiveValue> {
             return typeof value === 'object' && value !== null && !Array.isArray(value);
-        },
-
-        isEffectiveUnsetStyleValue(
-            field: SettingsFieldDefinition,
-            property: ContentSystemElementTypeProperty,
-            value: PrimitiveValue,
-        ): boolean {
-            if (field.breakpointAware !== true) {
-                return false;
-            }
-
-            if (value === null || value === undefined || value === '') {
-                return true;
-            }
-
-            if (property.default !== null && property.default !== undefined) {
-                return value === property.default;
-            }
-
-            if (this.getControlType(property) === 'responsive-number') {
-                const limits = this.getResponsiveLimits(property);
-
-                return value === limits.min;
-            }
-
-            return false;
-        },
-
-        isEffectiveUnsetViewportStyleValue(property: ContentSystemElementTypeProperty, value: PrimitiveValue): boolean {
-            if (value === null || value === undefined || value === '') {
-                return true;
-            }
-
-            if (this.getControlType(property) === 'responsive-number') {
-                const limits = this.getResponsiveLimits(property);
-
-                return value === limits.min;
-            }
-
-            return false;
-        },
-
-        isEffectiveUnsetBreakpointMap(
-            field: SettingsFieldDefinition,
-            property: ContentSystemElementTypeProperty,
-            value: Record<string, unknown>,
-        ): boolean {
-            if (field.breakpointAware !== true) {
-                return false;
-            }
-
-            const entries = Object.entries(value).filter(
-                ([
-                    ,
-                    entryValue,
-                ]) => entryValue !== null && entryValue !== undefined,
-            );
-
-            if (entries.length === 0) {
-                return true;
-            }
-
-            return entries.every(
-                ([
-                    ,
-                    entryValue,
-                ]) => this.isEffectiveUnsetViewportStyleValue(property, this.normalizeResponsiveValue(property, entryValue)),
-            );
-        },
-
-        shouldPersistBreakpointAwareValue(
-            key: string,
-            field: SettingsFieldDefinition,
-            property: ContentSystemElementTypeProperty,
-            value: PrimitiveValue,
-        ): boolean {
-            if (field.breakpointAware !== true) {
-                return true;
-            }
-
-            const storedValue = this.getRawPropertyValue(key);
-
-            if (storedValue !== undefined) {
-                return !this.isEffectiveUnsetStyleValue(field, property, value);
-            }
-
-            return (
-                this.touchedBreakpointAwareProperties[key] === true &&
-                !this.isEffectiveUnsetStyleValue(field, property, value)
-            );
-        },
-
-        persistBreakpointAwareValue(
-            key: string,
-            property: ContentSystemElementTypeProperty,
-            field: SettingsFieldDefinition,
-            value: PrimitiveValue,
-        ): void {
-            if (field.breakpointAware === true) {
-                if (!this.shouldPersistBreakpointAwareValue(key, field, property, value)) {
-                    if (this.getRawPropertyValue(key) !== undefined) {
-                        this.onUpdateField(key, null);
-                    }
-
-                    return;
-                }
-
-                this.onUpdateField(key, this.wrapBreakpointAwareGlobalValue(field, value));
-                return;
-            }
-
-            this.onUpdateField(key, value);
-        },
-
-        wrapBreakpointAwareGlobalValue(field: SettingsFieldDefinition, value: PrimitiveValue): Partial<ResponsiveValue> {
-            return this.getResponsiveViewports(field).reduce<Partial<ResponsiveValue>>((accumulator, viewport) => {
-                accumulator[viewport] = value;
-
-                return accumulator;
-            }, {});
         },
     },
 });

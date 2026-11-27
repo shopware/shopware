@@ -120,7 +120,11 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
 
         foreach ($files as $fileInfo) {
             $data = $this->parseFile($filesystem, $fileInfo->getRelativePathname());
-            $dto = $this->serializer->denormalize($data);
+            try {
+                $dto = $this->serializer->denormalize($data);
+            } catch (\Throwable $e) {
+                throw ContentSystemException::elementTypeLoadFailed($filesystem->path($fileInfo->getRelativePathname()), 'Invalid schema: ' . $e->getMessage(), $e);
+            }
 
             $name = $this->nameResolver->resolve($fileInfo->getRelativePathname(), $prefix);
 

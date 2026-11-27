@@ -34,6 +34,16 @@
 } %}
 
 {% set listingLayout = app.request.get('listingLayout') %}
+{% set singleColumnGrid = { columns: [{ type: 'auto' }], areas: [['a1']] } %}
+{% set listingGrid = { lg: singleColumnGrid } %}
+{% if listingLayout != 'horizontal' %}
+    {% set listingGrid = listingGrid|merge({
+        xs: singleColumnGrid,
+        sm: { columns: [{ type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2']] },
+        md: { columns: [{ type: 'auto' }, { type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2', 'a3']] },
+        lg: { columns: [{ type: 'auto' }, { type: 'auto' }, { type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2', 'a3', 'a4']] },
+    }) %}
+{% endif %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
 
@@ -49,7 +59,7 @@
                 {% endif %}
 
                 {% if showLayoutSwitch %}
-                    <twig:Sw:Product:LayoutSwitch />
+                    <twig:Sw:Product:LayoutSwitch :horizontal="listingLayout == 'horizontal'" />
                 {% endif %}
             </div>
         </twig:Sw:Grid:Container>
@@ -61,7 +71,7 @@
                 <twig:Sw:Grid:Container
                     class="sw-product-listing__grid"
                     :margin="{ xs: '0 0 24px 0', sm: '0 0 24px 0', md: '0 0 24px 0', lg: '0 0 24px 0', xl: '0 0 24px 0', xxl: '0 0 24px 0' }"
-                    :columns="listingLayout == 'horizontal' ? '1' : { xs: '1', sm: '2', md: '3', lg: '4', xl: '4' }"
+                    :gridLayout="listingGrid"
                     gap="16">
                     {% for product in listing.entities.elements %}
                         <twig:Sw:Product:Card

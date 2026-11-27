@@ -54,6 +54,8 @@ final readonly class PropertySpecificationDto
         public ?string $titleSnippet = null,
         #[Assert\NotBlank(allowNull: true)]
         public ?string $descriptionSnippet = null,
+        #[Assert\Valid]
+        public ?self $items = null,
     ) {
     }
 
@@ -77,6 +79,7 @@ final readonly class PropertySpecificationDto
                 $this->enum,
                 $this->default,
                 $properties,
+                $this->items?->toPropertySpecification(),
             ),
             $this->required,
             $this->title,

@@ -66,11 +66,11 @@ class DraftLayoutDecoderTest extends TestCase
         $tree = $this->decoder()->decode([[
             'id' => 'el-1',
             'component' => 'Sw:Block',
-            'style' => ['align-self' => ['xs' => 'center']],
+            'style' => ['align-self' => ['xs' => 'center', 'sm' => '']],
         ]]);
 
         static::assertSame(
-            ['align-self' => ['xs' => 'center', 'sm' => 'auto', 'md' => 'auto', 'lg' => 'auto', 'xl' => 'auto', 'xxl' => 'auto']],
+            ['align-self' => ['xs' => 'center', 'lg' => 'auto']],
             $tree[0]->style->toArray(),
         );
     }
@@ -84,12 +84,12 @@ class DraftLayoutDecoderTest extends TestCase
             'slots' => ['content' => [[
                 'id' => 'child',
                 'component' => 'Sw:Text',
-                'style' => ['align-self' => ['xs' => 'end']],
+                'style' => ['align-self' => ['xs' => 'end', 'sm' => '']],
             ]]],
         ]]);
 
         static::assertSame(
-            ['align-self' => ['xs' => 'end', 'sm' => 'auto', 'md' => 'auto', 'lg' => 'auto', 'xl' => 'auto', 'xxl' => 'auto']],
+            ['align-self' => ['xs' => 'end', 'lg' => 'auto']],
             $tree[0]->slots['content'][0]->style->toArray(),
         );
     }
@@ -100,12 +100,12 @@ class DraftLayoutDecoderTest extends TestCase
         [$tree, $violations] = $this->decoder()->decodeLintable([[
             'id' => 'el-1',
             'component' => 'Sw:Block',
-            'style' => ['align-self' => ['xs' => 'center']],
+            'style' => ['align-self' => ['xs' => 'center', 'sm' => '']],
         ]]);
 
         static::assertSame([], $violations);
         static::assertSame(
-            ['align-self' => ['xs' => 'center', 'sm' => 'auto', 'md' => 'auto', 'lg' => 'auto', 'xl' => 'auto', 'xxl' => 'auto']],
+            ['align-self' => ['xs' => 'center', 'lg' => 'auto']],
             $tree[0]->style->toArray(),
         );
     }

@@ -166,6 +166,7 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
+use Shopware\Storefront\Resources\views\components\Sw\Grid\Container;
 use Shopware\Storefront\Storybook\StorybookService;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\Mail\MailThemeConfigSubscriber;
@@ -389,6 +390,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('twig'),
         ]);
+
+    $services->set(Container::class)
+        ->args([service(UrlEncodingTwigFilter::class)])
+        ->autoconfigure(true);
 
     $services->set(UrlEncodingTwigFilter::class)
         ->tag('twig.extension');

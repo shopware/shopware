@@ -1,5 +1,8 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
+import type {
+    ContentSystemBreakpointFallbacks,
+    ContentSystemElementTypeSpecification,
+} from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import type { ContentSystemViolation } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
@@ -56,6 +59,10 @@ export default Shopware.Component.wrapComponentConfig({
         styleOptions: {
             type: Object,
             required: false,
+            default: () => ({}),
+        },
+        breakpointFallbacks: {
+            type: Object as PropType<ContentSystemBreakpointFallbacks>,
             default: () => ({}),
         },
         isLoadingTypes: {

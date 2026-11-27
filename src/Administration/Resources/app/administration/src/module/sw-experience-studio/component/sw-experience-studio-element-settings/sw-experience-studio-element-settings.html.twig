@@ -76,6 +76,7 @@
                     v-else
                     :fields="elementFields"
                     :values="elementPropertyValues"
+                    :breakpoint-fallbacks="breakpointFallbacks"
                     :language-name="languageName"
                     :allow-edit="allowEdit"
                     :selected-element-type="selectedElementType"
@@ -111,6 +112,7 @@
                     v-else
                     :fields="layoutFields"
                     :values="elementStyleValues"
+                    :breakpoint-fallbacks="breakpointFallbacks"
                     :language-name="languageName"
                     :allow-edit="allowEdit"
                     @update-field="onUpdateLayoutField"

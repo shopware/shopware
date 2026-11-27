@@ -102,6 +102,15 @@ Shopware.Component.register(
  * @sw-package discovery
  */
 Shopware.Component.register(
+    'sw-experience-studio-grid-editor',
+    () => import('./component/sw-experience-studio-grid-editor'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
     'sw-experience-studio-settings-fields',
     () => import('./component/sw-experience-studio-settings-fields'),
 );

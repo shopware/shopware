@@ -1,0 +1,126 @@
+<div class="sw-experience-studio-breakpoint-select">
+    <div
+        v-if="overrides.length"
+        class="sw-experience-studio-breakpoint-select__hint"
+    >
+        <mt-status-dot
+            variant="info"
+            size="s"
+        />
+        <mt-link
+            v-if="showReset"
+            as="button"
+            class="sw-experience-studio-breakpoint-select__reset"
+            @click="reset"
+        >
+            {{ $t('sw-experience-studio.breakpointSelect.reset') }}
+        </mt-link>
+        <template v-else>
+            {{ overrideHint }}
+        </template>
+    </div>
+
+    <mt-dropdown-menu-root
+        :modal="false"
+        :open="open"
+        @update:open="onOpenChange"
+    >
+        <mt-dropdown-menu-trigger as-child>
+            <mt-button
+                class="sw-experience-studio-breakpoint-select__trigger"
+                size="x-small"
+                variant="secondary"
+                :aria-label="`${$t('sw-experience-studio.breakpointSelect.label')}: ${getLabel(selectedSize)}`"
+            >
+                <template #iconFront>
+                    <mt-icon
+                        :name="selectedSize.icon"
+                        size="14"
+                        decorative
+                    />
+                </template>
+                {{ triggerLabel }}
+                <template #iconBack>
+                    <mt-icon
+                        name="regular-chevron-down-xs"
+                        size="12"
+                        decorative
+                    />
+                </template>
+            </mt-button>
+        </mt-dropdown-menu-trigger>
+
+        <mt-dropdown-menu-portal>
+            <mt-action-menu
+                class="sw-experience-studio-breakpoint-select__menu"
+                side="bottom"
+                align="end"
+                :side-offset="4"
+                @close-auto-focus="onCloseAutoFocus"
+            >
+                <mt-action-menu-item
+                    v-for="size in visibleSizes"
+                    :key="size.id"
+                    class="sw-experience-studio-breakpoint-select__option"
+                    role="menuitemradio"
+                    :aria-checked="modelValue === size.id"
+                    :data-breakpoint="size.id"
+                    :text-value="getLabel(size)"
+                    @select="$emit('update:modelValue', size.id)"
+                >
+                    <span class="sw-experience-studio-breakpoint-select__device">
+                        <mt-icon
+                            :name="size.icon"
+                            size="16"
+                            decorative
+                        />
+                    </span>
+                    <span class="sw-experience-studio-breakpoint-select__name">
+                        {{ getLabel(size) }}
+                        <mt-status-dot
+                            v-if="overrides.includes(size.id)"
+                            variant="info"
+                            size="s"
+                            :label="$t('sw-experience-studio.breakpointSelect.override')"
+                        />
+                        <mt-status-dot
+                            v-if="invalidBreakpoints.includes(size.id)"
+                            variant="critical"
+                            size="s"
+                            :label="$t('global.default.error')"
+                        />
+                    </span>
+                    <span class="sw-experience-studio-breakpoint-select__detail">
+                        {{ size.id === base ? $t('sw-experience-studio.breakpointSelect.base') : size.id.toUpperCase() }}
+                    </span>
+                    <span class="sw-experience-studio-breakpoint-select__check">
+                        <mt-icon
+                            v-if="modelValue === size.id"
+                            name="regular-checkmark-s"
+                            size="14"
+                            decorative
+                        />
+                    </span>
+                </mt-action-menu-item>
+
+                <div
+                    v-if="hiddenCount"
+                    class="sw-experience-studio-breakpoint-select__more"
+                    role="presentation"
+                >
+                    <mt-action-menu-item
+                        as="button"
+                        type="button"
+                        class="sw-experience-studio-breakpoint-select__toggle"
+                        :aria-expanded="expanded"
+                        @select="toggleExpanded"
+                    >
+                        {{ expanded
+                        ? $t('sw-experience-studio.breakpointSelect.fewer')
+                        : $t('sw-experience-studio.breakpointSelect.more', { count: hiddenCount }) }}
+                    </mt-action-menu-item>
+                </div>
+            </mt-action-menu>
+        </mt-dropdown-menu-portal>
+    </mt-dropdown-menu-root>
+</div>

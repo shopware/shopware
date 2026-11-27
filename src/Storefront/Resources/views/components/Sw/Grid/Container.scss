@@ -12,6 +12,17 @@
         syntax: '*';
         inherits: false;
     }
+
+    // WHY: A container without placement rules must not pass the span of its own grid item to its children.
+    @property --sw-grid-item-column-#{$breakpoint} {
+        syntax: '*';
+        inherits: false;
+    }
+
+    @property --sw-grid-item-row-#{$breakpoint} {
+        syntax: '*';
+        inherits: false;
+    }
 }
 
 @property --sw-grid-container-max-width {
@@ -24,6 +35,36 @@
     syntax: '*';
     inherits: true;
     initial-value: 1.5rem;
+}
+
+.sw-grid-container,
+/* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
+.sw-grid-container__inner {
+    &.has-grid-background-color {
+        background-color: color-mix(
+            in srgb,
+            var(--sw-grid-container-background-color) var(--sw-grid-container-background-opacity),
+            transparent
+        );
+    }
+
+    &.has-grid-background-image {
+        background-image: var(--sw-grid-container-background-image);
+    }
+
+    &.grid-background-cover,
+    &.grid-background-contain {
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    &.grid-background-cover {
+        background-size: cover;
+    }
+
+    &.grid-background-contain {
+        background-size: contain;
+    }
 }
 
 .sw-grid-container {
@@ -43,6 +84,7 @@
     }
 
     &.border-full-width {
+        /* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
         & > .sw-grid-container__inner {
             border: none !important;
         }
@@ -62,13 +104,20 @@
     padding-right: 0;
 }
 
+/* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
 .sw-grid-container__inner {
+    --sw-grid-container-gap: normal;
+
     display: grid;
     width: 100%;
     max-width: var(--sw-grid-container-max-width, 1400px);
+    gap: var(--sw-grid-container-gap);
 
-    &.full-width {
-        max-width: none;
+    &.auto-fit {
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(min(var(--sw-grid-container-item-min-width), 100%), 1fr)
+        );
     }
 
     &.max-content {
@@ -76,158 +125,121 @@
         grid-auto-columns: max-content;
     }
 
-    @for $i from 1 through 12 {
-        &.columns-#{$i} {
-            grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-        }
-
-        &.rows-#{$i} {
-            grid-template-rows: repeat(#{$i}, 1fr);
-        }
-    }
-
-    @include media-breakpoint-up(sm) {
-        @for $i from 1 through 12 {
-            &.columns-sm-#{$i} {
-                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-            }
-
-            &.rows-sm-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-up(md) {
-        @for $i from 1 through 12 {
-            &.columns-md-#{$i} {
-                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-            }
-
-            &.rows-md-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-up(lg) {
-        @for $i from 1 through 12 {
-            &.columns-lg-#{$i} {
-                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-            }
-
-            &.rows-lg-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-up(xl) {
-        @for $i from 1 through 12 {
-            &.columns-xl-#{$i} {
-                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-            }
-
-            &.rows-xl-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    &.align-start {
-        align-items: start;
-    }
-
-    &.align-end {
-        align-items: end;
-    }
-
-    &.align-center {
-        align-items: center;
-    }
-
-    &.align-stretch {
-        align-items: stretch;
-    }
-
-    &.align-content-start {
-        align-content: start;
-    }
-
-    &.align-content-end {
-        align-content: end;
-    }
-
-    &.align-content-center {
-        align-content: center;
-    }
-
-    &.align-content-stretch {
-        align-content: stretch;
-    }
-
-    &.align-content-space-around {
-        align-content: space-around;
-    }
-
-    &.align-content-space-between {
-        align-content: space-between;
-    }
-
-    &.align-content-space-evenly {
-        align-content: space-evenly;
-    }
-
-    &.justify-start {
-        justify-items: start;
-    }
-
-    &.justify-end {
-        justify-items: end;
-    }
-
-    &.justify-center {
-        justify-items: center;
-    }
-
-    &.justify-stretch {
-        justify-items: stretch;
-    }
-
-    &.justify-content-start {
+    &.repeated-pattern {
+        grid-template-columns: var(--sw-grid-columns);
+        grid-auto-flow: row dense;
         justify-content: start;
+
+        --sw-grid-columns: var(--sw-grid-columns-xs);
+
+        :where(& > *) {
+            --sw-grid-item-column: var(--sw-grid-item-column-xs);
+            --sw-grid-item-row: var(--sw-grid-item-row-xs);
+
+            grid-column: var(--sw-grid-item-column, auto);
+            grid-row: var(--sw-grid-item-row, auto);
+        }
+
+        @each $breakpoint in (sm, md, lg, xl, xxl) {
+            @include media-breakpoint-up($breakpoint) {
+                --sw-grid-columns: var(--sw-grid-columns-#{$breakpoint});
+
+                :where(& > *) {
+                    --sw-grid-item-column: var(--sw-grid-item-column-#{$breakpoint});
+                    --sw-grid-item-row: var(--sw-grid-item-row-#{$breakpoint});
+                }
+            }
+        }
     }
 
-    &.justify-content-end {
-        justify-content: end;
+    &.has-grid-radius {
+        border-radius: var(--sw-grid-container-border-radius);
     }
 
-    &.justify-content-center {
-        justify-content: center;
+    &.has-grid-shadow {
+        box-shadow: var(--sw-grid-container-shadow-offsets)
+            color-mix(
+                in srgb,
+                var(--sw-grid-container-shadow-color) var(--sw-grid-container-shadow-opacity),
+                transparent
+            );
     }
 
-    &.justify-content-stretch {
-        justify-content: stretch;
+    &.full-width {
+        max-width: none;
     }
 
-    &.justify-content-space-around {
-        justify-content: space-around;
+    @each $position in (start, end, center, stretch) {
+        &.align-#{$position} {
+            align-items: $position;
+        }
+
+        &.justify-#{$position} {
+            justify-items: $position;
+        }
     }
 
-    &.justify-content-space-between {
-        justify-content: space-between;
-    }
+    @each $position in (start, end, center, stretch, space-around, space-between, space-evenly) {
+        &.align-content-#{$position} {
+            align-content: $position;
+        }
 
-    &.justify-content-space-evenly {
-        justify-content: space-evenly;
+        &.justify-content-#{$position} {
+            justify-content: $position;
+        }
     }
 
     @each $breakpoint, $value in $grid-breakpoints {
         @include media-breakpoint-only($breakpoint) {
-            padding: var(--sw-grid-container-padding-#{$breakpoint}, var(--sw-grid-container-padding));
+            padding: var(
+                --sw-grid-container-padding-#{$breakpoint},
+                var(--sw-grid-container-padding)
+            );
             margin: var(--sw-grid-container-margin-#{$breakpoint}, var(--sw-grid-container-margin));
             margin-top: 0 !important;
             margin-bottom: 0 !important;
+        }
+    }
+}
+
+/* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
+.sw-grid-container__item {
+    display: grid;
+    min-width: 0;
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            &:has(> .grid-column.d-#{$breakpoint}-hidden) {
+                display: none;
+            }
+        }
+    }
+
+    @each $value in (auto, start, center, end, stretch, baseline) {
+        &.align-self-#{$value} {
+            align-self: $value;
+        }
+    }
+
+    @each $value in (auto, start, center, end, stretch) {
+        &.justify-self-#{$value} {
+            justify-self: $value;
+        }
+    }
+
+    @each $breakpoint, $width in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            @each $value in (auto, start, center, end, stretch, baseline) {
+                &.align-self-#{$breakpoint}-#{$value} {
+                    align-self: $value;
+                }
+            }
+
+            @each $value in (auto, start, center, end, stretch) {
+                &.justify-self-#{$breakpoint}-#{$value} {
+                    justify-self: $value;
+                }
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ component sw-experience-studio-element-settings  private  ts  [private]
 
 props
   allowEdit?: boolean  default=false  [private]
+  breakpointFallbacks?: ContentSystemBreakpointFallbacks  default=factory  [private]
   isLoadingMappingCandidates?: boolean  default=false  [private]
   isLoadingStyleOptions?: boolean  default=false  [private]
   isLoadingTypes?: boolean  default=false  [private]

@@ -127,9 +127,9 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         }
 
         $property = $type->properties()[$key] ?? null;
-        $declaredType = $property?->type()->type();
+        $declaredType = $property?->type()->referenceFqcn();
 
-        if ($property === null || $property->type()->isPrimitive() || !\is_string($declaredType) || $declaredType === 'object') {
+        if ($declaredType === null) {
             $this->context->buildViolation($constraint->resolvesEntryNotReferencePropertyMessage)
                 ->setParameter('{{ key }}', $key)
                 ->setParameter('{{ type }}', $type->name())

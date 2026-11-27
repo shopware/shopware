@@ -37,6 +37,12 @@ final class InlineMappableTypeValidator extends ConstraintValidator
         // The nested members are validated through the cascade on `properties`, so this check sees each member
         // exactly once, from its direct parent. Inline mapping inspects and expands top-level properties only, so a
         // nested declaration would promise a behaviour that never runs.
+        if ($value->items?->inlineMappable) {
+            $this->context->buildViolation($constraint->nestedMessage)
+                ->atPath('items.inlineMappable')
+                ->addViolation();
+        }
+
         foreach ($value->properties ?? [] as $key => $member) {
             if ($member->inlineMappable) {
                 $this->context->buildViolation($constraint->nestedMessage)

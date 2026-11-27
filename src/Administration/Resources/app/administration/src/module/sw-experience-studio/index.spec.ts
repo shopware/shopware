@@ -4,6 +4,13 @@ jest.mock('./acl', () => jest.fn());
 
 /** @sw-package discovery */
 describe('Experience Studio workspace routes', () => {
+    it('registers a loadable grid editor', async () => {
+        const loadEditor = Shopware.Component.getComponentRegistry().get('sw-experience-studio-grid-editor');
+
+        expect(loadEditor).toBeDefined();
+        expect(await loadEditor?.()).toBeTruthy();
+    });
+
     it('uses the workspace canvas editor for every entry route', () => {
         const routes = Shopware.Module.getModuleRegistry().get('sw-experience-studio')?.routes;
 

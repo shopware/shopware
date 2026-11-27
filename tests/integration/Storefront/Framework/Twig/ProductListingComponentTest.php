@@ -60,6 +60,18 @@ class ProductListingComponentTest extends TestCase
         static::assertStringNotContainsString('data-component="Sw:Filter:ActiveFilters"', $html);
     }
 
+    public function testRendersDefaultAndConfiguredGridColumns(): void
+    {
+        $emptyListing = $this->productGridStyle($this->render(['listing' => $this->listing()]));
+        static::assertStringContainsString('--sw-grid-columns-lg: minmax(0, 1fr);', $emptyListing);
+
+        $populatedListing = $this->productGridStyle($this->render(['listing' => $this->listing(42)]));
+        static::assertStringContainsString(
+            '--sw-grid-columns-lg: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);',
+            $populatedListing,
+        );
+    }
+
     /**
      * The type must not advertise slots the template no longer renders, because Studio would offer
      * drop targets that silently swallow whatever is placed into them.
@@ -131,6 +143,30 @@ class ProductListingComponentTest extends TestCase
         return $twig
             ->createTemplate('{{ component(\'Sw:Product:Listing\', props) }}')
             ->render(['props' => $props]);
+    }
+
+    /**
+     * The actions bar and the pagination are grid containers too, so only the product grid's own inner node
+     * tells which columns the listing renders.
+     */
+    private function productGridStyle(string $html): string
+    {
+        $document = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $document->loadHTML('<!DOCTYPE html><html><body>' . $html . '</body></html>');
+        libxml_clear_errors();
+
+        $inner = (new \DOMXPath($document))->query(
+            '//*[contains(concat(" ", normalize-space(@class), " "), " sw-product-listing__grid ")]'
+            . '/*[contains(concat(" ", normalize-space(@class), " "), " sw-grid-container__inner ")]'
+        );
+        static::assertInstanceOf(\DOMNodeList::class, $inner);
+        static::assertCount(1, $inner);
+
+        $node = $inner->item(0);
+        static::assertInstanceOf(\DOMElement::class, $node);
+
+        return $node->getAttribute('style');
     }
 
     private function listing(int $total = 0): ProductListingResult

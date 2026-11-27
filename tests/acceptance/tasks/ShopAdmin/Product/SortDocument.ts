@@ -8,9 +8,10 @@ export const SortDocument = base.extend<{ SortDocument: Task }, FixtureTypes>({
     SortDocument: async ({ AdminProductDetail }, use) => {
         const task = (documentName: string, direction: 'up' | 'down') => {
             return async function SortDocument() {
-                const button = direction === 'up'
-                    ? AdminProductDetail.documentMoveUpButton(documentName)
-                    : AdminProductDetail.documentMoveDownButton(documentName);
+                const button =
+                    direction === 'up'
+                        ? AdminProductDetail.documentMoveUpButton(documentName)
+                        : AdminProductDetail.documentMoveDownButton(documentName);
                 await button.click();
             };
         };

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -511,6 +512,29 @@ EOF;
 
         static::assertCount(1, $result->getIds());
         static::assertSame([$latestId], $result->getIds());
+    }
+
+    public function testNestedJsonDateFieldComparesByDate(): void
+    {
+        $context = $this->createWriteContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            ['id' => $id, 'root' => ['child' => ['childDate' => new \DateTime('2005-02-28')]]],
+        ];
+        $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), $data, $context);
+
+        $repo = $this->getRepository();
+        $context = $context->getContext();
+
+        // A DateField reads as a date, so the time part of the bound is dropped before the compare.
+        $criteria = new Criteria();
+        $criteria->addFilter(new RangeFilter('root.child.childDate', [RangeFilter::LT => '2005-02-28 12:00:00']));
+        static::assertSame([], $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context)->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('root.child.childDate', '2005-02-28 12:00:00'));
+        static::assertSame([$id], $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context)->getIds());
     }
 
     protected function createWriteContext(): WriteContext

@@ -34,6 +34,7 @@ export interface NamesLine {
     group: FindingGroup;
     /** What happened to the elements, for example `deprecated`. Additions need none beside their badge. */
     label: string | null;
+    size: number;
     /** The elements by their kind, for example `data` with `limit` and `page`. */
     kinds: Array<{ kind: string; findings: Finding[] }>;
 }
@@ -46,9 +47,11 @@ export interface Cluster {
     unit: Unit;
     /** The module folder of the sources, for example `sw-order`. */
     module: string;
+    /** The folders of the sources below `src`, without the folder of the unit itself: `module`, `sw-order`, `component`. */
+    folder: string[];
     breaks: number;
     /** The sizes of the groups, in the order of the lines, for example `6 breaks`. */
-    counts: Array<{ group: FindingGroup; label: string }>;
+    counts: Array<{ group: FindingGroup; size: number; label: string }>;
     lines: ClusterLine[];
 }
 
@@ -107,6 +110,18 @@ function moduleOf(findings: readonly Finding[]): string {
     const [, first, second] = at.split('/');
 
     return first === 'module' ? second : `${first}/${second}`;
+}
+
+function folderOf(findings: readonly Finding[], unit: Unit): string[] {
+    const at = findings.find((finding) => finding.at !== undefined)?.at;
+
+    if (at === undefined) {
+        return [];
+    }
+
+    const folders = at.split('/').slice(1, -1);
+
+    return folders.at(-1) === unit.name ? folders.slice(0, -1) : folders;
 }
 
 /** The fix without the names of the finding's own elements, so two places of one change compare equal. */
@@ -209,7 +224,7 @@ function byKind(findings: readonly Finding[]): NamesLine['kinds'] {
 
 function namesLines(findings: readonly Finding[], group: FindingGroup): NamesLine[] {
     if (group === 'Addition') {
-        return [{ type: 'names', key: group, group, label: null, kinds: byKind(findings) }];
+        return [{ type: 'names', key: group, group, label: null, size: findings.length, kinds: byKind(findings) }];
     }
 
     return [...groupBy(findings, ({ rule }) => rule)].map(([rule, members]) => ({
@@ -217,6 +232,7 @@ function namesLines(findings: readonly Finding[], group: FindingGroup): NamesLin
         key: `${group}|${rule}`,
         group,
         label: INFO_LABELS[rule] ?? rule.split('_').join(' '),
+        size: members.length,
         kinds: byKind(members),
     }));
 }
@@ -232,9 +248,11 @@ function clusterOf(findings: readonly Finding[]): Cluster {
     return {
         unit,
         module: moduleOf(findings),
+        folder: folderOf(findings, unit),
         breaks: byGroup.get('Break')?.length ?? 0,
         counts: present.map((group) => ({
             group,
+            size: byGroup.get(group)?.length ?? 0,
             label: plural(byGroup.get(group)?.length ?? 0, ...GROUP_WORDS[group]),
         })),
         lines: present.flatMap((group): ClusterLine[] => {

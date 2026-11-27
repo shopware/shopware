@@ -59,3 +59,47 @@ a:focus-visible {
     font-size: var(--font-size-xs);
     white-space: nowrap;
 }
+
+/*
+ * The look of a finding group. An element says its group with `data-group` and takes the tint, the bar or the text
+ * colour from here. The text tokens are close to black or too light on a hovered row at small sizes, so the text
+ * takes the shade of each scale that keeps a contrast of 4.5 to 1 there.
+ */
+[data-group="Break"] {
+    --group-tint: var(--color-background-critical-default);
+    --group-bar: var(--color-border-critical-default);
+    --group-text: var(--color-red-600);
+}
+
+[data-group="Addition"] {
+    --group-tint: var(--color-background-positive-default);
+    --group-bar: var(--color-border-positive-default);
+    --group-text: var(--color-green-700);
+}
+
+[data-group="Allowed"] {
+    --group-tint: var(--color-background-attention-default);
+    --group-bar: var(--color-border-attention-default);
+    --group-text: var(--color-orange-700);
+}
+
+[data-group="Info"] {
+    --group-tint: var(--color-background-brand-default);
+    --group-bar: var(--color-border-brand-default);
+    --group-text: var(--color-blue-700);
+}
+
+/* A row that stands for a group: the bar and the tint of the group, and its word in the first column. */
+.group-entry {
+    display: grid;
+    column-gap: 8px;
+    padding: 5px 8px;
+    background: var(--group-tint);
+    border-left: 3px solid var(--group-bar, transparent);
+    border-radius: var(--border-radius-xs);
+}
+
+.group-entry__label {
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
+}

@@ -38,7 +38,7 @@ export const ONE_FIELD_LAYOUTS: readonly Direction[] = [
     {
         id: 'one-field-split',
         name: 'One field · Split',
-        idea: 'A short line per entry on the left, and what the selected entry says in full beside it.',
+        idea: 'A tree of the changed units on the left with its own search. The picked entry says what changed and shows the code, the plugin and the fix in tabs.',
         component: oneFieldWith('split'),
     },
 ];

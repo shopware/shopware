@@ -1,96 +1,56 @@
 <template>
     <div class="split">
-        <div class="split__list">
-            <section
-                v-for="cluster in shown"
-                :key="cluster.unit.id"
-                class="split__unit"
+        <div class="split__side">
+            <div class="split__search">
+                <mt-search
+                    v-model="query"
+                    size="small"
+                    placeholder="Find a component, block or method"
+                />
+            </div>
+            <nav
+                class="split__tree tree"
+                aria-label="Changes by component"
             >
-                <h3 class="split__name">
-                    <code-name :text="cluster.unit.name" />
-                    <span
-                        v-if="cluster.unit.kind !== 'component'"
-                        class="split__muted"
-                    >{{ cluster.unit.kind }}</span>
-                </h3>
-                <button
-                    v-for="line in cluster.lines"
-                    :key="line.key"
-                    class="plain split__line"
-                    type="button"
-                    :aria-current="isSelected(cluster, line)"
-                    @click="select(cluster, line)"
+                <split-tree-folder
+                    v-for="kind in tree"
+                    :key="kind.id"
+                    :folder="kind"
+                    :depth="0"
+                    :is-open="isOpen"
+                    :picked="picked"
+                    @toggle="toggle"
+                    @select="select"
+                />
+                <p
+                    v-if="tree.length === 0"
+                    class="split__empty"
                 >
-                    <mt-status-dot
-                        :variant="DOT_VARIANT[line.group]"
-                        size="s"
-                    />
-                    <template v-if="line.type === 'fix'">
-                        <code-name :text="line.title" />
-                        <span class="split__muted">{{ line.rule }}</span>
-                    </template>
-                    <span
-                        v-else
-                        class="split__summary"
-                    >{{ summaryOf(line) }}</span>
-                </button>
-            </section>
-            <mt-button
-                v-if="clusters.length > visible"
-                class="split__more"
-                variant="secondary"
-                @click="visible += PAGE"
-            >
-                Show {{ Math.min(PAGE, clusters.length - visible) }} more of {{ plural(clusters.length - visible, 'component') }}
-            </mt-button>
+                    Nothing matches “{{ query }}”.
+                </p>
+            </nav>
         </div>
 
-        <aside
-            v-if="selected"
+        <div
+            ref="detailPane"
             class="split__detail"
-            aria-live="polite"
         >
-            <template v-if="selected.line.type === 'fix'">
-                <header class="split__head">
-                    <code-name
-                        class="split__muted"
-                        :text="selected.cluster.unit.name"
-                    />
-                    <h3 class="split__title">
-                        <code-name :text="selected.line.title" />
-                    </h3>
-                    <p class="split__muted">
-                        {{ selected.line.group }} · {{ selected.line.rule }}
-                    </p>
-                </header>
-                <fix-detail
-                    :line="selected.line"
-                    :head="head"
-                />
-            </template>
-            <template v-else>
-                <header class="split__head">
-                    <code-name
-                        class="split__muted"
-                        :text="selected.cluster.unit.name"
-                    />
-                    <h3 class="split__title">
-                        {{ summaryOf(selected.line) }}
-                    </h3>
-                </header>
-                <p
-                    v-if="selected.line.group === 'Addition'"
-                    class="split__note"
-                >
-                    Plugins can rely on these from now on. Mark them @private if they are not meant for plugins.
-                </p>
-                <kind-names
-                    :kinds="selected.line.kinds"
-                    :head="head"
-                    :label="selected.line.label"
-                />
-            </template>
-        </aside>
+            <split-detail
+                v-if="selected"
+                :cluster="selected.cluster"
+                :line="selected.line"
+                :head="head"
+                @close="picked = null"
+            />
+            <split-summary
+                v-else
+                :counts="countsOf(allClusters)"
+                :units-with-breaks="allClusters.filter(({ breaks }) => breaks > 0).length"
+                :base="base"
+                :head="head"
+                :private-count="privateCount"
+            />
+        </div>
     </div>
 </template>
 
@@ -99,73 +59,102 @@
 /**
  * @sw-package framework
  *
- * Layout "Split" of direction "One field": one short line per entry on the left, and what the selected entry
- * says in full beside it.
+ * Layout "Split" of direction "One field": a tree of the changed units on the left with its own search, and on
+ * the right the summary of the comparison or what the picked entry says in full.
  */
-import { MtButton, MtStatusDot } from '@shopware-ag/meteor-component-library';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { MtSearch } from '@shopware-ag/meteor-component-library';
+import { computed, nextTick, ref, shallowRef } from 'vue';
 import { clustersOf } from '../shared/clusters';
-import type { Cluster, ClusterLine, NamesLine } from '../shared/clusters';
-import CodeName from '../shared/code-name.vue';
-import FixDetail from '../shared/fix-detail.vue';
-import KindNames from '../shared/kind-names.vue';
-import { plural } from '../shared/report';
-import type { Finding, FindingGroup } from '../shared/report';
+import type { Cluster, ClusterLine } from '../shared/clusters';
+import { matches } from '../shared/report';
+import type { Finding } from '../shared/report';
+import { countsOf, pruneTree, treeOf, unitCount } from '../shared/split-tree';
+import type { TreeNode } from '../shared/split-tree';
+import SplitDetail from './split-detail.vue';
+import SplitSummary from './split-summary.vue';
+import SplitTreeFolder from './split-tree-folder.vue';
 
-const props = defineProps<{ findings: Finding[]; head: string }>();
+const props = defineProps<{
+    findings: Finding[];
+    base: string;
+    head: string;
+    privateCount: number;
+}>();
 
-const PAGE = 40;
+/** A tree with at most this many units shows all its folders open. */
+const FOLDERS_OPEN_UNTIL = 20;
 
-const DOT_VARIANT: Record<FindingGroup, 'critical' | 'positive' | 'attention' | 'info' | 'neutral'> = {
-    Break: 'critical',
-    Addition: 'positive',
-    Allowed: 'attention',
-    Info: 'info',
-    Private: 'neutral',
-};
+const query = ref('');
+const isSearching = computed(() => query.value.trim() !== '');
+const allClusters = computed(() => clustersOf(props.findings));
+const wholeTree = computed(() => treeOf(allClusters.value));
 
-const visible = ref(PAGE);
-const clusters = computed(() => clustersOf(props.findings));
-const shown = computed(() => clusters.value.slice(0, visible.value));
+/** A search keeps the shape of the whole tree and takes away what does not match. */
+const tree = computed(() => {
+    if (!isSearching.value) {
+        return wholeTree.value;
+    }
 
-function summaryOf(line: NamesLine): string {
-    const size = line.kinds.reduce((sum, { findings }) => sum + findings.length, 0);
+    const matching = clustersOf(props.findings.filter((finding) => matches(finding, query.value)));
 
-    return `${size.toLocaleString('en')} ${line.label ?? 'new'}`;
-}
+    return pruneTree(wholeTree.value, new Map(matching.map((cluster) => [cluster.unit.id, cluster])));
+});
+const isSmall = computed(() => unitCount(tree.value) <= FOLDERS_OPEN_UNTIL);
 
 const picked = shallowRef<{ unit: string; line: string } | null>(null);
 
-/** The entry the reader picked, or the first one of the report while it is still there. */
+/** What the reader opened or closed by hand, by the id of the folder or unit. */
+const toggled = shallowRef(new Map<string, boolean>());
+
+/**
+ * A unit starts closed, so the reader first sees which units changed and how. A search that narrows the tree down
+ * opens them.
+ */
+const openAtFirst = computed(
+    (): Record<TreeNode, boolean> => ({
+        kind: true,
+        folder: isSmall.value,
+        unit: isSmall.value && isSearching.value,
+    }),
+);
+
+function isOpen(id: string, node: TreeNode): boolean {
+    return toggled.value.get(id) ?? (openAtFirst.value[node] || id === picked.value?.unit);
+}
+
+function toggle(id: string, node: TreeNode): void {
+    toggled.value = new Map(toggled.value).set(id, !isOpen(id, node));
+}
+
+/** The entry the reader picked, while the comparison still has it. */
 const selected = computed((): { cluster: Cluster; line: ClusterLine } | null => {
-    const cluster = clusters.value.find(({ unit }) => unit.id === picked.value?.unit) ?? clusters.value.at(0);
-    const line = cluster?.lines.find(({ key }) => key === picked.value?.line) ?? cluster?.lines.at(0);
+    const cluster = allClusters.value.find(({ unit }) => unit.id === picked.value?.unit);
+    const line = cluster?.lines.find(({ key }) => key === picked.value?.line);
 
     return cluster === undefined || line === undefined ? null : { cluster, line };
 });
 
+const detailPane = ref<HTMLElement | null>(null);
+
+/** Picking the entry again closes it. A new entry starts at its head, also when the last one was scrolled down. */
 function select(cluster: Cluster, line: ClusterLine): void {
-    picked.value = { unit: cluster.unit.id, line: line.key };
-}
+    const again = picked.value?.unit === cluster.unit.id && picked.value.line === line.key;
 
-function isSelected(cluster: Cluster, line: ClusterLine): boolean {
-    return selected.value?.cluster.unit.id === cluster.unit.id && selected.value.line.key === line.key;
+    picked.value = again ? null : { unit: cluster.unit.id, line: line.key };
+    void nextTick(() => {
+        if ((detailPane.value?.getBoundingClientRect().top ?? 0) < 0) {
+            detailPane.value?.scrollIntoView({ block: 'start' });
+        }
+    });
 }
-
-watch(
-    () => props.findings,
-    () => {
-        visible.value = PAGE;
-    },
-);
 </script>
 
 <style>
 .split {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 668px;
+    grid-template-columns: 480px minmax(0, 1fr);
     align-items: start;
-    gap: 24px;
+    gap: 16px;
     font-size: var(--font-size-xs);
     line-height: var(--font-line-height-xs);
 }
@@ -175,93 +164,48 @@ watch(
     line-height: 1;
 }
 
-.split__list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.split__unit {
-    display: flex;
-    flex-direction: column;
-}
-
-/* The names and the dots start where the text of the fields above starts. */
-.split__name {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 17px 4px;
-    font-size: inherit;
-    font-weight: var(--font-weight-semibold);
-    overflow-wrap: anywhere;
-}
-
-.split__line {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    column-gap: 8px;
-    padding: 5px 17px;
-    border-radius: 0 var(--border-radius-xs) var(--border-radius-xs) 0;
-    overflow-wrap: anywhere;
-}
-
-.split__summary {
-    grid-column: 2 / -1;
-}
-
-/* Titles and names are boxes of their own and may wrap, so they take the line height of the text again. */
-.split .split__line code,
-.split .split__name code,
-.split .split__title code {
-    line-height: inherit;
-}
-
-.split__line:hover {
-    background: var(--color-interaction-secondary-hover);
-}
-
-.split__line[aria-current='true'] {
-    background: var(--color-background-primary-default);
-    box-shadow: inset 2px 0 0 var(--color-border-brand-selected);
-}
-
-.split__muted,
-.split__note {
-    color: var(--color-text-secondary-default);
-}
-
-.split__more {
-    align-self: flex-start;
-}
-
-/* Stays in view while the list scrolls, above the review bar of the design ideas. */
-.split__detail {
+/*
+ * The tree stays in view and scrolls on its own. Its height leaves room for the fields above it at the top of the
+ * page and for the review bar of the design ideas below it.
+ */
+.split__side {
     position: sticky;
     top: 16px;
-    max-height: calc(100vh - 104px);
-    overflow: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 16px;
+    max-height: calc(100vh - 176px);
     background: var(--color-background-primary-default);
     border: 1px solid var(--color-border-primary-default);
     border-radius: var(--border-radius-xs);
+    overflow: hidden;
 }
 
-/* What the entry is, set apart from what it says. */
-.split__head {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+/* The search belongs to the tree: it is the head of the same box and as wide as what the rows hold. */
+.split__search {
+    flex: none;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--color-border-primary-default);
 }
 
-.split__title {
-    font-size: var(--font-size-s);
-    font-weight: var(--font-weight-semibold);
-    line-height: var(--font-line-height-s);
-    overflow-wrap: anywhere;
+.split__tree {
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding-bottom: 4px;
+}
+
+.split__empty {
+    padding: 8px 16px;
+    color: var(--color-text-secondary-default);
+}
+
+.split__detail {
+    min-width: 0;
+    padding: 16px;
+    scroll-margin-top: 16px;
+    background: var(--color-background-primary-default);
+    border: 1px solid var(--color-border-primary-default);
+    border-radius: var(--border-radius-xs);
 }
 </style>

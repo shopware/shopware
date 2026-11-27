@@ -67,7 +67,14 @@
             :max-value="progress.total"
         />
 
-        <template v-if="report">
+        <one-field-split
+            v-if="report && layout === 'split'"
+            :findings="listed"
+            :base="report.base"
+            :head="report.head"
+            :private-count="privateCount"
+        />
+        <template v-else-if="report">
             <div class="one__narrow">
                 <mt-search
                     v-model="query"
@@ -188,8 +195,8 @@ const props = withDefaults(
     { layout: 'clusters' },
 );
 
-/** The layouts that replace the clustered list, see `one-field-layouts.ts`. */
-const LAYOUTS = { tabs: OneFieldTabs, table: OneFieldTable, split: OneFieldSplit };
+/** The layouts that replace the clustered list and take its findings, see `one-field-layouts.ts`. */
+const LAYOUTS = { tabs: OneFieldTabs, table: OneFieldTable };
 const emit = defineEmits<{ compare: [request: CompareRequest] }>();
 
 /** How many clusters a click on "Show more" adds. */
@@ -301,6 +308,11 @@ watch(query, () => {
     grid-template-columns: minmax(0, 1fr) 120px;
     align-items: start;
     gap: 16px;
+}
+
+/* The button fills its column, so the field ends on a whole pixel. */
+.one__compare > .mt-button {
+    width: 100%;
 }
 
 .one__wide {

@@ -265,7 +265,7 @@ function toggle(key: string): void {
     margin-top: 4px;
 }
 
-.tabled .fix-detail__places {
+.tabled .fix-places {
     gap: 8px;
 }
 

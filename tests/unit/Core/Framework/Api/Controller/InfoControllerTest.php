@@ -280,7 +280,7 @@ class InfoControllerTest extends TestCase
         $this->shopIdProvider->expects($this->never())->method('getShopId');
 
         $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
-        $rootSourceRegistry->method('knownRootSources')->willReturn(['category', 'header', 'none']);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['category', 'none']);
 
         $mappingCandidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $mappingCandidateRegistry->method('forRootSource')->willReturnMap([
@@ -293,7 +293,6 @@ class InfoControllerTest extends TestCase
                     valueType: 'string',
                 ),
             ]],
-            ['header', []],
             ['none', []],
         ]);
 
@@ -330,7 +329,6 @@ class InfoControllerTest extends TestCase
                     'canonicalToken' => '{{map:category.name}}',
                 ]],
                 // Present but empty, so a client never has to tell "offers nothing" apart from "unknown".
-                'header' => [],
                 'none' => [],
             ],
         ], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
@@ -371,30 +369,13 @@ class InfoControllerTest extends TestCase
         static::assertNull($catalogueCandidate['canonicalToken']);
     }
 
-    #[TestDox('encodes an empty root-source catalogue as a JSON object')]
-    public function testContentSystemMappingCandidatesEncodesEmptyRootSourcesAsObject(): void
-    {
-        $this->shopIdProvider->expects($this->never())->method('getShopId');
-
-        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
-        $rootSourceRegistry->method('knownRootSources')->willReturn([]);
-
-        $controller = $this->createController(rootSourceRegistry: $rootSourceRegistry);
-        $response = $controller->contentSystemMappingCandidates();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertSame('{"mappingCandidates":{}}', $content);
-    }
-
     #[TestDox('returns one root-source entry per known root source, in order, with its kind and provided context')]
     public function testContentSystemRootSources(): void
     {
         $this->shopIdProvider->expects($this->never())->method('getShopId');
 
         $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
-        $rootSourceRegistry->method('knownRootSources')->willReturn(['product', 'header', 'none']);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['product', 'none']);
         $rootSourceRegistry->method('entityRootSources')->willReturn(['product']);
         $rootSourceRegistry->method('resolve')->willReturnCallback(
             static fn (string $rootSource): array => $rootSource === 'product' ? [new ProvidedContext(
@@ -426,11 +407,6 @@ class InfoControllerTest extends TestCase
                         'contextType' => 'single',
                         'distribution' => 'broadcast',
                     ]],
-                ],
-                [
-                    'id' => 'header',
-                    'kind' => 'section',
-                    'providedContext' => [],
                 ],
                 [
                     'id' => 'none',

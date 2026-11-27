@@ -1693,12 +1693,16 @@ Render `sw-purchase-price-field` separately where purchase prices are needed.
 
 The CSS classes `sw-product-price-form__prices`, `sw-product-price-form__price-list`, `sw-product-price-form__links` and `sw-product-price-form__currency` of the old layout were deprecated and are removed.
 
-`sw-product-detail.syncVariantPriceInheritance()` was deprecated during 6.7 and removed in 6.8.
-It retained the old coupled inheritance behavior during 6.7, so calling it could reset independently overridden purchase prices.
-Remove calls to it.
-Move unrelated load-time customization to `sw-product-detail.loadProduct()`.
-`sw-product-detail.getDefaultPurchasePrices()` was deprecated during 6.7 and removed in 6.8.
-Set `product.purchasePrices` explicitly in a product-detail extension when a default purchase price is required.
+The following methods of `sw-product-detail` were deprecated and are removed:
+
+* `syncVariantPriceInheritance()`: display and purchase prices of a variant inherit independently.
+  Remove calls to it, as it would reset independently overridden purchase prices.
+  Move load-time customizations that overrode it to `loadProduct()`.
+* `getDefaultPurchasePrices()`: products without purchase prices keep `purchasePrices` as `null`.
+  Set `product.purchasePrices` explicitly in an extension when a default purchase price is required.
+
+`sw-product-price-form.getTaxLabel()` appends the formatted tax rate to the tax name, for example `Standard rate (19%)`.
+
 ## Jest helper `test/_helper_/majorFeatureFlags` removed
 
 Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` to activate the major feature flags should run on the Jest harness of the extension tooling instead.
@@ -1714,12 +1718,6 @@ export default shopwareAdminJestConfig({
 
 `composer admin:setup-extension-tooling` generates the `.shopware/jest.mjs` bridge.
 See *Running specs with Jest* in `src/Administration/Resources/app/administration/extension-tooling/README.md` for the accepted options.
-The following methods of `sw-product-detail` were deprecated and are removed:
-
-* `syncVariantPriceInheritance()`: display and purchase prices of a variant inherit independently.
-  Move load-time customizations that overrode it to `loadProduct()`.
-* `getDefaultPurchasePrices()`: products without purchase prices keep `purchasePrices` as `null`.
-  Set `product.purchasePrices` explicitly in an extension when a default purchase price is required.
 
 ## Sales channel detail components load fewer visibilities and sales channels
 

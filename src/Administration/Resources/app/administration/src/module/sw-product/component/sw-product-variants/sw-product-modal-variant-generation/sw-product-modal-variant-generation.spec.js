@@ -842,7 +842,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         // should generate digital variants with max purchase 1
         expect(saveVariants).toHaveBeenCalledWith(
             expect.objectContaining({
-                createQueue: [expect.objectContaining({ maxPurchase: 1, downloads: [{ mediaId: 'random-id' }] })],
+                createQueue: [
+                    expect.objectContaining({
+                        maxPurchase: 1,
+                        downloads: [{ id: expect.any(String), mediaId: 'random-id' }],
+                    }),
+                ],
             }),
         );
     });

@@ -61,13 +61,15 @@ export default class VariantsGenerator extends EventEmitter {
 
                 return newOptionIds.has(setting.optionId);
             })
-            .map((setting) => {
-                const settingData = deepCopyObject(setting);
-                // The copy of a new entity has no id, saving it again would create a second row for the option
-                settingData.id = setting.id;
-                settingData.productId = this.product.id;
-                return settingData;
-            });
+            .map((setting) => ({
+                id: setting.id,
+                productId: this.product.id,
+                optionId: setting.optionId,
+                mediaId: setting.mediaId,
+                price: setting.price,
+                position: setting.position ?? 0,
+                customFields: setting.customFields,
+            }));
 
         if (payload.length === 0) {
             return Promise.resolve();

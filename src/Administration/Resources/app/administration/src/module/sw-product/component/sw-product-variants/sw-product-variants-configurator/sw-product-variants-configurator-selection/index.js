@@ -24,6 +24,12 @@ export default {
         },
     },
 
+    data() {
+        return {
+            removedOptions: {},
+        };
+    },
+
     watch: {
         isAddOnly() {
             this.selectOptions(this.$refs.optionGrid);
@@ -84,7 +90,16 @@ export default {
             const exists = this.options.find((i) => i.optionId === item.id);
 
             if (exists) {
+                this.removedOptions[item.id] = exists;
                 this.options.remove(exists.id);
+                this.addOptionCount();
+                return;
+            }
+
+            const removedOption = this.removedOptions[item.id];
+
+            if (removedOption) {
+                this.options.add(removedOption);
                 this.addOptionCount();
                 return;
             }

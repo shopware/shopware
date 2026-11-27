@@ -4,7 +4,17 @@
 import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-async function createWrapper() {
+function createConfiguratorSettings(settings = []) {
+    return new EntityCollection(
+        'product-configurator-settings',
+        '/product-configurator-settings',
+        Shopware.Context.api,
+        null,
+        settings,
+    );
+}
+
+async function createWrapper(configuratorSettings = createConfiguratorSettings()) {
     return shallowMount(
         await wrapTestComponent('sw-product-modal-variant-generation', {
             sync: true,
@@ -15,13 +25,7 @@ async function createWrapper() {
                 selectedGroups: [],
                 product: {
                     id: 'parent-id',
-                    configuratorSettings: new EntityCollection(
-                        'product-configurator-settings',
-                        '/product-configurator-settings',
-                        Shopware.Context.api,
-                        null,
-                        [],
-                    ),
+                    configuratorSettings,
                 },
             },
             global: {
@@ -140,10 +144,64 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(firstAttempt).toEqual([
             expect.objectContaining({
                 id: createQueueItem().id,
-                downloads: [{ mediaId: 'media-id' }],
+                downloads: [{ id: expect.any(String), mediaId: 'media-id' }],
                 maxPurchase: 1,
             }),
         ]);
         expect(wrapper.emitted('variations-finish-generate')).toHaveLength(1);
+    });
+
+    it('should send only the ids of the variant options', async () => {
+        const wrapper = await createWrapper();
+        const saveVariants = jest.fn().mockResolvedValue();
+        const queueItem = {
+            ...createQueueItem(),
+            options: [{ id: 'red-id', entity: { id: 'red-id', name: 'Red', group: { id: 'color-id' } } }],
+        };
+
+        await wrapper.setData({
+            showUploadModal: true,
+            variantGenerationQueue: { createQueue: [queueItem], deleteQueue: [] },
+            variantsGenerator: createVariantsGenerator([], saveVariants),
+        });
+
+        await wrapper.get('.sw-product-variant-generation__generate-action').trigger('click');
+        await flushPromises();
+
+        const [[queues]] = saveVariants.mock.calls;
+        expect(queues.createQueue[0].options).toEqual([{ id: 'red-id' }]);
+    });
+
+    it('should save the original settings without adding them to the add only selection', async () => {
+        const redSetting = { id: 'red-setting-id', optionId: 'red-id', option: { id: 'red-id', groupId: 'color-id' } };
+        const greenSetting = {
+            id: 'green-setting-id',
+            optionId: 'green-id',
+            option: { id: 'green-id', groupId: 'color-id' },
+        };
+        const configuratorSettings = createConfiguratorSettings([redSetting]);
+        const wrapper = await createWrapper(configuratorSettings);
+        const savedSettingIds = [];
+        const variantsGenerator = createVariantsGenerator([], () => Promise.reject(new Error('Request failed')));
+        variantsGenerator.saveConfiguratorSettings = (settings) => {
+            savedSettingIds.push(...settings.map((setting) => setting.id));
+
+            return Promise.resolve();
+        };
+
+        await wrapper.setData({ isAddOnly: true });
+        configuratorSettings.add(greenSetting);
+        await wrapper.setData({
+            showUploadModal: true,
+            variantGenerationQueue: { createQueue: [createQueueItem()], deleteQueue: [] },
+            variantsGenerator,
+        });
+
+        await wrapper.get('.sw-product-variant-generation__generate-action').trigger('click');
+        await flushPromises();
+
+        expect(savedSettingIds).toEqual(['red-setting-id', 'green-setting-id']);
+        expect(configuratorSettings).toHaveLength(1);
+        expect(configuratorSettings.get('green-setting-id')).toBe(greenSetting);
     });
 });

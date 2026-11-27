@@ -8,6 +8,7 @@ import './sw-product-modal-variant-generation.scss';
 
 const { Criteria } = Shopware.Data;
 const { Mixin, Context } = Shopware;
+const { md5 } = Shopware.Utils.format;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -358,7 +359,11 @@ export default {
                 createQueue: this.variantGenerationQueue.createQueue.map((item) => {
                     const variant = {
                         ...item,
-                        downloads: item.downloads.map((download) => ({ mediaId: download.id })),
+                        options: item.options.map((option) => ({ id: option.id })),
+                        downloads: item.downloads.map((download) => ({
+                            id: md5(`${item.id}${download.id}`),
+                            mediaId: download.id,
+                        })),
                     };
 
                     if (variant.type === 'digital') {
@@ -372,10 +377,15 @@ export default {
                 }),
             };
 
-            this.addOriginalConfiguratorSettings();
+            const configuratorSettings = [
+                ...this.originalConfiguratorSettings,
+                ...this.product.configuratorSettings.filter((setting) => {
+                    return !this.originalConfiguratorSettings.some((original) => original.optionId === setting.optionId);
+                }),
+            ];
 
             this.variantsGenerator
-                .saveConfiguratorSettings(this.product.configuratorSettings, queues.createQueue)
+                .saveConfiguratorSettings(configuratorSettings, queues.createQueue)
                 .then(() => {
                     return this.variantsGenerator.saveVariantRestrictions();
                 })

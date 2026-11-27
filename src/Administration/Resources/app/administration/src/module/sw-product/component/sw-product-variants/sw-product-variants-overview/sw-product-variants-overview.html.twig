@@ -6,7 +6,7 @@
     <div class="sw-configuration-option-list__toolbar">
         {% block sw_product_variants_overview_option_list_toolbar_container %}
         <sw-container
-            columns="1fr minmax(min-content, max-content) minmax(min-content, calc(var(--scale-size-160) + var(--scale-size-20))) minmax(min-content, calc(var(--scale-size-160) + var(--scale-size-20)))"
+            columns="1fr max-content max-content max-content"
             gap="0 var(--scale-size-10)"
         >
 
@@ -27,11 +27,13 @@
                     variant="secondary"
                     @click="filterWindowOpen = !filterWindowOpen"
                 >
+                    <template #iconFront>
+                        <mt-icon
+                            name="regular-filter"
+                            size="var(--scale-size-12)"
+                        />
+                    </template>
                     {{ $t('sw-product.variations.generatedFilterList') }}
-                    <mt-icon
-                        name="regular-filter"
-                        size="var(--scale-size-12)"
-                    />
                 </mt-button>
                 {% endblock %}
 
@@ -95,13 +97,24 @@
             {% endblock %}
 
             {% block sw_product_variants_overview_option_list_toolbar_buttons %}
+            <mt-tooltip
+                v-if="!acl.can('product.creator')"
+                :content="$t('sw-privileges.tooltip.warning')"
+            >
+                <template #default="tooltip">
+                    <mt-button
+                        v-bind="tooltip"
+                        class="sw-product-variants__generate-action"
+                        disabled
+                        variant="primary"
+                    >
+                        {{ $t('sw-product.variations.overview.generateVariants') }}
+                    </mt-button>
+                </template>
+            </mt-tooltip>
+
             <mt-button
-                v-tooltip="{
-                    message: $t('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('product.creator'),
-                    showOnDisabledElements: true
-                }"
-                :disabled="!acl.can('product.creator')"
+                v-else
                 class="sw-product-variants__generate-action"
                 variant="primary"
                 @click="$emit('generator-open')"

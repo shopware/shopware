@@ -18,10 +18,6 @@ $base-size: calc(var(--scale-size-224) + var(--scale-size-56));
                 height: var(--scale-size-16);
             }
         }
-
-        .sw-product-variants__generate-action {
-            width: 100%;
-        }
     }
 
     .sw-product-variants-overview__data-grid {

@@ -83,26 +83,37 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'categoryId',
         ]) : [];
 
-        $visibilities = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
-            'salesChannelId',
-        ]) : [];
-
-        $media = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductMediaDefinition::ENTITY_NAME, [
-            'mediaId',
-        ]) : [];
-
         $tags = $event->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
-        foreach (array_merge($translations, $tags, $visibilities, $categories, $media) as $pks) {
+        foreach (array_merge($translations, $tags, $categories) as $pks) {
             if (isset($pks['productId'])) {
                 $productIds[] = $pks['productId'];
             }
         }
 
         if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
-            $productIds = array_merge($productIds, $this->getProductIdsWithChangedDocuments($event));
+            $inheritedChangeIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
+                'active',
+                'coverId',
+                'manufacturerId',
+                'price',
+                'releaseDate',
+            ]);
+
+            foreach (array_merge($translations, $categories) as $pks) {
+                if (isset($pks['productId'])) {
+                    $inheritedChangeIds[] = $pks['productId'];
+                }
+            }
+
+            $productIds = array_merge($productIds, $this->getFamilyIds($event, [
+                ...$inheritedChangeIds,
+                ...$this->getWrittenProductIds($event, ProductVisibilityDefinition::ENTITY_NAME, 'salesChannelId'),
+                ...$this->getWrittenProductIds($event, ProductMediaDefinition::ENTITY_NAME, 'mediaId'),
+                ...$this->getProductIdsWithChangedDocuments($event),
+            ]));
         }
 
         return array_values(array_unique(array_filter($productIds, '\is_string')));
@@ -542,7 +553,7 @@ SQL,
     }
 
     /**
-     * @return list<string>
+     * @return list<mixed>
      */
     private function getProductIdsWithChangedDocuments(EntityWrittenContainerEvent $event): array
     {
@@ -552,10 +563,23 @@ SQL,
             static fn (EntityWriteResult $result): array => $result->getPayload()
         ), 'productId');
 
-        if ($documentResults->only(EntityWriteResult::OPERATION_DELETE)->count() > 0) {
-            $productIds = array_merge($productIds, $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME));
+        foreach ($documentResults->only(EntityWriteResult::OPERATION_DELETE) as $result) {
+            $productId = $result->getChangeSet()?->getBefore('product_id');
+            if (\is_string($productId)) {
+                $productIds[] = Uuid::fromBytesToHex($productId);
+            }
         }
 
+        return $productIds;
+    }
+
+    /**
+     * @param array<mixed> $productIds
+     *
+     * @return list<string>
+     */
+    private function getFamilyIds(EntityWrittenContainerEvent $event, array $productIds): array
+    {
         $productIds = array_values(array_unique(array_filter($productIds, '\is_string')));
         if ($productIds === []) {
             return [];
@@ -570,10 +594,35 @@ SQL,
 
         $familyIds = array_values(array_unique([...$productIds, ...$variantIds]));
         if (\count($familyIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
-            return $productIds;
+            return array_values(array_unique([...$productIds, ...$this->getWrittenVariantIds($event, $productIds)]));
         }
 
         return $familyIds;
+    }
+
+    /**
+     * @param list<string> $parentIds
+     *
+     * @return list<string>
+     */
+    private function getWrittenVariantIds(EntityWrittenContainerEvent $event, array $parentIds): array
+    {
+        $writtenIds = array_values(array_diff(array_filter($event->getPrimaryKeys(ProductDefinition::ENTITY_NAME), '\is_string'), $parentIds));
+        if ($writtenIds === []) {
+            return [];
+        }
+
+        $variantIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE id IN (:ids) AND parent_id IN (:parentIds) AND version_id = :versionId',
+            [
+                'ids' => Uuid::fromHexToBytesList($writtenIds),
+                'parentIds' => Uuid::fromHexToBytesList($parentIds),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+            ['ids' => ArrayParameterType::BINARY, 'parentIds' => ArrayParameterType::BINARY]
+        );
+
+        return array_values(array_filter($variantIds, '\is_string'));
     }
 
     /**
@@ -761,5 +810,34 @@ SQL,
         }
 
         return $result !== [] ? $result : null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getWrittenProductIds(EntityWrittenContainerEvent $event, string $entity, string $property): array
+    {
+        $productIds = [];
+
+        foreach ($event->getResults($entity) as $result) {
+            if ($result->getOperation() !== EntityWriteResult::OPERATION_DELETE && !\array_key_exists($property, $result->getPayload())) {
+                continue;
+            }
+
+            $productId = $result->getPayload()['productId'] ?? null;
+            if (\is_string($productId)) {
+                $productIds[] = $productId;
+
+                continue;
+            }
+
+            // deletes and updates without the product id, ProductAdminSearchChangeSetSubscriber requested the change set
+            $productId = $result->getChangeSet()?->getBefore('product_id');
+            if (\is_string($productId)) {
+                $productIds[] = Uuid::fromBytesToHex($productId);
+            }
+        }
+
+        return $productIds;
     }
 }

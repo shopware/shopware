@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -20,10 +21,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
@@ -220,6 +224,32 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIdsContainsTheProductsOfDeletedDocuments(): void
     {
         $productId = Uuid::randomHex();
+        $otherProductId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult(
+                    $documentId,
+                    ['id' => $documentId, 'versionId' => Defaults::LIVE_VERSION],
+                    'product_document',
+                    EntityWriteResult::OPERATION_DELETE,
+                    null,
+                    new ChangeSet(['product_id' => Uuid::fromHexToBytes($productId)], [], true)
+                ),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($otherProductId, ['id' => $otherProductId, 'versionId' => Defaults::LIVE_VERSION], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsIgnoresDeletedDocumentsWithoutChangeSet(): void
+    {
+        $productId = Uuid::randomHex();
         $documentId = Uuid::randomHex();
 
         $event = $this->createWrittenEvent([
@@ -227,11 +257,11 @@ class ProductAdminSearchIndexerTest extends TestCase
                 new EntityWriteResult($documentId, ['id' => $documentId, 'versionId' => Defaults::LIVE_VERSION], 'product_document', EntityWriteResult::OPERATION_DELETE),
             ], Context::createDefaultContext()),
             new EntityWrittenEvent('product', [
-                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($productId, ['id' => $productId, 'versionId' => Defaults::LIVE_VERSION], 'product', EntityWriteResult::OPERATION_UPDATE),
             ], Context::createDefaultContext()),
         ]);
 
-        static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+        static::assertSame([], $this->searchIndexer->getUpdatedIds($event));
     }
 
     public function testGetUpdatedIdsContainsTheVariantsOfProductsWithChangedDocuments(): void
@@ -302,6 +332,42 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame([$productId], $indexer->getUpdatedIds($event));
     }
 
+    public function testGetUpdatedIdsKeepsTheVariantsOfLargeFamiliesThatAreWrittenWithTheDocument(): void
+    {
+        $productId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+        $writtenVariantId = Uuid::randomHex();
+        $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, ProductIndexer::UPDATE_IDS_CHUNK_SIZE - 1));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturnOnConsecutiveCalls($variantIds, [$writtenVariantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult($documentId, [
+                    'id' => $documentId,
+                    'versionId' => Defaults::LIVE_VERSION,
+                    'productId' => $productId,
+                    'productVersionId' => Defaults::LIVE_VERSION,
+                ], 'product_document', EntityWriteResult::OPERATION_INSERT),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($writtenVariantId, ['weight' => 2.5], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId, $writtenVariantId], $indexer->getUpdatedIds($event));
+    }
+
     public function testGetUpdatedIdsCountsVariantsWithOwnDocumentsOnceForTheFamilySize(): void
     {
         $productId = Uuid::randomHex();
@@ -369,6 +435,267 @@ class ProductAdminSearchIndexerTest extends TestCase
         ]);
 
         static::assertSame([], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsContainsProductsOfWrittenVisibilitiesAndMedia(): void
+    {
+        $visibleProductId = Uuid::randomHex();
+        $productWithMediaId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_visibility', [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['productId' => $visibleProductId, 'salesChannelId' => Uuid::randomHex(), 'visibility' => 30],
+                        'product_visibility',
+                        EntityWriteResult::OPERATION_INSERT
+                    ),
+                ], Context::createDefaultContext()),
+                new EntityWrittenEvent('product_media', [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['productId' => $productWithMediaId, 'mediaId' => Uuid::randomHex()],
+                        'product_media',
+                        EntityWriteResult::OPERATION_INSERT
+                    ),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event, $visibleProductId, $productWithMediaId): void {
+            static::assertSame([$visibleProductId, $productWithMediaId], $this->searchIndexer->getUpdatedIds($event));
+        });
+    }
+
+    public function testGetUpdatedIdsContainsProductsWithChangedCover(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product', [
+                    new EntityWriteResult($productId, ['id' => $productId, 'coverId' => Uuid::randomHex()], 'product', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event, $productId): void {
+            static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+        });
+
+        Feature::withFeatureDisabled('ENABLE_OPENSEARCH_FOR_ADMIN_API', function () use ($event): void {
+            static::assertSame([], $this->searchIndexer->getUpdatedIds($event));
+        });
+    }
+
+    public function testGetUpdatedIdsReadsTheProductOfDeletedOrMovedVisibilitiesAndMediaFromTheChangeSet(): void
+    {
+        $productWithDeletedVisibilityId = Uuid::randomHex();
+        $productWithMovedVisibilityId = Uuid::randomHex();
+        $productWithDeletedMediaId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_visibility', [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['id' => Uuid::randomHex()],
+                        'product_visibility',
+                        EntityWriteResult::OPERATION_DELETE,
+                        changeSet: new ChangeSet(['product_id' => Uuid::fromHexToBytes($productWithDeletedVisibilityId)], [], true)
+                    ),
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['id' => Uuid::randomHex(), 'salesChannelId' => Uuid::randomHex()],
+                        'product_visibility',
+                        EntityWriteResult::OPERATION_UPDATE,
+                        changeSet: new ChangeSet(['product_id' => Uuid::fromHexToBytes($productWithMovedVisibilityId)], [], false)
+                    ),
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['id' => Uuid::randomHex(), 'visibility' => 10],
+                        'product_visibility',
+                        EntityWriteResult::OPERATION_UPDATE
+                    ),
+                ], Context::createDefaultContext()),
+                new EntityWrittenEvent('product_media', [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
+                        'product_media',
+                        EntityWriteResult::OPERATION_DELETE,
+                        changeSet: new ChangeSet(['product_id' => Uuid::fromHexToBytes($productWithDeletedMediaId)], [], true)
+                    ),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        Feature::withFeatureEnabled('ENABLE_OPENSEARCH_FOR_ADMIN_API', function () use ($event, $productWithDeletedVisibilityId, $productWithMovedVisibilityId, $productWithDeletedMediaId): void {
+            static::assertSame(
+                [$productWithDeletedVisibilityId, $productWithMovedVisibilityId, $productWithDeletedMediaId],
+                $this->searchIndexer->getUpdatedIds($event)
+            );
+        });
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function inheritedChangeProvider(): iterable
+    {
+        yield 'active' => ['product', ['active' => false]];
+        yield 'cover' => ['product', ['coverId' => Uuid::randomHex()]];
+        yield 'manufacturer' => ['product', ['manufacturerId' => Uuid::randomHex()]];
+        yield 'price' => ['product', ['price' => []]];
+        yield 'release date' => ['product', ['releaseDate' => '2026-11-23 00:00:00.000']];
+        yield 'name' => ['product_translation', ['name' => 'Drill']];
+        yield 'custom search keywords' => ['product_translation', ['customSearchKeywords' => ['drill']]];
+        yield 'category' => ['product_category', ['categoryId' => Uuid::randomHex()]];
+        yield 'visibility' => ['product_visibility', ['salesChannelId' => Uuid::randomHex()]];
+        yield 'media' => ['product_media', ['mediaId' => Uuid::randomHex()]];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('inheritedChangeProvider')]
+    public function testGetUpdatedIdsContainsTheVariantsOfProductsWithChangedInheritedFields(string $entity, array $payload): void
+    {
+        $productId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([$variantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $primaryKey = match ($entity) {
+            'product_translation' => ['productId' => $productId, 'productVersionId' => Defaults::LIVE_VERSION, 'languageId' => Defaults::LANGUAGE_SYSTEM],
+            'product_category' => ['productId' => $productId, 'productVersionId' => Defaults::LIVE_VERSION, 'categoryId' => Uuid::randomHex(), 'categoryVersionId' => Defaults::LIVE_VERSION],
+            'product_visibility', 'product_media' => Uuid::randomHex(),
+            default => $productId,
+        };
+
+        if (\in_array($entity, ['product_visibility', 'product_media'], true)) {
+            $payload['productId'] = $productId;
+        }
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent($entity, [
+                new EntityWriteResult($primaryKey, $payload, $entity, EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId, $variantId], $indexer->getUpdatedIds($event));
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function notInheritedChangeProvider(): iterable
+    {
+        yield 'product number' => ['product', ['productNumber' => 'SW1000']];
+        yield 'ean' => ['product', ['ean' => '4572324423421']];
+        yield 'manufacturer number' => ['product', ['manufacturerNumber' => 'M-100']];
+        yield 'stock' => ['product', ['stock' => 5]];
+        yield 'tag' => ['product_tag', ['tagId' => Uuid::randomHex()]];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('notInheritedChangeProvider')]
+    public function testGetUpdatedIdsDoesNotLoadVariantsForFieldsTheyDoNotInherit(string $entity, array $payload): void
+    {
+        $productId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $primaryKey = $entity === 'product_tag'
+            ? ['productId' => $productId, 'productVersionId' => Defaults::LIVE_VERSION, 'tagId' => Uuid::randomHex()]
+            : $productId;
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent($entity, [
+                new EntityWriteResult($primaryKey, $payload, $entity, EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsKeepsTheVariantsOfLargeFamiliesThatAreWrittenWithAnInheritedChange(): void
+    {
+        $productId = Uuid::randomHex();
+        $writtenVariantId = Uuid::randomHex();
+        $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, ProductIndexer::UPDATE_IDS_CHUNK_SIZE - 1));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturnOnConsecutiveCalls($variantIds, [$writtenVariantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, ['active' => false], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($writtenVariantId, ['weight' => 2.5], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId, $writtenVariantId], $indexer->getUpdatedIds($event));
+    }
+
+    #[DisabledFeatures(['ENABLE_OPENSEARCH_FOR_ADMIN_API'])]
+    public function testGetUpdatedIdsDoesNotLoadVariantsWithoutTheAdminOpenSearch(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, ['active' => false], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $indexer->getUpdatedIds($event));
     }
 
     public function testGlobalCriteria(): void
@@ -457,7 +784,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     }
 
     /**
-     * @param list<EntityWrittenEvent<string>> $events
+     * @param list<EntityWrittenEvent<array<string, string>|string>> $events
      */
     private function createWrittenEvent(array $events): EntityWrittenContainerEvent
     {

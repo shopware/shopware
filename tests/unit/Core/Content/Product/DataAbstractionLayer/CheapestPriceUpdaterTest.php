@@ -15,6 +15,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\DataAbstractionLayer\AbstractCheapestPriceQuantitySelector;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -77,7 +78,9 @@ class CheapestPriceUpdaterTest extends TestCase
         $dispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::callback(static function (ProductIndexerEvent $event) use ($context, $variantId) {
-                return $event->getIds() === [$variantId] && $event->getContext() === $context;
+                return $event->getIds() === [$variantId]
+                    && $event->getContext() === $context
+                    && $event->getSkip() === ['product.seo-url', ProductIndexer::INHERITANCE_UPDATER];
             }));
 
         $updater->update($parentIds, $context);

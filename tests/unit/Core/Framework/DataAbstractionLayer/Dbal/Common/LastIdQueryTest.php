@@ -30,7 +30,7 @@ class LastIdQueryTest extends TestCase
             ->setConstructorArgs([static::createStub(Connection::class)])
             ->onlyMethods(['executeQuery'])
             ->getMock();
-        $query->method('executeQuery')->willReturn($result);
+        $query->expects($this->exactly(2))->method('executeQuery')->willReturn($result);
         $query->setParameter('lastId', '', ParameterType::BINARY);
         $iterator = new LastIdQuery($query);
 
@@ -50,7 +50,7 @@ class LastIdQueryTest extends TestCase
             ->setConstructorArgs([static::createStub(Connection::class)])
             ->onlyMethods(['executeQuery'])
             ->getMock();
-        $query->method('executeQuery')->willReturn($result);
+        $query->expects($this->exactly(2))->method('executeQuery')->willReturn($result);
         $query->setParameter('lastId', 0, ParameterType::INTEGER);
         $iterator = new LastIdQuery($query);
 

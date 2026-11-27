@@ -56,7 +56,7 @@ class ThumbnailReadProjectionTest extends TestCase
         $repository = static::getContainer()->get('media.repository');
         $context = Context::createDefaultContext();
         $criteria = new Criteria([$mediaId]);
-        $projected = $repository->search($criteria, $context)->first();
+        $projected = $repository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(MediaEntity::class, $projected);
         $thumbnail = $projected->getThumbnails()?->get($thumbnailId);
         static::assertNotNull($thumbnail);
@@ -64,7 +64,7 @@ class ThumbnailReadProjectionTest extends TestCase
         static::assertStringContainsString('thumbnail/cover.jpg', $thumbnail->getUrl());
 
         $criteria->addAssociation('thumbnails');
-        $explicit = $repository->search($criteria, $context)->first();
+        $explicit = $repository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(MediaEntity::class, $explicit);
         $explicitThumbnail = $explicit->getThumbnails()?->get($thumbnailId);
         static::assertNotNull($explicitThumbnail);
@@ -73,12 +73,12 @@ class ThumbnailReadProjectionTest extends TestCase
         static::assertNull($explicit->getThumbnailsRo());
 
         $criteria->getAssociation('thumbnails')->addFilter(new EqualsFilter('width', 400));
-        $filtered = $repository->search($criteria, $context)->first();
+        $filtered = $repository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(MediaEntity::class, $filtered);
         static::assertCount(0, $filtered->getThumbnails() ?? []);
 
         $connection->delete('media_thumbnail', ['id' => Uuid::fromHexToBytes($thumbnailId)]);
-        $deleted = $repository->search(new Criteria([$mediaId]), $context)->first();
+        $deleted = $repository->search(new Criteria([$mediaId]), $context)->getEntities()->first();
         static::assertInstanceOf(MediaEntity::class, $deleted);
         static::assertSame([], $deleted->getThumbnails()?->getIds());
     }

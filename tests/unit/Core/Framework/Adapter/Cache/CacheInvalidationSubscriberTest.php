@@ -144,7 +144,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 false
             );
 
-        $subscriber->invalidateMedia($event);
+        $subscriber->handleInvalidateMediaCache($event);
     }
 
     public function testInvalidateMediaWithVariantsWillInvalidateProductsAndVariants(): void
@@ -174,7 +174,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 false
             );
 
-        $subscriber->invalidateMedia($event);
+        $subscriber->handleInvalidateMediaCache($event);
     }
 
     public function testInvalidateMediaInvalidatesEveryPageShowingTheMedia(): void
@@ -227,7 +227,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             $tags = $invalidated;
         });
 
-        $this->createSubscriber()->invalidateMedia(new InvalidateMediaCache([Uuid::randomHex()]));
+        $this->createSubscriber()->handleInvalidateMediaCache(new InvalidateMediaCache([Uuid::randomHex()]));
 
         foreach ([
             EntityCacheKeyGenerator::buildProductTag($ids['product']),

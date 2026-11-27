@@ -183,7 +183,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         });
 
         $subscriber = new CacheInvalidationSubscriber($cacheInvalidator, static::getContainer()->get(Connection::class), true, static::getContainer()->get('messenger.default_bus'));
-        $subscriber->invalidateMedia(new InvalidateMediaCache([$this->ids->get($file)]));
+        $subscriber->handleInvalidateMediaCache(new InvalidateMediaCache([$this->ids->get($file)]));
 
         return array_values(array_filter($tags, static fn (string $tag): bool => str_starts_with($tag, 'product-')));
     }

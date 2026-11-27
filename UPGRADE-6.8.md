@@ -471,6 +471,7 @@ The destructive migration removed `media.thumbnails_ro`.
 Use the DAL thumbnails association or query `media_thumbnail` by `media_id`.
 Remove calls and decorators targeting the deprecated `MediaIndexer` and remove `media.indexer` from indexing jobs.
 Replace subscriptions to `MediaIndexerEvent` with `media.written`, `media.deleted` or `ThumbnailGeneratedEvent` as appropriate.
+Replace direct calls to `CacheInvalidationSubscriber::invalidateMedia()` with `handleInvalidateMediaCache()` and pass an `InvalidateMediaCache` message containing the media IDs.
 
 ## Recovery entity accessors
 

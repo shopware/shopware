@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
+use Shopware\Core\Content\Media\AiOrigin\MediaAiOrigin;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
@@ -32,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -116,6 +118,7 @@ class MediaDefinition extends EntityDefinition
             (new JsonField('meta_data', 'metaData'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Details of the media file uploaded.'),
             (new JsonField('media_type', 'mediaType'))->addFlags(new WriteProtected(), new Runtime())->setDescription('Type or format of media content, such as images, videos, or audio files.'),
             (new JsonField('config', 'config'))->addFlags(new ApiAware()),
+            (new EnumField('ai_origin', 'aiOrigin', MediaAiOrigin::Generated))->addFlags(new ApiAware())->setDescription('Whether the image was made (`ai_generated`) or changed (`ai_modified`) with generative AI, `null` if there is no such signal. It is detected from the C2PA, IPTC or provider metadata of the file on upload and can be corrected manually.'),
             (new TranslatedField('alt'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('title'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime(['path', 'private', 'updatedAt'])),

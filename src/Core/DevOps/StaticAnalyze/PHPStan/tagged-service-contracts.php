@@ -24,6 +24,8 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\Ab
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriterFactory;
+use Shopware\Core\Content\Media\AiOrigin\Format\ImageFormatReader;
+use Shopware\Core\Content\Media\AiOrigin\Processor\AiOriginProcessorInterface;
 use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProviderInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\File\AbstractFileContentValidator;
@@ -116,6 +118,8 @@ return [
             'shopware.listing.filter.handler' => AbstractListingFilterHandler::class,
             'shopware.listing.processor' => AbstractListingProcessor::class,
             'shopware.mail.data_provider' => MailFlowDataProviderInterface::class,
+            'shopware.media.ai_origin.format_reader' => ImageFormatReader::class,
+            'shopware.media.ai_origin.processor' => AiOriginProcessorInterface::class,
             'shopware.media.file_content.validator' => AbstractFileContentValidator::class,
             'shopware.media_type.detector' => TypeDetectorInterface::class,
             'shopware.metadata.loader' => MetadataLoaderInterface::class,

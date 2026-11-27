@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Media\File;
 use League\Flysystem\FilesystemOperator;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\AiOrigin\AiOriginDetector;
+use Shopware\Core\Content\Media\AiOrigin\MediaAiOrigin;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
@@ -13,6 +15,7 @@ use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
@@ -45,6 +48,7 @@ class FileSaver
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly FileContentValidationStrategy $fileContentValidationStrategy,
         private readonly MetadataLoader $metadataLoader,
+        private readonly AiOriginDetector $aiOriginDetector,
         private readonly TypeDetector $typeDetector,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SqlMediaLocationBuilder $locationBuilder,
@@ -95,11 +99,16 @@ class FileSaver
 
         $metaData = $this->metadataLoader->loadFromFile($mediaFile, $mediaType);
 
+        $aiOrigin = $mediaType instanceof ImageType
+            ? $this->aiOriginDetector->detect($mediaFile->getFileName(), $mediaFile->getFileExtension())
+            : null;
+
         $media = $this->updateMediaEntity(
             $mediaFile,
             $destination,
             $currentMedia,
             $metaData,
+            $aiOrigin,
             $mediaType,
             $context
         );
@@ -286,6 +295,7 @@ class FileSaver
         string $destination,
         MediaEntity $media,
         ?array $metadata,
+        ?MediaAiOrigin $aiOrigin,
         MediaType $mediaType,
         Context $context
     ): MediaEntity {
@@ -297,6 +307,7 @@ class FileSaver
             'fileSize' => $mediaFile->getFileSize(),
             'fileName' => $destination,
             'metaData' => $metadata,
+            'aiOrigin' => $aiOrigin?->value,
             'mediaTypeRaw' => serialize($mediaType),
             'uploadedAt' => $this->clock->now(),
         ];

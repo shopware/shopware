@@ -15,6 +15,19 @@ use Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
+use Shopware\Core\Content\Media\AiOrigin\AiOriginDetector;
+use Shopware\Core\Content\Media\AiOrigin\ExifReader;
+use Shopware\Core\Content\Media\AiOrigin\Format\IsoBmffReader;
+use Shopware\Core\Content\Media\AiOrigin\Format\JpegReader;
+use Shopware\Core\Content\Media\AiOrigin\Format\PngReader;
+use Shopware\Core\Content\Media\AiOrigin\Format\WebpReader;
+use Shopware\Core\Content\Media\AiOrigin\Processor\C2paProcessor;
+use Shopware\Core\Content\Media\AiOrigin\Processor\ComfyUiProcessor;
+use Shopware\Core\Content\Media\AiOrigin\Processor\GeneratorSoftwareProcessor;
+use Shopware\Core\Content\Media\AiOrigin\Processor\IptcDigitalSourceTypeProcessor;
+use Shopware\Core\Content\Media\AiOrigin\Processor\MidjourneyProcessor;
+use Shopware\Core\Content\Media\AiOrigin\Processor\NovelAiProcessor;
+use Shopware\Core\Content\Media\AiOrigin\Processor\StableDiffusionWebUiProcessor;
 use Shopware\Core\Content\Media\Api\MediaDownloadController;
 use Shopware\Core\Content\Media\Api\MediaFolderController;
 use Shopware\Core\Content\Media\Api\MediaUploadController;
@@ -109,6 +122,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Filesystem\Filesystem;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -250,6 +264,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.private'),
             service(FileContentValidationStrategy::class),
             service(MetadataLoader::class),
+            service(AiOriginDetector::class),
             service(TypeDetector::class),
             service('event_dispatcher'),
             service(MediaLocationBuilder::class),
@@ -391,6 +406,56 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.metadata.loader'),
         ]);
     // endregion Metadata
+
+    // region AiOrigin
+    $services->set(ExifReader::class);
+
+    $services->set(JpegReader::class)
+        ->args([service(ExifReader::class)])
+        ->tag('shopware.media.ai_origin.format_reader');
+
+    $services->set(PngReader::class)
+        ->args([service(ExifReader::class)])
+        ->tag('shopware.media.ai_origin.format_reader');
+
+    $services->set(WebpReader::class)
+        ->args([service(ExifReader::class)])
+        ->tag('shopware.media.ai_origin.format_reader');
+
+    $services->set(IsoBmffReader::class)
+        ->args([service(ExifReader::class)])
+        ->tag('shopware.media.ai_origin.format_reader');
+
+    $services->set(C2paProcessor::class)
+        ->tag('shopware.media.ai_origin.processor', ['priority' => 1000]);
+
+    $services->set(IptcDigitalSourceTypeProcessor::class)
+        ->tag('shopware.media.ai_origin.processor', ['priority' => 900]);
+
+    // provider fingerprints for tools that write neither C2PA nor IPTC
+    $services->set(StableDiffusionWebUiProcessor::class)
+        ->tag('shopware.media.ai_origin.processor', ['priority' => 500]);
+
+    $services->set(ComfyUiProcessor::class)
+        ->tag('shopware.media.ai_origin.processor', ['priority' => 500]);
+
+    $services->set(NovelAiProcessor::class)
+        ->tag('shopware.media.ai_origin.processor', ['priority' => 500]);
+
+    $services->set(MidjourneyProcessor::class)
+        ->tag('shopware.media.ai_origin.processor', ['priority' => 500]);
+
+    $services->set(GeneratorSoftwareProcessor::class)
+        ->tag('shopware.media.ai_origin.processor', ['priority' => 100]);
+
+    $services->set(AiOriginDetector::class)
+        ->args([
+            service(Filesystem::class),
+            tagged_iterator('shopware.media.ai_origin.format_reader'),
+            tagged_iterator('shopware.media.ai_origin.processor'),
+            service(ExifReader::class),
+        ]);
+    // endregion AiOrigin
 
     // region TypeDetector
     $services->set(AudioTypeDetector::class)

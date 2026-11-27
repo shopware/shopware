@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\AiOrigin\AiOriginDetector;
+use Shopware\Core\Content\Media\AiOrigin\MediaAiOrigin;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
@@ -111,6 +113,37 @@ SVG;
 
         $path = $media->getPath();
         static::assertTrue($this->getPublicFilesystem()->has($path));
+        static::assertNull($media->getAiOrigin());
+    }
+
+    public function testPersistFileToMediaMarksAiGeneratedImage(): void
+    {
+        $xmp = '<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
+            . '<rdf:Description xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/" Iptc4xmpExt:DigitalSourceType="http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"/>'
+            . '</rdf:RDF></x:xmpmeta>';
+        $chunk = "XML:com.adobe.xmp\0\0\0\0\0" . $xmp;
+
+        $png = (string) file_get_contents(self::TEST_IMAGE);
+        // insert an iTXt chunk before the IEND chunk (last 12 bytes)
+        $png = substr($png, 0, -12) . pack('N', \strlen($chunk)) . 'iTXt' . $chunk . pack('N', crc32('iTXt' . $chunk)) . substr($png, -12);
+
+        $filesystem = new Filesystem();
+        $tempFile = $filesystem->tempnam(sys_get_temp_dir(), '');
+        $filesystem->dumpFile($tempFile, $png);
+
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $this->mediaRepository->create([['id' => $mediaId]], $context);
+
+        try {
+            $this->fileSaver->persistFileToMedia(new MediaFile($tempFile, 'image/png', 'png', \strlen($png)), 'ai-generated', $mediaId, $context);
+        } finally {
+            $filesystem->remove($tempFile);
+        }
+
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame(MediaAiOrigin::Generated, $media->getAiOrigin());
     }
 
     public function testPersistSafeSvgToMedia(): void
@@ -763,6 +796,7 @@ SVG;
             static::getContainer()->get('shopware.filesystem.private'),
             static::getContainer()->get(FileContentValidationStrategy::class),
             static::getContainer()->get(MetadataLoader::class),
+            static::getContainer()->get(AiOriginDetector::class),
             static::getContainer()->get(TypeDetector::class),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(MediaLocationBuilder::class),

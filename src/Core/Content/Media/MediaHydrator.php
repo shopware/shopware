@@ -44,6 +44,9 @@ class MediaHydrator extends EntityHydrator
         if (\array_key_exists($root . '.metaData', $row)) {
             $entity->metaData = $definition->decode('metaData', self::value($row, $root, 'metaData'));
         }
+        if (\array_key_exists($root . '.aiOrigin', $row)) {
+            $entity->aiOrigin = $definition->decode('aiOrigin', self::value($row, $root, 'aiOrigin'));
+        }
         if (\array_key_exists($root . '.config', $row)) {
             $entity->config = $definition->decode('config', self::value($row, $root, 'config'));
         }

@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\AiOrigin\AiOriginDetector;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
@@ -193,6 +194,7 @@ class FileSaverTest extends TestCase
             static::createStub(FilesystemOperator::class),
             new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             static::createStub(MetadataLoader::class),
+            static::createStub(AiOriginDetector::class),
             static::createStub(TypeDetector::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SqlMediaLocationBuilder::class),
@@ -515,6 +517,7 @@ class FileSaverTest extends TestCase
             static::createStub(FilesystemOperator::class),
             new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             static::createStub(MetadataLoader::class),
+            static::createStub(AiOriginDetector::class),
             static::createStub(TypeDetector::class),
             static::createStub(EventDispatcherInterface::class),
             $locationBuilder,
@@ -587,6 +590,7 @@ class FileSaverTest extends TestCase
             $filesystemPrivate,
             new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             static::createStub(MetadataLoader::class),
+            static::createStub(AiOriginDetector::class),
             static::createStub(TypeDetector::class),
             $eventDispatcher,
             $this->locationBuilder,

@@ -17,6 +17,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateM
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
+use Shopware\Core\Content\Media\AiOrigin\MediaAiOrigin;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
@@ -70,6 +71,8 @@ class MediaEntity extends Entity
     protected ?array $metaData = null;
 
     protected ?MediaType $mediaType = null;
+
+    protected ?MediaAiOrigin $aiOrigin = null;
 
     protected ?\DateTimeInterface $uploadedAt = null;
 
@@ -241,6 +244,16 @@ class MediaEntity extends Entity
     public function setMetaData(array $metaData): void
     {
         $this->metaData = $metaData;
+    }
+
+    public function getAiOrigin(): ?MediaAiOrigin
+    {
+        return $this->aiOrigin;
+    }
+
+    public function setAiOrigin(?MediaAiOrigin $aiOrigin): void
+    {
+        $this->aiOrigin = $aiOrigin;
     }
 
     public function getMediaType(): ?MediaType

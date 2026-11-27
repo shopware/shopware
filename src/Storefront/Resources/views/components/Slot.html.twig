@@ -34,6 +34,7 @@
 
 {% if elements is not empty %}
     {% set breakpoints = enum_cases('Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\Breakpoint') %}
+    {% set gridItemAlignmentOptions = ['align-self', 'justify-self'] %}
     {% block elements %}
         {% for element in elements %}
             {% set elementProperties = element.properties %}
@@ -66,28 +67,21 @@
                         {% else %}
                             {% set elementStyleClasses = elementStyleClasses ~ visibilityClasses %}
                         {% endif %}
-                    {% elseif optionValue is mapping %}
-                        {% for breakpoint in breakpoints %}
-                            {% set viewport = breakpoint.value %}
-                            {% set value = breakpoint.resolve(optionValue) %}
-                            {% if value is not empty and value is not null and value is not same as(false) %}
-                                {% if value is same as(true) %}
-                                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
-                                    {% if gridItems and optionName in ['align-self', 'justify-self'] %}
-                                        {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
-                                    {% endif %}
-                                {% else %}
-                                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}
-                                    {% if gridItems and optionName in ['align-self', 'justify-self'] %}
-                                        {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}
-                                    {% endif %}
+                    {% elseif optionValue is mapping or optionValue is not empty %}
+                        {% set optionClasses = '' %}
+                        {% if optionValue is mapping %}
+                            {% for breakpoint in breakpoints %}
+                                {% set value = breakpoint.resolve(optionValue) %}
+                                {% if value is not empty and value is not null and value is not same as(false) %}
+                                    {% set optionClasses = optionClasses ~ ' ' ~ optionName ~ '-' ~ breakpoint.value ~ (value is same as(true) ? '' : '-' ~ value) %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    {% elseif optionValue is not empty %}
-                        {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ optionValue %}
-                        {% if gridItems and optionName in ['align-self', 'justify-self'] %}
-                            {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ ' ' ~ optionName ~ '-' ~ optionValue %}
+                            {% endfor %}
+                        {% else %}
+                            {% set optionClasses = ' ' ~ optionName ~ '-' ~ optionValue %}
+                        {% endif %}
+                        {% set elementStyleClasses = elementStyleClasses ~ optionClasses %}
+                        {% if gridItems and optionName in gridItemAlignmentOptions %}
+                            {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ optionClasses %}
                         {% endif %}
                     {% endif %}
                 {% endfor %}

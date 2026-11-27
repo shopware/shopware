@@ -152,7 +152,7 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     #[DataProvider('existingDictionaryEntriesProvider')]
-    public function testDictionaryPreservesExistingEntriesAcrossBatches(int $existingCount): void
+    public function testDictionaryPreservesExistingEntriesAcrossBatches(int $existingCount, bool $cleanupAfterLookup = false): void
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
@@ -185,12 +185,33 @@ class SearchKeywordUpdaterTest extends TestCase
         }
         $queue->execute();
 
+        $connection = $this->connection;
+        if ($cleanupAfterLookup) {
+            unset($expectedIds['term0000']);
+            $connection = static::createStub(Connection::class);
+            $connection->method('createQueryBuilder')->willReturnCallback($this->connection->createQueryBuilder(...));
+            $connection->method('executeStatement')->willReturnCallback($this->connection->executeStatement(...));
+            $connection->method('transactional')->willReturnCallback($this->connection->transactional(...));
+            $connection->method('getTransactionNestingLevel')->willReturnCallback($this->connection->getTransactionNestingLevel(...));
+            $removed = false;
+            $connection->method('fetchFirstColumn')->willReturnCallback(function ($query, $params, $types) use ($languageId, &$removed): array {
+                $result = $this->connection->fetchFirstColumn($query, $params, $types);
+                if (!$removed) {
+                    // Simulate cleanup committing after the snapshot lookup, before the current-row check.
+                    $this->connection->delete('product_keyword_dictionary', ['language_id' => $languageId, 'keyword' => 'term0000']);
+                    $removed = true;
+                }
+
+                return $result;
+            });
+        }
+
         $analyzer = static::createStub(ProductSearchKeywordAnalyzerInterface::class);
         $analyzer->method('analyze')->willReturnCallback(
             static fn (ProductEntity $product, Context $context): AnalyzedKeywordCollection => $context->getLanguageId() === Defaults::LANGUAGE_SYSTEM ? $keywords : new AnalyzedKeywordCollection()
         );
         $updater = new SearchKeywordUpdater(
-            $this->connection,
+            $connection,
             static::getContainer()->get('language.repository'),
             $this->productRepository,
             $analyzer,
@@ -224,6 +245,7 @@ class SearchKeywordUpdaterTest extends TestCase
         yield 'all terms are missing' => [0];
         yield 'existing and missing terms span batches' => [501];
         yield 'all terms already exist' => [1001];
+        yield 'cleanup removes a term after the snapshot lookup' => [501, true];
     }
 
     /**

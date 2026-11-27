@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -221,25 +222,32 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function insertDictionary(array $dictionary, string $languageId): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, self::INSERT_BATCH_SIZE, ignoreErrors: true);
-
         ksort($dictionary, \SORT_STRING);
 
         foreach (array_chunk($dictionary, self::INSERT_BATCH_SIZE) as $chunk) {
-            $existing = array_fill_keys($this->connection->fetchFirstColumn(
-                'SELECT keyword FROM product_keyword_dictionary WHERE language_id = :languageId AND keyword IN (:keywords)',
-                ['languageId' => $languageId, 'keywords' => array_column($chunk, 'keyword')],
-                ['keywords' => ArrayParameterType::STRING]
-            ), true);
+            RetryableTransaction::retryable($this->connection, function () use ($chunk, $languageId): void {
+                $ids = $this->connection->fetchFirstColumn(
+                    'SELECT id FROM product_keyword_dictionary WHERE language_id = :languageId AND keyword IN (:keywords)',
+                    ['languageId' => $languageId, 'keywords' => array_column($chunk, 'keyword')],
+                    ['keywords' => ArrayParameterType::STRING]
+                );
 
-            foreach ($chunk as $insert) {
-                if (!isset($existing[$insert['keyword']])) {
-                    $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);
+                // Recheck current rows and protect them from cleanup without locking missing keyword ranges.
+                $existing = $ids === [] ? [] : array_fill_keys($this->connection->fetchFirstColumn(
+                    'SELECT keyword FROM product_keyword_dictionary WHERE language_id = :languageId AND id IN (:ids) LOCK IN SHARE MODE',
+                    ['languageId' => $languageId, 'ids' => $ids],
+                    ['ids' => ArrayParameterType::BINARY]
+                ), true);
+
+                $queue = new MultiInsertQueryQueue($this->connection, self::INSERT_BATCH_SIZE, ignoreErrors: true);
+                foreach ($chunk as $insert) {
+                    if (!isset($existing[$insert['keyword']])) {
+                        $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);
+                    }
                 }
-            }
 
-            // Flush each chunk to keep queued writes bounded.
-            $queue->execute();
+                $queue->execute();
+            });
         }
     }
 

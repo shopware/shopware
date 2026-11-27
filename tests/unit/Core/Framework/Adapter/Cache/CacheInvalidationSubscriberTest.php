@@ -17,6 +17,8 @@ use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
@@ -27,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -563,6 +566,39 @@ class CacheInvalidationSubscriberTest extends TestCase
         $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], $salesChannelId, false));
     }
 
+    #[DataProvider('providerSearchConfigEntities')]
+    public function testInvalidateSearchConfig(string $entityName): void
+    {
+        $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([CachedSearchConfigLoader::CACHE_KEY], true);
+
+        $subscriber->invalidateSearchConfig($this->createWrittenEvent($entityName));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function providerSearchConfigEntities(): iterable
+    {
+        yield 'search config' => [ProductSearchConfigDefinition::ENTITY_NAME];
+
+        yield 'search config field' => [ProductSearchConfigFieldDefinition::ENTITY_NAME];
+    }
+
+    public function testInvalidateSearchConfigIgnoresOtherEntities(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $subscriber->invalidateSearchConfig($this->createWrittenEvent(SalesChannelDefinition::ENTITY_NAME));
+    }
+
     public function testInvalidateStreamIdsWithProductStreamFilterWrites(): void
     {
         $streamId = Uuid::randomHex();
@@ -835,6 +871,28 @@ class CacheInvalidationSubscriberTest extends TestCase
                                 'translationKey' => 'test',
                             ],
                             SnippetDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        );
+    }
+
+    private function createWrittenEvent(string $entityName): EntityWrittenContainerEvent
+    {
+        return new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    $entityName,
+                    [
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            [],
+                            $entityName,
                             EntityWriteResult::OPERATION_UPDATE,
                         ),
                     ],

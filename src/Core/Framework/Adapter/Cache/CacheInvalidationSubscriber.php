@@ -25,6 +25,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
@@ -39,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -93,6 +96,17 @@ class CacheInvalidationSubscriber
         }
 
         $this->cacheInvalidator->invalidate([InitialStateIdLoader::CACHE_KEY], true);
+    }
+
+    public function invalidateSearchConfig(EntityWrittenContainerEvent $event): void
+    {
+        if (!$event->getPrimaryKeys(ProductSearchConfigDefinition::ENTITY_NAME)
+            && !$event->getPrimaryKeys(ProductSearchConfigFieldDefinition::ENTITY_NAME)
+        ) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate([CachedSearchConfigLoader::CACHE_KEY], true);
     }
 
     public function invalidateSitemap(SitemapGeneratedEvent $event): void

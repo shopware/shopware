@@ -11,6 +11,37 @@ component sw-settings-rule-add-assignment-modal  private  js  [private]
   template src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-modal/sw-settings-rule-add-assignment-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  entityContext: object  [private]
+  rule: object  [private]
+
+emits
+  close-add-modal(...args: any[])  [private]
+  entities-saved(...args: any[])  [private]
+
+data
+  criteriaLimit: any  [private]
+  currentLanguageId: any  [private]
+  entities: any  [private]
+  isLoading: any  [private]
+  repository: any  [private]
+  selection: any  [private]
+
+computed
+  modalSize: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  insertEntities(): Promise<any>  [private]
+  loadEntities(): any  [private]
+  onAdd(): any  [private]
+  onCloseAddModal(): any  [private]
+  onSelect(selection: any): any  [private]
+  updateEntities(): Promise<any>  [private]
+
 blocks
   sw_settings_rule_add_assignment_modal  [private]
     sw_settings_rule_add_assignment_modal_category_tree  [private]

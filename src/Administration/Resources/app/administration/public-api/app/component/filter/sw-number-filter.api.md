@@ -11,6 +11,24 @@ component sw-number-filter  private  js  [private]
   template src/app/component/filter/sw-number-filter/sw-number-filter.html.twig  [private]
   visibility-source export  [private]
 
+props
+  active: boolean  [private]
+  filter: object  [private]
+
+emits
+  filter-reset(...args: any[])  [private]
+  filter-update(...args: any[])  [private]
+
+data
+  numberValue: object  [private]
+    from: any  [private]
+    to: any  [private]
+
+methods
+  fromToFieldLabel(type: any): any  [private]
+  resetFilter(): any  [private]
+  updateFilter(params: any): any  [private]
+
 blocks
   sw_number_filter  [private]
     sw_number_filter_from_field  [private]

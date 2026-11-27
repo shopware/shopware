@@ -10,6 +10,41 @@ component sw-property-option-detail  public  js
   source src/module/sw-property/component/sw-property-option-detail/index.js
   template src/module/sw-property/component/sw-property-option-detail/sw-property-option-detail.html.twig
 
+mixins
+  placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+props
+  allowEdit?: boolean  default=true
+  currentOption?: object  default=factory
+
+emits
+  cancel-option-edit(...args: any[])
+  save-option-edit(...args: any[])
+
+data
+  customFieldSets: any
+
+computed
+  colorHexCode: any
+  currentOptionNameError: any
+  mediaRepository: any
+  modalTitle: any
+  showCustomFields: any
+
+methods
+  createdComponent(): any
+  loadCustomFieldSets(): any
+  onCancel(): any
+  onSave(): any
+  removeMedia(): any
+  setMedia(selection: any): any
+  successfulUpload(arg0: any): Promise<any>
+
 blocks
   sw_property_option_detail
     sw_property_option_detail_color

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -129,9 +129,7 @@ class AppSeoUrlSynchronizer
         $criteria = new Criteria();
         $criteria->setTitle('app-seo-url::static-sync');
         $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
-            new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API),
-        ]));
+        $criteria->addFilter(new NotEqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API));
         $criteria->addAssociation('domains');
 
         return $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->getEntities();

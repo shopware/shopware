@@ -10,6 +10,71 @@ component sw-order-detail-details  public  js
   source src/module/sw-order/view/sw-order-detail-details/index.js
   template src/module/sw-order/view/sw-order-detail-details/sw-order-detail-details.html.twig
 
+inject
+  acl
+  customFieldDataProviderService
+  feature
+  repositoryFactory
+  swOrderDetailOnError
+  swOrderDetailOnLoadingChange
+  swOrderDetailOnReloadEntityData
+  swOrderDetailOnSaveAndRecalculate
+  swOrderDetailOnSaveAndReload
+  swOrderDetailOnSaveEdits
+
+props
+  isSaveSuccessful?: boolean  default=false  [deprecated tag:v6.8.0]
+  orderId: string
+
+emits
+  error(...args: any[])
+  reload-entity-data(...args: any[])
+  save-and-recalculate(...args: any[])
+  save-and-reload(...args: any[])
+  save-edits(...args: any[])
+  update-loading(...args: any[])
+
+data
+  customFieldSets: any
+  showStateHistoryModal: any
+
+computed
+  billingAddress: any
+  currency: any  [deprecated tag:v6.8.0]
+  customFieldSetCriteria: any  [deprecated tag:v6.8.0]
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+  delivery: any
+  isLoading: any  [deprecated tag:v6.8.0]
+  order: any
+  orderAddressIds: any
+  orderOrderCustomerEmailError: any
+  paymentMethodCriteria: any
+  salesChannelCriteria: any
+  selectedBillingAddressId: any
+  selectedShippingAddressId: any
+  shipments: any
+  shippingAddress: any
+  shippingCosts: any  [deprecated tag:v6.8.0]
+  taxStatus: any
+  transaction: any
+  versionContext: any
+
+methods
+  createdComponent(): any
+  getSelectedShippingAddressId(delivery: any): any
+  loadingChange(loading: any): any
+  onChangeOrderAddress(value: any): any
+  onChangeShipmentAddress(delivery: any, value: any): any
+  onSaveEdits(): any
+  onShippingChargeEdited(amount: any): any  [deprecated tag:v6.8.0]
+  reloadEntityData(): any
+  saveAndRecalculate(): any
+  saveAndReload(): any
+  shipmentCardTitle(index: any): any
+  showError(error: any): any
+  updateLoading(loadingValue: any): any  [deprecated tag:v6.8.0]
+  validateTrackingCode(searchTerm: any, delivery?: any = this.delivery): any
+
 blocks
   sw_order_detail_details
     sw_order_detail_base_state_history_modal
@@ -31,7 +96,7 @@ blocks
     sw_order_detail_details_shipping  [after v-if]
       sw_order_detail_details_shipping_address  [scope: index, shipment]
       sw_order_detail_details_shipping_address_divider  [scope: index, shipment]
-      sw_order_detail_details_shipping_costs  [scope: index, shipment]
+      sw_order_detail_details_shipping_costs  [scope: index, shipment] [deprecated tag:v6.8.0]
       sw_order_detail_details_shipping_date  [after v-if] [scope: index, shipment]
       sw_order_detail_details_shipping_method_select  [scope: index, shipment]
       sw_order_detail_details_shipping_tracking_codes  [scope: index, shipment]

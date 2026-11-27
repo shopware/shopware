@@ -10,7 +10,21 @@ component sw-newsletter-recipient-filter-switch  public  js
   source src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/index.js
   template src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/sw-newsletter-recipient-filter-switch.html.twig
 
+props
+  group?: string  default=null
+  id: string
+  label?: string  default=''
+
+emits
+  update:value(...args: any[])
+
+slots
+  field  {}  block=sw_newsletter_recipient_filter_switch_field
+
+methods
+  onChange(value: any): any
+
 blocks
-  sw_newsletter_recipient_filter_switch
-    sw_newsletter_recipient_filter_switch_field
+  sw_newsletter_recipient_filter_switch  [deprecated tag:v6.8.0]
+    sw_newsletter_recipient_filter_switch_field  [deprecated tag:v6.8.0]
 ```

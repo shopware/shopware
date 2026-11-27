@@ -10,6 +10,39 @@ component sw-first-run-wizard-mailer-smtp  public  js
   source src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/index.js
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/sw-first-run-wizard-mailer-smtp.html.twig
 
+inject
+  systemConfigApiService
+
+emits
+  buttons-update(...args: any[])
+  frw-redirect(...args: any[])
+  frw-set-title(...args: any[])
+
+data
+  isLoading: any
+  mailerSettings: object
+        deliveryAddress: any
+        disableDelivery: any
+        emailAgent: any
+        encryption: any
+        host: any
+        password: any
+        port: any
+        senderAddress: any
+        username: any
+
+computed
+  buttonConfig: any
+  nextAction: any
+  requiredFieldsFilled: any
+
+methods
+  createdComponent(): Promise<any>
+  loadMailerSettings(): Promise<any>
+  saveMailerSettings(): Promise<any>
+  setTitle(): any
+  updateButtons(): any
+
 blocks
   sw_first_run_wizard_mailer_smtp
 ```

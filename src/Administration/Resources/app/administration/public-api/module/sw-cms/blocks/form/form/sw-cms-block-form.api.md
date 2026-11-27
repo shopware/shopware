@@ -11,6 +11,9 @@ component sw-cms-block-form  private  js  [private]
   template src/module/sw-cms/blocks/form/form/component/sw-cms-block-form.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_form  [private]
+
 blocks
   sw_cms_block_form  [private]
 ```

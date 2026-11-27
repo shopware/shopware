@@ -10,6 +10,18 @@ component sw-order-create-initial  public  js
   source src/module/sw-order/view/sw-order-create-initial/index.js
   template src/module/sw-order/view/sw-order-create-initial/sw-order-create-initial.html.twig
 
+data
+  routeCustomerReady: any
+
+computed
+  customerCriteria: any
+  customerRepository: any
+
+methods
+  createdComponent(): Promise<any>
+  onCloseCreateModal(): any
+  onPreviewOrder(): any
+
 blocks
   sw_order_create_create_initial
 ```

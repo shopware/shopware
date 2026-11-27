@@ -11,6 +11,9 @@ component sw-cms-preview-image-text  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text/preview/sw-cms-preview-image-text.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_text_preview  [private]
 ```

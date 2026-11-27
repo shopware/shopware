@@ -11,6 +11,29 @@ component sw-data-grid-column-position  private  js  [private]
   template src/app/component/data-grid/sw-data-grid-column-position/sw-data-grid-column-position.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  position  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  field?: string  default='position'  [private]
+  item: object  [private]
+  showValue?: boolean  default=false  [private]
+  value: any[]  [private]
+
+emits
+  lower-position-value(...args: any[])  [private]
+  position-changed(...args: any[])  [private]
+  raise-position-value(...args: any[])  [private]
+
+computed
+  itemMax: any  [private]
+  itemMin: any  [private]
+
+methods
+  onLowerPositionValue(): any  [private]
+  onRaisePositionValue(): any  [private]
+
 blocks
   sw_data_grid_column_position  [private]
     sw_data_grid_column_position_button_group  [after v-if] [private]

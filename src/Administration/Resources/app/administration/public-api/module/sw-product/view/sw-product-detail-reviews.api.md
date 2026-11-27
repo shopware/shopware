@@ -10,6 +10,38 @@ component sw-product-detail-reviews  public  js
   source src/module/sw-product/view/sw-product-detail-reviews/index.js
   template src/module/sw-product/view/sw-product-detail-reviews/sw-product-detail-reviews.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+data
+  dataSource: any
+  deleteReviewId: any
+  limit: any
+  page: any
+  showReviewDeleteModal: any
+  total: any
+
+computed
+  assetFilter: any
+  cardTitle: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  isLoading: any
+  product: any
+  reviewColumns: any
+  reviewCriteria: any
+  reviewRepository: any
+
+methods
+  createdComponent(): any
+  getReviews(): any
+  onCancelReviewDelete(): any
+  onChangePage(data: any): any
+  onCloseReviewDeleteModal(): any
+  onConfirmReviewDelete(): any
+  onShowReviewDeleteModal(): any
+  onStartReviewDelete(review: any): any
+
 blocks
   sw_product_detail_reviews
     sw_product_detail_reviews_data
@@ -28,4 +60,7 @@ blocks
       sw_product_detail_reviews_modal_delete_footer
         sw_product_detail_reviews_modal_delete_button_cancel
         sw_product_detail_reviews_modal_delete_button_confirm
+
+refs
+  gridReview  -> sw-data-grid  block=sw_product_detail_reviews_data
 ```

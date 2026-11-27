@@ -11,10 +11,16 @@ component sw-import-export-view-import  private  js  [private]
   template src/module/sw-import-export/view/sw-import-export-view-import/sw-import-export-view-import.html.twig  [private]
   visibility-source export  [private]
 
+methods
+  reloadContent(log: any): any  [private]
+
 blocks
   sw_import_export_view_import  [private]
     sw_import_export_view_import_activity  [private]
       sw_import_export_view_import_activity_grid  [private]
-      sw_import_export_view_import_activity_title  [private]
+      sw_import_export_view_import_activity_title  [deprecated tag:v6.8.0] [private]
     sw_import_export_view_import_importer  [private]
+
+refs
+  activityGrid  -> sw-import-export-activity  block=sw_import_export_view_import_activity_grid  [private]
 ```

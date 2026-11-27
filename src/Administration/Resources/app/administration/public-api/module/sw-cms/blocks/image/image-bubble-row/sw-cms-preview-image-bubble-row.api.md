@@ -11,6 +11,9 @@ component sw-cms-preview-image-bubble-row  private  js  [private]
   template src/module/sw-cms/blocks/image/image-bubble-row/preview/sw-cms-preview-image-bubble-row.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_bubble_row_preview  [private]
 ```

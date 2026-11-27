@@ -259,7 +259,6 @@ class CheapestPriceUpdater
         $grouped = [];
         foreach ($data as $row) {
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
-            $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
             $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
         }
 
@@ -272,7 +271,6 @@ class CheapestPriceUpdater
 
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
-            $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
 
             if ($row['child_count'] > 0) {
                 $grouped[(string) $row['parent_id']]['default'] = $row;
@@ -283,7 +281,43 @@ class CheapestPriceUpdater
             $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = $row;
         }
 
+        foreach ($grouped as $parentId => $variants) {
+            $grouped[$parentId]['sales_channel_ids'] = $this->buildSalesChannelIds($parentId, array_keys($variants), $visibilityMap);
+        }
+
         return $grouped;
+    }
+
+    /**
+     * @param array<int|string> $variantIds
+     * @param array<string, array<string>> $visibilityMap
+     *
+     * @return array{parent: list<string>, variants: array<string, list<string>>}
+     */
+    private function buildSalesChannelIds(string $parentId, array $variantIds, array $visibilityMap): array
+    {
+        $parentSalesChannelIds = array_values($visibilityMap[$parentId] ?? []);
+        $sortedParentSalesChannelIds = $parentSalesChannelIds;
+        sort($sortedParentSalesChannelIds);
+
+        $variants = [];
+        foreach ($variantIds as $variantId) {
+            $variantId = (string) $variantId;
+
+            if ($variantId === $parentId || $variantId === 'default' || !isset($visibilityMap[$variantId])) {
+                continue;
+            }
+
+            $variantSalesChannelIds = array_values($visibilityMap[$variantId]);
+            $sortedVariantSalesChannelIds = $variantSalesChannelIds;
+            sort($sortedVariantSalesChannelIds);
+
+            if ($sortedVariantSalesChannelIds !== $sortedParentSalesChannelIds) {
+                $variants[$variantId] = $variantSalesChannelIds;
+            }
+        }
+
+        return ['parent' => $parentSalesChannelIds, 'variants' => $variants];
     }
 
     /**

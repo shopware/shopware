@@ -10,6 +10,39 @@ component sw-bulk-edit-save-modal  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/sw-bulk-edit-save-modal.html.twig
 
+props
+  bulkEditData?: object  default=factory
+  failedItems?: any[]  default=factory
+  isLoading: boolean
+  itemTotal: number
+  processStatus: string
+
+emits
+  bulk-save(...args: any[])
+  modal-close(...args: any[])
+
+data
+  buttonConfig: any
+  title: any
+
+computed
+  buttons: any
+  currentStep: any
+  stepProps: any
+
+methods
+  addEventListeners(): any
+  applyChanges(): any
+  beforeDestroyComponent(): any
+  beforeUnloadListener(event: any): any
+  createdComponent(): any
+  onButtonClick(action: any): any
+  onModalClose(): any
+  redirect(routeName: any): any
+  removeEventListeners(): any
+  setTitle(title: any): any
+  updateButtons(buttonConfig: any): any
+
 blocks
   sw_bulk_edit_save_modal
     sw_bulk_edit_save_modal_body

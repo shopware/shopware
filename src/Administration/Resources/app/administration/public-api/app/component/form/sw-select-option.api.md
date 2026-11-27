@@ -11,6 +11,33 @@ component sw-select-option  private  js  [private]
   template src/app/component/form/sw-select-option/sw-select-option.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=false  [private]
+  index: number  [private]
+  item: object  [private]
+  selected?: boolean  default=false  [private]
+
+slots
+  default  {}  block=sw_single_select_option_item_text  [private]
+
+data
+  isActive: any  [private]
+
+computed
+  componentClasses: any  [private]
+
+methods
+  checkActiveState(index: any): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  emitActiveResultPosition(originalDomEvent: any, index: any): any  [private]
+  isInSelections(item: any): any  [private]
+  onClicked(originalDomEvent: any): any  [private]
+  onMouseEnter(originalDomEvent: any): any  [private]
+  registerEvents(): any  [private]
+  removeEvents(): any  [private]
+  selectOptionOnEnter(index: any): any  [private]
+
 blocks
   sw_single_select_option  [private]
     sw_single_select_option_item_icon_transition  [private]

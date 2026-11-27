@@ -10,6 +10,44 @@ component sw-cms-create-wizard  public  ts
   source src/module/sw-cms/component/sw-cms-create-wizard/index.ts
   template src/module/sw-cms/component/sw-cms-create-wizard/sw-cms-create-wizard.html.twig
 
+inject
+  cmsPageTypeService
+  customEntityDefinitionService
+  feature
+
+props
+  page: Entity<'cms_page'>
+
+emits
+  on-section-select(...args: any[])
+  wizard-complete(...args: any[])
+
+data
+  step: any
+  steps: object
+    pageName: any
+    pageType: any
+    sectionType: any
+
+computed
+  assetFilter: any
+  cmsPageStore: any
+  currentPageType: any
+  customEntities: any
+  isCompletable: any
+  isCustomEntityType: any
+  pagePreviewMedia: any
+  pagePreviewStyle: any
+  pageTypeSelectionStyle: any
+  visiblePageTypes: any
+
+methods
+  getStepName(stepValue: number): any
+  goToStep(stepName: string): any
+  onCompletePageCreation(): any
+  onPageTypeSelect(type: string): any
+  onSectionSelect(section: Entity<'cms_section'>): any
+
 blocks
   sw_cms_create_wizard
     sw_cms_create_wizard_first_step

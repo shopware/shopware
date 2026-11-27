@@ -11,6 +11,23 @@ component sw-custom-field-type-entity  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-entity/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-type-entity/sw-custom-field-type-entity.html.twig
 
+inject
+  repositoryFactory
+
+data
+  customEntities: any
+
+computed
+  customEntityRepository: any
+  customFieldsAwareCustomEntities: any
+  entityTypes: any
+  sortedEntityTypes: any
+
+methods
+  createdComponent(): any
+  onChangeEntityType(entity: any): any
+  onChangeMultiSelectSwitch(state: any): any
+
 blocks
   sw_custom_field_type_base  [inherited]
     sw_custom_field_type_base_content  [keepsParent]

@@ -11,6 +11,39 @@ component sw-advanced-selection-rule  private  js  [private]
   template src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/sw-advanced-selection-rule.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  ruleConditionDataProviderService  [private]
+
+props
+  restrictedRuleIds?: any[]  default=factory  [private]
+  restrictedRuleIdsTooltipLabel?: string  default=factory  [private]
+  ruleAwareGroupKey: string  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  selection-submit(...args: any[])  [private]
+
+computed
+  aggregations: any  [private]
+  assignmentProperties: any  [private]
+  associationFilterOptions: any  [private]
+  associations: any  [private]
+  columns: any  [private]
+  conditionFilterOptions: any  [private]
+  context: any  [private]
+  dateFilter: any  [deprecated tag:v6.8.0] [private]
+  filters: any  [private]
+  getRuleDefinition: any  [private]
+  groupFilterOptions: any  [private]
+
+methods
+  getColumnClass(item: any): any  [private]
+  getCounts(id: any, aggregations: any): any  [private]
+  isRecordSelectable(item: any): any  [private]
+  isRestricted(item: any): any  [private]
+  tooltipConfig(rule: any): any  [private]
+
 blocks
   sw_advanced_selection_rule  [private]
     sw_advanced_selection_rule__list_grid_columns_description  [private]

@@ -10,4 +10,8 @@ component sw-sidebar-renderer  private  ts  [private]
   source src/app/component/structure/sw-sidebar-renderer/index.ts  [private]
   template src/app/component/structure/sw-sidebar-renderer/sw-sidebar-renderer.html.twig  [private]
   visibility-source export  [private]
+
+notes
+  dynamic-ref (element) => setSidebarElement(sidebar.locationId, element)  [private]
+  unresolved options setup  [private]
 ```

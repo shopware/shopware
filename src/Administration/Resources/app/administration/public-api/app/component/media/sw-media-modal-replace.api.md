@@ -10,6 +10,35 @@ component sw-media-modal-replace  public  js
   source src/app/component/media/sw-media-modal-replace/index.js
   template src/app/component/media/sw-media-modal-replace/sw-media-modal-replace.html.twig
 
+mixins
+  notification
+
+inject
+  mediaPresignedUploadService
+  mediaService
+  repositoryFactory
+
+props
+  itemToReplace?: object  default=null
+
+emits
+  media-replace-modal-close(...args: any[])
+  media-replace-modal-item-replaced(...args: any[])
+
+data
+  isUploadDataSet: any
+  newFileExtension: any
+  pendingPresignedFile: any
+
+computed
+  presignedSupported: any
+
+methods
+  emitCloseReplaceModal(): any
+  onNewUpload(arg0: any): any
+  replaceMediaItem(): Promise<any>
+  runPresignedReplace(fileHandle: any): Promise<any>
+
 blocks
   sw_media_modal_replace
     sw_media_modal_replace_modal_footer  [after v-if]

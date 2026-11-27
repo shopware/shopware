@@ -11,6 +11,10 @@ component sw-cms-block-image-text  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text/component/sw-cms-block-image-text.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  left  {}  block=sw_cms_block_image_text  [private]
+  right  {}  block=sw_cms_block_image_text  [private]
+
 blocks
   sw_cms_block_image_text  [private]
     sw_cms_block_image_text_slot_left  [private]

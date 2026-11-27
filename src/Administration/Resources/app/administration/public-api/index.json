@@ -4916,6 +4916,7 @@
                 "sw_desktop",
                 "sw_desktop_content",
                 "sw_desktop_content_view",
+                "sw_desktop_floating_section",
                 "sw_desktop_sidebar"
             ]
         },
@@ -5493,6 +5494,14 @@
                 "sw_extension_file_upload_confirm_modal_footer_continue",
                 "sw_extension_file_upload_content",
                 "sw_extension_file_upload_form"
+            ]
+        },
+        "sw-extension-floating-section": {
+            "file": "app/component/extension-api/sw-extension-floating-section",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_extension_floating_section"
             ]
         },
         "sw-extension-icon": {
@@ -9019,7 +9028,8 @@
             "visibility": "private",
             "extends": null,
             "blocks": [
-                "sw_order_create_document_modal"
+                "sw_order_create_document_modal",
+                "sw_order_create_document_modal_type_specific_fields_additional"
             ]
         },
         "sw-order-create-general": {
@@ -10327,6 +10337,7 @@
                 "sw_product_detail_base_basic_info_form",
                 "sw_product_detail_base_category_card",
                 "sw_product_detail_base_category_form",
+                "sw_product_detail_base_documents",
                 "sw_product_detail_base_download_external_management",
                 "sw_product_detail_base_guarantee_card",
                 "sw_product_detail_base_guarantee_form",
@@ -10499,6 +10510,97 @@
                 "sw_product_properties_add_properties_modal",
                 "sw_product_properties_empty_state_button",
                 "sw_product_properties_empty_state_button_property"
+            ]
+        },
+        "sw-product-document-add-button": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-add-button",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_add_button",
+                "sw_product_document_add_button_language_hint"
+            ]
+        },
+        "sw-product-document-download": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-download",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_download"
+            ]
+        },
+        "sw-product-document-edit-modal": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-edit-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_edit_modal",
+                "sw_product_document_edit_modal_media_modal",
+                "sw_product_document_form_apply_to_variants",
+                "sw_product_document_form_file_error",
+                "sw_product_document_form_replace_file",
+                "sw_product_document_form_title_input"
+            ]
+        },
+        "sw-product-document-empty-state": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-empty-state",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_empty_state",
+                "sw_product_document_empty_state_add",
+                "sw_product_document_empty_state_language_hint"
+            ]
+        },
+        "sw-product-document-form": {
+            "file": "module/sw-product/component/sw-product-document-form",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_form",
+                "sw_product_document_form_action_download",
+                "sw_product_document_form_action_remove",
+                "sw_product_document_form_actions",
+                "sw_product_document_form_add",
+                "sw_product_document_form_edit_modal",
+                "sw_product_document_form_empty",
+                "sw_product_document_form_empty_add",
+                "sw_product_document_form_file",
+                "sw_product_document_form_grid",
+                "sw_product_document_form_media_modal",
+                "sw_product_document_form_name",
+                "sw_product_document_form_number",
+                "sw_product_document_form_position",
+                "sw_product_document_form_remove_modal",
+                "sw_product_document_form_restore_inheritance_cancel",
+                "sw_product_document_form_restore_inheritance_confirm",
+                "sw_product_document_form_restore_inheritance_modal",
+                "sw_product_document_form_restore_inheritance_text",
+                "sw_product_document_form_size",
+                "sw_product_document_form_title",
+                "sw_product_document_form_type",
+                "sw_product_document_form_upload_input",
+                "sw_product_document_form_upload_listener",
+                "sw_product_document_form_upload_modal"
+            ]
+        },
+        "sw-product-document-language-hint": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-language-hint",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_language_hint",
+                "sw_product_document_language_hint_link"
+            ]
+        },
+        "sw-product-document-remove-modal": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-remove-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_form_remove_description",
+                "sw_product_document_form_remove_from_variants",
+                "sw_product_document_remove_modal"
             ]
         },
         "sw-product-download-form": {
@@ -15489,12 +15591,21 @@
                 "sw_settings_webhook_list_empty_state",
                 "sw_settings_webhook_list_grid",
                 "sw_settings_webhook_list_load_error",
+                "sw_settings_webhook_list_roles_modal",
                 "sw_settings_webhook_list_search_bar",
                 "sw_settings_webhook_list_secret_modal",
                 "sw_settings_webhook_list_sidebar",
                 "sw_settings_webhook_list_sidebar_filter",
                 "sw_settings_webhook_list_sidebar_filter_owner",
                 "sw_settings_webhook_list_smart_bar_header"
+            ]
+        },
+        "sw-settings-webhook-roles-modal": {
+            "file": "module/sw-settings-webhook/component/sw-settings-webhook-roles-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_webhook_roles_modal"
             ]
         },
         "sw-settings-webhook-secret-modal": {

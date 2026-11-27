@@ -11,6 +11,30 @@ component sw-cms-el-image-gallery  private  js  [private]
   template src/module/sw-cms/elements/image-gallery/component/sw-cms-el-image-gallery.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+data
+  activeMedia: any  [private]
+  galleryLimit: any  [private]
+
+computed
+  assetFilter: any  [private]
+  currentDeviceView: any  [private]
+  currentDeviceViewClass: any  [private]
+  galleryPositionClass: any  [private]
+  isProductPage: any  [private]
+  mediaUrls: any  [private]
+  verticalAlignStyle: any  [private]
+
+methods
+  activeMediaClass(mediaItem: any): any  [private]
+  createdComponent(): any  [private]
+  getPlaceholderItems(): any  [private]
+  mountedComponent(): any  [private]
+  onChangeGalleryImage(mediaItem: any, index?: any = 0): any  [private]
+  setGalleryLimit(): any  [private]
+
 blocks
   sw_cms_element_image_gallery  [private]
     sw_cms_element_image_gallery_grid  [private]
@@ -18,4 +42,7 @@ blocks
       sw_cms_element_image_gallery_nav_arrow  [private]
       sw_cms_element_image_gallery_selection  [private]
     sw_cms_element_image_gallery_slider  [private]
+
+refs
+  galleryItemHolder  -> div  block=sw_cms_element_image_gallery_grid  [private]
 ```

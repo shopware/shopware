@@ -10,4 +10,17 @@ component sw-extension-bulk-actions-bar  private  js  [private]
   source src/module/sw-extension/component/sw-extension-bulk-actions-bar/index.js  [private]
   template src/module/sw-extension/component/sw-extension-bulk-actions-bar/sw-extension-bulk-actions-bar.html.twig  [private]
   visibility-source export  [private]
+
+props
+  applicableCounts: object  [private]
+  disabled?: boolean  default=false  [private]
+  selectedCount: number  [private]
+
+emits
+  clear(...args: any[])  [private]
+  run-action(...args: any[])  [private]
+  select-all(...args: any[])  [private]
+
+methods
+  onAction(action: any, applicableCount: any): any  [private]
 ```

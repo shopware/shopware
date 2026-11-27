@@ -16,10 +16,15 @@ class LegalGuaranteeNoticeRouteResponseTest extends TestCase
 {
     public function testResponseWrapsSvgAndLink(): void
     {
-        $response = new LegalGuaranteeNoticeRouteResponse('<svg>notice</svg>', 'https://europa.eu/youreurope/garantien');
+        $response = new LegalGuaranteeNoticeRouteResponse(
+            '<svg>notice</svg>',
+            'https://europa.eu/youreurope/garantien',
+            '<div lang="de"><p>notice</p></div>',
+        );
 
         static::assertSame('<svg>notice</svg>', $response->getObject()->get('svg'));
         static::assertSame('https://europa.eu/youreurope/garantien', $response->getObject()->get('link'));
+        static::assertSame('<div lang="de"><p>notice</p></div>', $response->getObject()->get('text'));
         static::assertSame('legal_guarantee_notice', $response->getObject()->getApiAlias());
     }
 
@@ -29,5 +34,6 @@ class LegalGuaranteeNoticeRouteResponseTest extends TestCase
 
         static::assertNull($response->getObject()->get('svg'));
         static::assertNull($response->getObject()->get('link'));
+        static::assertNull($response->getObject()->get('text'));
     }
 }

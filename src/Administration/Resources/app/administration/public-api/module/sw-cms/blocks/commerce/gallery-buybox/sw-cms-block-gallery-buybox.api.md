@@ -11,6 +11,14 @@ component sw-cms-block-gallery-buybox  private  js  [private]
   template src/module/sw-cms/blocks/commerce/gallery-buybox/component/sw-cms-block-gallery-buybox.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  left  {}  block=sw_cms_block_gallery_buybox  [private]
+  right  {}  block=sw_cms_block_gallery_buybox  [private]
+
+computed
+  currentDeviceView: any  [private]
+  currentDeviceViewClass: any  [private]
+
 blocks
   sw_cms_block_gallery_buybox  [private]
     sw_cms_block_gallery_buybox_slot_left  [private]

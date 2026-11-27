@@ -10,6 +10,29 @@ component sw-users-permissions-detailed-additional-permissions  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/sw-users-permissions-detailed-additional-permissions.html.twig
 
+inject
+  aclApiService
+  privileges
+
+props
+  detailedPrivileges: any[]
+  disabled?: boolean  default=false
+  isLoading?: boolean  default=false
+  role?: object  default=null
+
+data
+  detailedAdditionalPermissions: any
+
+computed
+  allGeneralSelectedPrivileges: any
+
+methods
+  changePermissionForEntity(identifier: any): any
+  createdComponent(): any
+  isEntityDisabled(identifier: any): any
+  isEntitySelected(identifier: any): any
+  setDetailedAdditionalPermissions(): any
+
 blocks
   sw_users_permissions_detailed_additional_permissions
     sw_users_permissions_detailed_additional_permissions_additional_privileges

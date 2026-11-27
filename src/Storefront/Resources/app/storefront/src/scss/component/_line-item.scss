@@ -584,6 +584,7 @@ $infoItemRemoveMdSpace: 1;
 .line-item-product-number {
     margin-bottom: $spacer-sm;
     font-size: $font-size-sm;
+    overflow-wrap: anywhere;
 }
 
 .line-item-delivery-date {

@@ -1,0 +1,20 @@
+[
+    {
+        "group": "Break",
+        "rule": "ref_missing",
+        "explanation": "The template ref titleField is gone, so plugin overrides that read this.$refs.titleField get undefined.",
+        "fix": "keep the template ref, or remove it with the block around it once that block is marked {# @deprecated tag:v6.8.0 - Will be removed. #}.",
+        "element": "component:sw-example-card/ref:titleField",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:8"
+    },
+    {
+        "group": "Break",
+        "rule": "ref_target_changed",
+        "explanation": "The template ref grid now points to sw-entity-listing instead of sw-data-grid, so plugin code that calls methods on it fails.",
+        "fix": "pattern \"Rename\". Keep the ref grid on sw-data-grid and give the ref on sw-entity-listing another name.",
+        "element": "component:sw-example-card/ref:grid",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:17"
+    }
+]

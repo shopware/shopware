@@ -10,6 +10,12 @@ component sw-cms-stage-section-selection  public  ts
   source src/module/sw-cms/component/sw-cms-stage-section-selection/index.ts
   template src/module/sw-cms/component/sw-cms-stage-section-selection/sw-cms-stage-section-selection.html.twig
 
+emits
+  section-select(...args: any[])
+
+methods
+  selectSection(type: string): any
+
 blocks
   sw_cms_stage_section_selection
     sw_cms_stage_section_selection__fullwidth

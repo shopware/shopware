@@ -11,6 +11,17 @@ component sw-cms-el-preview-location-renderer  private  ts  [private]
   template src/module/sw-cms/elements/location-renderer/preview/sw-cms-el-preview-location-renderer.html.twig  [private]
   visibility-source export  [private]
 
+props
+  elementData: ElementDataProp  [private]
+
+computed
+  previewLocation: string  [private]
+  publishingKey: string  [private]
+  src: string  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_el_preview_location_renderer  [private]
 ```

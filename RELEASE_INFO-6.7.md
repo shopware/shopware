@@ -5,6 +5,7 @@
 ### Overrides of deprecated component members report a deprecation
 
 A `Component.override()` of a deprecated `computed` or method now triggers a deprecation itself, when the component is built in a development build of the Administration.
+Like any deprecation, it throws once the major flag is active.
 
 ## Core
 

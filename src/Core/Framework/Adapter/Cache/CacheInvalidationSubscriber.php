@@ -18,6 +18,7 @@ use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
+use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -379,7 +380,18 @@ class CacheInvalidationSubscriber
         InvalidateMediaCache::dispatch($this->bus, $mediaIds, $context);
     }
 
-    public function invalidateMedia(InvalidateMediaCache $message): void
+    /**
+     * @deprecated tag:v6.8.0 - Use handleInvalidateMediaCache() instead.
+     */
+    public function invalidateMedia(MediaIndexerEvent $event): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Use handleInvalidateMediaCache() instead.');
+
+        $mediaIds = Feature::silent('v6.8.0.0', static fn () => $event->getIds());
+        $this->handleInvalidateMediaCache(new InvalidateMediaCache($mediaIds));
+    }
+
+    public function handleInvalidateMediaCache(InvalidateMediaCache $message): void
     {
         /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
         $productIds = $this->connection->fetchAllAssociative(

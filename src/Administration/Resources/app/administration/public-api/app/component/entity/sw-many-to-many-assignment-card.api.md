@@ -102,7 +102,7 @@ blocks
             sw_entity_many_to_many_assignment_card_results_list_result  [scope: index, item] [private]
               sw_entity_many_to_many_assignment_card_results_list_list_item  [scope: index, item] [private]
                 sw_entity_many_to_many_assignment_card_results_list_list_item_label  [scope: index, item] [private]
-          sw_entity_many_to_many_assignment_card_search_field  [scope: collapse, disabled, error, expand, identification, size] [private]
+          sw_entity_many_to_many_assignment_card_search_field  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
     sw_entity_many_to_many_assignment_card_grid  [private]
       sw_entity_many_to_many_assignment_card_grid_column  [scope: column, columnProps] [private]
       sw_entity_many_to_many_assignment_card_grid_column_actions  [scope: item] [private]

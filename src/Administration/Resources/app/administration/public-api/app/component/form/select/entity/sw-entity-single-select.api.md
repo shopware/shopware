@@ -139,11 +139,11 @@ blocks
                 sw_entity_multi_select_base_results_list_result_active  [scope: index, item] [private]
               sw_entity_single_select_base_results_list_result_label  [scope: index, item] [private]
       sw_entity_single_select_base_selection  [private]
-        sw_entity_single_select_advanced_selection_modal  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-        sw_entity_single_select_base_selection_slot  [after v-if] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-          sw_entity_single_select_single_selection_inner  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-            sw_entity_single_select_single_selection_inner_input  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-            sw_entity_single_select_single_selection_inner_label  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
+        sw_entity_single_select_advanced_selection_modal  [scope: disabled, error, identification, searchInputAttrs, size] [private]
+        sw_entity_single_select_base_selection_slot  [after v-if] [scope: disabled, error, identification, searchInputAttrs, size] [private]
+          sw_entity_single_select_single_selection_inner  [scope: disabled, error, identification, searchInputAttrs, size] [private]
+            sw_entity_single_select_single_selection_inner_input  [scope: disabled, error, identification, searchInputAttrs, size] [private]
+            sw_entity_single_select_single_selection_inner_label  [scope: disabled, error, identification, searchInputAttrs, size] [private]
 
 refs
   resultsList  -> sw-select-result-list  block=sw_entity_single_select_base_results_slot  [private]

@@ -106,6 +106,26 @@ Apps that need such a section should require that version in `<compatibility>`.
 
 ## Administration
 
+### Selects open from the keyboard instead of on focus
+
+Selects built on `sw-select-base`, such as `sw-entity-single-select` and `sw-multi-select`, no longer open when they get the focus.
+They open on ArrowDown, ArrowUp, Enter, Space or a typed character, and TAB moves on to the next field.
+Backspace and Delete remove the last value of a closed multi select without opening it.
+Closing a select with the keyboard returns the focus to it.
+While a closed select has the focus, ESC no longer triggers the ESC shortcut of the page, like in a text field.
+Automated tests that open a select by focusing it must click it or press one of these keys instead.
+
+Extensions that replace the search input of a select bind the new `searchInputAttrs` prop of the `sw-select-selection` slot to it:
+
+```twig
+<template #sw-select-selection="{ searchInputAttrs }">
+    <input v-bind="searchInputAttrs">
+</template>
+```
+
+It keeps the search out of the tab order and lets a typed character reach it.
+Other inputs that extensions add inside a select need `tabindex="-1"`, so TAB moves on to the next field.
+
 ### Core popovers render with `mt-floating-ui` before 6.8
 
 `sw-context-button`, `sw-select-result-list` and `sw-multi-tag-select` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.

@@ -6,21 +6,21 @@
     :disabled="disabled"
     :size="size"
 >
-    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+    <template #sw-field-input="{ identification, error, disabled, size }">
         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
             ref="selectWrapper"
             class="sw-select__selection"
             :tabindex="disabled ? '-1' : '0'"
             :aria-expanded="expanded ? 'true' : 'false'"
-            @click="expand"
-            @focus="expand"
-            @keydown.tab="collapse"
-            @keydown.esc="collapse"
+            @click.capture="expandByClick"
+            @focus="wrapperFocused = true"
+            @blur="wrapperFocused = false"
+            @keydown="onKeydown"
         >
             <slot
                 name="sw-select-selection"
-                v-bind="{ identification, error, disabled, size, expand, collapse }"
+                v-bind="{ identification, error, disabled, size, expand, collapse, searchInputAttrs }"
             ></slot>
         </div>
         <div class="sw-select__selection-indicators">
@@ -36,7 +36,6 @@
                 data-clearable-button
                 :aria-label="$t('global.sw-select-base.buttonClear')"
                 @click.prevent.stop="emitClear"
-                @keydown.tab.stop="focusParentSelect"
             >
                 <mt-icon
                     class="sw-select__select-indicator sw-select__select-indicator-clear"

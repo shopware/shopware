@@ -210,4 +210,33 @@ describe('components/sw-multi-select', () => {
 
         expect(swMultiSelect.vm.searchTerm).toBe('Entry 3');
     });
+
+    it('should remove the last value on Backspace while only the select has the focus', async () => {
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        const swMultiSelect = await createMultiSelect({
+            attachTo: container,
+            props: {
+                value: [
+                    'entryOneValue',
+                    'entryTwoValue',
+                ],
+                options: [
+                    { label: 'Entry 1', value: 'entryOneValue' },
+                    { label: 'Entry 2', value: 'entryTwoValue' },
+                ],
+            },
+        });
+        const selection = swMultiSelect.find('.sw-select__selection');
+        selection.element.focus();
+
+        await selection.trigger('keydown', { key: 'Backspace' });
+        await flushPromises();
+
+        expect(selection.attributes('aria-expanded')).toBe('false');
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue']]]);
+
+        swMultiSelect.unmount();
+        container.remove();
+    });
 });

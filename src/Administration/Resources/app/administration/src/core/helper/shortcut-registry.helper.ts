@@ -91,8 +91,10 @@ function isSystemShortcut(shortcutKey: string): boolean {
 function isRestrictedSource(event: KeyboardEvent): boolean {
     const target = event.target as HTMLElement | null;
     const isEditableDiv = target?.tagName === 'DIV' && target.isContentEditable;
+    // A focused sw-select or mt-select is a form field like a native SELECT, even while it is closed
+    const isSelect = target?.matches?.('.sw-select__selection, .mt-select__selection') ?? false;
 
-    return isEditableDiv || /INPUT|TEXTAREA|SELECT/.test(target?.tagName ?? '');
+    return isEditableDiv || /INPUT|TEXTAREA|SELECT/.test(target?.tagName ?? '') || isSelect;
 }
 
 function findShortcut(key: string): ShortcutRegistration | undefined {

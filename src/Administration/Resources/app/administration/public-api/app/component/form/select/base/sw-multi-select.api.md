@@ -81,10 +81,10 @@ blocks
             sw_multi_select_base_results_list_result  [private]
               sw_multi_select_base_results_list_result_label  [scope: index, item] [private]
       sw_multi_select_base_selection  [private]
-        sw_multi_select_base_selection_slot  [scope: collapse, disabled, error, expand, identification, size] [private]
-          sw_multi_select_base_selection_list  [scope: collapse, disabled, error, expand, identification, size] [private]
-            sw_multi_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, size] [private]
-              sw_multi_select_base_selection_list_label_inner  [scope: collapse, disabled, error, expand, identification, index, item, labelProperty, size, valueProperty] [private]
+        sw_multi_select_base_selection_slot  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+          sw_multi_select_base_selection_list  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+            sw_multi_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+              sw_multi_select_base_selection_list_label_inner  [scope: collapse, disabled, error, expand, identification, index, item, labelProperty, searchInputAttrs, size, valueProperty] [private]
 
 refs
   selectionList  -> sw-select-selection-list  block=sw_multi_select_base_selection_slot  [private]

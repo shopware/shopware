@@ -7,10 +7,11 @@
     v-bind="$attrs"
     @select-expanded="setDropDown(true)"
     @select-collapsed="setDropDown(false)"
+    @delete-key="removeLastItem"
 >
     {% block sw_multi_tag_select_base %}
     {% block sw_multi_tag_select_base_selection %}
-    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse, searchInputAttrs }">
         {% block sw_multi_tag_select_base_selection_slot %}
         <sw-select-selection-list
             ref="selectionList"
@@ -19,7 +20,7 @@
             :disabled="disabled"
             label-property="value"
             value-property="value"
-            v-bind="{ size, placeholder, searchTerm, autocomplete }"
+            v-bind="{ size, placeholder, searchTerm, searchInputAttrs, autocomplete }"
             @total-count-click="expandValueLimit"
             @item-remove="remove"
             @last-item-delete="removeLastItem"

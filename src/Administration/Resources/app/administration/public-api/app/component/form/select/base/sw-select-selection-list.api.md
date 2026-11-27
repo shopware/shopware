@@ -25,6 +25,7 @@ props
   isLoading?: boolean  default=false  [private]
   labelProperty?: string  default='label'  [private]
   placeholder?: string  default=''  [private]
+  searchInputAttrs?: object  default=factory  [private]
   searchTerm?: string  default=''  [private]
   selectionDisablingMethod?: (...args: any[]) => any  default=factory  [private]
   selections?: any[]  default=factory  [private]

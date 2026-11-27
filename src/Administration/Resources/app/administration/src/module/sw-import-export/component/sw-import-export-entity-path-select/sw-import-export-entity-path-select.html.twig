@@ -9,7 +9,7 @@
 >
     {% block sw_import_export_entity_path_select_base %}
     {% block sw_import_export_entity_path_select_base_selection %}
-    <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+    <template #sw-select-selection="{ identification, error, disabled, size, searchInputAttrs }">
         {% block sw_import_export_entity_path_select_base_selection_slot %}
         <div class="sw-import-export-entity-path-select__selection">
             {% block sw_import_export_entity_path_select_single_selection_inner %}
@@ -42,6 +42,7 @@
                 class="sw-import-export-entity-path-select__selection-input"
                 :class="inputClasses"
                 type="text"
+                v-bind="searchInputAttrs"
                 :placeholder="placeholder"
                 @input="onInputSearch"
             >

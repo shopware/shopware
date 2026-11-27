@@ -11,7 +11,7 @@
 >
     {% block sw_single_select_base %}
     {% block sw_single_select_base_selection %}
-    <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+    <template #sw-select-selection="{ identification, error, disabled, size, searchInputAttrs }">
         {% block sw_single_select_base_selection_slot %}
         <div class="sw-single-select__selection">
             {% block sw_single_select_single_selection_inner %}
@@ -44,6 +44,7 @@
                 class="sw-single-select__selection-input"
                 :class="inputClasses"
                 type="text"
+                v-bind="searchInputAttrs"
                 :aria-label="label"
                 :placeholder="placeholder"
                 :disabled="disableSearchFunction"

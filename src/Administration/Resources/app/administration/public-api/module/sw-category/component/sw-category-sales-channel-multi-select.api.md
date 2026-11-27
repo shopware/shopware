@@ -47,11 +47,11 @@ blocks
               sw_entity_multi_select_base_results_list_result_label  [replaced] [scope: index, item]
               sw_entity_multi_select_base_results_list_result_preview  [inherited] [scope: index, item]
       sw_entity_multi_select_base_selection  [inherited]
-        sw_entity_multi_select_advanced_selection_modal  [inherited] [scope: collapse, disabled, error, expand, identification, size]
-        sw_entity_multi_select_base_selection_slot  [inherited] [after v-if] [scope: collapse, disabled, error, expand, identification, size]
-          sw_entity_multi_select_base_selection_list  [inherited] [scope: collapse, disabled, error, expand, identification, size]
-            sw_entity_multi_select_base_selection_list_label  [inherited] [scope: collapse, disabled, error, expand, identification, size]
-              sw_entity_multi_select_base_selection_list_label_inner  [replaced] [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, size, valueProperty]
+        sw_entity_multi_select_advanced_selection_modal  [inherited] [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size]
+        sw_entity_multi_select_base_selection_slot  [inherited] [after v-if] [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size]
+          sw_entity_multi_select_base_selection_list  [inherited] [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size]
+            sw_entity_multi_select_base_selection_list_label  [inherited] [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size]
+              sw_entity_multi_select_base_selection_list_label_inner  [replaced] [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, searchInputAttrs, size, valueProperty]
 
 refs
   selectBase  -> sw-select-base  block=sw_entity_multi_select

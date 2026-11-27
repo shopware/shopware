@@ -14,7 +14,7 @@
 >
     {% block sw_entity_single_select_base %}
     {% block sw_entity_single_select_base_selection %}
-    <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+    <template #sw-select-selection="{ identification, error, disabled, size, searchInputAttrs }">
         {% block sw_entity_single_select_advanced_selection_modal %}
         <component
             :is="advancedSelectionComponent"
@@ -65,6 +65,7 @@
                 class="sw-entity-single-select__selection-input"
                 :class="inputClasses"
                 type="text"
+                v-bind="searchInputAttrs"
                 :placeholder="placeholder"
                 :aria-label="label"
                 :autocomplete="autocomplete"

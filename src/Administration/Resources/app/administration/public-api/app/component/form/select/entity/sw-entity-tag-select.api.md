@@ -48,11 +48,11 @@ blocks
               sw_entity_multi_select_base_results_list_result_label  [inherited] [scope: index, item] [private]
               sw_entity_multi_select_base_results_list_result_preview  [inherited] [scope: index, item] [private]
       sw_entity_multi_select_base_selection  [inherited] [private]
-        sw_entity_multi_select_advanced_selection_modal  [inherited] [scope: collapse, disabled, error, expand, identification, size] [private]
-        sw_entity_multi_select_base_selection_slot  [inherited] [after v-if] [scope: collapse, disabled, error, expand, identification, size] [private]
-          sw_entity_multi_select_base_selection_list  [inherited] [scope: collapse, disabled, error, expand, identification, size] [private]
-            sw_entity_multi_select_base_selection_list_label  [inherited] [scope: collapse, disabled, error, expand, identification, size] [private]
-              sw_entity_multi_select_base_selection_list_label_inner  [inherited] [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, size, valueProperty] [private]
+        sw_entity_multi_select_advanced_selection_modal  [inherited] [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+        sw_entity_multi_select_base_selection_slot  [inherited] [after v-if] [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+          sw_entity_multi_select_base_selection_list  [inherited] [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+            sw_entity_multi_select_base_selection_list_label  [inherited] [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+              sw_entity_multi_select_base_selection_list_label_inner  [inherited] [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, searchInputAttrs, size, valueProperty] [private]
 
 refs
   selectBase  -> sw-select-base  block=sw_entity_multi_select  [private]

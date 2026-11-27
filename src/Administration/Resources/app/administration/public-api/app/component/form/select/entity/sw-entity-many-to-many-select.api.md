@@ -103,10 +103,10 @@ blocks
             sw_entity_many_to_many_select_base_results_list_result  [private]
               sw_entity_many_to_many_select_base_results_list_result_label  [scope: index, item] [private]
       sw_entity_many_to_many_select_base_selection  [private]
-        sw_entity_many_to_many_select_base_selection_slot  [scope: collapse, disabled, error, expand, identification, size] [private]
-          sw_entity_many_to_many_select_advanced_selection_modal  [scope: collapse, disabled, error, expand, identification, size] [private]
-          sw_entity_many_to_many_select_base_selection_list  [scope: collapse, disabled, error, expand, identification, size] [private]
-            sw_entity_many_to_many_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, size] [private]
+        sw_entity_many_to_many_select_base_selection_slot  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+          sw_entity_many_to_many_select_advanced_selection_modal  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+          sw_entity_many_to_many_select_base_selection_list  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
+            sw_entity_many_to_many_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
 
 refs
   selectBase  -> sw-select-base  block=sw_entity_many_to_many_select  [private]

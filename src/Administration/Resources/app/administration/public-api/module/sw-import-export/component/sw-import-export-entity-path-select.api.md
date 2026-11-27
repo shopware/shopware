@@ -123,10 +123,10 @@ blocks
             sw_import_export_entity_path_select_base_results_list_result  [private]
               sw_import_export_entity_path_select_base_results_list_result_label  [scope: index, item] [private]
       sw_import_export_entity_path_select_base_selection  [private]
-        sw_import_export_entity_path_select_base_selection_slot  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-          sw_import_export_entity_path_select_single_selection_inner  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-            sw_import_export_entity_path_select_single_selection_inner_input  [after v-if] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-            sw_import_export_entity_path_select_single_selection_inner_label  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
+        sw_import_export_entity_path_select_base_selection_slot  [scope: disabled, error, identification, searchInputAttrs, size] [private]
+          sw_import_export_entity_path_select_single_selection_inner  [scope: disabled, error, identification, searchInputAttrs, size] [private]
+            sw_import_export_entity_path_select_single_selection_inner_input  [after v-if] [scope: disabled, error, identification, searchInputAttrs, size] [private]
+            sw_import_export_entity_path_select_single_selection_inner_label  [scope: disabled, error, identification, searchInputAttrs, size] [private]
 
 refs
   resultsList  -> sw-select-result-list  block=sw_import_export_entity_path_select_base_results_slot  [private]

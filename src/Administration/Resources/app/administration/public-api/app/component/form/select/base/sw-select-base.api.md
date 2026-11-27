@@ -19,6 +19,7 @@ props
 
 emits
   clear(...args: any[])  [private]
+  delete-key(...args: any[])  [private]
   select-collapsed(...args: any[])  [private]
   select-expanded(...args: any[])  [private]
 
@@ -26,13 +27,15 @@ slots
   hint  {}  block=sw_select_base  [private]
   label  {}  block=sw_select_base  [private]
   results-list  { ...{ collapse } }  block=sw_select_base  [private]
-  sw-select-selection  { ...{ identification, error, disabled, size, expand, collapse } }  block=sw_select_base  [private]
+  sw-select-selection  { ...{ identification, error, disabled, size, expand, collapse, searchInputAttrs } }  block=sw_select_base  [private]
 
 data
   expanded: any  [private]
+  wrapperFocused: any  [private]
 
 computed
   isClearable: any  [private]
+  searchInputAttrs: any  [private]
   swFieldClasses: any  [private]
 
 methods
@@ -40,13 +43,15 @@ methods
   computePath(event: any): any  [deprecated tag:v6.8.0] [private]
   emitClear(): any  [private]
   expand(): any  [private]
-  focusParentSelect(event: any): any  [private]
-  focusPreviousFormElement(): any  [private]
+  expandByClick(event: any): any  [private]
   handleKeydown(event: any): any  [private]
   listenToClickOutside(event: any): any  [private]
   onBeforeUnmount(): any  [private]
+  onKeydown(event: any): any  [private]
   onMounted(): any  [private]
   toggleExpand(): any  [private]
+  typeIntoSearch(character: any): Promise<any>  [private]
+  typesCharacter(event: any): any  [private]
 
 blocks
   sw_select_base  [private]

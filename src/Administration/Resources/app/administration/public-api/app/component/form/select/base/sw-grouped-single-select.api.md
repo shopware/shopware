@@ -45,10 +45,10 @@ blocks
             sw_single_select_base_results_list_result  [replaced] [private]
               sw_single_select_base_results_list_result_label  [scope: index, item] [private]
       sw_single_select_base_selection  [inherited] [private]
-        sw_single_select_base_selection_slot  [inherited] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-          sw_single_select_single_selection_inner  [inherited] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-            sw_single_select_single_selection_inner_input  [inherited] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
-            sw_single_select_single_selection_inner_label  [inherited] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
+        sw_single_select_base_selection_slot  [inherited] [scope: disabled, error, identification, searchInputAttrs, size] [private]
+          sw_single_select_single_selection_inner  [inherited] [scope: disabled, error, identification, searchInputAttrs, size] [private]
+            sw_single_select_single_selection_inner_input  [inherited] [scope: disabled, error, identification, searchInputAttrs, size] [private]
+            sw_single_select_single_selection_inner_label  [inherited] [scope: disabled, error, identification, searchInputAttrs, size] [private]
 
 refs
   resultsList  -> sw-select-result-list  block=sw_single_select_base_results_slot  [private]

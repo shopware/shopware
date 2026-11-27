@@ -6,12 +6,13 @@ import { mount } from '@vue/test-utils';
 
 import 'src/app/component/form/select/base/sw-single-select';
 
-const createWrapper = async (props = {}, attrs = {}, attachTo = undefined) => {
+const createWrapper = async (props = {}, attrs = {}, { mocks = {}, ...options } = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-select-base', { sync: true }), {
         props,
         attrs,
-        attachTo,
+        ...options,
         global: {
+            mocks,
             stubs: {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -136,90 +137,281 @@ describe('components/sw-select-base', () => {
         }
     });
 
-    describe('SHIFT+TAB out of an expanded select', () => {
-        let wrappers = [];
+    describe('keyboard', () => {
+        let wrapper;
 
-        function appendContainer() {
+        async function createFocusedSelection(mocks = {}, props = {}) {
             const container = document.createElement('div');
             document.body.appendChild(container);
+            wrapper = await createWrapper(
+                props,
+                {},
+                {
+                    mocks,
+                    attachTo: container,
+                    slots: {
+                        'sw-select-selection': `
+                            <template #sw-select-selection="{ searchInputAttrs }">
+                                <span class="selected-value" @click.stop>Red</span>
+                                <input class="search-input" v-bind="searchInputAttrs">
+                                <button class="inner-button">+3</button>
+                            </template>
+                        `,
+                    },
+                },
+            );
 
-            return container;
-        }
-
-        function appendElement(html) {
-            appendContainer().innerHTML = html;
-
-            return document.body.lastElementChild.firstElementChild;
-        }
-
-        async function createAttachedSelect() {
-            const wrapper = await createWrapper({}, {}, appendContainer());
-            wrappers.push(wrapper);
-
-            return wrapper;
-        }
-
-        async function pressShiftTab(wrapper) {
             const selection = wrapper.find('.sw-select__selection');
-            await selection.trigger('click');
-            await selection.trigger('keydown', { key: 'Tab', shiftKey: true });
+            selection.element.focus();
             await flushPromises();
+
+            return selection;
         }
 
-        beforeEach(() => {
-            // jsdom renders no layout, so every element would count as hidden
-            jest.spyOn(Element.prototype, 'getClientRects').mockReturnValue([{}]);
-        });
+        function dispatchKey(type, element, init) {
+            const event = new KeyboardEvent(type, { bubbles: true, cancelable: true, ...init });
+            element.dispatchEvent(event);
+
+            return event;
+        }
+
+        function dispatchKeydown(element, init) {
+            return dispatchKey('keydown', element, init);
+        }
 
         afterEach(() => {
-            wrappers.forEach((wrapper) => wrapper.unmount());
-            wrappers = [];
+            wrapper.unmount();
             document.body.innerHTML = '';
-            jest.restoreAllMocks();
         });
 
-        it('should focus the previous link without clicking it', async () => {
-            const link = appendElement('<a href="#/sw/product/index">Products</a>');
+        it('should show the focus without expanding when the selection gets focus', async () => {
+            const selection = await createFocusedSelection();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(wrapper.find('.sw-select').classes()).toContain('has--focus');
+        });
+
+        it('should show the focus while the select is open and drop it once the focus left the closed select', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            wrapper.find('.search-input').element.focus();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-select').classes()).toContain('has--focus');
+
+            dispatchKeydown(wrapper.find('.search-input').element, { key: 'Escape' });
+            selection.element.blur();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-select').classes()).not.toContain('has--focus');
+        });
+
+        it('should keep the search input out of the tab order', async () => {
+            await createFocusedSelection();
+
+            expect(wrapper.find('.search-input').attributes('tabindex')).toBe('-1');
+        });
+
+        it.each([
+            'ArrowDown',
+            'ArrowUp',
+            'Enter',
+            ' ',
+        ])('should expand on "%s" without passing the key on to the result list', async (key) => {
+            const selection = await createFocusedSelection();
+            const onDocumentKeydown = jest.fn();
+            document.addEventListener('keydown', onDocumentKeydown);
+
+            try {
+                dispatchKeydown(selection.element, { key });
+                await flushPromises();
+            } finally {
+                document.removeEventListener('keydown', onDocumentKeydown);
+            }
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(onDocumentKeydown).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            ['a plain character', { key: 'a' }],
+            ['an AltGr character', { key: '@', ctrlKey: true, altKey: true }],
+            ['an Option character', { key: '@', altKey: true }],
+        ])('should expand on %s and type it over the text of the search', async (_, init) => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.value = 'Previous selection';
+            const onInput = jest.fn();
+            searchInput.addEventListener('input', onInput);
+
+            dispatchKeydown(selection.element, init);
+            await flushPromises();
+            searchInput.removeEventListener('input', onInput);
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(document.activeElement).toBe(searchInput);
+            expect(searchInput.value).toBe(init.key);
+            expect(onInput).toHaveBeenCalledTimes(1);
+        });
+
+        it.each([
+            ['Backspace', {}],
+            ['Delete', {}],
+            ['Backspace', { ctrlKey: true }],
+            ['Backspace', { metaKey: true }],
+        ])('should emit "delete-key" on "%s" %o and stay collapsed', async (key, modifiers) => {
+            const selection = await createFocusedSelection();
+
+            const event = dispatchKeydown(selection.element, { key, ...modifiers });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(event.defaultPrevented).toBe(true);
+            expect(wrapper.emitted('delete-key')).toHaveLength(1);
+        });
+
+        it('should not emit "delete-key" on a disabled select that got the focus by a click', async () => {
+            const selection = await createFocusedSelection({}, { disabled: true });
+
+            dispatchKeydown(selection.element, { key: 'Backspace' });
+            await flushPromises();
+
+            expect(wrapper.emitted('delete-key')).toBeUndefined();
+        });
+
+        describe('where ALT is the system key', () => {
+            it.each([
+                ['an ALT shortcut', { key: 's', altKey: true }, 'false'],
+                ['an AltGr character', { key: '@', ctrlKey: true, altKey: true }, 'true'],
+            ])('should handle %s', async (_, init, expanded) => {
+                const selection = await createFocusedSelection({
+                    $device: { getSystemKey: () => 'ALT' },
+                });
+
+                dispatchKeydown(selection.element, init);
+                await flushPromises();
+
+                expect(selection.attributes('aria-expanded')).toBe(expanded);
+            });
+        });
+
+        it('should leave a read-only search untouched when typing opens the select', async () => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.readOnly = true;
+
+            dispatchKeydown(selection.element, { key: 'a' });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(searchInput.value).toBe('');
+        });
+
+        it.each([
+            ['CTRL+S', { key: 's', ctrlKey: true }],
+            ['CMD+S', { key: 's', metaKey: true }],
+            ['Shift', { key: 'Shift' }],
+            ['a composing key', { key: 'a', isComposing: true }],
+        ])('should stay collapsed on %s', async (_, init) => {
+            const selection = await createFocusedSelection();
+
+            dispatchKeydown(selection.element, init);
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+        });
+
+        it.each([
+            ' ',
+            'Enter',
+            'ArrowDown',
+            'a',
+        ])('should leave a keydown of "%s" on a button inside the select to that button', async (key) => {
+            await createFocusedSelection();
+            const innerButton = wrapper.find('.inner-button');
+            innerButton.element.focus();
+
+            const event = dispatchKeydown(innerButton.element, { key });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-select__selection').attributes('aria-expanded')).toBe('false');
+            expect(event.defaultPrevented).toBe(false);
+        });
+
+        it('should expand on a click on a selected value that stops its click from bubbling', async () => {
+            const selection = await createFocusedSelection();
+
+            wrapper.find('.selected-value').element.click();
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+        });
+
+        it('should stay collapsed on a click on a button inside the select', async () => {
+            const selection = await createFocusedSelection();
+
+            wrapper.find('.inner-button').element.click();
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+        });
+
+        it('should keep the focus on the selection when ESC collapses the select', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.focus();
+
+            dispatchKeydown(searchInput, { key: 'Escape' });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(document.activeElement).toBe(selection.element);
+        });
+
+        it('should leave SHIFT+TAB to the browser, starting from the selection', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.focus();
+
+            const event = dispatchKeydown(searchInput, { key: 'Tab', shiftKey: true });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(event.defaultPrevented).toBe(false);
+            expect(document.activeElement).toBe(selection.element);
+        });
+
+        it('should not click the previous element on SHIFT+TAB', async () => {
+            const previousLink = document.createElement('a');
+            previousLink.href = '#/sw/product/index';
             const onClick = jest.fn((event) => event.preventDefault());
-            link.onclick = onClick;
-            const wrapper = await createAttachedSelect();
+            previousLink.onclick = onClick;
+            document.body.prepend(previousLink);
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.focus();
 
-            await pressShiftTab(wrapper);
+            dispatchKeydown(searchInput, { key: 'Tab', shiftKey: true });
+            await flushPromises();
 
-            expect(document.activeElement).toBe(link);
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('should skip previous elements that are hidden, disabled or out of the tab order', async () => {
-            const input = appendElement('<input type="text">');
-            const hiddenLink = appendElement('<a href="#/hidden">Hidden</a>');
-            hiddenLink.getClientRects = () => [];
-            appendElement('<button type="button" disabled>Disabled</button>');
-            appendElement('<button type="button" tabindex="-1">Decrease</button>');
-            const wrapper = await createAttachedSelect();
+        it('should not take the focus back when the select collapses after the focus left it', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const outside = document.createElement('button');
+            document.body.appendChild(outside);
 
-            await pressShiftTab(wrapper);
+            outside.focus();
+            outside.click();
+            await flushPromises();
 
-            expect(document.activeElement).toBe(input);
-        });
-
-        it('should treat an element with disabled="false" as focusable', async () => {
-            const link = appendElement('<a href="#/sw/product/index" disabled="false">Go back</a>');
-            const wrapper = await createAttachedSelect();
-
-            await pressShiftTab(wrapper);
-
-            expect(document.activeElement).toBe(link);
-        });
-
-        it('should expand a previous select by focusing its selection', async () => {
-            const previousSelect = await createAttachedSelect();
-            const wrapper = await createAttachedSelect();
-
-            await pressShiftTab(wrapper);
-
-            expect(wrapper.find('.sw-select__selection').attributes('aria-expanded')).toBe('false');
-            expect(previousSelect.find('.sw-select__selection').attributes('aria-expanded')).toBe('true');
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(document.activeElement).toBe(outside);
         });
     });
 });

@@ -50,7 +50,7 @@ blocks
             sw_cms_product_assignment_results_list_result_content  [scope: index, item] [private]
               sw_cms_product_assignment_results_list_list_item  [scope: index, item] [private]
                 sw_cms_product_assignment_results_list_list_item_label  [scope: index, item] [private]
-        sw_cms_product_assignment_search_field  [scope: collapse, disabled, error, expand, identification, size] [private]
+        sw_cms_product_assignment_search_field  [scope: collapse, disabled, error, expand, identification, searchInputAttrs, size] [private]
     sw_cms_product_assignment_grid  [private]
       sw_cms_product_assignment_grid_column  [private]
         sw_cms_product_assignment_grid_column_content  [scope: column, columnProps] [private]

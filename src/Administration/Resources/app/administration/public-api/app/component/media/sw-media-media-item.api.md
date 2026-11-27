@@ -10,23 +10,79 @@ component sw-media-media-item  public  js
   source src/app/component/media/sw-media-media-item/index.js
   template src/app/component/media/sw-media-media-item/sw-media-media-item.html.twig
 
+mixins
+  notification, video-cover
+
+inject
+  acl
+  mediaService
+
+props
+  item: object
+
+emits
+  media-folder-move(...args: any[])
+  media-item-delete(...args: any[])
+  media-item-play(...args: any[])
+  media-item-rename-success(...args: any[])
+  media-item-replaced(...args: any[])
+
+slots
+  default  {}  block=sw_media_media_item_context_menu
+
+data
+  showCoverSelectionModal: any
+  showModalDelete: any
+  showModalMove: any
+  showModalReplace: any
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  defaultContextMenuClass: any
+  extensionSdkButtons: any
+  fileSizeFilter: any
+  locale: any
+  mediaNameFilter: any
+  mediaRepository: any
+
+methods
+  closeModalDelete(): any
+  closeModalMove(): any
+  closeModalReplace(): any
+  copyItemLink(item: any): Promise<any>
+  emitItemDeleted(deletePromise: any): Promise<any>
+  emitPlayEvent(originalDomEvent: any, item: any): any
+  emitRefreshMediaLibrary(): any
+  handleErrorMessage(error: any): any
+  onBlur(event: any, item: any, endInlineEdit: any): any
+  onChangeName(updatedName: any, item: any, endInlineEdit: any): Promise<any>
+  onMediaItemMoved(movePromise: any): Promise<any>
+  openModalDelete(): any
+  openModalMove(): any
+  openModalReplace(): any
+  rejectRenaming(endInlineEdit: any): any
+  runAppAction(action: any, item: any): any
+
 blocks
   sw_media_media_item
     sw_media_media_item_context_menu
-      sw_media_media_item_additional_context_menu_slot
-      sw_media_media_item_context_group_quick_actions
-        sw_media_media_item_context_item_copy_item_link
-        sw_media_media_item_context_item_delete
-        sw_media_media_item_context_item_move
-        sw_media_media_item_context_item_remove_cover
-        sw_media_media_item_context_item_rename_item
-        sw_media_media_item_context_item_replace
-        sw_media_media_item_context_item_set_cover
-    sw_media_media_item_cover_modal
-    sw_media_media_item_delete_modal
+      sw_media_media_item_additional_context_menu_slot  [scope: allowDelete, allowEdit, item, startInlineEdit]
+      sw_media_media_item_context_group_quick_actions  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_copy_item_link  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_delete  [after v-if] [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_move  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_remove_cover  [after v-if] [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_rename_item  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_replace  [after v-if] [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_set_cover  [scope: allowDelete, allowEdit, item, startInlineEdit]
+    sw_media_media_item_cover_modal  [after v-if] [scope: allowDelete, allowEdit, item]
+    sw_media_media_item_delete_modal  [after v-if] [scope: allowDelete, allowEdit, item]
     sw_media_media_item_metadata
-    sw_media_media_item_modal_replace
-    sw_media_media_item_move_modal
+    sw_media_media_item_modal_replace  [scope: allowDelete, allowEdit, item]
+    sw_media_media_item_move_modal  [after v-if] [scope: allowDelete, allowEdit, item]
     sw_media_media_item_name_container
     sw_media_media_item_preview
+
+refs
+  itemName  -> div  block=sw_media_media_item_name_container
 ```

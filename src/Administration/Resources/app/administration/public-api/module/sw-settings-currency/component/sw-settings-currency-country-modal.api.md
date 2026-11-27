@@ -10,6 +10,37 @@ component sw-settings-currency-country-modal  public  js
   source src/module/sw-settings-currency/component/sw-settings-currency-country-modal/index.js
   template src/module/sw-settings-currency/component/sw-settings-currency-country-modal/sw-settings-currency-country-modal.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  currencyCountryRounding: object
+
+emits
+  edit-cancel(...args: any[])
+  save(...args: any[])
+
+slots
+  result-label-property  { ...{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey } }  block=sw_settings_currency_country_modal_country_select
+
+data
+  assignedCountryIds: any
+
+computed
+  assignedCountriesCriteria: any
+  countryCriteria: any
+  countryRepository: any
+  currencyCountryRoundingCountryIdError: any
+
+methods
+  createdComponent(): any
+  onCancel(): any
+  onSave(): any
+  shouldDisableCountry(country: any): any
+
 blocks
   sw_settings_currency_country_modal
     sw_settings_currency_country_modal_country_select

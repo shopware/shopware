@@ -10,12 +10,74 @@ component sw-media-quickinfo-usage  public  js
   source src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/index.js
   template src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/sw-media-quickinfo-usage.html.twig
 
+inject
+  repositoryFactory
+
+props
+  item: object
+  routerLinkTarget?: string  default=''
+
+data
+  avatarUsers: any
+  categories: any
+  documentBaseConfigs: any
+  isLoading: any
+  landingPages: any
+  layouts: any
+  mailTemplates: any
+  manufacturers: any
+  paymentMethods: any
+  products: any
+  shippingMethods: any
+  usageRequestId: any
+
+computed
+  categoryRepository: any
+  cmsPageBlockConfigCriteria: any
+  cmsPageRepository: any
+  getUsages: any
+  isNotUsed: any
+  landingPageRepository: any
+  moduleFactory: any
+  productRepository: any
+  productUsageCriteria: any
+  slotConfigCriteria: any
+
+methods
+  createdComponent(): Promise<any>
+  getAvatarUserUsage(user: any): any
+  getCategoryUsage(category: any): any
+  getDocumentBaseConfigUsage(document: any): any
+  getIconForModule(name: any): any
+  getLandingPageUsage(landingPage: any): any
+  getLayoutUsage(layout: any): any
+  getMailTemplateUsage(mailTemplate: any): any
+  getManufacturerUsage(manufacturer: any): any
+  getPaymentMethodUsage(paymentMethod: any): any
+  getProductUsage(product: any): any
+  getShippingMethodUsage(shippingMethod: any): any
+  isExistedCmsMedia(id: any): any
+  loadAvatarUserAssociations(): any
+  loadCategoryAssociations(): any
+  loadDocumentBaseConfigAssociations(): any
+  loadLayoutAssociations(): any
+  loadMailTemplateAssociations(): any
+  loadManufacturerAssociations(): any
+  loadPaymentMethodAssociations(): any
+  loadProductAssociations(): any
+  loadShippingMethodAssociations(): any
+  loadSlotConfigAssociations(): Promise<any>
+
 blocks
   sw_media_quickinfo_usage
-    sw_media_quickinfo_usage_empty_state
-    sw_media_quickinfo_usage_list
+    sw_media_quickinfo_usage_empty_state  [after v-if]
+    sw_media_quickinfo_usage_list  [after v-if]
       sw_media_quickinfo_usage_item
-        sw_media_quickinfo_usage_item_icon
-        sw_media_quickinfo_usage_item_label
+        sw_media_quickinfo_usage_item_icon  [scope: usage]
+        sw_media_quickinfo_usage_item_label  [scope: usage]
     sw_media_quickinfo_usage_loader
+
+crossings
+  v-if  sw_media_quickinfo_usage_empty_state -> sw_media_quickinfo_usage_list
+  v-if  sw_media_quickinfo_usage_loader -> sw_media_quickinfo_usage_empty_state
 ```

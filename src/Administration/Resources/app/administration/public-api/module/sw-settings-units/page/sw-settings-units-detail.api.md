@@ -11,6 +11,41 @@ component sw-settings-units-detail  private  ts  [private]
   template src/module/sw-settings-units/page/sw-settings-units-detail/sw-settings-units-detail.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  acl  [private]
+  customFieldDataProviderService  [private]
+  repositoryFactory  [private]
+  unitUneceCodeService  [private]
+
+props
+  unitId?: EntityKey<'unit'> | null  default=null  [private]
+
+data
+  customFieldSets: any  [private]
+  isLoading: any  [private]
+  isSaveSuccessful: any  [private]
+  isUneceCodesLoading: any  [private]
+  uneceCodes: any  [private]
+  unit: any  [private]
+
+computed
+  customFieldSetCriteria: Criteria  [deprecated tag:v6.8.0] [private]
+  customFieldSetRepository: Repository<'custom_field_set'>  [deprecated tag:v6.8.0] [private]
+  uneceCodeOptions: Array<{ value: string; label: string }>  [private]
+  unitNameError: any  [private]
+  unitRepository: Repository<'unit'>  [private]
+  unitShortCodeError: any  [private]
+  unitUneceCodeError: any  [private]
+
+methods
+  loadUneceCodes(): void  [private]
+  loadUnit(): void  [private]
+  onChangeLanguage(): void  [private]
+  onSave(): void  [private]
+
 blocks
   sw_settings_units_detail  [private]
 ```

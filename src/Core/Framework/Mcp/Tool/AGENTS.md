@@ -157,6 +157,8 @@ They are `@deprecated tag:v6.8.0` and trigger a deprecation, which throws once t
 App tools are registered as closures and are not reported, because the envelope stays their response format.
 This deprecates the PHP return value only; the legacy text format that old protocol revisions receive is not affected.
 All core tools return `McpToolResult`.
+`McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a tool method with a native `string` return type, including `?string` and unions, a `mixed` return type, or no return type.
+It is registered in `core-rules.neon` only, so it guards core without failing extension builds; it moves to `rules.neon` with 6.8.0.
 App tools keep the envelope as their response format.
 
 ### What the client receives
@@ -195,6 +197,7 @@ The negotiated protocol revision picks the format, never a feature flag.
 - **Large results.** The renderer measures the text blocks plus the encoded `structuredContent` of every successful result it renders.
   That is a `McpToolResult`, or a string whose JSON has a boolean `success` (`McpToolResultParser`), from core, plugin, bundle and app tools alike, including a hand-built string in that envelope.
   Anything else, such as plain text or JSON without a boolean `success`, passes through `McpToolResultReferenceHandler` unchanged and is never measured or stored.
+  From a PHP tool, plain text is deprecated; `McpToolResult::text()` sends the same text and is never stored either.
   Since 2025-06-18 a tool that declares an `outputSchema` is never stored either: the link has no `structuredContent`, so a client that validates it against the schema would reject the result.
   Such a tool keeps its result inline at any size and has to bound it itself, for example with a `limit`.
   Before 2025-06-18 there is no `structuredContent` to validate, so its results are stored like any other.

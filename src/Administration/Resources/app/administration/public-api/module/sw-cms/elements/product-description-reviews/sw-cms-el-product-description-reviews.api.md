@@ -11,13 +11,26 @@ component sw-cms-el-product-description-reviews  private  js  [private]
   template src/module/sw-cms/elements/product-description-reviews/component/sw-cms-el-product-description-reviews.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element, placeholder  [private]
+
+computed
+  alignStyle: any  [private]
+  currentDemoEntity: any  [private]
+  isProductPageType: any  [private]
+  pageType: any  [private]
+  product: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_element_product_description_reviews  [private]
-    sw_cms_element_product_description_reviews_detail  [private]
-      sw_cms_element_product_description_reviews_detail_header  [private]
-      sw_cms_element_product_description_reviews_detail_listing  [private]
+    sw_cms_element_product_description_reviews_detail  [after v-if] [private]
+      sw_cms_element_product_description_reviews_detail_header  [after v-if] [private]
+      sw_cms_element_product_description_reviews_detail_listing  [after v-if] [private]
     sw_cms_element_product_description_reviews_placeholder  [private]
       sw_cms_element_product_description_reviews_placeholder_header  [private]
-      sw_cms_element_product_description_reviews_placeholder_listing  [private]
+      sw_cms_element_product_description_reviews_placeholder_listing  [after v-if] [private]
     sw_cms_element_product_description_reviews_tabs  [private]
 ```

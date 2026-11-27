@@ -11,12 +11,34 @@ component sw-empty-state  private  js  [private]
   template src/app/component/base/sw-empty-state/sw-empty-state.html.twig  [private]
   visibility-source export  [private]
 
+props
+  absolute?: boolean  default=true  [private]
+  autoHeight?: boolean  default=false  [private]
+  color?: string  default=null  [private]
+  emptyModule?: boolean  default=false  [private]
+  icon?: string  default=null  [private]
+  showDescription?: boolean  default=true  [private]
+  subline?: string  default=null  [private]
+  title: string  default=null  [private]
+
+slots
+  actions  {}  block=sw_empty_state_actions  [private]
+  default  {}  block=sw_empty_state_description  [private]
+  icon  {}  block=sw_empty_state_icon  [private]
+
+computed
+  classes: any  [private]
+  hasActionSlot: any  [private]
+  moduleColor: any  [private]
+  moduleDescription: any  [private]
+  moduleIcon: any  [private]
+
 blocks
-  sw_empty_state  [private]
+  sw_empty_state  [deprecated tag:v6.9.0] [private]
     sw_empty_state_element  [private]
-      sw_empty_state_actions  [private]
+      sw_empty_state_actions  [after v-if] [private]
         sw_empty_state_slot_actions  [private]
-      sw_empty_state_description  [private]
+      sw_empty_state_description  [after v-if] [private]
         sw_empty_state_slot_default  [private]
       sw_empty_state_icon  [private]
         sw_empty_state_slot_icon  [private]

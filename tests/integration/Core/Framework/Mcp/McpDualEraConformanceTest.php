@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Resource\McpResourceCacheHint;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\Response;
 class McpDualEraConformanceTest extends TestCase
 {
     use AdminApiTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 

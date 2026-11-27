@@ -10,6 +10,23 @@ component sw-users-permissions  public  js
   source src/module/sw-users-permissions/page/sw-users-permissions/index.js
   template src/module/sw-users-permissions/page/sw-users-permissions/sw-users-permissions.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+
+methods
+  onChangeLoading(loading: any): any
+  onSave(): Promise<any>
+  onSaveFinish(): any
+  reloadUserListing(): any
+
 blocks
   sw_users_permissions
     sw_users_permissions_content
@@ -17,4 +34,9 @@ blocks
     sw_users_permissions_smart_bar_actions
     sw_users_permissions_smart_bar_header
       sw_users_permissions_smart_bar_header_title_text
+
+refs
+  configuration  -> sw-users-permissions-configuration  block=sw_users_permissions_content_user_list
+  roleListing  -> sw-users-permissions-role-listing  block=sw_users_permissions_content_user_list
+  userListing  -> sw-users-permissions-user-listing  block=sw_users_permissions_content_user_list
 ```

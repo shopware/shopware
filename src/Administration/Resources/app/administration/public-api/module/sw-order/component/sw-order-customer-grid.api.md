@@ -10,20 +10,73 @@ component sw-order-customer-grid  public  ts
   source src/module/sw-order/component/sw-order-customer-grid/index.ts
   template src/module/sw-order/component/sw-order-customer-grid/sw-order-customer-grid.html.twig
 
+mixins
+  listing, notification
+
+inject
+  repositoryFactory
+
+data
+  customer: any
+  customerDraft: any
+  customers: any
+  disableRouteParams: any
+  isLoading: any
+  isSwitchingCustomer: any
+  salesChannelIds: any
+  showCustomerChangesModal: any
+  showNewCustomerModal: any
+  showSalesChannelSelectModal: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  cart: Cart
+  customerColumns: GridColumn[]
+  customerCriteria: CriteriaType
+  customerCriterion: CriteriaType
+  customerData: Entity<'customer'> | null
+  customerRepository: RepositoryType<'customer'>
+  emptyTitle: string
+  isSelectSalesChannelDisabled: boolean
+  salesChannelCriteria: CriteriaType
+  salesChannelRepository: RepositoryType<'sales_channel'>
+  showEmptyState: boolean
+
+methods
+  checkContextLanguage(): any
+  createCart(salesChannelId: EntityKey<'sales_channel'>): Promise<void>
+  customerUnavailable(customer: Entity<'customer'>): boolean
+  getCart(): Promise<void>
+  getList(): Promise<void>
+  handleSelectCustomer(): Promise<void>
+  isChecked(item: Entity<'customer'>): boolean
+  loadSalesChannel(): Promise<string[]>
+  mountedComponent(): Promise<void>
+  onAddNewCustomer(customerId: EntityKey<'customer'>): void
+  onChangeCustomer(): Promise<any>
+  onCheckCustomer(item: Entity<'customer'>): Promise<any>
+  onCloseCustomerChangesModal(): any
+  onCloseSalesChannelSelectModal(): any
+  onSalesChannelChange(salesChannelId: EntityKey<'sales_channel'>, salesChannel: Entity<'sales_channel'>): void
+  onSelectSalesChannel(): Promise<any>
+  onShowNewCustomerModal(): any
+  setCustomer(customer: Entity<'customer'> | null): void
+  updateCustomerContext(): Promise<void>
+
 blocks
   sw_order_customer_grid
     sw_order_customer_grid_content
       sw_order_customer_grid_content_column_select
       sw_order_customer_grid_content_grid_column_name
       sw_settings_product_feature_set_list_grid_columns_actions
-    sw_order_customer_grid_customer_changes_modal
+    sw_order_customer_grid_customer_changes_modal  [after v-if]
       sw_order_customer_grid_customer_changes_modal_action_changes
       sw_order_customer_grid_customer_changes_modal_action_close
       sw_order_customer_grid_customer_changes_modal_description
-    sw_order_customer_grid_empty_state
-    sw_order_customer_grid_empty_state_icon
+    sw_order_customer_grid_empty_state  [after v-if]
+    sw_order_customer_grid_empty_state_icon  [deprecated tag:v6.8.0]
     sw_order_customer_grid_new_customer_modal
-    sw_order_customer_grid_sales_channel_select_modal
+    sw_order_customer_grid_sales_channel_select_modal  [after v-if]
       sw_order_customer_grid_sales_channel_action_close
       sw_order_customer_grid_sales_channel_action_select
       sw_order_customer_grid_sales_channel_description
@@ -32,4 +85,7 @@ blocks
     sw_order_customer_grid_toolbar
       sw_order_customer_grid_search_input
         sw_order_customer_grid_add_new_customer
+
+refs
+  customerFilter  -> sw-card-filter  block=sw_order_customer_grid_search_input
 ```

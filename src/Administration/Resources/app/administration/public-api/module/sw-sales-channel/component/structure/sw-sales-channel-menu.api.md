@@ -11,9 +11,46 @@ component sw-sales-channel-menu  private  js  [private]
   template src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  domainLinkService  [private]
+  repositoryFactory  [private]
+
+data
+  contextMenuOpen: any  [private]
+  isLoading: any  [private]
+  isMobileViewport: any  [private]
+  salesChannels: any  [private]
+  salesChannelsLoaded: any  [private]
+  showModal: any  [private]
+
+computed
+  adminMenuStore: any  [private]
+  buildMenuTree: any  [private]
+  canCreateSalesChannels: any  [private]
+  isSidebarExpanded: any  [private]
+  moreItemsEntry: any  [private]
+  moreSalesChannelAvailable: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelFavorites: any  [private]
+  salesChannelFavoritesService: any  [private]
+  salesChannelModuleColor: any  [private]
+  salesChannelRepository: any  [private]
+  showAddChannelMenuItem: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  getDomainLink(salesChannel: any): any  [private]
+  loadEntityData(): Promise<any>  [private]
+  openSalesChannelModal(): any  [private]
+  openStorefrontLink(storeFrontLink: any): any  [private]
+  registerListener(): any  [private]
+  syncMobileViewport(): any  [private]
+
 blocks
   sw_sales_channel_menu  [private]
-    sw_sales_channel_menu_headline  [private]
+    sw_sales_channel_menu_headline  [after v-if] [private]
       sw_sales_channel_menu_headline_context_button  [private]
         sw_sales_channel_menu_headline_action  [private]
         sw_sales_channel_menu_headline_context_button_item  [private]
@@ -21,8 +58,8 @@ blocks
     sw_sales_channel_menu_modal  [private]
     sw_sales_channel_menu_navigation  [private]
       sw_sales_channel_menu_navigation_main_list  [private]
-        sw_sales_channel_menu_navigation_add_channel  [private]
+        sw_sales_channel_menu_navigation_add_channel  [after v-if] [private]
         sw_sales_channel_menu_navigation_main_items  [private]
-          sw_sales_channel_menu_navigation_item_additional_text  [private]
+          sw_sales_channel_menu_navigation_item_additional_text  [scope: entry, index] [private]
         sw_sales_channel_menu_navigation_more_items  [private]
 ```

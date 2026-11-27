@@ -11,6 +11,58 @@ component sw-generic-custom-entity-detail  private  ts  [private]
   template src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/sw-generic-custom-entity-detail.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification  [private]
+
+inject
+  acl  [private]
+  customEntityDefinitionService  [private]
+  feature  [private]
+  repositoryFactory  [private]
+
+data
+  activeTab: any  [private]
+  customEntityData: any  [private]
+  customEntityDataInstances: any  [private]
+  isLoading: any  [private]
+  isSaveSuccessful: any  [private]
+
+computed
+  activeTabName: string  [private]
+  adminConfig: AdminUiDefinition | undefined  [private]
+  customEntityDataDefinition: Readonly<CustomEntityDefinition | null>  [private]
+  customEntityDataId: EntityKey<'generic_custom_entity'> | null  [private]
+  customEntityDataRepository: Repository<'generic_custom_entity'> | null  [private]
+  customEntityName: string | string[]  [private]
+  customEntityProperties: CustomEntityProperties | undefined  [private]
+  detailTabItems: TabItem[]  [private]
+  detailTabs: AdminTabsDefinition[]  [private]
+  entityAccentColor: string | undefined  [private]
+  mainTabName: string | undefined  [private]
+  titlePropertyName: string | undefined  [private]
+
+methods
+  createdComponent(): void  [private]
+  getFieldTranslation(namespace: string, name: string, suffix?: any = '', checkExistence?: any = false): string  [private]
+  getHelpText(namespace: string, name: string): string  [private]
+  getLabel(namespace: string, name: string): string  [private]
+  getPlaceholder(namespace: string, name: string): string  [private]
+  getType(field: string): string  [private]
+  initializeCustomEntity(): void  [private]
+  loadData(): Promise<void>  [private]
+  onChangeLanguage(languageId: EntityKey<'language'>): void  [private]
+  onCreateLayout(): void  [private]
+  onSave(): Promise<void>  [private]
+  saveFinish(): void  [private]
+  updateCmsPageId(cmsPageId: EntityKey<'cms_page'> | null): void  [private]
+  updateCmsSlotOverwrites(cmsSlotOverwrites: Entity<'generic_custom_entity'>['swSlotConfig'] | null): void  [private]
+  updateOgDescription(swOgDescription: string | null): any  [private]
+  updateOgImageId(swOgImageId: EntityKey<'media'> | null): any  [private]
+  updateOgTitle(swOgTitle: string | null): any  [private]
+  updateSeoMetaDescription(swSeoMetaDescription: string | null): any  [private]
+  updateSeoMetaTitle(swSeoMetaTitle: string | null): any  [private]
+  updateSeoUrl(swSeoUrl: string | null): any  [private]
+
 blocks
   sw_generic_custom_entity_detail  [private]
 ```

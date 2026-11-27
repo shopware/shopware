@@ -11,6 +11,36 @@ component sw-media-compact-upload-v2  public  js
   source src/app/component/media/sw-media-compact-upload-v2/index.js
   template src/app/component/media/sw-media-compact-upload-v2/sw-media-compact-upload-v2.html.twig
 
+props
+  allowMultiSelect?: boolean  default=false
+  disableDeletionForLastItem?: object  default=factory
+  fileAccept?: string  default='image/*'
+  removeButtonLabel?: string  default=''
+  source?: object | string  default=''
+  sourceMultiselect?: any[]  default=factory
+  variant?: string  default='regular'
+
+emits
+  delete-item(...args: any[])
+  selection-change(...args: any[])
+
+slots
+  context-menu-items  {}  block=sw_media_upload_v2_preview
+
+data
+  mediaModalIsOpen: any
+
+computed
+  isDeletionDisabled: any
+  mediaNameFilter: any
+  mediaPreview: any
+  removeFileButtonLabel: any
+
+methods
+  closeModal(): any
+  getFileName(item: any): any
+  onModalClosed(selection: any): any
+
 blocks
   sw_media_upload_v2  [replaced]
     sw_media_upload_v2_compact
@@ -18,16 +48,21 @@ blocks
       sw_media_upload_v2_compact_button_file_upload
       sw_media_upload_v2_compact_label
       sw_media_upload_v2_compact_url_form
-    sw_media_upload_v2_file_input
-    sw_media_upload_v2_regular
+    sw_media_upload_v2_file_input  [after v-if]
+    sw_media_upload_v2_regular  [after v-if]
       sw_media_upload_v2_regular_drop_zone
         sw_media_upload_v2_actions
-          sw_media_upload_v2_regular_actions_add
-            sw_media_upload_v2_regular_media_sidebar_button
+          sw_media_upload_v2_regular_actions_add  [after v-if]
+            sw_media_upload_v2_regular_media_sidebar_button  [after v-if]
             sw_media_upload_v2_regular_upload_button
           sw_media_upload_v2_regular_actions_url
         sw_media_upload_v2_preview
-          sw_media_upload_v2_regular_preview_fallback
+          sw_media_upload_v2_regular_preview_fallback  [after v-if]
           sw_media_upload_v2_regular_preview_file
       sw_media_upload_v2_regular_header
+
+refs
+  dropzone  -> div  block=sw_media_upload_v2_regular_drop_zone
+  fileForm  -> form  block=sw_media_upload_v2_file_input
+  fileInput  -> input  block=sw_media_upload_v2_file_input
 ```

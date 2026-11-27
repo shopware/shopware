@@ -11,6 +11,25 @@ component sw-dismissible-notices  private  ts  [private]
   template src/app/component/utils/sw-dismissible-notices/sw-dismissible-notices.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  userConfigService  [private]
+
+props
+  notices: DismissibleNotice[]  [private]
+  variant?: 'neutral' | 'info' | 'attention' | 'critical' | 'positive'  default='info'  [private]
+
+data
+  dismissedNotices: any  [private]
+  isLoaded: any  [private]
+
+computed
+  visibleNotices: DismissibleNotice[]  [private]
+
+methods
+  createdComponent(): any  [private]
+  loadDismissedNotices(): Promise<any>  [private]
+  onDismiss(notice: string): Promise<any>  [private]
+
 blocks
   sw_dismissible_notices  [private]
     sw_dismissible_notices_notice  [private]

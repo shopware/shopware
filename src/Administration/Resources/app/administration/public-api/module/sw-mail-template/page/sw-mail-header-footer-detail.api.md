@@ -10,6 +10,47 @@ component sw-mail-header-footer-detail  public  js
   source src/module/sw-mail-template/page/sw-mail-header-footer-detail/index.js
   template src/module/sw-mail-template/page/sw-mail-header-footer-detail/sw-mail-header-footer-detail.html.twig
 
+mixins
+  placeholder, notification
+
+inject
+  acl
+  entityMappingService
+  repositoryFactory
+
+data
+  alreadyAssignedSalesChannels: any
+  editorConfig: object
+    enableBasicAutocompletion: any
+  isLoading: any
+  isSaveSuccessful: any
+  mailHeaderFooter: any
+  mailHeaderFooterId: any
+  showModal: any
+
+computed
+  allowSave: any
+  completerFunction: any
+  identifier: any
+  mailHeaderFooterCriteria: any
+  mailHeaderFooterNameError: any
+  mailHeaderFooterRepository: any
+  salesChannelRepository: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  confirmSave(): Promise<any>
+  createdComponent(): Promise<any>
+  findAlreadyAssignedSalesChannels(): Promise<any>
+  loadEntityData(): Promise<any>
+  onCancel(): any
+  onChangeLanguage(): any
+  onClose(): any
+  onSave(): Promise<any>
+  saveFinish(): any
+  saveOnLanguageChange(): any
+
 blocks
   sw_mail_header_footer_detail
     sw_mail_header_footer_detail_actions

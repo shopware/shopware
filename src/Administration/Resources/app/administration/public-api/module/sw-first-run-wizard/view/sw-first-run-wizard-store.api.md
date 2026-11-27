@@ -10,6 +10,35 @@ component sw-first-run-wizard-store  public  js
   source src/module/sw-first-run-wizard/view/sw-first-run-wizard-store/index.js
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-store/sw-first-run-wizard-store.html.twig
 
+inject
+  extensionHelperService
+
+emits
+  buttons-update(...args: any[])
+  extension-activated(...args: any[])
+  frw-redirect(...args: any[])
+  frw-set-title(...args: any[])
+
+data
+  activationError: any
+  error: any
+  extensionStatus: any
+  isActivating: any
+  loadStatus: any
+
+computed
+  assetFilter: any
+  buttonConfig: any
+  edition: any
+
+methods
+  activateStore(): any
+  createdComponent(): any
+  installExtensionStore(): Promise<any>
+  setTitle(): any
+  updateButtons(): any
+  updateExtensionStatus(): Promise<any>
+
 blocks
   sw_first_run_wizard_store
 ```

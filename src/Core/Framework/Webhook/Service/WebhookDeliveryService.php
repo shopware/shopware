@@ -83,6 +83,12 @@ class WebhookDeliveryService
             }
 
             $request = $this->buildRequest($message, $entry);
+            if ($request === null) {
+                $this->webhookOutboxStore->markFailed($entry, null);
+
+                return;
+            }
+
             $httpResult = $this->webhookClient->send($request);
             $this->handleResult($message->getWebhookId(), $entry, $request, $httpResult);
         } catch (DBALException $e) {
@@ -95,8 +101,20 @@ class WebhookDeliveryService
         }
     }
 
-    public function buildRequest(WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest
+    /**
+     * @return WebhookRequest|null null when the webhook was deleted and the delivery must not be sent
+     */
+    public function buildRequest(WebhookEventMessage $message, OutboxEntry $entry): ?WebhookRequest
     {
+        if ($message->getAppId() === null && $entry->webhookId === null) {
+            $this->logger->info('Skipping webhook delivery: webhook {webhookId} was deleted', [
+                'eventId' => $message->getWebhookEventId(),
+                'webhookId' => $message->getWebhookId(),
+            ]);
+
+            return null;
+        }
+
         $payload = $message->getPayload();
         $headers = $message->getWebhookHeaders();
         $headers = array_filter(
@@ -154,10 +172,18 @@ class WebhookDeliveryService
             if ($entry === null) {
                 continue;
             }
+
+            $request = $this->buildRequest($message, $entry);
+            if ($request === null) {
+                $this->webhookOutboxStore->markFailed($entry, null);
+
+                continue;
+            }
+
             $messagesByEventId[$message->getWebhookEventId()] = $message;
             $entries[$message->getWebhookEventId()] = $entry;
             $batchIndexesByEventId[$message->getWebhookEventId()] = $batchIndex;
-            $requests[$message->getWebhookEventId()] = $this->buildRequest($message, $entry);
+            $requests[$message->getWebhookEventId()] = $request;
         }
 
         if ($requests === []) {

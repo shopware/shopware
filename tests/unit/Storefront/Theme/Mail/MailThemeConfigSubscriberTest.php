@@ -91,4 +91,141 @@ class MailThemeConfigSubscriberTest extends TestCase
 
         static::assertSame(['existing' => 'data'], $event->getTemplateData());
     }
+
+    public function testFallsBackToSalesChannelCurrencyWhenContextCurrencyIsNotAvailable(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $requestedOptions = [];
+
+        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory
+            ->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnCallback(static function (string $token, string $salesChannelId, array $options) use (&$requestedOptions, $context, $salesChannelContext) {
+                $requestedOptions[] = $options;
+                if (\array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
+                    throw SalesChannelException::currencyNotFound($context->getCurrencyId());
+                }
+
+                return $salesChannelContext;
+            });
+
+        $event = $this->createEvent($context);
+
+        $subscriber = new MailThemeConfigSubscriber($contextFactory, $this->createMailThemeIdLoader());
+        $subscriber->addSalesChannelContext($event);
+
+        static::assertSame($salesChannelContext, $event->getTemplateData()['salesChannelContext']);
+        static::assertSame([
+            [
+                SalesChannelContextService::LANGUAGE_ID => $context->getLanguageId(),
+                SalesChannelContextService::CURRENCY_ID => $context->getCurrencyId(),
+            ],
+            [
+                SalesChannelContextService::LANGUAGE_ID => $context->getLanguageId(),
+            ],
+        ], $requestedOptions);
+    }
+
+    public function testFallsBackToSalesChannelLanguageWhenContextLanguageIsNotAvailable(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $requestedOptions = [];
+
+        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory
+            ->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnCallback(static function (string $token, string $salesChannelId, array $options) use (&$requestedOptions, $context, $salesChannelContext) {
+                $requestedOptions[] = $options;
+                if (\array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
+                    throw SalesChannelException::providedLanguageNotAvailable($context->getLanguageId(), [Uuid::randomHex()]);
+                }
+
+                return $salesChannelContext;
+            });
+
+        $event = $this->createEvent($context);
+
+        $subscriber = new MailThemeConfigSubscriber($contextFactory, $this->createMailThemeIdLoader());
+        $subscriber->addSalesChannelContext($event);
+
+        static::assertSame($salesChannelContext, $event->getTemplateData()['salesChannelContext']);
+        static::assertSame([
+            [
+                SalesChannelContextService::LANGUAGE_ID => $context->getLanguageId(),
+                SalesChannelContextService::CURRENCY_ID => $context->getCurrencyId(),
+            ],
+            [
+                SalesChannelContextService::CURRENCY_ID => $context->getCurrencyId(),
+            ],
+        ], $requestedOptions);
+    }
+
+    public function testFallsBackToSalesChannelDefaultsWhenNeitherContextCurrencyNorLanguageIsAvailable(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $requestedOptions = [];
+
+        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory
+            ->expects($this->exactly(3))
+            ->method('create')
+            ->willReturnCallback(static function (string $token, string $salesChannelId, array $options) use (&$requestedOptions, $context, $salesChannelContext) {
+                $requestedOptions[] = $options;
+                if (\array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
+                    throw SalesChannelException::currencyNotFound($context->getCurrencyId());
+                }
+                if (\array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
+                    throw SalesChannelException::providedLanguageNotAvailable($context->getLanguageId(), [Uuid::randomHex()]);
+                }
+
+                return $salesChannelContext;
+            });
+
+        $event = $this->createEvent($context);
+
+        $subscriber = new MailThemeConfigSubscriber($contextFactory, $this->createMailThemeIdLoader());
+        $subscriber->addSalesChannelContext($event);
+
+        static::assertSame($salesChannelContext, $event->getTemplateData()['salesChannelContext']);
+        static::assertSame([], $requestedOptions[2]);
+    }
+
+    public function testRethrowsWhenSalesChannelDefaultCurrencyIsNotAvailable(): void
+    {
+        $context = Context::createDefaultContext();
+        $exception = SalesChannelException::currencyNotFound(Uuid::randomHex());
+
+        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory
+            ->expects($this->exactly(2))
+            ->method('create')
+            ->willThrowException($exception);
+
+        $subscriber = new MailThemeConfigSubscriber($contextFactory, $this->createMailThemeIdLoader());
+
+        $this->expectExceptionObject($exception);
+
+        $subscriber->addSalesChannelContext($this->createEvent($context));
+    }
+
+    private function createEvent(Context $context): MailTemplateRenderContextEvent
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(TestDefaults::SALES_CHANNEL);
+
+        return new MailTemplateRenderContextEvent([], $context, $salesChannel);
+    }
+
+    private function createMailThemeIdLoader(): MailThemeIdLoader
+    {
+        $mailThemeIdLoader = static::createStub(MailThemeIdLoader::class);
+        $mailThemeIdLoader->method('load')->willReturn(null);
+
+        return $mailThemeIdLoader;
+    }
 }

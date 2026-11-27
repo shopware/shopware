@@ -11,6 +11,41 @@ component sw-cms-el-config-youtube-video  private  js  [private]
   template src/module/sw-cms/elements/youtube-video/config/sw-cms-el-config-youtube-video.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  initialFolderId: any  [private]
+  mediaModalIsOpen: any  [private]
+
+computed
+  displayModeOptions: any  [private]
+  endValue: any  [private]
+  mediaRepository: any  [private]
+  previewSource: any  [private]
+  startValue: any  [private]
+  uploadTag: any  [private]
+  videoID: any  [private]
+
+methods
+  convertTimeToInputFormat(time: any): any  [private]
+  convertTimeToUrlFormat(time: any): any  [private]
+  createdComponent(): any  [private]
+  onCloseModal(): any  [private]
+  onImageRemove(): any  [private]
+  onImageUpload(arg0: any): Promise<any>  [private]
+  onOpenMediaModal(): any  [private]
+  onSelectionChanges(mediaEntity: any): any  [private]
+  setTimeValue(value: any, type: any): any  [private]
+  shortenLink(link: any): any  [private]
+  updateElementData(media?: any = null): any  [private]
+
 blocks
   sw_cms_element_youtube_video_config  [private]
     sw_cms_element_youtube_video_config_advanced_privacy_mode  [private]
@@ -20,9 +55,9 @@ blocks
     sw_cms_element_youtube_video_config_loop  [private]
     sw_cms_element_youtube_video_config_needs_confirmation  [private]
     sw_cms_element_youtube_video_config_preview_media  [private]
-      sw_cms_element_youtube_video_config_preview_media_display  [private]
-      sw_cms_element_youtube_video_config_preview_media_modal  [private]
-      sw_cms_element_youtube_video_config_preview_media_upload_listener  [private]
+      sw_cms_element_youtube_video_config_preview_media_display  [scope: isInherited] [private]
+      sw_cms_element_youtube_video_config_preview_media_modal  [scope: isInherited] [private]
+      sw_cms_element_youtube_video_config_preview_media_upload_listener  [scope: isInherited] [private]
     sw_cms_element_youtube_video_config_show_controls  [private]
     sw_cms_element_youtube_video_config_start  [private]
     sw_cms_element_youtube_video_config_title  [private]

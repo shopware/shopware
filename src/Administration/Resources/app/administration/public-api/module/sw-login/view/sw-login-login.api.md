@@ -11,16 +11,52 @@ component sw-login-login  private  ts  [private]
   template src/module/sw-login/view/sw-login-login/sw-login-login.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  licenseViolationService  [private]
+  loginService  [private]
+  userService  [private]
+
+emits
+  config-loaded(...args: any[])  [private]
+  is-loading(...args: any[])  [private]
+  is-not-loading(...args: any[])  [private]
+  login-error(...args: any[])  [private]
+  login-success(...args: any[])  [private]
+
+data
+  loginAlertMessage: any  [private]
+  loginConfig: any  [private]
+  loginConfigLoaded: any  [private]
+  loginErrorMessage: any  [private]
+  password: any  [private]
+  rememberMe: any  [private]
+  ssoLoading: any  [private]
+  username: any  [private]
+
+computed
+  showLoginAlert: any  [private]
+
+methods
+  _navigateTo(url: string): any  [private]
+  _reloadPage(): any  [private]
+  createdComponent(): Promise<any>  [private]
+  doSsoForwarding(): any  [private]
+  forwardLogin(): Promise<any>  [private]
+  handleLoginError(response: unknown): any  [private]
+  handleLoginSuccess(): Promise<any>  [private]
+  loginUserWithPassword(): Promise<any>  [private]
+  showLoginErrorFromResponse(response: unknown): any  [private]
+
 blocks
   sw_login_login  [private]
     sw_login_login_alert  [private]
     sw_login_login_error  [private]
     sw_login_login_form_headline  [private]
     sw_login_login_password_field  [private]
-    sw_login_login_sso  [private]
+    sw_login_login_sso  [after v-if] [private]
       sw_login_login_sso_button  [private]
       sw_login_login_sso_divider  [private]
-    sw_login_login_submit  [private]
+    sw_login_login_submit  [after v-if] [private]
       sw_login_login_submit_button  [private]
     sw_login_login_user_field  [private]
 ```

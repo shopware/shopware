@@ -10,6 +10,76 @@ component sw-settings-number-range-detail  public  js
   source src/module/sw-settings-number-range/page/sw-settings-number-range-detail/index.js
   template src/module/sw-settings-number-range/page/sw-settings-number-range-detail/sw-settings-number-range-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  documentV2ApiService
+  numberRangeService
+  repositoryFactory
+
+data
+  advanced: any
+  collidingNumberRangeNames: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  numberRange: any
+  numberRangeId: any
+  prefix: any
+  preview: any
+  selectedSalesChannelsCollection: any
+  simplePossible: any
+  state: any
+  suffix: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  hasPatternCollision: any
+  identifier: any
+  numberRangeCriteria: any
+  numberRangeNameError: any
+  numberRangeRepository: any
+  numberRangeSalesChannelsRepository: any
+  numberRangeTypeCriteria: any
+  numberRangeTypeCriteriaGlobal: any
+  numberRangeTypeIdError: any
+  numberRangeTypeRepository: any
+  previewInput: any
+  salesChannelCriteria: any
+  salesChannelRepository: any
+  selectedNumberRangeSalesChannels: any  [deprecated tag:v6.8.0]
+  showCustomFields: any
+  showNumberRangeStateFields: any
+  stateInput: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  addSalesChannel(salesChannel: any): any
+  buildSelectedSalesChannelsCollection(): any
+  checkPatternCollision(): Promise<any>
+  createdComponent(): Promise<any>
+  getPreview(): Promise<any>
+  getState(): Promise<any>
+  invalidateNumberRangeCaches(): any
+  loadCustomFieldSets(): any
+  loadEntityData(): Promise<any>
+  loadSalesChannels(): any  [deprecated tag:v6.8.0]
+  noSalesChannelSelected(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onChangePattern(): any
+  onChangeType(): any
+  onSave(): any
+  removeSalesChannel(salesChannel: any): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  splitPattern(): any
+
 blocks
   sw_settings_number_range_detail
     sw_settings_number_range_detail_actions
@@ -17,7 +87,7 @@ blocks
       sw_settings_number_range_detail_actions_save
     sw_settings_number_range_detail_content
       sw_settings_number_range_detail_assignment_card
-        sw_sales_channel_detail_base_general_input_sales_channel
+        sw_sales_channel_detail_base_general_input_sales_channel  [after v-if]
         sw_sales_channel_detail_base_general_input_type
         sw_settings_number_range_detail_assignment_card_global_warning
         sw_settings_number_range_detail_content_global_product_warning
@@ -28,11 +98,11 @@ blocks
         sw_settings_number_range_detail_content_field_name
         sw_settings_number_range_detail_content_field_pattern
         sw_settings_number_range_detail_content_field_prefix
-        sw_settings_number_range_detail_content_field_preview
+        sw_settings_number_range_detail_content_field_preview  [after v-if]
         sw_settings_number_range_detail_content_field_start
         sw_settings_number_range_detail_content_field_suffix
         sw_settings_number_range_detail_content_global_warning
-        sw_settings_number_range_detail_content_pattern_collision_warning
+        sw_settings_number_range_detail_content_pattern_collision_warning  [after v-if]
       sw_settings_number_range_detail_custom_field_sets
       sw_settings_number_range_detail_language_info
     sw_settings_number_range_detail_header

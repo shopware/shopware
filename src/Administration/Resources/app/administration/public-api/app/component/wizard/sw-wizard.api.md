@@ -11,15 +11,62 @@ component sw-wizard  private  js  [private]
   template src/app/component/wizard/sw-wizard/sw-wizard.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+provide
+  swWizardPageAdd: any  [private]
+  swWizardPageRemove: any  [private]
+
+props
+  activePage?: number  default=factory  [private]
+  leftButtonDisabled?: boolean  default=factory  [private]
+  rightButtonDisabled?: boolean  default=factory  [private]
+  showNavigationDots?: boolean  default=factory  [private]
+
+emits
+  close(...args: any[])  [private]
+  current-page-change(...args: any[])  [private]
+  finish(...args: any[])  [private]
+  pages-updated(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_wizard  [private]
+  footer-dot-navigation  {}  block=sw_wizard_slot_footer  [private]
+  footer-left-button  {}  block=sw_wizard_slot_footer  [private]
+  footer-right-button  {}  block=sw_wizard_slot_footer  [private]
+
+data
+  currentlyActivePage: any  [private]
+  pages: any  [private]
+  title: any  [private]
+
+computed
+  hasFooterSlot: any  [private]
+  pagesCount: any  [private]
+
+methods
+  addPage(component: any): any  [private]
+  changePage(newPageIndex: any): any  [private]
+  mountedComponent(): any  [private]
+  nextPage(): any  [private]
+  onClose(): any  [private]
+  previousPage(): any  [private]
+  removePage(component: any): any  [private]
+
 blocks
   sw_wizard  [private]
     sw_wizard_slot_default  [private]
     sw_wizard_slot_footer  [private]
       sw_wizard_slot_footer_dot_navigation  [private]
       sw_wizard_slot_footer_left_buttons  [private]
-        sw_wizard_slot_footer_left_buttons_back  [private]
+        sw_wizard_slot_footer_left_buttons_back  [after v-if] [private]
         sw_wizard_slot_footer_left_buttons_close  [private]
       sw_wizard_slot_footer_right_button  [private]
         sw_wizard_slot_footer_right_button_finish  [private]
-        sw_wizard_slot_footer_right_button_next  [private]
+        sw_wizard_slot_footer_right_button_next  [after v-if] [private]
+
+crossings
+  v-if  sw_wizard_slot_footer_left_buttons_close -> sw_wizard_slot_footer_left_buttons_back  [private]
+  v-if  sw_wizard_slot_footer_right_button_finish -> sw_wizard_slot_footer_right_button_next  [private]
 ```

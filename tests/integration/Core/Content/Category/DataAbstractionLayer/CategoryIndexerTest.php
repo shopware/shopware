@@ -14,6 +14,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -63,7 +64,8 @@ class CategoryIndexerTest extends TestCase
             self::getContainer()->get(TreeUpdater::class),
             self::getContainer()->get(CategoryBreadcrumbUpdater::class),
             self::getContainer()->get('event_dispatcher'),
-            $this->messageBus
+            $this->messageBus,
+            self::getContainer()->get(ProductIndexer::class)
         );
     }
 

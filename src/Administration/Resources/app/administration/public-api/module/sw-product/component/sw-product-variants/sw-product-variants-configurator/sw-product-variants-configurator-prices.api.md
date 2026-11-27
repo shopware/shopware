@@ -10,6 +10,33 @@ component sw-product-variants-configurator-prices  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/sw-product-variants-configurator-prices.html.twig
 
+inject
+  repositoryFactory
+
+props
+  product: object
+  selectedGroups: any[]
+
+data
+  activeGroup: any
+  currencies: any
+  isLoading: any
+  optionsForGroup: any
+  term: any
+
+computed
+  currenciesList: any
+  currencyRepository: any
+  optionColumns: any
+
+methods
+  getCurrencyOfOption(option: any, currencyId: any): any
+  getOptionsForGroup(): any
+  loadCurrencies(): any
+  mountedComponent(): any
+  onSearchTermChange(): any
+  resetSurcharges(option: any, force?: any = false): any
+
 blocks
   sw_product_variants_configurator_prices
     sw_product_variants_configurator_prices_groups
@@ -18,7 +45,7 @@ blocks
       sw_product_variants_configurator_prices_grid_wrapper
         sw_product_variants_configurator_prices_data_grid
           sw_product_variants_configurator_prices_actions
-            sw_product_variants_configurator_prices_actions_items
+            sw_product_variants_configurator_prices_actions_items  [scope: item]
           sw_product_variants_configurator_prices_column_currency
           sw_product_variants_configurator_prices_column_name
       sw_product_variants_configurator_prices_search

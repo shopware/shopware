@@ -11,6 +11,23 @@ component sw-cms-missing-element-modal  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-missing-element-modal/sw-cms-missing-element-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  missingElements: string[]  default=factory  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  modal-dont-remind-change(...args: any[])  [private]
+  modal-save(...args: any[])  [private]
+
+computed
+  element: any  [private]
+  title: any  [private]
+
+methods
+  onChangeDontRemindCheckbox(): any  [private]
+  onClose(): any  [private]
+  onSave(): any  [private]
+
 blocks
   sw_cms_missing_element_modal  [private]
     sw_cms_missing_element_modal_button_cancel  [private]

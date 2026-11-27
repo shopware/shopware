@@ -11,16 +11,34 @@ component sw-extension-permissions-details-modal  private  js  [private]
   template src/module/sw-extension/component/sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  modalTitle: string  [private]
+  permissions: object  [private]
+  selectedEntity?: string  default=''  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+computed
+  ankerId: any  [private]
+  operations: any  [private]
+
+methods
+  categoryLabel(category: any): any  [private]
+  close(): any  [private]
+  entityLabel(category: any, entity: any): any  [private]
+  scrollSelectedEntityIntoView(): any  [private]
+
 blocks
   sw_extension_permissions_details_modal  [private]
     sw_extension_permissions_details_modal_content  [private]
       sw_extension_permissions_details_modal_table  [private]
         sw_extension_permissions_details_modal_table_body  [private]
           sw_extension_permissions_details_modal_table_permissions  [private]
-            sw_extension_permissions_details_modal_permission_row  [private]
-              sw_extension_permissions_details_modal_permission_entity  [private]
-              sw_extension_permissions_details_modal_permission_operation  [private]
-            sw_extension_permissions_details_modal_permissions_category  [private]
+            sw_extension_permissions_details_modal_permission_row  [scope: category, permissionCategory] [private]
+              sw_extension_permissions_details_modal_permission_entity  [scope: category, entity, permissionCategory, permissions] [private]
+              sw_extension_permissions_details_modal_permission_operation  [scope: category, entity, permissionCategory, permissions] [private]
+            sw_extension_permissions_details_modal_permissions_category  [scope: category, permissionCategory] [private]
         sw_extension_permissions_details_modal_table_head  [private]
           sw_extension_permissions_details_modal_table_head_row  [private]
     sw_extension_permissions_details_modal_footer  [private]

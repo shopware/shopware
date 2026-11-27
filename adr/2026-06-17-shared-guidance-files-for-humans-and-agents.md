@@ -24,6 +24,7 @@ We need a documentation model that:
 2. Main subtree `AGENTS.md` files are allowed when they hold real subtree rules or route to substantial existing guidance.
 3. Do not add mechanical `AGENTS.md` or `GEMINI.md` stubs just to point at README files.
    **Exception:** every tracked `AGENTS.md` has a sibling `CLAUDE.md` whose only body is `@AGENTS.md`, so Claude Code loads the same guidance without duplicating rules.
+   **This exception is superseded by [2026-11-19 - Remove CLAUDE.md bridge files](2026-11-19-remove-claude-md-bridge-files.md): the repository contains no `CLAUDE.md` files, and the rest of this ADR is untouched.**
 4. Task-specific guidance lives in Agent Skills under `.agents/skills/`, where it loads only when the task asks for it.
 5. Reusable normative rules belong in `coding-guidelines/`.
 6. Folder-specific human guidance may live in an existing README when contributors naturally read that README for the work.
@@ -54,6 +55,7 @@ The accepted downside is that exact reuse across plugin or other repositories is
 
 - Root agent context stays smaller.
 - Claude Code loads repo guidance via sibling `CLAUDE.md → @AGENTS.md` bridges; `AGENTS.md` remains the single source of truth for all tools.
+  **Superseded by [2026-11-19 - Remove CLAUDE.md bridge files](2026-11-19-remove-claude-md-bridge-files.md): Claude Code reads `AGENTS.md` natively.**
 - Claude Code loads the same skills through the `.claude/skills` symlink while `.agents/skills` remains canonical.
 - Humans and agents still share durable coding rules through `AGENTS.md`, `coding-guidelines/`, and existing README files.
 - Rules that only matter for certain tasks can trigger as skills instead of occupying every session.

@@ -10,27 +10,43 @@ component sw-settings-document-list  public  js
   source src/module/sw-settings-document/page/sw-settings-document-list/index.js
   template src/module/sw-settings-document/page/sw-settings-document-list/sw-settings-document-list.html.twig
 
+mixins
+  sw-settings-list
+
+inject
+  acl
+
+data
+  entityName: any
+  sortBy: any  [deprecated tag:v6.8.0]
+
+computed
+  collapseButtonClass: any  [deprecated tag:v6.8.0]
+  expandButtonClass: any  [deprecated tag:v6.8.0]
+  filters: any
+  listingCriteria: any
+
 blocks
   sw_settings_list
     sw_settings_document_index
       sw_settings_document_list_content
         sw_settings_document_list_content_card
           sw_settings_document_list_grid
-            sw_product_list_grid_columns
-              sw_settings_document_list_columns_actions
-                sw_settings_document_list_columns_actions_delete
-                sw_settings_document_list_columns_actions_edit
-              sw_settings_document_list_columns_assignment
-                sw_settings_document_list_columns_assignment_label
-              sw_settings_document_list_columns_name
-                sw_settings_document_list_columns_name_link
-                  sw_settings_document_list_columns_name_link_inner
-              sw_settings_document_list_columns_type
-              sw_settings_document_list_delete_modal
-                sw_settings_document_list_delete_modal_confirm_text
-                sw_settings_document_list_delete_modal_footer
-                  sw_settings_document_list_delete_modal_actions_cancel
-                  sw_settings_document_list_delete_modal_actions_delete
+            sw_product_list_grid_columns  [scope: item]
+              sw_settings_document_list_columns_actions  [scope: item]
+                sw_settings_document_list_columns_actions_delete  [scope: item]
+                sw_settings_document_list_columns_actions_edit  [scope: item]
+              sw_settings_document_list_columns_assignment  [after v-if] [scope: item]
+                sw_settings_document_list_columns_assignment_label  [scope: item]
+              sw_settings_document_list_columns_name  [scope: item]
+                sw_settings_document_list_columns_name_link  [scope: item]
+                  sw_settings_document_list_columns_name_link_inner  [scope: item]
+              sw_settings_document_list_columns_type  [scope: item]
+              sw_settings_document_list_delete_modal  [scope: item]
+                sw_settings_document_list_delete_modal_confirm_text  [scope: item]
+                sw_settings_document_list_delete_modal_footer  [scope: item]
+                  sw_settings_document_list_delete_modal_actions_cancel  [scope: item]
+                  sw_settings_document_list_delete_modal_actions_delete  [scope: item]
             sw_settings_document_list_grid_pagination
       sw_settings_document_list_search_bar
       sw_settings_document_list_smart_bar_actions

@@ -11,6 +11,22 @@ component sw-condition-operator-select  private  js  [private]
   template src/app/component/rule/sw-condition-operator-select/sw-condition-operator-select.html.twig  [private]
   visibility-source export  [private]
 
+props
+  condition: object  [private]
+  disabled?: boolean  default=false  [private]
+  operators: any[]  [private]
+  plural?: boolean  default=false  [private]
+
+emits
+  change(...args: any[])  [private]
+
+computed
+  operator: any  [private]
+  translatedOperators: any  [private]
+
+methods
+  changeOperator(event: any): any  [private]
+
 blocks
   sw_condition_type_select  [private]
 ```

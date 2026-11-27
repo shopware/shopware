@@ -11,13 +11,45 @@ component sw-cms-el-config-video  private  ts  [private]
   template src/module/sw-cms/elements/video/config/sw-cms-el-config-video.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  initialFolderId: any  [private]
+  showMediaModal: any  [private]
+
+computed
+  displayModeOptions: Options  [private]
+  horizontalAlignOptions: Options  [private]
+  mediaRepository: RepositoryType<'media'>  [private]
+  previewSource: Entity<'media'> | string | null  [private]
+  uploadTag: string  [private]
+  verticalAlignOptions: Options  [private]
+
+methods
+  createdComponent(): any  [private]
+  emitUpdate(): any  [private]
+  onChangeMinHeight(value: string | null): any  [private]
+  onCloseModal(): any  [private]
+  onOpenMediaModal(): any  [private]
+  onSelectionChanges(mediaEntity: Entity<'media'>[]): any  [private]
+  onVideoRemove(): any  [private]
+  onVideoUpload(arg0: { targetId: EntityKey<'media'> }): Promise<void>  [private]
+  updateElementData(media?: Entity<'media'> | null = null): any  [private]
+
 blocks
   sw_cms_element_video_config  [private]
     sw_cms_element_video_config_aria_label  [private]
     sw_cms_element_video_config_display_mode  [private]
     sw_cms_element_video_config_horizontal_align  [private]
-    sw_cms_element_video_config_media_modal  [private]
-    sw_cms_element_video_config_media_upload  [private]
+    sw_cms_element_video_config_media_modal  [scope: isInherited] [private]
+    sw_cms_element_video_config_media_upload  [scope: isInherited] [private]
     sw_cms_element_video_config_min_height  [private]
     sw_cms_element_video_config_vertical_align  [private]
 ```

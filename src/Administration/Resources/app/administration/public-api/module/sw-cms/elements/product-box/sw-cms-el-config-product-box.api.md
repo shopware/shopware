@@ -11,14 +11,41 @@ component sw-cms-el-config-product-box  private  js  [private]
   template src/module/sw-cms/elements/product-box/config/sw-cms-el-config-product-box.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+slots
+  result-item  { ...{ item, index } }  block=sw_cms_element_product_box_config_product_select_result_item  [private]
+
+computed
+  boxLayoutOptions: any  [private]
+  displayModeOptions: any  [private]
+  productCriteria: any  [private]
+  productRepository: any  [private]
+  productSelectContext: any  [private]
+  verticalAlignOptions: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onProductChange(productId: any): any  [private]
+
 blocks
   sw_cms_element_product_box_config  [private]
     sw_cms_element_product_box_config_displaymode_select  [private]
     sw_cms_element_product_box_config_layout_select  [private]
     sw_cms_element_product_box_config_product_select  [private]
-      sw_cms_element_product_box_config_product_select_result_item  [private]
-        sw_cms_element_product_box_config_product_select_result_item_inner  [private]
-          sw_entity_single_select_base_results_list_result_label  [private]
-      sw_cms_element_product_box_config_product_selection_label  [private]
+      sw_cms_element_product_box_config_product_select_result_item  [scope: isInherited] [private]
+        sw_cms_element_product_box_config_product_select_result_item_inner  [scope: index, isInherited, item] [private]
+          sw_entity_single_select_base_results_list_result_label  [scope: index, isInherited, item] [deprecated tag:v6.8.0] [private]
+      sw_cms_element_product_box_config_product_selection_label  [scope: isInherited] [private]
     sw_cms_element_product_box_config_settings_vertical_align  [private]
+
+refs
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_product_box_config_product_select  [private]
 ```

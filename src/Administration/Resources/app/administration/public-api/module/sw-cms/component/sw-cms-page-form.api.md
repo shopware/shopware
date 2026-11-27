@@ -11,20 +11,49 @@ component sw-cms-page-form  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-page-form/sw-cms-page-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-state  [private]
+
+inject
+  cmsService  [private]
+
+props
+  elementUpdate?: (...args: any[]) => any  default=factory  [private]
+  page: Entity<'cms_page'>  [private]
+
+computed
+  cmsBlocks: any  [private]
+  cmsElements: any  [private]
+  slotPositions: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  displayNotification(section: Entity<'cms_section'>, block: Entity<'cms_block'>): any  [private]
+  displaySectionType(block: Entity<'cms_block'>): boolean  [private]
+  getBlockTitle(block: Entity<'cms_block'>): string  [private]
+  getDeviceActive(viewport: string, section: Entity<'cms_section'>, block?: Entity<'cms_block'> | null = null): any  [private]
+  getSectionName(section: Entity<'cms_section'>): any  [private]
+  getSectionPosition(block: Entity<'cms_block'>): any  [private]
+  initVisibility(entity: Entity<'cms_section'> | Entity<'cms_block'>): any  [private]
+  sortSlots(block: Entity<'cms_block'>): any  [private]
+
 blocks
   sw_cms_page_form  [private]
-    sw_cms_page_form_content  [private]
-      sw_cms_page_form_section  [private]
-        sw_cms_page_form_card  [private]
-          sw_cms_page_form_card_content  [private]
-            sw_cms_page_form_element_config  [private]
-        sw_cms_page_form_section_empty_state_block  [private]
-          sw_cms_page_form_section_empty_state_block_text  [private]
-        sw_cms_page_form_section_name_wrapper  [private]
-          sw_cms_page_form__section_name  [private]
-          sw_cms_page_form_section_name_icon  [private]
-        sw_cms_page_form_section_type_label_wrapper  [private]
-          sw_cms_page_form_section_type_label  [private]
-            sw_cms_page_form_section_type  [private]
-            sw_cms_page_form_section_type_label_icon  [private]
+    sw_cms_page_form_content  [after v-if] [private]
+      sw_cms_page_form_section  [scope: section] [private]
+        sw_cms_page_form_card  [after v-if] [scope: block, index, section] [private]
+          sw_cms_page_form_card_content  [scope: block, index, section] [private]
+            sw_cms_page_form_element_config  [after v-if] [scope: block, blockIndex, element, index, section] [private]
+        sw_cms_page_form_section_empty_state_block  [scope: section] [private]
+          sw_cms_page_form_section_empty_state_block_text  [scope: section] [private]
+        sw_cms_page_form_section_name_wrapper  [scope: section] [private]
+          sw_cms_page_form__section_name  [scope: section] [private]
+          sw_cms_page_form_section_name_icon  [scope: section] [private]
+        sw_cms_page_form_section_type_label_wrapper  [scope: block, index, section] [private]
+          sw_cms_page_form_section_type_label  [scope: block, index, section] [private]
+            sw_cms_page_form_section_type  [scope: block, index, section] [private]
+            sw_cms_page_form_section_type_label_icon  [scope: block, index, section] [private]
+
+crossings
+  v-if  sw_cms_page_form_section_empty_state_block -> sw_cms_page_form_section  [private]
 ```

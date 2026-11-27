@@ -316,6 +316,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $groupName));
+        $criteria->setLimit(1);
 
         $this->groupIdCache[$groupId] = $this->groupRepository->searchIds(
             $criteria,
@@ -336,6 +337,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $optionName));
         $criteria->addFilter(new EqualsFilter('group.name', $groupName));
+        $criteria->setLimit(1);
 
         $this->optionIdCache[$optionId] = $this->optionRepository->searchIds(
             $criteria,

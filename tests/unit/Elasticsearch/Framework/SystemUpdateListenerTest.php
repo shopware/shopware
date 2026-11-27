@@ -10,14 +10,16 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
-use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
+use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
 use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 
@@ -28,6 +30,35 @@ use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 #[CoversClass(SystemUpdateListener::class)]
 class SystemUpdateListenerTest extends TestCase
 {
+    public function testKeepsTheScheduleAndDispatchedBatchesWhenALaterReadFails(): void
+    {
+        $storage = new ArrayKeyValueStorage([SystemUpdateListener::CONFIG_KEY => ['product']]);
+
+        $first = new ElasticsearchIndexingMessage(new IndexingDto(['product-a'], 'product-index', 'product'), null, Context::createDefaultContext());
+        $indexer = static::createStub(ElasticsearchIndexer::class);
+        $indexer->method('iterateMessages')->willReturn((static function () use ($first): \Generator {
+            yield $first;
+            throw new \RuntimeException('Later catalog read failed');
+        })());
+        $bus = new CollectingMessageBus();
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error');
+        $listener = new SystemUpdateListener(
+            $storage,
+            $indexer,
+            $bus,
+            static::createStub(IndexMappingUpdater::class),
+            $logger,
+            $this->createRegistry(),
+        );
+
+        $listener(static::createStub(UpdatePostFinishEvent::class));
+
+        static::assertCount(1, $bus->getMessages());
+        static::assertSame($first, $bus->getMessages()[0]->getMessage());
+        static::assertSame(['product'], $storage->get(SystemUpdateListener::CONFIG_KEY));
+    }
+
     public function testShouldDoNothingWhenNotSet(): void
     {
         $messageBus = new CollectingMessageBus();
@@ -60,27 +91,11 @@ class SystemUpdateListenerTest extends TestCase
             ->expects($this->once())
             ->method('update');
 
-        $storage = static::createStub(AbstractKeyValueStorage::class);
-        $storage
-            ->method('get')
-            ->willReturn(['*']);
-
-        $message = static::createStub(ElasticsearchIndexingMessage::class);
-        $message->method('getOffset')
-            ->willReturn(static::createStub(IndexerOffset::class));
-
-        $indexer = static::createStub(ElasticsearchIndexer::class);
-        $indexer
-            ->method('iterate')
-            ->willReturnCallback(static function ($offset) use ($message) {
-                return $offset === null
-                    ? $message
-                    : null;
-            });
+        $storage = new ArrayKeyValueStorage([SystemUpdateListener::CONFIG_KEY => ['*']]);
 
         $listener = new SystemUpdateListener(
             $storage,
-            $indexer,
+            $this->createIndexer(),
             $messageBus,
             $mappingUpdater,
             new NullLogger(),
@@ -90,6 +105,7 @@ class SystemUpdateListenerTest extends TestCase
         $listener(static::createStub(UpdatePostFinishEvent::class));
 
         static::assertCount(1, $messageBus->getMessages());
+        static::assertFalse($storage->has(SystemUpdateListener::CONFIG_KEY));
     }
 
     /**
@@ -102,19 +118,11 @@ class SystemUpdateListenerTest extends TestCase
         $storage = static::createStub(AbstractKeyValueStorage::class);
         $storage->method('get')->willReturn($stored);
 
-        $message = static::createStub(ElasticsearchIndexingMessage::class);
-        $message->method('getOffset')
-            ->willReturn(static::createStub(IndexerOffset::class));
-
         $indexer = $this->createMock(ElasticsearchIndexer::class);
         $indexer
-            ->expects($this->exactly(2))
-            ->method('iterate')
-            ->willReturnCallback(static function ($offset, array $entities) use ($message, $expected) {
-                static::assertSame($expected, $entities);
-
-                return $offset === null ? $message : null;
-            });
+            ->expects($this->once())
+            ->method('iterateMessages')
+            ->with($expected);
 
         $listener = new SystemUpdateListener(
             $storage,
@@ -178,7 +186,7 @@ class SystemUpdateListenerTest extends TestCase
 
         $indexer = static::createStub(ElasticsearchIndexer::class);
         $indexer
-            ->method('iterate')
+            ->method('iterateMessages')
             ->willThrowException(new \RuntimeException('cluster unavailable'));
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -203,7 +211,7 @@ class SystemUpdateListenerTest extends TestCase
         $storage->expects($this->once())->method('remove')->with(SystemUpdateListener::CONFIG_KEY);
 
         $indexer = $this->createMock(ElasticsearchIndexer::class);
-        $indexer->expects($this->never())->method('iterate');
+        $indexer->expects($this->never())->method('iterateMessages');
 
         $listener = new SystemUpdateListener(
             $storage,
@@ -251,18 +259,10 @@ class SystemUpdateListenerTest extends TestCase
 
     private function createIndexer(): ElasticsearchIndexer
     {
-        $message = static::createStub(ElasticsearchIndexingMessage::class);
-        $message->method('getOffset')
-            ->willReturn(static::createStub(IndexerOffset::class));
-
         $indexer = static::createStub(ElasticsearchIndexer::class);
-        $indexer
-            ->method('iterate')
-            ->willReturnCallback(static function ($offset) use ($message) {
-                return $offset === null
-                    ? $message
-                    : null;
-            });
+        $indexer->method('iterateMessages')->willReturn((static function (): \Generator {
+            yield new ElasticsearchIndexingMessage(new IndexingDto(['product-a'], 'product-index', 'product'), null, Context::createDefaultContext());
+        })());
 
         return $indexer;
     }

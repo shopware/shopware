@@ -11,6 +11,12 @@ component sw-app-topbar-button  private  js  [private]
   template src/app/component/app/sw-app-topbar-button/sw-app-topbar-button.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  topBarButtons: any  [private]
+
+methods
+  runAction(button: any): Promise<any>  [private]
+
 blocks
   sw_app_topbar_button  [private]
 ```

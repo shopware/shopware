@@ -11,6 +11,22 @@ component sw-card  private  ts  [private]
   template src/app/component/base/sw-card/sw-card.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+
+slots
+  default  {}  block=sw_card  [private]
+  default  {}  block=(root)  [private]
+
+methods
+  getSlots(): any  [private]
+
 blocks
-  sw_card  [private]
+  sw_card  [deprecated tag:v6.8.0] [private]
+
+crossings
+  v-if  sw_card -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

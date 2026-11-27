@@ -11,6 +11,38 @@ component sw-maintain-currencies-modal  private  js  [private]
   template src/app/component/form/sw-maintain-currencies-modal/sw-maintain-currencies-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  currencies?: any[]  default=factory  [private]
+  defaultPrice: object  [private]
+  disabled?: boolean  default=false  [private]
+  hideListPrices?: any  default=false  [private]
+  hideRegulationPrices?: boolean  default=false  [private]
+  prices: any[]  [private]
+  taxRate: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  update-prices(...args: any[])  [private]
+
+data
+  clonePrices: any  [private]
+  currencyCollection: any  [private]
+
+computed
+  maintainCurrencyColumns: any  [private]
+
+methods
+  convertPrice(value: any, currency: any): any  [private]
+  createdComponent(): any  [private]
+  isCurrencyInherited(currency: any): any  [private]
+  loadCurrencies(): any  [private]
+  onApply(): any  [private]
+  onCancel(): any  [private]
+  onInheritanceRemove(currency: any): any  [private]
+  onInheritanceRestore(currencyId: any): any  [private]
+  sortCurrencies(): any  [private]
+  updateCurrencyCollectionFromCurrencies(): any  [private]
+
 blocks
   sw_maintain_currencies_modal  [private]
     sw_maintain_currencies_modal_footer  [private]
@@ -18,9 +50,9 @@ blocks
       sw_maintain_currencies_modal_footer_button_cancel  [private]
     sw_maintain_currencies_modal_grid  [private]
       sw_maintain_currencies_modal_grid_column_name  [private]
-        sw_maintain_currencies_modal_grid_column_name_inherit_field  [private]
-        sw_maintain_currencies_modal_grid_column_name_item_name  [private]
+        sw_maintain_currencies_modal_grid_column_name_inherit_field  [scope: item] [private]
+        sw_maintain_currencies_modal_grid_column_name_item_name  [after v-if] [scope: item] [private]
       sw_maintain_currencies_modal_grid_column_price  [private]
-        sw_maintain_currencies_modal_grid_column_price_field  [private]
+        sw_maintain_currencies_modal_grid_column_price_field  [scope: item] [private]
         sw_maintain_currencies_modal_grid_column_price_field_label  [private]
 ```

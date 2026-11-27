@@ -11,6 +11,12 @@ component sw-card-view  private  js  [private]
   template src/app/component/structure/sw-card-view/sw-card-view.html.twig  [private]
   visibility-source export  [private]
 
+props
+  showErrorSummary?: boolean  default=true  [private]
+
+slots
+  default  {}  block=sw_card_view_content  [private]
+
 blocks
   sw_card_view  [private]
     sw_card_view_content  [private]

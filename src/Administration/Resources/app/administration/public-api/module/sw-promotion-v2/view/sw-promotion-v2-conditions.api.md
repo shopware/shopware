@@ -10,6 +10,34 @@ component sw-promotion-v2-conditions  public  js
   source src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/index.js
   template src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/sw-promotion-v2-conditions.html.twig
 
+inject
+  acl
+  repositoryFactory
+  ruleConditionDataProviderService
+
+props
+  promotion?: object  default=factory
+
+data
+  cartRestrictedRules: any
+  excludedPromotions: any
+  orderRestrictedRules: any
+  personaRestrictedRules: any
+
+computed
+  cartConditionsRuleFilter: any  [deprecated tag:v6.8.0]
+  exclusionCriteria: any
+  orderConditionsFilter: any  [deprecated tag:v6.8.0]
+  orderConditionsFilterDeprecated: any  [deprecated tag:v6.8.0] [private]
+  personaRuleFilter: any  [deprecated tag:v6.8.0]
+  personaRuleFilterDeprecated: any  [deprecated tag:v6.8.0] [private]
+
+methods
+  createPromotionCollection(): any
+  createdComponent(): any
+  loadExclusions(): any
+  onChangeExclusions(promotions: any): any
+
 blocks
   sw_promotion_v2_conditions
     sw_promotion_v2_conditions_pre_conditions_card
@@ -17,7 +45,7 @@ blocks
       sw_promotion_v2_conditions_pre_conditions_prevent_combination
       sw_promotion_v2_conditions_pre_conditions_sales_channel_selection
     sw_promotion_v2_rule_conditions_card
-      sw_promotion_v2_rule_conditions_rule_select_cart_conditions
+      sw_promotion_v2_rule_conditions_rule_select_cart_conditions  [after v-if]
       sw_promotion_v2_rule_conditions_rule_select_customer
       sw_promotion_v2_rule_conditions_rule_select_order_conditions
 ```

@@ -10,6 +10,19 @@ component sw-settings-search-live-search-keyword  public  js
   source src/module/sw-settings-search/component/sw-settings-search-live-search-keyword/index.js
   template src/module/sw-settings-search/component/sw-settings-search-live-search-keyword/sw-settings-search-live-search-keyword.html.twig
 
+props
+  highlightClass?: string  default='sw-settings-search-live-search-keyword__highlight'
+  searchTerm: string  default=null
+  text: string  default=null
+
+computed
+  parsedMsg: any
+  parsedSearch: any
+  textIsHighlighted: any
+
+methods
+  getClass(index: any): any
+
 blocks
   sw_settings_search_view_live_search_keyword
     sw_settings_search_view_live_search_keyword_highlight

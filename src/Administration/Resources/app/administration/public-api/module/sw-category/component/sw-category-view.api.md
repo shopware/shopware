@@ -10,15 +10,37 @@ component sw-category-view  public  js
   source src/module/sw-category/component/sw-category-view/index.js
   template src/module/sw-category/component/sw-category-view/sw-category-view.html.twig
 
+mixins
+  placeholder
+
+inject
+  acl
+  feature
+
+props
+  isLoading: boolean  default=false
+  type?: string  default='page'
+
+computed
+  category: any
+  categoryViewTabs: any
+  cmsPage: any
+  isCategoryColumn: any
+  isCustomEntity: any
+  isPage: any
+
 blocks
   sw_category_view
     sw_category_view_column_info
     sw_category_view_content
     sw_category_view_language_info
-    sw_category_view_tabs
+    sw_category_view_tabs  [after v-if]
       sw_category_view_mt_tabs  [from v6.8.0]
       sw_category_view_tabs_cms  [until v6.8.0]
       sw_category_view_tabs_general  [until v6.8.0]
       sw_category_view_tabs_products  [until v6.8.0]
       sw_category_view_tabs_seo  [until v6.8.0]
+
+notes
+  unresolved computed ...mapPageErrors(errorConfig)
 ```

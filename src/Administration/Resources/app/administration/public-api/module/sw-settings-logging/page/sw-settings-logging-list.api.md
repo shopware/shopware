@@ -10,16 +10,52 @@ component sw-settings-logging-list  public  js
   source src/module/sw-settings-logging/page/sw-settings-logging-list/index.js
   template src/module/sw-settings-logging/page/sw-settings-logging-list/sw-settings-logging-list.html.twig
 
+mixins
+  sw-settings-list, placeholder
+
+inject
+  repositoryFactory
+
+data
+  displayedLog: any
+  entityName: any
+  isLoading: any
+  logLevels: object
+    Alert: any
+    Critical: any
+    Debug: any
+    Emergency: any
+    Error: any
+    Info: any
+    Notice: any
+    Warning: any
+  logs: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  logColumns: any
+  logEntryRepository: any
+  modalNameFromLogEntry: any
+
+methods
+  closeInfoModal(): any
+  getList(): Promise<any>
+  getLogColumns(): any
+  logLevelToString(level: any): any
+  showInfoModal(entryContents: any): any
+
 blocks
   sw_settings_list
     sw_settings_logging_list_content
       sw_settings_logging_list_content_info_modal
       sw_settings_logging_list_content_listing
-        sw_settings_logging_list_column_context
-        sw_settings_logging_list_column_created_at
-        sw_settings_logging_list_column_level
-        sw_settings_logging_list_content_listing_actions
-          sw_settings_logging_list_content_listing_action_show_label
+        sw_settings_logging_list_column_context  [scope: item]
+        sw_settings_logging_list_column_created_at  [scope: item]
+        sw_settings_logging_list_column_level  [scope: item]
+        sw_settings_logging_list_content_listing_actions  [scope: item]
+          sw_settings_logging_list_content_listing_action_show_label  [scope: item]
         sw_settings_logging_list_content_listing_pagination
     sw_settings_logging_list_search_bar
     sw_settings_logging_list_sidebar

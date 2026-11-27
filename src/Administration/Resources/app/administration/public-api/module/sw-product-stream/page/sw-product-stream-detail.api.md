@@ -11,6 +11,81 @@ component sw-product-stream-detail  private  js  [private]
   template src/module/sw-product-stream/page/sw-product-stream-detail/sw-product-stream-detail.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification, discard-detail-page-changes, sw-inline-snippet  [private]
+
+inject
+  acl  [private]
+  customFieldDataProviderService  [private]
+  productStreamConditionService  [private]
+  productTypeService  [private]
+  repositoryFactory  [private]
+
+provide
+  productCustomFields: any  [private]
+  productTypes: any  [private]
+
+props
+  productStreamId?: string  default=null  [private]
+
+data
+  customFieldSets: any  [private]
+  customFieldsLoading: any  [private]
+  deletedProductStreamFilters: any  [private]
+  isLoading: any  [private]
+  isSaveSuccessful: any  [private]
+  isSaving: any  [private]
+  languageId: any  [private]
+  productCustomFields: any  [private]
+  productStream: object  [private]
+    description: any  [private]
+    name: any  [private]
+  productStreamFilters: any  [private]
+  productStreamFiltersTree: any  [private]
+  productTypes: any  [private]
+  showModalPreview: any  [private]
+
+computed
+  customFieldRepository: any  [private]
+  customFieldSetRepository: any  [deprecated tag:v6.8.0] [private]
+  deprecatedFiltersInUse: any  [private]
+  identifier: any  [private]
+  isSystemLanguage: any  [private]
+  nameRequired: any  [private]
+  productCustomFieldsCriteria: any  [private]
+  productStreamFiltersRepository: any  [private]
+  productStreamIndexingEnabled: any  [private]
+  productStreamNameError: any  [private]
+  productStreamRepository: any  [private]
+  showCustomFields: any  [private]
+  tooltipCancel: any  [private]
+  tooltipSave: any  [private]
+
+methods
+  abortOnLanguageChange(): any  [private]
+  closeModalPreview(): any  [private]
+  createProductStream(): any  [private]
+  createdComponent(): any  [private]
+  getCustomFieldLabel(customField: any): any  [private]
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any  [private]
+  getProductCustomFields(): any  [private]
+  loadCustomFieldSets(): any  [private]
+  loadEntityData(productStreamId: any): Promise<any>  [private]
+  loadFilters(collection?: any = null): Promise<any>  [private]
+  loadProductCustomFields(): Promise<any>  [private]
+  loadProductTypes(): any  [private]
+  mapCustomFieldType(customField: any): any  [private]
+  onCancel(): any  [private]
+  onChangeLanguage(languageId: any): any  [private]
+  onDuplicate(): Promise<any>  [private]
+  onSave(): Promise<any>  [private]
+  openModalPreview(): any  [private]
+  saveOnLanguageChange(): any  [private]
+  saveProductStream(): any  [private]
+  showErrorNotification(): any  [private]
+  syncProductStreamFilters(): Promise<any>  [private]
+  updateFilterTree(arg0: any): any  [private]
+
 blocks
   sw_product_stream_detail  [private]
     sw_product_stream_detail_actions  [private]
@@ -26,10 +101,13 @@ blocks
         sw_product_basic_form_name_field  [private]
       sw_product_stream_detail_content_language_info  [private]
       sw_product_stream_detail_filter  [private]
-        sw_product_stream_detail_filter_preview_button  [private]
-        sw_product_stream_detail_filter_tree  [private]
-      sw_prouct_stream_detail_custom_field_sets  [private]
+        sw_product_stream_detail_filter_preview_button  [after v-if] [private]
+        sw_product_stream_detail_filter_tree  [after v-if] [private]
+      sw_prouct_stream_detail_custom_field_sets  [after v-if] [private]
       sw_prouct_stream_detail_preview_modal  [private]
     sw_product_stream_detail_header  [private]
     sw_product_stream_detail_language_switch  [private]
+
+refs
+  modalPreview  -> sw-product-stream-modal-preview  block=sw_prouct_stream_detail_preview_modal  [private]
 ```

@@ -10,16 +10,61 @@ component sw-settings-listing-option-base  public  js
   source src/module/sw-settings-listing/page/sw-settings-listing-option-base/index.js
   template src/module/sw-settings-listing/page/sw-settings-listing-option-base/sw-settings-listing-option-base.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+  systemConfigApiService
+
+data
+  customFieldOptions: any
+  customFields: any
+  defaultSortingId: any
+  productSortingEntity: any
+  sortingOptionLabelError: any
+  sortingOptionTechnicalNameError: any
+  toBeDeletedCriteria: any
+
+computed
+  customFieldCriteria: any
+  customFieldRepository: any
+  isDefaultSorting: any
+  isGeneralCardLoading: any
+  isSaveButtonDisabled: any
+  productSortingEntityCriteria: any  [deprecated tag:v6.8.0]
+  productSortingRepository: any
+  smartBarHeading: any
+
+methods
+  createdComponent(): any
+  fetchCustomFields(): Promise<any>
+  fetchDefaultSorting(): any
+  fetchProductSortingEntity(): Promise<any>
+  getCriteriaTemplate(fieldName: any): any
+  getProductSortingEntityId(): any
+  isCriteriaACustomField(technicalName: any): any
+  isValidSortingOption(): Promise<any>
+  onAddCriteria(fieldName: any): any
+  onCancelEditCriteria(item: any): any
+  onChangeLanguage(): any
+  onConfirmDeleteCriteria(): any
+  onDeleteCriteria(toBeRemovedItem: any): any
+  onSave(): Promise<any>
+  saveProductSorting(): Promise<any>
+  searchForAlreadyExistingKey(key: any): Promise<any>
+  transformCustomFieldCriterias(): any
+
 blocks
   sw_settings_listing_option_base
     sw_settings_listing_option_base_content
-      sw_settings_listing_option_base_smart_content
-        sw_settings_listing_option_base_content_criteria_grid
-          sw_settings_listing_option_base_smart_bar_actions_grid
-        sw_settings_listing_option_base_content_delete_modal
-          sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal
-        sw_settings_listing_option_base_content_general_info
-          sw_settings_listing_option_base_smart_content_general_info
+      sw_settings_listing_option_base_smart_content  [deprecated tag:v6.8.0]
+        sw_settings_listing_option_base_content_criteria_grid  [after v-if]
+          sw_settings_listing_option_base_smart_bar_actions_grid  [after v-if] [deprecated tag:v6.8.0]
+        sw_settings_listing_option_base_content_delete_modal  [after v-if]
+          sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal  [after v-if] [deprecated tag:v6.8.0]
+        sw_settings_listing_option_base_content_general_info  [after v-if]
+          sw_settings_listing_option_base_smart_content_general_info  [after v-if] [deprecated tag:v6.8.0]
         sw_settings_listing_option_base_content_locked_info
     sw_settings_listing_option_base_language_switch
     sw_settings_listing_option_base_smart_bar_actions

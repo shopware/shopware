@@ -11,6 +11,31 @@ component sw-inactivity-login  private  ts  [private]
   template src/module/sw-inactivity-login/page/index/sw-inactivity-login.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  loginService  [private]
+
+props
+  hash: string  [private]
+
+data
+  isLoading: any  [private]
+  lastKnownUser: any  [private]
+  password: any  [private]
+  passwordError: any  [private]
+  rememberMe: any  [private]
+  sessionChannel: any  [private]
+
+computed
+  title: string  [private]
+
+methods
+  _reloadPage(): any  [private]
+  forwardLogin(): any  [private]
+  handleLoginSuccess(): any  [private]
+  loginUserWithPassword(): Promise<any>  [private]
+  onBackToLogin(): any  [private]
+
 blocks
   sw_inactivity_login  [private]
 ```

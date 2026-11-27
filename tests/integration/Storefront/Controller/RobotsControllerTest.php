@@ -117,6 +117,9 @@ class RobotsControllerTest extends TestCase
 
         Disallow: /*?
 
+        Allow: /*?p=
+        Disallow: /*?p=*&
+
         Allow: /*referringSalesChannel=
 
         Allow: /*theme/

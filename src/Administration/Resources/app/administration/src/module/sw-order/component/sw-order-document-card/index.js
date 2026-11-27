@@ -648,6 +648,30 @@ export default {
             });
         },
 
+        createDocumentV2(params, referencedDocumentId) {
+            return this.documentV2ApiService.createDocument(
+                this.order.id,
+                this.currentDocumentType.technicalName,
+                params.requestedFileFormats ?? [],
+                params.documentNumber,
+                params.documentDate,
+                params.documentComment,
+                params.deliveryDate,
+                referencedDocumentId,
+            );
+        },
+
+        previewDocumentV2(params, fileType) {
+            return this.documentV2ApiService.previewDocument(
+                this.order.id,
+                this.currentDocumentType.technicalName,
+                fileType,
+                params.documentNumber,
+                params.documentDate,
+                params.documentComment,
+            );
+        },
+
         async onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
             this.isLoadingDocument = true;
 
@@ -655,16 +679,7 @@ export default {
                 let documentCreateResponse;
 
                 try {
-                    documentCreateResponse = await this.documentV2ApiService.createDocument(
-                        this.order.id,
-                        this.currentDocumentType.technicalName,
-                        params.requestedFileFormats ?? [],
-                        params.documentNumber,
-                        params.documentDate,
-                        params.documentComment,
-                        params.deliveryDate,
-                        referencedDocumentId,
-                    );
+                    documentCreateResponse = await this.createDocumentV2(params, referencedDocumentId);
                 } catch (err) {
                     this.createNotificationError({
                         message:
@@ -820,15 +835,7 @@ export default {
             this.isLoadingPreview = true;
 
             if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                return this.documentV2ApiService
-                    .previewDocument(
-                        this.order.id,
-                        this.currentDocumentType.technicalName,
-                        fileType,
-                        params.documentNumber,
-                        params.documentDate,
-                        params.documentComment,
-                    )
+                return this.previewDocumentV2(params, fileType)
                     .then((documentFileResponse) => {
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(documentFileResponse.file);

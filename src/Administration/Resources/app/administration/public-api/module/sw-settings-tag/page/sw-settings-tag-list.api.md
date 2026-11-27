@@ -10,36 +10,102 @@ component sw-settings-tag-list  public  js
   source src/module/sw-settings-tag/page/sw-settings-tag-list/index.js
   template src/module/sw-settings-tag/page/sw-settings-tag-list/sw-settings-tag-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+  tagApiService
+
+slots
+  bulk-modal-merge-confirm-name-input  {}  block=sw_settings_tag_list_merge_modal_confirm_name_input
+  bulk-modal-merge-confirm-text  { ...{ selection, ids } }  block=sw_settings_tag_list_grid_bulk_merge_modal
+  bulk-modal-merge-footer  { ...{ selection } }  block=sw_settings_tag_list_grid_bulk_merge_modal
+  bulk-modal-merge-progress  {}  block=sw_settings_tag_list_merge_modal_progress
+
+data
+  assignmentFilter: any
+  bulkMergeProgress: object
+    currentAssignment: any
+    isRunning: any
+    progress: any
+    total: any
+  detailEntity: any
+  detailProperty: any
+  duplicateFilter: any
+  duplicateName: any
+  emptyFilter: any
+  isLoading: any
+  showBulkMergeModal: any
+  showDeleteModal: any
+  showDetailModal: any
+  showDuplicateModal: any
+  sortBy: any
+  sortDirection: any
+  tags: any
+
+computed
+  assignmentFilterOptions: any
+  assignmentProperties: any
+  filterCount: any
+  hasAssignmentFilter: any
+  tagColumns: any
+  tagCriteria: any
+  tagDefinition: any
+  tagRepository: any
+
+methods
+  getBulkMergeMessageGlue(ids: any, id: any): any
+  getCounts(id: any): any
+  getList(): any
+  getPropertyCounting(propertyName: any, id: any): any
+  onCloseBulkMergeModal(): any
+  onCloseDeleteModal(): any
+  onCloseDetailModal(): any
+  onCloseDuplicateModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onConfirmDuplicate(id: any): Promise<any>
+  onDelete(id: any): any
+  onDetail(id: any, property: any, entity: any): any
+  onDuplicate(item: any): any
+  onFilter(): any
+  onMergeTags(selection: any): Promise<any>
+  onSaveFinish(): any
+  resetFilters(): any
+  setAggregations(criteria: any): any
+  sortByIdsOrder(items: any, ids: any): any
+
 blocks
   sw_settings_list
     sw_settings_tag_index
       sw_settings_tag_list_content
         sw_settings_tag_list_content_card
           sw_settings_tag_list_detail_add_modal
-          sw_settings_tag_list_empty_state
+          sw_settings_tag_list_empty_state  [after v-if]
           sw_settings_tag_list_grid
             sw_settings_tag_list_grid_action_modals
-              sw_settings_tag_list_delete_modal
-                sw_settings_tag_list_delete_modal_confirm_delete_text
-                sw_settings_tag_list_delete_modal_footer
-                  sw_settings_tag_list_delete_modal_cancel
-                  sw_settings_tag_list_delete_modal_confirm
-              sw_settings_tag_list_detail_edit_modal
-              sw_settings_tag_list_duplicate_modal
-                sw_settings_tag_list_delete_modal_confirm_duplicate_input
-                sw_settings_tag_list_duplicate_modal_footer
-                  sw_settings_tag_list_duplicate_modal_cancel
-                  sw_settings_tag_list_duplicate_modal_confirm
+              sw_settings_tag_list_delete_modal  [scope: item]
+                sw_settings_tag_list_delete_modal_confirm_delete_text  [scope: item]
+                sw_settings_tag_list_delete_modal_footer  [scope: item]
+                  sw_settings_tag_list_delete_modal_cancel  [scope: item]
+                  sw_settings_tag_list_delete_modal_confirm  [scope: item]
+              sw_settings_tag_list_detail_edit_modal  [after v-if] [scope: item]
+              sw_settings_tag_list_duplicate_modal  [after v-if] [scope: item]
+                sw_settings_tag_list_delete_modal_confirm_duplicate_input  [scope: item]
+                sw_settings_tag_list_duplicate_modal_footer  [scope: item]
+                  sw_settings_tag_list_duplicate_modal_cancel  [scope: item]
+                  sw_settings_tag_list_duplicate_modal_confirm  [scope: item]
             sw_settings_tag_list_grid_bulk
             sw_settings_tag_list_grid_bulk_merge_modal
-              sw_settings_tag_list_merge_modal_confirm_name_input
-              sw_settings_tag_list_merge_modal_progress
+              sw_settings_tag_list_merge_modal_confirm_name_input  [scope: ids, selection]
+              sw_settings_tag_list_merge_modal_progress  [scope: ids, selection]
             sw_settings_tag_list_grid_column_assignments
             sw_settings_tag_list_grid_column_default_name
             sw_settings_tag_list_grid_columns_actions
-              sw_settings_tag_list_grid_columns_actions_delete
-              sw_settings_tag_list_grid_columns_actions_duplicate
-              sw_settings_tag_list_grid_columns_actions_edit
+              sw_settings_tag_list_grid_columns_actions_delete  [scope: item]
+              sw_settings_tag_list_grid_columns_actions_duplicate  [scope: item]
+              sw_settings_tag_list_grid_columns_actions_edit  [scope: item]
           sw_settings_tag_list_grid_toolbar_filter
             sw_settings_tag_list_grid_toolbar_filter_assignment
             sw_settings_tag_list_grid_toolbar_filter_divider
@@ -56,4 +122,11 @@ blocks
         sw_settings_tag_list_smart_bar_header_title
           sw_settings_tag_list_smart_bar_header_amount
           sw_settings_tag_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_settings_tag_list_grid -> sw_settings_tag_list_empty_state
+
+refs
+  swCardFilter  -> sw-card-filter  block=sw_settings_tag_list_grid_toolbar_search
+  swSettingsTagGrid  -> sw-entity-listing  block=sw_settings_tag_list_grid
 ```

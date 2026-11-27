@@ -10,6 +10,34 @@ component sw-order-create-details-footer  public  js
   source src/module/sw-order/component/sw-order-create-details-footer/index.js
   template src/module/sw-order/component/sw-order-create-details-footer/sw-order-create-details-footer.html.twig
 
+inject
+  swOrderDetailOnLoadingChange
+
+props
+  cart: object
+  customer?: object  default=null
+  isCustomerActive?: boolean  default=false
+
+emits
+  loading-change(...args: any[])
+
+computed
+  context: any
+  currencyRepository: any
+  currentCurrencyId: any
+  defaultSalesChannel: any
+  isCartTokenAvailable: any
+  paymentMethodCriteria: any
+  salesChannelCriteria: any
+  salesChannelId: any
+
+methods
+  getCart(): any
+  getCurrency(): Promise<any>
+  updateContext(): any
+  updateCustomerContext(): any
+  updateOrderContext(): any
+
 blocks
   sw_order_create_details_footer
     sw_order_create_details_footer_currency

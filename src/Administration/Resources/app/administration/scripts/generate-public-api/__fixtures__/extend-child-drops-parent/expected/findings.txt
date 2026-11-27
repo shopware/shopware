@@ -1,7 +1,0 @@
-Public API check failed: 1 unannounced break.
-
-Break (1)
-  block_missing  component:sw-example-tile/block:sw_example_card_title  current, major
-    The block is gone, so plugin template overrides of sw_example_card_title render nothing.
-    Fix: pattern "Removal". Keep {% parent %} in sw_example_card_header, so the tile still inherits sw_example_card_title, or keep the block and mark it {# @deprecated tag:v6.8.0 #}.
-    At: src/app/component/base/sw-example-tile/sw-example-tile.html.twig:1

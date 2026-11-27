@@ -10,6 +10,52 @@ component sw-settings-tax-list  public  js
   source src/module/sw-settings-tax/page/sw-settings-tax-list/index.js
   template src/module/sw-settings-tax/page/sw-settings-tax-list/sw-settings-tax-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+  systemConfigApiService
+
+data
+  defaultTaxRateId: any
+  isLoading: any
+  naturalSorting: any
+  selectedDefaultTaxRateId: any
+  showDeleteModal: any
+  showSortingModal: any
+  sortBy: any
+  sortDirection: any
+  tax: any
+  taxProviders: any
+
+computed
+  noTaxProvidersFound: any
+  showChangePriority: any
+  taxProviderCriteria: any
+  taxProviderRepository: any
+  taxRepository: any
+
+methods
+  editLink(taxProviderId: any): any
+  getDefaultTaxRate(): Promise<any>
+  getLabel(tax: any): any
+  getList(): any
+  getTaxColumns(): any
+  invalidateTaxCaches(): any
+  isSelectedDefaultRate(tax: any): any
+  isShopwareDefaultTax(tax: any): any
+  loadTaxProviders(): any
+  onChangeLanguage(languageId: any): any
+  onChangeTaxProviderActive(taxProvider: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  onInlineEditCancel(promise: any): Promise<any>
+  onInlineEditSave(promise: any, tax: any): Promise<any>
+  setSelectedDefaultRate(checkBoxValue: any, id: any): any
+
 blocks
   sw_settings_list
     sw_settings_tax_index
@@ -17,19 +63,19 @@ blocks
         sw_settings_tax_list_content_card
           sw_settings_tax_list_grid
             sw_settings_tax_list_grid_action_modals
-              sw_settings_tax_list_delete_modal
-                sw_settings_tax_list_delete_modal_confirm_delete_text
-                sw_settings_tax_list_delete_modal_footer
-                  sw_settings_tax_list_delete_modal_cancel
-                  sw_settings_tax_list_delete_modal_confirm
+              sw_settings_tax_list_delete_modal  [scope: item]
+                sw_settings_tax_list_delete_modal_confirm_delete_text  [scope: item]
+                sw_settings_tax_list_delete_modal_footer  [scope: item]
+                  sw_settings_tax_list_delete_modal_cancel  [scope: item]
+                  sw_settings_tax_list_delete_modal_confirm  [scope: item]
             sw_settings_tax_list_grid_column_default
-              sw_settings_tax_list_grid_column_default_editor
-              sw_settings_tax_list_grid_column_default_label
+              sw_settings_tax_list_grid_column_default_editor  [scope: isInlineEdit, item]
+              sw_settings_tax_list_grid_column_default_label  [scope: isInlineEdit, item]
             sw_settings_tax_list_grid_column_default_name
             sw_settings_tax_list_grid_column_default_tax_rate
             sw_settings_tax_list_grid_columns_actions
-              sw_settings_tax_list_grid_columns_actions_delete
-              sw_settings_tax_list_grid_columns_actions_edit
+              sw_settings_tax_list_grid_columns_actions_delete  [scope: item]
+              sw_settings_tax_list_grid_columns_actions_edit  [scope: item]
       sw_settings_tax_list_search_bar
       sw_settings_tax_list_smart_bar_actions
         sw_settings_tax_list_smart_bar_actions_add
@@ -37,4 +83,7 @@ blocks
         sw_settings_tax_list_smart_bar_header_title
           sw_settings_tax_list_smart_bar_header_amount
           sw_settings_tax_list_smart_bar_header_title_text
+
+refs
+  swSettingsTaxGrid  -> sw-entity-listing  block=sw_settings_tax_list_grid
 ```

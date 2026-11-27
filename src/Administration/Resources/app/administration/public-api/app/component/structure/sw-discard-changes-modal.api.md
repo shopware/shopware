@@ -11,6 +11,14 @@ component sw-discard-changes-modal  private  js  [private]
   template src/app/component/structure/sw-discard-changes-modal/sw-discard-changes-modal.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  discard-changes(...args: any[])  [private]
+  keep-editing(...args: any[])  [private]
+
+methods
+  discardChanges(): any  [private]
+  keepEditing(): any  [private]
+
 blocks
   sw_discard_changes_modal  [private]
     sw_discard_changes_modal_footer  [private]

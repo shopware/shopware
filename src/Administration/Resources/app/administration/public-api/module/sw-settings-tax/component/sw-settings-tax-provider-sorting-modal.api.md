@@ -11,6 +11,33 @@ component sw-settings-tax-provider-sorting-modal  private  ts  [private]
   template src/module/sw-settings-tax/component/sw-settings-tax-provider-sorting-modal/sw-settings-tax-provider-sorting-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  taxProviders: EntityCollection<'tax_provider'>  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  modal-save(...args: any[])  [private]
+
+data
+  isSaving: any  [private]
+  originalTaxProviders: any  [private]
+  sortedTaxProviders: any  [private]
+
+computed
+  taxProviderRepository: Repository<'tax_provider'>  [private]
+
+methods
+  applyChanges(): void  [private]
+  closeModal(): void  [private]
+  onSort(sortedItems: EntityCollection<'tax_provider'>): void  [private]
+
 blocks
   sw_settings_tax_provider_sorting_modal  [private]
 ```

@@ -11,7 +11,28 @@ component sw-switch-field  private  js  [private]
   template src/app/component/form/sw-switch-field/sw-switch-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  checked?: boolean  [private]
+  deprecated?: boolean  default=false  [private]
+  value?: boolean  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_switch_field  [private]
+  default  {}  block=(root)  [private]
+
+computed
+  checkedValue: any  [private]
+
+methods
+  onChangeHandler(value: any): any  [private]
+
 blocks
   sw_switch_field  [private]
-  sw_switch_field_deprecated  [private]
+  sw_switch_field_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_switch_field -> (root)  [private]
 ```

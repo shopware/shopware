@@ -46,19 +46,7 @@
         "sw-condition-unit-menu > sw-popover": [
             "default"
         ],
-        "sw-context-button > sw-popover": [
-            "default"
-        ],
         "sw-media-field > sw-popover": [
-            "default"
-        ],
-        "sw-multi-tag-ip-select > sw-popover": [
-            "default"
-        ],
-        "sw-multi-tag-select > sw-popover": [
-            "default"
-        ],
-        "sw-select-result-list > sw-popover": [
             "default"
         ]
     },
@@ -331,42 +319,6 @@
             "default"
         ]
     },
-    "sw-promotion-discount-component.ruleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
-        "sw-promotion-discount-component": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-promotion-v2-cart-condition-form.ruleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
-        "sw-promotion-v2-cart-condition-form": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-promotion-v2-conditions.orderConditionsFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
-        "sw-promotion-v2-conditions": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-promotion-v2-conditions.personaRuleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
-        "sw-promotion-v2-conditions": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-promotion-v2-settings-rule-selection.ruleCriteria is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
-        "sw-promotion-v2-settings-rule-selection": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-promotion-v2-settings-trigger.ruleCriteria is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.": {
-        "sw-promotion-v2-settings-trigger": [
-            "default",
-            "major"
-        ]
-    },
     "sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated. Will be removed.": {
         "sw-sales-channel-create-base": [
             "default",
@@ -537,12 +489,6 @@
             "major"
         ],
         "src/module/sw-settings-number-range/page/sw-settings-number-range-detail/sw-settings-number-range-detail.spec.js": [
-            "default",
-            "major"
-        ]
-    },
-    "sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated and will be removed, use ruleFilterCriteria instead.": {
-        "sw-settings-shipping-price-matrix": [
             "default",
             "major"
         ]

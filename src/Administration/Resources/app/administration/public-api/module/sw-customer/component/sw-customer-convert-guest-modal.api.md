@@ -10,9 +10,34 @@ component sw-customer-convert-guest-modal  public  js
   source src/module/sw-customer/component/sw-customer-convert-guest-modal/index.js
   template src/module/sw-customer/component/sw-customer-convert-guest-modal/sw-customer-convert-guest-modal.html.twig
 
+mixins
+  notification
+
+inject
+  guestCustomerConvertService
+  loadCustomer
+
+props
+  customer: object
+
+emits
+  modal-close(...args: any[])
+
+data
+  password: any
+
+methods
+  convert(): Promise<any>
+  handleConvertErrors(error: any): any
+  onCancel(): any
+  sendRecoveryEmail(): Promise<any>
+
 blocks
   sw_customer_guest_convert_customer_modal
     sw_customer_guest_convert_customer_modal_content
       sw_customer_guest_convert_customer_modal_option_manual
       sw_customer_guest_convert_customer_modal_option_reset
+
+notes
+  unresolved computed ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].cust...
 ```

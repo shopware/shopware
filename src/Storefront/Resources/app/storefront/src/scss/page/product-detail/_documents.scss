@@ -1,0 +1,42 @@
+.product-detail-documents-list {
+    column-gap: $spacer-lg;
+    margin-bottom: 0;
+}
+
+.product-detail-documents-item {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacer-sm;
+    margin-bottom: $spacer-sm * 1.5;
+    break-inside: avoid;
+
+    .icon {
+        @include sw-icon-size(1.25rem);
+        flex-shrink: 0;
+        align-self: flex-start;
+        margin-top: ($font-size-base * $line-height-base - 1.25rem) / 2;
+
+        > svg {
+            top: 0;
+        }
+    }
+}
+
+.product-detail-documents-link {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.1875em;
+}
+
+@include media-breakpoint-up(md) {
+    .product-detail-documents-list {
+        columns: 2;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .product-detail-documents-list {
+        columns: 3;
+    }
+}

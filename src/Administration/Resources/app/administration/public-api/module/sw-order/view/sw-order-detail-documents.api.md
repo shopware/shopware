@@ -10,6 +10,25 @@ component sw-order-detail-documents  public  js
   source src/module/sw-order/view/sw-order-detail-documents/index.js
   template src/module/sw-order/view/sw-order-detail-documents/sw-order-detail-documents.html.twig
 
+inject
+  swOrderDetailOnLoadingChange
+  swOrderDetailOnSaveAndReload
+
+emits
+  save-and-reload(...args: any[])
+  update-loading(...args: any[])
+
+computed
+  isEditing: any
+  isLoading: any
+  isV68Active: any  [deprecated tag:v6.8.0]
+  order: any
+  versionContext: any
+
+methods
+  onUpdateLoading(loading: any): any
+  saveAndReload(): any
+
 blocks
   sw_order_detail_documents
     sw_order_detail_documents_card

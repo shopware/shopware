@@ -10,9 +10,27 @@ component sw-sales-channel-detail-product-comparison-preview  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/sw-sales-channel-detail-product-comparison-preview.html.twig
 
+props
+  content?: string  default=null
+  errors?: any[]  default=factory
+
+emits
+  close(...args: any[])
+
+computed
+  displayErrors: any
+  editorConfig: any
+
+methods
+  navigateToLine(line: any): any
+  onModalClose(): any
+
 blocks
   sw_sales_channel_detail_product_comparison_preview
     sw_sales_channel_detail_product_comparison_preview_modal
-      sw_sales_channel_detail_product_comparison_preview_modal_content
+      sw_sales_channel_detail_product_comparison_preview_modal_content  [after v-if]
       sw_sales_channel_detail_product_comparison_preview_modal_errors
+
+refs
+  previewEditor  -> sw-code-editor  block=sw_sales_channel_detail_product_comparison_preview_modal_content
 ```

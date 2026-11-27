@@ -9,4 +9,10 @@ component sw-vnode-renderer  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/utils/sw-vnode-renderer/index.js  [private]
   visibility-source export  [private]
+
+props
+  node: object  [private]
+
+notes
+  unresolved options ...(() => { return {}; })()  [private]
 ```

@@ -7,13 +7,13 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<array{svg: string|null, link: string|null}>>
+ * @extends StoreApiResponse<ArrayStruct<array{svg: string|null, link: string|null, text: string|null}>>
  */
 #[Package('inventory')]
 class LegalGuaranteeNoticeRouteResponse extends StoreApiResponse
 {
-    public function __construct(?string $svg, ?string $link)
+    public function __construct(?string $svg, ?string $link, ?string $text = null)
     {
-        parent::__construct(new ArrayStruct(['svg' => $svg, 'link' => $link], 'legal_guarantee_notice'));
+        parent::__construct(new ArrayStruct(['svg' => $svg, 'link' => $link, 'text' => $text], 'legal_guarantee_notice'));
     }
 }

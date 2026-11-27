@@ -10,6 +10,35 @@ component sw-settings-listing-default-sales-channel  public  js
   source src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel/index.js
   template src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel/sw-settings-listing-default-sales-channel.html.twig
 
+inject
+  repositoryFactory
+  systemConfigApiService
+
+props
+  isLoading?: boolean  default=factory
+
+data
+  configData: object
+    null: object
+          active: any
+          salesChannel: any
+          visibility: any
+  displayVisibilityDetail: any
+  isDefaultSalesChannelLoading: any
+  visibilityConfig: any
+
+computed
+  salesChannel: any
+  salesChannelRepository: any
+
+methods
+  closeAdvancedVisibility(): any
+  createdComponent(): any
+  displayAdvancedVisibility(): any
+  fetchSalesChannelsSystemConfig(): any
+  saveSalesChannelVisibilityConfig(): any
+  updateSalesChannel(salesChannel: any): any
+
 blocks
   sw_settings_listing_default_sales_channel
     sw_settings_listing_default_sales_channel_description
@@ -19,4 +48,10 @@ blocks
     sw_settings_listing_default_sales_channeld_setting
       sw_settings_listing_default_sales_channel_setting_active
       sw_settings_listing_default_sales_channel_setting_visibility
+
+crossings
+  v-if  sw_settings_listing_default_sales_channel_loader -> sw_settings_listing_default_sales_channel
+
+refs
+  visibilityConfig  -> sw-settings-listing-visibility-detail  block=sw_settings_listing_default_sales_channel_select_visibiliy_modal
 ```

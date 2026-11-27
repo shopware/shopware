@@ -10,21 +10,69 @@ component sw-settings-search-live-search  public  js
   source src/module/sw-settings-search/component/sw-settings-search-live-search/index.js
   template src/module/sw-settings-search/component/sw-settings-search-live-search/sw-settings-search-live-search.html.twig
 
+mixins
+  notification
+
+inject
+  liveSearchService
+  repositoryFactory
+
+props
+  currentSalesChannelId?: string  default=null
+  searchResults?: object  default=null
+  searchTerms?: string  default=null
+
+emits
+  live-search-results-change(...args: any[])
+  sales-channel-change(...args: any[])
+
+data
+  liveSearchResults: any
+  liveSearchTerm: any
+  productSortingKey: any
+  productSortings: any
+  salesChannelId: any
+  salesChannels: any  [deprecated tag:v6.8.0]
+  searchInProgress: any
+  showExampleModal: any
+
+computed
+  isSearchEnable: any
+  productSortingCriteria: any
+  productSortingRepository: any
+  products: any
+  salesChannelRepository: any  [deprecated tag:v6.8.0]
+  searchColumns: any
+  searchParams: any
+
+methods
+  changeSalesChannel(salesChannelId: any): any
+  createdComponent(): any
+  fetchProductSortings(): any
+  fetchSalesChannels(): any  [deprecated tag:v6.8.0]
+  onCloseExampleModal(): any
+  onShowExampleModal(): any
+  searchOnStorefront(): any
+
 blocks
   sw_settings_search_view_live_search_card
     sw_settings_search_view_live_search_input
-      sw_settings_search_view_live_search_search_icon_wrapper
-        sw_settings_search_view_live_search_search_icon
+      sw_settings_search_view_live_search_search_icon_wrapper  [deprecated tag:v6.8.0]
+        sw_settings_search_view_live_search_search_icon  [deprecated tag:v6.8.0]
     sw_settings_search_view_live_search_rebuild_index_row
       sw_settings_search_searchable_show_example_modal
       sw_settings_search_view_live_search_description
       sw_settings_search_view_live_search_show_example_link
     sw_settings_search_view_live_search_results
       sw_search_bar_results_empty_state
-      sw_settings_search_view_live_search_results_no_result
-      sw_settings_search_view_live_search_results_search_grid
+      sw_settings_search_view_live_search_results_no_result  [after v-if]
+      sw_settings_search_view_live_search_results_search_grid  [after v-if]
         sw_settings_search_view_live_search_results_search_grid_columns
           sw_settings_search_view_live_search_results_search_grid_name
           sw_settings_search_view_live_search_results_search_grid_score
     sw_settings_search_view_live_search_sales_channel
+
+crossings
+  v-if  sw_search_bar_results_empty_state -> sw_settings_search_view_live_search_results_search_grid
+  v-if  sw_settings_search_view_live_search_results_search_grid -> sw_settings_search_view_live_search_results_no_result
 ```

@@ -11,6 +11,13 @@ component sw-condition-line-item-goods-total  public  js
   source src/app/component/rule/condition-type/sw-condition-line-item-goods-total/index.js
   template src/app/component/rule/condition-type/sw-condition-line-item-goods-total/sw-condition-line-item-goods-total.html.twig
 
+data
+  showFilterModal: any
+
+computed
+  count: any
+  operators: any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]

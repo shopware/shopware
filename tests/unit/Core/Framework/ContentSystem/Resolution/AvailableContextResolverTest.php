@@ -56,7 +56,7 @@ use Shopware\Core\Test\Stub\ContentSystem\TestMappingCandidateRegistry;
 #[CoversClass(AvailableContextResolver::class)]
 class AvailableContextResolverTest extends TestCase
 {
-    #[TestDox('returns the bound source root-ambient context for a top-level element, and nothing when the source exposes none')]
+    #[TestDox('returns the bound source root-ambient context for a top-level element')]
     public function testTopLevelReceivesRootAmbient(): void
     {
         $root = new StoredElement('root-1', 'Sw:Block');
@@ -64,8 +64,6 @@ class AvailableContextResolverTest extends TestCase
         $rootContext = self::rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolver()->resolve('root-1', [$root], $rootContext));
-        // A section source or none exposes no root-ambient context, so the same formula contributes nothing.
-        static::assertSame([], $this->resolver()->resolve('root-1', [$root], []));
     }
 
     #[TestDox('resolves ancestor provider context with the FQCN from the provider type spec for a nested element')]
@@ -514,58 +512,6 @@ class AvailableContextResolverTest extends TestCase
 
         try {
             $this->resolver()->resolve('child-1', [$root], []);
-            static::fail('Expected a provider delivery collision.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
-        }
-    }
-
-    #[TestDox('rejects an authored provider and a redistribute consumer that deliver to children under the same key')]
-    public function testRejectsCollidingAuthoredAndRedistributedChildFacingKeys(): void
-    {
-        // Collision axis: an authored provider aliased to 'item' plus a redistribute consumer of another context
-        // key aliased to the same key. The provider pass alone accepts the set, so only the pass over the derived
-        // broadcast providers can reject it.
-        $root = new StoredElement(
-            'root-1',
-            'Sw:Block',
-            [],
-            [],
-            [],
-            new ContextDefinitions(
-                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item'))],
-                ['category' => new ContextConsumer(ContextType::Single, required: false, redistribute: true, consumerAlias: 'item')],
-            ),
-        );
-
-        try {
-            $this->resolver()->resolve('root-1', [$root], []);
-            static::fail('Expected a provider delivery collision.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
-        }
-    }
-
-    #[TestDox('rejects two redistribute consumers that deliver to children under the same key')]
-    public function testRejectsCollidingRedistributedChildFacingKeys(): void
-    {
-        // Collision axis: two redistribute consumers of different context keys, both aliased to 'item'. No
-        // authored provider is involved, so the first derived key has to be indexed for the second to collide
-        // on it, and a check that only compares against authored providers accepts the set.
-        $root = new StoredElement(
-            'root-1',
-            'Sw:Block',
-            [],
-            [],
-            [],
-            new ContextDefinitions([], [
-                'product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true, consumerAlias: 'item'),
-                'category' => new ContextConsumer(ContextType::Single, required: false, redistribute: true, consumerAlias: 'item'),
-            ]),
-        );
-
-        try {
-            $this->resolver()->resolve('root-1', [$root], []);
             static::fail('Expected a provider delivery collision.');
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());

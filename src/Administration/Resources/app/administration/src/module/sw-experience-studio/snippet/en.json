@@ -1252,6 +1252,7 @@
       "noAutoSpace": "Auto columns have no space left.",
       "width": "Width",
       "type": "Width type",
+      "typeAuto": "Auto",
       "columnActions": "Column actions",
       "move": "Move column",
       "moveUp": "Move up",

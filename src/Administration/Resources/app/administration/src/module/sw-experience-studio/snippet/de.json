@@ -1252,6 +1252,7 @@
       "noAutoSpace": "Für Spalten mit automatischer Breite bleibt kein Platz.",
       "width": "Breite",
       "type": "Breitentyp",
+      "typeAuto": "Auto",
       "columnActions": "Spaltenaktionen",
       "move": "Spalte verschieben",
       "moveUp": "Nach oben verschieben",

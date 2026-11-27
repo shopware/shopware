@@ -336,7 +336,7 @@ export default Shopware.Component.wrapComponentConfig({
                 (column, position) => position !== index && column.type !== 'px',
             );
             return [
-                { value: 'auto', label: 'Auto' },
+                { value: 'auto', label: this.$t('sw-experience-studio.gridEditor.typeAuto') },
                 { value: 'px', label: 'px', disabled: !otherFlexible },
                 { value: 'percent', label: '%' },
                 { value: 'fraction', label: '/12' },

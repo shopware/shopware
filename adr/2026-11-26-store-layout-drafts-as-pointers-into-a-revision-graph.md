@@ -114,6 +114,7 @@ flowchart RL
 A draft creates at most one revision of its own: its edited `head`.
 `base` and `liveAtOpen` point at revisions that already existed and keep them for as long as the draft is open.
 They differ only for a rollback and for a draft branched from another draft's `head`, whose `base` is that `head`.
+`base` keeps that origin after the draft is edited, so a client can tell a rollback from a draft whose live state moved on.
 
 ### The `layout` column stays the source of truth for live
 
@@ -199,27 +200,21 @@ A draft in a response is `{id, name, baseRevisionId, headRevisionId, liveAtOpenR
 
 ### Decided against
 
-* **Dropping `base`, since it equals `liveAtOpen` for a normal draft.**
-  For a rollback or a branched draft, `base` is the only record of the revision it started from; once the draft is edited and compaction runs, that origin cannot be reconstructed.
-  A client needs it to tell a rollback from a draft whose live state moved on, and a diff of what a draft changed starts from it.
 * **DAL versioning of `content_layout`.**
-  DAL versions expire after `shopware.dal.versioning.expire_days`, merging replays the last writer, and a version row carries no revision history.
+  It was the first prototype: a draft was a DAL version of the layout row, and publishing merged it into the live version.
+  A merge replays the writes recorded for the version onto the live row without comparing them with its current state.
+  The tree is one column, so the merge replaces the whole live tree, including a change made after the draft was opened.
+  A scheduled task deletes versions and their recorded writes after `shopware.dal.versioning.expire_days`, 30 by default; an older draft can no longer be merged.
+  The DAL has no operation that restores an earlier state of the live row, and a version does not record what it was created from, which the publish rule needs.
 * **The whole revision graph in one JSON column of `content_layout`.**
-  Every save decoded and rewrote every tree of the layout, and listing drafts read them all.
-  One row per revision writes one row per save and lists metadata only.
-* **A separate publication table.**
-  The live pointer on the revision row, made unique by `live_content_layout_id`, already says which revision is live.
-* **A route that saves a whole tree into a draft.**
-  It duplicated the persisted mutation routes; a client such as a copilot edits a draft through the same routes as the Administration.
+  It was the second prototype: all revisions, all drafts and the published pointer of a layout were one JSON value.
+  Every save of any draft decoded and rewrote that value, including the trees of every other author's draft, and listing the drafts decoded all trees.
+  With one row per revision, a save inserts one row and listing reads no tree.
 * **Drafts that store their tree directly and are overwritten on save.**
   The publish rule needs the draft `head` as a node in the revision graph to decide whether the draft contains the live revision.
-* **Keeping intermediate draft revisions, for example the last 50 per draft.**
-  Nothing reads them today: there is no server-side undo and no route returns a single revision.
-  If server-side undo is built, it becomes one more rule in the kept set of `compaction()`, without a schema change.
-* **Retention by age through a scheduled task.**
-  With a full tree per edit, storage within any age window is unbounded, and a count is easier to explain to authors.
-* **Using revisions as an activity log.**
-  A revision stores the resulting tree, not the operation, the affected elements or the draft it belonged to.
+* **Keeping every revision of a draft, for undo or a draft history.**
+  The graph kept them until compaction was added, but nothing reads them: there is no server-side undo and no route returns a single revision.
+  Server-side undo would be one more rule in the kept set of `compaction()`, without a schema change.
 
 ## Consequences
 

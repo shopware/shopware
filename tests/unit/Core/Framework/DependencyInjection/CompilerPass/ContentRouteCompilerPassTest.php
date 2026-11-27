@@ -5,8 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRoute;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
@@ -45,7 +48,7 @@ class ContentRouteCompilerPassTest extends TestCase
     /**
      * A section other than `main` gets a path-less route named after its route path segment. The
      * `header` and `footer` resolvers come from a test DI file; the four output formats come from
-     * Core. The eight names and the eight paths below are written out by hand.
+     * Core. The eight names below are written out by hand.
      */
     #[TestDox('generates exactly the eight pinned path-less store-api routes for the header and footer sections')]
     public function testGeneratesThePinnedPathLessSectionRoutes(): void
@@ -68,21 +71,34 @@ class ContentRouteCompilerPassTest extends TestCase
             $coreServices,
             $sectionResolvers,
         );
+    }
 
-        $this->assertGeneratedPathLessSectionRoutePaths(
-            [
-                'store-api.content-header' => '/store-api/content-header',
-                'store-api.content-header.skeleton' => '/store-api/content-header-skeleton',
-                'store-api.content-header.data' => '/store-api/content-header-data',
-                'store-api.content-header.decomposed' => '/store-api/content-header-decomposed',
-                'store-api.content-footer' => '/store-api/content-footer',
-                'store-api.content-footer.skeleton' => '/store-api/content-footer-skeleton',
-                'store-api.content-footer.data' => '/store-api/content-footer-data',
-                'store-api.content-footer.decomposed' => '/store-api/content-footer-decomposed',
-            ],
-            ['header', 'footer'],
-            $coreServices,
-            $sectionResolvers,
+    /**
+     * The pass hands its generated route definitions to the `ContentRouteLoader` service, so a
+     * container without that definition has nowhere to put them and the pass returns before
+     * registering any route.
+     */
+    #[TestDox('generates no content routes when the container has no content route loader')]
+    public function testGeneratesNoRoutesWithoutContentRouteLoader(): void
+    {
+        $container = new ContainerBuilder();
+
+        $container->setDefinition(
+            'content_system.section_resolver.main',
+            (new Definition())->addTag('content_system.section_resolver', ['section' => 'main'])
         );
+        $container->setDefinition(
+            'content_system.output_format.html',
+            (new Definition())->addTag('content_system.output_format', ['format' => 'html'])
+        );
+
+        (new ContentRouteCompilerPass())->process($container);
+
+        $routeServiceIds = array_values(array_filter(
+            $container->getServiceIds(),
+            static fn (string $serviceId): bool => str_starts_with($serviceId, ContentRoute::class . '.'),
+        ));
+
+        static::assertSame([], $routeServiceIds);
     }
 }

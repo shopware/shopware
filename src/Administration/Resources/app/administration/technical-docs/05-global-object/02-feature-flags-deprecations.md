@@ -239,6 +239,8 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
     Shopware.Feature.silence('V6_8_0_0', () => {
         Shopware.Component.override('sw-example', { methods: { oldMethod() { /* … */ } } });
     });
+} else {
+    Shopware.Component.override('sw-example', { methods: { newMethod() { /* … */ } } });
 }
 ```
 

@@ -1,12 +1,12 @@
 # Caching
 
-Caching covers when the HTTP cache may store a render and which component records the cache tags of the values the render shows.
+The rules in this area state when the HTTP cache may store a render and which component records the cache tags of its values.
 
-## A render is cached only when a recorded tag covers every value it shows
+## The HTTP cache stores a render only when a recorded tag covers every value it shows
 
 A cache tag covers a value when every change of that value invalidates the tag.
-A render that shows one value without a covering tag is not cached.
-`RenderingCacheContext::disable()` marks the render as uncacheable, and no later result reverses it.
+The module marks a render that shows one value without a covering tag as uncacheable.
+`RenderingCacheContext::disable()` sets that mark on the [cache context](README.md#glossary), and no later result reverses it.
 An empty result is a value.
 An element renders differently when its loader found nothing, and that difference depends on what the loader requested.
 The empty result of a lookup therefore needs a covering tag like a loaded value does.
@@ -41,15 +41,14 @@ In code:
 
 A data loader states the cache dependency of its data in the `ContentDataLoaderResult` it returns.
 A mapping source provider, a registry override of `resolveAdmittedSource()` and a listener write to the `RenderingCacheContext` they receive.
-A specification source returns the tags of its root source from `resolveCacheTags()`.
+A specification source returns the tags of its [root source](README.md#glossary) from `resolveCacheTags()`.
 A loader returns `ContentDataLoaderResult::cachedExternally()` only on a path where a delegate ran.
 The delegate then owns the caching of that data.
 The module relies on the delegate and does not check or test the delegate's invalidation.
 
 Why: Only the component that reads a value has the identity of the data it read.
 No later step of the render path can detect a value that entered the render without a tag.
-
-Decided against: A check in the module of the tags a delegate records, because the invalidation of a platform route belongs to the platform.
+The invalidation of a platform route belongs to the platform.
 
 In code:
 
@@ -62,7 +61,7 @@ In code:
 - No test pins that a listener or a mapping source provider disables the cache context.
 - See [custom-loaders.md](../../Hydration/DataLoader/docs/custom-loaders.md#cache-awareness).
 
-## An invalidation covers the state before and the state after a write
+## A write that moves a reference invalidates the tags of both targets
 
 A write that moves a reference from one entity to another changes the renders of both entities.
 The invalidation of that write invalidates the tags of the previous target and the tags of the new target.

@@ -44,8 +44,9 @@
 - language map: the stored value of a translatable property, one entry per language id: [translation.md](translation.md#translations-live-inline-in-the-element-tree-as-language-maps).
 - language reduction: the FULL mode step of `StoredTreePreparer` that replaces each language map with one entry: [translation.md](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map).
 - loss, dropped, orphaned: what a mutation response reports, a discarded property or wiring key (dropped) or a detached child it returns (orphaned): [failure-and-loss.md](failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).
-- covering tag: a recorded cache tag that every change of a value invalidates: [caching.md](caching.md#a-render-is-cached-only-when-a-recorded-tag-covers-every-value-it-shows).
-- no lookup, found nothing: a loader result without data, returned before any lookup (no lookup) or after a lookup that returned no data (found nothing): [caching.md](caching.md#a-render-is-cached-only-when-a-recorded-tag-covers-every-value-it-shows).
+- cache context: the `RenderingCacheContext` of one render, which collects the cache tags the render path adds and can mark the render as uncacheable.
+- covering tag: a recorded cache tag that every change of a value invalidates: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-a-recorded-tag-covers-every-value-it-shows).
+- no lookup, found nothing: a loader result without data, returned before any lookup (no lookup) or after a lookup that returned no data (found nothing): [caching.md](caching.md#the-http-cache-stores-a-render-only-when-a-recorded-tag-covers-every-value-it-shows).
 
 In this module, "context" is the per-element delivery map. In the platform, `Context` is the Shopware context object.
 

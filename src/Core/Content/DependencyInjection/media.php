@@ -126,7 +126,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // region Entity definitions
     $services->set(MediaDefinition::class)
-        ->args([param('shopware.media.remote_thumbnails.enable')])
+        ->call('setRemoteThumbnailsEnabled', [param('shopware.media.remote_thumbnails.enable')])
         ->tag('shopware.entity.definition')
         ->tag('shopware.entity.hookable');
 

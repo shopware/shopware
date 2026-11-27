@@ -59,6 +59,14 @@ class TwigVariableParser
             if ($node instanceof NameExpression) {
                 $name = $node->getAttribute('name');
 
+                if (isset($aliases[$name]) && \is_array($aliases[$name])) {
+                    foreach ($aliases[$name] as $path) {
+                        $variables[$path] = $path;
+                    }
+
+                    continue;
+                }
+
                 if (isset($aliases[$name])) {
                     $name = $aliases[$name];
                 }
@@ -78,6 +86,21 @@ class TwigVariableParser
             }
 
             if ($node instanceof GetAttrExpression) {
+                $root = $this->getRootNode($node);
+                $rootName = $root instanceof NameExpression ? $root->getAttribute('name') : null;
+
+                if (\is_string($rootName) && isset($aliases[$rootName]) && \is_array($aliases[$rootName])) {
+                    // the root variable may resolve to several paths: resolve the access against each of them
+                    foreach ($aliases[$rootName] as $aliasPath) {
+                        $path = implode('.', $this->getVariables($node, [$rootName => $aliasPath] + $aliases));
+                        if ($path !== '') {
+                            $variables[$path] = $path;
+                        }
+                    }
+
+                    continue;
+                }
+
                 $path = implode('.', $this->getVariables($node, $aliases));
                 if ($path !== '') {
                     $variables[$path] = $path;
@@ -87,28 +110,30 @@ class TwigVariableParser
             }
 
             if ($node instanceof ForNode) {
-                $target = implode('.', $this->getVariables($node->getNode('seq'), $aliases));
                 $source = $node->getNode('value_target')->getAttribute('name');
 
-                if ($target === '' && $node->getNode('seq')->hasAttribute('name')) {
-                    $in = $node->getNode('seq')->getAttribute('name');
-                    if (\is_string($in) && isset($aliases[$in])) {
-                        $target = $aliases[$in];
-                    }
-                }
+                // The sequence can be an expression (e.g. filtered or conditional) over a variable with several paths.
+                $targets = $this->getVariables([$node->getNode('seq')], $aliases);
 
-                $aliases[$source] = $target;
+                $aliases[$source] = \count($targets) <= 1 ? (string) (reset($targets) ?: '') : array_values($targets);
             }
 
             if ($node instanceof SetNode) {
                 $names = $node->getNode('names');
                 $values = $node->getNode('values');
 
-                $resolvedValue = implode('.', $this->getVariables($values, $aliases));
+                $resolvedValues = $this->getVariables($values, $aliases);
 
                 foreach ($names as $nameNode) {
                     $varName = $nameNode->getAttribute('name');
-                    $aliases[$varName] = $resolvedValue;
+
+                    // Several paths (e.g. a conditional expression or a fallback) must not be glued together into
+                    // one bogus association: keep each path, later accesses are resolved against every one of them.
+                    if (\count($resolvedValues) <= 1) {
+                        $aliases[$varName] = (string) (reset($resolvedValues) ?: '');
+                    } else {
+                        $aliases[$varName] = array_values($resolvedValues);
+                    }
                 }
             }
 
@@ -118,5 +143,14 @@ class TwigVariableParser
         }
 
         return $variables;
+    }
+
+    private function getRootNode(Node $node): Node
+    {
+        while ($node instanceof GetAttrExpression) {
+            $node = $node->getNode('node');
+        }
+
+        return $node;
     }
 }

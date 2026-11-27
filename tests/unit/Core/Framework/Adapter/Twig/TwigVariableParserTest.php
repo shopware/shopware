@@ -107,4 +107,132 @@ TWIG;
 
         static::assertSame($expected, $variables);
     }
+
+    public function testParserDoesNotConcatenateConditionalSetValues(): void
+    {
+        $template = <<<TWIG
+{% set url = product.cover ? product.cover.media.url : '' %}{{ url }}
+{% for option in product.options %}
+    {% set group = option.group ? option.group.name : '' %}{{ group }}
+{% endfor %}
+
+TWIG;
+
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
+
+        $variables = $parser->parse($template);
+
+        $expected = [
+            'product.cover',
+            'product.cover.media.url',
+            'product.options',
+            'product.options.group',
+            'product.options.group.name',
+        ];
+
+        sort($expected);
+        sort($variables);
+
+        static::assertSame($expected, $variables);
+    }
+
+    public function testParserKeepsAllPathsOfFallbackSetValues(): void
+    {
+        $template = <<<TWIG
+{% set media = product.cover.media ?? product.manufacturer.media %}{{ media.mediaFolder.name }}
+
+TWIG;
+
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
+
+        $variables = $parser->parse($template);
+
+        $expected = [
+            'product.cover.media',
+            'product.cover.media.mediaFolder.name',
+            'product.manufacturer.media',
+            'product.manufacturer.media.mediaFolder.name',
+        ];
+
+        sort($expected);
+        sort($variables);
+
+        static::assertSame($expected, $variables);
+    }
+
+    public function testParserResolvesForLoopOverFallbackSetValuesAgainstEachPath(): void
+    {
+        $template = <<<TWIG
+{% set media = product.cover.media ?? product.manufacturer.media %}{% for f in media.thumbnails %}{{ f.url }}{% endfor %}
+
+TWIG;
+
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
+
+        $variables = $parser->parse($template);
+
+        $expected = [
+            'product.cover.media',
+            'product.cover.media.thumbnails',
+            'product.cover.media.thumbnails.url',
+            'product.manufacturer.media',
+            'product.manufacturer.media.thumbnails',
+            'product.manufacturer.media.thumbnails.url',
+        ];
+
+        sort($expected);
+        sort($variables);
+
+        static::assertSame($expected, $variables);
+    }
+
+    public function testParserResolvesForLoopOverFilteredFallbackSetValuesAgainstEachPath(): void
+    {
+        $template = <<<TWIG
+{% set media = product.cover.media ?? product.manufacturer.media %}{% for t in media.thumbnails|slice(0, 1) %}{{ t.width }}{% endfor %}
+
+TWIG;
+
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
+
+        $variables = $parser->parse($template);
+
+        $expected = [
+            'product.cover.media',
+            'product.cover.media.thumbnails',
+            'product.cover.media.thumbnails.width',
+            'product.manufacturer.media',
+            'product.manufacturer.media.thumbnails',
+            'product.manufacturer.media.thumbnails.width',
+        ];
+
+        sort($expected);
+        sort($variables);
+
+        static::assertSame($expected, $variables);
+    }
+
+    public function testParserResolvesForLoopOverMultiPathVariable(): void
+    {
+        $template = <<<TWIG
+{% set items = product.options ?? product.parent.options %}{% for o in items %}{{ o.group.name }}{% endfor %}
+
+TWIG;
+
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
+
+        $variables = $parser->parse($template);
+
+        $expected = [
+            'product.options',
+            'product.options.group.name',
+            'product.parent.options',
+            'product.parent.options.group.name',
+        ];
+
+        sort($expected);
+        sort($variables);
+
+        static::assertSame($expected, $variables);
+    }
 }

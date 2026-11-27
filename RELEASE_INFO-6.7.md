@@ -936,6 +936,13 @@ The update changes the default tax rules of Czechia, Estonia, Finland, Lithuania
 Only rules of the default tax groups that still have their original rate and were never edited are changed.
 Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
 
+### Twig `set` variables with several paths no longer create recursive associations
+
+The Twig variable parser used for product export and SEO URL templates joined all paths of a `{% set %}` value into one alias.
+A template such as `{% set url = product.cover ? product.cover.media.url : '' %}` therefore requested non-existing, recursive associations like `product.cover.product.cover.media.url`, which made the export slow and memory hungry.
+A `{% set %}` variable keeps every path of its value now, and later accesses and `{% for %}` sequences resolve against each one, so fallbacks like `product.cover.media ?? product.manufacturer.media` still load their nested relations.
+Template authors don't need to change anything.
+
 ## API
 
 ### Checkout draft route

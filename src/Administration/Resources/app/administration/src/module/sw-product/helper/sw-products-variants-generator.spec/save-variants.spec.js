@@ -30,7 +30,7 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         generator.syncService = { sync };
 
         const onRejected = jest.fn();
-        generator.saveVariants({ deleteQueue: [], createQueue: createVariants(12) }).catch(onRejected);
+        generator.saveVariants({ deleteQueue: [], createQueue: createVariants(150) }).catch(onRejected);
         await jest.advanceTimersByTimeAsync(15000);
 
         expect(onRejected).toHaveBeenCalledWith(error);
@@ -38,14 +38,19 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         expect(sync).toHaveBeenCalledTimes(4);
     });
 
-    it('should send indexing-behavior as a header with every request', async () => {
+    it('should send chunks of 100 variants with indexing-behavior as a header', async () => {
         const generator = new VariantsGenerator();
         const sync = jest.fn(() => Promise.resolve({ data: {}, deleted: {} }));
         generator.syncService = { sync };
 
-        await generator.saveVariants({ deleteQueue: ['old-variant'], createQueue: createVariants(12) });
+        await generator.saveVariants({ deleteQueue: ['old-variant'], createQueue: createVariants(250) });
 
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(sync.mock.calls.map(([[operation]]) => [operation.action, operation.payload.length])).toEqual([
+            ['delete', 1],
+            ['upsert', 100],
+            ['upsert', 100],
+            ['upsert', 50],
+        ]);
         sync.mock.calls.forEach(([, params, headers]) => {
             expect(params).toEqual({});
             expect(headers).toEqual({ 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' });

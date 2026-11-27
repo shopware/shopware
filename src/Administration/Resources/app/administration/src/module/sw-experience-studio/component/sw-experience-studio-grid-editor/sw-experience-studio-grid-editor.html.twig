@@ -64,7 +64,7 @@
                             :model-value="column.value === null ? null : Number(column.value)"
                             :options="fractionOptions"
                             :disabled="!allowEdit"
-                            :aria-label="$t('sw-experience-studio.gridEditor.width')"
+                            :label="`${$t('sw-experience-studio.gridEditor.width')} ${index + 1}`"
                             @update:model-value="setColumnValue(index, $event)"
                         />
                         <mt-select
@@ -76,7 +76,7 @@
                             :model-value="column.type"
                             :options="typeOptions(index)"
                             :disabled="!allowEdit"
-                            :aria-label="$t('sw-experience-studio.gridEditor.type')"
+                            :label="`${$t('sw-experience-studio.gridEditor.type')} ${index + 1}`"
                             @update:model-value="setColumnType(index, $event)"
                         >
                             <template #result-label-property="{ item }">
@@ -90,7 +90,7 @@
                                 variant="tertiary"
                                 size="small"
                                 square
-                                :aria-label="$t('sw-experience-studio.gridEditor.columnActions')"
+                                :aria-label="`${$t('sw-experience-studio.gridEditor.columnActions')} ${index + 1}`"
                                 @mousedown.stop
                                 @touchstart.stop
                             >

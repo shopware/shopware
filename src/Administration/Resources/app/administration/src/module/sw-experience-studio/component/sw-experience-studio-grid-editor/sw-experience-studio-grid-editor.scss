@@ -90,8 +90,14 @@
         width: 100%;
     }
 
-    &__column-width--numeric > .mt-field__label {
-        display: none;
+    // WHY: Each column control keeps its numbered label as its accessible name without showing it.
+    &__column-fields .mt-field__label {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
     }
 
     &__handle {

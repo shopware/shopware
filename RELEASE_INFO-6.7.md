@@ -278,6 +278,15 @@ Check import files that relied on `0` being ignored.
 The platform's development dependency on PHPUnit now allows version 13 next to version 11.
 A fresh `composer install` on PHP 8.4.1 or newer resolves PHPUnit 13, older PHP versions keep PHPUnit 11.
 If your extension's test pipeline runs the platform's `vendor/bin/phpunit`, make the tests pass on both versions, or require the PHPUnit version you expect in your extension and use that installation.
+
+Tests written for PHPUnit 11 typically break on PHPUnit 13 in three ways:
+
+- Docblock annotations such as `@dataProvider`, `@covers` or `@group` are ignored since PHPUnit 12.
+  Use the PHP attributes instead, which PHPUnit 11 supports as well.
+- Mock builder methods that PHPUnit 11 deprecated are removed, for example `addMethods()`, `getMockForAbstractClass()` and `getMockForTrait()`.
+- New notices, warnings and deprecations are reported, for example for a mock object without expectations, for `with()` without `expects()`, and for a data set with more arguments than the test method accepts.
+  PHPUnit 13 fails a run on its own warnings by default, and on notices and deprecations with `--fail-on-phpunit-notice` and `--fail-on-phpunit-deprecation`.
+
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.

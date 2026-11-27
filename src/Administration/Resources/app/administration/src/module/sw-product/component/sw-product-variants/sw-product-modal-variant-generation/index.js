@@ -377,11 +377,10 @@ export default {
                 }),
             };
 
+            const originalOptionIds = new Set(this.originalConfiguratorSettings.map((setting) => setting.optionId));
             const configuratorSettings = [
                 ...this.originalConfiguratorSettings,
-                ...this.product.configuratorSettings.filter((setting) => {
-                    return !this.originalConfiguratorSettings.some((original) => original.optionId === setting.optionId);
-                }),
+                ...this.product.configuratorSettings.filter((setting) => !originalOptionIds.has(setting.optionId)),
             ];
 
             this.variantsGenerator

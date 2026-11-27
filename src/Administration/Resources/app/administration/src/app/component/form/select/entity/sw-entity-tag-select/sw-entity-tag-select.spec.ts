@@ -63,4 +63,29 @@ describe('src/app/component/form/select/entity/sw-entity-tag-select', () => {
         expect(() => filterSearchGeneratedTags.call(context)).not.toThrow();
         expect(context.resultCollection).toBeNull();
     });
+
+    it('should not add a tag for a term that changed during the search', async () => {
+        const { search } = swEntityTagSelect.methods as {
+            search: (this: Record<string, unknown>) => void;
+        };
+        const repository = { create: jest.fn() };
+        const context: Record<string, unknown> = {
+            searchTerm: 'Sum',
+            tagExists: false,
+            resultCollection: [],
+            filterSearchGeneratedTags: jest.fn(),
+            checkTagExists: jest.fn(() => Promise.resolve()),
+            $super: jest.fn(() => {
+                context.searchTerm = 'Sal';
+                return Promise.resolve();
+            }),
+            repository,
+        };
+
+        search.call(context);
+        await flushPromises();
+
+        expect(repository.create).not.toHaveBeenCalled();
+        expect(context.resultCollection).toEqual([]);
+    });
 });

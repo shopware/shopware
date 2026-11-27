@@ -4,7 +4,7 @@
  * What the readers of registered units share: finding the registrations, and the unit that a registration and
  * the object behind it give, with its files, its visibility and its markers.
  */
-import ts from 'typescript';
+import type ts from 'typescript';
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import { existingIn } from '../model/flag-states';
 import type { FlagContext, FlagStates } from '../model/flag-states';
@@ -17,7 +17,8 @@ import type { Declarations, Located } from './declarations';
 import { guardStates } from './flag-conditions';
 import { markersIn } from './member-reading';
 import { isScriptFile, scriptLanguage, withoutScriptExtension } from './modules';
-import { collect, declarationDoc, isPrivateDoc, lineOf, statementOf, withoutTypeSyntax } from './script-nodes';
+import type { ResolvedObject } from './resolved-object';
+import { collect, declarationDocs, isPrivateDoc, lineOf } from './script-nodes';
 import type { MethodCall } from './script-nodes';
 
 /**
@@ -92,51 +93,56 @@ export function findRegistrations<Registration extends { name: string }>(
 /**
  * @private
  *
- * What a reader found behind a registration.
- *
- * - `home`: the class, object literal or function that holds the members, `null` when there is none to point to.
- * - `holder`: the declaration whose comment is about the unit as a whole, such as its class or the constant
- *   that holds a store.
- * - `sections`: the lines of the places that hold the members of a kind, where they differ from `home`.
+ * What the comments about a unit as a whole say.
  */
-export interface RegisteredObject {
-    members: Member[];
-    notes: string[];
-    home: Located | null;
-    holder: Located | null;
-    sections?: UnitMembers['sections'];
-}
-
-/** `export default exampleStore;` below the declaration. */
-function defaultExportOf({ node, source }: Located): ts.Statement | undefined {
-    const name = (node as { name?: ts.Node }).name;
-
-    return name === undefined || !ts.isIdentifier(name)
-        ? undefined
-        : source.statements.filter(ts.isExportAssignment).find(({ expression }) => {
-              const exported = withoutTypeSyntax(expression);
-
-              return ts.isIdentifier(exported) && exported.text === name.text;
-          });
-}
-
-/** What the comments about a unit as a whole say. */
-interface UnitDoc {
+export interface UnitDoc {
     isPrivate: boolean;
     markers: Marker[];
 }
 
-/** The comment directly above the holder, and the one above its default export, where the sources often write it. */
-function unitDoc(holder: Located | null): UnitDoc {
-    const docs =
-        holder === null
-            ? []
-            : [statementOf(holder.node), defaultExportOf(holder)]
-                  .filter((statement) => statement !== undefined)
-                  .map((statement) => declarationDoc(statement, holder.source));
+/**
+ * @private
+ *
+ * What the comments of the declarations say about the unit they hold: the comment directly above each one, and
+ * the one above its default export, where the sources often write it. `null` is no declaration.
+ */
+export function unitDoc(...holders: (Located | null)[]): UnitDoc {
+    const docs = holders.flatMap((holder) => (holder === null ? [] : declarationDocs(holder.node, holder.source)));
 
     return { isPrivate: docs.some(isPrivateDoc), markers: docs.flatMap(markersIn) };
 }
+
+/**
+ * @private
+ *
+ * What the comments say about an object, whatever kind of unit it is: those of its class, its function or its
+ * literal, and those of the function that returns the literal.
+ */
+export function objectDoc(object: ResolvedObject): UnitDoc {
+    if (object.kind === 'nothing' || object.kind === 'unresolved') {
+        return unitDoc();
+    }
+
+    return object.kind === 'object' ? unitDoc(object.declaration, object.factory) : unitDoc(object.declaration);
+}
+
+/**
+ * @private
+ *
+ * What a unit is made of, wherever its reader found it.
+ *
+ * - `doc`: whether the unit is private, and its markers. `privateThrough` says where a private unit gets that from.
+ * - `sections`: the lines of the places that hold the members of a kind, where they differ from `at`.
+ */
+export type UnitParts = Pick<
+    RegisteredUnit,
+    'name' | 'states' | 'registeredIn' | 'reportedIn' | 'source' | 'at' | 'notes'
+> & {
+    members: Member[];
+    doc: UnitDoc;
+    privateThrough: Exclude<RegisteredUnit['visibilitySource'], 'default'>;
+    sections: UnitMembers['sections'];
+};
 
 /** `src/core/service/api/cache.api.service.js` gives `core/service/api/cache.api.service`. */
 function snapshotFile(source: string): string {
@@ -146,30 +152,46 @@ function snapshotFile(source: string): string {
 /**
  * @private
  *
- * The unit of a registration with the object behind it. An object without a home has the registration as its
- * source. The members exist in the flag states of the registration at most.
+ * The unit of its parts. The members exist in the flag states of the unit at most.
  */
-export function registeredUnit(
-    registration: Registered,
-    { members, notes, home, holder, sections }: RegisteredObject,
-): RegisteredUnit {
-    const { isPrivate, markers } = unitDoc(holder);
-    const source = home?.source.fileName ?? registration.registeredIn;
-    const at: SourceLine = home === null ? registration.at : lineOf(home.node, home.source);
-
+export function unitOf({ members, doc, privateThrough, sections, ...unit }: UnitParts): RegisteredUnit {
     return {
-        name: registration.name,
-        language: scriptLanguage(source),
-        visibility: isPrivate ? 'private' : 'public',
-        visibilitySource: isPrivate ? 'export' : 'default',
-        markers,
-        registeredIn: registration.registeredIn,
-        source,
-        at,
-        file: snapshotFile(source),
-        states: registration.states,
-        members: existingIn(registration.states, members),
-        notes,
-        sections: { ...Object.fromEntries(DECLARED_KINDS.map((kind) => [kind, at])), ...sections },
+        ...unit,
+        language: scriptLanguage(unit.source),
+        visibility: doc.isPrivate ? 'private' : 'public',
+        visibilitySource: doc.isPrivate ? privateThrough : 'default',
+        markers: doc.markers,
+        file: snapshotFile(unit.reportedIn),
+        members: existingIn(unit.states, members),
+        sections: { ...Object.fromEntries(DECLARED_KINDS.map((kind) => [kind, unit.at])), ...sections },
     };
+}
+
+/**
+ * @private
+ *
+ * What a reader found behind a registration. `home` is the class, object literal or function that holds the
+ * members, `null` when there is none to point to.
+ */
+export type RegisteredObject = Pick<UnitParts, 'members' | 'notes' | 'doc' | 'sections'> & { home: Located | null };
+
+/**
+ * @private
+ *
+ * The unit of a registration with the object behind it, in the report of its source. An object without a home
+ * has the registration as its source.
+ */
+export function registeredUnit(registration: Registered, { home, ...object }: RegisteredObject): RegisteredUnit {
+    const source = home?.source.fileName ?? registration.registeredIn;
+
+    return unitOf({
+        ...object,
+        name: registration.name,
+        states: registration.states,
+        registeredIn: registration.registeredIn,
+        reportedIn: source,
+        source,
+        at: home === null ? registration.at : lineOf(home.node, home.source),
+        privateThrough: 'export',
+    });
 }

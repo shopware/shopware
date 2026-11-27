@@ -16893,12 +16893,12 @@
             "visibility": "public"
         },
         "entityFactory": {
-            "file": "app/init/repository.init",
+            "file": "core/data/entity-factory.data",
             "visibility": "public"
         },
         "entityHydrator": {
-            "file": "app/init/repository.init",
-            "visibility": "public"
+            "file": "core/data/entity-hydrator.data",
+            "visibility": "private"
         },
         "entityMappingService": {
             "file": "core/service/entity-mapping.service",
@@ -16941,8 +16941,8 @@
             "visibility": "private"
         },
         "filterFactory": {
-            "file": "app/init/filter-factory.init",
-            "visibility": "public"
+            "file": "core/data/filter-factory.data",
+            "visibility": "private"
         },
         "filterService": {
             "file": "app/service/filter.service",
@@ -17129,7 +17129,7 @@
             "visibility": "public"
         },
         "repositoryFactory": {
-            "file": "app/init/repository.init",
+            "file": "core/data/repository-factory.data",
             "visibility": "public"
         },
         "ruleConditionDataProviderService": {
@@ -17480,6 +17480,216 @@
         },
         "whatsNew": {
             "file": "app/store/whats-new.store",
+            "visibility": "private"
+        }
+    },
+    "globals": {
+        "Shopware": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.ApiService": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Application": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Classes": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Classes.ApiService": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Classes._private": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Component": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Composables": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Constants": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Constants.CMS": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Constants.CUSTOMER": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Constants.FLOW": {
+            "file": "core/shopware",
+            "visibility": "private"
+        },
+        "Shopware.Context": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Data": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Defaults": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Directive": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.EntityDefinition": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.ExtensionAPI": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Feature": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Feature.flags": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Filter": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Helper": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Helper.OrderHelper": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Helper.PromotionHelper": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Helper.SanitizerHelper": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.InAppPurchase": {
+            "file": "core/shopware",
+            "visibility": "private"
+        },
+        "Shopware.Locale": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Mixin": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Module": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Plugin": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Shortcut": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.State": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Store": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Telemetry": {
+            "file": "core/shopware",
+            "visibility": "private"
+        },
+        "Shopware.Template": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.VueHelper": {
+            "file": "core/shopware",
+            "visibility": "private"
+        },
+        "Shopware.Utils.array": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.debug": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.dom": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.extension": {
+            "file": "core/shopware",
+            "visibility": "private"
+        },
+        "Shopware.Utils.fileReader": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.format": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.genericRuleCondition": {
+            "file": "core/shopware",
+            "visibility": "private"
+        },
+        "Shopware.Utils.object": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.sort": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.string": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.types": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware.Utils.unitConversion": {
+            "file": "core/shopware",
+            "visibility": "private"
+        },
+        "Shopware.WorkerNotification": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware._private": {
+            "file": "core/shopware",
+            "visibility": "public"
+        },
+        "Shopware._state": {
+            "file": "core/shopware",
             "visibility": "private"
         }
     }

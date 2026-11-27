@@ -45,6 +45,8 @@ Tag an export with `@public` so Fallow skips it:
 - In other files, only exports that extensions import from `src/` get it.
 - An export with `@private` never gets `@public`.
   If Fallow reports it, remove it instead of adding it to the baseline.
+- A method of a `@private` class can carry `@public` when plugins cannot avoid it, as `getContainer` of `ApplicationBootstrapper` does.
+  The public API snapshot then lists that method as public and the rest of the class as private, see `03-public-api-snapshot.md`.
 
 ```ts
 /**

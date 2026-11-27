@@ -12,6 +12,8 @@ import { BOTH_STATES } from '../model/flag-states';
 import type { DeclaredKind, Member, Parameter, UnitMembers } from '../model/members';
 import type { Declarations, Located } from './declarations';
 import {
+    callOf,
+    declarationDocs,
     docOf,
     isFunctionNode,
     isPrivateDoc,
@@ -24,12 +26,17 @@ import {
     withoutTypeSyntax,
 } from './script-nodes';
 import type { FunctionNode } from './script-nodes';
+import { GETTER_CALLS, STATE_CALLS } from './vue-values';
 
 // Enough of an expression to find it in the source, without printing a whole function into the report.
 const NOTE_LENGTH = 80;
 
-/** The name, line and JSDoc every member has. */
-type Common = Pick<Member, 'name' | 'at' | 'markers' | 'isPrivate' | 'states'>;
+/**
+ * @private
+ *
+ * The name, line and JSDoc every member has.
+ */
+export type Common = Pick<Member, 'name' | 'at' | 'markers' | 'isPrivate' | 'states'>;
 
 /**
  * @private
@@ -38,6 +45,25 @@ type Common = Pick<Member, 'name' | 'at' | 'markers' | 'isPrivate' | 'states'>;
  */
 export function markersIn(doc: string): Marker[] {
     return parseMarkers(doc).flatMap((match): Marker[] => ('marker' in match ? [match.marker] : []));
+}
+
+/**
+ * @private
+ *
+ * The markers once each. Two ways to the same comment bring a marker twice: the member that holds an object,
+ * and the object itself.
+ */
+export function distinctMarkers(markers: Marker[]): Marker[] {
+    const known = new Set<string>();
+
+    return markers.filter((marker) => {
+        const key = JSON.stringify(marker);
+        const isNew = !known.has(key);
+
+        known.add(key);
+
+        return isNew;
+    });
 }
 
 /**
@@ -92,50 +118,117 @@ export interface Entry {
 /**
  * @private
  *
- * The members of an object literal with a literal name. `spread` turns a spread into entries, for the helpers
- * whose names are known. Every other spread and every computed key is noted.
+ * What the members of an object literal give: `named` reads a member with a literal name, and `spread` what a
+ * spread brings in. A member that its reader answers with `null`, and every computed key, is noted.
  */
-export function entriesOf(
+export function readLiteral<Found>(
     object: ts.ObjectLiteralExpression,
     section: string,
     reading: Reading,
-    spread: (member: ts.SpreadAssignment) => Entry[] | null = () => null,
-): Entry[] {
-    return object.properties.flatMap((member): Entry[] => {
+    named: (member: ts.ObjectLiteralElementLike, name: string) => Found[] | null,
+    spread: (member: ts.SpreadAssignment) => Found[] | null = () => null,
+): Found[] {
+    return object.properties.flatMap((member) => {
         const name = memberName(member);
+        const read = (): Found[] | null => (name === null ? null : named(member, name));
+        const found = ts.isSpreadAssignment(member) ? spread(member) : read();
 
-        if (name !== null) {
-            return [{ name, member }];
-        }
-
-        const fromSpread = ts.isSpreadAssignment(member) ? spread(member) : null;
-
-        if (fromSpread === null) {
+        if (found === null) {
             reading.unresolved(section, member);
         }
 
-        return fromSpread ?? [];
+        return found ?? [];
     });
 }
 
 /**
  * @private
  *
- * The value of `{ key: value }` or `{ key }` across files, and the node that carries its comment and its line.
- * A value that the same file declares under a name, as `{ getToken }` does for a function, carries them where
- * it is declared.
+ * The members of an object literal with a literal name. `spread` turns a spread into entries, for the helpers
+ * whose names are known.
  */
-export function literalValue(
-    member: ts.PropertyAssignment | ts.ShorthandPropertyAssignment,
+export function entriesOf(
+    object: ts.ObjectLiteralExpression,
+    section: string,
+    reading: Reading,
+    spread?: (member: ts.SpreadAssignment) => Entry[] | null,
+): Entry[] {
+    return readLiteral(object, section, reading, (member, name) => [{ name, member }], spread);
+}
+
+/**
+ * @private
+ *
+ * The object literal that a spread brings in, across files, `null` when it spreads something else.
+ */
+export function spreadLiteral(
+    spread: ts.SpreadAssignment,
     declarations: Declarations,
     reading: Reading,
-): { value: Located; at: ts.Node } {
-    const written = ts.isPropertyAssignment(member) ? member.initializer : member.name;
-    const value = declarations.valueOf(written, reading.source);
-    const isDeclaredHere =
-        ts.isIdentifier(withoutTypeSyntax(written)) && value.source === reading.source && !ts.isIdentifier(value.node);
+): Located<ts.ObjectLiteralExpression> | null {
+    const { node, source } = declarations.valueOf(spread.expression, reading.source);
 
-    return { value, at: isDeclaredHere ? statementOf(value.node) : member };
+    return ts.isObjectLiteralExpression(node) ? { node, source } : null;
+}
+
+/**
+ * @private
+ *
+ * What a member holds, across files, with the name, line and comments of the member. `written` is the value as
+ * the member writes it. A member that names what another place declares, as `{ getToken }` and
+ * `{ build: factory.build }` do, also carries the comments of that declaration, and one that names a
+ * declaration of the same file has its line.
+ */
+export function namedValue(
+    name: string,
+    member: ts.Node,
+    written: ts.Expression,
+    declarations: Declarations,
+    reading: Reading,
+): { value: Located; common: Common } {
+    const expression = withoutTypeSyntax(written);
+    const value = declarations.valueOf(expression, reading.source);
+    const own = reading.common(name, member);
+    const namesDeclaration =
+        (ts.isIdentifier(expression) || ts.isPropertyAccessExpression(expression)) && value.node !== expression;
+
+    if (!namesDeclaration) {
+        return { value, common: own };
+    }
+
+    const docs = declarationDocs(value.node, value.source);
+    const isDeclaredHere = ts.isIdentifier(expression) && value.source === reading.source;
+
+    return {
+        value,
+        common: {
+            ...own,
+            at: isDeclaredHere ? lineOf(statementOf(value.node), value.source) : own.at,
+            markers: [...own.markers, ...docs.flatMap(markersIn)],
+            isPrivate: own.isPrivate || docs.some(isPrivateDoc),
+        },
+    };
+}
+
+/**
+ * @private
+ *
+ * The same for a member of an object literal: what `{ key: value }` and `{ key }` hold, and for every other
+ * member the method or accessor itself.
+ */
+export function elementValue(
+    name: string,
+    member: ts.ObjectLiteralElementLike,
+    declarations: Declarations,
+    reading: Reading,
+): { value: Located; common: Common } {
+    if (ts.isPropertyAssignment(member)) {
+        return namedValue(name, member, member.initializer, declarations, reading);
+    }
+
+    return ts.isShorthandPropertyAssignment(member)
+        ? namedValue(name, member, member.name, declarations, reading)
+        : { value: { node: member, source: reading.source }, common: reading.common(name, member) };
 }
 
 /**
@@ -207,6 +300,31 @@ export function functionOf(value: ts.Node): FunctionNode | undefined {
     const [wrapped] = ts.isCallExpression(value) ? value.arguments : [];
 
     return wrapped !== undefined && isFunctionNode(wrapped) ? wrapped : undefined;
+}
+
+/**
+ * @private
+ *
+ * What a value is to code that reads it: what `computed` or a call such as `ref` builds, also when a function
+ * computes it, a function, or any other value.
+ */
+export type HeldValue =
+    | { is: 'computed' | 'ref'; built: ts.CallExpression }
+    | { is: 'function'; fn: FunctionNode }
+    | { is: 'value' };
+
+/** @private */
+export function heldValue(value: ts.Node): HeldValue {
+    const computed = callOf(value, GETTER_CALLS);
+    const built = computed ?? callOf(value, STATE_CALLS);
+
+    if (built !== undefined) {
+        return { is: computed === undefined ? 'ref' : 'computed', built };
+    }
+
+    const fn = functionOf(value);
+
+    return fn === undefined ? { is: 'value' } : { is: 'function', fn };
 }
 
 // The methods that chain on a promise and return a new one.

@@ -20,7 +20,7 @@ Keep general Administration structure, tech stack, docs links, and scripts in `s
 - Do not introduce public API breaks without prior discussion.
 - Model new code on the reference implementations listed in `src/Administration/Resources/app/administration/AGENTS.md`, not on the code next to it.
 - For Admin UI that reads or persists DAL entities or associations, update matching ACL privilege mapping and migrations for existing roles when needed.
-- After adding, renaming, moving or removing a block, registering a component, or changing a prop, a method, a service or a store, run `composer admin:generate-public-api` and commit the updated files in `src/Administration/Resources/app/administration/public-api/`.
+- After adding, renaming, moving or removing a block, registering a component, or changing a prop, a method, a service, a store or a member of the `Shopware` object, run `composer admin:generate-public-api` and commit the updated files in `src/Administration/Resources/app/administration/public-api/`.
   `scripts/generate-public-api/snapshot/committed-snapshot.spec.ts` fails with "The snapshot in public-api/ is stale" otherwise, and Jest runs limited to the changed module do not catch it.
 
 ## Tests

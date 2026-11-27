@@ -174,7 +174,7 @@ function resetLanguageToDefault() {
 const isSystemDefaultLanguage = computed(() => state.api.languageId === state.api.systemLanguageId);
 
 /**
- * @private
+ * @public
  */
 export default function useContext() {
     return {

@@ -3,7 +3,7 @@
  *
  * Builds the model of a source tree: finds the registered components, merges their templates along the extend
  * chains, and reads the blocks and members of each one. The services come from `services/service-units.ts`
- * and the stores from `stores/store-units.ts`.
+ * the stores from `stores/store-units.ts`, and the units of the `Shopware` object from `globals/global-units.ts`.
  */
 import { isTemplateSourceFile } from '../../public-api-source-files';
 import { byCodePoint } from '../helpers/code-point-order';
@@ -14,6 +14,7 @@ import type { ComponentUnit, Model, Registration, UnusedBlock } from '../model/m
 import type { SourceTree } from '../source/source-tree';
 import { componentCalls, markupOf } from './component-registry';
 import { Declarations } from './declarations';
+import { globalUnits } from './globals/global-units';
 import type { ComponentCalls, Override } from './component-registry';
 import { componentOptions } from './options/component-options';
 import { readOptionMembers } from './options/option-members';
@@ -206,6 +207,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
         components,
         ...serviceUnits(tree, declarations, flags),
         stores: storeUnits(tree, declarations, flags),
+        globals: globalUnits(declarations),
         droppedBlocks,
         unusedBlocks: unusedBlocks(calls, templates),
     };

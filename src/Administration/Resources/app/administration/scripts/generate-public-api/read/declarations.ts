@@ -2,13 +2,14 @@
  * @sw-package framework
  *
  * Finds what a name in a script stands for, across files: a `const`, a function or a class of an enclosing
- * scope or of the file, or what an import brings in. Only the syntax is read, so a name that is bound at
- * runtime, such as a parameter or a global, stays the name it is.
+ * scope or of the file, what an import brings in, or a member of one of these, as in `factory.register` and,
+ * for a namespace import, `utils.format`. Only the syntax is read, so a name that is bound at runtime, such as
+ * a parameter, stays the name it is. `Shopware` is the one name on `window` that is followed.
  */
 import ts from 'typescript';
 import type { SourceTree } from '../source/source-tree';
 import { findModule, parseScript } from './modules';
-import { withoutTypeSyntax } from './script-nodes';
+import { memberName, namedClassElements, passedThrough, withoutTypeSyntax } from './script-nodes';
 
 /**
  * @private
@@ -38,14 +39,43 @@ function isNamed(node: { name?: ts.Node }, name: string): boolean {
     return node.name !== undefined && ts.isIdentifier(node.name) && node.name.text === name;
 }
 
-/** The variable, function or class that a statement of the scope declares under the name. */
-function declaredIn(scope: Scope, name: string): ts.Node | undefined {
-    return scope.statements
-        .flatMap((statement): ts.Node[] =>
-            ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement) ? [statement] : variablesOf(statement),
-        )
-        .find((declaration) => isNamed(declaration as { name?: ts.Node }, name));
+/** A variable with the names it binds: `const { a, b: c } = value` binds each element of its pattern. */
+function bindingsOf(variable: ts.VariableDeclaration): (ts.VariableDeclaration | ts.BindingElement)[] {
+    return ts.isObjectBindingPattern(variable.name) ? [...variable.name.elements] : [variable];
 }
+
+type Declaration = ts.FunctionDeclaration | ts.ClassDeclaration | ts.VariableDeclaration | ts.BindingElement;
+
+/** The variable, function or class that a statement of the scope declares under the name. */
+function declaredIn(scope: Scope, name: string): Declaration | undefined {
+    return scope.statements
+        .flatMap((statement): Declaration[] =>
+            ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)
+                ? [statement]
+                : variablesOf(statement).flatMap(bindingsOf),
+        )
+        .find((declaration) => isNamed(declaration, name));
+}
+
+/** The member of a class that is written under the name, with or without `static`. A constructor parameter is none. */
+function classMemberNamed(
+    declaration: ts.ClassLikeDeclaration,
+    name: string,
+    isStatic: boolean,
+): ts.ClassElement | undefined {
+    return namedClassElements(declaration)
+        .filter((candidate) => candidate.name === name && candidate.isStatic === isStatic)
+        .map(({ element }) => element)
+        .find((element): element is ts.ClassElement => !ts.isParameter(element));
+}
+
+/**
+ * The names that the runtime puts on `window`, with the export that holds each one. A script uses them without
+ * an import.
+ */
+const GLOBALS: Partial<Record<string, { file: string; exported: string }>> = {
+    Shopware: { file: 'src/core/shopware.ts', exported: 'ShopwareInstance' },
+};
 
 /** A parameter hides every declaration of its name further out, and what it holds is decided by the caller. */
 function isParameterOf(node: ts.Node, name: string): boolean {
@@ -111,6 +141,18 @@ function localNameOf({ elements }: ts.NamedExports, name: string): ts.ModuleExpo
     return element && (element.propertyName ?? element.name);
 }
 
+/** The module of `import * as name from '<module>'`. */
+function namespaceImportOf(name: string, source: ts.SourceFile): string | undefined {
+    return source.statements
+        .filter(ts.isImportDeclaration)
+        .filter(({ importClause }) => {
+            const bindings = importClause?.namedBindings;
+
+            return bindings !== undefined && ts.isNamespaceImport(bindings) && bindings.name.text === name;
+        })
+        .map(({ moduleSpecifier }) => (ts.isStringLiteral(moduleSpecifier) ? moduleSpecifier.text : undefined))[0];
+}
+
 // Deep enough for every chain of re-exports in the sources, and an end for one that loops.
 const MAX_HOPS = 20;
 
@@ -141,20 +183,143 @@ export class Declarations {
      */
     public valueOf(expression: ts.Expression, source: ts.SourceFile, hops = 0): Located {
         const value = withoutTypeSyntax(expression);
+        const followed = hops > MAX_HOPS ? undefined : this.followed(value, source, hops);
 
-        if (!ts.isIdentifier(value) || hops > MAX_HOPS) {
-            return { node: value, source };
+        return followed ?? { node: value, source };
+    }
+
+    /** What an access, a call that passes its argument through or a name leads to, `undefined` when it leads nowhere. */
+    private followed(value: ts.Expression, source: ts.SourceFile, hops: number): Located | undefined {
+        if (ts.isPropertyAccessExpression(value)) {
+            return this.accessed(value, source, hops);
         }
 
-        const declared = this.declarationOf(value, source, hops);
+        const passed = passedThrough(value);
+
+        if (passed !== undefined) {
+            return this.valueOf(passed, source, hops + 1);
+        }
+
+        return ts.isIdentifier(value) ? this.named(value, source, hops) : undefined;
+    }
+
+    /** What a name stands for: its declaration, the value of the variable it names, or the member a destructuring binds. */
+    private named(name: ts.Identifier, source: ts.SourceFile, hops: number): Located | undefined {
+        const declared = this.declarationOf(name, source, hops) ?? this.globalNamed(name.text, hops);
 
         if (declared === undefined) {
-            return { node: value, source };
+            return undefined;
+        }
+
+        if (ts.isBindingElement(declared.node)) {
+            return this.valueOfBinding({ node: declared.node, source: declared.source }, hops);
         }
 
         return ts.isVariableDeclaration(declared.node)
             ? this.valueOfVariable({ node: declared.node, source: declared.source }, hops)
             : declared;
+    }
+
+    /**
+     * What `object.name` stands for, where `object` is an object literal, a class with its static members, or
+     * `new Example()` with the members of an instance. A method and a getter stand for themselves. `undefined`
+     * for every other object, and for a member the object does not write.
+     */
+    public memberOf(object: Located, name: string, hops = 0): Located | undefined {
+        const { node, source } = object;
+
+        if (ts.isObjectLiteralExpression(node)) {
+            return this.valueOfMember(
+                node.properties.find((property) => memberName(property) === name),
+                source,
+                hops,
+            );
+        }
+
+        if (ts.isClassLike(node)) {
+            return this.valueOfMember(classMemberNamed(node, name, true), source, hops);
+        }
+
+        const instantiated = ts.isNewExpression(node) ? this.valueOf(node.expression, source, hops + 1) : undefined;
+
+        return instantiated !== undefined && ts.isClassLike(instantiated.node)
+            ? this.instanceMemberOf({ node: instantiated.node, source: instantiated.source }, name, hops)
+            : undefined;
+    }
+
+    /** What the member of an instance of the class stands for, `undefined` for one the class does not write itself. */
+    public instanceMemberOf(
+        { node, source }: Located<ts.ClassLikeDeclaration>,
+        name: string,
+        hops = 0,
+    ): Located | undefined {
+        return this.valueOfMember(classMemberNamed(node, name, false), source, hops);
+    }
+
+    /** `object.name`, and `this.name` inside a class, which is a member of its instances. */
+    private accessed(access: ts.PropertyAccessExpression, source: ts.SourceFile, hops: number): Located | undefined {
+        const name = access.name.text;
+
+        if (access.expression.kind !== ts.SyntaxKind.ThisKeyword) {
+            return (
+                this.exportOfNamespace(access.expression, name, source, hops) ??
+                this.memberOf(this.valueOf(access.expression, source, hops + 1), name, hops)
+            );
+        }
+
+        const enclosing = ts.findAncestor(access, ts.isClassLike);
+
+        return enclosing && this.instanceMemberOf({ node: enclosing, source }, name, hops);
+    }
+
+    /** `utils.format` for `import * as utils from './utils'` is what that module exports as `format`. */
+    private exportOfNamespace(
+        namespace: ts.Expression,
+        name: string,
+        source: ts.SourceFile,
+        hops: number,
+    ): Located | undefined {
+        const specifier = ts.isIdentifier(namespace) ? namespaceImportOf(namespace.text, source) : undefined;
+        const file = specifier === undefined ? undefined : findModule(specifier, source.fileName, this.tree);
+
+        return file === undefined ? undefined : this.exported(file, name, hops + 1);
+    }
+
+    private valueOfMember(
+        member: ts.ObjectLiteralElementLike | ts.ClassElement | undefined,
+        source: ts.SourceFile,
+        hops: number,
+    ): Located | undefined {
+        if (member === undefined) {
+            return undefined;
+        }
+
+        if (ts.isShorthandPropertyAssignment(member)) {
+            return this.valueOf(member.name, source, hops + 1);
+        }
+
+        const written = ts.isPropertyAssignment(member) || ts.isPropertyDeclaration(member) ? member.initializer : undefined;
+
+        return written === undefined ? { node: member, source } : this.valueOf(written, source, hops + 1);
+    }
+
+    /** What a name stands for that the runtime puts on `window`, `undefined` when the tree does not hold its file. */
+    public globalNamed(name: string, hops = 0): Located | undefined {
+        const global = GLOBALS[name];
+
+        return global !== undefined && this.tree.has(global.file)
+            ? this.exported(global.file, global.exported, hops + 1)
+            : undefined;
+    }
+
+    /** `b` of `const { a: b } = value` stands for `value.a`. */
+    private valueOfBinding({ node, source }: Located<ts.BindingElement>, hops: number): Located | undefined {
+        const variable = node.parent.parent;
+        const key = node.propertyName ?? node.name;
+
+        return ts.isVariableDeclaration(variable) && variable.initializer !== undefined && ts.isIdentifier(key)
+            ? this.memberOf(this.valueOf(variable.initializer, source, hops + 1), key.text, hops)
+            : undefined;
     }
 
     /** What the file exports under the name, `default` for its default export. */

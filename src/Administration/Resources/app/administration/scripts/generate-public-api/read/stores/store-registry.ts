@@ -9,7 +9,7 @@ import type { SourceTree } from '../../source/source-tree';
 import { findRegistrations } from '../registered-units';
 import type { Registered } from '../registered-units';
 import type { Declarations, Located } from '../declarations';
-import { isMethodCall, memberName } from '../script-nodes';
+import { isMethodCall, memberName, statementOf } from '../script-nodes';
 import type { MethodCall } from '../script-nodes';
 
 /**
@@ -17,7 +17,7 @@ import type { MethodCall } from '../script-nodes';
  *
  * One registered store. `definition` is what the call gets as the store: the object literal with its options,
  * the function that sets it up, or the expression the reader could not follow to one of them. `holder` is the
- * constant the store is assigned to, `const exampleStore = Shopware.Store.register(...)`, or the call itself.
+ * statement of the registration, whose comment speaks for the store.
  */
 export interface StoreRegistration extends Registered {
     definition: Located;
@@ -83,7 +83,7 @@ export function storeRegistrations(tree: SourceTree, declarations: Declarations,
                 return (
                     named && {
                         ...named,
-                        holder: { node: ts.isVariableDeclaration(call.parent) ? call.parent : call, source },
+                        holder: { node: statementOf(call), source },
                     }
                 );
             },

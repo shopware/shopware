@@ -17,6 +17,7 @@
     },
     "services": {},
     "stores": {},
+    "globals": {},
     "mixins": {},
     "modules": {},
     "positionIdentifiers": {},

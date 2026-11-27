@@ -9,7 +9,7 @@ import { byCodePoint } from '../../helpers/code-point-order';
 import type { FlagContext } from '../../model/flag-states';
 import type { StoreUnit } from '../../model/model';
 import type { SourceTree } from '../../source/source-tree';
-import { registeredUnit } from '../registered-units';
+import { registeredUnit, unitDoc } from '../registered-units';
 import type { RegisteredObject } from '../registered-units';
 import type { Declarations } from '../declarations';
 import { interfaceEntries } from '../global-interfaces';
@@ -29,18 +29,23 @@ function storeObject(
     const { node, source } = definition;
 
     if (ts.isObjectLiteralExpression(node)) {
-        return { ...optionsMembers({ node, source }), style: 'options', home: definition, holder };
+        return {
+            ...optionsMembers({ node, source }, declarations),
+            style: 'options',
+            home: definition,
+            doc: unitDoc(holder),
+        };
     }
 
     if (isFunctionNode(node)) {
-        return { ...setupMembers({ node, source }, declarations), style: 'setup', home: definition, holder };
+        return { ...setupMembers({ node, source }, declarations), style: 'setup', home: definition, doc: unitDoc(holder) };
     }
 
     const reading = new Reading(source);
 
     reading.unresolved('store', node);
 
-    return { members: [], notes: reading.notes, style: 'unknown', home: null, holder };
+    return { members: [], notes: reading.notes, sections: {}, style: 'unknown', home: null, doc: unitDoc(holder) };
 }
 
 /** A second registration of an id would replace the first, and the snapshot could list only one of them. */

@@ -6,25 +6,27 @@
  */
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagState, FlagStates } from '../model/flag-states';
-import type { ComponentUnit, RegisteredUnit, Model } from '../model/model';
+import type { ComponentUnit, GlobalUnit, RegisteredUnit, Model } from '../model/model';
 import type { SourceLine } from '../model/source-line';
 import { withInheritedMembers } from './facts/member-facts';
 import { factsOf } from './facts/unit-facts';
 import type { UnitFacts } from './facts/unit-facts';
-import { classUse, componentUse, serviceUse, storeUse } from './plugin-use';
+import { classUse, componentUse, globalUse, serviceUse, storeUse } from './plugin-use';
 import type { PluginUse } from './plugin-use';
 
 /** @private */
-export type UnitKind = 'component' | 'service' | 'store' | 'class';
+export type UnitKind = 'component' | 'service' | 'store' | 'global' | 'class';
 
 /**
  * What a kind says about one of its units. `parent` is the id of the unit it inherits its elements from, which
- * reports a change they share. `markers` and `at` are those of the unit as a whole, which only a unit with a
- * declaration of its own has.
+ * reports a change they share. `heldBy` is the unit and its member that the unit comes and goes with, as
+ * `Shopware.Utils` holds `Shopware.Utils.string`. `markers` and `at` are those of the unit as a whole, which
+ * only a unit with a declaration of its own has.
  */
 interface UnitOfKind {
     name: string;
     parent: string | null;
+    heldBy: GlobalUnit['heldBy'];
     visibility: 'public' | 'private';
     states: FlagStates;
     markers: Marker[];
@@ -68,6 +70,7 @@ function components(model: Model): UnitOfKind[] {
     return model.components.map((unit) => ({
         name: unit.name,
         parent: unit.extends === null ? null : unitId('component', unit.extends),
+        heldBy: null,
         visibility: unit.visibility,
         states: unit.states,
         markers: [],
@@ -75,23 +78,25 @@ function components(model: Model): UnitOfKind[] {
     }));
 }
 
-/** A unit that a script declares brings its own comment and line. `parentOf` gives the id of its parent. */
-function declared<Unit extends RegisteredUnit>(units: Unit[], parentOf: (unit: Unit) => string | null): UnitOfKind[] {
-    return units.map((unit) => ({
+/** A unit that a script declares brings its own comment and line. `parent` is the id of its parent. */
+function scriptUnit(unit: RegisteredUnit, parent: string | null = null): UnitOfKind {
+    return {
         name: unit.name,
-        parent: parentOf(unit),
+        parent,
+        heldBy: null,
         visibility: unit.visibility,
         states: unit.states,
         markers: unit.markers,
         at: unit.at,
         facts: factsOf(unit),
-    }));
+    };
 }
 
 function serviceClasses(model: Model): UnitOfKind[] {
     return model.serviceClasses.map((unit) => ({
         name: unit.name,
         parent: unit.extends === null ? null : unitId('class', unit.extends),
+        heldBy: null,
         visibility: unit.visibility,
         states: unit.states,
         markers: [],
@@ -102,18 +107,24 @@ function serviceClasses(model: Model): UnitOfKind[] {
 /**
  * @private
  *
- * The kinds of unit the break check compares. A new kind is one entry here.
+ * The kinds of unit the break check compares.
  */
 export const UNIT_KINDS: Record<UnitKind, UnitKindDefinition> = {
     component: { units: components, use: componentUse, role: { is: 'api', reportedAsWhole: false } },
     service: {
-        units: ({ services }) => declared(services, (unit) => (unit.class === null ? null : unitId('class', unit.class))),
+        units: ({ services }) =>
+            services.map((unit) => scriptUnit(unit, unit.class === null ? null : unitId('class', unit.class))),
         use: serviceUse,
         role: { is: 'api', reportedAsWhole: true },
     },
     store: {
-        units: ({ stores }) => declared(stores, () => null),
+        units: ({ stores }) => stores.map((unit) => scriptUnit(unit)),
         use: storeUse,
+        role: { is: 'api', reportedAsWhole: true },
+    },
+    global: {
+        units: ({ globals }) => globals.map((unit) => ({ ...scriptUnit(unit), heldBy: unit.heldBy })),
+        use: globalUse,
         role: { is: 'api', reportedAsWhole: true },
     },
     class: { units: serviceClasses, use: classUse, role: { is: 'grouping' } },
@@ -126,7 +137,14 @@ export const UNIT_KINDS: Record<UnitKind, UnitKindDefinition> = {
  */
 export function checkedUnits(model: Model): Map<string, CheckedUnit> {
     const units = (Object.keys(UNIT_KINDS) as UnitKind[]).flatMap((kind) =>
-        UNIT_KINDS[kind].units(model).map((unit): CheckedUnit => ({ ...unit, kind, id: unitId(kind, unit.name) })),
+        UNIT_KINDS[kind].units(model).map(
+            (unit): CheckedUnit => ({
+                ...unit,
+                kind,
+                id: unitId(kind, unit.name),
+                heldBy: unit.heldBy && { ...unit.heldBy, unit: unitId(kind, unit.heldBy.unit) },
+            }),
+        ),
     );
 
     return new Map(units.map((unit) => [unit.id, unit]));

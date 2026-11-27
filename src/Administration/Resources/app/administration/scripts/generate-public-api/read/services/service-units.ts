@@ -10,16 +10,16 @@ import { existingIn, mergeStates, perState } from '../../model/flag-states';
 import type { FlagContext } from '../../model/flag-states';
 import type { Model, ServiceClass, ServiceUnit } from '../../model/model';
 import type { SourceTree } from '../../source/source-tree';
-import { registeredUnit } from '../registered-units';
+import { objectDoc, registeredUnit } from '../registered-units';
 import type { RegisteredObject } from '../registered-units';
 import type { Declarations } from '../declarations';
 import { interfaceEntries } from '../global-interfaces';
 import { Reading } from '../member-reading';
 import { lineOf } from '../script-nodes';
-import { classChain, objectMembers } from './object-members';
-import type { ClassMembers } from './object-members';
-import { isSameObject } from './provided-object';
-import type { ProvidedObject } from './provided-object';
+import { classChain, objectMembers } from '../object-members';
+import type { ClassMembers } from '../object-members';
+import { isSameObject } from '../resolved-object';
+import type { ResolvedObject } from '../resolved-object';
 import { serviceRegistrations } from './service-registry';
 import type { ServiceRegistration } from './service-registry';
 
@@ -37,42 +37,43 @@ function declaredAs(type: string | undefined): ServiceUnit['declared'] {
     return UNTYPED_ENTRY.test(type) ? 'any' : 'typed';
 }
 
-/** What the reader found behind a registration, with the class of an instance and the classes it extends. */
-interface ServiceObject extends RegisteredObject {
-    classes: ClassMembers[];
-}
+/** The members of a service, with the class of an instance and the classes it extends, nearest first. */
+type ServiceMembers = Pick<RegisteredObject, 'members' | 'notes' | 'home'> & { classes: ClassMembers[] };
 
-const NO_MEMBERS: Pick<ServiceObject, 'members' | 'notes' | 'classes'> = { members: [], notes: [], classes: [] };
+const NO_MEMBERS: Pick<ServiceMembers, 'members' | 'notes' | 'classes'> = { members: [], notes: [], classes: [] };
 
-function serviceObject(provided: ProvidedObject, declarations: Declarations): ServiceObject {
+function membersOf(provided: ResolvedObject, declarations: Declarations): ServiceMembers {
     switch (provided.kind) {
         case 'instance': {
             const classes = classChain(provided.declaration, declarations);
             const [{ members, notes }] = classes;
 
-            return { members, notes, classes, home: provided.declaration, holder: provided.declaration };
+            return { members, notes, classes, home: provided.declaration };
         }
         case 'object':
-            return {
-                ...objectMembers(provided.declaration, declarations),
-                classes: [],
-                home: provided.declaration,
-                holder: provided.factory,
-            };
-        case 'callable':
-            return { ...NO_MEMBERS, home: provided.declaration, holder: provided.declaration };
+            return { ...objectMembers(provided.declaration, declarations), classes: [], home: provided.declaration };
+        case 'class':
+        case 'function':
+            return { ...NO_MEMBERS, home: provided.declaration };
         case 'nothing':
-            return { ...NO_MEMBERS, home: null, holder: null };
+            return { ...NO_MEMBERS, home: null };
         case 'unresolved': {
             const reading = new Reading(provided.expression.source);
 
             reading.unresolved('provider', provided.expression.node);
 
-            return { ...NO_MEMBERS, notes: reading.notes, home: null, holder: null };
+            return { ...NO_MEMBERS, notes: reading.notes, home: null };
         }
         default:
             return provided satisfies never;
     }
+}
+
+function serviceObject(
+    provided: ResolvedObject,
+    declarations: Declarations,
+): RegisteredObject & Pick<ServiceMembers, 'classes'> {
+    return { ...membersOf(provided, declarations), sections: {}, doc: objectDoc(provided) };
 }
 
 /** A service as the reader finds it, before the classes of all services are known. */

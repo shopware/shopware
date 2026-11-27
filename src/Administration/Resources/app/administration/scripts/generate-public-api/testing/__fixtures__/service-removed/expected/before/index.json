@@ -15,6 +15,7 @@
         }
     },
     "stores": {},
+    "globals": {},
     "mixins": {},
     "modules": {},
     "positionIdentifiers": {},

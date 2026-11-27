@@ -70,8 +70,8 @@ describe('selection across pagination', () => {
 });
 ```
 
-A bare `@regression` or `@behavior` takes the `@see` of the nearest `describe` that has one.
-That `describe` must carry the same tag, otherwise the test needs its own `@see`.
+A bare `@regression` or `@behavior` takes the `@see` of an enclosing `describe` with the same tag.
+This works for nested `describe` blocks too.
 The tag itself is not inherited: a test added to the `describe` later claims `@regression` on its own, where a reviewer can question it.
 For the same reason `@characterization` is not allowed on a `describe`.
 When you add a test to a tagged `describe`, check that it really covers the bug or decision of that `describe`.
@@ -81,8 +81,8 @@ When you add a test to a tagged `describe`, check that it really covers the bug 
 | Tag | Accepted `@see` |
 |---|---|
 | `@regression` | `https://github.com/shopware/<repo>/issues/<n>` or `…/pull/<n>`, with or without an anchor |
-| `@behavior` | `https://github.com/shopware/<repo>/discussions/<n>`, optionally with `#discussioncomment-<n>` |
-| `@behavior` | An issue or pull request comment: `#issuecomment-<n>`, `#discussion_r<n>` or `#pullrequestreview-<n>` |
+| `@behavior` | `https://github.com/shopware/<repo>/discussions/<n>` or `https://github.com/orgs/shopware/discussions/<n>`, optionally with `#discussioncomment-<n>` |
+| `@behavior` | An issue or pull request comment: `#issuecomment-<n>`, `#discussion_r<n>`, `#pullrequestreview-<n>` or `#r<n>` |
 | `@behavior` | A path to an existing ADR, such as `adr/2026-10-16-administration-lint-gate.md` |
 
 An issue without a comment anchor is not a `@behavior` source: opening an issue is not a decision.
@@ -92,7 +92,7 @@ The allowlist lives in `eslint-rules/test-rules/test-annotation/sources.js`.
 
 ### Sources outside the allowlist
 
-When the decision really lives elsewhere, add `@seeException` with a reason of at least 20 characters:
+When the decision really lives elsewhere, link it with `@see` and add `@seeException` with a reason of at least 20 characters:
 
 ```js
 /**
@@ -112,8 +112,7 @@ Do not fall back to `@characterization` when the source is merely unusual.
 
 - has more than one of `@regression`, `@behavior` and `@characterization`
 - is a `describe` tagged `@characterization`
-- is a test tagged `@regression` or `@behavior` without a `@see`, on itself or on a `describe` with the same tag
-- is a `describe` tagged `@regression` or `@behavior` without its own `@see`
+- is tagged `@regression` or `@behavior` without a `@see`, on itself or on an enclosing `describe` with the same tag
 - links a `@see` outside the accepted sources without a `@seeException`
 - has a `@seeException` reason shorter than 20 characters
 

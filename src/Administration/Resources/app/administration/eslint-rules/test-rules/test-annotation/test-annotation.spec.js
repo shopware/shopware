@@ -1,4 +1,4 @@
-const { mkdtempSync, mkdirSync, writeFileSync } = require('node:fs');
+const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 const { RuleTester } = require('eslint');
@@ -14,6 +14,7 @@ const ruleTester = new RuleTester({
 const root = mkdtempSync(join(tmpdir(), 'test-annotation-'));
 mkdirSync(join(root, 'adr'));
 writeFileSync(join(root, 'adr/2026-01-01-decision.md'), '');
+afterAll(() => rmSync(root, { recursive: true, force: true }));
 
 const options = [{ repoRoot: root }];
 const ISSUE = 'https://github.com/shopware/shopware/issues/123';
@@ -59,6 +60,16 @@ ruleTester.run('test-annotation', rule, {
      * @see adr/2026-01-01-decision.md
      */
     it('c', () => {});
+    /**
+     * @behavior
+     * @see https://github.com/shopware/shopware/pull/123/files#r456
+     */
+    it('d', () => {});
+    /**
+     * @behavior
+     * @see https://github.com/orgs/shopware/discussions/12
+     */
+    it('e', () => {});
 });`,
             options,
         },
@@ -76,6 +87,53 @@ ruleTester.run('test-annotation', rule, {
         /** @characterization */
         it('should render the badge', () => {});
     });
+});`,
+            options,
+        },
+        {
+            name: 'inherits through nested describes, skipping describes with another or no tag',
+            code: `/**
+ * @regression
+ * @see ${ISSUE}
+ */
+describe('sw-foo', () => {
+    /**
+     * Shared helpers.
+     * @see https://example.com/helpers
+     */
+    describe('helpers', () => {
+        /** @regression */
+        describe('paging', () => {
+            /** @regression */
+            it('should keep rows', () => {});
+        });
+    });
+});`,
+            options,
+        },
+        {
+            name: 'a test with only a @seeException still inherits the @see',
+            code: `/**
+ * @regression
+ * @see ${ISSUE}
+ */
+describe('sw-foo', () => {
+    /**
+     * @regression
+     * @seeException The customer report in the support ticket shows the same bug.
+     */
+    it('should keep rows', () => {});
+});`,
+            options,
+        },
+        {
+            name: 'reads the url of a JSDoc {@link}',
+            code: `describe('sw-foo', () => {
+    /**
+     * @regression
+     * @see {@link ${ISSUE}}
+     */
+    it('should keep rows', () => {});
 });`,
             options,
         },
@@ -177,7 +235,7 @@ describe('sw-foo', () => {
     it('should keep rows', () => {});
 });`,
             options,
-            errors: [{ messageId: 'inheritedKindMismatch' }],
+            errors: [{ messageId: 'missingSee' }],
         },
         {
             name: 'rejects an issue without a comment anchor as a behavior source',
@@ -204,11 +262,24 @@ describe('sw-foo', () => {
             errors: [{ messageId: 'invalidSee' }],
         },
         {
-            name: 'rejects a comment link as a regression source of another organization',
+            name: 'rejects an issue of another organization as a regression source',
             code: `describe('sw-foo', () => {
     /**
      * @regression
      * @see https://github.com/someone/fork/issues/1
+     */
+    it('should keep rows', () => {});
+});`,
+            options,
+            errors: [{ messageId: 'invalidSee' }],
+        },
+        {
+            name: 'reports several invalid sources once',
+            code: `describe('sw-foo', () => {
+    /**
+     * @behavior
+     * @see ${ISSUE}
+     * @see https://github.com/shopware/shopware/issues/124
      */
     it('should keep rows', () => {});
 });`,

@@ -8,10 +8,12 @@ const { join } = require('node:path');
 const REPOSITORY = String.raw`https://github\.com/shopware/[\w.-]+`;
 
 const ISSUE_OR_PULL_REQUEST = new RegExp(String.raw`^${REPOSITORY}/(issues|pull)/\d+(#[\w-]+)?$`);
-const DISCUSSION = new RegExp(String.raw`^${REPOSITORY}/discussions/\d+(#discussioncomment-\d+)?$`);
+const DISCUSSION = new RegExp(
+    String.raw`^https://github\.com/(shopware/[\w.-]+|orgs/shopware)/discussions/\d+(#discussioncomment-\d+)?$`,
+);
 // A comment, not the issue or pull request itself: opening a thread is not a decision.
 const COMMENT = new RegExp(
-    String.raw`^${REPOSITORY}/(issues|pull)/\d+(/files)?#(issuecomment-\d+|discussion_r\d+|pullrequestreview-\d+)$`,
+    String.raw`^${REPOSITORY}/(issues|pull)/\d+(/(files|changes)(/\w+)?)?#(issuecomment-\d+|discussion_r\d+|pullrequestreview-\d+|r\d+)$`,
 );
 const ADR = /^adr\/[\w.-]+\.md$/;
 
@@ -39,7 +41,7 @@ function isAcceptedSource(kind, source, repoRoot) {
 const EXPECTED_SOURCES = {
     regression: 'a GitHub issue or pull request under github.com/shopware/',
     behavior:
-        'a GitHub discussion, a comment link (#issuecomment-…, #discussion_r…, #pullrequestreview-…) or an existing adr/….md path',
+        'a GitHub discussion, a comment link (#issuecomment-…, #discussion_r…, #pullrequestreview-…, #r…) or an existing adr/….md path',
 };
 
 module.exports = {

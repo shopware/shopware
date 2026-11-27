@@ -6,7 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
-import { allowDeprecation } from 'test/_helper_/deprecations';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 const STOREFRONT_SALES_CHANNEL_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
@@ -1611,44 +1611,49 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.unservedLanguageVariant).toBe('info');
     });
 
-    it('should render agentic commerce export config from injected fallback when prop is not forwarded', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                salesChannel: {
-                    typeId: Shopware.Defaults.agenticCommerceTypeId,
-                },
-            },
-            provide: {
-                swSalesChannelDetailGetAgenticCommerceExportConfig: () => [
-                    {
-                        provider: 'open-ai',
-                        elements: [
-                            {
-                                name: 'core.openAiProductExport.returnPolicyUrl',
-                                type: 'text',
-                                config: {
-                                    label: 'Return policy URL',
-                                },
-                            },
-                        ],
-                        values: {},
-                        isLoading: false,
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')(
+        'should render agentic commerce export config from injected fallback when prop is not forwarded',
+        async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: {
+                        typeId: Shopware.Defaults.agenticCommerceTypeId,
                     },
-                ],
-            },
-        });
+                },
+                provide: {
+                    swSalesChannelDetailGetAgenticCommerceExportConfig: () => [
+                        {
+                            provider: 'open-ai',
+                            elements: [
+                                {
+                                    name: 'core.openAiProductExport.returnPolicyUrl',
+                                    type: 'text',
+                                    config: {
+                                        label: 'Return policy URL',
+                                    },
+                                },
+                            ],
+                            values: {},
+                            isLoading: false,
+                        },
+                    ],
+                },
+            });
 
-        expect(wrapper.vm.isAgenticCommerce).toBe(true);
-        expect(wrapper.vm.resolvedAgenticCommerceExportConfig).toHaveLength(1);
+            expect(wrapper.vm.isAgenticCommerceDeprecated).toBe(true);
+            expect(wrapper.vm.resolvedAgenticCommerceExportConfigDeprecated).toHaveLength(1);
 
-        const card = wrapper.get(
-            'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-provider"]',
-        );
-        expect(card.exists()).toBe(true);
-        expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);
-    });
+            const card = wrapper.get(
+                'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-provider"]',
+            );
+            expect(card.exists()).toBe(true);
+            expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);
+        },
+    );
 
-    it('should store an edited agentic commerce export field in its config entry', async () => {
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')('should store an edited agentic commerce export field in its config entry', async () => {
         const configEntry = {
             provider: 'open-ai',
             elements: [{ name: 'core.openAiProductExport.returnPolicyUrl', type: 'text', config: {} }],
@@ -1673,7 +1678,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
     });
 
-    it('should not require a theme when activating an agentic commerce sales channel', async () => {
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')('should not require a theme when activating an agentic commerce sales channel', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -1785,7 +1791,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(mockPush).not.toHaveBeenCalled();
     });
 
-    it('should render tracking config component for agentic commerce sales channel', async () => {
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')('should render tracking config component for agentic commerce sales channel', async () => {
         const wrapper = await createWrapper({
             props: {
                 salesChannel: {
@@ -1810,25 +1817,29 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(false);
     });
 
-    it('should pass disabled state to tracking config component when user lacks editor permission', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                salesChannel: {
-                    typeId: Shopware.Defaults.agenticCommerceTypeId,
-                    configuration: {},
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')(
+        'should pass disabled state to tracking config component when user lacks editor permission',
+        async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: {
+                        typeId: Shopware.Defaults.agenticCommerceTypeId,
+                        configuration: {},
+                    },
                 },
-            },
-            provide: {
-                acl: {
-                    can: (permission) => permission !== 'sales_channel.editor',
+                provide: {
+                    acl: {
+                        can: (permission) => permission !== 'sales_channel.editor',
+                    },
                 },
-            },
-        });
+            });
 
-        const trackingConfig = wrapper.find('sw-agentic-commerce-tracking-config-stub');
-        expect(trackingConfig.exists()).toBe(true);
-        expect(trackingConfig.attributes('disabled')).toBeDefined();
-    });
+            const trackingConfig = wrapper.find('sw-agentic-commerce-tracking-config-stub');
+            expect(trackingConfig.exists()).toBe(true);
+            expect(trackingConfig.attributes('disabled')).toBeDefined();
+        },
+    );
 
     it('should update salesChannel.configuration when onTrackingConfigChange is called', async () => {
         const salesChannel = {
@@ -1861,5 +1872,72 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(wrapper.vm.productExport.salesChannelDomainId).toBeNull();
         expect(wrapper.vm.productExport.salesChannelDomain).toBeNull();
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0').each([
+        ['isAgenticCommerce', (vm) => vm.isAgenticCommerce],
+        ['resolvedAgenticCommerceExportConfig', (vm) => vm.resolvedAgenticCommerceExportConfig],
+        ['getAgenticCommerceExportCardTitle()', (vm) => vm.getAgenticCommerceExportCardTitle({ provider: 'open-ai' })],
+        [
+            'getAgenticCommerceExportElementBind()',
+            (vm) => vm.getAgenticCommerceExportElementBind({ type: 'text', config: {} }),
+        ],
+        [
+            'onAgenticCommerceExportFieldUpdate()',
+            (vm) => vm.onAgenticCommerceExportFieldUpdate({ values: {} }, 'field', 'value'),
+        ],
+    ])('should report the use of the deprecated member %s', async (member, use) => {
+        const wrapper = await createWrapper();
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions reach the deprecated member on the instance
+        await use(wrapper.vm);
+
+        expect(deprecations).toHaveTriggered(`sw-sales-channel-detail-base.${member} is deprecated.`);
+    });
+
+    describe('core use of the deprecated Agentic Commerce members', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-sales-channel-detail-base');
+        });
+
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')('applies an override of isAgenticCommerce without reporting it', async () => {
+            Shopware.Component.override('sw-sales-channel-detail-base', {
+                computed: {
+                    isAgenticCommerce() {
+                        return true;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: {
+                        typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                        configuration: {},
+                    },
+                },
+            });
+
+            expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(true);
+            expect(deprecations).not.toHaveTriggered('sw-sales-channel-detail-base.isAgenticCommerce is deprecated');
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])(
+            'treats an agentic commerce channel as if the deprecated members were removed',
+            async () => {
+                const wrapper = await createWrapper({
+                    props: {
+                        salesChannel: {
+                            typeId: Shopware.Defaults.agenticCommerceTypeId,
+                            configuration: {},
+                        },
+                    },
+                });
+
+                expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(false);
+            },
+        );
     });
 });

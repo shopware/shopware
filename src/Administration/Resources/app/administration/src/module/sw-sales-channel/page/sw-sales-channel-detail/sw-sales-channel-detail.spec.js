@@ -326,49 +326,57 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(provide.swSalesChannelDetailGetAgenticCommerceExportConfig()).toEqual(wrapper.vm.agenticCommerceExportConfig);
     });
 
-    it('should load agentic commerce export config in create flow when route has typeId but no id', async () => {
-        mockGetSystemConfig.mockResolvedValueOnce([
-            {
-                elements: [
-                    {
-                        name: 'core.openAiProductExport.returnPolicyUrl',
-                    },
-                ],
-            },
-        ]);
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')(
+        'should load agentic commerce export config in create flow when route has typeId but no id',
+        async () => {
+            mockGetSystemConfig.mockResolvedValueOnce([
+                {
+                    elements: [
+                        {
+                            name: 'core.openAiProductExport.returnPolicyUrl',
+                        },
+                    ],
+                },
+            ]);
 
-        const wrapper = await createWrapper({
-            typeId: Shopware.Defaults.agenticCommerceTypeId,
-        });
-
-        wrapper.vm.salesChannel = {
-            id: 'new-sales-channel-id',
-            typeId: Shopware.Defaults.agenticCommerceTypeId,
-        };
-
-        await wrapper.vm.loadEntityData();
-        await flushPromises();
-
-        expect(mockGetSystemConfig).toHaveBeenCalledWith('core.openAiProductExport');
-        expect(mockGetSystemConfigValues).toHaveBeenCalledWith('core.openAiProductExport', 'new-sales-channel-id');
-        expect(wrapper.vm.agenticCommerceExportConfig[0].elements).toHaveLength(1);
-    });
-
-    it('shows the insights tab for agentic commerce channels and hides storefront analytics', async () => {
-        const wrapper = await createWrapper({
-            routeParams: {
-                id: '1a2b3c4d',
-            },
-            salesChannelResponse: {
+            const wrapper = await createWrapper({
                 typeId: Shopware.Defaults.agenticCommerceTypeId,
-            },
-        });
+            });
 
-        await flushPromises();
+            wrapper.vm.salesChannel = {
+                id: 'new-sales-channel-id',
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            };
 
-        expect(tabLabels(wrapper).join(' ')).toContain('sw-sales-channel.detail.productExport.tabInsights');
-        expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.tabAnalytics');
-    });
+            await wrapper.vm.loadEntityData();
+            await flushPromises();
+
+            expect(mockGetSystemConfig).toHaveBeenCalledWith('core.openAiProductExport');
+            expect(mockGetSystemConfigValues).toHaveBeenCalledWith('core.openAiProductExport', 'new-sales-channel-id');
+            expect(wrapper.vm.agenticCommerceExportConfig[0].elements).toHaveLength(1);
+        },
+    );
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')(
+        'shows the insights tab for agentic commerce channels and hides storefront analytics',
+        async () => {
+            const wrapper = await createWrapper({
+                routeParams: {
+                    id: '1a2b3c4d',
+                },
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            await flushPromises();
+
+            expect(tabLabels(wrapper).join(' ')).toContain('sw-sales-channel.detail.productExport.tabInsights');
+            expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.tabAnalytics');
+        },
+    );
 
     it('shows storefront analytics tab for storefront channels and hides insights', async () => {
         const wrapper = await createWrapper({
@@ -418,18 +426,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
-    it('returns true for isProductExportChannel on product comparison and agentic channels', async () => {
-        const agenticWrapper = await createWrapper({
-            salesChannelResponse: {
-                typeId: Shopware.Defaults.agenticCommerceTypeId,
-            },
-        });
-
-        await flushPromises();
-
-        expect(agenticWrapper.vm.isProductExportChannel).toBe(true);
-
-        const comparisonWrapper = await createWrapper({
+    it('returns true for isProductExportChannel on product comparison channels', async () => {
+        const wrapper = await createWrapper({
             salesChannelResponse: {
                 typeId: Shopware.Defaults.productComparisonTypeId,
             },
@@ -437,9 +435,20 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(comparisonWrapper.vm.isProductExportChannel).toBe(true);
-        agenticWrapper.unmount();
-        comparisonWrapper.unmount();
+        expect(wrapper.vm.isProductExportChannel).toBe(true);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')('returns true for isProductExportChannel on agentic commerce channels', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.isProductExportChannel).toBe(true);
     });
 
     it('returns false for isProductExportChannel on storefront channels', async () => {
@@ -731,42 +740,49 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
             ],
         });
 
-        expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);
+        expect(wrapper.vm.validateAgenticCommerceExportConfigDeprecated()).toBe(true);
         expect(wrapper.vm.agenticCommerceExportConfig[0].errors).toEqual({});
     });
 
-    it('should return false and sets field error when a required agentic commerce field is empty', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')(
+        'should return false and sets field error when a required agentic commerce field is empty',
+        async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
 
-        await wrapper.setData({
-            agenticCommerceExportConfig: [
-                {
-                    provider: 'open-ai',
-                    elements: [
-                        {
-                            name: 'core.openAiProductExport.returnPolicyUrl',
-                            config: { required: true },
-                        },
-                    ],
-                    values: {},
-                    errors: {},
-                    isLoaded: true,
-                    isLoading: false,
-                },
-            ],
-        });
+            await wrapper.setData({
+                agenticCommerceExportConfig: [
+                    {
+                        provider: 'open-ai',
+                        elements: [
+                            {
+                                name: 'core.openAiProductExport.returnPolicyUrl',
+                                config: { required: true },
+                            },
+                        ],
+                        values: {},
+                        errors: {},
+                        isLoaded: true,
+                        isLoading: false,
+                    },
+                ],
+            });
 
-        const result = wrapper.vm.validateAgenticCommerceExportConfig();
+            const result = wrapper.vm.validateAgenticCommerceExportConfigDeprecated();
 
-        expect(result).toBe(false);
-        expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl']).toBeDefined();
-        expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl'].code).toBe(
-            'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-        );
-    });
+            expect(result).toBe(false);
+            expect(
+                wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl'],
+            ).toBeDefined();
+            expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl'].code).toBe(
+                'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+            );
+        },
+    );
 
-    it('should not call save when a required agentic commerce field is empty', async () => {
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')('should not call save when a required agentic commerce field is empty', async () => {
         const wrapper = await createWrapper({
             salesChannelResponse: {
                 typeId: Shopware.Defaults.agenticCommerceTypeId,
@@ -813,21 +829,24 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
             Shopware.Context.app.config.bundles = originalBundles;
         });
 
-        it('shows the banner for agentic commerce channels when SwagAgenticCommerce is not installed', async () => {
-            Shopware.Context.app.config.bundles = {};
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')(
+            'shows the banner for agentic commerce channels when SwagAgenticCommerce is not installed',
+            async () => {
+                Shopware.Context.app.config.bundles = {};
 
-            const wrapper = await createWrapper({
-                salesChannelResponse: {
-                    typeId: Shopware.Defaults.agenticCommerceTypeId,
-                },
-            });
+                const wrapper = await createWrapper({
+                    salesChannelResponse: {
+                        typeId: Shopware.Defaults.agenticCommerceTypeId,
+                    },
+                });
 
-            await flushPromises();
+                await flushPromises();
 
-            expect(wrapper.vm.hasSwagAgenticCommercePlugin).toBe(false);
-            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(true);
-            expect(wrapper.find('.mt-banner').exists()).toBe(true);
-        });
+                expect(wrapper.vm.showAgenticCommerceDeprecationBannerDeprecated).toBe(true);
+                expect(wrapper.find('.mt-banner').exists()).toBe(true);
+            },
+        );
 
         it('hides the banner when SwagAgenticCommerce plugin is installed', async () => {
             Shopware.Context.app.config.bundles = { SwagAgenticCommerce: { css: [], js: [] } };
@@ -840,8 +859,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
             await flushPromises();
 
-            expect(wrapper.vm.hasSwagAgenticCommercePlugin).toBe(true);
-            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(false);
+            expect(wrapper.vm.showAgenticCommerceDeprecationBannerDeprecated).toBe(false);
             expect(wrapper.find('.mt-banner').exists()).toBe(false);
         });
 
@@ -856,34 +874,39 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
             await flushPromises();
 
-            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(false);
+            expect(wrapper.vm.showAgenticCommerceDeprecationBannerDeprecated).toBe(false);
             expect(wrapper.find('.mt-banner').exists()).toBe(false);
         });
 
-        it('navigates to the extension store landing page when the detail route does not exist', async () => {
-            Shopware.Context.app.config.bundles = {};
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')(
+            'navigates to the extension store landing page when the detail route does not exist',
+            async () => {
+                Shopware.Context.app.config.bundles = {};
 
-            const wrapper = await createWrapper({
-                salesChannelResponse: {
-                    typeId: Shopware.Defaults.agenticCommerceTypeId,
-                },
-            });
+                const wrapper = await createWrapper({
+                    salesChannelResponse: {
+                        typeId: Shopware.Defaults.agenticCommerceTypeId,
+                    },
+                });
 
-            const mockPush = jest.fn().mockResolvedValue(undefined);
-            wrapper.vm.$router = {
-                hasRoute: jest.fn().mockReturnValue(false),
-                push: mockPush,
-            };
+                const mockPush = jest.fn().mockResolvedValue(undefined);
+                wrapper.vm.$router = {
+                    hasRoute: jest.fn().mockReturnValue(false),
+                    push: mockPush,
+                };
 
-            await flushPromises();
+                await flushPromises();
 
-            wrapper.vm.onClickInstallAgenticCommercePlugin();
-            await flushPromises();
+                wrapper.vm.onClickInstallAgenticCommercePluginDeprecated();
+                await flushPromises();
 
-            expect(mockPush).toHaveBeenCalledWith({ name: 'sw.extension.store.landing-page' });
-        });
+                expect(mockPush).toHaveBeenCalledWith({ name: 'sw.extension.store.landing-page' });
+            },
+        );
 
-        it('navigates to the extension store when the route exists', async () => {
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')('navigates to the extension store when the route exists', async () => {
             Shopware.Context.app.config.bundles = {};
 
             const wrapper = await createWrapper({
@@ -900,7 +923,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
             await flushPromises();
 
-            wrapper.vm.onClickInstallAgenticCommercePlugin();
+            wrapper.vm.onClickInstallAgenticCommercePluginDeprecated();
             await flushPromises();
 
             expect(mockPush).toHaveBeenCalledWith({
@@ -948,7 +971,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         });
 
         expect(wrapper.vm.productExport.provider).toBe('google');
-        expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);
+        expect(wrapper.vm.validateAgenticCommerceExportConfigDeprecated()).toBe(true);
         expect(wrapper.vm.agenticCommerceExportConfig[0].errors).toEqual({});
     });
 });

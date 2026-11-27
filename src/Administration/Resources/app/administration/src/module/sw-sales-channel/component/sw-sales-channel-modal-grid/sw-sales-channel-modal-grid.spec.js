@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 const PRODUCT_COMPARISON_TYPE_ID = Shopware.Defaults.productComparisonTypeId;
 const AGENTIC_COMMERCE_TYPE_ID = Shopware.Defaults.agenticCommerceTypeId;
@@ -128,7 +129,8 @@ describe('sw-sales-channel-modal-grid', () => {
         expect(buttons[1].attributes('disabled')).toBeDefined();
     });
 
-    it('disables the add button for agentic commerce type', async () => {
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')('disables the add button for agentic commerce type', async () => {
         const wrapper = await createWrapper();
 
         const buttons = wrapper.findAll('.sw-sales-channel-modal__add-channel-action');
@@ -137,7 +139,8 @@ describe('sw-sales-channel-modal-grid', () => {
     });
 
     describe('getTooltip', () => {
-        it('uses the agentic commerce message key for the agentic commerce type', async () => {
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')('uses the agentic commerce message key for the agentic commerce type', async () => {
             const wrapper = await createWrapper();
 
             const agenticItem = mockSalesChannelTypes.find((t) => t.id === AGENTIC_COMMERCE_TYPE_ID);
@@ -175,7 +178,8 @@ describe('sw-sales-channel-modal-grid', () => {
             expect(wrapper.vm.isDisabled(regularItem)).toBe(true);
         });
 
-        it('returns true for agentic commerce type regardless of addChannelAction', async () => {
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')('returns true for agentic commerce type regardless of addChannelAction', async () => {
             const wrapper = await createWrapper({
                 addChannelAction: createAddChannelAction({ disabled: () => false }),
             });
@@ -183,5 +187,55 @@ describe('sw-sales-channel-modal-grid', () => {
             const agenticItem = mockSalesChannelTypes.find((t) => t.id === AGENTIC_COMMERCE_TYPE_ID);
             expect(wrapper.vm.isDisabled(agenticItem)).toBe(true);
         });
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0').each([
+        ['isAgenticCommerceSalesChannelType()', (vm) => vm.isAgenticCommerceSalesChannelType(AGENTIC_COMMERCE_TYPE_ID)],
+        ['showAgenticCommerceType()', (vm) => vm.showAgenticCommerceType()],
+    ])('should report the use of the deprecated member %s', async (member, use) => {
+        const wrapper = await createWrapper();
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions reach the deprecated member on the instance
+        await use(wrapper.vm);
+
+        expect(deprecations).toHaveTriggered(`sw-sales-channel-modal-grid.${member} is deprecated.`);
+    });
+
+    describe('core use of the deprecated Agentic Commerce members', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-sales-channel-modal-grid');
+        });
+
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')('applies an override of showAgenticCommerceType() without reporting it', async () => {
+            Shopware.Component.override('sw-sales-channel-modal-grid', {
+                methods: {
+                    showAgenticCommerceType() {
+                        return true;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const buttons = wrapper.findAll('.sw-sales-channel-modal__add-channel-action');
+            const agenticIndex = mockSalesChannelTypes.findIndex((type) => type.id === AGENTIC_COMMERCE_TYPE_ID);
+            expect(buttons[agenticIndex].attributes('disabled')).toBeUndefined();
+            expect(deprecations).not.toHaveTriggered('sw-sales-channel-modal-grid.showAgenticCommerceType() is deprecated');
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])(
+            'treats the agentic commerce type as if the deprecated members were removed',
+            async () => {
+                const wrapper = await createWrapper();
+                await flushPromises();
+
+                const buttons = wrapper.findAll('.sw-sales-channel-modal__add-channel-action');
+                const agenticIndex = mockSalesChannelTypes.findIndex((type) => type.id === AGENTIC_COMMERCE_TYPE_ID);
+                expect(buttons[agenticIndex].attributes('disabled')).toBeUndefined();
+            },
+        );
     });
 });

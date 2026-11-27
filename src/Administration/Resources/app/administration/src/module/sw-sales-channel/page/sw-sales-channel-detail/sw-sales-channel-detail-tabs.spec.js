@@ -179,44 +179,48 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail tabs', () => 
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs for agentic commerce channels when the major feature flag is active', async () => {
-        const wrapper = await createWrapper({
-            featureActive: true,
-            routeName: 'sw.sales.channel.detail.productExportInsights',
-            salesChannelResponse: {
-                typeId: Shopware.Defaults.agenticCommerceTypeId,
-            },
-        });
-        await flushPromises();
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')(
+        'should render meteor tabs for agentic commerce channels when the major feature flag is active',
+        async () => {
+            const wrapper = await createWrapper({
+                featureActive: true,
+                routeName: 'sw.sales.channel.detail.productExportInsights',
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+            await flushPromises();
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
-        expect(tabs.props('positionIdentifier')).toBe('sw-sales-channel-detail');
-        expect(tabs.props('defaultItem')).toBe('sw.sales.channel.detail.productExportInsights');
-        expect(tabs.props('items')).toEqual([
-            {
-                label: 'sw-sales-channel.detail.tabBase',
-                name: 'sw.sales.channel.detail.base',
-                onClick: expect.any(Function),
-            },
-            {
-                label: 'sw-sales-channel.detail.productExport.tabInsights',
-                name: 'sw.sales.channel.detail.productExportInsights',
-                onClick: expect.any(Function),
-            },
-            {
-                label: 'sw-sales-channel.detail.agenticCommerce.tabIntegration',
-                name: 'sw.sales.channel.detail.agenticCommerceIntegration',
-                onClick: expect.any(Function),
-            },
-            {
-                label: 'sw-sales-channel.detail.tabProductComparison',
-                name: 'sw.sales.channel.detail.productComparison',
-                onClick: expect.any(Function),
-            },
-        ]);
-        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
-    });
+            expect(tabs.props('positionIdentifier')).toBe('sw-sales-channel-detail');
+            expect(tabs.props('defaultItem')).toBe('sw.sales.channel.detail.productExportInsights');
+            expect(tabs.props('items')).toEqual([
+                {
+                    label: 'sw-sales-channel.detail.tabBase',
+                    name: 'sw.sales.channel.detail.base',
+                    onClick: expect.any(Function),
+                },
+                {
+                    label: 'sw-sales-channel.detail.productExport.tabInsights',
+                    name: 'sw.sales.channel.detail.productExportInsights',
+                    onClick: expect.any(Function),
+                },
+                {
+                    label: 'sw-sales-channel.detail.agenticCommerce.tabIntegration',
+                    name: 'sw.sales.channel.detail.agenticCommerceIntegration',
+                    onClick: expect.any(Function),
+                },
+                {
+                    label: 'sw-sales-channel.detail.tabProductComparison',
+                    name: 'sw.sales.channel.detail.productComparison',
+                    onClick: expect.any(Function),
+                },
+            ]);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        },
+    );
 
     it('should navigate when a meteor route tab is clicked', async () => {
         const routerPush = jest.fn();

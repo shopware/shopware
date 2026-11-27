@@ -4,6 +4,7 @@
 
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-sales-channel-detail.html.twig';
+import readDeprecatedComputed from '../../helper/read-deprecated-computed';
 import './sw-sales-channel-detail.scss';
 
 const { Mixin, Context, Defaults } = Shopware;
@@ -154,11 +155,59 @@ export default {
                 'sw-sales-channel-detail.showAgenticCommerceDeprecationBanner is deprecated. Will be removed.',
             );
 
-            return this.isAgenticCommerce && !this.hasSwagAgenticCommercePlugin;
+            return this.isAgenticCommerceDeprecated && !this.hasSwagAgenticCommercePluginDeprecated;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `isAgenticCommerce`
+         *
+         * Reads `isAgenticCommerce` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns `false` with the 6.8 flag, as if the member were removed.
+         */
+        isAgenticCommerceDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return false;
+            }
+
+            return readDeprecatedComputed(this, 'isAgenticCommerce');
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `hasSwagAgenticCommercePlugin`
+         *
+         * Reads `hasSwagAgenticCommercePlugin` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns `false` with the 6.8 flag, as if the member were removed.
+         */
+        hasSwagAgenticCommercePluginDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return false;
+            }
+
+            return readDeprecatedComputed(this, 'hasSwagAgenticCommercePlugin');
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `showAgenticCommerceDeprecationBanner`
+         *
+         * Reads `showAgenticCommerceDeprecationBanner` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns `false` with the 6.8 flag, as if the member were removed.
+         */
+        showAgenticCommerceDeprecationBannerDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return false;
+            }
+
+            return readDeprecatedComputed(this, 'showAgenticCommerceDeprecationBanner');
         },
 
         isProductExportChannel() {
-            return this.isProductComparison || this.isAgenticCommerce;
+            return this.isProductComparison || this.isAgenticCommerceDeprecated;
         },
 
         salesChannelDetailTabs() {
@@ -180,7 +229,7 @@ export default {
 
             const tabs = [createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base')];
 
-            if (this.isAgenticCommerce && !this.isLoading) {
+            if (this.isAgenticCommerceDeprecated && !this.isLoading) {
                 tabs.push(
                     createRouteTab(
                         'sw-sales-channel.detail.productExport.tabInsights',
@@ -201,7 +250,7 @@ export default {
                 );
             }
 
-            if (this.isAgenticCommerce && !this.isLoading) {
+            if (this.isAgenticCommerceDeprecated && !this.isLoading) {
                 tabs.push(
                     createRouteTab(
                         'sw-sales-channel.detail.agenticCommerce.tabIntegration',
@@ -306,6 +355,22 @@ export default {
                 },
             ];
         },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `defaultAgenticCommerceExportConfig`
+         *
+         * Reads `defaultAgenticCommerceExportConfig` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns no entries with the 6.8 flag, as if the member were removed.
+         */
+        defaultAgenticCommerceExportConfigDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return [];
+            }
+
+            return readDeprecatedComputed(this, 'defaultAgenticCommerceExportConfig');
+        },
     },
 
     watch: {
@@ -341,6 +406,22 @@ export default {
             this.$router.push({ name: 'sw.extension.store.landing-page' });
         },
 
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `onClickInstallAgenticCommercePlugin`
+         *
+         * Calls `onClickInstallAgenticCommercePlugin` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Does nothing with the 6.8 flag, as if the member were removed.
+         */
+        onClickInstallAgenticCommercePluginDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return;
+            }
+
+            Shopware.Feature.silence('V6_8_0_0', () => this.onClickInstallAgenticCommercePlugin());
+        },
+
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-sales-channel-detail__salesChannel',
@@ -356,7 +437,7 @@ export default {
             const hasRouteTypeId = Boolean(this.$route.params.typeId);
 
             if (!hasRouteId && hasRouteTypeId && this.salesChannel?.id) {
-                this.loadAgenticCommerceExportConfig();
+                this.loadAgenticCommerceExportConfigDeprecated();
                 return;
             }
 
@@ -365,7 +446,7 @@ export default {
             }
 
             if (hasRouteTypeId) {
-                this.loadAgenticCommerceExportConfig();
+                this.loadAgenticCommerceExportConfigDeprecated();
                 return;
             }
 
@@ -389,7 +470,7 @@ export default {
                     }
 
                     this.generateAccessUrl();
-                    this.loadAgenticCommerceExportConfig();
+                    this.loadAgenticCommerceExportConfigDeprecated();
                     this.detectCurrentTemplate();
 
                     this.isLoading = false;
@@ -566,7 +647,7 @@ export default {
                 return;
             }
 
-            if (!this.validateAgenticCommerceExportConfig()) {
+            if (!this.validateAgenticCommerceExportConfigDeprecated()) {
                 this.isLoading = false;
                 return;
             }
@@ -577,13 +658,73 @@ export default {
                 return;
             }
 
-            const configSaveSuccessful = await this.saveAgenticCommerceExportConfig();
+            const configSaveSuccessful = await this.saveAgenticCommerceExportConfigDeprecated();
 
             if (!configSaveSuccessful) {
                 return;
             }
 
             this.loadEntityData();
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `validateAgenticCommerceExportConfig`
+         *
+         * Calls `validateAgenticCommerceExportConfig` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Reports a valid config with the 6.8 flag, as if the member were removed.
+         */
+        validateAgenticCommerceExportConfigDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return true;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.validateAgenticCommerceExportConfig());
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `loadAgenticCommerceExportConfig`
+         *
+         * Calls `loadAgenticCommerceExportConfig` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Does nothing with the 6.8 flag, as if the member were removed.
+         */
+        loadAgenticCommerceExportConfigDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return Promise.resolve();
+            }
+
+            // `silence()` rejects a returned promise, and only the synchronous guard needs the silence.
+            let loading;
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                loading = this.loadAgenticCommerceExportConfig();
+            });
+
+            return loading;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `saveAgenticCommerceExportConfig`
+         *
+         * Calls `saveAgenticCommerceExportConfig` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Reports a successful save with the 6.8 flag, as if the member were removed.
+         */
+        saveAgenticCommerceExportConfigDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return Promise.resolve(true);
+            }
+
+            // `silence()` rejects a returned promise, and only the synchronous guard needs the silence.
+            let saving;
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                saving = this.saveAgenticCommerceExportConfig();
+            });
+
+            return saving;
         },
 
         /** @deprecated tag:v6.8.0 - Will be removed */
@@ -594,7 +735,8 @@ export default {
             );
 
             const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
-            const activeProvider = this.productExport?.provider ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
+            const activeProvider =
+                this.productExport?.provider ?? this.defaultAgenticCommerceExportConfigDeprecated[0]?.provider;
             let isValid = true;
 
             const activeEntries = this.agenticCommerceExportConfig.filter((entry) => {
@@ -618,7 +760,10 @@ export default {
                 'sw-sales-channel-detail.loadAgenticCommerceExportConfig() is deprecated. Will be removed.',
             );
 
-            this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
+            // Ends the caller's `Feature.silence()` before the body, so it silences only this guard.
+            await Promise.resolve();
+
+            this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfigDeprecated.map((configEntry) => {
                 return {
                     ...configEntry,
                     elements: [],
@@ -629,7 +774,7 @@ export default {
                 };
             });
 
-            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+            if (!this.isAgenticCommerceDeprecated || !this.salesChannel?.id) {
                 return;
             }
 
@@ -664,7 +809,10 @@ export default {
                 'sw-sales-channel-detail.saveAgenticCommerceExportConfig() is deprecated. Will be removed.',
             );
 
-            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+            // Ends the caller's `Feature.silence()` before the body, so it silences only this guard.
+            await Promise.resolve();
+
+            if (!this.isAgenticCommerceDeprecated || !this.salesChannel?.id) {
                 return true;
             }
 

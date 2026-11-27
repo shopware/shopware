@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 async function createWrapper(props = {}) {
     return mount(
@@ -99,5 +100,52 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
         actions.forEach((action) => {
             expect(action.attributes('disabled')).toBeUndefined();
         });
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0').each([
+        ['isAgenticCommerce', (vm) => vm.isAgenticCommerce],
+    ])('should report the use of the deprecated member %s', async (member, use) => {
+        const wrapper = await createWrapper();
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions reach the deprecated member on the instance
+        await use(wrapper.vm);
+
+        expect(deprecations).toHaveTriggered(`sw-sales-channel-detail-product-comparison.${member} is deprecated.`);
+    });
+
+    describe('core use of the deprecated Agentic Commerce members', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-sales-channel-detail-product-comparison');
+        });
+
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')('applies an override of isAgenticCommerce without reporting it', async () => {
+            Shopware.Component.override('sw-sales-channel-detail-product-comparison', {
+                computed: {
+                    isAgenticCommerce() {
+                        return true;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.find('.sw-sales-channel-detail-product-comparison__reset-action').exists()).toBe(true);
+            expect(deprecations).not.toHaveTriggered(
+                'sw-sales-channel-detail-product-comparison.isAgenticCommerce is deprecated',
+            );
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])(
+            'treats an agentic commerce channel as if the deprecated members were removed',
+            async () => {
+                const wrapper = await createWrapper({
+                    salesChannel: { typeId: Shopware.Defaults.agenticCommerceTypeId },
+                });
+
+                expect(wrapper.find('.sw-sales-channel-detail-product-comparison__reset-action').exists()).toBe(false);
+            },
+        );
     });
 });

@@ -45,9 +45,12 @@ computed
   allowSaving: any
   customFieldRepository: any  [deprecated tag:v6.8.0]
   defaultAgenticCommerceExportConfig: any  [deprecated tag:v6.8.0]
+  defaultAgenticCommerceExportConfigDeprecated: any  [deprecated tag:v6.8.0] [private]
   hasSwagAgenticCommercePlugin: any  [deprecated tag:v6.8.0]
+  hasSwagAgenticCommercePluginDeprecated: any  [deprecated tag:v6.8.0] [private]
   identifier: any
   isAgenticCommerce: any  [deprecated tag:v6.8.0]
+  isAgenticCommerceDeprecated: any  [deprecated tag:v6.8.0] [private]
   isHeadless: any
   isProductComparison: any
   isProductExportChannel: any
@@ -58,6 +61,7 @@ computed
   salesChannelDetailTabs: any
   salesChannelRepository: any
   showAgenticCommerceDeprecationBanner: any  [deprecated tag:v6.8.0]
+  showAgenticCommerceDeprecationBannerDeprecated: any  [deprecated tag:v6.8.0] [private]
   storefrontSalesChannelCriteria: any
   tooltipSave: any
 
@@ -77,24 +81,28 @@ methods
   getSalesChannelEntityName(): any
   isRequiredFieldEmpty(value: any): any
   loadAgenticCommerceExportConfig(): Promise<any>  [deprecated tag:v6.8.0]
+  loadAgenticCommerceExportConfigDeprecated(): any  [deprecated tag:v6.8.0] [private]
   loadCustomFieldSets(): any
   loadEntityData(): any
   loadProductExportTemplates(): any
   loadSalesChannel(): any
   onChangeLanguage(): any
   onClickInstallAgenticCommercePlugin(): any  [deprecated tag:v6.8.0]
+  onClickInstallAgenticCommercePluginDeprecated(): any  [deprecated tag:v6.8.0] [private]
   onSave(): Promise<any>
   onTemplateModalClose(): any
   onTemplateModalConfirm(): any
   onTemplateSelected(templateName: any): any
   prepareSaveData(): any
   saveAgenticCommerceExportConfig(): Promise<any>  [deprecated tag:v6.8.0]
+  saveAgenticCommerceExportConfigDeprecated(): any  [deprecated tag:v6.8.0] [private]
   saveFinish(): any
   saveOnLanguageChange(): Promise<any>
   saveSalesChannel(): Promise<any>
   setInvalidFileName(invalidFileName: any): any
   updateAnalytics(): any
   validateAgenticCommerceExportConfig(): any  [deprecated tag:v6.8.0]
+  validateAgenticCommerceExportConfigDeprecated(): any  [deprecated tag:v6.8.0] [private]
   validateRequiredSalesChannelFields(): any
 
 blocks

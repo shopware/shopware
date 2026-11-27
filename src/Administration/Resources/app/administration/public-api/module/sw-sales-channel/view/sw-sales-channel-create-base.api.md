@@ -17,6 +17,7 @@ computed
 methods
   createdComponent(): any
   prefillAgenticCommerceDefaults(): any  [deprecated tag:v6.8.0]
+  prefillAgenticCommerceDefaultsDeprecated(): any  [deprecated tag:v6.8.0] [private]
 
 blocks
   sw_sales_channel_detail_base  [inherited]

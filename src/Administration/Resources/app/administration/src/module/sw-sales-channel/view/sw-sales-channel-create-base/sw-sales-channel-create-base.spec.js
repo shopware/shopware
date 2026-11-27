@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
+import { deprecations } from 'test/_helper_/deprecations';
 
 async function createWrapper(salesChannel, productExport) {
     return mount(await wrapTestComponent('sw-sales-channel-create-base', { sync: true }), {
@@ -71,7 +72,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-create-base', () => 
         }));
     });
 
-    it('should prefill the feed file name of a new agentic commerce sales channel', async () => {
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')('should prefill the feed file name of a new agentic commerce sales channel', async () => {
         const productExport = {};
         await createWrapper(
             {
@@ -84,5 +86,56 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-create-base', () => 
 
         expect(productExport.fileName).toMatch(/^agentic-commerce-\w+\.jsonl$/);
         expect(productExport.accessKey).toBe('product-export-key');
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0').each([
+        ['prefillAgenticCommerceDefaults()', (vm) => vm.prefillAgenticCommerceDefaults()],
+    ])('should report the use of the deprecated member %s', async (member, use) => {
+        const wrapper = await createWrapper({ typeId: Shopware.Defaults.agenticCommerceTypeId, configuration: {} }, {});
+        await flushPromises();
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions reach the deprecated member on the instance
+        await use(wrapper.vm);
+
+        expect(deprecations).toHaveTriggered(`sw-sales-channel-create-base.${member} is deprecated.`);
+    });
+
+    describe('core use of the deprecated Agentic Commerce members', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-sales-channel-create-base');
+        });
+
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')(
+            'applies an override of prefillAgenticCommerceDefaults() without reporting it',
+            async () => {
+                const prefillOverride = jest.fn();
+                Shopware.Component.override('sw-sales-channel-create-base', {
+                    methods: {
+                        prefillAgenticCommerceDefaults: prefillOverride,
+                    },
+                });
+
+                await createWrapper({ typeId: Shopware.Defaults.agenticCommerceTypeId, configuration: {} }, {});
+                await flushPromises();
+
+                expect(prefillOverride).toHaveBeenCalled();
+                expect(deprecations).not.toHaveTriggered(
+                    'sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated',
+                );
+            },
+        );
+
+        it.activeFeatureFlags(['v6.8.0.0'])(
+            'treats an agentic commerce channel as if the deprecated members were removed',
+            async () => {
+                const productExport = {};
+                await createWrapper({ typeId: Shopware.Defaults.agenticCommerceTypeId, configuration: {} }, productExport);
+                await flushPromises();
+
+                expect(productExport.fileName).toBeUndefined();
+            },
+        );
     });
 });

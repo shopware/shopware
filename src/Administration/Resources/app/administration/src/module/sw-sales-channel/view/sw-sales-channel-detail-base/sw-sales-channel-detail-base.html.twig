@@ -240,24 +240,24 @@
     </mt-card>
     {% endblock %}
 
-    <template v-if="isAgenticCommerce">
+    <template v-if="isAgenticCommerceDeprecated">
         <mt-card
-            v-for="configEntry in resolvedAgenticCommerceExportConfig"
+            v-for="configEntry in resolvedAgenticCommerceExportConfigDeprecated"
             :key="configEntry.provider"
             position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-provider"
-            :title="getAgenticCommerceExportCardTitle(configEntry)"
+            :title="getAgenticCommerceExportCardTitleDeprecated(configEntry)"
         >
             <sw-skeleton v-if="configEntry.isLoading" />
 
             <template v-else>
                 <sw-form-field-renderer
                     v-for="element in configEntry.elements"
-                    v-bind="getAgenticCommerceExportElementBind(element)"
+                    v-bind="getAgenticCommerceExportElementBindDeprecated(element)"
                     :key="`${configEntry.provider}-${element.name}`"
                     :value="configEntry.values[element.name]"
                     :error="configEntry.errors && configEntry.errors[element.name] ? configEntry.errors[element.name] : null"
                     :disabled="!acl.can('sales_channel.editor') || isLoading || configEntry.isLoading"
-                    @update:value="onAgenticCommerceExportFieldUpdate(configEntry, element.name, $event)"
+                    @update:value="onAgenticCommerceExportFieldUpdateDeprecated(configEntry, element.name, $event)"
                 />
             </template>
         </mt-card>
@@ -265,7 +265,7 @@
 
     {% block sw_sales_channel_detail_agentic_commerce_tracking %}
     <sw-agentic-commerce-tracking-config
-        v-if="isAgenticCommerce"
+        v-if="isAgenticCommerceDeprecated"
         :sales-channel="salesChannel"
         :disabled="!acl.can('sales_channel.editor') || undefined"
         @change="onTrackingConfigChange"
@@ -627,7 +627,7 @@
 
     {% block sw_sales_channel_detail_base_options_api %}
     <mt-card
-        v-if="salesChannel && !isAgenticCommerce"
+        v-if="salesChannel && !isAgenticCommerceDeprecated"
         position-identifier="sw-sales-channel-detail-base-options-api"
         :is-loading="isLoading"
         :title="$t('sw-sales-channel.detail.titleOptionsApiKey')"

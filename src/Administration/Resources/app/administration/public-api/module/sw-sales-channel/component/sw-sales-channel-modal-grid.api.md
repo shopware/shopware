@@ -34,11 +34,13 @@ methods
   createdComponent(): any
   getTooltip(item: any): any
   isAgenticCommerceSalesChannelType(salesChannelTypeId: any): any  [deprecated tag:v6.8.0]
+  isAgenticCommerceSalesChannelTypeDeprecated(salesChannelTypeId: any): any  [deprecated tag:v6.8.0] [private]
   isDisabled(item: any): any
   isProductComparisonSalesChannelType(salesChannelTypeId: any): any
   onAddChannel(id: any): any
   onOpenDetail(id: any): any
   showAgenticCommerceType(): any  [deprecated tag:v6.8.0]
+  showAgenticCommerceTypeDeprecated(): any  [deprecated tag:v6.8.0] [private]
 
 blocks
   sw_sales_channel_modal_grid

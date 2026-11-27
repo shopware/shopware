@@ -88,13 +88,45 @@ export default {
             return salesChannelTypeId === Defaults.agenticCommerceTypeId;
         },
 
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `isAgenticCommerceSalesChannelType`
+         *
+         * Calls `isAgenticCommerceSalesChannelType` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns `false` with the 6.8 flag, as if the member were removed.
+         */
+        isAgenticCommerceSalesChannelTypeDeprecated(salesChannelTypeId) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return false;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.isAgenticCommerceSalesChannelType(salesChannelTypeId));
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `showAgenticCommerceType`
+         *
+         * Calls `showAgenticCommerceType` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns `false` with the 6.8 flag, as if the member were removed.
+         */
+        showAgenticCommerceTypeDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return false;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.showAgenticCommerceType());
+        },
+
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
         },
 
         getTooltip(item) {
             const isDisabledAgenticCommerceType =
-                !this.showAgenticCommerceType() && this.isAgenticCommerceSalesChannelType(item.id);
+                !this.showAgenticCommerceTypeDeprecated() && this.isAgenticCommerceSalesChannelTypeDeprecated(item.id);
             const messageKey = isDisabledAgenticCommerceType
                 ? 'sw-sales-channel.modal.messageAgenticCommerce'
                 : 'sw-sales-channel.modal.messageNoProductStreams';
@@ -109,7 +141,7 @@ export default {
         isDisabled(item) {
             return (
                 this.addChannelAction.disabled(item.id) ||
-                (!this.showAgenticCommerceType() && this.isAgenticCommerceSalesChannelType(item.id))
+                (!this.showAgenticCommerceTypeDeprecated() && this.isAgenticCommerceSalesChannelTypeDeprecated(item.id))
             );
         },
 

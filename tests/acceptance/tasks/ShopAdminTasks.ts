@@ -9,6 +9,14 @@ import { UploadImage } from './ShopAdmin/Product/UploadImage';
  * Product
  */
 import { GenerateVariants } from './ShopAdmin/Product/GenerateVariants';
+import { UploadDocument } from './ShopAdmin/Product/UploadDocument';
+import { RenameDocument } from './ShopAdmin/Product/RenameDocument';
+import { SortDocument } from './ShopAdmin/Product/SortDocument';
+import { ReplaceDocument } from './ShopAdmin/Product/ReplaceDocument';
+import { DeleteDocument } from './ShopAdmin/Product/DeleteDocument';
+import { DisableDocumentInheritance } from './ShopAdmin/Product/DisableDocumentInheritance';
+import { SwitchAdminLanguage } from './ShopAdmin/Product/SwitchAdminLanguage';
+import { AddDocumentLanguageVersion } from './ShopAdmin/Product/AddDocumentLanguageVersion';
 
 /**
  * First Run Wizard
@@ -50,6 +58,14 @@ import { WaitForFlowValidationSideEffects } from '@tasks/ShopAdmin/FlowBuilder/W
 export const test = mergeTests(
     GenerateVariants,
     UploadImage,
+    UploadDocument,
+    RenameDocument,
+    SortDocument,
+    ReplaceDocument,
+    DeleteDocument,
+    DisableDocumentInheritance,
+    SwitchAdminLanguage,
+    AddDocumentLanguageVersion,
     FRWSalesChannelSelectionPossibility,
     CreateCustomField,
     CreateLandingPage,

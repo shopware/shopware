@@ -18,6 +18,7 @@ class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 
         if (!$isDebugEnabled) {
             $container->removeDefinition(DataCollector::class);
+            $container->removeDefinition(ElasticsearchRequestLog::class);
 
             return;
         }

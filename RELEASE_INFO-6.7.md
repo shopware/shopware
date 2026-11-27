@@ -46,6 +46,15 @@ The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPr
 
 The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
 
+### DAL panel in the Symfony profiler
+
+In the `dev` environment, the Symfony profiler has a new "DAL" panel.
+It lists every read and write of the Data Abstraction Layer with its entity, criteria or payload, context, duration, result count, the calling code and the SQL and Elasticsearch queries it caused.
+This includes searches, id searches, aggregations, upserts, inserts, updates, deletes and Sync API requests.
+Reads that repeat the entity and criteria shape of another read, and writes that repeat from the same line of code, are flagged as possible N+1 queries.
+The panel also warns about calls that take 100 ms or more, reads of 200 or more entities without a limit, and writes during GET or HEAD requests.
+The panel records calls only while the SQL profiler records queries: on web requests, and on console commands run with `--profile`.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

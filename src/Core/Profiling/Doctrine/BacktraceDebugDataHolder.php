@@ -25,6 +25,11 @@ class BacktraceDebugDataHolder extends DebugDataHolder
     private array $backtraces = [];
 
     /**
+     * @var array<string, int>
+     */
+    private array $queryCounts = [];
+
+    /**
      * @param array<string> $connWithBacktraces
      */
     public function __construct(private readonly array $connWithBacktraces)
@@ -36,11 +41,14 @@ class BacktraceDebugDataHolder extends DebugDataHolder
         parent::reset();
 
         $this->backtraces = [];
+        $this->queryCounts = [];
     }
 
     public function addQuery(string $connectionName, Query $query): void
     {
         parent::addQuery($connectionName, $query);
+
+        $this->queryCounts[$connectionName] = ($this->queryCounts[$connectionName] ?? 0) + 1;
 
         if (!\in_array($connectionName, $this->connWithBacktraces, true)) {
             return;
@@ -50,6 +58,14 @@ class BacktraceDebugDataHolder extends DebugDataHolder
         /** @var Backtrace $withoutMiddleware */
         $withoutMiddleware = \array_slice(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS), 2);
         $this->backtraces[$connectionName][] = $withoutMiddleware;
+    }
+
+    /**
+     * @internal
+     */
+    public function getQueryCount(string $connectionName): int
+    {
+        return $this->queryCounts[$connectionName] ?? 0;
     }
 
     /**

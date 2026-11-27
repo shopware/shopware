@@ -9,6 +9,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Compiler\RemoveDevServices;
 use Shopware\Core\Profiling\Controller\ProfilerController;
+use Shopware\Core\Profiling\DataAbstractionLayer\DalCollector;
+use Shopware\Core\Profiling\DataAbstractionLayer\ProfilingEntityAggregator;
+use Shopware\Core\Profiling\DataAbstractionLayer\ProfilingEntityReader;
+use Shopware\Core\Profiling\DataAbstractionLayer\ProfilingEntitySearcher;
+use Shopware\Core\Profiling\DataAbstractionLayer\ProfilingEntityWriter;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -27,6 +32,25 @@ class RemoveDevServicesTest extends TestCase
         (new RemoveDevServices())->process($container);
 
         static::assertFalse($container->hasDefinition(ProfilerController::class));
+    }
+
+    #[TestDox('removes the DAL collector and its decorators when there is no profiler service')]
+    public function testRemovesDalProfilingWithoutProfilerService(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register(DalCollector::class);
+        $container->register(ProfilingEntityReader::class);
+        $container->register(ProfilingEntitySearcher::class);
+        $container->register(ProfilingEntityAggregator::class);
+        $container->register(ProfilingEntityWriter::class);
+
+        (new RemoveDevServices())->process($container);
+
+        static::assertFalse($container->hasDefinition(DalCollector::class));
+        static::assertFalse($container->hasDefinition(ProfilingEntityReader::class));
+        static::assertFalse($container->hasDefinition(ProfilingEntitySearcher::class));
+        static::assertFalse($container->hasDefinition(ProfilingEntityAggregator::class));
+        static::assertFalse($container->hasDefinition(ProfilingEntityWriter::class));
     }
 
     #[TestDox('keeps the ProfilerController when the profiler service exists and the web profiler bundle is installed')]

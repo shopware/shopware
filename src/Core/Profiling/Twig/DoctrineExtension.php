@@ -7,6 +7,7 @@ use Doctrine\SqlFormatter\NullHighlighter;
 use Doctrine\SqlFormatter\SqlFormatter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\VarDumper\Cloner\Data;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -29,6 +30,7 @@ class DoctrineExtension extends AbstractExtension
             new TwigFilter('doctrine_prettify_sql', $this->prettifySql(...), ['is_safe' => ['html']]),
             new TwigFilter('doctrine_format_sql', $this->formatSql(...), ['is_safe' => ['html']]),
             new TwigFilter('doctrine_replace_query_parameters', $this->replaceQueryParameters(...)),
+            new TwigFilter('doctrine_binary_to_hex', $this->binaryToHex(...)),
         ];
     }
 
@@ -118,6 +120,35 @@ class DoctrineExtension extends AbstractExtension
             },
             $query
         );
+    }
+
+    /**
+     * @internal
+     *
+     * @param array<mixed>|Data $parameters
+     */
+    public function binaryToHex(array|Data $parameters): Data
+    {
+        $values = $parameters instanceof Data ? $parameters->getValue(true) : $parameters;
+        $converted = false;
+
+        if (\is_array($values)) {
+            array_walk_recursive($values, static function (mixed &$value) use (&$converted): void {
+                if (\is_string($value) && !preg_match('//u', $value)) {
+                    $value = bin2hex($value);
+                    $converted = true;
+                }
+            });
+        }
+
+        if (!$converted && $parameters instanceof Data) {
+            return $parameters;
+        }
+
+        $cloner = new VarCloner();
+        $cloner->setMaxItems(-1);
+
+        return $cloner->cloneVar($values);
     }
 
     public function prettifySql(string $sql): string

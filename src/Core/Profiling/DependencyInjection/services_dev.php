@@ -4,8 +4,17 @@ namespace Shopware\Core\Profiling\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Profiling\Controller\ProfilerController;
+use Shopware\Core\Profiling\DataAbstractionLayer\DalCollector;
+use Shopware\Core\Profiling\DataAbstractionLayer\ProfilingEntityAggregator;
+use Shopware\Core\Profiling\DataAbstractionLayer\ProfilingEntityReader;
+use Shopware\Core\Profiling\DataAbstractionLayer\ProfilingEntitySearcher;
+use Shopware\Core\Profiling\DataAbstractionLayer\ProfilingEntityWriter;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Shopware\Core\Profiling\FeatureFlag\FeatureFlagProfiler;
 use Shopware\Core\Profiling\Routing\ProfilerWhitelist;
@@ -16,6 +25,7 @@ use Shopware\Core\Profiling\Twig\DoctrineExtension;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
@@ -39,6 +49,45 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             'template' => '@Profiling/Collector/db.html.twig',
             'id' => 'app.connection_collector',
             'priority' => 200,
+        ]);
+
+    $services->set(DalCollector::class)
+        ->args([
+            service(Connection::class),
+            tagged_iterator('shopware.profiler.dal_request_log'),
+        ])
+        ->tag('data_collector', [
+            'template' => '@Profiling/Collector/dal.html.twig',
+            'id' => 'dal',
+            'priority' => 199,
+        ]);
+
+    $services->set(ProfilingEntityReader::class)
+        ->decorate(EntityReaderInterface::class, null, \PHP_INT_MIN)
+        ->args([
+            service(ProfilingEntityReader::class . '.inner'),
+            service(DalCollector::class),
+        ]);
+
+    $services->set(ProfilingEntitySearcher::class)
+        ->decorate(EntitySearcherInterface::class, null, \PHP_INT_MIN)
+        ->args([
+            service(ProfilingEntitySearcher::class . '.inner'),
+            service(DalCollector::class),
+        ]);
+
+    $services->set(ProfilingEntityAggregator::class)
+        ->decorate(EntityAggregatorInterface::class, null, \PHP_INT_MIN)
+        ->args([
+            service(ProfilingEntityAggregator::class . '.inner'),
+            service(DalCollector::class),
+        ]);
+
+    $services->set(ProfilingEntityWriter::class)
+        ->decorate(EntityWriter::class, null, \PHP_INT_MIN)
+        ->args([
+            service(ProfilingEntityWriter::class . '.inner'),
+            service(DalCollector::class),
         ]);
 
     $services->set(DoctrineExtension::class)

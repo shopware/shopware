@@ -1799,6 +1799,11 @@ Its sync requests queue the indexing of the products they write, so extensions s
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
 
+## Removed `sw-media-field.popoverConfig`
+
+The `popoverConfig` computed property of `sw-media-field` was removed without replacement.
+The media picker renders in `mt-floating-ui`, which positions itself and does not read a popover configuration.
+
 ## Deprecated state select styling members in the order module
 
 The `backgroundStyle` and `roundedStyle` props and the `selectStyle` computed property of `sw-order-state-select-v2` were removed without replacement. The select derives the status color from its `stateName` prop instead. For the same reason, the `backgroundStyle()` method of `sw-order-general-info` and the `stateSelectBackgroundStyle` computed property of `sw-order-details-state-card` were removed.

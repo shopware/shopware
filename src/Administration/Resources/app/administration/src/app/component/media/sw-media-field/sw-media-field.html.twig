@@ -34,6 +34,7 @@
 
         {% block sw_media_field_toggle_button %}
         <mt-button
+            ref="toggleButton"
             class="sw-media-field__toggle-button"
             square
             :disabled="disabled"
@@ -45,12 +46,14 @@
             {% endblock %}
 
             {% block sw_media_field_media_popover %}
-            <sw-popover
+            {# Mounted only while open: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
+            <mt-floating-ui
                 v-if="showPicker"
-                :z-index="1100"
-                popover-class="sw-media-field__expanded-content"
-                class="sw-media-field__popover"
-                :popover-config-extension="popoverConfig"
+                class="sw-media-field__expanded-content"
+                :is-opened="true"
+                :anchor-element="$refs.toggleButton?.$el"
+                :floating-ui-options="{ placement: 'bottom-end' }"
+                detached
             >
                 <div @click.stop>
                     {% block sw_media_field_action_bar %}
@@ -152,7 +155,7 @@
                         />
                     </div>
                 </div>
-            </sw-popover>
+            </mt-floating-ui>
             {% endblock %}
         </mt-button>
         {% endblock %}

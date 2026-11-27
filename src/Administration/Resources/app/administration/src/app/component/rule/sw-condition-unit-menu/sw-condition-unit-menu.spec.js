@@ -4,6 +4,14 @@
 
 import { mount } from '@vue/test-utils';
 
+const floatingUiStub = {
+    props: [
+        'isOpened',
+        'anchorElement',
+    ],
+    template: '<div><slot v-if="isOpened"></slot></div>',
+};
+
 async function createWrapper({ type, value, visibleValue }) {
     return mount(await wrapTestComponent('sw-condition-unit-menu', { sync: true }), {
         props: {
@@ -14,7 +22,7 @@ async function createWrapper({ type, value, visibleValue }) {
         global: {
             renderStubDefaultSlot: true,
             stubs: {
-                'sw-popover': true,
+                'mt-floating-ui': floatingUiStub,
             },
         },
     });
@@ -209,5 +217,21 @@ describe('components/rule/sw-condition-unit-menu', () => {
                 value: undefined,
             },
         ]);
+    });
+
+    it('anchors the menu to the unit button', async () => {
+        const wrapper = await createWrapper({
+            type: 'weight',
+            value: 1,
+            visibleValue: undefined,
+        });
+
+        await wrapper.get('.sw-condition-unit-menu').trigger('click');
+
+        expect(wrapper.getComponent(floatingUiStub).props('anchorElement')).toBe(
+            wrapper.get('button.sw-condition-unit-menu').element,
+        );
+        expect(wrapper.getComponent(floatingUiStub).props('isOpened')).toBe(true);
+        expect(wrapper.getComponent(floatingUiStub).classes()).toContain('sw-condition-unit-menu__popover');
     });
 });

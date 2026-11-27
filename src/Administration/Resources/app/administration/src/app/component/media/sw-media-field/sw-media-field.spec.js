@@ -2,6 +2,18 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
+
+const floatingUiStub = {
+    props: [
+        'isOpened',
+        'anchorElement',
+        'floatingUiOptions',
+    ],
+    template: '<div><slot v-if="isOpened"></slot></div>',
+};
+
+const popoverConfigDeprecation = 'sw-media-field.popoverConfig is deprecated.';
 
 describe('src/app/component/media/sw-media-field', () => {
     async function createWrapper() {
@@ -13,13 +25,7 @@ describe('src/app/component/media/sw-media-field', () => {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-media-media-item': true,
-                    'sw-popover': {
-                        template: `
-                        <div>
-                            <slot />
-                        </div>
-                    `,
-                    },
+                    'mt-floating-ui': floatingUiStub,
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-simple-search-field': true,
@@ -82,7 +88,7 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.find('.sw-media-field__label').text()).toBe('Media');
     });
 
-    it('should stop propagation when sw-popover content is clicked', async () => {
+    it('should stop propagation when the picker content is clicked', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -126,21 +132,26 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
     });
 
-    it('returns empty config when picker is false', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-media-field.popoverConfig.
+    it.deprecated('v6.8.0.0')('returns empty config when picker is false', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.popoverConfig).toEqual({});
+        expect(deprecations).toHaveTriggered(popoverConfigDeprecation);
     });
 
-    it('returns empty config when not inside a modal', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-media-field.popoverConfig.
+    it.deprecated('v6.8.0.0')('returns empty config when not inside a modal', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
 
         wrapper.element.closest = jest.fn(() => null);
         expect(wrapper.vm.popoverConfig).toEqual({});
+        expect(deprecations).toHaveTriggered(popoverConfigDeprecation);
     });
 
-    it('returns modal targetSelector when picker open inside modal', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-media-field.popoverConfig.
+    it.deprecated('v6.8.0.0')('returns modal targetSelector when picker open inside modal', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
 
@@ -151,6 +162,7 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(config).toEqual({
             targetSelector: '.mt-modal',
         });
+        expect(deprecations).toHaveTriggered(popoverConfigDeprecation);
     });
 
     it('should render sw-upload-listener with correct upload tag and auto-upload', async () => {
@@ -174,5 +186,14 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.emitted('update:value')).toEqual([[targetId]]);
         expect(wrapper.vm.showUploadField).toBe(false);
         expect(wrapper.vm.showPicker).toBe(false);
+    });
+
+    it('anchors the picker to the toggle button and aligns it with the button end', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ showPicker: true });
+        const floatingUi = wrapper.getComponent(floatingUiStub);
+
+        expect(floatingUi.props('anchorElement')).toBe(wrapper.get('.sw-media-field__toggle-button').element);
+        expect(floatingUi.props('floatingUiOptions')).toEqual({ placement: 'bottom-end' });
     });
 });

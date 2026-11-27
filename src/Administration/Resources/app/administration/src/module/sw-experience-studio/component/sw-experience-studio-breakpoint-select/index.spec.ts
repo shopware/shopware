@@ -27,6 +27,13 @@ describe('Experience Studio breakpoint selection', () => {
         await openMenu();
         const overlay = menu();
         expect(labels()).toEqual(['sm', 'md', 'lg']);
+        expect(
+            options().map((option) =>
+                Array.from(option.querySelectorAll('.sw-experience-studio-breakpoint-select__detail'))
+                    .at(-1)
+                    ?.textContent?.trim(),
+            ),
+        ).toEqual(['SM', 'MD', 'sw-experience-studio.breakpointSelect.base']);
         expect(options().find((option) => option.getAttribute('aria-checked') === 'true')?.dataset.breakpoint).toBe('lg');
 
         toggle()?.click();

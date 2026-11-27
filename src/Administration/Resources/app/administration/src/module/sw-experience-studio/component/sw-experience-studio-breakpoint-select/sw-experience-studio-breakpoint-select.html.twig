@@ -89,18 +89,9 @@
                             size="s"
                             :label="$t('global.default.error')"
                         />
-                        <span
-                            v-if="size.id === base"
-                            class="sw-experience-studio-breakpoint-select__detail"
-                        >
-                            {{ $t('sw-experience-studio.breakpointSelect.base') }}
-                        </span>
                     </span>
-                    <span
-                        v-if="expanded"
-                        class="sw-experience-studio-breakpoint-select__detail"
-                    >
-                        {{ size.id.toUpperCase() }}
+                    <span class="sw-experience-studio-breakpoint-select__detail">
+                        {{ size.id === base ? $t('sw-experience-studio.breakpointSelect.base') : size.id.toUpperCase() }}
                     </span>
                     <span class="sw-experience-studio-breakpoint-select__check">
                         <mt-icon

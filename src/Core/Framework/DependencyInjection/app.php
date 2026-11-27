@@ -1112,6 +1112,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AppUrlVerificationCheck::class)
         ->args([
             service(AppUrlVerifier::class),
+            env('APP_URL_CHECK_DISABLED')->bool(),
         ])
         ->tag('shopware.system_check');
 

@@ -46,7 +46,7 @@ class AppUrlVerificationCheckTest extends TestCase
                 404,
             ));
 
-        $result = (new AppUrlVerificationCheck($verifier))->run();
+        $result = (new AppUrlVerificationCheck($verifier, appUrlCheckDisabled: false))->run();
 
         static::assertSame('AppUrlVerification', $result->name);
         static::assertSame($expectedStatus, $result->status);
@@ -58,9 +58,20 @@ class AppUrlVerificationCheckTest extends TestCase
         ], $result->extra);
     }
 
+    public function testItIsSkippedWhenTheAppUrlCheckIsDisabled(): void
+    {
+        $verifier = $this->createMock(AppUrlVerifier::class);
+        $verifier->expects($this->never())->method('forceVerify');
+
+        $result = (new AppUrlVerificationCheck($verifier, appUrlCheckDisabled: true))->run();
+
+        static::assertSame(Status::SKIPPED, $result->status);
+        static::assertSame('APP_URL check is disabled', $result->message);
+    }
+
     public function testItOnlyRunsInLongRunningChecksAfterTheRollout(): void
     {
-        $check = new AppUrlVerificationCheck(static::createStub(AppUrlVerifier::class));
+        $check = new AppUrlVerificationCheck(static::createStub(AppUrlVerifier::class), appUrlCheckDisabled: false);
 
         static::assertSame(Category::EXTERNAL, $check->category());
         static::assertTrue($check->allowedToRunIn(SystemCheckExecutionContext::CLI));

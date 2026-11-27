@@ -12,17 +12,21 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutAttachRequest
+final readonly class ContentLayoutAttachRequest
 {
+    use TargetsMutation;
+
     /**
      * @param array<string, mixed> $element
      */
     public function __construct(
-        public readonly array $element,
-        public readonly ?string $expectedVersion,
-        public readonly ?string $parentElementId = null,
-        public readonly ?string $slot = null,
-        public readonly ?int $index = null,
+        public array $element,
+        public ?string $expectedVersion,
+        public ?string $parentElementId = null,
+        public ?string $slot = null,
+        public ?int $index = null,
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

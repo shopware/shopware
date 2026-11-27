@@ -28,21 +28,21 @@ mirroring.
 
 `@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`.
 
-`mutate()` first checks the mutation's declared write privilege (below), then serializes concurrent writers for the
-layout id under a `lock.factory` named lock so the load → version-check → commit span is atomic, closing the
-lost-update window. `mutate()` loads by id
+`mutate()` first checks the mutation's declared write privilege (below), then runs everything else inside `Layout/LayoutRowLock::run()`: one transaction that locks the layout row before it reads anything.
+`LayoutRevisionService` takes the same lock, so a persisted mutation and a publish of one layout serialize, and the later one sees the earlier one's write.
+`mutate()` loads by id
 (`ContentSystemException::contentLayoutNotFound`, 404, if absent), guards the optimistic-concurrency token against
 the row's `updatedAt`. A mismatch is `layoutVersionConflict`, 409, without writing. An unparseable token is a `400`
 `invalidVersionToken`. A `null` token matches a never-updated row. `mutate()` applies the op to the loaded `getLayout()` tree
 as it is (the entity and the operations speak the same stored model), seeds compatible default mappings only on `freshlyScaffolded()` IDs, and persists the mutated tree's `roots` via
-`update()`, which runs the resolvability gates and rejects a resolvability-breaking edit. `mutate()` returns the
-`MutationResult`.
+`update()`, which runs the resolvability gates and rejects a resolvability-breaking edit.
+`mutate()` diagnoses the mutated tree inside the same transaction, so a failing diagnosis rolls the write back, and returns the `MutationResult`.
 
 A mutation may declare a write privilege through `LayoutMutation::writePrivilege()`. Only `Op/TranslateElement` does
 (`content_layout:translate`). `mutate()` throws `ContentSystemException::missingPrivileges` (`403`) when
 `Context::isAllowed()` denies it, before the lock, the load, the version guard and `apply()`, so a caller lacking it
 gets the `403` ahead of any read, `404`, `409` or `400`. The private `commit()` then runs the `update()` call alone in
-`Context::SYSTEM_SCOPE` through `Context::scope()`: the load before it and the post-commit `diagnose()` stay on the caller's context, because
+`Context::SYSTEM_SCOPE` through `Context::scope()`: the load before it and the `diagnose()` after it stay on the caller's context, because
 `Context::scope()` switches the very context it is called on. In system scope `AclWriteValidator` checks no privilege,
 while `Validation/ContentLayoutWriteValidator`, the lock and the version guard run as for every write. A `null`
 privilege writes on the caller's context unchanged. `MutationPipeline` persists nothing and never reads the privilege.
@@ -51,7 +51,7 @@ The token is compared at storage precision: `content_layout.updated_at` is `DATE
 serializes `updatedAt` at millisecond precision, so seconds plus milliseconds are compared rather than
 microseconds.
 
-It runs no consumer mirroring at all, so a persisted mutation commits without mirrored wiring.
+`mutate()` runs no consumer mirroring at all, so a live persisted mutation commits without mirrored wiring.
 
 The locked layout's `root_source` initializes `StoredTree::$rootSource`. Operations, default seeding, and tree transforms use and preserve that source. Response diagnostics resolve it through `RootSourceRegistry::resolveGated()`; binding checks run for bound sources, including an empty context for `none`/header/footer. The preceding update checks source membership and rejects a de-registered source before commit. Internal `MapProperty` calls without a source fail with `MAPPING_ROOT_SOURCE_MISSING` (500); missing/blank or unknown request sources remain HTTP 400.
 
@@ -59,19 +59,26 @@ Content the op detaches (`orphaned`), wiring it drops (`droppedWiring`), and sta
 (`droppedProperties`) come back in the `MutationResult`. The caller can then re-place orphans with `Op/AttachElement`, re-wire dropped keys, or re-apply dropped
 values.
 
+### Draft target
+
+`mutateDraft()` applies the mutation to the head of a draft, a named pointer into the revision graph, instead of the live tree.
+It checks the declared write privilege first, exactly like `mutate()`.
+`expectedHeadRevisionId` is the draft head revision id the caller last saw; a stale head is `layoutVersionConflict`, 409.
+`Layout/Revision/LayoutRevisionService::appendRevision()` checks the head under the layout row lock and hands the head tree to the mutation.
+The mutation runs through `MutationPipeline::run()`, consumer mirroring included, against the layout's `root_source` and its resolved root context.
+The result is admitted for well-formedness only and appended as one revision whose parent is the old head.
+The live `layout` column is not written; publishing is what enforces resolvability.
+A rejected operation or admission appends nothing and leaves the head where it was.
+`mutateDraft()` returns a `DraftMutationResult` with the pipeline's `MutationResult`, the new revision and the moved draft.
+
 ### Interim limitations
 
-Three known limitations are deferred to the planned layout draft/versioning system that will supersede this
-`expectedVersion`/lock mechanism:
+Drafts guard their own edits with `expectedHeadRevisionId` and leave `expectedVersion` in place for live mutations, so one limitation remains:
 
-1. The per-layout lock has a fixed `5.0`s TTL, so a critical section that runs longer could let the lock expire
-   mid-write and reopen the lost-update window the lock closes. The optimistic `updatedAt` token still narrows that
-   window but does not eliminate it.
-2. `diagnose()` runs after `update()` has already committed, so if it throws the caller sees an error even though
-   the write landed. The committed tree is the source of truth, and a retry re-reads the bumped `updatedAt` and gets
-   a `409` `layoutVersionConflict`.
-3. A layout write through the DAL takes neither the lock nor the `expectedVersion` token, so it overwrites a
+1. A layout write through the DAL takes neither the lock nor the `expectedVersion` token, so it overwrites a
    persisted mutation that committed after the writer loaded the layout, and neither side gets an error.
+   Drafts only detect such a write: the next draft write adopts the column as the live revision, and drafts opened
+   before it can no longer be published, see `LayoutRevisionService::reconcile()`.
 
 ## MutationResult assembly
 

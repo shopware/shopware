@@ -11,15 +11,19 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutInsertRequest
+final readonly class ContentLayoutInsertRequest
 {
+    use TargetsMutation;
+
     public function __construct(
-        public readonly string $type,
-        public readonly ?string $expectedVersion,
-        public readonly ?string $parentElementId = null,
-        public readonly ?string $slot = null,
-        public readonly ?int $index = null,
-        public readonly ?string $bindingSpecificationId = null,
+        public string $type,
+        public ?string $expectedVersion,
+        public ?string $parentElementId = null,
+        public ?string $slot = null,
+        public ?int $index = null,
+        public ?string $bindingSpecificationId = null,
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

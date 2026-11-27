@@ -1,0 +1,382 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/content-system/layout/{layoutId}/drafts": {
+            "get": {
+                "tags": [
+                    "Content System"
+                ],
+                "summary": "List the drafts of a stored layout",
+                "operationId": "contentSystemLayoutListDrafts",
+                "description": "Lists the drafts of the stored layout named by `{layoutId}`, most recently updated first. Requires the `content_layout:read` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout`.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The drafts of the layout.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "drafts"
+                                    ],
+                                    "properties": {
+                                        "drafts": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ContentLayoutDraft"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/drafts/{draftId}": {
+            "get": {
+                "tags": [
+                    "Content System"
+                ],
+                "summary": "Read a draft of a stored layout",
+                "operationId": "contentSystemLayoutReadDraft",
+                "description": "Returns the draft and the element tree of its head revision. Requires the `content_layout:read` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout`.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    },
+                    {
+                        "name": "draftId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the draft.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3c"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The draft and its head tree.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "draft",
+                                        "layout"
+                                    ],
+                                    "properties": {
+                                        "draft": {
+                                            "$ref": "#/components/schemas/ContentLayoutDraft"
+                                        },
+                                        "layout": {
+                                            "type": "array",
+                                            "description": "The element tree of the draft head, serialized the same way a stored layout is.",
+                                            "items": {
+                                                "$ref": "#/components/schemas/StoredContentElement"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/published-revisions": {
+            "get": {
+                "tags": [
+                    "Content System"
+                ],
+                "summary": "List the published revisions of a stored layout",
+                "operationId": "contentSystemLayoutListPublishedRevisions",
+                "description": "Lists the revisions of the stored layout named by `{layoutId}` that have been live, most recently live first: the revisions `create-draft` accepts as `fromRevisionId` to roll back. A layout write that bypassed publishing is listed only after the next draft write adopts it. Requires the `content_layout:read` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout`.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The published revisions of the layout.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "revisions"
+                                    ],
+                                    "properties": {
+                                        "revisions": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ContentLayoutPublishedRevision"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/create-draft": {
+            "post": {
+                "tags": [
+                    "Content System"
+                ],
+                "summary": "Create a draft of a stored layout",
+                "operationId": "contentSystemLayoutCreateDraft",
+                "description": "Opens a draft at the live revision, or at `fromRevisionId` to roll back to an older revision listed by `published-revisions`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout`.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 1,
+                                        "maxLength": 255,
+                                        "description": "Display name of the draft; not blank. Defaults to `Draft`.",
+                                        "example": "Summer campaign"
+                                    },
+                                    "fromRevisionId": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "description": "Revision of the layout to open the draft from instead of the live revision. An unknown revision is rejected with `404` (`contentLayoutRevisionNotFound`).",
+                                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3e"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The created draft.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "draft"
+                                    ],
+                                    "properties": {
+                                        "draft": {
+                                            "$ref": "#/components/schemas/ContentLayoutDraft"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/discard-draft": {
+            "post": {
+                "tags": [
+                    "Content System"
+                ],
+                "summary": "Discard a draft of a stored layout",
+                "operationId": "contentSystemLayoutDiscardDraft",
+                "description": "Removes the draft, then deletes every revision except the live one, the 20 most recently live ones and the base, head and live-at-open revision of each remaining draft. The live layout is not written. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout`.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "draftId"
+                                ],
+                                "properties": {
+                                    "draftId": {
+                                        "type": "string",
+                                        "description": "The draft to discard.",
+                                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3c"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "The draft was discarded."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/publish-draft": {
+            "post": {
+                "tags": [
+                    "Content System"
+                ],
+                "summary": "Publish a draft of a stored layout",
+                "operationId": "contentSystemLayoutPublishDraft",
+                "description": "Writes the draft head to the live layout through the DAL, which enforces resolvability, and removes the draft. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout`.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "draftId",
+                                    "expectedHeadRevisionId"
+                                ],
+                                "properties": {
+                                    "draftId": {
+                                        "type": "string",
+                                        "description": "The draft to publish.",
+                                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3c"
+                                    },
+                                    "expectedHeadRevisionId": {
+                                        "type": "string",
+                                        "description": "The draft head revision id as last read (`draft.headRevisionId`).",
+                                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3d"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "The draft head is live and the draft was removed."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "description": "Conflict. Either `expectedHeadRevisionId` is no longer the draft head (`CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT`), or another revision went live after the draft was opened (`CONTENT_SYSTEM__LAYOUT_PUBLISH_CONFLICT`), including a rollback to a revision the draft descends from. Nothing was written. Open a new draft from the live state.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__LAYOUT_PUBLISH_CONFLICT",
+                                            "title": "Conflict",
+                                            "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" went live as revision \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3e\" in the meantime; publishing would replace that state unseen."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -19,6 +19,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Di
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutRowLock;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutDraft;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
@@ -28,6 +32,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
+use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
@@ -43,8 +48,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Lock\Store\InMemoryStore;
 
 /**
  * @internal
@@ -72,7 +75,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $orphaning = $this->orphaningMutation('block-a');
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
 
         $result = $mutator->mutate($id, null, $orphaning, $context);
 
@@ -92,7 +95,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, self::VERSION), $id, $context);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
 
         $result = $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), $context);
 
@@ -112,7 +115,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
             return $tree->remove('block-a');
         });
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
 
         $result = $mutator->mutate($id, null, $mutation, $context);
 
@@ -149,7 +152,7 @@ class PersistedLayoutMutatorTest extends TestCase
             )
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $diagnostics, $this->defaultMappingSeeder());
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
 
         $result = $mutator->mutate($id, null, new RemoveElement('block-a'), $context);
 
@@ -163,7 +166,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'), $id, $context);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
 
         $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), $context);
 
@@ -239,8 +242,8 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = $this->adminApiContext(['content_layout:update']);
 
         // Neither the lock nor the load may happen, so the 403 also wins over a 404 for a layout that does not exist.
-        $lockFactory = $this->createMock(LockFactory::class);
-        $lockFactory->expects($this->never())->method('createLock');
+        $rowLock = $this->createMock(LayoutRowLock::class);
+        $rowLock->expects($this->never())->method('run');
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->never())->method('search');
         $repository->expects($this->never())->method('update');
@@ -249,11 +252,117 @@ class PersistedLayoutMutatorTest extends TestCase
         $mutation->expects($this->never())->method('apply');
         $mutation->method('writePrivilege')->willReturn('content_layout:translate');
 
-        $mutator = new PersistedLayoutMutator($lockFactory, $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+        $mutator = new PersistedLayoutMutator($rowLock, $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
 
         $this->expectExceptionObject(ContentSystemException::missingPrivileges(['content_layout:translate']));
 
         $mutator->mutate($id, null, $mutation, $context);
+    }
+
+    #[TestDox('loads, checks, writes and diagnoses inside the layout row lock that publishing also takes')]
+    public function testRunsTheWholeMutationInsideTheRowLock(): void
+    {
+        $id = $this->ids->get('layout');
+        $context = Context::createDefaultContext();
+        $events = [];
+        $collection = new ContentLayoutCollection([$this->entity($id, null)]);
+
+        $repository = StaticEntityRepository::of(ContentLayoutCollection::class, [
+            static function () use ($collection, &$events): ContentLayoutCollection {
+                $events[] = 'search';
+
+                return $collection;
+            },
+        ]);
+
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturnCallback(static function () use (&$events): LayoutAnalysis {
+            $events[] = 'diagnose';
+
+            return new LayoutAnalysis(new DiagnosticsReport([]), []);
+        });
+
+        $observe = static function (string $event) use (&$events): void {
+            $events[] = $event;
+        };
+        $mutator = new PersistedLayoutMutator($this->rowLock($observe), $repository, $this->registry(), $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+
+        $mutator->mutate($id, null, new RemoveElement('block-a'), $context);
+
+        static::assertSame(['enter', 'search', 'diagnose', 'commit'], $events);
+        static::assertCount(1, $repository->updates);
+    }
+
+    #[TestDox('a failing diagnosis leaves the row lock transaction by rolling it back, so the write does not land')]
+    public function testFailingDiagnosisRollsTheWriteBack(): void
+    {
+        $id = $this->ids->get('layout');
+        $context = Context::createDefaultContext();
+        $repository = $this->staticRepository($this->entity($id, null), $id, $context);
+        $failure = new \RuntimeException('diagnosis failed');
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willThrowException($failure);
+        $events = [];
+        $observe = static function (string $event) use (&$events): void {
+            $events[] = $event;
+        };
+        $mutator = new PersistedLayoutMutator($this->rowLock($observe), $repository, $this->registry(), $diagnostics, $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
+
+        try {
+            $mutator->mutate($id, null, new RemoveElement('block-a'), $context);
+            static::fail('Expected the diagnosis failure to propagate.');
+        } catch (\RuntimeException $exception) {
+            static::assertSame($failure, $exception);
+        }
+
+        static::assertSame(['enter', 'rollback'], $events);
+    }
+
+    #[TestDox('a draft mutation runs the draft pipeline on the head tree with the layouts root source and appends its result')]
+    public function testDraftMutationRunsThePipelineOnTheHead(): void
+    {
+        $id = $this->ids->get('layout');
+        $context = Context::createDefaultContext();
+        $repository = $this->staticRepository($this->entity($id, null, 'category'), $id, $context);
+        $head = [new StoredElement('block-a', 'text'), new StoredElement('block-b', 'text')];
+        $mutation = new RemoveElement('block-a');
+        $rootContext = [$this->providedContext()];
+
+        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry->expects($this->once())->method('resolveGated')->with('category', static::identicalTo($context))->willReturn($rootContext);
+
+        $pipelineResult = MutationResult::fromAnalyzedMutation(
+            new StoredTree([$head[1]], 'category'),
+            new LayoutAnalysis(new DiagnosticsReport([]), []),
+            $mutation,
+        );
+        $pipeline = $this->createMock(MutationPipeline::class);
+        $pipeline->expects($this->once())->method('run')
+            ->with(static::identicalTo($mutation), static::equalTo(new StoredTree($head, 'category')), $rootContext)
+            ->willReturn($pipelineResult);
+
+        $now = new \DateTimeImmutable();
+        $revision = new LayoutRevision('revision-2', 'revision-1', $now, null);
+        $draft = new LayoutDraft('draft', 'Draft', 'revision-0', 'revision-2', 'revision-0', $now, null, $now);
+        $revisions = $this->createMock(LayoutRevisionService::class);
+        $revisions->expects($this->once())->method('appendRevision')
+            ->with($id, 'draft', 'revision-1', static::anything(), static::identicalTo($context))
+            ->willReturnCallback(static function (string $layoutId, string $draftId, string $expectedHeadRevisionId, \Closure $derive) use ($head, $revision, $draft): array {
+                $derived = $derive($head);
+                static::assertInstanceOf(StoredTree::class, $derived);
+                static::assertSame(['block-b'], array_map(static fn (StoredElement $e): string => $e->id, $derived->roots));
+
+                return ['revision' => $revision, 'draft' => $draft, 'layout' => $derived->roots];
+            });
+
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder(), $pipeline, $revisions);
+
+        $result = $mutator->mutateDraft($id, 'draft', 'revision-1', $mutation, $context);
+
+        static::assertSame($pipelineResult, $result->mutation);
+        static::assertSame($revision, $result->revision);
+        static::assertSame($draft, $result->draft);
+        static::assertSame([], $repository->updates);
     }
 
     #[TestDox('propagates a WriteException from the committing write without swallowing it')]
@@ -265,7 +374,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
         $repository->method('update')->willThrowException($writeException);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
 
         $this->expectExceptionObject($writeException);
 
@@ -353,7 +462,7 @@ class PersistedLayoutMutatorTest extends TestCase
     ): void {
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($entity, $layoutId, $context);
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+        $mutator = new PersistedLayoutMutator($this->rowLock(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
 
         try {
             $mutator->mutate($layoutId, $token, new RemoveElement('block-a'), $context);
@@ -446,7 +555,7 @@ class PersistedLayoutMutatorTest extends TestCase
             }
         );
 
-        return new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder());
+        return new PersistedLayoutMutator($this->rowLock(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder(), static::createStub(MutationPipeline::class), static::createStub(LayoutRevisionService::class));
     }
 
     /**
@@ -482,9 +591,26 @@ class PersistedLayoutMutatorTest extends TestCase
         return $entity;
     }
 
-    private function lockFactory(): LockFactory
+    private function rowLock(?\Closure $observe = null): LayoutRowLock
     {
-        return new LockFactory(new InMemoryStore());
+        $rowLock = static::createStub(LayoutRowLock::class);
+        $rowLock->method('run')->willReturnCallback(static function (string $layoutId, \Closure $operation) use ($observe): mixed {
+            $observe?->__invoke('enter');
+
+            try {
+                $result = $operation();
+            } catch (\Throwable $exception) {
+                $observe?->__invoke('rollback');
+
+                throw $exception;
+            }
+
+            $observe?->__invoke('commit');
+
+            return $result;
+        });
+
+        return $rowLock;
     }
 
     private function registry(): RootSourceRegistry

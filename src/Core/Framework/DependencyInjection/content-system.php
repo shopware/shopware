@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentInlineMappingParseController;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDraftController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
@@ -69,6 +71,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleO
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutRowLock;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\ContentSystemLayoutProvisioner;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
@@ -80,6 +83,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\ContentSystemLayoutPresetValidator;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionStore;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -966,13 +971,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Persisted Layout Mutation (load by id, mutate, commit through the gates)
+    $services->set(LayoutRowLock::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
     $services->set(PersistedLayoutMutator::class)
         ->args([
-            service('lock.factory'),
+            service(LayoutRowLock::class),
             service('content_layout.repository'),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
             service(DefaultMappingSeeder::class),
+            service(MutationPipeline::class),
+            service(LayoutRevisionService::class),
         ]);
 
     // Layout provisioning from presets (default layouts on install and update)
@@ -1002,5 +1014,34 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(BindingApplicator::class),
             service(PropertyMappingMutationFactory::class),
             service(StoredMappingInspector::class),
+        ]);
+
+    // Layout revision graph (drafts point into it, publishing moves the live pointer)
+    $services->set(LayoutRevisionStore::class)
+        ->args([
+            service(Connection::class),
+            service(StoredTreeCodec::class),
+        ]);
+
+    $services->set(LayoutRevisionService::class)
+        ->args([
+            service(LayoutRowLock::class),
+            service(LayoutRevisionStore::class),
+            service(LayoutWriteBoundary::class),
+            service(StoredTreeCodec::class),
+            service(StoredTreeConstraints::class),
+            service('validator'),
+            service(LayoutGate::class),
+            service(ViolationConstraintMapper::class),
+            service('content_layout.repository'),
+            service(ClockInterface::class),
+        ]);
+
+    // Layout Draft Actions (Admin API)
+    $services->set(ContentLayoutDraftController::class)
+        ->public()
+        ->args([
+            service(LayoutRevisionService::class),
+            service(StoredTreeCodec::class),
         ]);
 };

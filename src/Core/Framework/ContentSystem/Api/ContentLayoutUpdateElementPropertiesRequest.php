@@ -15,19 +15,23 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[Package('framework')]
 #[UpdateElementPropertiesNotEmpty]
-final class ContentLayoutUpdateElementPropertiesRequest
+final readonly class ContentLayoutUpdateElementPropertiesRequest
 {
+    use TargetsMutation;
+
     /**
      * @param array<array-key, mixed> $values
      * @param list<string> $removeKeys
      */
     public function __construct(
-        public readonly string $elementId,
-        public readonly ?string $expectedVersion,
-        public readonly array $values = [],
+        public string $elementId,
+        public ?string $expectedVersion,
+        public array $values = [],
         #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
         #[Assert\Unique]
-        public readonly array $removeKeys = [],
+        public array $removeKeys = [],
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

@@ -11,12 +11,16 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutReplaceRequest
+final readonly class ContentLayoutReplaceRequest
 {
+    use TargetsMutation;
+
     public function __construct(
-        public readonly string $elementId,
-        public readonly string $newType,
-        public readonly ?string $expectedVersion,
+        public string $elementId,
+        public string $newType,
+        public ?string $expectedVersion,
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

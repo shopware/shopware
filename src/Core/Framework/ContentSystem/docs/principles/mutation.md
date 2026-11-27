@@ -15,7 +15,7 @@ Exceptions: `ReplaceElement` rebuilds its target under the same ID and reports i
 In code:
 
 - `ContextConsumerMirror::apply()` wires only the elements in `freshlyScaffolded()`.
-- `PersistedLayoutMutator` runs no consumer mirroring; both runners seed compatible default mappings only onto explicit fresh scaffolds.
+- `PersistedLayoutMutator::mutate()` runs no consumer mirroring on the live tree; `PersistedLayoutMutator::mutateDraft()` runs the draft pipeline, so a persisted draft gets the same wiring as an unsaved one. Every runner seeds compatible default mappings only onto explicit fresh scaffolds.
 - `MutationPipelineTest` pins scaffold-only wiring, including preserved authored copies.
 - See [consumer-mirroring.md](../../Mutation/docs/consumer-mirroring.md).
 

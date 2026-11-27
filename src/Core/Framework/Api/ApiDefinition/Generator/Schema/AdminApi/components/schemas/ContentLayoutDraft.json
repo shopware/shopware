@@ -1,0 +1,117 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentLayoutDraft": {
+                "title": "Content layout draft",
+                "type": "object",
+                "description": "A named pointer into the revision graph of a stored layout.",
+                "required": ["id", "name", "baseRevisionId", "headRevisionId", "liveAtOpenRevisionId", "createdAt", "createdById", "updatedAt"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Id of the draft.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3c"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Display name of the draft.",
+                        "example": "Summer campaign"
+                    },
+                    "baseRevisionId": {
+                        "type": "string",
+                        "description": "Id of the revision the draft was opened from: the live revision, equal to `liveAtOpenRevisionId`, or `fromRevisionId` for a rollback or a draft branched from another draft's head.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3e"
+                    },
+                    "headRevisionId": {
+                        "type": "string",
+                        "description": "Id of the latest revision saved on the draft; the `expectedHeadRevisionId` of the next draft mutation and of `publish-draft`.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3d"
+                    },
+                    "liveAtOpenRevisionId": {
+                        "type": "string",
+                        "description": "Id of the revision that was live when the draft was opened. While it is still live, publishing cannot conflict with live; once live moved, publishing succeeds only if live moved forward into the draft, otherwise it answers `409` `LAYOUT_PUBLISH_CONFLICT`. Comparing it with the live entry of `published-revisions` is a hint only, since a layout write that bypassed publishing moves live only at the next draft write.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3e"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-06-22T10:00:00+00:00"
+                    },
+                    "createdById": {
+                        "type": ["string", "null"],
+                        "description": "Id of the admin user who created the draft, `null` when an integration or the system created it.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3f"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-06-22T10:05:00+00:00"
+                    }
+                }
+            },
+            "ContentLayoutPublishedRevision": {
+                "title": "Content layout published revision",
+                "type": "object",
+                "description": "A revision of a stored layout that has been live; a draft opened from it rolls the layout back.",
+                "required": ["id", "live", "createdAt", "createdById", "publishedAt", "publishedById", "lastLiveAt"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Id of the revision; the `fromRevisionId` of `create-draft`.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3e"
+                    },
+                    "live": {
+                        "type": "boolean",
+                        "description": "Whether the live pointer is on this revision. A layout write that bypassed publishing moves the pointer only when the next draft write adopts it."
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-06-22T10:00:00+00:00"
+                    },
+                    "createdById": {
+                        "type": ["string", "null"],
+                        "description": "Id of the admin user who saved the revision, `null` when an integration, the system or a layout write that bypassed publishing created it.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3f"
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The first time the revision went live.",
+                        "example": "2026-06-22T10:05:00+00:00"
+                    },
+                    "publishedById": {
+                        "type": ["string", "null"],
+                        "description": "Id of the admin user who first published the revision, `null` when an integration, the system or a layout write that bypassed publishing did.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3f"
+                    },
+                    "lastLiveAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The latest time the revision went live, later than `publishedAt` after a rollback to it.",
+                        "example": "2026-06-23T09:00:00+00:00"
+                    }
+                }
+            },
+            "ContentLayoutPersistedMutationResponse": {
+                "title": "Content layout persisted mutation response",
+                "description": "The mutation response of a persisted mutation route. A draft mutation also returns the draft it moved.",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutMutationResponse" },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "draft": {
+                                "allOf": [{ "$ref": "#/components/schemas/ContentLayoutDraft" }],
+                                "description": "Present only for a draft mutation (`draftId` in the body). Its `headRevisionId` is the revision the mutation appended."
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\Enti
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -1061,6 +1062,114 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertEquals($map, $stored->jsonSerialize());
     }
 
+    #[TestDox('a mutation naming a draft appends a revision to the draft and leaves the live layout alone')]
+    public function testDraftInsertAppendsARevision(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
+
+        $body = $this->mutate('insert-element', $layoutId, [
+            'draftId' => $draft->id,
+            'type' => TestElementTypeLoader::RESOLVABLE,
+            'expectedHeadRevisionId' => $draft->head,
+        ]);
+
+        static::assertCount(2, $body['layout']);
+        static::assertSame($draft->id, $body['draft']['id']);
+        static::assertNotSame($draft->head, $body['draft']['headRevisionId']);
+        static::assertArrayNotHasKey('revision', $body);
+        static::assertCount(2, $this->revisions()->getDraft($layoutId, $draft->id)['layout']);
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('a draft mutation against a stale head is a 409 and appends nothing')]
+    public function testDraftMutationWithStaleHeadIs409(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
+        $this->mutate('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHeadRevisionId' => $draft->head]);
+
+        $this->request('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHeadRevisionId' => $draft->head]);
+
+        $this->assertErrorCode(Response::HTTP_CONFLICT, ContentSystemException::LAYOUT_VERSION_CONFLICT);
+        static::assertCount(2, $this->revisions()->getDraft($layoutId, $draft->id)['layout']);
+    }
+
+    #[TestDox('a mutation on an unknown draft is a 404')]
+    public function testDraftMutationOnUnknownDraftIs404(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('remove-element', $layoutId, ['draftId' => $this->ids->get('missing-draft'), 'elementId' => 'block-a', 'expectedHeadRevisionId' => $this->ids->get('head')]);
+
+        $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND);
+    }
+
+    #[TestDox('a mutation naming a draft without the head token is a client error and appends nothing')]
+    public function testDraftMutationWithoutExpectedHeadIsABadRequest(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
+
+        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a']);
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::MISSING_REQUEST_FIELD);
+        static::assertSame($draft->head, $this->revisions()->getDraft($layoutId, $draft->id)['draft']->head);
+    }
+
+    #[TestDox('a malformed draft id is a client error and writes nothing')]
+    public function testMalformedDraftIdIsABadRequest(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('remove-element', $layoutId, ['draftId' => 'not-a-uuid', 'elementId' => 'block-a', 'expectedHeadRevisionId' => $this->ids->get('head')]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('translating on a draft keeps the translate ACL: a translator may translate a draft but not restructure it')]
+    public function testDraftTranslateKeepsTheTranslateAcl(): void
+    {
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
+        $this->actAs(['content_layout:read', 'content_layout:translate']);
+
+        $body = $this->mutate('translate-element', $layoutId, [
+            'draftId' => $draft->id,
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
+            'expectedHeadRevisionId' => $draft->head,
+        ]);
+
+        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedHeadRevisionId' => $body['draft']['headRevisionId']]);
+
+        $this->assertMissingPrivilege('content_layout:update');
+    }
+
+    #[TestDox('a mutation naming a draft refuses the live version token, so a timestamp cannot be sent where a revision id is expected')]
+    public function testDraftMutationRejectsExpectedVersion(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
+
+        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHeadRevisionId' => $draft->head]);
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
+    }
+
+    #[TestDox('a live mutation refuses the draft head token')]
+    public function testLiveMutationRejectsExpectedHeadRevisionId(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => null, 'expectedHeadRevisionId' => $this->ids->get('head')]);
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
     /**
      * Replaces the default admin browser with one authenticated as a non-admin user holding exactly $privileges, so
      * every later request in the test runs through the route ACL.
@@ -1071,6 +1180,20 @@ class ContentLayoutMutationControllerTest extends TestCase
     {
         $this->resetBrowser();
         $this->getBrowser(true, [], $privileges);
+    }
+
+    private function assertErrorCode(int $status, string $errorCode): void
+    {
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame($status, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($errorCode, $body['errors'][0]['code']);
+    }
+
+    private function revisions(): LayoutRevisionService
+    {
+        return static::getContainer()->get(LayoutRevisionService::class);
     }
 
     private function assertMissingPrivilege(string $privilege): void

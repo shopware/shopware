@@ -12,16 +12,20 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutTranslateElementRequest
+final readonly class ContentLayoutTranslateElementRequest
 {
+    use TargetsMutation;
+
     /**
      * @param array<array-key, mixed> $values
      */
     public function __construct(
-        public readonly string $elementId,
-        public readonly ?string $expectedVersion,
+        public string $elementId,
+        public ?string $expectedVersion,
         #[Assert\Count(min: 1)]
-        public readonly array $values = [],
+        public array $values = [],
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

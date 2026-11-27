@@ -33,7 +33,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
- * The persisted counterpart to {@see LayoutMutationController}.
+ * The persisted counterpart to {@see LayoutMutationController}. Each action writes the {@see MutationTarget} its
+ * request names: the live layout, or a draft.
  *
  * @internal
  *
@@ -41,20 +42,20 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
-class ContentLayoutMutationController
+readonly class ContentLayoutMutationController
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly PersistedLayoutMutator $mutator,
-        private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly StoredElementCodec $elementCodec,
-        private readonly DraftLayoutDecoder $decoder,
-        private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
-        private readonly BindingApplicator $bindingApplicator,
-        private readonly PropertyMappingMutationFactory $propertyMappingMutations,
-        private readonly StoredMappingInspector $mappingInspector,
+        private PersistedLayoutMutator $mutator,
+        private AbstractContentSystemElementTypeRegistry $registry,
+        private StoredElementCodec $elementCodec,
+        private DraftLayoutDecoder $decoder,
+        private AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        private BindingApplicator $bindingApplicator,
+        private PropertyMappingMutationFactory $propertyMappingMutations,
+        private StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -67,7 +68,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new InsertElement($this->registry, $payload->type, $this->bindingRegistry, $this->bindingApplicator, bindingSpecificationId: $payload->bindingSpecificationId, parentElementId: $payload->parentElementId, index: $payload->index, slot: $payload->slot);
 
-        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/remove-element', name: 'api.action.content_system.layout.persisted_remove_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -77,7 +78,7 @@ class ContentLayoutMutationController
         ContentLayoutRemoveRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond($layoutId, $payload->expectedVersion, new RemoveElement($payload->elementId), $context);
+        return $this->respond($layoutId, $payload->target(), new RemoveElement($payload->elementId), $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/move-element', name: 'api.action.content_system.layout.persisted_move_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -89,7 +90,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new MoveElement($payload->elementId, $payload->newParentId, $payload->newSlot, $payload->index);
 
-        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/replace-element', name: 'api.action.content_system.layout.persisted_replace_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -101,7 +102,7 @@ class ContentLayoutMutationController
     ): Response {
         return $this->respond(
             $layoutId,
-            $payload->expectedVersion,
+            $payload->target(),
             new ReplaceElement(
                 $this->registry,
                 $payload->elementId,
@@ -121,7 +122,7 @@ class ContentLayoutMutationController
         ContentLayoutDuplicateRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond($layoutId, $payload->expectedVersion, new DuplicateElement($payload->elementId, $payload->index), $context);
+        return $this->respond($layoutId, $payload->target(), new DuplicateElement($payload->elementId, $payload->index), $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/wrap-elements', name: 'api.action.content_system.layout.persisted_wrap_elements', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -133,7 +134,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new WrapElements($this->registry, $payload->elementIds, $payload->containerType, $payload->slot);
 
-        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/unwrap-element', name: 'api.action.content_system.layout.persisted_unwrap_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -143,7 +144,7 @@ class ContentLayoutMutationController
         ContentLayoutUnwrapRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond($layoutId, $payload->expectedVersion, new UnwrapElement($payload->containerElementId), $context);
+        return $this->respond($layoutId, $payload->target(), new UnwrapElement($payload->containerElementId), $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/attach-element', name: 'api.action.content_system.layout.persisted_attach_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -155,7 +156,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new AttachElement($this->registry, $this->decoder->decodeOne($payload->element), $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot, $payload->index);
 
-        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/bind-element', name: 'api.action.content_system.layout.persisted_bind_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -167,7 +168,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new BindElement($this->bindingRegistry, $payload->bindingSpecificationId, $payload->elementId, $this->bindingApplicator);
 
-        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/update-element-properties', name: 'api.action.content_system.layout.persisted_update_element_properties', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -179,7 +180,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new UpdateElementProperties($this->registry, $payload->elementId, $payload->values, $payload->removeKeys);
 
-        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/translate-element', name: 'api.action.content_system.layout.persisted_translate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read', 'content_layout:translate']], methods: [Request::METHOD_POST])]
@@ -191,7 +192,7 @@ class ContentLayoutMutationController
     ): Response {
         $mutation = new TranslateElement($this->registry, $payload->elementId, $payload->values);
 
-        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+        return $this->respond($layoutId, $payload->target(), $mutation, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/map-property', name: 'api.action.content_system.layout.persisted_map_property', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
@@ -203,7 +204,7 @@ class ContentLayoutMutationController
     ): Response {
         return $this->respond(
             $layoutId,
-            $payload->expectedVersion,
+            $payload->target(),
             $this->propertyMappingMutations->map(
                 $payload->elementId,
                 $payload->propertyKey,
@@ -222,16 +223,22 @@ class ContentLayoutMutationController
     ): Response {
         return $this->respond(
             $layoutId,
-            $payload->expectedVersion,
+            $payload->target(),
             $this->propertyMappingMutations->unmap($payload->elementId, $payload->propertyKey),
             $context,
         );
     }
 
-    private function respond(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): JsonResponse
+    private function respond(string $layoutId, MutationTarget $target, LayoutMutation $mutation, Context $context): JsonResponse
     {
-        $result = $this->mutator->mutate($layoutId, $expectedVersion, $mutation, $context);
+        if (!$target->isDraft()) {
+            $result = $this->mutator->mutate($layoutId, $target->expectedVersion, $mutation, $context);
 
-        return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
+            return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
+        }
+
+        $result = $this->mutator->mutateDraft($layoutId, $target->draftId, $target->expectedHeadRevisionId, $mutation, $context);
+
+        return new JsonResponse(DraftMutationResponse::fromResult($result, $this->elementCodec));
     }
 }

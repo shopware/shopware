@@ -8,12 +8,16 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutBindRequest
+final readonly class ContentLayoutBindRequest
 {
+    use TargetsMutation;
+
     public function __construct(
-        public readonly string $elementId,
-        public readonly string $bindingSpecificationId,
-        public readonly ?string $expectedVersion,
+        public string $elementId,
+        public string $bindingSpecificationId,
+        public ?string $expectedVersion,
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

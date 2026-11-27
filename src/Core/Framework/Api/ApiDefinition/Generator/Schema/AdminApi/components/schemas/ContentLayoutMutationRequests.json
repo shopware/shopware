@@ -28,13 +28,22 @@
             "ContentLayoutVersionEnvelope": {
                 "title": "Content layout version envelope",
                 "type": "object",
-                "description": "The optimistic-concurrency token shared by every persisted mutation request.",
-                "required": ["expectedVersion"],
+                "description": "The mutation target shared by every persisted mutation request: the live layout, guarded by `expectedVersion`, or a draft, named by `draftId` and guarded by `expectedHeadRevisionId`. `expectedVersion` together with `draftId`, or `expectedHeadRevisionId` without it, is rejected with `400` (`unknownRequestField`); `draftId` without `expectedHeadRevisionId` with `400` (`missingRequestField`).",
                 "properties": {
                     "expectedVersion": {
                         "type": ["string", "null"],
-                        "description": "Optimistic-concurrency token: the stored layout's `updatedAt` as last read, compared at millisecond precision. `null` for a layout that was never updated. A mismatch is rejected with `409` and an unparseable value with `400`; nothing is written in either case. Take this value from the `updatedAt` the layout read returned.",
+                        "description": "Optimistic-concurrency token of a live mutation: the stored layout's `updatedAt` as last read, compared at millisecond precision. `null` or absent for a layout that was never updated. A mismatch is rejected with `409` and an unparseable value with `400`; nothing is written in either case. Take this value from the `updatedAt` the layout read returned. Not allowed with `draftId`.",
                         "example": "2026-06-22T10:00:00.000+00:00"
+                    },
+                    "draftId": {
+                        "type": ["string", "null"],
+                        "description": "The draft to edit instead of the live layout. The edit is appended to the draft head as one revision and the live layout is not written. An unknown draft is rejected with `404` (`contentLayoutDraftNotFound`).",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3c"
+                    },
+                    "expectedHeadRevisionId": {
+                        "type": ["string", "null"],
+                        "description": "Optimistic-concurrency token of a draft mutation: the draft head revision id as last read (`draft.headRevisionId`). Required with `draftId`. A stale head is rejected with `409`; nothing is appended.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3d"
                     }
                 }
             },

@@ -10,19 +10,53 @@ component sw-settings-product-feature-sets-list  public  js
   source src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list/index.js
   template src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list/sw-settings-product-feature-sets-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  entityName: any
+  isLoading: any
+  naturalSorting: any
+  productFeatureSets: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  translationService: any
+
+computed
+  customFieldRepository: any
+  featureGridTranslationService: any
+  productFeatureSetsRepository: any
+  propertyGroupRepository: any
+
+methods
+  getList(): any
+  getProductFeatureSetsColumns(): any
+  metaInfo(): any
+  onChangeLanguage(languageId: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  onInlineEditSave(promise: any, productFeatureSets: any): any
+  renderFeaturePreview(features: any): any
+
 blocks
   sw_settings_list
     sw_settings_product_feature_set_index
       sw_settings_product_feature_set_list_content
         sw_settings_product_feature_set_list_grid_action_modals
-          sw_settings_product_feature_set_list_delete_modal
-            sw_settings_product_feature_set_list_delete_modal_confirm_delete_text
-            sw_settings_product_feature_set_list_delete_modal_footer
-              sw_settings_product_feature_set_list_delete_modal_cancel
-              sw_settings_product_feature_set_list_delete_modal_confirm
+          sw_settings_product_feature_set_list_delete_modal  [scope: item]
+            sw_settings_product_feature_set_list_delete_modal_confirm_delete_text  [scope: item]
+            sw_settings_product_feature_set_list_delete_modal_footer  [scope: item]
+              sw_settings_product_feature_set_list_delete_modal_cancel  [scope: item]
+              sw_settings_product_feature_set_list_delete_modal_confirm  [scope: item]
         sw_settings_product_feature_set_list_grid_columns_actions
-          sw_settings_product_feature_set_list_grid_columns_actions_delete
-          sw_settings_product_feature_set_list_grid_columns_actions_edit
+          sw_settings_product_feature_set_list_grid_columns_actions_delete  [scope: item]
+          sw_settings_product_feature_set_list_grid_columns_actions_edit  [scope: item]
       sw_settings_product_feature_set_list_search_bar
       sw_settings_product_feature_set_list_smart_bar_actions
         sw_settings_product_feature_set_list_smart_bar_actions_add
@@ -30,4 +64,7 @@ blocks
         sw_settings_product_feature_set_list_smart_bar_header_title
           sw_settings_product_feature_set_list_smart_bar_header_title_text
       sw_settings_product_feature_set_list_smart_bar_language_switch
+
+refs
+  swSettingsProductFeatureSetsGrid  -> sw-entity-listing  block=sw_settings_product_feature_set_list_content
 ```

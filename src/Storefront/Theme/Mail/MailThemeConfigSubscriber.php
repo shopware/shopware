@@ -10,6 +10,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Exception\NoContextDataException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -59,13 +60,25 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
 
         $context = $event->getContext();
 
-        $options = [
+        $salesChannelContext = $this->createSalesChannelContext($salesChannelId, [
             SalesChannelContextService::LANGUAGE_ID => $context->getLanguageId(),
             SalesChannelContextService::CURRENCY_ID => $context->getCurrencyId(),
-        ];
+        ]);
 
+        if ($salesChannelContext === null) {
+            return;
+        }
+
+        $event->addTemplateData(self::SALES_CHANNEL_CONTEXT, $salesChannelContext);
+    }
+
+    /**
+     * @param array<string, string> $options
+     */
+    private function createSalesChannelContext(string $salesChannelId, array $options): ?SalesChannelContext
+    {
         try {
-            $salesChannelContext = $this->salesChannelContextFactory->create(
+            return $this->salesChannelContextFactory->create(
                 Uuid::randomHex(),
                 $salesChannelId,
                 $options
@@ -73,10 +86,25 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
         } catch (NoContextDataException) {
             // Mail simulations can use generated sales-channel shells without persisted context data.
             // Rendering can continue with the existing template data in that case.
-            return;
-        }
+            return null;
+        } catch (SalesChannelException $exception) {
+            // The Admin API context carries the default currency and the admin's language,
+            // which the sales channel of the mail does not have to offer.
+            // Fall back to the sales channel's own default for that option.
+            $unavailableOption = match ($exception->getErrorCode()) {
+                SalesChannelException::CURRENCY_DOES_NOT_EXISTS_EXCEPTION => SalesChannelContextService::CURRENCY_ID,
+                SalesChannelException::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION => SalesChannelContextService::LANGUAGE_ID,
+                default => null,
+            };
 
-        $event->addTemplateData(self::SALES_CHANNEL_CONTEXT, $salesChannelContext);
+            if ($unavailableOption === null || !\array_key_exists($unavailableOption, $options)) {
+                throw $exception;
+            }
+
+            unset($options[$unavailableOption]);
+
+            return $this->createSalesChannelContext($salesChannelId, $options);
+        }
     }
 
     /**

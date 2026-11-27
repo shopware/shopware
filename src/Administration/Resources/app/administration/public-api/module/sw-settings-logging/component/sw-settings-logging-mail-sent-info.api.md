@@ -11,20 +11,35 @@ component sw-settings-logging-mail-sent-info  public  js
   source src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/index.js
   template src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/sw-settings-logging-mail-sent-info.html.twig
 
+computed
+  entryInfoTabs: any
+  hasMailContent: any
+  recipientString: any
+
+methods
+  createdComponent(): any
+
 blocks
-  sw_settings_logging_entry_info_content
-    sw_settings_logging_mail_sent_content_mailbody
-      sw_settings_logging_mail_sent_content_mailbody_html
-      sw_settings_logging_mail_sent_content_mailbody_plain
-      sw_settings_logging_mail_sent_content_mailbody_title
-    sw_settings_logging_mail_sent_content_recipients
-      sw_settings_logging_mail_sent_content_recipients_title
-  sw_settings_logging_entry_info_mt_content
-    sw_settings_logging_mail_sent_mt_content_mailbody
-      sw_settings_logging_mail_sent_mt_content_mailbody_html
-      sw_settings_logging_mail_sent_mt_content_mailbody_plain
-      sw_settings_logging_mail_sent_mt_content_mailbody_title
-    sw_settings_logging_mail_sent_mt_content_recipients
-      sw_settings_logging_mail_sent_mt_content_recipients_title
-  sw_settings_logging_entry_info_tab_items
+  sw_settings_logging_entry_info  [inherited]
+    sw_settings_logging_entry_info_footer  [inherited]
+      sw_settings_logging_entry_info_close_button  [inherited]
+    sw_settings_logging_entry_info_tabs  [inherited]
+      sw_settings_logging_entry_info_content  [keepsParent] [until v6.8.0]
+        sw_settings_logging_entry_info_raw_content  [inherited] [until v6.8.0]
+        sw_settings_logging_mail_sent_content_mailbody  [until v6.8.0]
+          sw_settings_logging_mail_sent_content_mailbody_html  [until v6.8.0]
+          sw_settings_logging_mail_sent_content_mailbody_plain  [after v-if] [until v6.8.0]
+          sw_settings_logging_mail_sent_content_mailbody_title  [until v6.8.0]
+        sw_settings_logging_mail_sent_content_recipients  [until v6.8.0]
+          sw_settings_logging_mail_sent_content_recipients_title  [until v6.8.0]
+      sw_settings_logging_entry_info_mt_content  [keepsParent] [from v6.8.0]
+        sw_settings_logging_entry_info_mt_raw_content  [inherited] [from v6.8.0]
+        sw_settings_logging_mail_sent_mt_content_mailbody  [from v6.8.0]
+          sw_settings_logging_mail_sent_mt_content_mailbody_html  [from v6.8.0]
+          sw_settings_logging_mail_sent_mt_content_mailbody_plain  [after v-if] [from v6.8.0]
+          sw_settings_logging_mail_sent_mt_content_mailbody_title  [from v6.8.0]
+        sw_settings_logging_mail_sent_mt_content_recipients  [from v6.8.0]
+          sw_settings_logging_mail_sent_mt_content_recipients_title  [from v6.8.0]
+      sw_settings_logging_entry_info_mt_tabs  [inherited] [from v6.8.0]
+      sw_settings_logging_entry_info_tab_items  [keepsParent] [until v6.8.0]
 ```

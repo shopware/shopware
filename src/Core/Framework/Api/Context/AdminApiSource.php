@@ -76,7 +76,7 @@ class AdminApiSource implements ContextSource, \JsonSerializable
     /**
      * @internal
      */
-    public function setAppId(string $appId): void
+    public function setAppId(?string $appId): void
     {
         $this->appId = $appId;
     }

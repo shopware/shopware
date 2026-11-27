@@ -10,6 +10,33 @@ component sw-customer-base-info  public  js
   source src/module/sw-customer/component/sw-customer-base-info/index.js
   template src/module/sw-customer/component/sw-customer-base-info/sw-customer-base-info.html.twig
 
+inject
+  repositoryFactory
+
+props
+  customer: object
+  customerEditMode: boolean  default=false
+  isLoading?: boolean  default=false
+
+data
+  currencyCode: any
+  customerLanguage: any
+  orderCount: any
+
+computed
+  currencyFilter: any
+  customerLanguageName: any
+  dateFilter: any
+  isBusinessAccountType: any
+  languageCriteria: any
+  languageId: any
+  languageRepository: any
+  orderCriteria: any
+  orderRepository: any
+
+methods
+  createdComponent(): any
+
 blocks
   sw_customer_base_info
     sw_customer_base_info_metadata
@@ -17,24 +44,24 @@ blocks
         ssw_customer_base_metadata_affiliate
         sw_customer_base_metadata_active
           sw_customer_base_metadata_active_content
-          sw_customer_base_metadata_active_editor
+          sw_customer_base_metadata_active_editor  [after v-if]
           sw_customer_base_metadata_active_label
         sw_customer_base_metadata_campaign
         sw_customer_base_metadata_confirmed
           sw_customer_base_metadata_confirmed_content
-          sw_customer_base_metadata_confirmed_editor
+          sw_customer_base_metadata_confirmed_editor  [after v-if]
           sw_customer_base_metadata_confirmed_label
-        sw_customer_base_metadata_customer_group
+        sw_customer_base_metadata_customer_group  [after v-if]
           sw_customer_base_metadata_customer_group_content
-          sw_customer_base_metadata_customer_group_editor
+          sw_customer_base_metadata_customer_group_editor  [after v-if]
           sw_customer_base_metadata_customer_group_label
-        sw_customer_base_metadata_language
+        sw_customer_base_metadata_language  [after v-if]
           sw_customer_base_metadata_language_content
-          sw_customer_base_metadata_language_editor
+          sw_customer_base_metadata_language_editor  [after v-if]
           sw_customer_base_metadata_language_label
       sw_customer_base_info_metadata_right
         sw_customer_base_metadata_birthday
-          sw_custoemr_base_metadata_birthday_editor
+          sw_custoemr_base_metadata_birthday_editor  [after v-if]
           sw_customer_base_metadata_birthday_content
           sw_customer_base_metadata_birthday_label
         sw_customer_base_metadata_bound_sales_channel
@@ -42,9 +69,20 @@ blocks
           sw_customer_base_metadata_bound_saleschannel_content
         sw_customer_base_metadata_customer_number
           sw_customer_base_metadata_customer_number_content
-          sw_customer_base_metadata_customer_number_editor
+          sw_customer_base_metadata_customer_number_editor  [after v-if]
           sw_customer_base_metadata_customer_number_label
         sw_customer_base_metadata_last_login
         sw_customer_base_metadata_orders
         sw_customer_base_metadata_turnover
+
+crossings
+  v-if  sw_customer_base_metadata_active_content -> sw_customer_base_metadata_active_editor
+  v-if  sw_customer_base_metadata_birthday_content -> sw_custoemr_base_metadata_birthday_editor
+  v-if  sw_customer_base_metadata_confirmed_content -> sw_customer_base_metadata_confirmed_editor
+  v-if  sw_customer_base_metadata_customer_group_content -> sw_customer_base_metadata_customer_group_editor
+  v-if  sw_customer_base_metadata_customer_number_content -> sw_customer_base_metadata_customer_number_editor
+  v-if  sw_customer_base_metadata_language_content -> sw_customer_base_metadata_language_editor
+
+notes
+  unresolved computed ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].cust...
 ```

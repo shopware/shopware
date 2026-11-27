@@ -11,6 +11,24 @@ component sw-verify-user-modal  private  js  [private]
   template src/app/component/utils/sw-verify-user-modal/sw-verify-user-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  loginService  [private]
+
+emits
+  close(...args: any[])  [private]
+  verified(...args: any[])  [private]
+
+data
+  confirmPassword: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onCloseConfirmPasswordModal(): any  [private]
+  onSubmitConfirmPassword(): Promise<any>  [private]
+
 blocks
   sw_settings_user_detail_content_confirm_password_modal  [private]
     sw_settings_user_detail_content_confirm_password_modal_footer  [private]

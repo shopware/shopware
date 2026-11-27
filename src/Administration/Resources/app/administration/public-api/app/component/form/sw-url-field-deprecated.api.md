@@ -12,7 +12,49 @@ component sw-url-field-deprecated  private  js  [private]
   template src/app/component/form/sw-url-field-deprecated/sw-url-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  addTrailingSlash?: boolean  default=false  [private]
+  error?: object  default=null  [private]
+  omitUrlHash?: boolean  default=false  [private]
+  omitUrlSearch?: boolean  default=false  [private]
+
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_url_field  [private]
+  label  {}  block=sw_url_field  [private]
+
+data
+  currentDebounce: any  [private]
+  currentUrlValue: any  [private]
+  errorUrl: any  [private]
+  sslActive: any  [private]
+
+computed
+  combinedError: any  [private]
+  prefixClass: any  [private]
+  unicodeUriFilter: any  [private]
+  url: any  [private]
+  urlPrefix: any  [private]
+
+methods
+  changeMode(disabled: any): any  [private]
+  checkInput(inputValue: any): any  [private]
+  createdComponent(): any  [private]
+  getSSLMode(value: any): any  [private]
+  getURLInstance(value: any): any  [private]
+  handleEmptyUrl(): any  [private]
+  onBlur(event: any): any  [private]
+  setInvalidUrlError(): any  [private]
+  validateCurrentValue(value: any): any  [private]
+
 blocks
-  sw_text_field  [private]
+  sw_text_field  [replaced] [private]
     sw_url_field  [private]
 ```

@@ -10,26 +10,73 @@ component sw-users-permissions-user-listing  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-user-listing/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-user-listing/sw-users-permissions-user-listing.html.twig
 
+mixins
+  listing, notification, salutation
+
+inject
+  acl
+  loginService  [deprecated tag:v6.8.0]
+  repositoryFactory
+  ssoSettingsService
+  userService
+
+emits
+  get-list(...args: any[])
+
+data
+  confirmPassword: any  [deprecated tag:v6.8.0]
+  disableRouteParams: any
+  isConfirmDeleteModalOpen: any
+  isConfirmingPassword: any  [deprecated tag:v6.8.0]
+  isConfirmingPasswordModalOpen: any
+  isLoading: any
+  isSso: any
+  itemToDelete: any
+  showInvitationModal: any
+  sortBy: any
+  user: any
+
+computed
+  currentUser: any
+  userColumns: any
+  userCriteria: any
+  userDetailRouterLink: any
+  userRepository: any
+
+methods
+  closeInvitationModal(): any
+  deleteUser(context: any): any
+  getItemToDelete(item: any): any
+  getList(): Promise<any>
+  invitationFailed(): any
+  onCloseConfirmPasswordModal(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(user: any): any
+  onDelete(user: any): any
+  onSearch(value: any): any
+  onUserInvited(): any
+  openInvitationModal(): any
+
 blocks
   sw_settings_user_list
-    sw_settings_user_list_content
-      sw_settings_user_list_content_grid
+    sw_settings_user_list_content  [after v-if]
+      sw_settings_user_list_content_grid  [after v-if]
         sw_settings_user_list_column_email
-          sw_settings_user_list_column_email_content
+          sw_settings_user_list_column_email_content  [scope: item]
         sw_settings_user_list_column_status
         sw_settings_user_list_column_username
-          sw_settings_user_list_column_username_content
+          sw_settings_user_list_column_username_content  [scope: item]
         sw_settings_user_list_column_username_acl_roles
         sw_settings_user_list_column_username_preview
         sw_settings_user_list_content_grid_actions
-          sw_settings_user_list_actions_delete
-          sw_settings_user_list_actions_edit
-        sw_settings_user_list_delete_modal
-          sw_settings_user_list_delete_modal_confirm_delete_text
-          sw_settings_user_list_delete_modal_footer
-            sw_settings_user_list_delete_modal_cancel
-            sw_settings_user_list_delete_modal_confirm
-          sw_settings_user_list_delete_modal_input__confirm_password
+          sw_settings_user_list_actions_delete  [scope: item]
+          sw_settings_user_list_actions_edit  [scope: item]
+        sw_settings_user_list_delete_modal  [scope: item]
+          sw_settings_user_list_delete_modal_confirm_delete_text  [scope: item]
+          sw_settings_user_list_delete_modal_footer  [scope: item]
+            sw_settings_user_list_delete_modal_cancel  [scope: item]
+            sw_settings_user_list_delete_modal_confirm  [scope: item]
+          sw_settings_user_list_delete_modal_input__confirm_password  [scope: item] [deprecated tag:v6.8.0]
         sw_settings_user_list_grid_pagination
     sw_settings_user_list_smart_bar_actions
       sw_settings_user_list_actions_create_user

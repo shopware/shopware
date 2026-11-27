@@ -10,6 +10,14 @@ component sw-order-leave-page-modal  public  js
   source src/module/sw-order/component/sw-order-leave-page-modal/index.js
   template src/module/sw-order/component/sw-order-leave-page-modal/sw-order-leave-page-modal.html.twig
 
+emits
+  page-leave-cancel(...args: any[])
+  page-leave-confirm(...args: any[])
+
+methods
+  onCancel(): any
+  onConfirm(): any
+
 blocks
   sw_order_leave_page_modal
     sw_order_leave_page_modal_actions

@@ -10,51 +10,108 @@ component sw-settings-snippet-set-list  public  js
   source src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/index.js
   template src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/sw-settings-snippet-set-list.html.twig
 
+mixins
+  sw-settings-list
+
+inject
+  acl
+  feature
+  repositoryFactory
+  snippetSetService
+
+data
+  baseFiles: any
+  entityName: any
+  isLoading: any
+  offset: any
+  selection: any
+  showCloneModal: any
+  showDeleteModal: any
+  snippetSets: any
+  snippetsEditable: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  baseFileOptions: any
+  contextMenuEditSnippet: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  snippetSetColumns: any
+  snippetSetCriteria: any
+  snippetSetRepository: any
+
+methods
+  closeCloneModal(): any  [deprecated tag:v6.8.0]
+  closeDeleteModal(): any
+  createCloneErrorNote(): any
+  createCloneSuccessNote(): any
+  createDeleteErrorNote(): any
+  createDeleteSuccessNote(): any
+  createInlineErrorNote(name: any): any
+  createInlineSuccessNote(name: any): any
+  createNotEditableErrorNote(): any
+  getList(): Promise<any>
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any  [deprecated tag:v6.8.0]
+  loadBaseFiles(): Promise<any>
+  onAddSnippetSet(): Promise<any>
+  onClone(id: any): any  [deprecated tag:v6.8.0]
+  onConfirmClone(id: any): Promise<any>
+  onConfirmDelete(): Promise<any>
+  onDeleteSet(id: any): any
+  onEditSnippetSets(): any
+  onInlineEditCancel(): any
+  onInlineEditSave(item: any): any
+  onSelectionChanged(selection: any): any
+  toggleInlineEdit(id: any): any
+
 blocks
   sw_settings_snippet_set_list
     sw_settings_snippet_set_list_card
-      sw_settings_snippet_set_list_card_list
-        sw_settings_snippet_set_list_card_list_container
-          sw_settings_snippet_set_list_card_list_container_header
-            sw_settings_snippet_set_list_card_list_container_header_btn_edit_set
-            sw_settings_snippet_set_list_card_list_container_header_btn_export
-            sw_settings_snippet_set_list_card_list_container_header_btn_split
-              sw_settings_snippet_set_list_card_btn_copy_icon
-              sw_settings_snippet_set_list_card_list_btn_copy_split
-                sw_settings_snippet_set_list_card_btn_copy
-                sw_settings_snippet_set_list_card_copy_context_divider
-                sw_settings_snippet_set_list_card_copy_context_menu
-                sw_settings_snippet_set_list_card_copy_context_menu_items
-              sw_settings_snippet_set_list_card_list_container_header_btn_add_set
+      sw_settings_snippet_set_list_card_list  [after v-if]
+        sw_settings_snippet_set_list_card_list_container  [deprecated tag:v6.8.0]
+          sw_settings_snippet_set_list_card_list_container_header  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_card_list_container_header_btn_edit_set  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_card_list_container_header_btn_export  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_card_list_container_header_btn_split  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_card_btn_copy_icon  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_card_list_btn_copy_split  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_card_btn_copy  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_card_copy_context_divider  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_card_copy_context_menu  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_card_copy_context_menu_items  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_card_list_container_header_btn_add_set  [deprecated tag:v6.8.0]
         sw_settings_snippet_set_list_card_list_grid
-          sw_settings_snippet_set_list_card_list_grid_pagination
-            sw_settings_snippet_set_list_card_list_grid_pagination_bar
-          sw_settings_snippet_set_list_card_list_grid_template
-            sw_settings_snippet_set_list_card_list_grid_column_base_action
-              sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons
-                sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone
-                sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete
-                sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit
-            sw_settings_snippet_set_list_card_list_grid_column_base_file
-              sw_settings_snippet_set_list_card_list_grid_column_base_file_editor
-            sw_settings_snippet_set_list_card_list_grid_column_changed
-              sw_settings_snippet_set_list_card_list_grid_column_changed_date
-            sw_settings_snippet_set_list_card_list_grid_column_name
-              sw_settings_snippet_set_list_card_list_grid_column_name_editor
-              sw_settings_snippet_set_list_card_list_grid_column_name_link
-            sw_settings_snippet_set_list_columns_clone_modal
-              sw_settings_snippet_set_list_clone_modal_confirm_delete_text
-              sw_settings_snippet_set_list_clone_modal_footer
-                sw_settings_snippet_set_list_clone_modal_cancel
-                sw_settings_snippet_set_list_clone_modal_confirm
-            sw_settings_snippet_set_list_columns_delete_modal
-              sw_settings_snippet_set_list_delete_modal_confirm_delete_text
-              sw_settings_snippet_set_list_delete_modal_footer
-                sw_settings_snippet_set_list_delete_modal_cancel
-                sw_settings_snippet_set_list_delete_modal_confirm
-      sw_settings_snippet_set_list_card_title
+          sw_settings_snippet_set_list_card_list_grid_pagination  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_card_list_grid_pagination_bar  [deprecated tag:v6.8.0]
+          sw_settings_snippet_set_list_card_list_grid_template  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_card_list_grid_column_base_action  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_card_list_grid_column_base_file  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_card_list_grid_column_base_file_editor  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_card_list_grid_column_changed  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_card_list_grid_column_changed_date  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_card_list_grid_column_name  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_card_list_grid_column_name_editor  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_card_list_grid_column_name_link  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_columns_clone_modal  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_clone_modal_confirm_delete_text  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_clone_modal_footer  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_clone_modal_cancel  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_clone_modal_confirm  [deprecated tag:v6.8.0]
+            sw_settings_snippet_set_list_columns_delete_modal  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_delete_modal_confirm_delete_text  [deprecated tag:v6.8.0]
+              sw_settings_snippet_set_list_delete_modal_footer  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_delete_modal_cancel  [deprecated tag:v6.8.0]
+                sw_settings_snippet_set_list_delete_modal_confirm  [deprecated tag:v6.8.0]
+      sw_settings_snippet_set_list_card_title  [deprecated tag:v6.8.0]
     sw_settings_snippet_set_list_search_bar
     sw_settings_snippet_set_list_smart_bar_header
       sw_settings_snippet_set_list_smart_bar_header_title
         sw_settings_snippet_set_list_smart_bar_header_title_text
+
+refs
+  snippetSetList  -> sw-entity-listing  block=sw_settings_snippet_set_list_card_list_grid
 ```

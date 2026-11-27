@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
@@ -87,27 +89,17 @@ abstract class McpScenarioTestCase extends TestCase
         $this->orderStateTool = new OrderStateTool($registry, $contextProvider, $stateMachineRegistry, $container->get(Connection::class));
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    protected function decodeToolOutput(string $json): array
+    protected function assertToolSucceeded(McpToolResult $output): McpToolResult
     {
-        $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-        static::assertTrue($data['success'], 'Tool call failed: ' . ($data['error'] ?? 'unknown'));
+        static::assertFalse($output->isError(), 'Tool call failed: ' . $output->error?->message);
 
-        return $data;
+        return $output;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    protected function decodeToolError(string $json): array
+    protected function assertToolFailed(McpToolResult $output): McpToolError
     {
-        $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-        static::assertFalse($data['success']);
+        static::assertTrue($output->isError());
 
-        return $data;
+        return $output->error;
     }
 }

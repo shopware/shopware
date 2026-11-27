@@ -8,4 +8,7 @@ Line format and markers: `technical-docs/11-code-quality/03-public-api-snapshot.
 component sw-silence-deprecations  public  ts
   registered src/app/component/index.ts
   source src/app/component/utils/sw-silence-deprecations/index.ts
+
+props
+  flag: string
 ```

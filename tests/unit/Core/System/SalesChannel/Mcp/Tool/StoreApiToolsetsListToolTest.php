@@ -45,12 +45,12 @@ class StoreApiToolsetsListToolTest extends TestCase
         $requestStack->push($request);
 
         $tool = new StoreApiToolsetsListTool($registry, $storage, $requestStack, new McpRequestedToolsetResolver($requestStack));
-        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool();
 
-        static::assertTrue($result['success']);
-        static::assertSame('store-api', $result['data']['toolsets'][0]['name']);
-        static::assertTrue($result['data']['toolsets'][0]['enabled']);
-        static::assertSame('tool-groups', $result['_meta']['taxonomy']);
+        static::assertFalse($result->isError());
+        static::assertSame('store-api', $result->data['toolsets'][0]['name']);
+        static::assertTrue($result->data['toolsets'][0]['enabled']);
+        static::assertSame('tool-groups', $result->meta['taxonomy']);
     }
 
     public function testIsUnavailableOnTheStatelessEra(): void
@@ -62,10 +62,10 @@ class StoreApiToolsetsListToolTest extends TestCase
         $requestStack->push(self::statelessRequest());
 
         $tool = new StoreApiToolsetsListTool($registry, static::createStub(McpToolsetSessionStorage::class), $requestStack, new McpRequestedToolsetResolver($requestStack));
-        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool();
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('?toolsets=', $result['error']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('?toolsets=', $result->error->message);
     }
 
     private static function statelessRequest(): Request

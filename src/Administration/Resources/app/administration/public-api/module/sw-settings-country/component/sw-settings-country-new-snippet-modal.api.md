@@ -11,6 +11,43 @@ component sw-settings-country-new-snippet-modal  private  ts  [private]
   template src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal/sw-settings-country-new-snippet-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  addressFormat: Array<string[]>  [private]
+  currentPosition: number  [private]
+  disabled?: boolean  default=false  [private]
+  getLabelProperty?: (...args: any[]) => any  default=factory  [private]
+  selections?: Selection[]  default=factory  [private]
+
+emits
+  change(...args: any[])  [private]
+  modal-close(...args: any[])  [private]
+
+slots
+  label-property  { ...{ item: snippet, index } }  block=sw_settings_country_new_snippet_modal  [private]
+  selected-option  { ...{ snippet, defaultLabel: snippet, disabled } }  block=sw_settings_country_new_snippet_modal  [private]
+
+data
+  activeFocusId: any  [private]
+  isLoading: any  [private]
+  searchResults: any  [private]
+  searchTerm: any  [private]
+
+computed
+  selection: string[]  [private]
+
+methods
+  addElement(data: Selection): any  [private]
+  createdComponent(): any  [private]
+  debouncedSearch(): void  [private]
+  getSnippetsTree(selections: Selection[]): void  [private]
+  onClickDismiss(index: number): any  [private]
+  onCloseModal(): any  [private]
+  search(): void  [private]
+
 blocks
   sw_settings_country_new_snippet_modal  [private]
+
+refs
+  searchInput  -> input  block=sw_settings_country_new_snippet_modal  [private]
+  selectionList  -> ul  block=sw_settings_country_new_snippet_modal  [private]
 ```

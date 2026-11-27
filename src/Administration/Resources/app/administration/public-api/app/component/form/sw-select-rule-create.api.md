@@ -11,15 +11,61 @@ component sw-select-rule-create  private  js  [private]
   template src/app/component/form/sw-select-rule-create/sw-select-rule-create.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  repositoryFactory  [private]
+  ruleConditionDataProviderService  [private]
+
+props
+  restrictedRuleIds?: any[]  default=factory  [private]
+  restrictedRuleIdsTooltipLabel?: string  default=factory  [private]
+  ruleAwareGroupKey?: string  default=null  [private]
+  ruleFilter?: object  default=factory  [private]
+  ruleId?: string  default=null  [private]
+  rules?: any[]  default=null  [private]
+  size?: string  default='default'  [private]
+
+emits
+  dismiss-rule(...args: any[])  [private]
+  save-rule(...args: any[])  [private]
+  update:rules(...args: any[])  [private]
+
+slots
+  result-item  { ...{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey } }  block=sw_select_rule_create_select_entity_select_result_list_item  [private]
+  result-item  { ...{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey } }  block=sw_select_rule_create_select_multi_select_result_list_item  [private]
+  result-label-property  { ...{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey } }  block=sw_select_rule_create_select_entity_select_result_item_label  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey } }  block=sw_select_rule_create_select_multi_select_result_item_label  [private]
+  rule-modal  { ...{ showRuleModal, onSaveRule, onCloseRuleModal } }  block=sw_select_rule_create_rule_modal  [private]
+
+data
+  itemAddNewRule: object  [private]
+    id: any  [private]
+    index: any  [private]
+  showRuleModal: any  [private]
+
+computed
+  collection: any  [private]
+
+methods
+  getAdvancedSelectionParameters(): any  [private]
+  isRuleRestricted(rule: any): any  [private]
+  onCloseRuleModal(): any  [private]
+  onRuleSelectInput(event: any): any  [private]
+  onSaveRule(ruleId: any, rule: any): any  [private]
+  onSelectRule(event: any): any  [private]
+  onUpdateCollection(collection: any): any  [private]
+  openCreateRuleModal(): any  [private]
+  tooltipConfig(rule: any): any  [private]
+
 blocks
   sw_select_rule_create  [private]
     sw_select_rule_create_rule_modal  [private]
       sw_select_rule_create_rule_modal_inner  [private]
-    sw_select_rule_create_select  [private]
-      sw_select_rule_create_select_entity_select_result_list_item  [private]
-        sw_select_rule_create_select_entity_select_result_item_label  [private]
+    sw_select_rule_create_select  [after v-if] [private]
+      sw_select_rule_create_select_entity_select_result_list_item  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue] [private]
+        sw_select_rule_create_select_entity_select_result_item_label  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue] [private]
       sw_select_rule_create_single_select_before  [private]
     sw_select_rule_create_select_before  [private]
-    sw_select_rule_create_select_multi_select_result_list_item  [private]
-      sw_select_rule_create_select_multi_select_result_item_label  [private]
+    sw_select_rule_create_select_multi_select_result_list_item  [scope: addItem, getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, valueProperty] [private]
+      sw_select_rule_create_select_multi_select_result_item_label  [scope: addItem, getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, valueProperty] [private]
 ```

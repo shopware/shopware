@@ -2,12 +2,16 @@
 {{ $t('global.sw-multi-tag-ip-select.addIpAddress') }}
 {% endblock %}
 
-{% block sw_multi_tag_select_validation_invalid_message %}
-{{ $t('global.sw-multi-tag-ip-select.enterValidIp') }}
-{% endblock %}
-
+{# The message cannot be redeclared beside this block: a block below a redeclared block is never replaced. #}
 {% block sw_multi_tag_select_validation_invalid %}
-{% parent %}
+<div
+    v-if="!inputIsValid"
+    class="sw-multi-tag-select-invalid"
+>
+    {% block sw_multi_tag_select_validation_invalid_message %}
+    {{ $t('global.sw-multi-tag-ip-select.enterValidIp') }}
+    {% endblock %}
+</div>
 
 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <div

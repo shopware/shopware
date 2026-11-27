@@ -12,10 +12,22 @@ component sw-compact-colorpicker  private  js  [private]
   template src/app/component/form/sw-compact-colorpicker/sw-compact-colorpicker.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+computed
+  colorValue: any  [private]
+
+methods
+  emitColor(): any  [private]
+
 blocks
-  sw_compact_colorpicker  [private]
-    sw_colorpicker_contextual_field  [private]
-    sw_colorpicker_popover  [private]
+  sw_colorpicker  [inherited] [private]
+    sw_colorpicker_contextual_field  [replaced] [private]
+    sw_colorpicker_popover  [replaced] [private]
       sw_compact_colorpicker_colorpicker  [private]
         sw_colorpicker_button  [private]
         sw_colorpicker_selection  [private]
@@ -29,4 +41,7 @@ blocks
           sw_compact_colorpicker_inputs_hex  [private]
           sw_compact_colorpicker_inputs_red  [private]
         sw_compact_colorpicker_preview  [private]
+
+refs
+  colorPicker  -> div  block=sw_colorpicker_selection  [private]
 ```

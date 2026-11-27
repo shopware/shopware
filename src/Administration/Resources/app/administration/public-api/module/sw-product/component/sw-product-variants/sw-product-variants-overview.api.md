@@ -10,38 +10,126 @@ component sw-product-variants-overview  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/sw-product-variants-overview.html.twig
 
+mixins
+  notification, listing
+
+inject
+  acl
+  feature
+  mediaService
+  repositoryFactory
+
+props
+  productEntity: object
+  productStates?: any[]  default=factory  [deprecated tag:v6.8.0]
+  productType?: string  default='all'
+  selectedGroups: any[]
+
+emits
+  delivery-open(...args: any[])
+  generator-open(...args: any[])
+  variants-finish-update(...args: any[])
+
+data
+  activeFilter: any
+  filterOptions: any
+  filterWindowOpen: any
+  includeOptions: any
+  modalLoading: any
+  priceEdit: any
+  productDownloadFolderId: any
+  showBulkEditModal: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  toBeDeletedVariantIds: any
+
+computed
+  canBeDeletedCriteria: any
+  currencies: any
+  currencyColumns: any
+  defaultCurrency: any
+  defaultPrice: any
+  isLoading: any
+  mediaRepository: any
+  product: any
+  productDownloadRepository: any
+  productMediaRepository: any
+  productRepository: any
+  productTaxRate: any
+  taxes: any
+  variantColumns: any
+  variants: any
+
+methods
+  buildSearchQuery(criteria: any): any
+  canVariantBeDeleted(): Promise<any>
+  createdComponent(): Promise<any>
+  filterOptionChecked(option: any): any
+  getDefaultPriceForVariant(variant: any): any
+  getDownloadsSource(item: any): any
+  getFilterCriteria(): any
+  getFilterOptions(): any
+  getList(): Promise<any>
+  getOptionsForGroup(groupId: any): any
+  isActiveFieldInherited(variant: any): any
+  isMediaFieldInherited(variant: any): any
+  isPriceEditing(value: any): any
+  isPriceFieldInherited(variant: any, currency: any): any
+  mediaExists(files: any, targetId: any): any
+  onActiveInheritanceRemove(variant: any): any
+  onActiveInheritanceRestore(variant: any): any
+  onClickBulkDelete(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(): any
+  onEditItems(): Promise<any>
+  onInheritanceRemove(variant: any, currency: any): any
+  onInheritanceRestore(variant: any, currency: any): any
+  onInlineEditCancel(): any
+  onInlineEditSave(variation: any): any
+  onMediaInheritanceRemove(variant: any, isInlineEdit: any): any
+  onMediaInheritanceRestore(variant: any, isInlineEdit: any): any
+  onOptionEdit(variant: any): any
+  onVariationDelete(item: any): any
+  removeFile(fileName: any, item: any): any
+  resetFilterOptions(): any
+  successfulUpload(event: any, item: any): any
+  toggleBulkEditModal(): any
+  updateVariantListingConfig(variantIds: any): any
+  variantIsDigital(variant: any): any
+
 blocks
   sw_product_variants_overview
     sw_product_variants_overview_data_grid
       sw_product_variants_overview_actions
-        sw_product_variants_overview_actions_items
+        sw_product_variants_overview_actions_items  [scope: item]
       sw_product_variants_overview_bulk
-        sw_product_variants_overview_bulk_delete
+        sw_product_variants_overview_bulk_delete  [after v-if]
         sw_product_variants_overview_bulk_edit
       sw_product_variants_overview_bulk_edit_modal
-        sw_product_variants_overview_bulk_edit_modal_column_active
-        sw_product_variants_overview_bulk_edit_modal_column_media
-        sw_product_variants_overview_bulk_edit_modal_column_name
-        sw_product_variants_overview_bulk_edit_modal_column_price
+        sw_product_variants_overview_bulk_edit_modal_column_active  [scope: selection]
+        sw_product_variants_overview_bulk_edit_modal_column_media  [scope: selection]
+        sw_product_variants_overview_bulk_edit_modal_column_name  [scope: selection]
+        sw_product_variants_overview_bulk_edit_modal_column_price  [scope: selection]
       sw_product_variants_overview_data_grid_column_active
       sw_product_variants_overview_data_grid_column_media
-        sw_product_variants_overview_data_grid_column_media_inline_edit
-          sw_product_variants_overview_data_grid_column_media_content
-          sw_product_variants_overview_data_grid_column_media_inherit
+        sw_product_variants_overview_data_grid_column_media_inline_edit  [scope: compact, isInlineEdit, item]
+          sw_product_variants_overview_data_grid_column_media_content  [scope: compact, isInlineEdit, item]
+          sw_product_variants_overview_data_grid_column_media_inherit  [scope: compact, isInlineEdit, item]
       sw_product_variants_overview_data_grid_column_name
       sw_product_variants_overview_data_grid_column_price
-        sw_product_variants_overview_data_grid_column_price_inline_edit
-          sw_product_variants_overview_data_grid_column_price_inline_edit_inherit
-          sw_product_variants_overview_data_grid_column_price_inline_edit_price_field
-        sw_product_variants_overview_data_grid_column_price_preview
-          sw_product_variants_overview_data_grid_column_price_preview_inherit
-          sw_product_variants_overview_data_grid_column_price_preview_price_field
+        sw_product_variants_overview_data_grid_column_price_inline_edit  [scope: compact, currency, isInlineEdit, item]
+          sw_product_variants_overview_data_grid_column_price_inline_edit_inherit  [scope: compact, currency, isInlineEdit, item]
+          sw_product_variants_overview_data_grid_column_price_inline_edit_price_field  [scope: compact, currency, isInlineEdit, item]
+        sw_product_variants_overview_data_grid_column_price_preview  [after v-if] [scope: compact, currency, isInlineEdit, item]
+          sw_product_variants_overview_data_grid_column_price_preview_inherit  [scope: compact, currency, isInlineEdit, item]
+          sw_product_variants_overview_data_grid_column_price_preview_price_field  [scope: compact, currency, isInlineEdit, item]
       sw_product_variants_overview_data_grid_column_product_number
-        sw_product_variants_overview_data_grid_column_product_number_inline_edit
-        sw_product_variants_overview_data_grid_column_product_number_preview
+        sw_product_variants_overview_data_grid_column_product_number_inline_edit  [scope: compact, isInlineEdit, item]
+        sw_product_variants_overview_data_grid_column_product_number_preview  [after v-if] [scope: compact, isInlineEdit, item]
       sw_product_variants_overview_data_grid_column_stock
-        sw_product_variants_overview_data_grid_column_stock_inline_edit_field
-        sw_product_variants_overview_data_grid_column_stock_preview
+        sw_product_variants_overview_data_grid_column_stock_inline_edit_field  [scope: compact, isInlineEdit, item]
+        sw_product_variants_overview_data_grid_column_stock_preview  [after v-if] [scope: compact, isInlineEdit, item]
       sw_product_variants_overview_pagination
     sw_product_variants_overview_data_grid_action_modals
       sw_product_variants_overview_data_grid_action_modals_buttons
@@ -56,4 +144,12 @@ blocks
             sw_product_variants_overview_option_list_toolbar_container_filter_tree
           sw_product_variants_overview_option_list_toolbar_container_filter_list_button
         sw_product_variants_overview_option_list_toolbar_container_search_field
+
+crossings
+  v-if  sw_product_variants_overview_data_grid_column_price_inline_edit -> sw_product_variants_overview_data_grid_column_price_preview
+  v-if  sw_product_variants_overview_data_grid_column_product_number_inline_edit -> sw_product_variants_overview_data_grid_column_product_number_preview
+  v-if  sw_product_variants_overview_data_grid_column_stock_inline_edit_field -> sw_product_variants_overview_data_grid_column_stock_preview
+
+refs
+  variantGrid  -> sw-data-grid  block=sw_product_variants_overview_data_grid
 ```

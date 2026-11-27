@@ -1,0 +1,49 @@
+{% block sw_example_card %}
+<div class="sw-example-card">
+    {% block sw_example_card_header %}
+    <div class="sw-example-card__header">
+        {% block sw_example_card_title %}
+        <h3
+            v-if="hasTitle"
+            class="sw-example-card__title"
+        >
+            {{ title }}
+        </h3>
+        {% endblock %}
+
+        {# @deprecated tag:v6.8.0 - Will be removed, override `sw_example_card_title` instead #}
+        {% block sw_example_card_subtitle %}
+        <p
+            v-if="hasSubtitle"
+            class="sw-example-card__subtitle"
+            :class="getSubtitleClasses()"
+        >
+            {{ subtitle }}
+        </p>
+        {% endblock %}
+
+        {% block sw_example_card_toggle %}
+        <button
+            class="sw-example-card__toggle"
+            :disabled="isLoading"
+            @click="onToggle"
+        >
+            {{ isExpanded ? 'Collapse' : 'Expand' }}
+        </button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_example_card_content %}
+    <div
+        v-if="isExpanded"
+        class="sw-example-card__content"
+    >
+        <mt-loader
+            v-if="isLoading"
+            size="24px"
+        />
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

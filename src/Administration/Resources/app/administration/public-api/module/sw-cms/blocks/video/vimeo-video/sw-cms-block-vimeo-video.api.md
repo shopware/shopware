@@ -11,6 +11,9 @@ component sw-cms-block-vimeo-video  private  js  [private]
   template src/module/sw-cms/blocks/video/vimeo-video/component/sw-cms-block-vimeo-video.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  video  {}  block=sw_cms_block_vimeo_video  [private]
+
 blocks
   sw_cms_block_vimeo_video  [private]
     sw_cms_block_vimeo_video_slot  [private]

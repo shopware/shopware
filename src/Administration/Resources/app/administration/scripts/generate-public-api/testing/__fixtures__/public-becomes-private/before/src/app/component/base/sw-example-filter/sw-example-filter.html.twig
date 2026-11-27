@@ -1,0 +1,16 @@
+{% block sw_example_filter %}
+<div class="sw-example-filter">
+    {% block sw_example_filter_field %}
+    <sw-simple-search-field
+        v-model:value="term"
+        size="small"
+        variant="form"
+        :placeholder="placeholder"
+        :delay="delay"
+        @search-term-change="onSearchTermChange"
+    />
+    {% endblock %}
+
+    {% block sw_example_filter_actions %}{% endblock %}
+</div>
+{% endblock %}

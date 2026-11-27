@@ -11,7 +11,28 @@ component sw-email-field  private  ts  [private]
   template src/app/component/form/sw-email-field/sw-email-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=false  [private]
+  modelValue?: string  default=null  [private]
+  value?: string  default=null  [private]
+
+slots
+  default  {}  block=sw_email_field  [private]
+
+computed
+  compatValue: any  [private]
+
+methods
+  getSlots(): any  [private]
+  handleUpdateModelValue(event: unknown): any  [private]
+
 blocks
   sw_email_field  [private]
-  sw_email_field_deprecated  [private]
+  sw_email_field_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_email_field -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

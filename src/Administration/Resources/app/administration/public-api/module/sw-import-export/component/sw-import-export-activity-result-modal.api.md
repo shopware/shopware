@@ -10,6 +10,27 @@ component sw-import-export-activity-result-modal  public  js
   source src/module/sw-import-export/component/sw-import-export-activity-result-modal/index.js
   template src/module/sw-import-export/component/sw-import-export-activity-result-modal/sw-import-export-activity-result-modal.html.twig
 
+inject
+  importExport
+
+props
+  logEntity?: object  default=factory
+
+emits
+  result-close(...args: any[])
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  logTypeText: any
+  mainEntity: any
+  mainEntityResult: any
+  result: any
+
+methods
+  calculateFileSize(size: any): any
+  getStateLabel(state: any): any
+  openDownload(id: any): Promise<any>
+
 blocks
   sw_import_export_activity_result_modal
     sw_import_export_activity_result_modal_activity
@@ -17,10 +38,10 @@ blocks
       sw_import_export_activity_result_modal_activity_headline
       sw_import_export_activity_result_modal_activity_table
         sw_import_export_activity_result_modal_activity_table_columns
-          sw_import_export_activity_result_modal_activity_table_columns_changes
-          sw_import_export_activity_result_modal_activity_table_columns_errors
-          sw_import_export_activity_result_modal_activity_table_columns_label
-          sw_import_export_activity_result_modal_activity_table_columns_skipped
+          sw_import_export_activity_result_modal_activity_table_columns_changes  [scope: item]
+          sw_import_export_activity_result_modal_activity_table_columns_errors  [scope: item]
+          sw_import_export_activity_result_modal_activity_table_columns_label  [scope: item]
+          sw_import_export_activity_result_modal_activity_table_columns_skipped  [scope: item]
     sw_import_export_activity_result_modal_download
       sw_import_export_activity_result_modal_download_invalid_records_button
       sw_import_export_activity_result_modal_download_records_button

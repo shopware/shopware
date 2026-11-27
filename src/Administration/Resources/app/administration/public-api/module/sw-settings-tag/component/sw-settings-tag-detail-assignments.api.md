@@ -10,25 +10,95 @@ component sw-settings-tag-detail-assignments  public  js
   source src/module/sw-settings-tag/component/sw-settings-tag-detail-assignments/index.js
   template src/module/sw-settings-tag/component/sw-settings-tag-detail-assignments/sw-settings-tag-detail-assignments.html.twig
 
+mixins
+  listing
+
+inject
+  repositoryFactory
+
+props
+  entity?: string  default=null
+  initialCounts?: object  default=factory
+  property?: string  default=null
+  tag: object
+  toBeAdded: object
+  toBeDeleted: object
+
+emits
+  add-assignment(...args: any[])
+  remove-assignment(...args: any[])
+
+data
+  counts: object
+  currentPageCountBuckets: any
+  disableRouteParams: any
+  entities: any
+  entitiesGridKey: any
+  isLoading: any
+  limit: any
+  page: any
+  preSelected: any
+  selectedAssignment: any
+  selectedEntity: any
+  showSelected: any
+
+computed
+  assignmentAssociations: any
+  assignmentAssociationsColumns: any
+  entitiesColumns: any
+  entityCriteria: any
+  entityRepository: any
+  isInheritable: any
+  selectedAssignments: any
+  tagDefinition: any
+  totalAssignments: any
+
+methods
+  addTagAggregations(criteria: any, filter?: any = true): any
+  countDecrease(propertyName: any): any
+  countIncrease(propertyName: any): any
+  getCount(propertyName: any): any
+  getList(): any
+  hasInheritedTag(id: any, parentId: any): any
+  isInherited(id: any, parentId: any): any
+  onAssignmentChange(arg0: any): any
+  onPageChange(arg0: any): any
+  onSelectionChange(selection: any, item: any, selected: any): any
+  onTermChange(term: any): Promise<any>
+  parentHasTags(id: any, parentId: any): any
+  search(criteria: any): Promise<any>
+  searchInheritedEntities(criteria: any): Promise<any>
+
 blocks
   sw_settings_tag_detail_assignments
     sw_settings_tag_detail_assignments_card
       sw_settings_tag_detail_assignments_grid
         sw_settings_tag_detail_assignments_associations_grid
-          sw_settings_tag_detail_assignments_associations_grid_column_name
+          sw_settings_tag_detail_assignments_associations_grid_column_name  [scope: item]
         sw_settings_tag_detail_assignments_entities_grid
-          sw_settings_tag_detail_assignments_entities_grid_column_inheritance_switch
-          sw_settings_tag_detail_assignments_entities_grid_column_name_category
-          sw_settings_tag_detail_assignments_entities_grid_column_name_customer
-          sw_settings_tag_detail_assignments_entities_grid_column_name_default
-          sw_settings_tag_detail_assignments_entities_grid_column_name_media
-          sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient
-          sw_settings_tag_detail_assignments_entities_grid_column_name_order
-          sw_settings_tag_detail_assignments_entities_grid_column_name_product
-          sw_settings_tag_detail_assignments_entities_grid_selection_content
-            sw_settings_tag_detail_assignments_entities_grid_select_item_checkbox
+          sw_settings_tag_detail_assignments_entities_grid_column_inheritance_switch  [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_category  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_customer  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_default  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_media  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_order  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_product  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_selection_content  [scope: isSelected, item, itemIdentifierProperty, selectItem]
+            sw_settings_tag_detail_assignments_entities_grid_select_item_checkbox  [scope: isSelected, item, itemIdentifierProperty, selectItem]
       sw_settings_tag_detail_assignments_header
         sw_settings_tag_detail_assignments_header_selected_filter
         sw_settings_tag_detail_assignments_header_total_selected
       sw_settings_tag_detail_assignments_toolbar
+
+crossings
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_category -> sw_settings_tag_detail_assignments_entities_grid_column_name_customer
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_customer -> sw_settings_tag_detail_assignments_entities_grid_column_name_order
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_media -> sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient -> sw_settings_tag_detail_assignments_entities_grid_column_name_default
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_order -> sw_settings_tag_detail_assignments_entities_grid_column_name_media
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_product -> sw_settings_tag_detail_assignments_entities_grid_column_name_category
+
+notes
+  unresolved data ...this.initialCounts
 ```

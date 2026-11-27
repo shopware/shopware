@@ -11,16 +11,44 @@ component sw-cms-el-config-text  private  js  [private]
   template src/module/sw-cms/elements/text/config/sw-cms-el-config-text.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+
+computed
+  alignmentOptions: any  [private]
+  availableDataMappings: any  [private]
+  customTextEditorButtons: any  [private]
+  tabs: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  emitChanges(content: any): any  [private]
+  handleUpdateContent(): Promise<any>  [private]
+  onBlur(content: any): any  [private]
+  onInput(content: any): any  [private]
+
 blocks
   sw_cms_el_config_text  [private]
     sw_cms_el_config_text_mt_tabs  [from v6.8.0] [private]
-    sw_cms_el_config_text_tab_content  [until v6.8.0] [private]
-    sw_cms_el_text_config_content  [until v6.8.0] [private]
+    sw_cms_el_config_text_tab_content  [scope: active] [until v6.8.0] [private]
+    sw_cms_el_text_config_content  [scope: active] [until v6.8.0] [private]
     sw_cms_el_text_config_mt_content  [from v6.8.0] [private]
       sw_cms_el_text_config_mt_content_field  [from v6.8.0] [private]
-    sw_cms_el_text_config_mt_settings  [from v6.8.0] [private]
+    sw_cms_el_text_config_mt_settings  [after v-if] [from v6.8.0] [private]
       sw_cms_el_text_config_mt_settings_vertical_align  [from v6.8.0] [private]
-    sw_cms_el_text_config_settings  [until v6.8.0] [private]
-      sw_cms_el_text_config_settings_vertical_align  [until v6.8.0] [private]
-    sw_cms_el_text_config_tab_options  [until v6.8.0] [private]
+    sw_cms_el_text_config_settings  [after v-if] [scope: active] [until v6.8.0] [private]
+      sw_cms_el_text_config_settings_vertical_align  [scope: active] [until v6.8.0] [private]
+    sw_cms_el_text_config_tab_options  [scope: active] [until v6.8.0] [private]
+
+refs
+  swCmsTextEditor  -> mt-text-editor  block=sw_cms_el_text_config_mt_content_field  [from v6.8.0] [private]
 ```

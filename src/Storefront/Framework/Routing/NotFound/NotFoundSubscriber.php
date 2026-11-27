@@ -112,13 +112,13 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $name = self::buildName($salesChannelId, $domainId, $languageId);
         $key = $this->generateKey($salesChannelId, $domainId, $languageId, $request, $context);
 
-        $response = $this->cache->get($key, function (ItemInterface $item, bool &$save) use ($event, $name, $context, $request) {
+        $response = $this->cache->get($key, function (ItemInterface $item, bool &$save) use ($event, $name, $salesChannelId, $context, $request) {
             $response = $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
 
             // Do not cache a failed rendering, otherwise every following 404 request of this sales channel gets the error
             $save = $response->getStatusCode() === Response::HTTP_NOT_FOUND;
 
-            $item->tag($this->generateTags($name, $event->getRequest(), $context));
+            $item->tag($this->generateTags($name, $salesChannelId, $event->getRequest(), $context));
 
             // Remove session cookie from 404 pages, injected by the Symfony session listener
             foreach ($response->headers->getCookies() as $cookie) {
@@ -139,7 +139,10 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
             return;
         }
 
-        $this->cacheInvalidator->invalidate([self::ALL_TAG]);
+        $salesChannelId = $event->getSalesChannelId();
+
+        // A sales channel specific value only replaces the 404 page of that sales channel, the global value is inherited by all
+        $this->cacheInvalidator->invalidate([$salesChannelId === null ? self::ALL_TAG : self::buildSalesChannelTag($salesChannelId)]);
     }
 
     public function reset(): void
@@ -150,6 +153,11 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
     private static function buildName(string $salesChannelId, string $domainId, string $languageId): string
     {
         return 'error-page-' . $salesChannelId . $domainId . $languageId;
+    }
+
+    private static function buildSalesChannelTag(string $salesChannelId): string
+    {
+        return self::ALL_TAG . '-sales-channel-' . $salesChannelId;
     }
 
     private function generateKey(string $salesChannelId, string $domainId, string $languageId, Request $request, SalesChannelContext $context): string
@@ -166,9 +174,9 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
     /**
      * @return array<string>
      */
-    private function generateTags(string $name, Request $request, SalesChannelContext $context): array
+    private function generateTags(string $name, string $salesChannelId, Request $request, SalesChannelContext $context): array
     {
-        $event = new NotFoundPageTagsEvent([$name, self::ALL_TAG], $request, $context);
+        $event = new NotFoundPageTagsEvent([$name, self::buildSalesChannelTag($salesChannelId), self::ALL_TAG], $request, $context);
 
         $this->eventDispatcher->dispatch($event);
 

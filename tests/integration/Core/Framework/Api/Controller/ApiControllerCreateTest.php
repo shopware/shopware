@@ -17,9 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -758,12 +756,7 @@ class ApiControllerCreateTest extends TestCase
         /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = static::getContainer()->get('language.repository');
         $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(
-            MultiFilter::CONNECTION_AND,
-            [
-                new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM),
-            ]
-        ));
+        $criteria->addFilter(new NotEqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
         $criteria->setLimit(1);
 
         $id = $languageRepository->searchIds($criteria, Context::createDefaultContext())->firstId();

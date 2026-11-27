@@ -10,4 +10,13 @@ component sw-app-topbar-sidebar  private  ts  [private]
   source src/app/component/app/sw-app-topbar-sidebar/index.ts  [private]
   template src/app/component/app/sw-app-topbar-sidebar/sw-app-topbar-sidebar.html.twig  [private]
   visibility-source export  [private]
+
+computed
+  hasActiveSidebar: any  [private]
+  sidebars: any  [private]
+
+methods
+  setActiveSidebar(locationId: string): any  [private]
+  showTooltipOnKeyboardFocus(event: FocusEvent, showTooltip: () => void): any  [private]
+  toggleSidebar(locationId: string): any  [private]
 ```

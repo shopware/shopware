@@ -1,0 +1,4 @@
+{
+    "description": "Prop removed, renamed and changed from optional to required",
+    "majorFlags": ["v6.8.0.0"]
+}

@@ -11,6 +11,15 @@ component sw-help-center-v2  private  ts  [private]
   template src/app/component/utils/sw-help-center/sw-help-center.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  showHelpSidebar: boolean  [private]
+  showShortcutModal: boolean  [private]
+
+methods
+  closeShortcutModal(): void  [private]
+  onVisibilityChange(isOpened: boolean): void  [private]
+  openShortcutModal(): void  [private]
+
 blocks
   sw_help_center  [private]
     sw_help_sidebar  [private]
@@ -18,4 +27,7 @@ blocks
         sw_help_sidebar_support_create_support_request  [private]
         sw_help_sidebar_support_documentation  [private]
         sw_help_sidebar_support_placeholder  [private]
+
+refs
+  shortcutModal  -> sw-shortcut-overview  block=sw_help_center  [private]
 ```

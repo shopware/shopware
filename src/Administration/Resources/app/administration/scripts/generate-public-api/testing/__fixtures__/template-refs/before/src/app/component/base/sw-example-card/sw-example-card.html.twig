@@ -1,0 +1,27 @@
+{% block sw_example_card %}
+<mt-card
+    class="sw-example-card"
+    :title="title"
+>
+    {% block sw_example_card_header %}
+    <template #headerRight>
+        {% block sw_example_card_header_title %}
+        <sw-text-field
+            ref="titleField"
+            v-model:value="title"
+            class="sw-example-card__title-field"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_example_card_grid %}
+    <sw-data-grid
+        ref="grid"
+        class="sw-example-card__grid"
+        :data-source="items"
+        :columns="columns"
+    />
+    {% endblock %}
+</mt-card>
+{% endblock %}

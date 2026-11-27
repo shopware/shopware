@@ -62,6 +62,28 @@ class McpToolResultRendererTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{ProtocolVersion, bool}>
+     */
+    public static function everyRevisionWithAndWithoutOutputSchemaProvider(): iterable
+    {
+        foreach (ProtocolVersion::cases() as $protocolVersion) {
+            yield $protocolVersion->value => [$protocolVersion, false];
+            yield $protocolVersion->value . ' with an output schema' => [$protocolVersion, true];
+        }
+    }
+
+    #[DataProvider('everyRevisionWithAndWithoutOutputSchemaProvider')]
+    public function testSendsPlainTextAsIsOnEveryRevision(ProtocolVersion $protocolVersion, bool $hasOutputSchema): void
+    {
+        $result = $this->renderer()->render(McpToolResult::text('Cache cleared.'), $protocolVersion, hasOutputSchema: $hasOutputSchema);
+
+        static::assertFalse($result->isError);
+        static::assertNull($result->structuredContent);
+        static::assertCount(1, $result->content);
+        static::assertSame('Cache cleared.', $this->text($result->content[0]), 'the text reaches the model as a plain string returned by the tool did');
+    }
+
+    /**
      * @return iterable<string, array{ProtocolVersion}>
      */
     public static function specRevisionProvider(): iterable

@@ -10,11 +10,29 @@ component sw-customer-base-form  public  js
   source src/module/sw-customer/component/sw-customer-base-form/index.js
   template src/module/sw-customer/component/sw-customer-base-form/sw-customer-base-form.html.twig
 
+inject
+  feature
+
+props
+  customer: object
+
+emits
+  sales-channel-change(...args: any[])
+
+computed
+  accountTypeOptions: any
+  isBusinessAccountType: any
+  languageCriteria: any
+  salutationCriteria: any
+
+methods
+  onSalesChannelChange(salesChannelId: any): any
+
 blocks
   sw_customer_base_form
     sw_customer_base_form_account_type_field
     sw_customer_base_form_birthday_field
-    sw_customer_base_form_customer_group_field
+    sw_customer_base_form_customer_group_field  [after v-if]
     sw_customer_base_form_customer_number_field
     sw_customer_base_form_email_field
     sw_customer_base_form_first_name_field
@@ -26,4 +44,7 @@ blocks
     sw_customer_base_form_tag_field
     sw_customer_base_form_title_field
     sw_customer_base_form_vat_id_field
+
+notes
+  unresolved computed ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer...
 ```

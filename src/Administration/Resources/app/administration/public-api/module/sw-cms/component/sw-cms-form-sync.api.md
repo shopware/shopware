@@ -9,4 +9,21 @@ component sw-cms-form-sync  private  ts  [private]
   registered src/module/sw-cms/component/index.ts  [private]
   source src/module/sw-cms/component/sw-cms-form-sync/index.ts  [private]
   visibility-source export  [private]
+
+mixins
+  cms-state, cms-element  [private]
+
+inject
+  cmsService  [private]
+
+props
+  element: RuntimeSlot  [private]
+
+computed
+  cmsElements: any  [private]
+
+methods
+  createFieldWatcher(): any  [private]
+  createWatcher(field: string): any  [private]
+  fieldChangeHandler(key: string, config: FieldConfig): any  [private]
 ```

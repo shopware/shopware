@@ -11,18 +11,47 @@ component sw-product-stream-list  private  js  [private]
   template src/module/sw-product-stream/page/sw-product-stream-list/sw-product-stream-list.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  listing, notification  [private]
+
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+data
+  isLoading: any  [private]
+  productStreams: any  [private]
+  searchConfigEntity: any  [private]
+  showDeleteModal: any  [private]
+  sortBy: any  [private]
+  sortDirection: any  [private]
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0] [private]
+  productStreamRepository: any  [private]
+
+methods
+  getList(): Promise<any>  [private]
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any  [private]
+  getProductStreamColumns(): any  [private]
+  onChangeLanguage(): any  [private]
+  onDeleteItemFailed(arg0: any): any  [private]
+  onDeleteItemsFailed(arg0: any): any  [private]
+  onDuplicate(item: any): any  [private]
+  onInlineEditSave(promise: any, productStream: any): Promise<any>  [private]
+
 blocks
   sw_product_stream_list  [private]
     sw_manufacturer_list_language_switch  [private]
     sw_product_stream_list_content  [private]
       sw_product_stream_list_empty_state  [private]
-      sw_product_stream_list_grid  [private]
+      sw_product_stream_list_grid  [after v-if] [private]
         sw_product_stream_list_grid_bulk  [private]
         sw_product_stream_list_grid_colum_updated_at  [private]
         sw_product_stream_list_grid_column_invalid  [private]
         sw_product_stream_list_grid_delete_action  [private]
         sw_product_stream_list_grid_more_actions  [private]
-          sw_product_stream_list_grid_duplicate_action  [private]
+          sw_product_stream_list_grid_duplicate_action  [scope: item] [private]
     sw_product_stream_list_search_bar  [private]
     sw_product_stream_list_sidebar  [private]
       sw_product_stream_list_sidebar_refresh  [private]
@@ -32,4 +61,10 @@ blocks
       sw_product_stream_list_smart_bar_header_title  [private]
         sw_product_stream_list_smart_bar_header_amount  [private]
         sw_product_stream_list_smart_bar_header_title_text  [private]
+
+crossings
+  v-if  sw_product_stream_list_empty_state -> sw_product_stream_list_grid  [private]
+
+refs
+  swProductStreamGrid  -> sw-entity-listing  block=sw_product_stream_list_grid  [private]
 ```

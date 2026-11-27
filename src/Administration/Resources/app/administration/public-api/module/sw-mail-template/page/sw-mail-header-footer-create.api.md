@@ -11,6 +11,28 @@ component sw-mail-header-footer-create  public  js
   source src/module/sw-mail-template/page/sw-mail-header-footer-create/index.js
   template src/module/sw-mail-template/page/sw-mail-header-footer-create/sw-mail-header-footer-create.html.twig
 
+methods
+  createdComponent(): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
-  sw_mail_header_footer_detail_language_switch
+  sw_mail_header_footer_detail  [inherited]
+    sw_mail_header_footer_detail_actions  [inherited]
+      sw_mail_header_footer_detail_actions_abort  [inherited]
+      sw_mail_header_footer_detail_actions_save  [inherited]
+    sw_mail_header_footer_detail_content  [inherited]
+      sw_mail_header_footer_detail_basic_info  [inherited]
+        sw_mail_header_footer_basic_form_description_field  [inherited]
+        sw_mail_header_footer_basic_form_name_field  [inherited]
+        sw_mail_header_footer_basic_form_sales_channels_field  [inherited]
+      sw_mail_header_footer_detail_content_footer  [inherited]
+        sw_mail_header_footer_detail_content_footer_html_field  [inherited]
+        sw_mail_header_footer_detail_content_footer_plain_field  [inherited]
+      sw_mail_header_footer_detail_content_header  [inherited]
+        sw_mail_header_footer_detail_content_header_html_field  [inherited]
+        sw_mail_header_footer_detail_content_header_plain_field  [inherited]
+      sw_mail_header_footer_detail_content_language_info  [inherited]
+    sw_mail_header_footer_detail_header  [inherited]
+    sw_mail_header_footer_detail_language_switch  [replaced]
 ```

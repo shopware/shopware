@@ -347,10 +347,19 @@
             "visibility": "public",
             "extends": "sw-custom-field-set-renderer",
             "blocks": [
+                "sw_custom_field_set_renderer",
+                "sw_custom_field_set_renderer_card",
                 "sw_custom_field_set_renderer_card_form_renderer",
                 "sw_custom_field_set_renderer_card_form_renderer_change_field",
                 "sw_custom_field_set_renderer_card_form_renderer_custom_field",
-                "sw_custom_field_set_renderer_card_mt_tabs_form_renderer"
+                "sw_custom_field_set_renderer_card_mt_tabs",
+                "sw_custom_field_set_renderer_card_mt_tabs_content",
+                "sw_custom_field_set_renderer_card_mt_tabs_form_renderer",
+                "sw_custom_field_set_renderer_card_tabs",
+                "sw_custom_field_set_renderer_card_tabs_content",
+                "sw_custom_field_set_renderer_media",
+                "sw_custom_field_set_renderer_media_button_save",
+                "sw_custom_field_set_renderer_media_form_renderer"
             ]
         },
         "sw-bulk-edit-customer": {
@@ -392,7 +401,9 @@
             "extends": "sw-form-field-renderer",
             "blocks": [
                 "sw_form_field_renderer",
-                "sw_form_field_renderer_inner"
+                "sw_form_field_renderer_inner",
+                "sw_form_field_renderer_inner_slot",
+                "sw_form_field_renderer_scope_slots"
             ]
         },
         "sw-bulk-edit-modal": {
@@ -461,20 +472,39 @@
             "file": "module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-cancellation-invoice",
             "visibility": "public",
             "extends": "sw-bulk-edit-order-documents-generate-invoice",
-            "blocks": []
+            "blocks": [
+                "sw_bulk_edit_order_documents_generate_invoice",
+                "sw_bulk_edit_order_documents_generate_invoice_datepicker",
+                "sw_bulk_edit_order_documents_generate_invoice_file_formats",
+                "sw_bulk_edit_order_documents_generate_invoice_placeholder",
+                "sw_bulk_edit_order_documents_generate_invoice_textarea",
+                "sw_bulk_edit_order_documents_generate_invoice_toggle_skip"
+            ]
         },
         "sw-bulk-edit-order-documents-generate-credit-note": {
             "file": "module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note",
             "visibility": "public",
             "extends": "sw-bulk-edit-order-documents-generate-invoice",
-            "blocks": []
+            "blocks": [
+                "sw_bulk_edit_order_documents_generate_invoice",
+                "sw_bulk_edit_order_documents_generate_invoice_datepicker",
+                "sw_bulk_edit_order_documents_generate_invoice_file_formats",
+                "sw_bulk_edit_order_documents_generate_invoice_placeholder",
+                "sw_bulk_edit_order_documents_generate_invoice_textarea",
+                "sw_bulk_edit_order_documents_generate_invoice_toggle_skip"
+            ]
         },
         "sw-bulk-edit-order-documents-generate-delivery-note": {
             "file": "module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note",
             "visibility": "public",
             "extends": "sw-bulk-edit-order-documents-generate-invoice",
             "blocks": [
-                "sw_bulk_edit_order_documents_generate_invoice_datepicker"
+                "sw_bulk_edit_order_documents_generate_invoice",
+                "sw_bulk_edit_order_documents_generate_invoice_datepicker",
+                "sw_bulk_edit_order_documents_generate_invoice_file_formats",
+                "sw_bulk_edit_order_documents_generate_invoice_placeholder",
+                "sw_bulk_edit_order_documents_generate_invoice_textarea",
+                "sw_bulk_edit_order_documents_generate_invoice_toggle_skip"
             ]
         },
         "sw-bulk-edit-order-documents-generate-invoice": {
@@ -541,7 +571,15 @@
             "file": "module/sw-bulk-edit/component/product/sw-bulk-edit-product-description",
             "visibility": "public",
             "extends": "sw-text-editor",
-            "blocks": []
+            "blocks": [
+                "sw_text_editor",
+                "sw_text_editor_box",
+                "sw_text_editor_box_content",
+                "sw_text_editor_box_table_toolbar",
+                "sw_text_editor_box_toolbar",
+                "sw_text_editor_box_word_count",
+                "sw_text_editor_label"
+            ]
         },
         "sw-bulk-edit-product-media": {
             "file": "module/sw-bulk-edit/component/product/sw-bulk-edit-product-media",
@@ -558,7 +596,12 @@
             "visibility": "public",
             "extends": "sw-product-media-form",
             "blocks": [
-                "sw_product_media_form_cover_preview"
+                "sw_product_media_form",
+                "sw_product_media_form_cover_preview",
+                "sw_product_media_form_grid",
+                "sw_product_media_form_grid_item",
+                "sw_product_media_form_grid_items",
+                "sw_product_media_form_upload"
             ]
         },
         "sw-bulk-edit-product-visibility": {
@@ -926,8 +969,25 @@
             "visibility": "public",
             "extends": "sw-entity-multi-select",
             "blocks": [
+                "sw_entity_multi_select",
+                "sw_entity_multi_select_advanced_selection_modal",
+                "sw_entity_multi_select_base",
+                "sw_entity_multi_select_base_results",
+                "sw_entity_multi_select_base_results_list",
+                "sw_entity_multi_select_base_results_list_after",
+                "sw_entity_multi_select_base_results_list_before",
+                "sw_entity_multi_select_base_results_list_before_advanced_selection",
+                "sw_entity_multi_select_base_results_list_before_slot",
+                "sw_entity_multi_select_base_results_list_result",
+                "sw_entity_multi_select_base_results_list_result_description",
                 "sw_entity_multi_select_base_results_list_result_label",
-                "sw_entity_multi_select_base_selection_list_label_inner"
+                "sw_entity_multi_select_base_results_list_result_preview",
+                "sw_entity_multi_select_base_results_slot",
+                "sw_entity_multi_select_base_selection",
+                "sw_entity_multi_select_base_selection_list",
+                "sw_entity_multi_select_base_selection_list_label",
+                "sw_entity_multi_select_base_selection_list_label_inner",
+                "sw_entity_multi_select_base_selection_slot"
             ]
         },
         "sw-category-seo-form": {
@@ -1439,10 +1499,22 @@
             "visibility": "private",
             "extends": "sw-cms-detail",
             "blocks": [
+                "sw_cms_detail",
+                "sw_cms_detail_content",
                 "sw_cms_detail_stage_container",
-                "sw_cms_detail_toolbar_actions_sales_channel",
+                "sw_cms_detail_toolbar",
+                "sw_cms_detail_toolbar_actions",
                 "sw_cms_detail_toolbar_actions_save",
-                "sw_cms_detail_toolbar_language_switch"
+                "sw_cms_detail_toolbar_back_button",
+                "sw_cms_detail_toolbar_device_actions",
+                "sw_cms_detail_toolbar_device_actions_desktop",
+                "sw_cms_detail_toolbar_device_actions_form",
+                "sw_cms_detail_toolbar_device_actions_mobile",
+                "sw_cms_detail_toolbar_device_actions_tablet_landscape",
+                "sw_cms_detail_toolbar_language_switch",
+                "sw_cms_detail_toolbar_page_name",
+                "sw_cms_detail_toolbar_page_type",
+                "sw_cms_detail_toolbar_title"
             ]
         },
         "sw-cms-create-wizard": {
@@ -1538,7 +1610,9 @@
             "file": "module/sw-cms/elements/category-name/sw-cms-el-category-name",
             "visibility": "private",
             "extends": "sw-cms-el-text",
-            "blocks": []
+            "blocks": [
+                "sw_cms_element_text"
+            ]
         },
         "sw-cms-el-category-navigation": {
             "file": "module/sw-cms/elements/sidebar-category-navigation/sw-cms-el-category-navigation",
@@ -1580,7 +1654,19 @@
             "file": "module/sw-cms/elements/category-name/sw-cms-el-config-category-name",
             "visibility": "private",
             "extends": "sw-cms-el-config-text",
-            "blocks": []
+            "blocks": [
+                "sw_cms_el_config_text",
+                "sw_cms_el_config_text_mt_tabs",
+                "sw_cms_el_config_text_tab_content",
+                "sw_cms_el_text_config_content",
+                "sw_cms_el_text_config_mt_content",
+                "sw_cms_el_text_config_mt_content_field",
+                "sw_cms_el_text_config_mt_settings",
+                "sw_cms_el_text_config_mt_settings_vertical_align",
+                "sw_cms_el_text_config_settings",
+                "sw_cms_el_text_config_settings_vertical_align",
+                "sw_cms_el_text_config_tab_options"
+            ]
         },
         "sw-cms-el-config-category-navigation": {
             "file": "module/sw-cms/elements/sidebar-category-navigation/sw-cms-el-config-category-navigation",
@@ -1802,7 +1888,16 @@
             "file": "module/sw-cms/elements/manufacturer-logo/sw-cms-el-config-manufacturer-logo",
             "visibility": "private",
             "extends": "sw-cms-el-config-image",
-            "blocks": []
+            "blocks": [
+                "sw_cms_element_image_config",
+                "sw_cms_element_image_config_display_mode",
+                "sw_cms_element_image_config_horizontal_align",
+                "sw_cms_element_image_config_link",
+                "sw_cms_element_image_config_media_modal",
+                "sw_cms_element_image_config_media_upload",
+                "sw_cms_element_image_config_min_height",
+                "sw_cms_element_image_config_vertical_align"
+            ]
         },
         "sw-cms-el-config-product-box": {
             "file": "module/sw-cms/elements/product-box/sw-cms-el-config-product-box",
@@ -1926,7 +2021,19 @@
             "file": "module/sw-cms/elements/product-name/sw-cms-el-config-product-name",
             "visibility": "private",
             "extends": "sw-cms-el-config-text",
-            "blocks": []
+            "blocks": [
+                "sw_cms_el_config_text",
+                "sw_cms_el_config_text_mt_tabs",
+                "sw_cms_el_config_text_tab_content",
+                "sw_cms_el_text_config_content",
+                "sw_cms_el_text_config_mt_content",
+                "sw_cms_el_text_config_mt_content_field",
+                "sw_cms_el_text_config_mt_settings",
+                "sw_cms_el_text_config_mt_settings_vertical_align",
+                "sw_cms_el_text_config_settings",
+                "sw_cms_el_text_config_settings_vertical_align",
+                "sw_cms_el_text_config_tab_options"
+            ]
         },
         "sw-cms-el-config-product-slider": {
             "file": "module/sw-cms/elements/product-slider/sw-cms-el-config-product-slider",
@@ -2174,6 +2281,7 @@
             "visibility": "private",
             "extends": "sw-cms-el-image",
             "blocks": [
+                "sw_cms_element_image",
                 "sw_cms_element_image_content"
             ]
         },
@@ -2388,7 +2496,9 @@
             "file": "module/sw-cms/elements/product-name/sw-cms-el-product-name",
             "visibility": "private",
             "extends": "sw-cms-el-text",
-            "blocks": []
+            "blocks": [
+                "sw_cms_element_text"
+            ]
         },
         "sw-cms-el-product-slider": {
             "file": "module/sw-cms/elements/product-slider/sw-cms-el-product-slider",
@@ -3330,11 +3440,11 @@
             "visibility": "private",
             "extends": "sw-colorpicker-deprecated",
             "blocks": [
+                "sw_colorpicker",
                 "sw_colorpicker_button",
                 "sw_colorpicker_contextual_field",
                 "sw_colorpicker_popover",
                 "sw_colorpicker_selection",
-                "sw_compact_colorpicker",
                 "sw_compact_colorpicker_alpha_slider",
                 "sw_compact_colorpicker_colorpicker",
                 "sw_compact_colorpicker_hue_slider",
@@ -3388,7 +3498,16 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
-                "sw_condition_value_before_content"
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
+                "sw_condition_value_before_content",
+                "sw_condition_value_content"
             ]
         },
         "sw-condition-billing-zip-code": {
@@ -3396,9 +3515,18 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_billing_zip_code_field_numeric",
                 "sw_condition_billing_zip_code_field_operator",
                 "sw_condition_billing_zip_code_field_zip_codes",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3407,10 +3535,19 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_customer_custom_field_field",
                 "sw_condition_customer_custom_field_field_description",
                 "sw_condition_customer_custom_field_operator",
                 "sw_condition_customer_custom_field_value",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3420,10 +3557,19 @@
             "extends": "sw-condition-base",
             "blocks": [
                 "sw_condiiton_date_range_field_to_date",
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_date_range_field_from_date",
                 "sw_condition_date_range_field_timezone",
                 "sw_condition_date_range_field_to_date",
                 "sw_condition_date_range_field_use_time",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3448,8 +3594,17 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_generic_field_operator",
                 "sw_condition_generic_fields",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3458,7 +3613,18 @@
             "visibility": "private",
             "extends": "sw-condition-generic",
             "blocks": [
-                "sw_condition_value_before_content"
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
+                "sw_condition_generic_field_operator",
+                "sw_condition_generic_fields",
+                "sw_condition_value_before_content",
+                "sw_condition_value_content"
             ]
         },
         "sw-condition-generic-line-item": {
@@ -3466,8 +3632,17 @@
             "visibility": "public",
             "extends": "sw-condition-base-line-item",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_generic_field_operator",
                 "sw_condition_generic_fields",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3476,10 +3651,19 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_goods_count_condition_modal",
                 "sw_condition_goods_count_field_count",
                 "sw_condition_goods_count_field_operator",
                 "sw_condition_goods_count_filter_button",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3488,10 +3672,19 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_goods_price_condition_modal",
                 "sw_condition_goods_price_field_amount",
                 "sw_condition_goods_price_field_operator",
                 "sw_condition_goods_price_filter_button",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3500,7 +3693,16 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_is_always_valid",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3508,17 +3710,28 @@
             "file": "app/component/rule/sw-condition-is-net-select",
             "visibility": "public",
             "extends": "sw-condition-operator-select",
-            "blocks": []
+            "blocks": [
+                "sw_condition_type_select"
+            ]
         },
         "sw-condition-line-item": {
             "file": "app/component/rule/condition-type/sw-condition-line-item",
             "visibility": "public",
             "extends": "sw-condition-base-line-item",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_line_item_field_identifier",
                 "sw_condition_line_item_field_operator",
                 "sw_condition_line_item_results_list_result_label",
                 "sw_condition_line_item_results_variant_info",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3527,10 +3740,19 @@
             "visibility": "public",
             "extends": "sw-condition-base-line-item",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_line_item_custom_field_field",
                 "sw_condition_line_item_custom_field_field_description",
                 "sw_condition_line_item_custom_field_operator",
                 "sw_condition_line_item_custom_field_value",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3539,10 +3761,19 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_line_item_goods_total_condition_modal",
                 "sw_condition_line_item_goods_total_field_count",
                 "sw_condition_line_item_goods_total_field_operator",
                 "sw_condition_line_item_goods_total_filter_button",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3551,12 +3782,21 @@
             "visibility": "public",
             "extends": "sw-condition-base-line-item",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_line_item_in_category_field_description",
                 "sw_condition_line_item_in_category_field_description_default",
                 "sw_condition_line_item_in_category_field_identifiers",
                 "sw_condition_line_item_in_category_field_operator",
                 "sw_condition_line_item_in_category_field_result_item",
                 "sw_condition_line_item_in_category_field_result_item_content",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3565,10 +3805,19 @@
             "visibility": "public",
             "extends": "sw-condition-base-line-item",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_line_item_properties_field_description",
                 "sw_condition_line_item_properties_field_description_default",
                 "sw_condition_line_item_properties_field_identifiers",
                 "sw_condition_line_item_properties_field_operator",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3577,9 +3826,18 @@
             "visibility": "public",
             "extends": "sw-condition-base-line-item",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_line_item_purchase_price_field_amount",
                 "sw_condition_line_item_purchase_price_field_gross_net",
                 "sw_condition_line_item_purchase_price_field_operator",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3588,9 +3846,18 @@
             "visibility": "public",
             "extends": "sw-condition-base-line-item",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_line_item_with_quantity_field_operator",
                 "sw_condition_line_item_with_quantity_field_product",
                 "sw_condition_line_item_with_quantity_field_quantity",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3611,7 +3878,15 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
                 "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3638,10 +3913,19 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_order_custom_field_field",
                 "sw_condition_order_custom_field_field_description",
                 "sw_condition_order_custom_field_operator",
                 "sw_condition_order_custom_field_value",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3650,7 +3934,16 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_script_fields",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3659,9 +3952,18 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_shipping_zip_code_field_numeric",
                 "sw_condition_shipping_zip_code_field_operator",
                 "sw_condition_shipping_zip_code_field_zip_codes",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3670,9 +3972,18 @@
             "visibility": "public",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
+                "sw_condition_base_error",
+                "sw_condition_base_field_actions",
+                "sw_condition_base_field_condition",
+                "sw_condition_base_field_create_after_action",
+                "sw_condition_base_field_create_before_action",
+                "sw_condition_base_field_delete_action",
                 "sw_condition_time_range_field_from_time",
                 "sw_condition_time_range_field_timezone",
                 "sw_condition_time_range_field_to_time",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content"
             ]
         },
@@ -3944,20 +4255,30 @@
             "file": "module/sw-settings-custom-field/component/sw-custom-field-type-checkbox",
             "visibility": "public",
             "extends": "sw-custom-field-type-base",
-            "blocks": []
+            "blocks": [
+                "sw_custom_field_type_base",
+                "sw_custom_field_type_base_content",
+                "sw_custom_field_type_base_labels"
+            ]
         },
         "sw-custom-field-type-colorpicker": {
             "file": "module/sw-settings-custom-field/component/sw-custom-field-type-colorpicker",
             "visibility": "private",
             "extends": "sw-custom-field-type-base",
-            "blocks": []
+            "blocks": [
+                "sw_custom_field_type_base",
+                "sw_custom_field_type_base_content",
+                "sw_custom_field_type_base_labels"
+            ]
         },
         "sw-custom-field-type-date": {
             "file": "module/sw-settings-custom-field/component/sw-custom-field-type-date",
             "visibility": "public",
             "extends": "sw-custom-field-type-base",
             "blocks": [
+                "sw_custom_field_type_base",
                 "sw_custom_field_type_base_content",
+                "sw_custom_field_type_base_labels",
                 "sw_custom_field_type_date_container",
                 "sw_custom_field_type_date_container_time_format",
                 "sw_custom_field_type_date_container_type"
@@ -3968,12 +4289,19 @@
             "visibility": "public",
             "extends": "sw-custom-field-type-select",
             "blocks": [
+                "sw_custom_field_type_base",
                 "sw_custom_field_type_base_content",
+                "sw_custom_field_type_base_labels",
                 "sw_custom_field_type_entity_multi",
                 "sw_custom_field_type_entity_type",
                 "sw_custom_field_type_select_add_option",
                 "sw_custom_field_type_select_multi",
-                "sw_custom_field_type_select_options"
+                "sw_custom_field_type_select_options",
+                "sw_custom_field_type_select_options_container",
+                "sw_custom_field_type_select_options_container_labels",
+                "sw_custom_field_type_select_options_container_technical_name",
+                "sw_custom_field_type_select_options_delete",
+                "sw_custom_field_type_select_options_label"
             ]
         },
         "sw-custom-field-type-number": {
@@ -3981,7 +4309,9 @@
             "visibility": "public",
             "extends": "sw-custom-field-type-base",
             "blocks": [
+                "sw_custom_field_type_base",
                 "sw_custom_field_type_base_content",
+                "sw_custom_field_type_base_labels",
                 "sw_custom_field_type_number_container",
                 "sw_custom_field_type_number_container_max",
                 "sw_custom_field_type_number_container_min",
@@ -3994,7 +4324,9 @@
             "visibility": "public",
             "extends": "sw-custom-field-type-base",
             "blocks": [
+                "sw_custom_field_type_base",
                 "sw_custom_field_type_base_content",
+                "sw_custom_field_type_base_labels",
                 "sw_custom_field_type_select_add_option",
                 "sw_custom_field_type_select_multi",
                 "sw_custom_field_type_select_options",
@@ -4009,13 +4341,21 @@
             "file": "module/sw-settings-custom-field/component/sw-custom-field-type-text",
             "visibility": "public",
             "extends": "sw-custom-field-type-base",
-            "blocks": []
+            "blocks": [
+                "sw_custom_field_type_base",
+                "sw_custom_field_type_base_content",
+                "sw_custom_field_type_base_labels"
+            ]
         },
         "sw-custom-field-type-text-editor": {
             "file": "module/sw-settings-custom-field/component/sw-custom-field-type-text-editor",
             "visibility": "public",
             "extends": "sw-custom-field-type-base",
-            "blocks": []
+            "blocks": [
+                "sw_custom_field_type_base",
+                "sw_custom_field_type_base_content",
+                "sw_custom_field_type_base_labels"
+            ]
         },
         "sw-customer-address-form": {
             "file": "module/sw-customer/component/sw-customer-address-form",
@@ -4576,6 +4916,7 @@
                 "sw_desktop",
                 "sw_desktop_content",
                 "sw_desktop_content_view",
+                "sw_desktop_floating_section",
                 "sw_desktop_sidebar"
             ]
         },
@@ -4706,7 +5047,75 @@
             "visibility": "private",
             "extends": "sw-entity-listing",
             "blocks": [
-                "sw_data_grid_select_item_checkbox"
+                "sw_data_grid",
+                "sw_data_grid_body",
+                "sw_data_grid_body_cell_action_modals",
+                "sw_data_grid_body_cell_actions",
+                "sw_data_grid_body_cell_actions_content",
+                "sw_data_grid_body_cell_actions_menu",
+                "sw_data_grid_body_cell_selection",
+                "sw_data_grid_body_cell_selection_content",
+                "sw_data_grid_body_cell_spacer",
+                "sw_data_grid_body_columns",
+                "sw_data_grid_body_columns_content",
+                "sw_data_grid_body_row",
+                "sw_data_grid_bulk",
+                "sw_data_grid_bulk_delete_content",
+                "sw_data_grid_bulk_delete_modal",
+                "sw_data_grid_bulk_edit_content",
+                "sw_data_grid_bulk_edit_modal",
+                "sw_data_grid_bulk_modals",
+                "sw_data_grid_bulk_selected_actions",
+                "sw_data_grid_bulk_selected_actions_content",
+                "sw_data_grid_bulk_selected_count",
+                "sw_data_grid_column_actions",
+                "sw_data_grid_column_actions_hide",
+                "sw_data_grid_columns_boolean",
+                "sw_data_grid_columns_inline_edit",
+                "sw_data_grid_columns_render_inline_edit",
+                "sw_data_grid_columns_render_router_link",
+                "sw_data_grid_columns_render_value",
+                "sw_data_grid_columns_slot",
+                "sw_data_grid_columns_value",
+                "sw_data_grid_header",
+                "sw_data_grid_header_cell_actions",
+                "sw_data_grid_header_cell_actions_content",
+                "sw_data_grid_header_cell_selection",
+                "sw_data_grid_header_cell_selection_content",
+                "sw_data_grid_header_cell_spacer",
+                "sw_data_grid_header_columns",
+                "sw_data_grid_header_columns_content",
+                "sw_data_grid_header_columns_icon",
+                "sw_data_grid_header_columns_label",
+                "sw_data_grid_header_columns_resize",
+                "sw_data_grid_header_row",
+                "sw_data_grid_inline_edit_actions",
+                "sw_data_grid_inline_edit_actions_cancel",
+                "sw_data_grid_inline_edit_actions_cancel_icon",
+                "sw_data_grid_inline_edit_actions_save",
+                "sw_data_grid_inline_edit_actions_save_icon",
+                "sw_data_grid_pagination",
+                "sw_data_grid_pagination_inner",
+                "sw_data_grid_preview_slot",
+                "sw_data_grid_select_all_checkbox",
+                "sw_data_grid_select_item_checkbox",
+                "sw_data_grid_settings",
+                "sw_data_grid_settings_additional_settings",
+                "sw_data_grid_settings_additional_settings_inner",
+                "sw_data_grid_settings_custom_settings",
+                "sw_data_grid_settings_custom_settings_slot",
+                "sw_data_grid_skeleton",
+                "sw_data_grid_slot_action_modals",
+                "sw_data_grid_slot_actions",
+                "sw_data_grid_slot_bulk_edit_modal",
+                "sw_data_grid_slot_bulk_modals",
+                "sw_data_grid_slot_pagination",
+                "sw_data_grid_sort_indicator",
+                "sw_data_grid_sort_indicator_icon_asc",
+                "sw_data_grid_sort_indicator_icon_desc",
+                "sw_data_grid_sort_indicator_transition",
+                "sw_data_grid_table",
+                "sw_data_grid_wrapper"
             ]
         },
         "sw-entity-listing": {
@@ -4714,16 +5123,75 @@
             "visibility": "private",
             "extends": "sw-data-grid",
             "blocks": [
+                "sw_data_grid",
+                "sw_data_grid_body",
+                "sw_data_grid_body_cell_action_modals",
+                "sw_data_grid_body_cell_actions",
+                "sw_data_grid_body_cell_actions_content",
+                "sw_data_grid_body_cell_actions_menu",
+                "sw_data_grid_body_cell_selection",
+                "sw_data_grid_body_cell_selection_content",
+                "sw_data_grid_body_cell_spacer",
+                "sw_data_grid_body_columns",
+                "sw_data_grid_body_columns_content",
+                "sw_data_grid_body_row",
+                "sw_data_grid_bulk",
                 "sw_data_grid_bulk_delete_content",
                 "sw_data_grid_bulk_delete_modal",
                 "sw_data_grid_bulk_edit_content",
                 "sw_data_grid_bulk_edit_modal",
+                "sw_data_grid_bulk_modals",
+                "sw_data_grid_bulk_selected_actions",
                 "sw_data_grid_bulk_selected_actions_content",
+                "sw_data_grid_bulk_selected_count",
+                "sw_data_grid_column_actions",
+                "sw_data_grid_column_actions_hide",
+                "sw_data_grid_columns_boolean",
+                "sw_data_grid_columns_inline_edit",
+                "sw_data_grid_columns_render_inline_edit",
+                "sw_data_grid_columns_render_router_link",
+                "sw_data_grid_columns_render_value",
+                "sw_data_grid_columns_slot",
+                "sw_data_grid_columns_value",
+                "sw_data_grid_header",
+                "sw_data_grid_header_cell_actions",
+                "sw_data_grid_header_cell_actions_content",
+                "sw_data_grid_header_cell_selection",
+                "sw_data_grid_header_cell_selection_content",
+                "sw_data_grid_header_cell_spacer",
+                "sw_data_grid_header_columns",
+                "sw_data_grid_header_columns_content",
+                "sw_data_grid_header_columns_icon",
+                "sw_data_grid_header_columns_label",
+                "sw_data_grid_header_columns_resize",
+                "sw_data_grid_header_row",
+                "sw_data_grid_inline_edit_actions",
+                "sw_data_grid_inline_edit_actions_cancel",
+                "sw_data_grid_inline_edit_actions_cancel_icon",
+                "sw_data_grid_inline_edit_actions_save",
+                "sw_data_grid_inline_edit_actions_save_icon",
+                "sw_data_grid_pagination",
+                "sw_data_grid_pagination_inner",
+                "sw_data_grid_preview_slot",
+                "sw_data_grid_select_all_checkbox",
+                "sw_data_grid_select_item_checkbox",
+                "sw_data_grid_settings",
+                "sw_data_grid_settings_additional_settings",
+                "sw_data_grid_settings_additional_settings_inner",
+                "sw_data_grid_settings_custom_settings",
+                "sw_data_grid_settings_custom_settings_slot",
+                "sw_data_grid_skeleton",
                 "sw_data_grid_slot_action_modals",
                 "sw_data_grid_slot_actions",
                 "sw_data_grid_slot_bulk_edit_modal",
                 "sw_data_grid_slot_bulk_modals",
-                "sw_data_grid_slot_pagination"
+                "sw_data_grid_slot_pagination",
+                "sw_data_grid_sort_indicator",
+                "sw_data_grid_sort_indicator_icon_asc",
+                "sw_data_grid_sort_indicator_icon_desc",
+                "sw_data_grid_sort_indicator_transition",
+                "sw_data_grid_table",
+                "sw_data_grid_wrapper"
             ]
         },
         "sw-entity-many-to-many-select": {
@@ -4819,7 +5287,27 @@
             "file": "app/component/form/select/entity/sw-entity-tag-select",
             "visibility": "private",
             "extends": "sw-entity-multi-select",
-            "blocks": []
+            "blocks": [
+                "sw_entity_multi_select",
+                "sw_entity_multi_select_advanced_selection_modal",
+                "sw_entity_multi_select_base",
+                "sw_entity_multi_select_base_results",
+                "sw_entity_multi_select_base_results_list",
+                "sw_entity_multi_select_base_results_list_after",
+                "sw_entity_multi_select_base_results_list_before",
+                "sw_entity_multi_select_base_results_list_before_advanced_selection",
+                "sw_entity_multi_select_base_results_list_before_slot",
+                "sw_entity_multi_select_base_results_list_result",
+                "sw_entity_multi_select_base_results_list_result_description",
+                "sw_entity_multi_select_base_results_list_result_label",
+                "sw_entity_multi_select_base_results_list_result_preview",
+                "sw_entity_multi_select_base_results_slot",
+                "sw_entity_multi_select_base_selection",
+                "sw_entity_multi_select_base_selection_list",
+                "sw_entity_multi_select_base_selection_list_label",
+                "sw_entity_multi_select_base_selection_list_label_inner",
+                "sw_entity_multi_select_base_selection_slot"
+            ]
         },
         "sw-error": {
             "file": "app/component/structure/sw-error",
@@ -4938,8 +5426,11 @@
             "extends": "sw-extension-card-base",
             "blocks": [
                 "sw_extension_card_base_activation_switch",
+                "sw_extension_card_base_activation_switch_switch",
                 "sw_extension_card_base_context_menu_actions",
+                "sw_extension_card_base_context_menu_actions_additional",
                 "sw_extension_card_base_info_content",
+                "sw_extension_card_base_info_inactive_label",
                 "sw_extension_card_base_modals"
             ]
         },
@@ -5003,6 +5494,14 @@
                 "sw_extension_file_upload_confirm_modal_footer_continue",
                 "sw_extension_file_upload_content",
                 "sw_extension_file_upload_form"
+            ]
+        },
+        "sw-extension-floating-section": {
+            "file": "app/component/extension-api/sw-extension-floating-section",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_extension_floating_section"
             ]
         },
         "sw-extension-icon": {
@@ -6106,8 +6605,20 @@
             "visibility": "private",
             "extends": "sw-single-select",
             "blocks": [
+                "sw_single_select",
+                "sw_single_select_base",
+                "sw_single_select_base_results",
+                "sw_single_select_base_results_list",
+                "sw_single_select_base_results_list_after",
+                "sw_single_select_base_results_list_before",
                 "sw_single_select_base_results_list_result",
-                "sw_single_select_base_results_list_result_label"
+                "sw_single_select_base_results_list_result_label",
+                "sw_single_select_base_results_slot",
+                "sw_single_select_base_selection",
+                "sw_single_select_base_selection_slot",
+                "sw_single_select_single_selection_inner",
+                "sw_single_select_single_selection_inner_input",
+                "sw_single_select_single_selection_inner_label"
             ]
         },
         "sw-gtc-checkbox": {
@@ -6947,6 +7458,23 @@
             "visibility": "public",
             "extends": "sw-mail-header-footer-detail",
             "blocks": [
+                "sw_mail_header_footer_basic_form_description_field",
+                "sw_mail_header_footer_basic_form_name_field",
+                "sw_mail_header_footer_basic_form_sales_channels_field",
+                "sw_mail_header_footer_detail",
+                "sw_mail_header_footer_detail_actions",
+                "sw_mail_header_footer_detail_actions_abort",
+                "sw_mail_header_footer_detail_actions_save",
+                "sw_mail_header_footer_detail_basic_info",
+                "sw_mail_header_footer_detail_content",
+                "sw_mail_header_footer_detail_content_footer",
+                "sw_mail_header_footer_detail_content_footer_html_field",
+                "sw_mail_header_footer_detail_content_footer_plain_field",
+                "sw_mail_header_footer_detail_content_header",
+                "sw_mail_header_footer_detail_content_header_html_field",
+                "sw_mail_header_footer_detail_content_header_plain_field",
+                "sw_mail_header_footer_detail_content_language_info",
+                "sw_mail_header_footer_detail_header",
                 "sw_mail_header_footer_detail_language_switch"
             ]
         },
@@ -6994,9 +7522,43 @@
             "visibility": "public",
             "extends": "sw-mail-template-detail",
             "blocks": [
-                "sw_mail_template_basic_form_sales_channels_field",
+                "sw_mail_template_available_variables_tree",
+                "sw_mail_template_available_variables_tree_headline",
+                "sw_mail_template_available_variables_tree_items",
+                "sw_mail_template_available_variables_tree_items_item",
+                "sw_mail_template_available_variables_tree_items_item_actions",
+                "sw_mail_template_available_variables_tree_items_item_grip",
+                "sw_mail_template_basic_form_description_field",
+                "sw_mail_template_basic_form_mail_type_field",
+                "sw_mail_template_detail",
+                "sw_mail_template_detail_actions",
+                "sw_mail_template_detail_actions_abort",
+                "sw_mail_template_detail_actions_save",
                 "sw_mail_template_detail_attachments_info",
-                "sw_mail_template_detail_language_switch"
+                "sw_mail_template_detail_basic_info",
+                "sw_mail_template_detail_content",
+                "sw_mail_template_detail_content_language_info",
+                "sw_mail_template_detail_header",
+                "sw_mail_template_detail_language_switch",
+                "sw_mail_template_detail_mail_text_info",
+                "sw_mail_template_detail_options_info",
+                "sw_mail_template_detail_preview_modal",
+                "sw_mail_template_detail_preview_modal_footer",
+                "sw_mail_template_detail_preview_modal_footer_cancel",
+                "sw_mail_template_detail_sidebar",
+                "sw_mail_template_detail_sidebar_add_attachment",
+                "sw_mail_template_detail_sidebar_inner",
+                "sw_mail_template_detail_sidebar_inner_media",
+                "sw_mail_template_detail_sidebar_inner_preview",
+                "sw_mail_template_detail_sidebar_inner_test_mail",
+                "sw_mail_template_detail_sidebar_inner_variables",
+                "sw_mail_template_mail_text_form_content_html_field",
+                "sw_mail_template_mail_text_form_content_plain_field",
+                "sw_mail_template_mail_text_form_test_mail_button",
+                "sw_mail_template_mail_text_form_test_mail_field",
+                "sw_mail_template_mail_text_form_test_sales_channel_field",
+                "sw_mail_template_options_form_sender_name_field",
+                "sw_mail_template_options_form_subject_field"
             ]
         },
         "sw-mail-template-detail": {
@@ -7245,6 +7807,10 @@
             "visibility": "public",
             "extends": "sw-collapse",
             "blocks": [
+                "sw_collapse_panel",
+                "sw_collapse_panel_content",
+                "sw_collapse_panel_content_slot",
+                "sw_collapse_panel_header",
                 "sw_collapse_panel_header_slot",
                 "sw_media_collapse_buttons",
                 "sw_media_collapse_title"
@@ -7723,7 +8289,32 @@
             "file": "app/component/media/sw-media-replace",
             "visibility": "public",
             "extends": "sw-media-upload-v2",
-            "blocks": []
+            "blocks": [
+                "sw_media_upload_v2",
+                "sw_media_upload_v2_actions",
+                "sw_media_upload_v2_compact",
+                "sw_media_upload_v2_compact_button_context_menu",
+                "sw_media_upload_v2_compact_button_context_menu_actions",
+                "sw_media_upload_v2_compact_button_file_upload",
+                "sw_media_upload_v2_compact_url_form",
+                "sw_media_upload_v2_file_input",
+                "sw_media_upload_v2_preview",
+                "sw_media_upload_v2_regular",
+                "sw_media_upload_v2_regular_actions_add",
+                "sw_media_upload_v2_regular_actions_url",
+                "sw_media_upload_v2_regular_caption",
+                "sw_media_upload_v2_regular_drop_zone",
+                "sw_media_upload_v2_regular_header",
+                "sw_media_upload_v2_regular_header_helptext",
+                "sw_media_upload_v2_regular_header_label",
+                "sw_media_upload_v2_regular_header_switch",
+                "sw_media_upload_v2_regular_header_switch_file_upload",
+                "sw_media_upload_v2_regular_header_switch_url_upload",
+                "sw_media_upload_v2_regular_media_sidebar_button",
+                "sw_media_upload_v2_regular_preview_fallback",
+                "sw_media_upload_v2_regular_preview_file",
+                "sw_media_upload_v2_regular_upload_button"
+            ]
         },
         "sw-media-save-modal": {
             "file": "module/sw-media/component/sw-media-save-modal",
@@ -7913,6 +8504,10 @@
             "visibility": "public",
             "extends": "sw-collapse",
             "blocks": [
+                "sw_collapse_panel",
+                "sw_collapse_panel_content",
+                "sw_collapse_panel_content_slot",
+                "sw_collapse_panel_header",
                 "sw_collapse_panel_header_slot",
                 "sw_model_editor_collapse_buttons",
                 "sw_model_editor_collapse_title"
@@ -7973,9 +8568,17 @@
             "visibility": "private",
             "extends": "sw-multi-tag-select",
             "blocks": [
+                "sw_multi_tag_select",
+                "sw_multi_tag_select_base",
+                "sw_multi_tag_select_base_selection",
+                "sw_multi_tag_select_base_selection_list",
+                "sw_multi_tag_select_base_selection_list_label",
                 "sw_multi_tag_select_base_selection_list_label_inner",
+                "sw_multi_tag_select_base_selection_slot",
+                "sw_multi_tag_select_validation",
                 "sw_multi_tag_select_validation_invalid",
                 "sw_multi_tag_select_validation_invalid_message",
+                "sw_multi_tag_select_validation_valid",
                 "sw_multi_tag_select_validation_valid_message"
             ]
         },
@@ -8177,8 +8780,70 @@
             "visibility": "private",
             "extends": "sw-data-grid",
             "blocks": [
+                "sw_data_grid",
+                "sw_data_grid_body",
+                "sw_data_grid_body_cell_action_modals",
+                "sw_data_grid_body_cell_actions",
+                "sw_data_grid_body_cell_actions_content",
+                "sw_data_grid_body_cell_actions_menu",
+                "sw_data_grid_body_cell_selection",
+                "sw_data_grid_body_cell_selection_content",
+                "sw_data_grid_body_cell_spacer",
+                "sw_data_grid_body_columns",
+                "sw_data_grid_body_columns_content",
+                "sw_data_grid_body_row",
+                "sw_data_grid_bulk",
+                "sw_data_grid_bulk_modals",
+                "sw_data_grid_bulk_selected_actions",
+                "sw_data_grid_bulk_selected_actions_content",
+                "sw_data_grid_bulk_selected_count",
+                "sw_data_grid_column_actions",
+                "sw_data_grid_column_actions_hide",
+                "sw_data_grid_columns_boolean",
+                "sw_data_grid_columns_inline_edit",
+                "sw_data_grid_columns_render_inline_edit",
+                "sw_data_grid_columns_render_router_link",
+                "sw_data_grid_columns_render_value",
+                "sw_data_grid_columns_slot",
+                "sw_data_grid_columns_value",
+                "sw_data_grid_header",
+                "sw_data_grid_header_cell_actions",
+                "sw_data_grid_header_cell_actions_content",
+                "sw_data_grid_header_cell_selection",
+                "sw_data_grid_header_cell_selection_content",
+                "sw_data_grid_header_cell_spacer",
+                "sw_data_grid_header_columns",
+                "sw_data_grid_header_columns_content",
+                "sw_data_grid_header_columns_icon",
+                "sw_data_grid_header_columns_label",
+                "sw_data_grid_header_columns_resize",
+                "sw_data_grid_header_row",
+                "sw_data_grid_inline_edit_actions",
+                "sw_data_grid_inline_edit_actions_cancel",
+                "sw_data_grid_inline_edit_actions_cancel_icon",
+                "sw_data_grid_inline_edit_actions_save",
+                "sw_data_grid_inline_edit_actions_save_icon",
+                "sw_data_grid_pagination",
+                "sw_data_grid_pagination_inner",
+                "sw_data_grid_preview_slot",
+                "sw_data_grid_select_all_checkbox",
+                "sw_data_grid_select_item_checkbox",
+                "sw_data_grid_settings",
+                "sw_data_grid_settings_additional_settings",
+                "sw_data_grid_settings_additional_settings_inner",
+                "sw_data_grid_settings_custom_settings",
+                "sw_data_grid_settings_custom_settings_slot",
+                "sw_data_grid_skeleton",
+                "sw_data_grid_slot_action_modals",
                 "sw_data_grid_slot_actions",
-                "sw_data_grid_slot_pagination"
+                "sw_data_grid_slot_bulk_modals",
+                "sw_data_grid_slot_pagination",
+                "sw_data_grid_sort_indicator",
+                "sw_data_grid_sort_indicator_icon_asc",
+                "sw_data_grid_sort_indicator_icon_desc",
+                "sw_data_grid_sort_indicator_transition",
+                "sw_data_grid_table",
+                "sw_data_grid_wrapper"
             ]
         },
         "sw-order-address-modal": {
@@ -8363,7 +9028,8 @@
             "visibility": "private",
             "extends": null,
             "blocks": [
-                "sw_order_create_document_modal"
+                "sw_order_create_document_modal",
+                "sw_order_create_document_modal_type_specific_fields_additional"
             ]
         },
         "sw-order-create-general": {
@@ -8687,10 +9353,26 @@
             "visibility": "public",
             "extends": "sw-order-document-settings-modal",
             "blocks": [
+                "sw_order_document_settings_modal",
+                "sw_order_document_settings_modal_form_additional_content",
                 "sw_order_document_settings_modal_form_credit_document_number",
+                "sw_order_document_settings_modal_form_document_comment",
                 "sw_order_document_settings_modal_form_document_date",
+                "sw_order_document_settings_modal_form_document_footer",
+                "sw_order_document_settings_modal_form_document_footer_cancel",
+                "sw_order_document_settings_modal_form_document_footer_preview",
+                "sw_order_document_settings_modal_form_document_footer_split_button",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_arrow",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_create_download",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_create_send",
+                "sw_order_document_settings_modal_form_document_footer_split_button_create",
                 "sw_order_document_settings_modal_form_document_select_invoice",
-                "sw_order_document_settings_modal_form_first_row"
+                "sw_order_document_settings_modal_form_file_upload",
+                "sw_order_document_settings_modal_form_file_upload_input",
+                "sw_order_document_settings_modal_form_file_upload_toggle",
+                "sw_order_document_settings_modal_form_first_row",
+                "sw_order_document_settings_modal_media_modal"
             ]
         },
         "sw-order-document-settings-delivery-note-modal": {
@@ -8698,10 +9380,26 @@
             "visibility": "public",
             "extends": "sw-order-document-settings-modal",
             "blocks": [
+                "sw_order_document_settings_modal",
+                "sw_order_document_settings_modal_form_additional_content",
+                "sw_order_document_settings_modal_form_document_comment",
                 "sw_order_document_settings_modal_form_document_date",
                 "sw_order_document_settings_modal_form_document_delivery_date",
+                "sw_order_document_settings_modal_form_document_footer",
+                "sw_order_document_settings_modal_form_document_footer_cancel",
+                "sw_order_document_settings_modal_form_document_footer_preview",
+                "sw_order_document_settings_modal_form_document_footer_split_button",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_arrow",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_create_download",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_create_send",
+                "sw_order_document_settings_modal_form_document_footer_split_button_create",
                 "sw_order_document_settings_modal_form_document_number",
-                "sw_order_document_settings_modal_form_first_row"
+                "sw_order_document_settings_modal_form_file_upload",
+                "sw_order_document_settings_modal_form_file_upload_input",
+                "sw_order_document_settings_modal_form_file_upload_toggle",
+                "sw_order_document_settings_modal_form_first_row",
+                "sw_order_document_settings_modal_media_modal"
             ]
         },
         "sw-order-document-settings-invoice-modal": {
@@ -8709,7 +9407,25 @@
             "visibility": "public",
             "extends": "sw-order-document-settings-modal",
             "blocks": [
-                "sw_order_document_settings_modal_form_document_number"
+                "sw_order_document_settings_modal",
+                "sw_order_document_settings_modal_form_additional_content",
+                "sw_order_document_settings_modal_form_document_comment",
+                "sw_order_document_settings_modal_form_document_date",
+                "sw_order_document_settings_modal_form_document_footer",
+                "sw_order_document_settings_modal_form_document_footer_cancel",
+                "sw_order_document_settings_modal_form_document_footer_preview",
+                "sw_order_document_settings_modal_form_document_footer_split_button",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_arrow",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_create_download",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_create_send",
+                "sw_order_document_settings_modal_form_document_footer_split_button_create",
+                "sw_order_document_settings_modal_form_document_number",
+                "sw_order_document_settings_modal_form_file_upload",
+                "sw_order_document_settings_modal_form_file_upload_input",
+                "sw_order_document_settings_modal_form_file_upload_toggle",
+                "sw_order_document_settings_modal_form_first_row",
+                "sw_order_document_settings_modal_media_modal"
             ]
         },
         "sw-order-document-settings-modal": {
@@ -8743,10 +9459,26 @@
             "visibility": "public",
             "extends": "sw-order-document-settings-modal",
             "blocks": [
+                "sw_order_document_settings_modal",
+                "sw_order_document_settings_modal_form_additional_content",
                 "sw_order_document_settings_modal_form_cancellation_document_date",
                 "sw_order_document_settings_modal_form_cancellation_document_number",
+                "sw_order_document_settings_modal_form_document_comment",
+                "sw_order_document_settings_modal_form_document_footer",
+                "sw_order_document_settings_modal_form_document_footer_cancel",
+                "sw_order_document_settings_modal_form_document_footer_preview",
+                "sw_order_document_settings_modal_form_document_footer_split_button",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_arrow",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_create_download",
+                "sw_order_document_settings_modal_form_document_footer_split_button_context_create_send",
+                "sw_order_document_settings_modal_form_document_footer_split_button_create",
                 "sw_order_document_settings_modal_form_document_select_invoice",
-                "sw_order_document_settings_modal_form_first_row"
+                "sw_order_document_settings_modal_form_file_upload",
+                "sw_order_document_settings_modal_form_file_upload_input",
+                "sw_order_document_settings_modal_form_file_upload_toggle",
+                "sw_order_document_settings_modal_form_first_row",
+                "sw_order_document_settings_modal_media_modal"
             ]
         },
         "sw-order-general-info": {
@@ -9317,7 +10049,6 @@
             "visibility": "private",
             "extends": "sw-text-field-deprecated",
             "blocks": [
-                "sw_password_field",
                 "sw_text_field"
             ]
         },
@@ -9398,7 +10129,15 @@
             "visibility": "public",
             "extends": "sw-rule-modal",
             "blocks": [
-                "sw_rule_modal_basic_info_description"
+                "sw_rule_modal",
+                "sw_rule_modal_basic_info",
+                "sw_rule_modal_basic_info_description",
+                "sw_rule_modal_basic_info_name",
+                "sw_rule_modal_basic_info_priority",
+                "sw_rule_modal_condition_tree",
+                "sw_rule_modal_footer",
+                "sw_rule_modal_footer_button_abort",
+                "sw_rule_modal_footer_button_save"
             ]
         },
         "sw-privilege-error": {
@@ -9598,6 +10337,7 @@
                 "sw_product_detail_base_basic_info_form",
                 "sw_product_detail_base_category_card",
                 "sw_product_detail_base_category_form",
+                "sw_product_detail_base_documents",
                 "sw_product_detail_base_download_external_management",
                 "sw_product_detail_base_guarantee_card",
                 "sw_product_detail_base_guarantee_form",
@@ -9770,6 +10510,97 @@
                 "sw_product_properties_add_properties_modal",
                 "sw_product_properties_empty_state_button",
                 "sw_product_properties_empty_state_button_property"
+            ]
+        },
+        "sw-product-document-add-button": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-add-button",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_add_button",
+                "sw_product_document_add_button_language_hint"
+            ]
+        },
+        "sw-product-document-download": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-download",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_download"
+            ]
+        },
+        "sw-product-document-edit-modal": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-edit-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_edit_modal",
+                "sw_product_document_edit_modal_media_modal",
+                "sw_product_document_form_apply_to_variants",
+                "sw_product_document_form_file_error",
+                "sw_product_document_form_replace_file",
+                "sw_product_document_form_title_input"
+            ]
+        },
+        "sw-product-document-empty-state": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-empty-state",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_empty_state",
+                "sw_product_document_empty_state_add",
+                "sw_product_document_empty_state_language_hint"
+            ]
+        },
+        "sw-product-document-form": {
+            "file": "module/sw-product/component/sw-product-document-form",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_form",
+                "sw_product_document_form_action_download",
+                "sw_product_document_form_action_remove",
+                "sw_product_document_form_actions",
+                "sw_product_document_form_add",
+                "sw_product_document_form_edit_modal",
+                "sw_product_document_form_empty",
+                "sw_product_document_form_empty_add",
+                "sw_product_document_form_file",
+                "sw_product_document_form_grid",
+                "sw_product_document_form_media_modal",
+                "sw_product_document_form_name",
+                "sw_product_document_form_number",
+                "sw_product_document_form_position",
+                "sw_product_document_form_remove_modal",
+                "sw_product_document_form_restore_inheritance_cancel",
+                "sw_product_document_form_restore_inheritance_confirm",
+                "sw_product_document_form_restore_inheritance_modal",
+                "sw_product_document_form_restore_inheritance_text",
+                "sw_product_document_form_size",
+                "sw_product_document_form_title",
+                "sw_product_document_form_type",
+                "sw_product_document_form_upload_input",
+                "sw_product_document_form_upload_listener",
+                "sw_product_document_form_upload_modal"
+            ]
+        },
+        "sw-product-document-language-hint": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-language-hint",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_language_hint",
+                "sw_product_document_language_hint_link"
+            ]
+        },
+        "sw-product-document-remove-modal": {
+            "file": "module/sw-product/component/sw-product-document-form/sw-product-document-remove-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_product_document_form_remove_description",
+                "sw_product_document_form_remove_from_variants",
+                "sw_product_document_remove_modal"
             ]
         },
         "sw-product-download-form": {
@@ -10158,9 +10989,12 @@
             "visibility": "private",
             "extends": "sw-condition-base",
             "blocks": [
+                "sw_condition_base",
+                "sw_condition_base_content",
                 "sw_condition_base_error",
                 "sw_condition_base_field_actions",
                 "sw_condition_base_field_condition",
+                "sw_condition_value_before_content",
                 "sw_condition_value_content",
                 "sw_product_stream_filter",
                 "sw_product_stream_filter_container",
@@ -10401,7 +11235,28 @@
             "extends": "sw-property-search",
             "blocks": [
                 "sw_product_variants_configurator_selection_search_field",
-                "sw_property_search_field"
+                "sw_property_search",
+                "sw_property_search_empty",
+                "sw_property_search_empty_image",
+                "sw_property_search_field",
+                "sw_property_search_inner_after",
+                "sw_property_search_inner_before",
+                "sw_property_search_option_search",
+                "sw_property_search_option_search_grid",
+                "sw_property_search_option_search_grid_columns",
+                "sw_property_search_option_search_grid_columns_name",
+                "sw_property_search_option_search_grid_pagination",
+                "sw_property_search_tree",
+                "sw_property_search_tree_container",
+                "sw_property_search_tree_group_grid",
+                "sw_property_search_tree_group_grid_columns",
+                "sw_property_search_tree_group_grid_columns_name",
+                "sw_property_search_tree_group_grid_columns_options",
+                "sw_property_search_tree_group_grid_pagination",
+                "sw_property_search_tree_option_grid",
+                "sw_property_search_tree_option_grid_columns",
+                "sw_property_search_tree_option_grid_columns_name",
+                "sw_property_search_tree_option_grid_pagination"
             ]
         },
         "sw-product-variants-delivery-listing": {
@@ -10567,8 +11422,25 @@
             "visibility": "public",
             "extends": "sw-entity-multi-select",
             "blocks": [
+                "sw_entity_multi_select",
+                "sw_entity_multi_select_advanced_selection_modal",
+                "sw_entity_multi_select_base",
+                "sw_entity_multi_select_base_results",
+                "sw_entity_multi_select_base_results_list",
+                "sw_entity_multi_select_base_results_list_after",
+                "sw_entity_multi_select_base_results_list_before",
+                "sw_entity_multi_select_base_results_list_before_advanced_selection",
+                "sw_entity_multi_select_base_results_list_before_slot",
+                "sw_entity_multi_select_base_results_list_result",
+                "sw_entity_multi_select_base_results_list_result_description",
                 "sw_entity_multi_select_base_results_list_result_label",
-                "sw_entity_multi_select_base_selection_list_label_inner"
+                "sw_entity_multi_select_base_results_list_result_preview",
+                "sw_entity_multi_select_base_results_slot",
+                "sw_entity_multi_select_base_selection",
+                "sw_entity_multi_select_base_selection_list",
+                "sw_entity_multi_select_base_selection_list_label",
+                "sw_entity_multi_select_base_selection_list_label_inner",
+                "sw_entity_multi_select_base_selection_slot"
             ]
         },
         "sw-profile-index": {
@@ -10949,6 +11821,7 @@
             "blocks": [
                 "sw_wizard_discount_selection",
                 "sw_wizard_discount_selection_option_selection",
+                "sw_wizard_page",
                 "sw_wizard_page_slot_default"
             ]
         },
@@ -10957,9 +11830,18 @@
             "visibility": "public",
             "extends": "sw-property-detail",
             "blocks": [
+                "sw_property_detail",
+                "sw_property_detail_content",
+                "sw_property_detail_content_detail_base",
                 "sw_property_detail_content_language_info",
                 "sw_property_detail_content_option_list",
-                "sw_property_detail_language_switch"
+                "sw_property_detail_custom_field_sets",
+                "sw_property_detail_language_switch",
+                "sw_property_detail_smart_bar_actions",
+                "sw_property_detail_smart_bar_actions_cancel",
+                "sw_property_detail_smart_bar_actions_save",
+                "sw_property_detail_smart_bar_header",
+                "sw_property_detail_smart_bar_header_title"
             ]
         },
         "sw-property-detail": {
@@ -11259,9 +12141,18 @@
             "visibility": "public",
             "extends": "sw-sales-channel-detail",
             "blocks": [
+                "sw_sales_channel_detail",
+                "sw_sales_channel_detail_actions",
+                "sw_sales_channel_detail_actions_save",
+                "sw_sales_channel_detail_agentic_commerce_deprecation_banner",
+                "sw_sales_channel_detail_content",
                 "sw_sales_channel_detail_content_language_info",
                 "sw_sales_channel_detail_content_tabs",
-                "sw_sales_channel_detail_language_switch"
+                "sw_sales_channel_detail_content_view",
+                "sw_sales_channel_detail_header",
+                "sw_sales_channel_detail_header_headline",
+                "sw_sales_channel_detail_language_switch",
+                "sw_sales_channel_detail_sidebar"
             ]
         },
         "sw-sales-channel-create-base": {
@@ -11269,8 +12160,65 @@
             "visibility": "public",
             "extends": "sw-sales-channel-detail-base",
             "blocks": [
-                "sw_sales_channel_detail_base_general_input_active",
-                "sw_sales_channel_detail_base_options_delete"
+                "sw_sales_channel_detail_agentic_commerce_tracking",
+                "sw_sales_channel_detail_base",
+                "sw_sales_channel_detail_base_disabled_countries_warning",
+                "sw_sales_channel_detail_base_disabled_payments_methods_warning",
+                "sw_sales_channel_detail_base_disabled_shipping_methods_warning",
+                "sw_sales_channel_detail_base_general",
+                "sw_sales_channel_detail_base_general_input_business_time_zone",
+                "sw_sales_channel_detail_base_general_input_countries",
+                "sw_sales_channel_detail_base_general_input_currencies",
+                "sw_sales_channel_detail_base_general_input_customer_group",
+                "sw_sales_channel_detail_base_general_input_favorite",
+                "sw_sales_channel_detail_base_general_input_footer_category",
+                "sw_sales_channel_detail_base_general_input_languages",
+                "sw_sales_channel_detail_base_general_input_name",
+                "sw_sales_channel_detail_base_general_input_navigation_category",
+                "sw_sales_channel_detail_base_general_input_navigation_category_container",
+                "sw_sales_channel_detail_base_general_input_navigation_category_depth",
+                "sw_sales_channel_detail_base_general_input_payments_methods",
+                "sw_sales_channel_detail_base_general_input_product_comparison_encoding",
+                "sw_sales_channel_detail_base_general_input_product_comparison_feed_label",
+                "sw_sales_channel_detail_base_general_input_product_comparison_file_format",
+                "sw_sales_channel_detail_base_general_input_product_comparison_filename",
+                "sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob",
+                "sw_sales_channel_detail_base_general_input_product_comparison_include_variants",
+                "sw_sales_channel_detail_base_general_input_product_comparison_interval",
+                "sw_sales_channel_detail_base_general_input_product_comparison_last_generation",
+                "sw_sales_channel_detail_base_general_input_product_comparison_product_stream",
+                "sw_sales_channel_detail_base_general_input_product_comparison_settings",
+                "sw_sales_channel_detail_base_general_input_product_comparison_storefront",
+                "sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain",
+                "sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_currency",
+                "sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_language",
+                "sw_sales_channel_detail_base_general_input_product_comparison_storefront_sales_channel_customer_group",
+                "sw_sales_channel_detail_base_general_input_product_comparison_storefront_select",
+                "sw_sales_channel_detail_base_general_input_product_comparison_template",
+                "sw_sales_channel_detail_base_general_input_service_category",
+                "sw_sales_channel_detail_base_general_input_shipping_methods",
+                "sw_sales_channel_detail_base_maintenance_input_active",
+                "sw_sales_channel_detail_base_maintenance_ipwhitelist",
+                "sw_sales_channel_detail_base_options_api",
+                "sw_sales_channel_detail_base_options_api_description",
+                "sw_sales_channel_detail_base_options_delete",
+                "sw_sales_channel_detail_base_options_domains",
+                "sw_sales_channel_detail_base_options_hreflang",
+                "sw_sales_channel_detail_base_options_input_access_key",
+                "sw_sales_channel_detail_base_options_input_generate_key",
+                "sw_sales_channel_detail_base_options_maintenance_header",
+                "sw_sales_channel_detail_base_options_status",
+                "sw_sales_channel_detail_base_options_status_description",
+                "sw_sales_channel_detail_base_product_comparison_access_key",
+                "sw_sales_channel_detail_base_product_comparison_input_access_key",
+                "sw_sales_channel_detail_base_product_comparison_input_access_url",
+                "sw_sales_channel_detail_base_product_comparison_input_generate_key",
+                "sw_sales_channel_detail_base_settings_link",
+                "sw_sales_channel_detail_base_status_input_active",
+                "sw_sales_channel_detail_custom_field_sets",
+                "sw_sales_channel_detail_product_comparison_template_modal",
+                "sw_sales_channel_detail_product_comparison_template_modal_notification",
+                "sw_sales_channel_shipping_payment"
             ]
         },
         "sw-sales-channel-defaults-select": {
@@ -11876,7 +12824,9 @@
             "file": "app/component/form/sw-select-number-field",
             "visibility": "private",
             "extends": "sw-select-field-deprecated",
-            "blocks": []
+            "blocks": [
+                "sw_block_field"
+            ]
         },
         "sw-select-option": {
             "file": "app/component/form/sw-select-option",
@@ -11951,19 +12901,13 @@
             "visibility": "private",
             "extends": "sw-extension-card-base",
             "blocks": [
-                "sw_extension_permissions_details_modal",
-                "sw_extension_permissions_details_modal_content",
-                "sw_extension_permissions_details_modal_footer",
-                "sw_extension_permissions_details_modal_footer_inner",
-                "sw_extension_permissions_details_modal_permission_entity",
-                "sw_extension_permissions_details_modal_permission_operation",
-                "sw_extension_permissions_details_modal_permission_row",
-                "sw_extension_permissions_details_modal_permissions_category",
-                "sw_extension_permissions_details_modal_table",
-                "sw_extension_permissions_details_modal_table_body",
-                "sw_extension_permissions_details_modal_table_head",
-                "sw_extension_permissions_details_modal_table_head_row",
-                "sw_extension_permissions_details_modal_table_permissions"
+                "sw_extension_card_base_activation_switch",
+                "sw_extension_card_base_activation_switch_switch",
+                "sw_extension_card_base_context_menu_actions",
+                "sw_extension_card_base_context_menu_actions_additional",
+                "sw_extension_card_base_info_content",
+                "sw_extension_card_base_info_inactive_label",
+                "sw_extension_card_base_modals"
             ]
         },
         "sw-seo-main-category": {
@@ -12113,8 +13057,22 @@
             "visibility": "public",
             "extends": "sw-settings-country-detail",
             "blocks": [
+                "sw_setting_country_tabs_address_handling",
+                "sw_setting_country_tabs_extension",
+                "sw_setting_country_tabs_setting",
+                "sw_setting_country_tabs_state",
+                "sw_settings_country_detail",
+                "sw_settings_country_detail_actions",
+                "sw_settings_country_detail_actions_abort",
+                "sw_settings_country_detail_actions_save",
+                "sw_settings_country_detail_content",
                 "sw_settings_country_detail_content_language_info",
-                "sw_settings_country_detail_language_switch"
+                "sw_settings_country_detail_custom_field_sets",
+                "sw_settings_country_detail_header",
+                "sw_settings_country_detail_language_switch",
+                "sw_settings_country_mt_tabs_header",
+                "sw_settings_country_tabs_content",
+                "sw_settings_country_tabs_header"
             ]
         },
         "sw-settings-country-currency-dependent-modal": {
@@ -12345,6 +13303,13 @@
             "visibility": "public",
             "extends": "sw-settings-custom-field-set-detail",
             "blocks": [
+                "sw_settings_customField_set_detail_header",
+                "sw_settings_custom_field_set_detail",
+                "sw_settings_custom_field_set_detail_actions",
+                "sw_settings_custom_field_set_detail_actions_abort",
+                "sw_settings_custom_field_set_detail_actions_save",
+                "sw_settings_custom_field_set_detail_content",
+                "sw_settings_custom_field_set_detail_content_detail_base",
                 "sw_settings_custom_field_set_detail_content_detail_custom_field_list",
                 "sw_settings_custom_field_set_detail_content_detail_custom_field_list_empty_state"
             ]
@@ -12393,7 +13358,36 @@
             "file": "module/sw-settings-customer-group/page/sw-settings-customer-group-create",
             "visibility": "private",
             "extends": "sw-settings-customer-group-detail",
-            "blocks": []
+            "blocks": [
+                "sw_settings_customer_group_detail",
+                "sw_settings_customer_group_detail_actions",
+                "sw_settings_customer_group_detail_actions_cancel",
+                "sw_settings_customer_group_detail_actions_save",
+                "sw_settings_customer_group_detail_cardview",
+                "sw_settings_customer_group_detail_content_card",
+                "sw_settings_customer_group_detail_content_card_display_gross",
+                "sw_settings_customer_group_detail_content_card_name",
+                "sw_settings_customer_group_detail_content_card_price_basis",
+                "sw_settings_customer_group_detail_content_card_registration_form",
+                "sw_settings_customer_group_detail_content_card_tax_display",
+                "sw_settings_customer_group_detail_content_language_info",
+                "sw_settings_customer_group_detail_content_registration_card",
+                "sw_settings_customer_group_detail_content_registration_card_introduction",
+                "sw_settings_customer_group_detail_content_registration_card_only_companies_can_register",
+                "sw_settings_customer_group_detail_content_registration_card_seo_meta_description",
+                "sw_settings_customer_group_detail_content_registration_card_title",
+                "sw_settings_customer_group_detail_content_registration_technical_urls",
+                "sw_settings_customer_group_detail_content_registration_url_card",
+                "sw_settings_customer_group_detail_content_registration_url_card_sales_channel",
+                "sw_settings_customer_group_detail_content_registration_url_card_seo_url",
+                "sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner",
+                "sw_settings_customer_group_detail_custom_field_sets",
+                "sw_settings_customer_group_detail_language_switch",
+                "sw_settings_customer_group_detail_search_bar",
+                "sw_settings_customer_group_detail_smart_bar_header",
+                "sw_settings_customer_group_detail_smart_bar_header_title",
+                "sw_settings_customer_group_detail_smart_bar_header_title_text"
+            ]
         },
         "sw-settings-customer-group-detail": {
             "file": "module/sw-settings-customer-group/page/sw-settings-customer-group-detail",
@@ -12460,7 +13454,23 @@
             "file": "module/sw-settings-delivery-times/page/sw-settings-delivery-time-create",
             "visibility": "public",
             "extends": "sw-settings-delivery-time-detail",
-            "blocks": []
+            "blocks": [
+                "sw_settings_delivery_time_detail",
+                "sw_settings_delivery_time_detail_content",
+                "sw_settings_delivery_time_detail_custom_field_sets",
+                "sw_settings_delivery_time_detail_form",
+                "sw_settings_delivery_time_detail_language_switch",
+                "sw_settings_delivery_time_detail_max_field",
+                "sw_settings_delivery_time_detail_min_field",
+                "sw_settings_delivery_time_detail_name_field",
+                "sw_settings_delivery_time_detail_smart_bar_actions",
+                "sw_settings_delivery_time_detail_smart_bar_actions_cancel",
+                "sw_settings_delivery_time_detail_smart_bar_actions_save",
+                "sw_settings_delivery_time_detail_smart_bar_header",
+                "sw_settings_delivery_time_detail_unit_field",
+                "sw_settings_delivery_time_language_info",
+                "sw_settings_delivery_time_min_max_container"
+            ]
         },
         "sw-settings-delivery-time-detail": {
             "file": "module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail",
@@ -12778,8 +13788,20 @@
             "visibility": "public",
             "extends": "sw-settings-listing-option-base",
             "blocks": [
+                "sw_settings_listing_option_base",
+                "sw_settings_listing_option_base_content",
+                "sw_settings_listing_option_base_content_criteria_grid",
+                "sw_settings_listing_option_base_content_delete_modal",
+                "sw_settings_listing_option_base_content_general_info",
+                "sw_settings_listing_option_base_content_locked_info",
                 "sw_settings_listing_option_base_language_switch",
-                "sw_settings_listing_option_edit_smart_bar_actions_grid"
+                "sw_settings_listing_option_base_smart_bar_actions",
+                "sw_settings_listing_option_base_smart_bar_actions_grid",
+                "sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal",
+                "sw_settings_listing_option_base_smart_bar_actions_save",
+                "sw_settings_listing_option_base_smart_bar_heading",
+                "sw_settings_listing_option_base_smart_content",
+                "sw_settings_listing_option_base_smart_content_general_info"
             ]
         },
         "sw-settings-listing-option-criteria-grid": {
@@ -12877,9 +13899,16 @@
             "visibility": "public",
             "extends": "sw-settings-logging-entry-info",
             "blocks": [
+                "sw_settings_logging_entry_info",
+                "sw_settings_logging_entry_info_close_button",
                 "sw_settings_logging_entry_info_content",
+                "sw_settings_logging_entry_info_footer",
                 "sw_settings_logging_entry_info_mt_content",
+                "sw_settings_logging_entry_info_mt_raw_content",
+                "sw_settings_logging_entry_info_mt_tabs",
+                "sw_settings_logging_entry_info_raw_content",
                 "sw_settings_logging_entry_info_tab_items",
+                "sw_settings_logging_entry_info_tabs",
                 "sw_settings_logging_mail_sent_content_mailbody",
                 "sw_settings_logging_mail_sent_content_mailbody_html",
                 "sw_settings_logging_mail_sent_content_mailbody_plain",
@@ -13007,8 +14036,31 @@
             "visibility": "public",
             "extends": "sw-settings-number-range-detail",
             "blocks": [
+                "sw_sales_channel_detail_base_general_input_sales_channel",
+                "sw_sales_channel_detail_base_general_input_type",
+                "sw_settings_number_range_detail",
+                "sw_settings_number_range_detail_actions",
+                "sw_settings_number_range_detail_actions_abort",
+                "sw_settings_number_range_detail_actions_save",
+                "sw_settings_number_range_detail_assignment_card",
                 "sw_settings_number_range_detail_assignment_card_global_warning",
+                "sw_settings_number_range_detail_content",
+                "sw_settings_number_range_detail_content_card",
+                "sw_settings_number_range_detail_content_field_current_number",
+                "sw_settings_number_range_detail_content_field_default",
+                "sw_settings_number_range_detail_content_field_description",
+                "sw_settings_number_range_detail_content_field_name",
+                "sw_settings_number_range_detail_content_field_pattern",
+                "sw_settings_number_range_detail_content_field_prefix",
+                "sw_settings_number_range_detail_content_field_preview",
+                "sw_settings_number_range_detail_content_field_start",
+                "sw_settings_number_range_detail_content_field_suffix",
                 "sw_settings_number_range_detail_content_global_product_warning",
+                "sw_settings_number_range_detail_content_global_warning",
+                "sw_settings_number_range_detail_content_pattern_collision_warning",
+                "sw_settings_number_range_detail_custom_field_sets",
+                "sw_settings_number_range_detail_header",
+                "sw_settings_number_range_detail_language_info",
                 "sw_settings_number_range_detail_language_switch"
             ]
         },
@@ -13083,7 +14135,31 @@
             "extends": "sw-settings-payment-detail",
             "blocks": [
                 "sw_product_stream_detail_content_language_info",
-                "sw_settings_payment_detail_language_switch"
+                "sw_settings_payment_detail",
+                "sw_settings_payment_detail_actions",
+                "sw_settings_payment_detail_actions_abort",
+                "sw_settings_payment_detail_actions_save",
+                "sw_settings_payment_detail_base_content_field_description",
+                "sw_settings_payment_detail_base_content_media_upload",
+                "sw_settings_payment_detail_content",
+                "sw_settings_payment_detail_content_card",
+                "sw_settings_payment_detail_content_field_active",
+                "sw_settings_payment_detail_content_field_after_order_enabled",
+                "sw_settings_payment_detail_content_field_name",
+                "sw_settings_payment_detail_content_field_plugin",
+                "sw_settings_payment_detail_content_field_position",
+                "sw_settings_payment_detail_content_field_technical_name",
+                "sw_settings_payment_detail_custom_field_sets",
+                "sw_settings_payment_detail_delete_modal",
+                "sw_settings_payment_detail_delete_modal_footer",
+                "sw_settings_payment_detail_delete_modal_info",
+                "sw_settings_payment_detail_delete_payment_method",
+                "sw_settings_payment_detail_header",
+                "sw_settings_payment_detail_language_switch",
+                "sw_settings_payment_detail_reset_modal_cancel",
+                "sw_settings_payment_detail_reset_modal_confirm",
+                "sw_settings_payment_detail_top_rule",
+                "sw_settings_payment_detail_top_rule_select"
             ]
         },
         "sw-settings-payment-detail": {
@@ -13309,9 +14385,75 @@
             "visibility": "private",
             "extends": "sw-entity-listing",
             "blocks": [
+                "sw_data_grid",
+                "sw_data_grid_body",
+                "sw_data_grid_body_cell_action_modals",
+                "sw_data_grid_body_cell_actions",
+                "sw_data_grid_body_cell_actions_content",
+                "sw_data_grid_body_cell_actions_menu",
+                "sw_data_grid_body_cell_selection",
+                "sw_data_grid_body_cell_selection_content",
+                "sw_data_grid_body_cell_spacer",
+                "sw_data_grid_body_columns",
+                "sw_data_grid_body_columns_content",
+                "sw_data_grid_body_row",
+                "sw_data_grid_bulk",
                 "sw_data_grid_bulk_delete_content",
+                "sw_data_grid_bulk_delete_modal",
+                "sw_data_grid_bulk_edit_content",
+                "sw_data_grid_bulk_edit_modal",
+                "sw_data_grid_bulk_modals",
+                "sw_data_grid_bulk_selected_actions",
+                "sw_data_grid_bulk_selected_actions_content",
+                "sw_data_grid_bulk_selected_count",
+                "sw_data_grid_column_actions",
+                "sw_data_grid_column_actions_hide",
+                "sw_data_grid_columns_boolean",
+                "sw_data_grid_columns_inline_edit",
+                "sw_data_grid_columns_render_inline_edit",
                 "sw_data_grid_columns_render_router_link",
-                "sw_data_grid_columns_render_value"
+                "sw_data_grid_columns_render_value",
+                "sw_data_grid_columns_slot",
+                "sw_data_grid_columns_value",
+                "sw_data_grid_header",
+                "sw_data_grid_header_cell_actions",
+                "sw_data_grid_header_cell_actions_content",
+                "sw_data_grid_header_cell_selection",
+                "sw_data_grid_header_cell_selection_content",
+                "sw_data_grid_header_cell_spacer",
+                "sw_data_grid_header_columns",
+                "sw_data_grid_header_columns_content",
+                "sw_data_grid_header_columns_icon",
+                "sw_data_grid_header_columns_label",
+                "sw_data_grid_header_columns_resize",
+                "sw_data_grid_header_row",
+                "sw_data_grid_inline_edit_actions",
+                "sw_data_grid_inline_edit_actions_cancel",
+                "sw_data_grid_inline_edit_actions_cancel_icon",
+                "sw_data_grid_inline_edit_actions_save",
+                "sw_data_grid_inline_edit_actions_save_icon",
+                "sw_data_grid_pagination",
+                "sw_data_grid_pagination_inner",
+                "sw_data_grid_preview_slot",
+                "sw_data_grid_select_all_checkbox",
+                "sw_data_grid_select_item_checkbox",
+                "sw_data_grid_settings",
+                "sw_data_grid_settings_additional_settings",
+                "sw_data_grid_settings_additional_settings_inner",
+                "sw_data_grid_settings_custom_settings",
+                "sw_data_grid_settings_custom_settings_slot",
+                "sw_data_grid_skeleton",
+                "sw_data_grid_slot_action_modals",
+                "sw_data_grid_slot_actions",
+                "sw_data_grid_slot_bulk_edit_modal",
+                "sw_data_grid_slot_bulk_modals",
+                "sw_data_grid_slot_pagination",
+                "sw_data_grid_sort_indicator",
+                "sw_data_grid_sort_indicator_icon_asc",
+                "sw_data_grid_sort_indicator_icon_desc",
+                "sw_data_grid_sort_indicator_transition",
+                "sw_data_grid_table",
+                "sw_data_grid_wrapper"
             ]
         },
         "sw-settings-rule-category-tree": {
@@ -13416,16 +14558,48 @@
             "file": "module/sw-settings-rule/component/sw-settings-rule-tree",
             "visibility": "private",
             "extends": "sw-tree",
-            "blocks": []
+            "blocks": [
+                "sw_tree",
+                "sw_tree_actions_headline",
+                "sw_tree_content",
+                "sw_tree_delete_modal",
+                "sw_tree_delete_modal_cancel",
+                "sw_tree_delete_modal_confirm",
+                "sw_tree_delete_modal_confirm_delete_text",
+                "sw_tree_delete_modal_footer",
+                "sw_tree_items",
+                "sw_tree_search",
+                "sw_tree_slot_items"
+            ]
         },
         "sw-settings-rule-tree-item": {
             "file": "module/sw-settings-rule/component/sw-settings-rule-tree-item",
             "visibility": "private",
             "extends": "sw-tree-item",
             "blocks": [
+                "sw_tree_item",
+                "sw_tree_item_children_content",
                 "sw_tree_item_children_items",
+                "sw_tree_item_children_transition",
+                "sw_tree_item_element",
                 "sw_tree_item_element_actions",
-                "sw_tree_item_element_selection"
+                "sw_tree_item_element_content",
+                "sw_tree_item_element_grip",
+                "sw_tree_item_element_leaf_icon",
+                "sw_tree_item_element_selection",
+                "sw_tree_item_element_toggle",
+                "sw_tree_item_element_toggle_icon",
+                "sw_tree_items_actions_after",
+                "sw_tree_items_actions_before",
+                "sw_tree_items_actions_delete",
+                "sw_tree_items_actions_duplicate",
+                "sw_tree_items_actions_edit",
+                "sw_tree_items_actions_group",
+                "sw_tree_items_actions_sub",
+                "sw_tree_items_actions_without_position",
+                "sw_tree_items_active_state",
+                "sw_tree_items_item_content_default",
+                "sw_tree_items_item_content_edit"
             ]
         },
         "sw-settings-salutation-detail": {
@@ -13889,7 +15063,20 @@
             "file": "module/sw-settings-snippet/page/sw-settings-snippet-create",
             "visibility": "public",
             "extends": "sw-settings-snippet-detail",
-            "blocks": []
+            "blocks": [
+                "sw_settings_snippet_detail",
+                "sw_settings_snippet_detail_actions",
+                "sw_settings_snippet_detail_actions_abort",
+                "sw_settings_snippet_detail_actions_save",
+                "sw_settings_snippet_detail_content",
+                "sw_settings_snippet_detail_header",
+                "sw_settings_snippet_detail_smart_bar",
+                "sw_settings_snippet_set_detail_card",
+                "sw_settings_snippet_set_detail_card_information",
+                "sw_settings_snippet_set_detail_card_information_key",
+                "sw_settings_snippet_set_detail_card_snippets",
+                "sw_settings_snippet_set_detail_card_snippets_fields"
+            ]
         },
         "sw-settings-snippet-detail": {
             "file": "module/sw-settings-snippet/page/sw-settings-snippet-detail",
@@ -14385,6 +15572,50 @@
             "extends": null,
             "blocks": []
         },
+        "sw-settings-webhook-deliveries-modal": {
+            "file": "module/sw-settings-webhook/component/sw-settings-webhook-deliveries-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_webhook_deliveries_modal"
+            ]
+        },
+        "sw-settings-webhook-list": {
+            "file": "module/sw-settings-webhook/page/sw-settings-webhook-list",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_webhook_list",
+                "sw_settings_webhook_list_content",
+                "sw_settings_webhook_list_deliveries_modal",
+                "sw_settings_webhook_list_empty_state",
+                "sw_settings_webhook_list_grid",
+                "sw_settings_webhook_list_load_error",
+                "sw_settings_webhook_list_roles_modal",
+                "sw_settings_webhook_list_search_bar",
+                "sw_settings_webhook_list_secret_modal",
+                "sw_settings_webhook_list_sidebar",
+                "sw_settings_webhook_list_sidebar_filter",
+                "sw_settings_webhook_list_sidebar_filter_owner",
+                "sw_settings_webhook_list_smart_bar_header"
+            ]
+        },
+        "sw-settings-webhook-roles-modal": {
+            "file": "module/sw-settings-webhook/component/sw-settings-webhook-roles-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_webhook_roles_modal"
+            ]
+        },
+        "sw-settings-webhook-secret-modal": {
+            "file": "module/sw-settings-webhook/component/sw-settings-webhook-secret-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_webhook_secret_modal"
+            ]
+        },
         "sw-shortcut-overview": {
             "file": "app/component/utils/sw-shortcut-overview",
             "visibility": "private",
@@ -14427,11 +15658,12 @@
             "visibility": "private",
             "extends": "sw-collapse",
             "blocks": [
+                "sw_collapse_panel",
+                "sw_collapse_panel_content",
+                "sw_collapse_panel_content_slot",
                 "sw_collapse_panel_header",
                 "sw_collapse_panel_header_slot",
                 "sw_sidebar_collapse_buttons",
-                "sw_sidebar_collapse_panel_content_slot",
-                "sw_sidebar_collapse_panel_content_template",
                 "sw_sidebar_collapse_panel_header_slot",
                 "sw_sidebar_collapse_title"
             ]
@@ -15310,8 +16542,58 @@
             "visibility": "public",
             "extends": "sw-users-permissions-user-detail",
             "blocks": [
+                "sw_setting_user_detail_card_basic_information",
+                "sw_setting_user_detail_card_integrations",
+                "sw_setting_user_detail_card_mcp_allowlist",
+                "sw_setting_user_detail_card_roles_permissions",
+                "sw_setting_user_detail_card_user_interface",
+                "sw_settings_user_detail",
+                "sw_settings_user_detail_actions",
+                "sw_settings_user_detail_actions_cancel",
+                "sw_settings_user_detail_actions_save",
+                "sw_settings_user_detail_content",
+                "sw_settings_user_detail_content_confirm_password_modal",
+                "sw_settings_user_detail_content_email",
+                "sw_settings_user_detail_content_first_name",
+                "sw_settings_user_detail_content_grid",
+                "sw_settings_user_detail_content_inner",
+                "sw_settings_user_detail_content_last_name",
+                "sw_settings_user_detail_content_media_upload",
                 "sw_settings_user_detail_content_password",
-                "sw_settings_user_detail_grid_change_password"
+                "sw_settings_user_detail_content_username",
+                "sw_settings_user_detail_detail_modal",
+                "sw_settings_user_detail_detail_modal_inner",
+                "sw_settings_user_detail_detail_modal_inner_field_access_key",
+                "sw_settings_user_detail_detail_modal_inner_field_help_text",
+                "sw_settings_user_detail_detail_modal_inner_field_secret_access_key",
+                "sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button",
+                "sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field",
+                "sw_settings_user_detail_detail_modal_inner_footer",
+                "sw_settings_user_detail_detail_modal_inner_footer_apply",
+                "sw_settings_user_detail_detail_modal_inner_footer_cancel",
+                "sw_settings_user_detail_detail_modal_inner_help_text",
+                "sw_settings_user_detail_grid_add_key",
+                "sw_settings_user_detail_grid_columns_actions",
+                "sw_settings_user_detail_grid_columns_actions_delete",
+                "sw_settings_user_detail_grid_columns_actions_edit",
+                "sw_settings_user_detail_grid_content_acl_is_admin",
+                "sw_settings_user_detail_grid_content_acl_roles",
+                "sw_settings_user_detail_grid_content_active",
+                "sw_settings_user_detail_grid_content_job_title",
+                "sw_settings_user_detail_grid_content_language",
+                "sw_settings_user_detail_grid_content_module_icon_colors",
+                "sw_settings_user_detail_grid_content_theme",
+                "sw_settings_user_detail_grid_content_timezone",
+                "sw_settings_user_detail_grid_inner_slot_delete_modal",
+                "sw_settings_user_detail_grid_inner_slot_delete_modal_confirm_text",
+                "sw_settings_user_detail_grid_inner_slot_delete_modal_footer",
+                "sw_settings_user_detail_grid_inner_slot_media_modal",
+                "sw_settings_user_detail_grid_toolbar",
+                "sw_settings_user_detail_header",
+                "sw_settings_user_detail_key_grid",
+                "sw_settings_user_detail_key_grid_content",
+                "sw_settings_user_detail_roles_permissions_grid",
+                "sw_settings_user_detail_user_interface_grid"
             ]
         },
         "sw-users-permissions-user-detail": {

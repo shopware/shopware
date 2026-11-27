@@ -10,6 +10,32 @@ component sw-bulk-edit-change-type  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/sw-bulk-edit-change-type.html.twig
 
+inject
+  feature
+
+props
+  allowAdd?: boolean  default=false
+  allowClear?: boolean  default=false
+  allowOverwrite?: boolean  default=false
+  allowRemove?: boolean  default=false
+  value: string
+
+emits
+  update:value(...args: any[])
+
+slots
+  value-field  { ...{ isDisplayingValue } }  block=sw_bulk_edit_change_type_value_field
+
+data
+  isDisplayingValue: any
+
+computed
+  currentValue: any
+  options: any
+
+methods
+  onChangeType(value: any): any
+
 blocks
   sw_bulk_edit_change_type
     sw_bulk_edit_change_type_select_field

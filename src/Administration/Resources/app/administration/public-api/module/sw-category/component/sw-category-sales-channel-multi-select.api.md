@@ -11,7 +11,50 @@ component sw-category-sales-channel-multi-select  public  js
   source src/module/sw-category/component/sw-category-sales-channel-multi-select/index.js
   template src/module/sw-category/component/sw-category-sales-channel-multi-select/sw-category-sales-channel-multi-select.html.twig
 
+emits
+  item-add(...args: any[])
+
+slots
+  after-item-list  {}  block=sw_entity_multi_select_base_results_list_after
+  before-item-list  {}  block=sw_entity_multi_select_base_results_list_before_slot
+  hint  {}  block=sw_entity_multi_select
+  label  {}  block=sw_entity_multi_select
+  result-description-property  { ...{ item, searchTerm, highlightSearchTerm } }  block=sw_entity_multi_select_base_results_list_result_description
+  result-item  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey, displayLabelProperty, isSelectionDisabled, descriptionPosition } }  block=sw_entity_multi_select_base_results_list_result
+  result-label-preview  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey } }  block=sw_entity_multi_select_base_results_list_result_preview
+  result-label-property  { ...{ item, index, labelProperty, valueProperty: 'id'} }  block=sw_entity_multi_select_base_results_list_result_label
+  selection-label-property  { ...{ item, index, labelProperty, valueProperty} }  block=sw_entity_multi_select_base_selection_list_label_inner
+
+computed
+  salesChannelRepository: any
+
+methods
+  addItem(item: any): any
+  isSelected(item: any): any
+
 blocks
-  sw_entity_multi_select_base_results_list_result_label
-  sw_entity_multi_select_base_selection_list_label_inner
+  sw_entity_multi_select  [inherited]
+    sw_entity_multi_select_base  [inherited]
+      sw_entity_multi_select_base_results  [inherited]
+        sw_entity_multi_select_base_results_slot  [inherited]
+          sw_entity_multi_select_base_results_list  [inherited]
+            sw_entity_multi_select_base_results_list_after  [inherited]
+            sw_entity_multi_select_base_results_list_before  [inherited]
+              sw_entity_multi_select_base_results_list_before_advanced_selection  [inherited]
+              sw_entity_multi_select_base_results_list_before_slot  [inherited] [after v-if]
+            sw_entity_multi_select_base_results_list_result  [inherited]
+              sw_entity_multi_select_base_results_list_result_description  [inherited] [scope: index, item]
+              sw_entity_multi_select_base_results_list_result_label  [replaced] [scope: index, item]
+              sw_entity_multi_select_base_results_list_result_preview  [inherited] [scope: index, item]
+      sw_entity_multi_select_base_selection  [inherited]
+        sw_entity_multi_select_advanced_selection_modal  [inherited] [scope: collapse, disabled, error, expand, identification, size]
+        sw_entity_multi_select_base_selection_slot  [inherited] [after v-if] [scope: collapse, disabled, error, expand, identification, size]
+          sw_entity_multi_select_base_selection_list  [inherited] [scope: collapse, disabled, error, expand, identification, size]
+            sw_entity_multi_select_base_selection_list_label  [inherited] [scope: collapse, disabled, error, expand, identification, size]
+              sw_entity_multi_select_base_selection_list_label_inner  [replaced] [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, size, valueProperty]
+
+refs
+  selectBase  -> sw-select-base  block=sw_entity_multi_select
+  selectionList  -> sw-select-selection-list  block=sw_entity_multi_select_base_selection_slot
+  swSelectResultList  -> sw-select-result-list  block=sw_entity_multi_select_base_results_slot
 ```

@@ -6,7 +6,10 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
+use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,7 +33,8 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCategoryRoute $cmsPageRoute,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
-        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
+        private readonly AbstractTranslator $translator,
     ) {
     }
 
@@ -61,16 +65,21 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             $page->setCmsPage($category->getCmsPage());
         }
 
-        if ($page->getMetaInformation()) {
+        $metaInformation = $page->getMetaInformation();
+        if ($metaInformation) {
             $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
                 ? $this->seoUrlReplacer->generate('frontend.home.page')
                 : $this->seoUrlReplacer->generate(NavigationPageSeoUrlRoute::ROUTE_NAME, ['navigationId' => $navigationId]);
 
-            if ($request->query->has('p') && $request->query->getInt('p') > 1) {
-                $canonical .= '?p=' . $request->query->get('p');
+            // Only a product listing makes a page number a page of its own, other pages keep their clean URL
+            $listingPage = $this->getListingPage($category->getCmsPage());
+            if ($listingPage > 1) {
+                $canonical .= '?p=' . $listingPage;
+
+                $metaInformation->setMetaTitle($this->addPageNumber($metaInformation->getMetaTitle(), $listingPage));
             }
 
-            $page->getMetaInformation()->setCanonical($canonical);
+            $metaInformation->setCanonical($canonical);
         }
 
         $this->eventDispatcher->dispatch(
@@ -106,5 +115,30 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             ? $salesChannel->getTranslation('homeKeywords')
             : $category->getTranslation('keywords');
         $metaInformation->setMetaKeywords((string) $keywords);
+    }
+
+    private function getListingPage(?CmsPageEntity $cmsPage): int
+    {
+        foreach ($cmsPage?->getSections()?->getBlocks()->getSlots() ?? [] as $slot) {
+            $data = $slot->getData();
+
+            if ($data instanceof ProductListingStruct && $data->getListing() !== null) {
+                return $data->getListing()->getPage();
+            }
+        }
+
+        return 1;
+    }
+
+    private function addPageNumber(string $content, int $pageNumber): string
+    {
+        if (trim($content) === '') {
+            return '';
+        }
+
+        return $this->translator->trans('general.pagination.metaPageSuffix', [
+            '%content%' => $content,
+            '%page%' => $pageNumber,
+        ]);
     }
 }

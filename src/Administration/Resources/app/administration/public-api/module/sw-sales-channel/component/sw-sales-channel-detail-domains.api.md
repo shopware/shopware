@@ -10,6 +10,95 @@ component sw-sales-channel-detail-domains  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/sw-sales-channel-detail-domains.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  disableEdit?: boolean  default=false
+  salesChannel: any
+
+data
+  currentDomain: any
+  currentDomainBackup: object
+    currency: any
+    currencyId: any
+    language: any
+    languageId: any
+    measurementUnits: any
+    snippetSet: any
+    snippetSetId: any
+    url: any
+  deleteDomain: any
+  error: any
+  isEditingDomain: any
+  isLoadingDomains: any
+  locales: any
+  measurementSystems: any
+  snippetSets: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  currencyCriteria: any
+  currentDomainLocaleCode: any
+  currentDomainModalButtonText: any
+  currentDomainModalTitle: any
+  disabled: any
+  domainRepository: any
+  hreflangLocalisationOptions: any
+  isExternalStorefrontDisabled: any
+  languageNamesByPrefix: any
+  localeCodesById: any
+  localeCriteria: any
+  localeRepository: any
+  measurementSystemCriteria: any
+  measurementSystemRepository: any
+  salesChannelFilterCriteria: any
+  salesChannelIsHeadless: any
+  salesChannelLocaleCodes: any
+  selectableCurrencyIds: any
+  snippetSetCriteria: any
+  snippetSetGroups: any
+  snippetSetOptions: any
+  snippetSetRepository: any
+  sortedDomains: any
+
+methods
+  createdComponent(): Promise<any>
+  domainExistsInDatabase(url: any): Promise<any>
+  domainExistsLocal(currentDomain: any): any
+  getDomainColumns(): any
+  getLanguagePrefix(localeCode: any): any
+  getLocaleCode(languageId: any): any
+  getMeasurementName(technicalName: any): any
+  getSortValue(val: any, column: any): any
+  isOriginalUrl(url: any): any
+  localSortDomains(domains: any): any
+  onClickAddNewDomain(): Promise<any>
+  onClickDeleteDomain(domain: any): any
+  onClickEditDomain(domain: any): any
+  onClickOpenCreateDomainModal(arg0?: any = {}): any
+  onCloseCreateDomainModal(): any
+  onCloseDeleteDomainModal(): any
+  onConfirmDeleteDomain(domain: any): any
+  onInput(): any
+  onLanguageSelect(id: any): any
+  onOptionSelect(name: any, entity: any): any
+  onSnippetSetSelect(id: any): any
+  preselectSnippetSet(languageId: any): any
+  resetCurrentDomainToBackup(): any
+  setCurrentDomainBackup(domain: any): any
+  setInitialCurrency(domain: any, currencyId?: any = null): any
+  setInitialLanguage(domain: any, languageId?: any = null): any
+  setInitialMeasurementUnits(domain: any): any
+  snippetSetSearchFunction(arg0: any): any
+  sortColumns(column: any): any
+  unicodeUriFilter(uri: any): any
+  verifyUrl(domain: any): Promise<any>
+
 blocks
   sw_sales_channel_detail_domains
     sw_sales_channel_detail_domains_create_modal
@@ -22,7 +111,7 @@ blocks
         sw_sales_channel_detail_domains_input_snippet_set
         sw_sales_channel_detail_domains_input_url
         sw_sales_channel_detail_domains_is_external_storefront
-    sw_sales_channel_detail_domains_delete_modal
+    sw_sales_channel_detail_domains_delete_modal  [after v-if]
       sw_sales_channel_detail_domains_delete_modal_confirm_text
       sw_sales_channel_detail_domains_delete_modal_footer
         sw_sales_channel_detail_domains_delete_modal_abort
@@ -30,8 +119,8 @@ blocks
     sw_sales_channel_detail_domains_grid
       sw_sales_channel_detail_domains_columns_template
         sw_sales_channel_detail_domains_column_actions
-          sw_sales_channel_detail_domains_column_action_domain_delete
-          sw_sales_channel_detail_domains_column_action_domain_edit
+          sw_sales_channel_detail_domains_column_action_domain_delete  [scope: item]
+          sw_sales_channel_detail_domains_column_action_domain_edit  [scope: item]
         sw_sales_channel_detail_domains_column_currency_id
         sw_sales_channel_detail_domains_column_language_id
         sw_sales_channel_detail_domains_column_measurement_system_name
@@ -40,4 +129,10 @@ blocks
     sw_sales_channel_detail_domains_meta
       sw_sales_channel_detail_domains_add_button
       sw_sales_channel_detail_domains_headline
+
+crossings
+  <template>  sw_sales_channel_detail_domains -> sw_sales_channel_detail_domains_grid
+
+refs
+  gridDomains  -> sw-data-grid  block=sw_sales_channel_detail_domains_grid
 ```

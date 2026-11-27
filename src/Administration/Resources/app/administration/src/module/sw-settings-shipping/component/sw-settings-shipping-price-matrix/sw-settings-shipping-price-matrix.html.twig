@@ -108,7 +108,7 @@
                     size="small"
                     :disabled="disabled"
                     :rule-id="item.calculationRuleId"
-                    :rule-filter="shippingRuleFilterCriteria"
+                    :rule-filter="shippingRuleFilterCriteriaDeprecated"
                     :placeholder="$t('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                     rule-aware-group-key="shippingMethodPriceCalculations"
                     :restricted-rule-ids="usedCalculationRules"
@@ -264,7 +264,7 @@
                 <sw-select-rule-create
                     size="small"
                     :disabled="disabled"
-                    :rule-filter="shippingRuleFilterCriteria"
+                    :rule-filter="shippingRuleFilterCriteriaDeprecated"
                     :placeholder="$t('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                     rule-aware-group-key="shippingMethodPriceCalculations"
                     :restricted-rule-ids="usedCalculationRules"

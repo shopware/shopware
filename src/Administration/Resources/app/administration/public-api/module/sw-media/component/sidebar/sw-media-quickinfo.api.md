@@ -10,36 +10,116 @@ component sw-media-quickinfo  public  js
   source src/module/sw-media/component/sidebar/sw-media-quickinfo/index.js
   template src/module/sw-media/component/sidebar/sw-media-quickinfo/sw-media-quickinfo.html.twig
 
+mixins
+  notification, media-sidebar-modal-mixin, video-cover, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  mediaService
+  repositoryFactory
+  systemConfigApiService
+
+props
+  editable?: boolean  default=false
+  item: object
+
+emits
+  media-item-rename-success(...args: any[])
+  media-item-replaced(...args: any[])
+  update:item(...args: any[])
+
+data
+  arPlacement: any
+  arPlacementOptions: any
+  arReady: any
+  customFieldSets: any
+  defaultArPlacement: any
+  defaultArReady: any
+  fileNameError: any
+  isLoading: any
+  isSaveSuccessful: any
+  showCoverSelectionModal: any
+  showModalReplace: any
+  showModelEditorModal: any
+
+computed
+  canManageVideoCover: any
+  createdAt: any
+  deleterTooltip: any
+  editorTooltip: any
+  extensionSdkButtons: any
+  fileName: any
+  fileNameClasses: any
+  fileSize: any
+  isMediaObject: any
+  isPlayable: any
+  isSpatial: any
+  mediaRepository: any
+  showUnsupportedFormatWarning: any
+
+methods
+  buildAugmentedRealityTooltip(snippet: any): any
+  changeARPlacement(newPlacement: any): any
+  closeModalReplace(): any
+  closeModelEditorModal(): any
+  copyLinkToClipboard(): Promise<any>
+  createdComponent(): any
+  downloadMedia(): any
+  emitRefreshMediaLibrary(): any
+  fetchSpatialItemConfig(): any
+  handleErrorMessage(error: any): any
+  loadCustomFieldSets(): Promise<any>
+  onChangeFileName(value: any): Promise<any>
+  onRemoveFileNameError(): any
+  onSave(): Promise<any>
+  onSaveCustomFields(item: any): Promise<any>  [deprecated tag:v6.8.0]
+  onSubmitAltText(value: any): any
+  onSubmitTitle(value: any): any
+  openModalReplace(): any
+  openModelEditorModal(): any
+  quickActionClasses(disabled: any): any
+  runAppAction(action: any): any
+  saveFinish(): any
+  toggleAR(newValue: any): any
+  triggerDownload(url: any, fileName?: any = null): any
+
 blocks
   sw_media_quickinfo
     sw_media_quickinfo_broken_file
-    sw_media_quickinfo_cover_modal
-    sw_media_quickinfo_custom_field_sets
-    sw_media_quickinfo_metadata
+    sw_media_quickinfo_cover_modal  [after v-if]
+    sw_media_quickinfo_custom_field_sets  [after v-if]
+    sw_media_quickinfo_metadata  [after v-if]
       sw_media_quickinfo_metadata_content
         sw_media_quickinfo_metadata_content_base
         sw_media_quickinfo_metadata_extension
         sw_media_quickinfo_metadata_specific_meta_data
           sw_media_quickinfo_metadata_content_image
-    sw_media_quickinfo_modal_delete
-    sw_media_quickinfo_modal_replace
-    sw_media_quickinfo_move_modal
-    sw_media_quickinfo_preview
+    sw_media_quickinfo_modal_delete  [after v-if]
+    sw_media_quickinfo_modal_replace  [after v-if]
+    sw_media_quickinfo_move_modal  [after v-if]
+    sw_media_quickinfo_preview  [after v-if]
       sw_media_quickinfo_preview_content
-        sw_media_quickinfo_preview_item
+        sw_media_quickinfo_preview_item  [after v-if]
           sw_model_editor_modal
         sw_media_quickinfo_unsupported_format_banner
-    sw_media_quickinfo_quickactions
+    sw_media_quickinfo_quickactions  [after v-if]
       sw_media_quickinfo_quickactions_content
-        sw_media_quickinfo_quickactions_copy_link
-        sw_media_quickinfo_quickactions_custom_action
-        sw_media_quickinfo_quickactions_delete
-        sw_media_quickinfo_quickactions_download
-        sw_media_quickinfo_quickactions_move
-        sw_media_quickinfo_quickactions_remove_cover
+        sw_media_quickinfo_quickactions_copy_link  [after v-if]
+        sw_media_quickinfo_quickactions_custom_action  [after v-if]
+        sw_media_quickinfo_quickactions_delete  [after v-if]
+        sw_media_quickinfo_quickactions_download  [after v-if]
+        sw_media_quickinfo_quickactions_move  [after v-if]
+        sw_media_quickinfo_quickactions_remove_cover  [after v-if]
         sw_media_quickinfo_quickactions_replace
         sw_media_quickinfo_quickactions_set_cover
-    sw_media_quickinfo_spatial_configuration
-    sw_media_quickinfo_tags
+    sw_media_quickinfo_spatial_configuration  [after v-if]
+    sw_media_quickinfo_tags  [after v-if]
     sw_media_quickinfo_usage
+
+refs
+  inlineEditFieldAlt  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  inlineEditFieldName  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  inlineEditFieldTitle  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  modelEditorRef  -> sw-model-editor  block=sw_model_editor_modal
 ```

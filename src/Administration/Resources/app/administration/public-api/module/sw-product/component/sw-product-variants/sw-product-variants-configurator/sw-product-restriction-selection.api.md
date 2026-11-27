@@ -10,6 +10,32 @@ component sw-product-restriction-selection  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/sw-product-restriction-selection.html.twig
 
+props
+  groupsWithOptions: any[]
+  restriction: object
+
+emits
+  restriction-delete(...args: any[])
+
+slots
+  contentAfter  {}  block=sw_product_restriction_selection_content_after
+
+data
+  optionLoading: any
+  optionStore: any
+  options: any
+  selectedGroup: any
+  selectedOptionStore: any
+  selectedOptions: any
+
+computed
+  availableGroups: any
+  availableGroupsOptions: any
+
+methods
+  deleteRestriction(): any
+  mountedComponent(): any
+
 blocks
   sw_product_restriction_selection
     sw_product_restriction_selection_container
@@ -17,7 +43,7 @@ blocks
         sw_product_restriction_selection_is_from
         sw_product_restriction_selection_select_group
       sw_product_restriction_selection_select_option_wrapper
-        sw_product_restriction_selection_context_button
+        sw_product_restriction_selection_context_button  [after v-if]
           sw_product_restriction_selection_context_button_items
         sw_product_restriction_selection_multi_select
     sw_product_restriction_selection_content_after

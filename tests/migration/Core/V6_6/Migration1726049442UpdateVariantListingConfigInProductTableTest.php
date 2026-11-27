@@ -110,6 +110,33 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
         static::assertSame($expectedProducts, $products);
     }
 
+    public function testMigrationKeepsConfigWithoutMainVariant(): void
+    {
+        $variantListingConfig = [
+            'displayParent' => 0,
+            'mainVariantId' => null,
+            'configuratorGroupConfig' => [],
+        ];
+
+        $this->connection->insert('product', [
+            'id' => $this->ids->getBytes('product-1'),
+            'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'parent_id' => null,
+            'product_number' => 'product 1',
+            'stock' => 10,
+            'variant_listing_config' => json_encode($variantListingConfig),
+        ]);
+
+        (new Migration1726049442UpdateVariantListingConfigInProductTable())->update($this->connection);
+
+        $actual = $this->connection->fetchOne(
+            'SELECT variant_listing_config FROM product WHERE product_number = :number',
+            ['number' => 'product 1']
+        );
+        static::assertIsString($actual);
+        static::assertSame($variantListingConfig, json_decode($actual, true));
+    }
+
     public function testMigrationWidensDisplayGroupColumnBeforeWritingSha256(): void
     {
         $this->connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(50) NULL');

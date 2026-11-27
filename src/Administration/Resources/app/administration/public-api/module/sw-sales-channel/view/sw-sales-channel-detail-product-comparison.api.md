@@ -10,12 +10,59 @@ component sw-sales-channel-detail-product-comparison  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/sw-sales-channel-detail-product-comparison.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  entityMappingService
+  productExportService
+  repositoryFactory
+  salesChannelService
+
+props
+  isLoading?: boolean  default=false
+  productExport: any
+  salesChannel: any
+
+data
+  defaultSnippetSetId: any
+  deleteDomain: any
+  isLoadingDomains: any
+  isLoadingPreview: any
+  isLoadingReset: any
+  isLoadingValidate: any
+  isPreviewSuccessful: any
+  isValidateSuccessful: any
+  previewContent: any
+  previewErrors: any
+  showDeleteModal: any
+
+computed
+  domainRepository: any
+  editorConfig: any
+  isAgenticCommerce: any  [deprecated tag:v6.8.0]
+  mainNavigationCriteria: any
+  outerCompleterFunctionBody: any
+  outerCompleterFunctionFooter: any
+  outerCompleterFunctionHeader: any
+  productExportRepository: any
+  salesChannelRepository: any
+
+methods
+  onPreviewClose(): any
+  outerCompleterFunction(mapping: any): any
+  preview(): any
+  resetToDefault(): any
+  resetValid(): any
+  validateTemplate(): any
+
 blocks
   sw_sales_channel_detail_base
     sw_sales_channel_detail_product_comparison
       sw_sales_channel_detail_product_comparison_actions
         sw_sales_channel_detail_product_comparison_actions_preview_button
-        sw_sales_channel_detail_product_comparison_actions_preview_component
+        sw_sales_channel_detail_product_comparison_actions_preview_component  [after v-if]
         sw_sales_channel_detail_product_comparison_actions_reset_button
         sw_sales_channel_detail_product_comparison_actions_test_button
       sw_sales_channel_detail_product_comparison_body

@@ -11,8 +11,25 @@ component sw-cms-stage-add-section  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-stage-add-section/sw-cms-stage-add-section.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=factory  [private]
+  forceChoose?: boolean  default=factory  [private]
+
+emits
+  stage-section-add(...args: any[])  [private]
+
+data
+  showSelection: any  [private]
+
+computed
+  componentClasses: any  [private]
+
+methods
+  onAddSection(type: string): any  [private]
+  toggleSelection(): any  [private]
+
 blocks
   sw_cms_add_section  [private]
-    sw_cms_add_section_button  [private]
+    sw_cms_add_section_button  [after v-if] [private]
     sw_cms_add_section_selection  [private]
 ```

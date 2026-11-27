@@ -11,6 +11,35 @@ component sw-login-recovery-recovery  private  ts  [private]
   template src/module/sw-login/view/sw-login-recovery-recovery/sw-login-recovery-recovery.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  userRecoveryService  [private]
+
+props
+  hash: string  [private]
+
+emits
+  is-loading(...args: any[])  [private]
+  is-not-loading(...args: any[])  [private]
+
+data
+  hashValid: any  [private]
+  newPassword: any  [private]
+  newPasswordConfirm: any  [private]
+  user: object  [private]
+    getEntityName: any  [private]
+    id: any  [private]
+
+computed
+  userPasswordError: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  updatePassword(): any  [private]
+  validatePasswords(): any  [private]
+
 blocks
   sw_login_recovery_recovery  [private]
     sw_login_recovery_recovery_form  [private]
@@ -19,4 +48,7 @@ blocks
       sw_login_recovery_recovery_form_submit  [private]
     sw_login_recovery_recovery_headline  [private]
       sw_login_recovery_recovery_text  [private]
+
+refs
+  swLoginRecoveryRecoveryNewPasswordField  -> mt-password-field  block=sw_login_recovery_recovery_form_new_password_field  [private]
 ```

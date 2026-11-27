@@ -10,6 +10,21 @@ component sw-custom-field-type-base  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-base/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-type-base/sw-custom-field-type-base.html.twig
 
+inject
+  acl
+
+props
+  currentCustomField: object
+  disabled?: boolean  default=false
+  set: object
+
+data
+  propertyNames: object
+    label: any
+
+computed
+  locales: any
+
 blocks
   sw_custom_field_type_base
     sw_custom_field_type_base_content

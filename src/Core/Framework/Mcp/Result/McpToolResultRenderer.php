@@ -122,7 +122,8 @@ class McpToolResultRenderer
     {
         $capabilities = McpToolResultCapabilities::forRevision($protocolVersion);
         $rendered = $this->renderInline($result, $capabilities, $legacyText, $hasOutputSchema);
-        if ($result->isError()) {
+        // Plain text is sent inline, as a string returned by a tool always was.
+        if ($result->isError() || $result->text !== null) {
             return $rendered;
         }
 
@@ -166,7 +167,7 @@ class McpToolResultRenderer
     {
         if (!$capabilities->specFormat) {
             return new CallToolResult(
-                [new TextContent($legacyText ?? $this->legacyEnvelope($result))],
+                [new TextContent($legacyText ?? $result->text ?? $this->legacyEnvelope($result))],
                 isError: $result->isError(),
                 meta: $this->timestamps($result),
             );
@@ -378,6 +379,9 @@ class McpToolResultRenderer
         }
 
         $texts = [];
+        if ($result->text !== null) {
+            $texts[] = $result->text;
+        }
         // A result without data, such as one stored behind a link, has no `structuredContent` to copy.
         if ($result->data !== null) {
             $texts[] = Json::encode($result->data);
@@ -407,8 +411,8 @@ class McpToolResultRenderer
             ], static fn (mixed $value): bool => $value !== [])];
         }
 
-        // A linked result has no `structuredContent`: its data is the stored resource.
-        if ($result->data === null && $this->isLinkedResult($result)) {
+        // A linked result has no `structuredContent`: its data is the stored resource. Plain text has none either.
+        if ($result->data === null && ($this->isLinkedResult($result) || $result->text !== null)) {
             return null;
         }
 

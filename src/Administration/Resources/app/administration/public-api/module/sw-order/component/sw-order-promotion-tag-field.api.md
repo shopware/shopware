@@ -11,12 +11,33 @@ component sw-order-promotion-tag-field  public  js
   source src/module/sw-order/component/sw-order-promotion-tag-field/index.js
   template src/module/sw-order/component/sw-order-promotion-tag-field/sw-order-promotion-tag-field.html.twig
 
+props
+  currency: object
+  disabled?: boolean  default=false
+
+emits
+  on-remove-code(...args: any[])
+  update:value(...args: any[])
+
+computed
+  taggedFieldInputClasses: any
+  taggedFieldListClasses: any
+
+methods
+  dismissTag(item: any): any
+  getPromotionCodeDescription(item: any): any
+  performAddTag(event: any): any
+  setFocus(hasFocus: any): any
+
 blocks
-  sw_tagged_field
+  sw_tagged_field  [replaced]
     sw_order_promotion_tag_field
-      sw_tagged_field_inner
-        sw_order_promotion_tag_field_item_input
-          sw_order_promotion_tag_field_input
-        sw_order_promotion_tag_field_tag_list
-          sw_order_promotion_tag_field_tag_item
+      sw_tagged_field_inner  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size]
+        sw_order_promotion_tag_field_item_input  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size]
+          sw_order_promotion_tag_field_input  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size]
+        sw_order_promotion_tag_field_tag_list  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size]
+          sw_order_promotion_tag_field_tag_item  [scope: disabled, error, identification, index, item, removeFocusClass, setFocusClass, size]
+
+refs
+  taggedFieldInput  -> input  block=sw_order_promotion_tag_field_input
 ```

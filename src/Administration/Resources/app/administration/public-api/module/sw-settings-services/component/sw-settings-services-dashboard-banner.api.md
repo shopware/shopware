@@ -10,4 +10,12 @@ component sw-settings-services-dashboard-banner  private  ts  [private]
   source src/module/sw-settings-services/component/sw-settings-services-dashboard-banner/index.ts  [private]
   template src/module/sw-settings-services/component/sw-settings-services-dashboard-banner/sw-settings-services-dashboard-banner.html.twig  [private]
   visibility-source export  [private]
+
+data
+  isHidden: any  [private]
+  servicesGraphicDark: any  [private]
+  servicesGraphicLight: any  [private]
+
+methods
+  hideBanner(): Promise<any>  [private]
 ```

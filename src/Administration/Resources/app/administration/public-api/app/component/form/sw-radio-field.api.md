@@ -11,7 +11,37 @@ component sw-radio-field  private  js  [private]
   template src/app/component/form/sw-radio-field/sw-radio-field.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-form-field, remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  block?: boolean  default=false  [private]
+  bordered?: boolean  default=false  [private]
+  description?: string  default=null  [private]
+  options?: any[]  default=factory  [private]
+  value?: any  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_radio_field  [private]
+  label  {}  block=sw_radio_field  [private]
+
+computed
+  classes: any  [private]
+  currentIndex: any  [private]
+
+methods
+  onChange(event: any): any  [private]
+
 blocks
   sw_radio_field  [private]
-    sw_radio_field_help_text  [private]
+    sw_radio_field_help_text  [scope: disabled, error, helpText, identification, index, option] [private]
+
+notes
+  dynamic-slot `custom-field-${option.value}`  [private]
 ```

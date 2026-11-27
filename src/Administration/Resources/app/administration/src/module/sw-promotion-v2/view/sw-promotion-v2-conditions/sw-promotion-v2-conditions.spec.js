@@ -2,6 +2,7 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -96,7 +97,7 @@ async function createWrapper({ promotion = {}, repositorySearch } = {}) {
                 },
                 'sw-select-rule-create': {
                     template: '<input type="select" class="sw-field sw-select-rule-create"></input>',
-                    props: ['value', 'disabled'],
+                    props: ['value', 'disabled', 'ruleFilter'],
                 },
                 'sw-promotion-v2-cart-condition-form': true,
             },
@@ -167,5 +168,101 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
         expect(repositorySearch).toHaveBeenCalledTimes(1);
         expect(repositorySearch.mock.calls[0][0].limit).toBe(26);
         expect(wrapper.vm.excludedPromotions).toHaveLength(26);
+    });
+
+    describe('rule filter of the customer rule select', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-promotion-v2-conditions');
+        });
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the personaRuleFilter computed.
+        it.deprecated('v6.8.0.0')(
+            'passes personaRuleFilter to the rule select without reporting its deprecation',
+            async () => {
+                const wrapper = await createWrapper();
+
+                expect(
+                    wrapper
+                        .getComponent('.sw-promotion-v2-conditions__rule-select-customer')
+                        .props('ruleFilter')
+                        .hasAssociation('conditions'),
+                ).toBe(true);
+                expect(deprecations).not.toHaveTriggered('sw-promotion-v2-conditions.personaRuleFilter is deprecated');
+            },
+        );
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the personaRuleFilter computed.
+        it.deprecated('v6.8.0.0')('passes an override of personaRuleFilter to the rule select', async () => {
+            const overriddenCriteria = new Shopware.Data.Criteria(1, 5);
+            Shopware.Component.override('sw-promotion-v2-conditions', {
+                computed: {
+                    personaRuleFilter() {
+                        return overriddenCriteria;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.getComponent('.sw-promotion-v2-conditions__rule-select-customer').props('ruleFilter')).toBe(
+                overriddenCriteria,
+            );
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {
+            const wrapper = await createWrapper();
+
+            expect(
+                wrapper.getComponent('.sw-promotion-v2-conditions__rule-select-customer').props('ruleFilter'),
+            ).toBeUndefined();
+        });
+    });
+
+    describe('rule filter of the order rule select', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-promotion-v2-conditions');
+        });
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the orderConditionsFilter computed.
+        it.deprecated('v6.8.0.0')(
+            'passes orderConditionsFilter to the rule select without reporting its deprecation',
+            async () => {
+                const wrapper = await createWrapper();
+
+                expect(
+                    wrapper
+                        .getComponent('.sw-promotion-v2-conditions__rule-select-order-conditions')
+                        .props('ruleFilter')
+                        .hasAssociation('conditions'),
+                ).toBe(true);
+                expect(deprecations).not.toHaveTriggered('sw-promotion-v2-conditions.orderConditionsFilter is deprecated');
+            },
+        );
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the orderConditionsFilter computed.
+        it.deprecated('v6.8.0.0')('passes an override of orderConditionsFilter to the rule select', async () => {
+            const overriddenCriteria = new Shopware.Data.Criteria(1, 5);
+            Shopware.Component.override('sw-promotion-v2-conditions', {
+                computed: {
+                    orderConditionsFilter() {
+                        return overriddenCriteria;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper();
+
+            expect(
+                wrapper.getComponent('.sw-promotion-v2-conditions__rule-select-order-conditions').props('ruleFilter'),
+            ).toBe(overriddenCriteria);
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {
+            const wrapper = await createWrapper();
+
+            expect(
+                wrapper.getComponent('.sw-promotion-v2-conditions__rule-select-order-conditions').props('ruleFilter'),
+            ).toBeUndefined();
+        });
     });
 });

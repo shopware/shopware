@@ -12,7 +12,55 @@ component sw-number-field-deprecated  private  js  [private]
   template src/app/component/form/sw-number-field-deprecated/sw-number-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  allowEmpty?: boolean  default=false  [private]
+  ariaLabel?: string  default=factory  [private]
+  digits?: number  default=2  [private]
+  fillDigits?: boolean  default=false  [private]
+  max?: number  default=null  [private]
+  min?: number  default=null  [private]
+  numberAlignEnd?: boolean  default=false  [private]
+  numberType?: string  default='float'  [private]
+  step?: number  default=null  [private]
+  value?: number  default=null  [private]
+
+emits
+  ends-with-decimal-separator(...args: any[])  [private]
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+  input-change(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_number_field  [private]
+  label  {}  block=sw_number_field  [private]
+  prefix  { ...{ disabled, identification } }  block=sw_number_field  [private]
+  suffix  { ...{ identification } }  block=sw_number_field  [private]
+
+data
+  currentValue: any  [private]
+
+computed
+  realMaximum: any  [private]
+  realMinimum: any  [private]
+  realStep: any  [private]
+  stringRepresentation: any  [private]
+
+methods
+  checkBoundaries(value: any): any  [private]
+  checkForInteger(value: any): any  [private]
+  computeValue(stringRepresentation: any): any  [private]
+  decreaseNumberByStep(): any  [private]
+  getNumberFromString(value: any): any  [private]
+  increaseNumberByStep(): any  [private]
+  onChange(event: any): any  [private]
+  onInput(event: any): any  [private]
+  parseValue(value: any): any  [private]
+
 blocks
-  sw_text_field  [private]
+  sw_text_field  [replaced] [private]
     sw_number_field  [private]
 ```

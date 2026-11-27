@@ -11,7 +11,21 @@ component sw-condition-is-always-valid  public  js
   source src/app/component/rule/condition-type/sw-condition-is-always-valid/index.js
   template src/app/component/rule/condition-type/sw-condition-is-always-valid/sw-condition-always-valid.html.twig
 
+computed
+  defaultValues: any
+  isAlwaysValid: any
+  selectValues: any
+
 blocks
-  sw_condition_value_content
-    sw_condition_is_always_valid
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [inherited]
+      sw_condition_value_content  [replaced]
+        sw_condition_is_always_valid
+    sw_condition_base_error  [inherited]
 ```

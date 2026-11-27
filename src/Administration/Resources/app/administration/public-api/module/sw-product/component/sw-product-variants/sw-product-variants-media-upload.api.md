@@ -11,13 +11,54 @@ component sw-product-variants-media-upload  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/sw-product-variants-media-upload.html.twig
 
+mixins
+  notification
+
+inject
+  mediaDefaultFolderService
+  repositoryFactory
+
+props
+  isInherited?: boolean  default=false
+  parentProduct: object
+  source: object
+
+data
+  activeItemId: any
+  mediaDefaultFolderId: any
+  showMediaModal: any
+  showPreviewModal: any
+
+computed
+  cover: any
+  coverImageSource: any
+  mediaSource: any
+  product: any
+  productMediaRepository: any
+
+methods
+  addMedia(media: any): Promise<any>
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  isCover(productMedia: any): any
+  isExistingMedia(media: any): any
+  isReplacedMedia(targetId: any): any
+  markMediaAsCover(productMedia: any): any
+  onAddMedia(media: any): any
+  onClosePreviewModal(): any
+  onUploadMediaFailed(arg0: any): any
+  onUploadMediaSuccessful(arg0: any): any
+  previewMedia(item: any): any
+  removeMedia(productMedia: any): any
+  updateMediaItemPositions(): any
+
 blocks
-  sw_media_upload_v2
+  sw_media_upload_v2  [replaced]
     sw_product_variants_media_upload_actions_media_modal
     sw_product_variants_media_upload_content
       sw_product_variants_media_upload_drop_zone
         sw_product_variants_media_upload_actions
-          sw_product_variants_media_upload_actions_compact
+          sw_product_variants_media_upload_actions_compact  [after v-if]
             sw_product_variants_media_upload_actions_compact_button_context
               sw_product_variants_media_upload_actions_compact_button_context_open_action
               sw_product_variants_media_upload_actions_compact_button_context_upload_action
@@ -27,14 +68,22 @@ blocks
         sw_product_variants_media_upload_cover_preview
           sw_product_variants_media_upload_cover_image
           sw_product_variants_media_upload_cover_image_empty
-        sw_product_variants_media_upload_preview
-          ssw_product_variants_media_upload_content_preview_file
-          sw_product_variants_media_upload_action_buttons
-            sw_product_variants_media_upload_context
-              sw_product_variants_media_upload_context_cover_action
-              sw_product_variants_media_upload_context_delete_action
-              sw_product_variants_media_upload_context_preview_action
+        sw_product_variants_media_upload_preview  [after v-if]
+          ssw_product_variants_media_upload_content_preview_file  [scope: index, item]
+          sw_product_variants_media_upload_action_buttons  [scope: index, item]
+            sw_product_variants_media_upload_context  [scope: index, item]
+              sw_product_variants_media_upload_context_cover_action  [scope: index, item]
+              sw_product_variants_media_upload_context_delete_action  [scope: index, item]
+              sw_product_variants_media_upload_context_preview_action  [after v-if] [scope: index, item]
     sw_product_variants_media_upload_file_input
-    sw_product_variants_media_upload_listener
+    sw_product_variants_media_upload_listener  [after v-if]
     sw_product_variants_media_upload_preview_modal
+
+crossings
+  v-if  sw_product_variants_media_upload_actions_regular -> sw_product_variants_media_upload_actions_compact
+
+refs
+  dropzone  -> div  block=sw_product_variants_media_upload_drop_zone
+  fileForm  -> form  block=sw_product_variants_media_upload_file_input
+  fileInput  -> input  block=sw_product_variants_media_upload_file_input
 ```

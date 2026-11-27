@@ -10,9 +10,42 @@ component sw-cms-block  public  ts
   source src/module/sw-cms/component/sw-cms-block/index.ts
   template src/module/sw-cms/component/sw-cms-block/sw-cms-block.html.twig
 
+props
+  active?: boolean  default=false
+  block: Entity<'cms_block'>
+  disabled?: boolean  default=false
+  hasErrors?: boolean  default=false
+  hasWarnings?: boolean  default=false
+
+emits
+  block-overlay-click(...args: any[])
+
+slots
+  default  {}  block=sw_cms_block_content
+
+data
+  backgroundUrl: any
+  isCollapsed: any
+
+computed
+  assetFilter: any
+  blockPadding: any
+  blockStyles: any
+  customBlockClass: any
+  expandedClass: any
+  isVisible: any
+  overlayClasses: any
+  toggleButtonText: any
+  toolbarClasses: any
+
+methods
+  createdComponent(): any
+  onBlockOverlayClick(): any
+  toggleVisibility(): any
+
 blocks
   sw_cms_block
-    sw_cms_block_content
+    sw_cms_block_content  [after v-if]
       sw_cms_block_slot_default
-    sw_cms_block_overlay
+    sw_cms_block_overlay  [after v-if]
 ```

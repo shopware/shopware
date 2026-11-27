@@ -9,4 +9,10 @@ component sw-condition-is-net-select  public  js
   extends sw-condition-operator-select
   registered src/app/component/index.ts
   source src/app/component/rule/sw-condition-is-net-select/index.js
+
+computed
+  operator: any
+
+blocks
+  sw_condition_type_select  [inherited]
 ```

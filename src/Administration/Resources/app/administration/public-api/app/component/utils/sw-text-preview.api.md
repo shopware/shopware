@@ -10,10 +10,28 @@ component sw-text-preview  public  js
   source src/app/component/utils/sw-text-preview/index.js
   template src/app/component/utils/sw-text-preview/sw-text-preview.html.twig
 
+props
+  maximumLength: number
+  maximumNewLines?: number  default=0
+  modalTitle?: string  default=''
+  text: string
+
+data
+  shortened: any
+  showModal: any
+
+computed
+  fullText: any
+  shortenedText: any
+
+methods
+  closeModal(): any
+  openModal(): any
+
 blocks
   sw_text_preview
     sw_text_preview_expand_button
-    sw_text_preview_modal
+    sw_text_preview_modal  [after v-if]
       sw_text_preview_modal_content
       sw_text_preview_modal_footer
     sw_text_preview_shortened_content

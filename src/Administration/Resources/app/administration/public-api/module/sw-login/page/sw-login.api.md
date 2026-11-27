@@ -11,11 +11,34 @@ component sw-login  private  ts  [private]
   template src/module/sw-login/page/index/sw-login.html.twig  [private]
   visibility-source export  [private]
 
+props
+  hash?: string  default=null  [private]
+
+data
+  isLoading: any  [private]
+  isLoginError: any  [private]
+  isLoginSuccess: any  [private]
+  loginConfig: any  [private]
+  shouldRenderDOM: any  [private]
+
+computed
+  assetFilter: any  [private]
+  showBackToLoginLink: any  [private]
+  showForgotPasswordLink: any  [private]
+  title: any  [private]
+
+methods
+  _reloadPage(): any  [private]
+  loginError(): any  [private]
+  loginSuccess(): any  [private]
+  setLoading(val: boolean): any  [private]
+  setLoginConfig(loginConfig: LoginConfig): any  [private]
+
 blocks
   sw_login  [private]
     sw_login_container  [private]
       sw_login_back_link  [private]
-      sw_login_forgot_password_link  [private]
+      sw_login_forgot_password_link  [after v-if] [private]
       sw_login_form  [private]
         sw_login_loader  [private]
         sw_login_view  [private]

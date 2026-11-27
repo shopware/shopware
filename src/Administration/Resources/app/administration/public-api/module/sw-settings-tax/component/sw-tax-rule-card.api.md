@@ -10,22 +10,68 @@ component sw-tax-rule-card  public  js
   source src/module/sw-settings-tax/component/sw-tax-rule-card/index.js
   template src/module/sw-settings-tax/component/sw-tax-rule-card/sw-tax-rule-card.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  disabled?: boolean  default=false
+  isLoading: boolean
+  tax: object
+
+data
+  cardLoading: any
+  currentRule: any
+  limit: any
+  page: any
+  showDeleteModal: any
+  showModal: any
+  sortBy: any
+  sortDirection: any
+  taxRules: any
+  taxRulesLoading: any
+  term: any
+  total: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  dateFilter: any
+  getColumns: any
+  taxRuleCardClasses: any
+  taxRuleCriteria: any
+  taxRuleRepository: any
+  taxRulesEmpty: any
+
+methods
+  createdComponent(): any
+  getList(): Promise<any>
+  getTypeCellComponent(taxRule: any): any
+  hasTypeCellComponent(taxRule: any): any
+  onCloseDeleteModal(): any
+  onColumnSort(column: any): any
+  onConfirmDelete(id: any): Promise<any>
+  onDelete(id: any): any
+  onModalClose(): any
+  onSearchTermChange(searchTerm: any): any
+  paginate(arg0: any): any
+  showRuleModal(taxRule: any): any
+
 blocks
   sw_tax_rule_card
-    sw_tax_rule_card_empty_state
+    sw_tax_rule_card_empty_state  [after v-if]
       sw_tax_rule_card_empty_state_button
-    sw_tax_rule_card_empty_state_image
-    sw_tax_rule_card_empty_state_label
+    sw_tax_rule_card_empty_state_image  [after v-if] [deprecated tag:v6.8.0]
+    sw_tax_rule_card_empty_state_label  [after v-if]
     sw_tax_rule_card_grid
       sw_settings_tax_list_grid_action_modals
-        sw_settings_tax_list_delete_modal
-          sw_settings_tax_list_delete_modal_confirm_delete_text
-          sw_settings_tax_list_delete_modal_footer
-            sw_settings_tax_list_delete_modal_cancel
-            sw_settings_tax_list_delete_modal_confirm
+        sw_settings_tax_list_delete_modal  [scope: item]
+          sw_settings_tax_list_delete_modal_confirm_delete_text  [scope: item]
+          sw_settings_tax_list_delete_modal_footer  [scope: item]
+            sw_settings_tax_list_delete_modal_cancel  [scope: item]
+            sw_settings_tax_list_delete_modal_confirm  [scope: item]
       sw_settings_tax_list_grid_columns_actions
-        sw_settings_tax_list_grid_columns_actions_delete
-        sw_settings_tax_list_grid_columns_actions_edit
+        sw_settings_tax_list_grid_columns_actions_delete  [scope: item]
+        sw_settings_tax_list_grid_columns_actions_edit  [scope: item]
       sw_settings_tax_list_grid_pagination
       sw_settings_tax_rule_grid_column_tax_rate
       sw_settings_tax_rule_grid_column_tax_rule_active_from

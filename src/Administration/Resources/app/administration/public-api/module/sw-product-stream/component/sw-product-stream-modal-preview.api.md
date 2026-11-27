@@ -11,6 +11,54 @@ component sw-product-stream-modal-preview  private  js  [private]
   template src/module/sw-product-stream/component/sw-product-stream-modal-preview/sw-product-stream-modal-preview.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  productStreamPreviewService  [private]
+  repositoryFactory  [private]
+
+props
+  defaultLimit?: number  default=25  [private]
+  defaultSorting?: string  default=null  [private]
+  displayAsGroup?: boolean  default=false  [private]
+  filters: any[]  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  limit: any  [private]
+  page: any  [private]
+  products: any  [private]
+  searchTerm: any  [private]
+  selectedCurrencyId: any  [private]
+  selectedCurrencyIsoCode: any  [private]
+  selectedSalesChannel: any  [private]
+  sorting: any  [private]
+  total: any  [private]
+
+computed
+  currencyFilter: any  [private]
+  previewCriteria: any  [private]
+  previewSelectionCriteria: any  [private]
+  productColumns: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelRepository: any  [private]
+  stockColorVariantFilter: any  [private]
+
+methods
+  addRandomSort(criteria: any): any  [private]
+  closeModal(): any  [private]
+  createdComponent(): Promise<any>  [private]
+  getPriceForDefaultCurrency(product: any): any  [private]
+  isNotEqualToAnyType(type: any, parentType: any): any  [private]
+  loadEntityData(): any  [private]
+  loadSalesChannelById(): Promise<any>  [private]
+  loadSalesChannels(): Promise<any>  [private]
+  mapFiltersForSearch(filters?: any = [], parentType?: any = null): any  [private]
+  onPageChange(arg0: any): any  [private]
+  onSalesChannelChange(): any  [private]
+  onSearchTermChange(searchTerm: any): any  [private]
+
 blocks
   sw_product_stream_modal_preview  [private]
     sw_product_stream_modal_preview_content  [private]
@@ -19,12 +67,12 @@ blocks
           sw_product_stream_modal_preview_sales_channel_field  [private]
         sw_product_stream_modal_preview_search_field_label  [private]
           sw_product_stream_modal_preview_search_field  [private]
-      sw_product_stream_modal_preview_empty_state  [private]
+      sw_product_stream_modal_preview_empty_state  [after v-if] [private]
       sw_product_stream_modal_preview_grid  [private]
-        sw_product_stream_modal_preview_grid_column_active  [private]
-        sw_product_stream_modal_preview_grid_column_name  [private]
-        sw_product_stream_modal_preview_grid_column_price  [private]
-        sw_product_stream_modal_preview_grid_column_stock  [private]
+        sw_product_stream_modal_preview_grid_column_active  [scope: item] [private]
+        sw_product_stream_modal_preview_grid_column_name  [scope: column, item] [private]
+        sw_product_stream_modal_preview_grid_column_price  [scope: item] [private]
+        sw_product_stream_modal_preview_grid_column_stock  [scope: item] [private]
         sw_product_stream_modal_preview_grid_pagination  [private]
     sw_product_stream_modal_preview_footer  [private]
       sw_product_stream_modal_preview_close_button  [private]

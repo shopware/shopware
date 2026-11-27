@@ -1,0 +1,14 @@
+{% block sw_extension_floating_section %}
+{# `null` removes the attribute. `inert="false"` would still make the panel inert. #}
+<aside
+    v-show="hasSections"
+    class="sw-extension-floating-section"
+    :aria-label="$t('global.sw-extension-floating-section.label')"
+    :inert="isEmpty || null"
+>
+    <div ref="content">
+        {# Written out, not bound, so the list of public position identifiers picks it up #}
+        <sw-extension-component-section position-identifier="sw-desktop__floating" />
+    </div>
+</aside>
+{% endblock %}

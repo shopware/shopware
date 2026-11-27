@@ -11,6 +11,33 @@ component sw-flow-grant-download-access-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal/sw-flow-grant-download-access-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification  [private]
+
+props
+  action?: string  default=null  [private]
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  value: any  [private]
+  valueError: any  [private]
+
+computed
+  triggerActions: any  [private]
+  triggerEvent: any  [private]
+  valueOptions: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  fieldError(field: any): any  [private]
+  getConfig(): any  [private]
+  onClose(): any  [private]
+  onSave(): any  [private]
+
 blocks
   sw_flow_grant_download_access_modal  [private]
 ```

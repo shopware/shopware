@@ -11,6 +11,38 @@ component sw-extension-my-extensions-account  private  ts  [private]
   template src/module/sw-extension/page/sw-extension-my-extensions-account/sw-extension-my-extensions-account.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  shopwareExtensionService  [private]
+  storeService  [private]
+  systemConfigApiService  [private]
+
+emits
+  login-success(...args: any[])  [private]
+  logout-success(...args: any[])  [private]
+
+data
+  form: object  [private]
+    password: any  [private]
+    shopwareId: any  [private]
+  isLoading: any  [private]
+  unsubscribeStore: any  [private]
+
+computed
+  assetFilter: any  [private]
+  isLoggedIn: boolean  [private]
+  userInfo: UserInfo | null  [private]
+
+methods
+  commitErrors(errorResponse: HttpError<{ errors: StoreApiException[] }>): never  [private]
+  createdComponent(): Promise<any>  [private]
+  login(): Promise<any>  [private]
+  logout(): Promise<any>  [private]
+  showApiNotification(error: MappedError): any  [private]
+  showErrorNotification(arg0: { type: string; payload: MappedError[][] }): any  [private]
+
 blocks
   sw_extension_my_extensions_account  [private]
 ```

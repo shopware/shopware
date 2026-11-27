@@ -11,8 +11,23 @@ component sw-condition-generic-line-item  public  js
   source src/app/component/rule/condition-type/sw-condition-generic-line-item/index.js
   template src/app/component/rule/condition-type/sw-condition-generic/sw-condition-generic.html.twig
 
+mixins
+  generic-condition
+
+methods
+  getPlaceholder(fieldType: any): any
+
 blocks
-  sw_condition_value_content
-    sw_condition_generic_field_operator
-    sw_condition_generic_fields
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [inherited]
+      sw_condition_value_content  [replaced] [after v-if]
+        sw_condition_generic_field_operator
+        sw_condition_generic_fields  [after v-if]
+    sw_condition_base_error  [inherited]
 ```

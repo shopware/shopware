@@ -11,7 +11,26 @@ component sw-bulk-edit-form-field-renderer  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/sw-bulk-edit-form-field-renderer.html.twig
 
+emits
+  update:default-unit(...args: any[])
+
+slots
+  default  {}  block=sw_form_field_renderer_inner
+
+methods
+  onUpdateDefaultUnit(unit: any): any
+
 blocks
-  sw_form_field_renderer
+  sw_form_field_renderer  [keepsParent]
     sw_form_field_renderer_inner
+      sw_form_field_renderer_inner  [inherited]
+      sw_form_field_renderer_inner_slot  [inherited]
+      sw_form_field_renderer_scope_slots  [inherited]
+
+refs
+  component  -> component  block=sw_form_field_renderer
+  component  -> component  block=sw_form_field_renderer_inner
+
+notes
+  dynamic-slot slotName
 ```

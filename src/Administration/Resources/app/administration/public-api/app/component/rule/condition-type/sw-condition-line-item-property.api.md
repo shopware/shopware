@@ -11,10 +11,44 @@ component sw-condition-line-item-property  public  js
   source src/app/component/rule/condition-type/sw-condition-line-item-property/index.js
   template src/app/component/rule/condition-type/sw-condition-line-item-property/sw-condition-line-item-property.html.twig
 
+inject
+  feature
+  repositoryFactory
+
+slots
+  result-description-property  { ...{ item, searchTerm, highlightSearchTerm } }  block=sw_condition_line_item_properties_field_description
+  result-label-property  { ...{ item, searchTerm, highlightSearchTerm } }  block=sw_condition_line_item_properties_field_identifiers
+  selection-label-property  { ...{ item } }  block=sw_condition_line_item_properties_field_identifiers
+
+data
+  options: any
+  searchTerm: any
+
+computed
+  identifiers: any
+  operators: any
+  optionCriteria: any
+  optionRepository: any
+
+methods
+  createdComponent(): Promise<any>
+  onSelectCollapsed(): any
+  setOptions(options: any): any
+  setSearchTerm(value: any): any
+
 blocks
-  sw_condition_value_content
-    sw_condition_line_item_properties_field_identifiers
-      sw_condition_line_item_properties_field_description
-        sw_condition_line_item_properties_field_description_default
-    sw_condition_line_item_properties_field_operator
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [inherited]
+      sw_condition_value_content  [replaced] [after v-if]
+        sw_condition_line_item_properties_field_identifiers
+          sw_condition_line_item_properties_field_description  [scope: highlightSearchTerm, item, searchTerm]
+            sw_condition_line_item_properties_field_description_default  [scope: highlightSearchTerm, item, searchTerm]
+        sw_condition_line_item_properties_field_operator
+    sw_condition_base_error  [inherited]
 ```

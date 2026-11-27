@@ -11,14 +11,35 @@ component sw-custom-field-type-select  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-select/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-type-select/sw-custom-field-type-select.html.twig
 
+data
+  multiSelectSwitch: any
+  multiSelectSwitchDisabled: any
+  propertyNames: object
+    helpText: any
+    label: any
+    placeholder: any
+
+computed
+  isOptionAddable: any
+
+methods
+  addOption(): any
+  createdComponent(): any
+  getLabel(locale: any): any
+  onChangeMultiSelectSwitch(state: any): any
+  onClickAddOption(): any
+  onDeleteOption(index: any): any
+
 blocks
-  sw_custom_field_type_base_content
-    sw_custom_field_type_select_add_option
-    sw_custom_field_type_select_multi
-    sw_custom_field_type_select_options
-      sw_custom_field_type_select_options_container
-        sw_custom_field_type_select_options_container_labels
-        sw_custom_field_type_select_options_container_technical_name
-      sw_custom_field_type_select_options_delete
-      sw_custom_field_type_select_options_label
+  sw_custom_field_type_base  [inherited]
+    sw_custom_field_type_base_content  [keepsParent]
+      sw_custom_field_type_base_labels  [inherited]
+      sw_custom_field_type_select_add_option
+      sw_custom_field_type_select_multi
+      sw_custom_field_type_select_options
+        sw_custom_field_type_select_options_container  [scope: index, option]
+          sw_custom_field_type_select_options_container_labels  [scope: index, option]
+          sw_custom_field_type_select_options_container_technical_name  [scope: index, option]
+        sw_custom_field_type_select_options_delete  [scope: index, option]
+        sw_custom_field_type_select_options_label  [scope: index, option]
 ```

@@ -1,0 +1,28 @@
+Public API check failed: 3 unannounced breaks.
+
+Break (3)
+  prop_missing  component:sw-example-entity-select/prop:placeholder  current, major
+    The prop is gone, so a value that plugin templates pass as placeholder falls through as an HTML attribute, and plugin overrides that read this.placeholder get undefined.
+    Fix: pattern "Rename". Keep placeholder and mark it /** @deprecated tag:v6.8.0 - Use {@link placeholderText} instead. */.
+    Possible rename: placeholderText.
+    At: src/app/component/form/sw-example-entity-select/index.js:16
+  prop_missing  component:sw-example-entity-select/prop:showClearableButton  current, major
+    The prop is gone, so a value that plugin templates pass as showClearableButton falls through as an HTML attribute, and plugin overrides that read this.showClearableButton get undefined.
+    Fix: pattern "Removal". Keep the prop and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.
+    At: src/app/component/form/sw-example-entity-select/index.js:16
+  prop_now_required  component:sw-example-entity-select/prop:entity  current, major
+    The prop is now required, so plugin templates that render sw-example-entity-select without entity fail prop validation.
+    Fix: pattern "Prop becomes required". Keep entity optional, call triggerDeprecationOrThrow when it is missing, and mark it @bc-change PropBecomesRequired version:v6.8.0.
+    At: src/app/component/form/sw-example-entity-select/index.js:23
+
+Addition (1)
+  prop_added  component:sw-example-entity-select/prop:placeholderText  current, major
+    A new public prop that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/app/component/form/sw-example-entity-select/index.js:28
+
+Info (1)
+  block_if_chain_changed  component:sw-example-entity-select/block:sw_example_entity_select_results  current, major
+    The v-if chain before the block changed from "showClearableButton && value" to "value", so plugin overrides that start with v-else-if or v-else may now render under another condition.
+    Fix: mention it in the upgrade notes if the block now belongs to another condition.
+    At: src/app/component/form/sw-example-entity-select/sw-example-entity-select.html.twig:26

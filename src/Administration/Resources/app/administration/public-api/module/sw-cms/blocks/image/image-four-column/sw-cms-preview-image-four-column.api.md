@@ -11,6 +11,9 @@ component sw-cms-preview-image-four-column  private  js  [private]
   template src/module/sw-cms/blocks/image/image-four-column/preview/sw-cms-preview-image-four-column.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_four_column_preview  [private]
 ```

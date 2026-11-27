@@ -10,31 +10,81 @@ component sw-order-new-customer-modal  public  js
   source src/module/sw-order/component/sw-order-new-customer-modal/index.js
   template src/module/sw-order/component/sw-order-new-customer-modal/sw-order-new-customer-modal.html.twig
 
+mixins
+  notification
+
+inject
+  customerValidationService
+  feature
+  numberRangeService
+  repositoryFactory
+  systemConfigApiService
+
+emits
+  close(...args: any[])
+  on-select-existing-customer(...args: any[])
+
+data
+  activeTab: any
+  customer: any
+  customerNumberPreview: any
+  defaultSalutationId: any
+  isLoading: any
+
+computed
+  addressRepository: any
+  billingAddress: any
+  customerRepository: any
+  isSameBilling: any
+  languageCriteria: any
+  languageId: any
+  languageRepository: any
+  newCustomerModalTabs: any
+  salutationCriteria: any
+  salutationRepository: any
+  shippingAddress: any
+  validCompanyField: any
+
+methods
+  clearOwnApiErrors(): any
+  createErrorMessageForCompanyField(): any
+  createdComponent(): Promise<any>
+  getDefaultSalutationId(): Promise<any>
+  loadLanguage(salesChannelId: any): Promise<any>
+  onChangeSalesChannel(salesChannelId: any): any
+  onClose(): any
+  onSave(): Promise<any>
+  saveCustomer(): Promise<any>
+  validateEmail(): Promise<any>
+
 blocks
   sw_order_new_customer_modal
     sw_order_new_customer_modal_actions
       sw_order_new_customer_modal_action_close
       sw_order_new_customer_modal_actions_apply
     sw_order_new_customer_modal_tabs
-      sw_order_new_customer_modal_content_billing  [until v6.8.0]
-        sw_order_new_customer_modal_content_billing_form  [until v6.8.0]
-      sw_order_new_customer_modal_content_details  [until v6.8.0]
-        sw_order_new_customer_modal_content_details_form  [until v6.8.0]
-        sw_order_new_customer_modal_content_details_guest  [until v6.8.0]
-      sw_order_new_customer_modal_content_shipping  [until v6.8.0]
-        sw_order_new_customer_modal_content_shipping_form  [until v6.8.0]
-        sw_order_new_customer_modal_content_shipping_same_billing  [until v6.8.0]
+      sw_order_new_customer_modal_content_billing  [after v-if] [scope: active] [until v6.8.0]
+        sw_order_new_customer_modal_content_billing_form  [scope: active] [until v6.8.0]
+      sw_order_new_customer_modal_content_details  [scope: active] [until v6.8.0]
+        sw_order_new_customer_modal_content_details_form  [scope: active] [until v6.8.0]
+        sw_order_new_customer_modal_content_details_guest  [scope: active] [until v6.8.0]
+      sw_order_new_customer_modal_content_shipping  [after v-if] [scope: active] [until v6.8.0]
+        sw_order_new_customer_modal_content_shipping_form  [scope: active] [until v6.8.0]
+        sw_order_new_customer_modal_content_shipping_same_billing  [scope: active] [until v6.8.0]
       sw_order_new_customer_modal_mt_tabs  [from v6.8.0]
       sw_order_new_customer_modal_mt_tabs_content  [from v6.8.0]
-        sw_order_new_customer_modal_mt_tabs_content_billing  [from v6.8.0]
+        sw_order_new_customer_modal_mt_tabs_content_billing  [after v-if] [from v6.8.0]
           sw_order_new_customer_modal_mt_tabs_content_billing_form  [from v6.8.0]
         sw_order_new_customer_modal_mt_tabs_content_details  [from v6.8.0]
           sw_order_new_customer_modal_mt_tabs_content_details_form  [from v6.8.0]
           sw_order_new_customer_modal_mt_tabs_content_details_guest  [from v6.8.0]
-        sw_order_new_customer_modal_mt_tabs_content_shipping  [from v6.8.0]
+        sw_order_new_customer_modal_mt_tabs_content_shipping  [after v-if] [from v6.8.0]
           sw_order_new_customer_modal_mt_tabs_content_shipping_form  [from v6.8.0]
           sw_order_new_customer_modal_mt_tabs_content_shipping_same_billing  [from v6.8.0]
-      sw_order_new_customer_modal_tabs_billing  [until v6.8.0]
-      sw_order_new_customer_modal_tabs_details  [until v6.8.0]
-      sw_order_new_customer_modal_tabs_shipping  [until v6.8.0]
+      sw_order_new_customer_modal_tabs_billing  [scope: active] [until v6.8.0]
+      sw_order_new_customer_modal_tabs_details  [scope: active] [until v6.8.0]
+      sw_order_new_customer_modal_tabs_shipping  [scope: active] [until v6.8.0]
+
+notes
+  unresolved computed ...mapPageErrors({ 'sw.order.new.customer.detail': { customer: [ 'firstName', 'l...
 ```

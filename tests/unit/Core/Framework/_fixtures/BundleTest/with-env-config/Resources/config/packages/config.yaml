@@ -1,0 +1,11 @@
+parameters:
+    unit_test.bundle.packages.base: loaded
+    unit_test.bundle.packages.yaml_environment: default
+
+when@prod:
+    parameters:
+        unit_test.bundle.packages.yaml_environment: prod
+
+when@test:
+    parameters:
+        unit_test.bundle.packages.yaml_environment: test

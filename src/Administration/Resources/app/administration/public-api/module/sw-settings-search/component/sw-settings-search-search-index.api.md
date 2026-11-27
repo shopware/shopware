@@ -11,14 +11,52 @@ component sw-settings-search-search-index  private  js  [private]
   template src/module/sw-settings-search/component/sw-settings-search-search-index/sw-settings-search-search-index.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  acl  [private]
+  productIndexService  [private]
+  repositoryFactory  [private]
+
+emits
+  edit-change(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  isRebuildInProgress: any  [private]
+  isRebuildSuccess: any  [private]
+  latestIndex: any  [private]
+  offset: any  [private]
+  progressBarValue: any  [private]
+  syncPolling: any  [private]
+  totalProduct: any  [private]
+
+computed
+  productCriteria: any  [private]
+  productRepository: any  [private]
+  productSearchKeywordRepository: any  [private]
+  productSearchKeywordsCriteria: any  [private]
+
+methods
+  beforeDestroyComponent(): any  [private]
+  buildFinish(): any  [private]
+  clearPolling(): any  [private]
+  createdComponent(): any  [private]
+  getLatestProductKeywordIndexed(): any  [private]
+  getTotalProduct(): any  [private]
+  pollData(): any  [private]
+  rebuildSearchIndex(): any  [private]
+  updateProgress(): any  [private]
+
 blocks
   sw_settings_search_search_index  [private]
     sw_settings_search_search_index_description  [private]
       sw_settings_search_search_index_warning_bottom  [private]
-      sw_settings_search_search_index_warning_top  [private]
-    sw_settings_search_search_index_rebuild_button  [private]
+      sw_settings_search_search_index_warning_top  [deprecated tag:v6.8.0] [private]
+    sw_settings_search_search_index_rebuild_button  [after v-if] [private]
       sw_settings_search_search_index_lastest_build  [private]
     sw_settings_search_search_index_rebuild_progress  [private]
       sw_settings_search_search_index_rebuild_progress_bar  [private]
-      sw_settings_search_search_index_rebuild_progress_text  [private]
+      sw_settings_search_search_index_rebuild_progress_text  [deprecated tag:v6.8.0] [private]
 ```

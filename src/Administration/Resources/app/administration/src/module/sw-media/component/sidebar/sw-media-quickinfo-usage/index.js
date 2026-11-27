@@ -42,6 +42,7 @@ export default {
             layouts: [],
             landingPages: [],
             isLoading: false,
+            usageRequestId: 0,
         };
     },
 
@@ -72,6 +73,20 @@ export default {
             criteria.setLimit(5);
             criteria.addFilter(Criteria.contains('slotConfig.*.media.value', this.item.id));
             criteria.addFields('name');
+
+            return criteria;
+        },
+
+        productUsageCriteria() {
+            const criteria = new Criteria(1, 10);
+            criteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.contains('slotConfig.*.media.value', this.item.id),
+                    Criteria.equals('documents.translations.mediaId', this.item.id),
+                ]),
+            );
+            criteria.addFields('name');
+            criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             return criteria;
         },
@@ -142,12 +157,12 @@ export default {
 
     watch: {
         item() {
-            this.createdComponent();
+            return this.createdComponent();
         },
     },
 
     created() {
-        this.createdComponent();
+        return this.createdComponent();
     },
 
     methods: {
@@ -165,41 +180,54 @@ export default {
         },
 
         async loadSlotConfigAssociations() {
+            this.usageRequestId += 1;
+            const requestId = this.usageRequestId;
             this.isLoading = true;
 
-            const [
-                foundInProducts,
-                foundInLandingPages,
-                foundInCategories,
-                foundInCmsPages,
-            ] = await Promise.all([
-                this.productRepository.search(this.slotConfigCriteria),
-                this.landingPageRepository.search(this.slotConfigCriteria),
-                this.categoryRepository.search(this.slotConfigCriteria),
-                this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
-            ]);
+            try {
+                const [
+                    foundInProducts,
+                    foundInLandingPages,
+                    foundInCategories,
+                    foundInCmsPages,
+                ] = await Promise.all([
+                    this.productRepository.search(this.productUsageCriteria),
+                    this.landingPageRepository.search(this.slotConfigCriteria),
+                    this.categoryRepository.search(this.slotConfigCriteria),
+                    this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
+                ]);
 
-            foundInProducts.forEach((foundInProduct) => {
-                if (this.products && !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)) {
-                    this.products.push({ product: foundInProduct });
+                if (requestId !== this.usageRequestId) {
+                    return;
                 }
-            });
 
-            this.landingPages = foundInLandingPages;
+                foundInProducts.forEach((foundInProduct) => {
+                    if (
+                        this.products &&
+                        !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)
+                    ) {
+                        this.products.push({ product: foundInProduct });
+                    }
+                });
 
-            foundInCategories.forEach((foundInCategory) => {
-                if (this.categories && !this.categories.some((category) => category.id === foundInCategory.id)) {
-                    this.categories.push(foundInCategory);
+                this.landingPages = foundInLandingPages;
+
+                foundInCategories.forEach((foundInCategory) => {
+                    if (this.categories && !this.categories.some((category) => category.id === foundInCategory.id)) {
+                        this.categories.push(foundInCategory);
+                    }
+                });
+
+                foundInCmsPages.forEach((foundInCmsPage) => {
+                    if (this.layouts && !this.layouts.some((layout) => layout.id === foundInCmsPage.id)) {
+                        this.layouts.push(foundInCmsPage);
+                    }
+                });
+            } finally {
+                if (requestId === this.usageRequestId) {
+                    this.isLoading = false;
                 }
-            });
-
-            foundInCmsPages.forEach((foundInCmsPage) => {
-                if (this.layouts && !this.layouts.some((layout) => layout.id === foundInCmsPage.id)) {
-                    this.layouts.push(foundInCmsPage);
-                }
-            });
-
-            this.isLoading = false;
+            }
         },
 
         loadProductAssociations() {

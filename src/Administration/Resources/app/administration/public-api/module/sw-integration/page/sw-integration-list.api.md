@@ -10,10 +10,56 @@ component sw-integration-list  public  js
   source src/module/sw-integration/page/sw-integration-list/index.js
   template src/module/sw-integration/page/sw-integration-list/sw-integration-list.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  integrationService
+  repositoryFactory
+
+data
+  currentIntegration: any
+  integrations: any
+  isLoading: any
+  isModalLoading: any
+  mcpIntegration: any
+  pendingMcpAllowlist: any
+  showDeleteModal: any
+  showSecretAccessKey: any
+
+computed
+  integrationColumns: any
+  integrationCriteria: any
+  integrationRepository: any
+  mcpGrantedPrivileges: any
+  secretAccessKeyFieldTypeIsPassword: any
+  secretAccessKeyFieldTypeIsText: any
+
+methods
+  createIntegration(): any
+  createSavedErrorNotification(): any
+  createSavedSuccessNotification(): any
+  createdComponent(): any
+  getList(): Promise<any>
+  isAppIntegration(integration: any): any
+  onCloseDeleteModal(): any
+  onCloseDetailModal(): any
+  onCloseMcpModal(): any
+  onConfirmDelete(id: any): any
+  onCreateIntegration(): any
+  onGenerateKeys(): any
+  onSaveIntegration(): any
+  onSaveMcpAllowlist(): any
+  onShowDetailModal(integration: any): any
+  onShowMcpModal(integration: any): any
+  updateIntegration(integration: any): any
+
 blocks
   sw_integration_list
     sw_integration_list_content
-      sw_integration_list_introduction
+      sw_integration_list_introduction  [deprecated tag:v6.8.0]
       sw_integration_list_overview
         sw_integration_list_overview_inner
           sw_integration_list_detail_modal
@@ -23,26 +69,30 @@ blocks
               sw_integration_list_detail_modal_inner_field_label
                 sw_integration_list_detail_modal_inner_acl_is_admin
               sw_integration_list_detail_modal_inner_field_secretaccesskey
-                sw_integration_list_detail_modal_inner_field_helpText
-              sw_integration_list_detail_modal_inner_footer
+                sw_integration_list_detail_modal_inner_field_helpText  [after v-if]
+              sw_integration_list_detail_modal_inner_footer  [after v-if]
                 sw_integration_list_detail_modal_inner_footer_apply
                 sw_integration_list_detail_modal_inner_footer_cancel
-              sw_integration_list_detail_modal_inner_helptext
-          sw_integration_list_grid
-            sw_integration_list_grid_inner_slot_columns_actions_delete
-            sw_integration_list_grid_inner_slot_columns_actions_edit
-            sw_integration_list_grid_inner_slot_columns_actions_edit_mcp
+              sw_integration_list_detail_modal_inner_helptext  [after v-if]
+          sw_integration_list_grid  [after v-if]
+            sw_integration_list_grid_inner_slot_columns_actions_delete  [scope: item]
+            sw_integration_list_grid_inner_slot_columns_actions_edit  [scope: item]
+            sw_integration_list_grid_inner_slot_columns_actions_edit_mcp  [scope: item]
             sw_integration_list_grid_inner_slot_columns_label
             sw_integration_list_grid_inner_slot_columns_writeAccess
-            sw_integration_list_grid_inner_slot_delete_modal
-              sw_integration_list_grid_inner_slot_delete_modal_confirmtext
-              sw_integration_list_grid_inner_slot_delete_modal_footer
-          sw_integration_list_mcp_modal
+            sw_integration_list_grid_inner_slot_delete_modal  [scope: item]
+              sw_integration_list_grid_inner_slot_delete_modal_confirmtext  [scope: item]
+              sw_integration_list_grid_inner_slot_delete_modal_footer  [scope: item]
+          sw_integration_list_mcp_modal  [after v-if]
             sw_integration_list_mcp_modal_allowlist
             sw_integration_list_mcp_modal_footer
-          sw_product_list_empty_state
+          sw_product_list_empty_state  [after v-if]
     sw_integration_list_smart_bar_actions
     sw_integration_list_smart_bar_header
       sw_integration_list_smart_bar_header_title
         sw_integration_list_smart_bar_header_title_text
+
+crossings
+  <template>  sw_integration_list_content -> sw_integration_list
+  v-if  sw_integration_list_grid -> sw_product_list_empty_state
 ```

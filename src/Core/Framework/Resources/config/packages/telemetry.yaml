@@ -7,6 +7,255 @@ shopware:
             # naming is uniform through installations and dashboards/alerts can be copied with minimal adjustment.
             namespace: 'shopware.platform'
 
+            # Named mapping tables (key → label value) used by the label resolvers to bucket open
+            # identifier sets (entity names, route names, event names, ...) into bounded set of label values.
+            # A key is exact, or a prefix when it ends with `*`; exact beats prefix, the longest prefix wins.
+            # Resolution priority: configuration mapping → the resolver's internal rule → `other`. Plugins and
+            # projects add or override entries via config merge (a later source overrides the same key);
+            # extension-defined mapping names carry a vendor prefix, bare names are reserved for core.
+            # All keys of one mapping come from a single identifier space — see the serving resolver.
+            mappings:
+                # DAL entity name (snake_case) → entity group (EntityGroupResolver; also serves the admin-CRUD
+                # branch of the http `domain` label). One exact + one `_`-prefix entry per entity-name root
+                # token, exact entries where the root is misleading. Third-party entities (vendor prefix,
+                # custom_entity_*/ce_*) fall to `other` unless the extension opts in.
+                entity_group:
+                    # roots that would mislead, mapped exactly
+                    main_category: category
+                    'property_group*': product     # product catalog attributes; `property*` alone is too generic
+                    custom_entity: system          # the registry entity itself; custom_entity_*/ce_* data stays `other`
+                    'custom_field*': system
+
+                    # basic domains
+                    product: product
+                    'product_*': product
+                    category: category
+                    'category_*': category
+                    customer: customer
+                    'customer_*': customer
+                    newsletter: customer
+                    'newsletter_*': customer
+                    order: order
+                    'order_*': order
+                    media: media
+                    'media_*': media
+                    cms: cms
+                    'cms_*': cms
+                    rule: rule
+                    'rule_*': rule
+                    b2b: b2b
+                    'b2b_*': b2b
+
+                    # content
+                    landing: content
+                    'landing_*': content
+                    mail: content
+                    'mail_*': content
+
+                    # platform configuration & infrastructure
+                    acl: system
+                    'acl_*': system
+                    app: system
+                    'app_*': system
+                    country: system
+                    'country_*': system
+                    currency: system
+                    'currency_*': system
+                    language: system
+                    'language_*': system
+                    locale: system
+                    'locale_*': system
+                    salutation: system
+                    'salutation_*': system
+                    tax: system
+                    'tax_*': system
+                    unit: system
+                    'unit_*': system
+                    delivery: system
+                    'delivery_*': system          # delivery_time*
+                    payment: system
+                    'payment_*': system           # payment_method*
+                    shipping: system
+                    'shipping_*': system          # shipping_method*
+                    sales: system
+                    'sales_*': system             # sales_channel*
+                    plugin: system
+                    'plugin_*': system
+                    integration: system
+                    'integration_*': system
+                    system: system
+                    'system_*': system            # system_config
+                    user: system
+                    'user_*': system
+                    scheduled: system
+                    'scheduled_*': system         # scheduled_task
+                    number: system
+                    'number_*': system            # number_range*
+                    state: system
+                    'state_*': system             # state_machine*
+                    seo: system
+                    'seo_*': system               # seo_url*
+                    import: system
+                    'import_*': system            # import_export*
+                    flow: system
+                    'flow_*': system
+                    webhook: system
+                    'webhook_*': system
+                    snippet: system
+                    'snippet_*': system
+                    theme: system
+                    'theme_*': system
+                    log: system
+                    'log_*': system               # log_entry
+                    notification: system
+                    'notification_*': system
+                    tag: system
+                    'tag_*': system
+
+                # storefront / store-api route name → functional domain (DomainResolver). More specific
+                # prefixes defined with longer keys, so the longest-prefix rule keeps e.g. auth before the
+                # `frontend.account*` customer catch-all.
+                route_domain:
+                    # product
+                    'frontend.detail*': product
+                    'frontend.product*': product
+                    'store-api.product*': product
+
+                    # category / navigation
+                    'frontend.navigation*': category
+                    'store-api.navigation*': category
+                    'store-api.category*': category
+
+                    # content (home + cms + landing pages)
+                    'frontend.home*': content
+                    'frontend.cms*': content
+                    'frontend.landing*': content
+                    'store-api.cms*': content
+                    'store-api.landing-page*': content
+
+                    # search
+                    'frontend.search*': search
+                    'store-api.search*': search
+
+                    # cart (longer than the checkout catch-all)
+                    'frontend.cart*': cart
+                    'frontend.checkout.cart*': cart
+                    'frontend.checkout.line-item*': cart
+                    'store-api.checkout.cart*': cart
+
+                    # checkout
+                    'frontend.checkout*': checkout
+                    'store-api.checkout*': checkout
+
+                    # auth (longer than the account/customer catch-all)
+                    'frontend.account.login*': auth
+                    'frontend.account.logout*': auth
+                    'frontend.account.register*': auth
+                    'frontend.account.recover*': auth
+                    'store-api.account.login*': auth
+                    'store-api.account.logout*': auth
+                    'store-api.account.register*': auth
+                    'store-api.account.recover*': auth
+
+                    # order (longer than the account/customer catch-all)
+                    'frontend.account.order*': order
+                    'frontend.account.edit-order*': order
+                    'store-api.order*': order
+
+                    # customer (account catch-all + wishlist)
+                    'frontend.account*': customer
+                    'frontend.wishlist*': customer
+                    'store-api.account*': customer
+
+                    # media
+                    'frontend.media*': media
+                    'store-api.media*': media
+
+                # first segment after `api.action.` → action domain (DomainResolver; `api.action.sync` is
+                # excluded, it has its own area).
+                action_domain:
+                    cache: cache
+                    index: indexing
+                    indexing: indexing
+                    import-export: import-export
+                    document: document
+                    media: media
+                    order: order
+                    promotion: promotion
+                    system-config: core
+                    user: user
+                    scheduled-task: scheduled-task
+                    number-range: number-range
+                    store: store
+
+                # messenger message class FQCN → message group (MessageGroupResolver). Core grouping is
+                # done in the resolver (is_a checks and namespace-fragment containment, which prefix
+                # keys cannot express); extensions opt in with FQCN prefix entries. Keys with backslashes
+                # must be single-quoted, e.g. 'Swag\Blog\Message\*': blog
+                message_group: {  }
+
+                # flow trigger event name → trigger group (TriggerGroupResolver).
+                flow_trigger_group:
+                    'state_enter.*': state-change
+                    'state_leave.*': state-change
+                    'checkout.order.*': order
+                    'checkout.customer.*': customer
+                    'customer.*': customer
+                    'checkout.*': checkout
+                    'app.*': app
+                    'newsletter.*': content
+                    'contact_form.*': content
+                    'review_form.*': content
+                    'revocation_request.*': content
+
+                # triggering business event name → mail group (MailGroupResolver). The
+                # `state_{enter|leave}.{state_machine}.{state}` family is grouped by code in the
+                # resolver (the key there is the state machine, a different identifier space).
+                mail_group:
+                    checkout.order.placed: order_confirmation
+                    checkout.order.payment_method.changed: payment_state_change
+
+                    checkout.customer.register: customer_registration
+                    checkout.customer.guest_register: customer_registration
+                    checkout.customer.double_opt_in_registration: customer_registration
+                    checkout.customer.double_opt_in_guest_order: customer_registration
+                    customer.group.registration.accepted: customer_registration
+                    customer.group.registration.declined: customer_registration
+
+                    customer.recovery.request: customer_recovery
+                    user.recovery.request: customer_recovery
+
+                    contact_form.send: contact_form
+                    review_form.send: contact_form
+
+                    'newsletter.*': newsletter
+
+                # number range technical name → group (NumberRangeTypeResolver). Core types are defined in
+                # the basic-data migration; the document types share one group, each is its own low-volume
+                # number_range_state row.
+                number_range_type:
+                    order: order
+                    customer: customer
+                    product: product
+                    document_invoice: document
+                    document_delivery_note: document
+                    document_credit_note: document
+                    document_storno: document
+
+                # sales channel type id → type label (SalesChannelTypeResolver). Keys are the
+                # Shopware\Core\Defaults::SALES_CHANNEL_TYPE_* ids.
+                sales_channel_type:
+                    8a243080f92e4c719546314b577cf82b: storefront        # SALES_CHANNEL_TYPE_STOREFRONT
+                    f183ee5650cf4bdb8a774337575067a6: api               # SALES_CHANNEL_TYPE_API
+                    ed535e5722134ac1aa6524f73e26881b: product_comparison # SALES_CHANNEL_TYPE_PRODUCT_COMPARISON
+                    5e29f9890c4d4d519a1c7f9d5c24b7c1: agentic_commerce  # SALES_CHANNEL_TYPE_AGENTIC_COMMERCE
+
+                # scheduled-task technical name, passed through (TaskNameResolver keeps the core task names
+                # as its code-level pass-through rule). Plugins opt in with identity entries
+                # (swag_blog.cleanup: swag_blog.cleanup); operators fold any task or vendor into a group or
+                # `other` per key or prefix ('swag_paypal_*': other).
+                task_name: {  }
+
             definitions:
                 plugin.install.count:
                     description: 'Number of plugin installations'
@@ -43,9 +292,9 @@ shopware:
                     description: 'Messages handled by the worker, per outcome'
                     type: 'counter'
                     labels:
-                        # MessageGroupResolver (known: indexer, webhook, scheduled-task, mail, business, system, other)
+                        # known core groups: indexer, webhook, scheduled-task, mail, business, system, other
                         message_group:
-                            policy: open
+                            policy: open # bounded by the message_group mapping
                         result:
                             allowed_values: [handled, retried, failed]
 
@@ -61,7 +310,7 @@ shopware:
                         buckets: [1, 10, 50, 100, 500, 1000, 5000, 30000]
                     labels:
                         message_group:
-                            policy: open
+                            policy: open # bounded by the message_group mapping
                         result:
                             allowed_values: [handled, retried, failed]
 
@@ -86,9 +335,9 @@ shopware:
                         # sub-second cache invalidation up to long sitemap/product-export generation
                         buckets: [10, 100, 1000, 10000, 60000, 300000, 600000]
                     labels:
-                        # see TaskNameResolver
+                        # core task names pass through, plugin tasks fold to `other` unless they opt in
                         task_name:
-                            policy: open
+                            policy: open # bounded by the task_name mapping
                         result:
                             allowed_values: [success, failed]
 
@@ -135,9 +384,9 @@ shopware:
                         # sub-ms indexed lookups up to multi-hundred-ms complex searches/aggregations
                         buckets: [0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500]
                     labels:
-                        # EntityGroupResolver (known: product, category, customer, order, media, content, cms, rule, system, b2b, other)
+                        # known core groups: product, category, customer, order, media, content, cms, rule, system, b2b, other
                         entity_group:
-                            policy: open
+                            policy: open # bounded by the entity_group mapping
                         operation:
                             allowed_values: [search, searchIds, aggregate]
                         es_aware:
@@ -159,9 +408,8 @@ shopware:
                     parameters:
                         buckets: [1, 10, 50, 100, 500, 1000, 2500]
                     labels:
-                        # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
                         sales_channel_type:
-                            policy: open
+                            policy: open # bounded by the sales_channel_type mapping
                         # 'no' for failed calculations: the resulting cart is unknown
                         has_promotions:
                             allowed_values: ['yes', 'no']
@@ -176,7 +424,7 @@ shopware:
                         buckets: [1, 5, 20, 50, 100, 250]
                     labels:
                         sales_channel_type:
-                            policy: open
+                            policy: open # bounded by the sales_channel_type mapping
 
                 cart.errors.count:
                     # per-calculation count of warning/error entries (notices excluded); spikes flag checkout friction
@@ -187,14 +435,15 @@ shopware:
                     description: 'Orders placed'
                     type: 'counter'
                     labels:
-                        # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
                         sales_channel_type:
-                            policy: open
-                        # Payment method technical name. Default core config allows its built-in methods; every other
-                        # (plugin/app) method collapses to the `other` replacement value, while `none` marks orders
-                        # with no attributable payment method. Deployments widen this list to surface further providers.
+                            policy: open # bounded by the sales_channel_type mapping
+                        # Payment method technical name. Core contributes its built-in methods; plugins may widen the
+                        # list with their own `add_allowed_values`. Every method not in the effective list collapses
+                        # to the `other` replacement value silently, `none` marks orders with no attributable payment
+                        # method. A project may close the list with `allowed_values`, which also locks it against
+                        # further contributions.
                         payment_method:
-                            allowed_values: [payment_invoicepayment, payment_prepayment, payment_cashpayment, none, other]
+                            add_allowed_values: [payment_invoicepayment, payment_prepayment, payment_cashpayment, none, other]
 
                 order.line_items.count:
                     description: 'Line items per placed order'
@@ -203,7 +452,7 @@ shopware:
                         buckets: [1, 2, 5, 10, 20, 50, 100, 250]
                     labels:
                         sales_channel_type:
-                            policy: open
+                            policy: open # bounded by the sales_channel_type mapping
 
                 http.server.request.duration:
                     description: 'Main HTTP request wall time until the response is sent (client-facing latency). Post-response work on kernel.terminate (e.g. buffered flow execution) is excluded.'
@@ -216,7 +465,8 @@ shopware:
                         # AreaResolver (known: storefront, store-api, admin-api, sync-api, payment, other)
                         area:
                             policy: open
-                        # DomainResolver (polymorphic per area; functional / action / entity groups + other)
+                        # DomainResolver: polymorphic per area, consults the route_domain, action_domain
+                        # and entity_group mappings by route shape
                         domain:
                             policy: open
                         # OperationResolver (admin-api CRUD only; none otherwise)
@@ -264,9 +514,8 @@ shopware:
                         # single indexed statement; anything beyond tens of ms indicates lock contention
                         buckets: [1, 5, 10, 50, 100, 1000]
                     labels:
-                        # see NumberRangeTypeResolver
                         number_range_type:
-                            policy: open
+                            policy: open # bounded by the number_range_type mapping
                         # configured storage key (known core: mysql, redis; plugin-registered backends pass through)
                         storage:
                             policy: open
@@ -285,9 +534,8 @@ shopware:
                     description: 'Entities written/deleted via the Sync API, per entity group and action'
                     type: 'counter'
                     labels:
-                        # see EntityGroupResolver
                         entity_group:
-                            policy: open
+                            policy: open # bounded by the entity_group mapping
                         action:
                             allowed_values: [upsert, delete]
 
@@ -317,9 +565,8 @@ shopware:
                     parameters:
                         buckets: [1, 10, 50, 100, 500, 1000, 5000]
                     labels:
-                        # see TriggerGroupResolver
                         trigger_group:
-                            policy: open
+                            policy: open # bounded by the flow_trigger_group mapping
                         result:
                             allowed_values: [success, failed]
 
@@ -329,9 +576,9 @@ shopware:
                     description: 'Mail send handoffs, per mail group and outcome'
                     type: 'counter'
                     labels:
-                        # see MailGroupResolver (uses the triggering event name; mails sent outside a flow resolve to other)
+                        # keyed by the triggering event name; mails sent outside a flow resolve to `other`
                         mail_group:
-                            policy: open
+                            policy: open # bounded by the mail_group mapping
                         result:
                             allowed_values: [sent, failed]
 

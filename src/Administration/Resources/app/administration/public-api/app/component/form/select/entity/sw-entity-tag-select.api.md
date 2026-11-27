@@ -10,4 +10,52 @@ component sw-entity-tag-select  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/form/select/entity/sw-entity-tag-select/index.js  [private]
   visibility-source export  [private]
+
+slots
+  after-item-list  {}  block=sw_entity_multi_select_base_results_list_after  [private]
+  before-item-list  {}  block=sw_entity_multi_select_base_results_list_before_slot  [private]
+  hint  {}  block=sw_entity_multi_select  [private]
+  label  {}  block=sw_entity_multi_select  [private]
+  result-description-property  { ...{ item, searchTerm, highlightSearchTerm } }  block=sw_entity_multi_select_base_results_list_result_description  [private]
+  result-item  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey, displayLabelProperty, isSelectionDisabled, descriptionPosition } }  block=sw_entity_multi_select_base_results_list_result  [private]
+  result-label-preview  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey } }  block=sw_entity_multi_select_base_results_list_result_preview  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey } }  block=sw_entity_multi_select_base_results_list_result_label  [private]
+  selection-label-property  { ...{ item, index, labelProperty, valueProperty, getKey } }  block=sw_entity_multi_select_base_selection_list_label_inner  [private]
+
+data
+  tagExists: any  [private]
+
+methods
+  addItem(item: any): any  [private]
+  checkTagExists(term: any): Promise<any>  [private]
+  createNewTag(): any  [private]
+  filterSearchGeneratedTags(): any  [private]
+  resetActiveItem(position?: any = 0): any  [private]
+  search(searchTerm: any): any  [private]
+
+blocks
+  sw_entity_multi_select  [inherited] [private]
+    sw_entity_multi_select_base  [inherited] [private]
+      sw_entity_multi_select_base_results  [inherited] [private]
+        sw_entity_multi_select_base_results_slot  [inherited] [private]
+          sw_entity_multi_select_base_results_list  [inherited] [private]
+            sw_entity_multi_select_base_results_list_after  [inherited] [private]
+            sw_entity_multi_select_base_results_list_before  [inherited] [private]
+              sw_entity_multi_select_base_results_list_before_advanced_selection  [inherited] [private]
+              sw_entity_multi_select_base_results_list_before_slot  [inherited] [after v-if] [private]
+            sw_entity_multi_select_base_results_list_result  [inherited] [private]
+              sw_entity_multi_select_base_results_list_result_description  [inherited] [scope: index, item] [private]
+              sw_entity_multi_select_base_results_list_result_label  [inherited] [scope: index, item] [private]
+              sw_entity_multi_select_base_results_list_result_preview  [inherited] [scope: index, item] [private]
+      sw_entity_multi_select_base_selection  [inherited] [private]
+        sw_entity_multi_select_advanced_selection_modal  [inherited] [scope: collapse, disabled, error, expand, identification, size] [private]
+        sw_entity_multi_select_base_selection_slot  [inherited] [after v-if] [scope: collapse, disabled, error, expand, identification, size] [private]
+          sw_entity_multi_select_base_selection_list  [inherited] [scope: collapse, disabled, error, expand, identification, size] [private]
+            sw_entity_multi_select_base_selection_list_label  [inherited] [scope: collapse, disabled, error, expand, identification, size] [private]
+              sw_entity_multi_select_base_selection_list_label_inner  [inherited] [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, size, valueProperty] [private]
+
+refs
+  selectBase  -> sw-select-base  block=sw_entity_multi_select  [private]
+  selectionList  -> sw-select-selection-list  block=sw_entity_multi_select_base_selection_slot  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_entity_multi_select_base_results_slot  [private]
 ```

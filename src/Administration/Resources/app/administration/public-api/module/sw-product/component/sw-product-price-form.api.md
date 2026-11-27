@@ -10,13 +10,50 @@ component sw-product-price-form  public  js
   source src/module/sw-product/component/sw-product-price-form/index.js
   template src/module/sw-product/component/sw-product-price-form/sw-product-price-form.html.twig
 
+mixins
+  placeholder
+
+props
+  allowEdit?: boolean  default=true
+
+data
+  displayMaintainCurrencies: any
+
+computed
+  currencies: any
+  defaultCurrency: any
+  defaultPrice: any
+  isLoading: any
+  parentPrices: any
+  parentProduct: any
+  prices: any
+  product: any
+  productPriceError: any
+  productPurchasePricesError: any
+  productTaxIdError: any
+  productTaxRate: any
+  showModeSetting: any
+  taxRateHelpText: any
+  taxRateOptions: any
+  taxes: any
+
+methods
+  getTaxLabel(tax: any): any
+  inheritationCheckFunction(): any
+  onMaintainCurrenciesClose(prices: any): any
+  removePriceInheritation(refPrice: any): any
+  updatePrices(index: any): any
+
 blocks
   sw_product_price_form
     sw_product_price_form_fields
-      sw_product_price_form_price_field
+      sw_product_price_form_price_field  [after v-if]
       sw_product_price_form_tax_field
     sw_product_price_form_link
       sw_product_price_form_advanced_prices_link
-      sw_product_price_form_maintain_currencies_link
+      sw_product_price_form_maintain_currencies_link  [after v-if]
     sw_product_price_form_maintain_currencies_modal
+
+refs
+  taxIdInheritation  -> sw-inherit-wrapper  block=sw_product_price_form_tax_field
 ```

@@ -11,7 +11,38 @@ component sw-settings-payment-create  public  js
   source src/module/sw-settings-payment/page/sw-settings-payment-create/index.js
   template src/module/sw-settings-payment/page/sw-settings-payment-create/sw-settings-payment-create.html.twig
 
+methods
+  createdComponent(): any
+  onSave(): any
+
 blocks
-  sw_product_stream_detail_content_language_info
-  sw_settings_payment_detail_language_switch
+  sw_settings_payment_detail  [inherited]
+    sw_settings_payment_detail_actions  [inherited]
+      sw_settings_payment_detail_actions_abort  [inherited]
+      sw_settings_payment_detail_actions_save  [inherited]
+    sw_settings_payment_detail_content  [inherited]
+      sw_product_stream_detail_content_language_info  [replaced]
+      sw_settings_payment_detail_content_card  [inherited]
+        sw_settings_payment_detail_base_content_field_description  [inherited]
+        sw_settings_payment_detail_base_content_media_upload  [inherited]
+        sw_settings_payment_detail_content_field_active  [inherited]
+        sw_settings_payment_detail_content_field_after_order_enabled  [inherited]
+        sw_settings_payment_detail_content_field_name  [inherited]
+        sw_settings_payment_detail_content_field_plugin  [inherited]
+        sw_settings_payment_detail_content_field_position  [inherited]
+        sw_settings_payment_detail_content_field_technical_name  [inherited]
+      sw_settings_payment_detail_custom_field_sets  [inherited]
+      sw_settings_payment_detail_delete_modal  [inherited] [after v-if]
+        sw_settings_payment_detail_delete_modal_footer  [inherited]
+          sw_settings_payment_detail_reset_modal_cancel  [inherited]
+          sw_settings_payment_detail_reset_modal_confirm  [inherited]
+        sw_settings_payment_detail_delete_modal_info  [inherited]
+      sw_settings_payment_detail_delete_payment_method  [inherited] [after v-if]
+      sw_settings_payment_detail_top_rule  [inherited]
+        sw_settings_payment_detail_top_rule_select  [inherited]
+    sw_settings_payment_detail_header  [inherited]
+    sw_settings_payment_detail_language_switch  [replaced]
+
+refs
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_settings_payment_detail
 ```

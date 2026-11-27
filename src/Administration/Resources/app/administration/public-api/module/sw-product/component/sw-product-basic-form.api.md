@@ -10,10 +10,47 @@ component sw-product-basic-form  public  js
   source src/module/sw-product/component/sw-product-basic-form/index.js
   template src/module/sw-product/component/sw-product-basic-form/sw-product-basic-form.html.twig
 
+mixins
+  placeholder
+
+inject
+  feature
+
+props
+  allowEdit?: boolean  default=true
+  showSettingsInformation?: boolean  default=true
+
+data
+  hideCoverImageDescriptionHint: any
+  productNumberRangeId: any
+
+computed
+  highlightHelpText: any
+  isLoading: any
+  isTitleRequired: any
+  parentProduct: any
+  product: any
+  productActiveError: any
+  productDescriptionError: any
+  productManufacturerIdError: any
+  productMarkAsTopsellerError: any
+  productNameError: any
+  productNumberHelpText: any
+  productNumberRangeLink: any
+  productProductNumberError: any
+
+methods
+  createdComponent(): any
+  getInheritValue(firstKey: any, secondKey: any): any
+  loadCoverImageDescriptionHintConfig(): Promise<any>
+  loadProductNumberRangeId(): Promise<any>
+  onCloseCoverImageDescriptionHint(): Promise<any>
+  updateIsTitleRequired(): any
+
 blocks
   sw_product_basic_form
     sw_product_basic_form_cover_image_description_hint
-    sw_product_basic_form_description_field
+    sw_product_basic_form_description_field  [after v-if]
     sw_product_basic_form_id_field
     sw_product_basic_form_manufacturer_field
     sw_product_basic_form_title_field

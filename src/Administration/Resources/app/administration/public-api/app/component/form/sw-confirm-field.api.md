@@ -11,6 +11,41 @@ component sw-confirm-field  private  js  [private]
   template src/app/component/form/sw-confirm-field/sw-confirm-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  compact?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  error?: object  default=null  [private]
+  preventEmptySubmit?: boolean  default=false  [private]
+  required?: boolean  default=false  [private]
+  value?: string  default=''  [private]
+
+emits
+  blur(...args: any[])  [private]
+  input(...args: any[])  [private]
+  remove-error(...args: any[])  [private]
+  submit-cancel(...args: any[])  [private]
+
+data
+  draft: any  [private]
+  event: any  [private]
+  hasSubmittedFromKey: any  [private]
+  isEditing: any  [private]
+
+computed
+  confirmFieldClasses: any  [private]
+
+methods
+  cancelSubmit(): any  [private]
+  onBlurField(event: any): any  [private]
+  onCancelFromKey(arg0: any): any  [private]
+  onCancelSubmit(): any  [private]
+  onInput(): any  [private]
+  onStartEditing(): any  [private]
+  onSubmitFromKey(): any  [private]
+  onSubmitValue(): any  [private]
+  removeActionButtons(): any  [private]
+  submitValue(): any  [private]
+
 blocks
   sw_confirm_field  [private]
     sw_confirm_field_button_list  [private]

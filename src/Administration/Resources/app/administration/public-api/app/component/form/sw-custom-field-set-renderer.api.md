@@ -11,16 +11,106 @@ component sw-custom-field-set-renderer  private  js  [private]
   template src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-inline-snippet, placeholder  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+provide
+  getCustomFieldSet: any  [private]
+  getCustomFieldSetVariant: any  [private]
+  getEntity: any  [private]
+  getParentEntity: any  [private]
+
+props
+  disabled?: boolean  default=false  [private]
+  entity: object  [private]
+  isLoading?: boolean  default=false  [private]
+  isSaveSuccessful?: boolean  default=false  [private]
+  parentEntity?: object  default=null  [private]
+  sets: any[]  [private]
+  showCustomFieldSetSelection?: boolean  default=false  [private]
+  variant?: string  default='tabs'  [private]
+
+emits
+  change-active-selection(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+  save(...args: any[])  [private]
+
+data
+  activeCustomFieldSetTab: any  [private]
+  customFields: any  [private]
+  indirectInheritedCustomFields: any  [private]
+  loadingFields: any  [private]
+  refreshVisibleSets: any  [private]
+  tabWaitMaxAttempts: any  [private]
+  tabWaitsAttempts: any  [private]
+  translatedInheritanceLoadKey: any  [private]
+
+computed
+  activeCustomFieldSetTabName: any  [private]
+  componentsWithMapInheritanceSupport: any  [private]
+  customFieldSetCriteria: any  [private]
+  customFieldSetRepository: any  [private]
+  customFieldSetTabs: any  [private]
+  globalCustomFieldSets: any  [private]
+  hasExplicitParentEntity: any  [private]
+  hasParent: any  [private]
+  translatedInheritanceSourceLanguageId: any  [private]
+  usesTranslatedInheritance: any  [private]
+  visibleCustomFieldSets: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  customFieldSetCriteriaById(): any  [private]
+  getBind(customField: any, props: any): any  [private]
+  getCustomFieldInformation(customFieldName: any): any  [private]
+  getDefaultInheritedCustomFieldValue(customFieldName: any): any  [private]
+  getElementEventListeners(customField: any, props: any): any  [private]
+  getInheritValue(field: any): any  [private]
+  getInheritWrapperBind(customField: any): any  [private]
+  getInheritedCustomField(customFieldName: any): any  [private]
+  getInheritedCustomFields(customFieldName: any): any  [private]
+  getParentCustomFieldSetSelectionSwitchState(): any  [private]
+  getTabLabel(set: any): any  [private]
+  getTranslatedInheritanceContext(): any  [private]
+  getTranslatedInheritanceLoadKey(): any  [private]
+  hasInheritedTranslatedCustomFields(): any  [private]
+  hasInheritedTranslatedCustomFieldsWithoutFallback(): any  [private]
+  hasOverriddenTranslatedCustomFields(): any  [private]
+  initializeCustomFields(): any  [private]
+  isInheritedTranslatedCustomField(customFieldName: any): any  [private]
+  isMeteorComponent(customField: any): any  [private]
+  loadCustomFieldSet(setId: any): any  [private]
+  loadInheritedCustomFields(): Promise<any>  [private]
+  onChangeCustomFieldSetSelectionActive(newVal: any): any  [private]
+  onChangeCustomFieldSets(value: any, updateFn: any): any  [private]
+  onUpdateActiveSelection(value: any): any  [private]
+  resetTabs(): any  [private]
+  resetTranslatedInheritanceState(): any  [private]
+  setActiveCustomFieldSetTab(setId: any): any  [private]
+  sortSets(sets: any): any  [private]
+  supportsMapInheritance(customField: any): any  [private]
+  waitForTabComponent(): any  [private]
+
 blocks
   sw_custom_field_set_renderer  [private]
     sw_custom_field_set_renderer_card  [private]
       sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0] [private]
       sw_custom_field_set_renderer_card_mt_tabs_content  [from v6.8.0] [private]
-        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [from v6.8.0] [private]
+        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [scope: set] [from v6.8.0] [private]
       sw_custom_field_set_renderer_card_tabs  [until v6.8.0] [private]
       sw_custom_field_set_renderer_card_tabs_content  [until v6.8.0] [private]
-        sw_custom_field_set_renderer_card_form_renderer  [until v6.8.0] [private]
-    sw_custom_field_set_renderer_media  [private]
-      sw_custom_field_set_renderer_media_button_save  [private]
-      sw_custom_field_set_renderer_media_form_renderer  [private]
+        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [until v6.8.0] [private]
+    sw_custom_field_set_renderer_media  [after v-if] [private]
+      sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+      sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
+
+crossings
+  v-if  sw_custom_field_set_renderer_card -> sw_custom_field_set_renderer_media  [private]
+
+refs
+  tabComponent  -> sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0] [private]
 ```

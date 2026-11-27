@@ -11,16 +11,73 @@ component sw-page  private  js  [private]
   template src/app/component/structure/sw-page/sw-page.html.twig  [private]
   visibility-source export  [private]
 
+provide
+  removeSwPageSidebarOffset: any  [private]
+  setSwPageSidebarOffset: any  [private]
+
+props
+  backLabel?: string  default=''  [private]
+  backRoute?: object | string  default=null  [private]
+  headerBorderColor?: string  default=''  [private]
+  showSearchBar?: boolean  default=true  [private]
+  showSmartBar?: boolean  default=true  [private]
+
+slots
+  content  {}  block=sw_page_content  [private]
+  language-switch  {}  block=sw_page_smart_bar_content_language_switch  [private]
+  search-bar  {}  block=sw_page_search_bar  [private]
+  side-content  {}  block=sw_page_content  [private]
+  sidebar  {}  block=sw_page_content_sidebar  [private]
+  smart-bar-actions  {}  block=sw_page_smart_bar_content_actions  [private]
+  smart-bar-back  {}  block=sw_page_smart_bar_back_btn  [private]
+  smart-bar-header  {}  block=sw_page_smart_bar_content_header  [private]
+
+data
+  hasFullWidthHeader: any  [private]
+  languageId: any  [private]
+  module: any  [private]
+  parentRoute: any  [private]
+  previousPath: any  [private]
+  previousRoute: any  [private]
+  scrollbarOffset: any  [private]
+  sidebarOffset: any  [private]
+
+computed
+  backButtonLabel: any  [private]
+  backTarget: any  [private]
+  backTitle: any  [private]
+  hasSideContentSlot: any  [private]
+  hasSidebarSlot: any  [private]
+  headerStyles: any  [deprecated tag:v6.8.0] [private]
+  pageClasses: any  [private]
+  pageColor: any  [private]
+  pageContainerClasses: any  [private]
+  pageContentClasses: any  [private]
+  pageOffset: any  [private]
+  routerBack: any  [private]
+  showHeadArea: any  [private]
+
+methods
+  beforeDestroyComponent(): any  [private]
+  createdComponent(): any  [private]
+  initPage(): any  [private]
+  mountedComponent(): any  [private]
+  readScreenWidth(): any  [private]
+  removeSidebarOffset(): any  [private]
+  setScrollbarOffset(): any  [private]
+  setSidebarOffset(sidebarWidth: any): any  [private]
+  updatedComponent(): any  [private]
+
 blocks
   sw_page  [private]
-    sw_page_content  [private]
+    sw_page_content  [after v-if] [private]
       sw_page_content_sidebar  [private]
         sw_page_sidebar_slot  [private]
       sw_page_slot_content  [private]
       sw_page_slot_side_content  [private]
     sw_page_head_area  [private]
       sw_page_smart_bar  [private]
-        sw_page_smart_bar_back_btn  [private]
+        sw_page_smart_bar_back_btn  [after v-if] [private]
           sw_page_slot_smart_bar_back  [private]
         sw_page_smart_bar_content  [private]
           sw_page_smart_bar_content_actions  [private]
@@ -34,7 +91,10 @@ blocks
       sw_page_top_bar  [private]
         sw_page_search_bar  [private]
           sw_page_slot_search_bar  [private]
-        sw_page_top_bar_actions  [private]
+        sw_page_top_bar_actions  [after v-if] [private]
           sw_page_notification_center  [private]
           sw_page_top_bar_app_button  [private]
+
+refs
+  swPageContent  -> div  block=sw_page_content  [private]
 ```

@@ -10,6 +10,52 @@ component sw-property-option-list  public  js
   source src/module/sw-property/component/sw-property-option-list/index.js
   template src/module/sw-property/component/sw-property-option-list/sw-property-option-list.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  optionRepository: object
+  propertyGroup: object
+
+data
+  currentOption: any
+  deleteButtonDisabled: any
+  isLoading: any
+  naturalSorting: any
+  selection: any
+  showDeleteModal: any
+  showEmptyState: any
+  sortBy: any
+  sortDirection: any
+  term: any
+
+computed
+  allowInlineEdit: any
+  currentLanguage: any
+  dataSource: any  [deprecated tag:v6.8.0]
+  disableAddButton: any
+  isSystemLanguage: any
+  tooltipAdd: any
+  useNaturalNameSorting: any
+
+methods
+  checkEmptyState(): any
+  getGroupColumns(): any
+  onAddOption(): any
+  onCancelOption(): any
+  onDeleteOptions(): any
+  onGridSelectionChanged(selection: any, selectionCount: any): any
+  onOptionDelete(option: any): any
+  onOptionEdit(option: any): any
+  onSaveOption(): any
+  onSearch(): any
+  onSingleOptionDelete(option: any): any
+  refreshOptionList(): any
+  resetSelectionState(): any
+  saveGroupLocal(): Promise<any>
+  saveGroupRemote(): Promise<any>
+
 blocks
   sw_property_option_list
     sw_property_option_list_detail
@@ -17,11 +63,14 @@ blocks
       sw_property_list_grid_columns_actions_delete
       sw_settings_country_state_list_empty
       sw_settings_property_list_grid_columns_actions
-        sw_settings_property_list_grid_columns_actions_edit
-    sw_property_option_list_loader
+        sw_settings_property_list_grid_columns_actions_edit  [scope: item]
+    sw_property_option_list_loader  [after v-if]
     sw_property_option_list_toolbar
       sw_property_option_list_toolbar_container
         sw_property_option_list_toolbar_add
         sw_property_option_list_toolbar_delete
         sw_property_option_list_toolbar_search
+
+refs
+  grid  -> sw-one-to-many-grid  block=sw_property_option_list_grid
 ```

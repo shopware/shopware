@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
@@ -54,19 +55,19 @@ class EntityReadTool extends McpToolResponse
         string $id,
         #[Schema(description: 'A JSON OBJECT of Admin API criteria, as a string — most usefully "associations" to include related data, e.g. {"associations":{"lineItems":{}}} on an order, and "includes" to trim the response. Defaults to no criteria.')]
         string $criteria = '{}',
-    ): string {
+    ): McpToolResult {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {
-            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
+            return $this->errorResult(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
         }
 
-        if ($error = $this->requirePrivilege($context, $entity . ':read')) {
+        if ($error = $this->requirePrivilegeResult($context, $entity . ':read')) {
             return $error;
         }
 
-        $payload = $this->decodeJsonOrError($criteria, 'criteria');
-        if (\is_string($payload)) {
+        $payload = $this->decodeJsonOrErrorResult($criteria, 'criteria');
+        if ($payload instanceof McpToolResult) {
             return $payload;
         }
 
@@ -85,14 +86,14 @@ class EntityReadTool extends McpToolResponse
             // below is a bug, not bad input, and must still reach the log.
             // `fromArray()` only parses the payload and checks field flags, so
             // every ShopwareHttpException it raises is something the caller can fix.
-            return $this->invalidCriteriaError($e);
+            return $this->invalidCriteriaResult($e);
         }
 
         // Criteria can reference associated entities that require their own read privileges
         // (same association ACL model as the Admin API).
         $missing = $this->criteriaValidator->validate($entity, $criteriaObj, $context);
         if ($missing !== []) {
-            return $this->missingPrivilegesError($missing);
+            return $this->missingPrivilegesResult($missing);
         }
 
         $this->applyDefaultIncludes($definition, $criteriaObj);
@@ -101,11 +102,11 @@ class EntityReadTool extends McpToolResponse
         $entityResult = $result->getEntities()->get($id);
 
         if ($entityResult === null) {
-            return $this->error(\sprintf('Entity "%s" with ID "%s" not found.', $entity, $id), McpToolError::NOT_FOUND);
+            return $this->errorResult(\sprintf('Entity "%s" with ID "%s" not found.', $entity, $id), McpToolError::NOT_FOUND);
         }
 
         $encoded = $this->encoder->encode($criteriaObj, $definition, $entityResult, '/api');
 
-        return $this->success($encoded);
+        return $this->successResult($encoded);
     }
 }

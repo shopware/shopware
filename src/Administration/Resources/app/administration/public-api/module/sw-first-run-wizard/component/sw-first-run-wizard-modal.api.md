@@ -11,10 +11,47 @@ component sw-first-run-wizard-modal  private  js  [private]
   template src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/sw-first-run-wizard-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  firstRunWizardService  [private]
+
+data
+  buttonConfig: any  [private]
+  currentStep: object  [private]
+    name: any  [private]
+    navigationIndex: any  [private]
+    variant: any  [private]
+  showLoader: any  [private]
+  stepVariant: any  [private]
+  title: any  [private]
+  wasNewExtensionActivated: any  [private]
+
+computed
+  buttons: any  [private]
+  columns: any  [private]
+  extensionManagementDisabled: any  [private]
+  isClosable: any  [private]
+  showSteps: any  [private]
+  stepIndex: any  [private]
+  stepInitialItemVariants: any  [private]
+  stepper: any  [private]
+  variant: any  [private]
+
+methods
+  _reloadPage(): any  [private]
+  closeModal(): Promise<any>  [private]
+  createdComponent(): any  [private]
+  finishFRW(): any  [private]
+  handleRouteUpdate(to: any): any  [private]
+  onButtonClick(action: any): any  [private]
+  onExtensionActivated(): any  [private]
+  redirect(routeName: any): any  [private]
+  setTitle(title: any): any  [private]
+  updateButtons(buttonConfig: any): any  [private]
+
 blocks
   sw_first_run_wizard_modal  [private]
     sw_first_run_wizard_modal_content  [private]
-      sw_first_run_wizard_modal_content_page  [private]
+      sw_first_run_wizard_modal_content_page  [after v-if] [private]
       sw_first_run_wizard_modal_content_steps  [private]
     sw_first_run_wizard_modal_footer  [private]
       sw_first_run_wizard_modal_footer_left  [private]

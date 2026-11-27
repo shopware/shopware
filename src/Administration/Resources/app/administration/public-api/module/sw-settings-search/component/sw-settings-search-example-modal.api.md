@@ -10,6 +10,15 @@ component sw-settings-search-example-modal  public  js
   source src/module/sw-settings-search/component/sw-settings-search-example-modal/index.js
   template src/module/sw-settings-search/component/sw-settings-search-example-modal/sw-settings-search-example-modal.html.twig
 
+emits
+  modal-close(...args: any[])
+
+data
+  exampleResults: any
+
+methods
+  closeModal(): any
+
 blocks
   sw_settings_search_searchable_content_example_modal
     sw_settings_search_searchable_content_example_modal_content

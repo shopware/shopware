@@ -11,6 +11,42 @@ component sw-generic-cms-page-assignment  private  ts  [private]
   template src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/sw-generic-cms-page-assignment.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  cmsPageTypeService  [private]
+  repositoryFactory  [private]
+
+props
+  allowedPageTypes?: string[]  default=factory  [private]
+  cmsPageId?: EntityKey<'cms_page'> | null  default=null  [private]
+  slotOverrides?: CmsSlotOverrides  default=null  [private]
+
+emits
+  create-layout(...args: any[])  [private]
+  update:cms-page-id(...args: any[])  [private]
+  update:slot-overrides(...args: any[])  [private]
+
+data
+  cmsPage: any  [private]
+  isLoading: any  [private]
+  showLayoutSelection: any  [private]
+
+computed
+  changesetGenerator: ChangesetGenerator  [private]
+  cmsPageCriteria: Criteria  [private]
+  cmsPageRepository: Repository<'cms_page'>  [private]
+  pageTypeTitle: string  [private]
+
+methods
+  applySlotOverrides(cmsPage: Entity<'cms_page'>): Entity<'cms_page'>  [private]
+  closeLayoutModal(): void  [private]
+  createNewLayout(): void  [private]
+  deleteSpecificKeys(sections: Entity<'cms_section'>[]): void  [private]
+  emitCmsPageOverrides(): void  [private]
+  getCmsPage(): Promise<void>  [private]
+  onLayoutSelect(selectedLayoutId: EntityKey<'cms_page'> | null): void  [private]
+  openInCmsEditor(): void  [private]
+  openLayoutModal(): void  [private]
+
 blocks
   sw_generic_cms_page_assignment  [private]
 ```

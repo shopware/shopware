@@ -10,6 +10,55 @@ component sw-settings-country-general  public  js
   source src/module/sw-settings-country/component/sw-settings-country-general/index.js
   template src/module/sw-settings-country/component/sw-settings-country-general/sw-settings-country-general.html.twig
 
+mixins
+  notification, placeholder, discard-detail-page-changes
+
+inject
+  acl
+  repositoryFactory
+
+props
+  country: object
+  isLoading: boolean
+  userConfig: object
+  userConfigValues: object
+
+emits
+  modal-save(...args: any[])
+
+data
+  baseCurrencyId: any
+  countryId: any
+  currencies: any
+  currencyDependsValue: any
+  menuOptions: any
+  showCurrencyModal: any
+  taxFreeType: any
+
+computed
+  countryNameError: any
+  countryRepository: any
+  currencyRepository: any
+  isVatIdFormatCheckWithoutEffect: any
+
+methods
+  addCheckedHamburgerMenu(): any
+  addDisabledBaseCurrencyCheckBox(): any
+  calculateInheritedPrice(currencyId: any): any
+  changeBaseItem(item: any): any
+  clearMenuOptions(): any
+  createDataModal(): any
+  createdComponent(): any
+  getCurrencyById(currencyId: any): any
+  getPriceByCurrency(basePrice: any, currencyId: any): any
+  loadCurrencies(): Promise<any>
+  onToggleCurrencyModal(taxFreeType: any): any
+  openCompanyTaxModal(): any
+  openCustomerTaxModal(): any
+  pushDataFromUserConfig(): any
+  saveCountryCurrencyDependent(): any
+  sortCurrencyCheckBox(): any
+
 blocks
   sw_settings_country_general
     sw_settings_country_general_card
@@ -19,17 +68,17 @@ blocks
       sw_settings_country_general_content_field_position
     sw_settings_country_general_options_card
       sw_settings_country_general_content_field_active
-      sw_settings_country_general_content_field_check_vat_id_format
+      sw_settings_country_general_content_field_check_vat_id_format  [after v-if]
       sw_settings_country_general_content_field_is_eu
       sw_settings_country_general_content_field_shipping_available
       sw_settings_country_general_content_field_tax_free
-      sw_settings_country_general_content_field_tax_free_companies
+      sw_settings_country_general_content_field_tax_free_companies  [after v-if]
       sw_settings_country_general_content_field_tax_free_from_companies
         sw_settings_country_general_content_field_tax_free_from_companies_value
       sw_settings_country_general_content_field_tax_free_from_customer
         sw_settings_country_general_content_field_tax_free_from_customer_value
       sw_settings_country_general_content_field_vat_id_required
       sw_settings_country_general_content_show_company_tax_free_currency_dependent_values
-      sw_settings_country_general_content_show_currency_dependent_modal
+      sw_settings_country_general_content_show_currency_dependent_modal  [after v-if]
       sw_settings_country_general_content_show_tax_free_currency_dependent_values
 ```

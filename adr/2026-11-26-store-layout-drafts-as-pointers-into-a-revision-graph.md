@@ -41,6 +41,78 @@ A draft copies no tree when it is created.
 A rollback is a draft opened from an older published revision via `fromRevisionId`.
 The `published-revisions` route lists those revisions, most recently live first, without taking the lock.
 
+### Walkthrough: open, edit, publish, roll back
+
+One layout, one author, five steps.
+Solid arrows are `parent_id`, dashed arrows are pointers: the live pointer of the layout and the three pointers of a draft.
+Each step shows the rows of `content_layout_revision` after compaction.
+
+**1. Open a draft.**
+The layout has no revision yet, so the first write adopts the `layout` column as `R1`.
+The draft copies nothing; all three pointers name the live revision.
+
+```mermaid
+flowchart RL
+    R1["R1"]
+    live(["live"]) -.-> R1
+    draft(["Draft"]) -.->|base · liveAtOpen · head| R1
+```
+
+**2. Edit the draft twice.**
+Every edit appends a revision and moves `head` onto it.
+The first edit creates `R2`, the second `R3`; compaction then deletes `R2`, which nothing points at any more, and re-parents `R3` onto `R1`.
+
+```mermaid
+flowchart RL
+    R3["R3"] --> R1["R1"]
+    live(["live"]) -.-> R1
+    draft(["Draft"]) -.->|head| R3
+    draft -.->|base · liveAtOpen| R1
+```
+
+**3. Publish the draft.**
+The tree of `R3` is written to the `layout` column, the live pointer moves onto `R3`, and the draft is deleted.
+`R1` stays without any pointer, as one of the last 20 live revisions: a rollback target.
+
+```mermaid
+flowchart RL
+    R3["R3"] --> R1["R1 · rollback target"]
+    live(["live"]) -.-> R3
+```
+
+**4. Open a rollback draft from `R1`.**
+`create-draft` with `fromRevisionId` `R1` creates no revision either.
+`base` and `head` name `R1`, `liveAtOpen` names `R3`, which was live when the draft was opened; this is the one case besides branching where `base` and `liveAtOpen` differ.
+
+```mermaid
+flowchart RL
+    R3["R3"] --> R1["R1"]
+    live(["live"]) -.-> R3
+    draft(["Rollback draft"]) -.->|base · head| R1
+    draft -.->|liveAtOpen| R3
+```
+
+**5. Publish the rollback.**
+The tree of `R1` is written to the `layout` column and the live pointer moves back onto `R1`, whose `last_live_at` is renewed.
+No new revision is created; `R3` stays as a rollback target, so the rollback can itself be undone.
+
+```mermaid
+flowchart RL
+    R3["R3 · rollback target"] --> R1["R1"]
+    live(["live"]) -.-> R1
+```
+
+| Step | Rows | Live | Draft `base` | Draft `liveAtOpen` | Draft `head` |
+|---|---|---|---|---|---|
+| 1. Open a draft | `R1` | `R1` | `R1` | `R1` | `R1` |
+| 2. Edit twice | `R1`, `R3` | `R1` | `R1` | `R1` | `R3` |
+| 3. Publish | `R1`, `R3` | `R3` | – | – | – |
+| 4. Open a rollback draft | `R1`, `R3` | `R3` | `R1` | `R3` | `R1` |
+| 5. Publish the rollback | `R1`, `R3` | `R1` | – | – | – |
+
+A draft therefore owns at most one revision of its own, its edited head.
+`base` and `liveAtOpen` only point at revisions that were live, and keep them beyond the last 20 for as long as the draft is open.
+
 ### The `layout` column stays the source of truth for live
 
 Publishing writes the draft head into the `layout` column through the DAL, so the full write gate runs and `content_layout.written` invalidates caches as for any other layout write.

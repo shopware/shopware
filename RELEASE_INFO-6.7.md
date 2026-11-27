@@ -145,6 +145,11 @@ The Product module now lists `product_document` as a child entity.
 If two modules list the same child entity, the first registered module wins.
 The warning about it is only logged in development builds.
 
+### Deprecated index request of the variant generator
+
+The `indexProducts()` method and the `productIds` and `cacheService` properties of the variant generator in `src/module/sw-product/helper/sw-products-variants-generator.js` are deprecated and will be removed in 6.8 without replacement.
+The generator no longer calls them, because its sync requests queue the indexing of the products they write.
+
 ### Overrides of deprecated component members report a deprecation
 
 A `Component.override()` of a deprecated `computed` or method now triggers a deprecation itself, when the component is built in a development build of the Administration.
@@ -163,10 +168,6 @@ if (!Shopware.Feature.isActive('V6_8_0_0')) {
 ```
 
 See `src/Administration/Resources/app/administration/technical-docs/05-global-object/02-feature-flags-deprecations.md` for details.
-### Deprecated index request of the variant generator
-
-The `indexProducts()` method and the `productIds` and `cacheService` properties of the variant generator in `src/module/sw-product/helper/sw-products-variants-generator.js` are deprecated and will be removed in 6.8 without replacement.
-The generator no longer calls them, because its sync requests queue the indexing of the products they write.
 
 ## Storefront
 

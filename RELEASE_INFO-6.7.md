@@ -1,5 +1,15 @@
 # 6.7.18.0 (upcoming)
 
+## Critical Fixes
+
+### Administration login with cross-origin assets
+
+Administration workers load from the shop origin while retaining the installation's subdirectory.
+Same-origin asset URLs retain their configured path, including S3 proxy prefixes.
+This restores Administration login when assets are hosted on a separate S3 or CDN domain.
+Rebuild custom Administration bundles to apply this fix.
+Rebuilt bundles receive new filenames to invalidate cached worker URL handling.
+
 ## Core
 
 ### Storefront search aggregations skip the score calculation
@@ -9,6 +19,12 @@ For this, the search now only matches search keywords with a ranking above 0.
 Keywords with a ranking of 0 never added to the score, so for them the search results stay the same.
 Keywords with a negative ranking no longer lower the score, so a negative ranking in the search configuration no longer moves products down or out of the search result.
 This also applies to keyword rankings that a custom keyword analyzer writes.
+
+### Media cache invalidation uses bounded batches
+
+Reindexing or updating media shared by many products uses bounded batches to reduce worker memory usage.
+Large updates can call `CacheInvalidator::invalidate()` multiple times, and dispatch multiple `InvalidateCacheEvent` events when invalidation is immediate.
+Delayed invalidation still requires enough capacity to store and process the resulting tags.
 
 ### Search config cache is kept per language
 

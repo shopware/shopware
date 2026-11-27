@@ -24,6 +24,10 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  * @internal
  *
  * @final
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\ContentSystem\Api\ContentLayoutDraftControllerTest
  */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]

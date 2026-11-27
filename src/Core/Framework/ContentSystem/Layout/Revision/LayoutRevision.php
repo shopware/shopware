@@ -11,6 +11,10 @@ use Shopware\Core\Framework\Log\Package;
  * bypassed publishing.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionServiceTest
  */
 #[Package('framework')]
 final readonly class LayoutRevision

@@ -21,6 +21,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  *
  * @final
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionStoreTest
  */
 #[Package('framework')]
 readonly class LayoutRevisionStore

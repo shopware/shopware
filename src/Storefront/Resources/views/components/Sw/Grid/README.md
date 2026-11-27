@@ -78,3 +78,8 @@ Use any string IDs, including descriptive names such as `sidebar` and `main`.
 Repeat an ID across a rectangle to span cells.
 For example, `[[heading, heading], [sidebar, main]]` spans the first row with one area and splits the second row into two.
 Visible items fill distinct areas in row order, then repeat the pattern.
+
+An item hidden at a breakpoint does not take an area there.
+In a pattern with spanning areas, hide items through the `display` style option, the `display` prop of `Sw:Grid:Column`, or `d-none`.
+Responsive Bootstrap display classes such as `d-lg-none` or `d-none d-lg-block` on a direct item are not taken into account there, so the following items can shift by one area.
+Patterns without spanning areas support every display class, because the browser places their items.

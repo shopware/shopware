@@ -27,19 +27,19 @@ use Shopware\Core\Framework\Log\Package;
  * @final
  */
 #[Package('framework')]
-class PersistedLayoutMutator
+readonly class PersistedLayoutMutator
 {
     /**
      * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
      */
     public function __construct(
-        private readonly LayoutRowLock $rowLock,
-        private readonly EntityRepository $contentLayoutRepository,
-        private readonly RootSourceRegistry $rootSourceRegistry,
-        private readonly LayoutDiagnostics $diagnostics,
-        private readonly DefaultMappingSeeder $defaultMappingSeeder,
-        private readonly MutationPipeline $pipeline,
-        private readonly LayoutRevisionService $revisions,
+        private LayoutRowLock $rowLock,
+        private EntityRepository $contentLayoutRepository,
+        private RootSourceRegistry $rootSourceRegistry,
+        private LayoutDiagnostics $diagnostics,
+        private DefaultMappingSeeder $defaultMappingSeeder,
+        private MutationPipeline $pipeline,
+        private LayoutRevisionService $revisions,
     ) {
     }
 

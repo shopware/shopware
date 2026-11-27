@@ -11,16 +11,16 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutDuplicateRequest
+final readonly class ContentLayoutDuplicateRequest
 {
     use TargetsMutation;
 
     public function __construct(
-        public readonly string $elementId,
-        public readonly ?string $expectedVersion,
-        public readonly ?int $index = null,
-        public readonly ?string $draftId = null,
-        public readonly ?string $expectedHeadRevisionId = null,
+        public string $elementId,
+        public ?string $expectedVersion,
+        public ?int $index = null,
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

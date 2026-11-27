@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @final
  */
 #[Package('framework')]
-class LayoutRevisionService
+readonly class LayoutRevisionService
 {
     private const DEFAULT_DRAFT_NAME = 'Draft';
 
@@ -48,16 +48,16 @@ class LayoutRevisionService
      * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
      */
     public function __construct(
-        private readonly LayoutRowLock $rowLock,
-        private readonly LayoutRevisionStore $store,
-        private readonly LayoutWriteBoundary $writeBoundary,
-        private readonly StoredTreeCodec $treeCodec,
-        private readonly StoredTreeConstraints $treeConstraints,
-        private readonly ValidatorInterface $validator,
-        private readonly LayoutGate $gate,
-        private readonly ViolationConstraintMapper $violationMapper,
-        private readonly EntityRepository $contentLayoutRepository,
-        private readonly ClockInterface $clock,
+        private LayoutRowLock $rowLock,
+        private LayoutRevisionStore $store,
+        private LayoutWriteBoundary $writeBoundary,
+        private StoredTreeCodec $treeCodec,
+        private StoredTreeConstraints $treeConstraints,
+        private ValidatorInterface $validator,
+        private LayoutGate $gate,
+        private ViolationConstraintMapper $violationMapper,
+        private EntityRepository $contentLayoutRepository,
+        private ClockInterface $clock,
     ) {
     }
 

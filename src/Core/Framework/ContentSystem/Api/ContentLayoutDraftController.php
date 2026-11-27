@@ -27,14 +27,14 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
-class ContentLayoutDraftController
+readonly class ContentLayoutDraftController
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly LayoutRevisionService $revisionService,
-        private readonly StoredTreeCodec $treeCodec,
+        private LayoutRevisionService $revisionService,
+        private StoredTreeCodec $treeCodec,
     ) {
     }
 

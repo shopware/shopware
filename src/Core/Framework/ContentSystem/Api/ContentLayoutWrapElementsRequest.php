@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutWrapElementsRequest
+final readonly class ContentLayoutWrapElementsRequest
 {
     use TargetsMutation;
 
@@ -22,12 +22,12 @@ final class ContentLayoutWrapElementsRequest
     public function __construct(
         #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
         #[Assert\Unique]
-        public readonly array $elementIds,
-        public readonly string $containerType,
-        public readonly ?string $expectedVersion,
-        public readonly ?string $slot = null,
-        public readonly ?string $draftId = null,
-        public readonly ?string $expectedHeadRevisionId = null,
+        public array $elementIds,
+        public string $containerType,
+        public ?string $expectedVersion,
+        public ?string $slot = null,
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

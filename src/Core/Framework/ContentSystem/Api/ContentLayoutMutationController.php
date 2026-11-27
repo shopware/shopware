@@ -42,20 +42,20 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
-class ContentLayoutMutationController
+readonly class ContentLayoutMutationController
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly PersistedLayoutMutator $mutator,
-        private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly StoredElementCodec $elementCodec,
-        private readonly DraftLayoutDecoder $decoder,
-        private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
-        private readonly BindingApplicator $bindingApplicator,
-        private readonly PropertyMappingMutationFactory $propertyMappingMutations,
-        private readonly StoredMappingInspector $mappingInspector,
+        private PersistedLayoutMutator $mutator,
+        private AbstractContentSystemElementTypeRegistry $registry,
+        private StoredElementCodec $elementCodec,
+        private DraftLayoutDecoder $decoder,
+        private AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        private BindingApplicator $bindingApplicator,
+        private PropertyMappingMutationFactory $propertyMappingMutations,
+        private StoredMappingInspector $mappingInspector,
     ) {
     }
 

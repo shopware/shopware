@@ -11,18 +11,18 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutMoveRequest
+final readonly class ContentLayoutMoveRequest
 {
     use TargetsMutation;
 
     public function __construct(
-        public readonly string $elementId,
-        public readonly ?string $expectedVersion,
-        public readonly ?string $newParentId = null,
-        public readonly ?string $newSlot = null,
-        public readonly ?int $index = null,
-        public readonly ?string $draftId = null,
-        public readonly ?string $expectedHeadRevisionId = null,
+        public string $elementId,
+        public ?string $expectedVersion,
+        public ?string $newParentId = null,
+        public ?string $newSlot = null,
+        public ?int $index = null,
+        public ?string $draftId = null,
+        public ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @final
  */
 #[Package('framework')]
-class LayoutRevisionStore
+readonly class LayoutRevisionStore
 {
     private const DRAFT_SELECT = <<<'SQL'
         SELECT LOWER(HEX(`draft`.`id`)) AS `id`, `draft`.`name`, LOWER(HEX(`draft`.`base_revision_id`)) AS `base`,
@@ -37,8 +37,8 @@ class LayoutRevisionStore
         SQL;
 
     public function __construct(
-        private readonly Connection $connection,
-        private readonly StoredTreeCodec $treeCodec,
+        private Connection $connection,
+        private StoredTreeCodec $treeCodec,
     ) {
     }
 

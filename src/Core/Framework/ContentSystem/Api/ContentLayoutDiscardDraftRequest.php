@@ -10,10 +10,10 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutDiscardDraftRequest
+final readonly class ContentLayoutDiscardDraftRequest
 {
     public function __construct(
-        public readonly string $draftId,
+        public string $draftId,
     ) {
     }
 }

@@ -10,11 +10,11 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutPublishDraftRequest
+final readonly class ContentLayoutPublishDraftRequest
 {
     public function __construct(
-        public readonly string $draftId,
-        public readonly string $expectedHeadRevisionId,
+        public string $draftId,
+        public string $expectedHeadRevisionId,
     ) {
     }
 }

@@ -11,13 +11,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutCreateDraftRequest
+final readonly class ContentLayoutCreateDraftRequest
 {
     public function __construct(
         #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
         #[Assert\Length(max: 255)]
-        public readonly ?string $name = null,
-        public readonly ?string $fromRevisionId = null,
+        public ?string $name = null,
+        public ?string $fromRevisionId = null,
     ) {
     }
 }

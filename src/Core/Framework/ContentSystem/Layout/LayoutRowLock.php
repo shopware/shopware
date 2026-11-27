@@ -18,10 +18,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @final
  */
 #[Package('framework')]
-class LayoutRowLock
+readonly class LayoutRowLock
 {
     public function __construct(
-        private readonly Connection $connection,
+        private Connection $connection,
     ) {
     }
 

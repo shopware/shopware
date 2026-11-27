@@ -52,7 +52,7 @@ class ProductException extends HttpException
         );
     }
 
-    public static function pageOutOfRange(int $requestedPage, int $lastPage): ProductListingPageOutOfRangeException
+    public static function pageOutOfRange(int $requestedPage, int $lastPage): self
     {
         return new ProductListingPageOutOfRangeException($requestedPage, $lastPage);
     }

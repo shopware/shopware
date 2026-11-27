@@ -22,7 +22,25 @@ Shopware.Service().register('systemHealthApiService', () => {
     );
 });
 
+const registry = new SystemHealthCheckRegistry();
+
 /**
  * @private
  */
-Shopware.Service().register('systemHealthCheckRegistry', () => new SystemHealthCheckRegistry());
+Shopware.Service().register('systemHealthCheckRegistry', () => registry);
+
+registry.register('AppUrlVerification', { component: 'sw-settings-system-health-app-url' });
+registry.register('AdministrationReadiness', {
+    component: 'sw-settings-system-health-administration',
+    resolveRoute: 'sw.settings.cache.index',
+});
+['SalesChannelsReadiness', 'ProductDetailReadiness', 'ProductListingReadiness'].forEach((name) => {
+    registry.register(name, {
+        component: 'sw-settings-system-health-storefront-pages',
+        resolveRoute: 'sw.settings.cache.index',
+    });
+});
+registry.register('LocalesReadiness', {
+    component: 'sw-settings-system-health-locales',
+    resolveRoute: 'sw.settings.language.index',
+});

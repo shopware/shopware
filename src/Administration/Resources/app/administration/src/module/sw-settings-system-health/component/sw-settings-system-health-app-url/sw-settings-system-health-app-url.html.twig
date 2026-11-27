@@ -1,0 +1,12 @@
+{% block sw_settings_system_health_app_url %}
+<sw-settings-system-health-check-details
+    :check="check"
+    :summary="summary"
+>
+    <sw-settings-system-health-request
+        :url="extra.appUrl"
+        :status-code="extra.statusCode"
+        :error="extra.info"
+    />
+</sw-settings-system-health-check-details>
+{% endblock %}

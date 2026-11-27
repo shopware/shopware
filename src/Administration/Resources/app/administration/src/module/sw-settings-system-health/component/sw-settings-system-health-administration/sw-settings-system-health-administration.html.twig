@@ -1,0 +1,13 @@
+{% block sw_settings_system_health_administration %}
+<sw-settings-system-health-check-details
+    :check="check"
+    :summary="summary"
+>
+    <sw-settings-system-health-request
+        :url="url"
+        :successful="status === 'OK'"
+        :duration-ms="extra.indexResponseTime * 1000 || null"
+        :error="missingBundles.length > 0 ? summary : null"
+    />
+</sw-settings-system-health-check-details>
+{% endblock %}

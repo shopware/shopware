@@ -1,0 +1,51 @@
+.sw-settings-system-health-request {
+    padding: var(--scale-size-8) 0;
+
+    & + & {
+        border-top: 1px solid var(--color-border-secondary-default);
+    }
+
+    // code, URL and time on one line; the URL takes the room and is cut off when long
+    &__line {
+        display: grid;
+        grid-template-columns: 5rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--scale-size-12);
+    }
+
+    .sw-status {
+        justify-self: start;
+    }
+
+    &__url {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: var(--font-family-mono, monospace);
+        font-size: 0.9em;
+    }
+
+    // what was requested: a label (an app), the URL, or both
+    &__target {
+        display: flex;
+        align-items: baseline;
+        gap: var(--scale-size-8);
+        min-width: 0;
+    }
+
+    &__label {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    &__duration {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary-default);
+    }
+
+    &__error {
+        margin: var(--scale-size-4) 0 0 calc(5rem + var(--scale-size-12));
+        font-size: var(--font-size-xs);
+        color: var(--color-text-critical-default);
+    }
+}

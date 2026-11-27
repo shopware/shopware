@@ -1,0 +1,43 @@
+{% block sw_settings_system_health_request %}
+<div class="sw-settings-system-health-request">
+    <div class="sw-settings-system-health-request__line">
+        <sw-settings-system-health-response-code
+            :status-code="statusCode"
+            :successful="successful"
+        />
+
+        <span class="sw-settings-system-health-request__target">
+            <span
+                v-if="label"
+                class="sw-settings-system-health-request__label"
+            >{{ label }}</span>
+            <code
+                v-if="url"
+                class="sw-settings-system-health-request__url"
+                :title="url"
+            >{{ url }}</code>
+        </span>
+
+        <span
+            v-if="durationMs !== null"
+            class="sw-settings-system-health-request__duration"
+        >
+            {{ $t('sw-settings-system-health.request.duration', { ms: Math.round(durationMs) }) }}
+        </span>
+
+        <span
+            v-else-if="time"
+            class="sw-settings-system-health-request__duration"
+        >
+            {{ time }}
+        </span>
+    </div>
+
+    <p
+        v-if="error"
+        class="sw-settings-system-health-request__error"
+    >
+        {{ error }}
+    </p>
+</div>
+{% endblock %}

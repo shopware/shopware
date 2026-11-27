@@ -42,8 +42,42 @@
             "category-line": "Prüfung der Kategorie {category}",
             "checked-at": "Zuletzt {date}"
         },
+        "check": {
+            "LocalesReadiness": "Sprachen und Locales",
+            "AdministrationReadiness": "Administration",
+            "SalesChannelsReadiness": "Verkaufskanäle",
+            "ProductDetailReadiness": "Produktseiten",
+            "ProductListingReadiness": "Kategorieseiten",
+            "AppUrlVerification": "App-URL"
+        },
+        "storefront-pages": {
+            "summary": "{failed} von {total} Seiten wurden nicht geladen."
+        },
         "resolution": {
-            "resolve": "Klären"
+            "resolve": "Klären",
+            "LocalesReadiness": {
+                "impact": "Texte in diesen Sprachen fehlen eventuell oder werden falsch angezeigt. Korrigiere die Locale-Codes in den Spracheinstellungen.",
+                "action": "Sprachen öffnen"
+            },
+            "AdministrationReadiness": {
+                "impact": "Nutzer können sich eventuell nicht anmelden oder in der Administration arbeiten. Baue die Administration neu und leere den Cache.",
+                "action": "Caches öffnen"
+            },
+            "SalesChannelsReadiness": {
+                "impact": "Kunden erreichen deine Storefront eventuell nicht. Cache leeren oder Theme kompilieren hilft oft.",
+                "action": "Caches öffnen"
+            },
+            "ProductDetailReadiness": {
+                "impact": "Kunden sehen deine Produktseiten eventuell nicht. Cache leeren oder Indizes aktualisieren hilft oft.",
+                "action": "Caches öffnen"
+            },
+            "ProductListingReadiness": {
+                "impact": "Kunden sehen deine Kategorieseiten eventuell nicht. Cache leeren oder Indizes aktualisieren hilft oft.",
+                "action": "Caches öffnen"
+            },
+            "AppUrlVerification": {
+                "impact": "Apps lassen sich nur installieren und erhalten nur Daten, wenn dieser Shop unter der APP_URL erreichbar ist. Prüfe die Umgebungsvariable APP_URL und ob der Shop aus dem Internet erreichbar ist."
+            }
         },
         "section": {
             "what-happened": "Was ist passiert",
@@ -55,6 +89,58 @@
             "passed": "Bestanden",
             "not-run": "Nicht ausgeführt",
             "attention-empty": "Nichts braucht deine Aufmerksamkeit."
+        },
+        "message": {
+            "LocalesReadiness": {
+                "OK": "Alle Locales gültig",
+                "WARNING": "Ungültige Locales"
+            },
+            "AdministrationReadiness": {
+                "OK": "Administration lädt",
+                "FAILURE": "Administration lädt nicht"
+            },
+            "SalesChannelsReadiness": {
+                "OK": "Storefront-Startseiten laden",
+                "ERROR": "Einige Startseiten fehlerhaft",
+                "FAILURE": "Storefront-Startseiten fehlerhaft",
+                "SKIPPED": "Keine Storefront-Seiten zu prüfen"
+            },
+            "ProductDetailReadiness": {
+                "OK": "Produktseiten laden",
+                "ERROR": "Einige Produktseiten fehlerhaft",
+                "FAILURE": "Produktseiten fehlerhaft",
+                "SKIPPED": "Keine Produktseiten zu prüfen"
+            },
+            "ProductListingReadiness": {
+                "OK": "Kategorieseiten laden",
+                "ERROR": "Einige Kategorieseiten fehlerhaft",
+                "FAILURE": "Kategorieseiten fehlerhaft",
+                "SKIPPED": "Keine Kategorieseiten zu prüfen"
+            },
+            "AppUrlVerification": {
+                "OK": "APP_URL erreichbar",
+                "WARNING": "APP_URL nicht geprüft",
+                "ERROR": "APP_URL nicht erreichbar"
+            }
+        },
+        "request": {
+            "no-response": "Keine Antwort",
+            "duration": "{ms} ms",
+            "ok": "OK",
+            "failed": "Fehlgeschlagen"
+        },
+        "app-url": {
+            "WARNING": "APP_URL {appUrl} konnte nicht geprüft werden. Das ist meist vorübergehend.",
+            "ERROR": "APP_URL {appUrl} zeigt nicht auf diesen Shop oder ist blockiert, daher lassen sich keine Apps installieren."
+        },
+        "administration": {
+            "missing": "Build-Dateien fehlen für {bundles}.",
+            "no-scripts": "Die Administration hat ohne ihre Skripte geladen.",
+            "not-loading": "Die Administration wurde nicht geladen."
+        },
+        "locales": {
+            "summary": "{count} Locale-Code ist ungültig. | {count} Locale-Codes sind ungültig.",
+            "codes": "Ungültige Locale-Codes"
         }
     },
     "sw-privileges": {

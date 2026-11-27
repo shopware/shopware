@@ -15293,6 +15293,22 @@
                 "sw_settings_store_smart_bar_header_title_text"
             ]
         },
+        "sw-settings-system-health-administration": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-administration",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_administration"
+            ]
+        },
+        "sw-settings-system-health-app-url": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-app-url",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_app_url"
+            ]
+        },
         "sw-settings-system-health-check-default": {
             "file": "module/sw-settings-system-health/component/sw-settings-system-health-check-default",
             "visibility": "private",
@@ -15330,12 +15346,44 @@
                 "sw_settings_system_health_index_smart_bar_header"
             ]
         },
+        "sw-settings-system-health-locales": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-locales",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_locales"
+            ]
+        },
+        "sw-settings-system-health-request": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-request",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_request"
+            ]
+        },
+        "sw-settings-system-health-response-code": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-response-code",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_response_code"
+            ]
+        },
         "sw-settings-system-health-section": {
             "file": "module/sw-settings-system-health/component/sw-settings-system-health-section",
             "visibility": "private",
             "extends": null,
             "blocks": [
                 "sw_settings_system_health_section"
+            ]
+        },
+        "sw-settings-system-health-storefront-pages": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-storefront-pages",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_storefront_pages"
             ]
         },
         "sw-settings-system-health-text": {

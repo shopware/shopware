@@ -1,0 +1,15 @@
+{% block sw_settings_system_health_storefront_pages %}
+<sw-settings-system-health-check-details
+    :check="check"
+    :summary="summary"
+>
+    <sw-settings-system-health-request
+        v-for="page in pages"
+        :key="page.storefrontUrl"
+        :url="page.storefrontUrl"
+        :status-code="page.responseCode"
+        :duration-ms="page.responseTime * 1000"
+        :error="page.errorMessage"
+    />
+</sw-settings-system-health-check-details>
+{% endblock %}

@@ -53,7 +53,55 @@ Shopware.Component.register(
 /**
  * @private
  */
+Shopware.Component.register(
+    'sw-settings-system-health-request',
+    () => import('./component/sw-settings-system-health-request'),
+);
+
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-system-health-response-code',
+    () => import('./component/sw-settings-system-health-response-code'),
+);
+
+/**
+ * @private
+ */
 Shopware.Component.register('sw-settings-system-health-text', () => import('./component/sw-settings-system-health-text'));
+
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-system-health-app-url',
+    () => import('./component/sw-settings-system-health-app-url'),
+);
+
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-system-health-administration',
+    () => import('./component/sw-settings-system-health-administration'),
+);
+
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-system-health-storefront-pages',
+    () => import('./component/sw-settings-system-health-storefront-pages'),
+);
+
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-system-health-locales',
+    () => import('./component/sw-settings-system-health-locales'),
+);
 
 /**
  * @private

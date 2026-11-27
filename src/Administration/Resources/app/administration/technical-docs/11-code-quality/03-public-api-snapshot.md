@@ -740,6 +740,18 @@ A crossing is named `crossing:<tag>@<opening block>><closing block>`, with `v-if
 A finding about a service or a store as a whole has the id of the unit alone, `service:acl`.
 The owner and the kind of the element below it, `component` and `block` in this example, decide which unit kind the finding belongs to.
 
+`explainChanges` returns the same findings for a view that shows one finding at a time.
+Each has a `detail` beside what the summary prints:
+
+- `headline`: what changed, in a sentence that names the element, such as `The parameter itemIndex is gone`.
+- `atBase`: the file and the line of the element at the base commit.
+- `isGone`: the element has no line at the head commit, so `at` is the line of what held it.
+- `marker`: the comment that the fix adds, as the source writes it: `{# @bc-change ... #}` in a template and `/** @bc-change ... */` in a script.
+- `example`: plugin code that the change breaks, with the index of the line that no longer works.
+
+Only a break has a headline, a marker and an example, and each only when there is one.
+A break that no marker announces has no marker, and a mixin has no example, because a plugin uses its members in no one way.
+
 ## Fixtures
 
 Each folder in `scripts/generate-public-api/testing/__fixtures__/` is one case: a small source tree before and after a change, and the output expected for it.

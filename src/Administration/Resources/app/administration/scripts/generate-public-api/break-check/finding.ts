@@ -43,6 +43,51 @@ export interface Finding {
     at?: string;
 }
 
+/**
+ * @private
+ *
+ * Plugin code that a change breaks. `broken` is the index of the line that no longer works.
+ */
+export interface PluginExample {
+    language: 'twig' | 'javascript';
+    lines: string[];
+    broken: number;
+}
+
+/**
+ * @private
+ *
+ * What a view that shows one finding at a time says beyond the summary. `headline` says what changed in a
+ * sentence that names the element. `atBase` is the line of the element at the base commit, where `at` of the
+ * finding is the line at the head commit. `isGone` says that the element has no line there, so `at` is the line
+ * of what held it. `marker` is the comment that the fix adds, as the source writes it.
+ */
+export interface FindingDetail {
+    headline?: string;
+    atBase?: SourceLine;
+    isGone?: true;
+    marker?: string;
+    example?: PluginExample;
+}
+
+/** @private */
+export interface ExplainedFinding extends Finding {
+    detail: FindingDetail;
+}
+
+/**
+ * @private
+ *
+ * The finding as the summary prints it.
+ */
+export function summaryOf(explained: ExplainedFinding): Finding {
+    const finding: Finding & Partial<Pick<ExplainedFinding, 'detail'>> = { ...explained };
+
+    delete finding.detail;
+
+    return finding;
+}
+
 /** @private */
 export function isMajorOnly(states: readonly FlagState[]): boolean {
     return states.length === 1 && states[0] === 'major';
@@ -54,7 +99,24 @@ export function isMajorOnly(states: readonly FlagState[]): boolean {
  * What a rule or an announcement says about a change, before the break check knows where it is and whether it
  * is about private API.
  */
-export type Judgement = Pick<Finding, 'group' | 'rule' | 'explanation' | 'fix' | 'possibleRename'>;
+export type Judgement = Pick<Finding, 'group' | 'rule' | 'explanation' | 'fix' | 'possibleRename'> &
+    Omit<FindingDetail, 'atBase' | 'isGone'>;
+
+/**
+ * @private
+ *
+ * The line that `at` of a finding names.
+ */
+export function sourceLineOf(at: string): SourceLine {
+    const separator = at.lastIndexOf(':');
+
+    return { file: at.slice(0, separator), line: Number(at.slice(separator + 1)) };
+}
+
+/** The detail only holds what the change has, so a rule may leave a text `undefined`. */
+function detailOf(detail: FindingDetail): FindingDetail {
+    return Object.fromEntries(Object.entries(detail).filter(([, value]) => value !== undefined));
+}
 
 /**
  * @private
@@ -62,14 +124,24 @@ export type Judgement = Pick<Finding, 'group' | 'rule' | 'explanation' | 'fix' |
  * The finding for a judged change. A change to private API is listed as `Private`, whatever it would count as.
  */
 export function findingFor(
-    judged: Judgement,
-    { element, states, isPrivate, at }: { element: string; states: FlagState[]; isPrivate: boolean; at?: SourceLine },
-): Finding {
+    { headline, marker, example, ...judged }: Judgement,
+    place: {
+        element: string;
+        states: FlagState[];
+        isPrivate: boolean;
+        at?: SourceLine;
+        atBase?: SourceLine;
+        isGone?: true;
+    },
+): ExplainedFinding {
+    const { element, states, isPrivate, at, atBase, isGone } = place;
+
     return {
         ...judged,
         group: isPrivate ? 'Private' : judged.group,
         element,
         states,
         ...(at === undefined ? {} : { at: `${at.file}:${at.line}` }),
+        detail: detailOf({ headline, atBase, isGone, marker, example }),
     };
 }

@@ -14,8 +14,8 @@ import { buildModel } from '../read/build-model';
 import type { SourceTree } from '../source/source-tree';
 import { announced } from './announcements';
 import type { ChangedFacts } from './facts/unit-facts';
-import { FINDING_GROUPS, findingFor } from './finding';
-import type { Finding } from './finding';
+import { FINDING_GROUPS, findingFor, summaryOf } from './finding';
+import type { ExplainedFinding, Finding } from './finding';
 import { RULES } from './rules';
 import type { Detection, Rule } from './rules/rule';
 import { unitFindings } from './unit-changes';
@@ -38,7 +38,7 @@ interface Found {
 /** A finding whose `element` is still the id below its unit. */
 interface UnitFinding {
     unit: CheckedUnit;
-    finding: Finding;
+    finding: ExplainedFinding;
 }
 
 function unitsInBoth(base: ReadonlyMap<string, CheckedUnit>, head: ReadonlyMap<string, CheckedUnit>): ComparedUnit[] {
@@ -82,7 +82,7 @@ function isPrivate({ base }: ComparedUnit, detection: Detection): boolean {
     return base.visibility === 'private' || detection.isPrivate === true;
 }
 
-function findingOf(result: Found, change: ComparedUnit, flags: FlagContext): Finding {
+function findingOf(result: Found, change: ComparedUnit, flags: FlagContext): ExplainedFinding {
     const { rule, detection, states } = result;
     const { kind, name } = change.head;
     const judged = announced(detection.announcement, states, change, flags) ?? {
@@ -96,6 +96,8 @@ function findingOf(result: Found, change: ComparedUnit, flags: FlagContext): Fin
         states,
         isPrivate: isPrivate(change, detection),
         at: detection.at,
+        atBase: detection.atBase,
+        isGone: detection.isGone,
     });
 }
 
@@ -103,7 +105,7 @@ function sameChange(a: Finding, b: Finding): boolean {
     return a.group === b.group && a.rule === b.rule && a.element === b.element && a.states.join() === b.states.join();
 }
 
-function reportedOn({ unit, finding }: UnitFinding, reached: UnitFinding[]): Finding {
+function reportedOn({ unit, finding }: UnitFinding, reached: UnitFinding[]): ExplainedFinding {
     const alsoAffects = reached.map((other) => other.unit.name).sort(byCodePoint);
 
     return {
@@ -125,7 +127,7 @@ function reporterOf(owner: UnitFinding, affected: UnitFinding[]): UnitFinding | 
  * reports a change that at least two services share, see `reporterOf`. A child keeps its own finding when its group differs from
  * the one of its parent, such as a public child of a private parent.
  */
-function reportedOnce(findings: UnitFinding[]): Finding[] {
+function reportedOnce(findings: UnitFinding[]): ExplainedFinding[] {
     const inherited = (reported: UnitFinding): UnitFinding | undefined =>
         findings.find(({ unit, finding }) => unit.id === reported.unit.parent && sameChange(finding, reported.finding));
     const ownerOf = (reported: UnitFinding): UnitFinding => {
@@ -168,9 +170,10 @@ function inSummaryOrder(a: Finding, b: Finding): number {
 /**
  * @private
  *
- * Classifies the difference between the base and the head commit.
+ * Classifies the difference between the base and the head commit, with what a view says about each finding
+ * beyond the summary.
  */
-export function classifyChanges(base: Model, head: Model): Finding[] {
+export function explainChanges(base: Model, head: Model): ExplainedFinding[] {
     const before = checkedUnits(base);
     const after = checkedUnits(head);
     const findings = unitsInBoth(before, after).flatMap((change) =>
@@ -186,9 +189,27 @@ export function classifyChanges(base: Model, head: Model): Finding[] {
 /**
  * @private
  *
- * The findings of the change from one source tree to another. Both are read with the same major flags, so the
- * two models only differ where the sources do.
+ * Classifies the difference between the base and the head commit.
+ */
+export function classifyChanges(base: Model, head: Model): Finding[] {
+    return explainChanges(base, head).map(summaryOf);
+}
+
+/**
+ * @private
+ *
+ * The findings of the change from one source tree to another, with what a view says about each finding beyond
+ * the summary. Both trees are read with the same major flags, so the two models only differ where the sources do.
+ */
+export function explainSourceTrees(base: SourceTree, head: SourceTree, majorFlags: readonly string[]): ExplainedFinding[] {
+    return explainChanges(buildModel(base, { majorFlags }), buildModel(head, { majorFlags }));
+}
+
+/**
+ * @private
+ *
+ * The findings of the change from one source tree to another, as the summary prints them.
  */
 export function compareSourceTrees(base: SourceTree, head: SourceTree, majorFlags: readonly string[]): Finding[] {
-    return classifyChanges(buildModel(base, { majorFlags }), buildModel(head, { majorFlags }));
+    return explainSourceTrees(base, head, majorFlags).map(summaryOf);
 }

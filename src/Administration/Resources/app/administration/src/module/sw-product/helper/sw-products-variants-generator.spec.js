@@ -7,6 +7,7 @@
 import VariantsGenerator from 'src/module/sw-product/helper/sw-products-variants-generator';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
+import { deprecations } from 'test/_helper_/deprecations';
 
 /** fixtures */
 import currencies from './_mocks/testCurriencies.json';
@@ -35,11 +36,6 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 sync() {
                     return true;
                 },
-            };
-        });
-        Shopware.Service().register('cacheApiService', () => {
-            return {
-                indexProducts() {},
             };
         });
         variantsGenerator = new VariantsGenerator();
@@ -481,7 +477,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     },
                 ],
                 {},
-                { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' },
+                { 'indexing-behavior': 'disable-indexing' },
             );
 
             const calledRestrictions = syncSpy.mock.calls[0][0][0].payload[0].variantRestrictions;
@@ -632,7 +628,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     },
                 ],
                 {},
-                { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' },
+                { 'indexing-behavior': 'use-queue-indexing' },
             );
 
             const calledConfig = syncSpy.mock.calls[0][0][0].payload[0].variantListingConfig;
@@ -662,6 +658,19 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             expect(syncSpy).not.toHaveBeenCalled();
 
             syncSpy.mockRestore();
+        });
+    });
+
+    describe('indexProducts', () => {
+        // @deprecated tag:v6.8.0 - The test will be removed with indexProducts()
+        it.deprecated('v6.8.0.0')('should report the deprecation and still request the indexing', () => {
+            const generator = new VariantsGenerator();
+            generator.cacheService = { indexProducts: jest.fn() };
+
+            generator.indexProducts(['product-id']);
+
+            expect(deprecations).toHaveTriggered('VariantsGenerator.indexProducts() is deprecated');
+            expect(generator.cacheService.indexProducts).toHaveBeenCalledWith(['product-id']);
         });
     });
 });

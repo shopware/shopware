@@ -55,7 +55,8 @@ class TwigAppVariable extends AppVariable
         $clonedRequest->server = clone $clonedRequest->server;
 
         foreach ($clonedRequest->server->all() as $key => $_) {
-            if (!\in_array(strtolower($key), $this->allowList, true)) {
+            // Preserve Symfony HttpCache's request-specific proxy trust independently of the allow list.
+            if ($key !== 'SYMFONY_SUB_REQUEST_TRUSTED_HEADER_SET' && !\in_array(strtolower($key), $this->allowList, true)) {
                 $clonedRequest->server->remove($key);
             }
         }

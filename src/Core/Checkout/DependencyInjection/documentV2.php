@@ -269,6 +269,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentTypeRegistry::class),
             service(FileNameProvider::class),
             service('event_dispatcher'),
+            service('order.repository'),
+            service(DocumentConfigLoader::class),
         ]);
 
     $services->set(DocumentReader::class)

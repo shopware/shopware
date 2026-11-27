@@ -6,11 +6,13 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+use Shopware\Core\Content\ImportExport\Service\AbstractFileService;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
@@ -57,7 +60,31 @@ class ImportExportServiceTest extends TestCase
         static::assertSame('test_profile', $log->getProfileName());
     }
 
-    private function createImportExportService(string $profileId): ImportExportService
+    public function testTheEscapeParameterOfTheImportRequestConfigReachesTheLogConfig(): void
+    {
+        $profileId = Uuid::randomHex();
+
+        $fileEntity = new ImportExportFileEntity();
+        $fileEntity->setId(Uuid::randomHex());
+
+        $fileService = static::createStub(FileService::class);
+        $fileService->method('detectType')->willReturn('text/csv');
+        $fileService->method('storeFile')->willReturn($fileEntity);
+
+        $log = $this->createImportExportService($profileId, $fileService)->prepareImport(
+            Context::createDefaultContext(),
+            $profileId,
+            new \DateTimeImmutable(),
+            new UploadedFile(__FILE__, 'export.csv', 'text/csv', null, true),
+            ['parameters' => ['escape' => '\\']],
+        );
+
+        $parameters = $log->getConfig()['parameters'] ?? null;
+        static::assertIsArray($parameters);
+        static::assertSame('\\', $parameters['escape'] ?? null);
+    }
+
+    private function createImportExportService(string $profileId, ?AbstractFileService $fileService = null): ImportExportService
     {
         $profile = new ImportExportProfileEntity();
         $profile->setId($profileId);
@@ -78,7 +105,7 @@ class ImportExportServiceTest extends TestCase
             $logRepo,
             $userRepo,
             $profileRepo,
-            static::createStub(FileService::class),
+            $fileService ?? static::createStub(FileService::class),
         );
     }
 }

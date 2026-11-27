@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { AxiosError } from 'axios';
 import VariantsGenerator from 'src/module/sw-product/helper/sw-products-variants-generator';
 
 function createVariants(count) {
@@ -15,7 +16,6 @@ function createVariants(count) {
 describe('src/module/sw-product/helper/sw-products-variants-generator saveVariants', () => {
     beforeAll(() => {
         Shopware.Service().register('syncService', () => ({ httpClient: {} }));
-        Shopware.Service().register('cacheApiService', () => ({ indexProducts() {} }));
     });
 
     afterEach(() => {
@@ -24,13 +24,13 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
 
     it('should reject when a chunk still fails after the retries', async () => {
         jest.useFakeTimers();
-        const error = new Error('timeout of 30000ms exceeded');
+        const error = new AxiosError('timeout of 30000ms exceeded', AxiosError.ECONNABORTED);
         const generator = new VariantsGenerator();
         const sync = jest.fn(() => Promise.reject(error));
         generator.syncService = { sync };
 
         const onRejected = jest.fn();
-        generator.saveVariants({ deleteQueue: [], createQueue: createVariants(12) }).catch(onRejected);
+        generator.saveVariants({ deleteQueue: [], createQueue: createVariants(150) }).catch(onRejected);
         await jest.advanceTimersByTimeAsync(15000);
 
         expect(onRejected).toHaveBeenCalledWith(error);
@@ -38,17 +38,39 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         expect(sync).toHaveBeenCalledTimes(4);
     });
 
-    it('should send indexing-behavior as a header with every request', async () => {
+    it('should reject without retrying when the server rejects a chunk as invalid', async () => {
+        jest.useFakeTimers();
+        const error = Object.assign(new AxiosError('Request failed with status code 400'), {
+            response: { status: 400, data: { errors: [{ code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER' }] } },
+        });
+        const generator = new VariantsGenerator();
+        const sync = jest.fn(() => Promise.reject(error));
+        generator.syncService = { sync };
+
+        const onRejected = jest.fn();
+        generator.saveVariants({ deleteQueue: [], createQueue: createVariants(150) }).catch(onRejected);
+        await jest.advanceTimersByTimeAsync(15000);
+
+        expect(sync).toHaveBeenCalledTimes(1);
+        expect(onRejected).toHaveBeenCalledWith(error);
+    });
+
+    it('should send chunks of 100 variants with indexing-behavior as a header', async () => {
         const generator = new VariantsGenerator();
         const sync = jest.fn(() => Promise.resolve({ data: {}, deleted: {} }));
         generator.syncService = { sync };
 
-        await generator.saveVariants({ deleteQueue: ['old-variant'], createQueue: createVariants(12) });
+        await generator.saveVariants({ deleteQueue: ['old-variant'], createQueue: createVariants(250) });
 
-        expect(sync).toHaveBeenCalledTimes(3);
+        expect(sync.mock.calls.map(([[operation]]) => [operation.action, operation.payload.length])).toEqual([
+            ['delete', 1],
+            ['upsert', 100],
+            ['upsert', 100],
+            ['upsert', 50],
+        ]);
         sync.mock.calls.forEach(([, params, headers]) => {
             expect(params).toEqual({});
-            expect(headers).toEqual({ 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' });
+            expect(headers).toEqual({ 'indexing-behavior': 'use-queue-indexing' });
         });
     });
 });

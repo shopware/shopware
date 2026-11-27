@@ -81,7 +81,7 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveConfig
                 },
             ],
             {},
-            { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' },
+            { 'indexing-behavior': 'use-queue-indexing' },
         );
 
         syncSpy.mockRestore();

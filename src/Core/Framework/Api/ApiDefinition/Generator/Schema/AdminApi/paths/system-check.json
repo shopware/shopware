@@ -25,6 +25,7 @@
                                                 "required": [
                                                     "name",
                                                     "category",
+                                                    "tags",
                                                     "result"
                                                 ],
                                                 "properties": {
@@ -39,6 +40,12 @@
                                                             "EXTERNAL",
                                                             "AUXILIARY"
                                                         ]
+                                                    },
+                                                    "tags": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
                                                     },
                                                     "result": {
                                                         "oneOf": [

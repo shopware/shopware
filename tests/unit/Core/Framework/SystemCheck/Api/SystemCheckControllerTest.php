@@ -40,7 +40,7 @@ class SystemCheckControllerTest extends TestCase
 
         $this->systemChecker = $this->createMock(SystemChecker::class);
         $this->controller = new SystemCheckController(
-            [$this->check('AppUrlVerification', Category::EXTERNAL), $this->check('LocalesReadiness', Category::FEATURE)],
+            [$this->check('AppUrlVerification', Category::EXTERNAL, ['apps']), $this->check('LocalesReadiness', Category::FEATURE)],
             $storage,
             $this->systemChecker,
         );
@@ -57,9 +57,10 @@ class SystemCheckControllerTest extends TestCase
                 [
                     'name' => 'AppUrlVerification',
                     'category' => 'EXTERNAL',
+                    'tags' => ['apps'],
                     'result' => ['status' => 'OK', 'healthy' => true, 'message' => 'APP_URL points to this shop', 'extra' => [], 'checkedAt' => '2026-11-24T10:00:00+00:00'],
                 ],
-                ['name' => 'LocalesReadiness', 'category' => 'FEATURE', 'result' => null],
+                ['name' => 'LocalesReadiness', 'category' => 'FEATURE', 'tags' => [], 'result' => null],
             ],
         ], json_decode((string) $response->getContent(), true));
     }
@@ -80,11 +81,15 @@ class SystemCheckControllerTest extends TestCase
         $this->controller->run(new Request(['check' => 'LocalesReadiness']));
     }
 
-    private function check(string $name, Category $category): BaseCheck
+    /**
+     * @param list<string> $tags
+     */
+    private function check(string $name, Category $category, array $tags = []): BaseCheck
     {
         $check = static::createStub(BaseCheck::class);
         $check->method('name')->willReturn($name);
         $check->method('category')->willReturn($category);
+        $check->method('tags')->willReturn($tags);
 
         return $check;
     }

@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
@@ -2418,6 +2419,11 @@ class EntityReaderTest extends TestCase
                     ['name' => 'X'],
                     ['name' => 'E'],
                     ['name' => 'D'],
+                    ['name' => 'F'],
+                    ['name' => 'G'],
+                    ['name' => 'H'],
+                    ['name' => 'I'],
+                    ['name' => 'J'],
                 ],
             ],
             [
@@ -2456,6 +2462,93 @@ class EntityReaderTest extends TestCase
 
         static::assertSame(['A', 'B', 'D'], array_values($red->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
         static::assertSame(['A', 'B', 'D'], array_values($green->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+    }
+
+    public function testLoadManyToManyPaginationCountsOnlyFilteredItems(): void
+    {
+        $id = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+            'categories' => [
+                ['name' => 'A'],
+                ['name' => 'B'],
+                ['name' => 'C'],
+                ['name' => 'D'],
+                ['name' => 'E'],
+                ['name' => 'F'],
+                ['name' => 'G'],
+                ['name' => 'H'],
+                ['name' => 'I'],
+                ['name' => 'J'],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->getAssociation('categories')
+            ->addFilter(new EqualsAnyFilter('name', ['B', 'D', 'F', 'H', 'J']))
+            ->addSorting(new FieldSorting('name'))
+            ->setLimit(3);
+
+        $product = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities()
+            ->get($id);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product->getCategories());
+
+        static::assertSame(['B', 'D', 'F'], array_values($product->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+    }
+
+    public function testLoadManyToManyPaginationWithToManySorting(): void
+    {
+        $id = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+            'categories' => [
+                ['name' => 'A', 'tags' => [['name' => 'tag-a'], ['name' => 'tag-b']]],
+                ['name' => 'B', 'tags' => [['name' => 'tag-c']]],
+                ['name' => 'C', 'tags' => [['name' => 'tag-d']]],
+                ['name' => 'D', 'tags' => [['name' => 'tag-e']]],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('tags.name'))
+            ->setLimit(3);
+
+        $product = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities()
+            ->get($id);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product->getCategories());
+
+        static::assertSame(['A', 'B', 'C'], array_values($product->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
     }
 
     public function testReadSupportsConditions(): void

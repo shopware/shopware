@@ -6,6 +6,7 @@ These rules apply to Jest, Vue Test Utils, and Administration unit/component tes
 - Snippet-only changes and new translations using existing error rendering need snippet linting, not tests that only assert translated text.
 - Put tests next to the code under test with a `.spec.ts` suffix for new TypeScript code.
 - Split very large tests into a `.spec/` directory grouped by behavior.
+- Tag every new test with `@regression`, `@behavior` or `@characterization` in a doc comment, see `src/Administration/Resources/app/administration/technical-docs/11-code-quality/04-test-annotations.md`.
 - Test behavior, not Vue internals or implementation details.
 - Prefer `shallowMount` for component tests unless child rendering is part of the behavior under test.
 - Clean up mounted wrappers in `afterEach()`.

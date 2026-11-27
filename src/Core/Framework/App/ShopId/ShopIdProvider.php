@@ -61,6 +61,21 @@ class ShopIdProvider implements ResetInterface
         return $this->shopId = $shopId;
     }
 
+    /**
+     * Compares the fingerprints of the stored shop ID with the current ones, without changing anything.
+     * Null when no shop ID with fingerprints is stored yet.
+     */
+    public function compareFingerprints(): ?FingerprintComparisonResult
+    {
+        /** @var ShopIdV2Config|null $shopIdV2 */
+        $shopIdV2 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        if (!\is_array($shopIdV2)) {
+            return null;
+        }
+
+        return $this->fingerprintGenerator->matchFingerprints(ShopId::fromSystemConfig($shopIdV2)->fingerprints);
+    }
+
     public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
     {
         $shopId = ShopId::v2(

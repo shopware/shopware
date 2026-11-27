@@ -12,8 +12,6 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Theme\Command\ThemeChangeCommand;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\ThemeCollection;
-use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -36,21 +34,18 @@ class ThemeChangeCommandTest extends TestCase
         $salesChannel->setUniqueIdentifier($salesChannel->getId());
         $salesChannel->setName('Storefront');
 
-        $theme = new ThemeEntity();
-        $theme->setId(Uuid::randomHex());
-        $theme->setUniqueIdentifier($theme->getId());
-        $theme->setTechnicalName('Storefront');
+        $themeId = Uuid::randomHex();
 
         $themeService = static::createMock(ThemeService::class);
         $themeService->expects($this->once())
             ->method('assignTheme')
-            ->with($theme->getId(), $salesChannel->getId(), static::anything(), false);
+            ->with($themeId, $salesChannel->getId(), static::anything(), false);
 
         $command = new ThemeChangeCommand(
             $themeService,
             static::createStub(StorefrontPluginRegistry::class),
             new StaticEntityRepository([new SalesChannelCollection([$salesChannel])]),
-            new StaticEntityRepository([new ThemeCollection([$theme])])
+            new StaticEntityRepository([[$themeId]])
         );
 
         // register the command on an application so the "question" helper set is available

@@ -5,6 +5,16 @@
     {% sw_include '@Storefront/storefront/page/content/meta.html.twig' %}
 {% endblock %}
 
+{% block base_body_skip_to_content %}
+    {% set productListing = null %}
+    {% set skipToContentCmsPage = page.landingPage ? page.landingPage.cmsPage : page.cmsPage %}
+    {% if skipToContentCmsPage and skipToContentCmsPage.getFirstElementOfType('sidebar-filter') %}
+        {% set skipToContentListingSlot = skipToContentCmsPage.getFirstElementOfType('product-listing') %}
+        {% set productListing = skipToContentListingSlot ? skipToContentListingSlot.data.listing : null %}
+    {% endif %}
+    {{ parent() }}
+{% endblock %}
+
 {% block base_main_inner %}
     <div class="container-main">
         {% block page_content %}

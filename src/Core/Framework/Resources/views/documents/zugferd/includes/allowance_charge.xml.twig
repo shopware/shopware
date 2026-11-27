@@ -12,7 +12,10 @@
     {% endif %}
 
     <ram:ActualAmount>{{ ac.actualAmount|zugferd_decimal }}</ram:ActualAmount>
-    <ram:ReasonCode>{{ ac.reasonCode.value }}</ram:ReasonCode>
+    {% if ac.reasonCode is not null %}
+        <ram:ReasonCode>{{ ac.reasonCode.value }}</ram:ReasonCode>
+    {% endif %}
+
     <ram:Reason>{{ ac.reason }}</ram:Reason>
 
     <ram:CategoryTradeTax>

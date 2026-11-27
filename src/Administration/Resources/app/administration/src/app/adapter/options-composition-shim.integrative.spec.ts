@@ -24,6 +24,7 @@ import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'sr
 import { convertOptionsApiOverrideToCompositionApi } from 'src/app/adapter/options-composition-shim';
 import { mount } from '@vue/test-utils';
 import { ref, computed, reactive, defineComponent, nextTick, watch } from 'vue';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * Helper: simulates the shim path that createExtendableSetup executes at mount time.
@@ -33,18 +34,17 @@ import { ref, computed, reactive, defineComponent, nextTick, watch } from 'vue';
  * watcher in createExtendableSetup picks up the change.
  */
 async function applyOptionsOverride(componentName: string, config: any) {
-    const spy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const overrideFn = convertOptionsApiOverrideToCompositionApi(componentName, config);
     if (!_overridesMap[componentName]) {
         _overridesMap[componentName] = reactive([]);
     }
     _overridesMap[componentName].push(overrideFn);
     await flushPromises();
-    spy.mockRestore();
 }
 
 describe('Options API Shim — Integrative Tests', () => {
     beforeEach(() => {
+        allowDeprecation('is being overridden with Options API patterns');
         ComponentFactory.getComponentRegistry().clear();
         ComponentFactory.getOverrideRegistry().clear();
         ComponentFactory._clearComponentHelper();

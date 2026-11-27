@@ -18,15 +18,28 @@ export function missingExtensions(loaded: readonly string[], required: readonly 
 
 export function loadedExtensions(): string[] {
     // startup warnings go to stdout on the CLI and would break the JSON
-    const output = execFileSync('php', ['-d', 'display_errors=stderr', '-r', 'echo json_encode(get_loaded_extensions());'], {
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-    });
+    const output = execFileSync(
+        'php',
+        [
+            '-d',
+            'display_errors=stderr',
+            '-r',
+            'echo json_encode(get_loaded_extensions());',
+        ],
+        {
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'pipe'],
+        },
+    );
 
     return JSON.parse(output) as string[];
 }
 
-export function checkPhpExtensions(core: Core, required: readonly string[], loaded: readonly string[] = loadedExtensions()): void {
+export function checkPhpExtensions(
+    core: Core,
+    required: readonly string[],
+    loaded: readonly string[] = loadedExtensions(),
+): void {
     const missing = missingExtensions(loaded, required);
     if (missing.length > 0) {
         core.setFailed(`PHP extensions not loaded: ${missing.join(', ')}`);

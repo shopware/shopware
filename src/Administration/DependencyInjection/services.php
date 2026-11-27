@@ -9,6 +9,8 @@ use Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand;
 use Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand;
 use Shopware\Administration\Command\GenerateEntitySchemaTypesCommand;
 use Shopware\Administration\Command\SetupExtensionToolingCommand;
+use Shopware\Administration\Command\TestExtensionsCommand;
+use Shopware\Administration\Command\UpgradeExtensionsCommand;
 use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Controller\AdminProductStreamController;
@@ -30,6 +32,7 @@ use Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfi
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -88,6 +91,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(TestExtensionsCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
+    $services->set(UpgradeExtensionsCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
     $services->set(GenerateEntitySchemaTypesCommand::class)
         ->tag('console.command');
 
@@ -122,6 +137,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('language.repository'),
             env('PRODUCT_ANALYTICS_GATEWAY_URL'),
             service(CustomerEmailUniqueChecker::class),
+            service(CacheInvalidator::class),
             param('shopware.api.refresh_token_ttl'),
         ])
         ->call('setContainer', [service('service_container')]);
@@ -155,6 +171,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
             service(SalesChannelContextService::class),
             service(RequestCriteriaBuilder::class),
+            service(ProductListingLoader::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

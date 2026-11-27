@@ -124,12 +124,28 @@
                             {% endblock %}
                         </div>
                         {% endblock %}
+
+                        {% block sw_media_modal_v2_mt_tab_content_extension %}
+                        <div
+                            v-if="activeExtensionTab"
+                            class="sw-media-modal-v2__extension-content"
+                        >
+                            <sw-iframe-renderer
+                                :key="activeExtensionTab.locationId"
+                                :src="extensionBaseUrl"
+                                :location-id="activeExtensionTab.locationId"
+                            />
+                        </div>
+                        {% endblock %}
                     </div>
                     {% endblock %}
                 </div>
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     position-identifier="sw-media-modal"
                     variant="minimal"
@@ -262,7 +278,7 @@
                         {% endblock %}
                     </template>
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             {% block sw_media_modal_v2_media_sidebar %}

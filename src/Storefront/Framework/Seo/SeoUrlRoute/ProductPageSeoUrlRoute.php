@@ -45,6 +45,11 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannel->getId()));
         $criteria->addAssociation('options.group');
+
+        // only load the main category of this sales channel, if the template uses the main categories
+        if ($criteria->hasAssociation('mainCategories')) {
+            $criteria->getAssociation('mainCategories')->addFilter(new EqualsFilter('salesChannelId', $salesChannel->getId()));
+        }
     }
 
     public function getMapping(Entity $product, ?SalesChannelEntity $salesChannel): SeoUrlMapping

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,6 +34,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -42,11 +45,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(ProductListingLoader::class)]
 class ProductListingLoaderTest extends TestCase
 {
-    /**
-     * @var MockObject&SalesChannelRepository<ProductCollection>
-     */
-    private MockObject&SalesChannelRepository $productRepository;
-
     private MockObject&SystemConfigService $systemConfigService;
 
     private Stub&Connection $connection;
@@ -59,7 +57,6 @@ class ProductListingLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->connection = static::createStub(Connection::class);
         $this->eventDispatcher = new EventDispatcher();
@@ -82,26 +79,18 @@ class ProductListingLoaderTest extends TestCase
                 };
             });
 
-        $this->productRepository
-            ->expects($this->once())
-            ->method('searchIds')
-            ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
-                static::assertCount(1, $criteria->getGroupFields());
-                static::assertTrue(array_filter(
-                    $criteria->getFilters(),
-                    static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
-                ) !== []);
+        $searchIds = function (Criteria $criteria): IdSearchResult {
+            static::assertCount(1, $criteria->getGroupFields());
+            static::assertTrue(array_filter(
+                $criteria->getFilters(),
+                static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
+            ) !== []);
 
-                return $this->createIdSearchResult($criteria, [
-                    'red-l' => ['score' => 10.0],
-                    'blue-m' => ['score' => 5.0],
-                ]);
-            });
-
-        $this->productRepository
-            ->expects($this->once())
-            ->method('aggregate')
-            ->willReturn(new AggregationResultCollection());
+            return $this->createIdSearchResult($criteria, [
+                'red-l' => ['score' => 10.0],
+                'blue-m' => ['score' => 5.0],
+            ]);
+        };
 
         $this->eventDispatcher->addListener(
             ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
@@ -111,17 +100,16 @@ class ProductListingLoaderTest extends TestCase
             }
         );
 
-        $this->productRepository
-            ->expects($this->once())
-            ->method('search')
-            ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
-                static::assertSame(['red-l', 'blue-m'], $criteria->getIds());
-                static::assertTrue($criteria->hasAssociation('options'));
+        $search = function (Criteria $criteria): EntitySearchResult {
+            static::assertSame(['red-l', 'blue-m'], $criteria->getIds());
+            static::assertTrue($criteria->hasAssociation('options'));
 
-                return $this->createProductSearchResult($criteria, ['red-l', 'blue-m']);
-            });
+            return $this->createProductSearchResult($criteria, ['red-l', 'blue-m']);
+        };
 
-        $result = $this->createLoader()->load(new Criteria(), $this->salesChannelContext);
+        $repository = StaticSalesChannelRepository::of(ProductCollection::class, [$searchIds, new AggregationResultCollection(), $search]);
+
+        $result = $this->createLoader($repository)->load(new Criteria(), $this->salesChannelContext);
 
         static::assertSame(['red-l', 'blue-m'], array_values($result->getEntities()->getIds()));
         static::assertSame(2, $result->getTotal());
@@ -145,26 +133,18 @@ class ProductListingLoaderTest extends TestCase
                 };
             });
 
-        $this->productRepository
-            ->expects($this->once())
-            ->method('searchIds')
-            ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
-                static::assertCount(0, $criteria->getGroupFields());
-                static::assertFalse(array_filter(
-                    $criteria->getFilters(),
-                    static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
-                ) !== []);
+        $searchIds = function (Criteria $criteria): IdSearchResult {
+            static::assertCount(0, $criteria->getGroupFields());
+            static::assertFalse(array_filter(
+                $criteria->getFilters(),
+                static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
+            ) !== []);
 
-                return $this->createIdSearchResult($criteria, [
-                    'variant-a' => ['score' => 10.0],
-                    'variant-b' => ['score' => 5.0],
-                ]);
-            });
-
-        $this->productRepository
-            ->expects($this->once())
-            ->method('aggregate')
-            ->willReturn(new AggregationResultCollection());
+            return $this->createIdSearchResult($criteria, [
+                'variant-a' => ['score' => 10.0],
+                'variant-b' => ['score' => 5.0],
+            ]);
+        };
 
         $this->eventDispatcher->addListener(
             ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
@@ -185,24 +165,85 @@ class ProductListingLoaderTest extends TestCase
             }
         );
 
-        $this->productRepository
-            ->expects($this->once())
-            ->method('search')
-            ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
-                static::assertSame(['variant-a', 'variant-b'], $criteria->getIds());
-                static::assertTrue($criteria->hasAssociation('options'));
+        $search = function (Criteria $criteria): EntitySearchResult {
+            static::assertSame(['variant-a', 'variant-b'], $criteria->getIds());
+            static::assertTrue($criteria->hasAssociation('options'));
 
-                return $this->createProductSearchResult($criteria, ['variant-a', 'variant-b']);
-            });
+            return $this->createProductSearchResult($criteria, ['variant-a', 'variant-b']);
+        };
 
         $criteria = new Criteria();
         $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
 
-        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+        $repository = StaticSalesChannelRepository::of(ProductCollection::class, [$searchIds, new AggregationResultCollection(), $search]);
+
+        $result = $this->createLoader($repository)->load($criteria, $this->salesChannelContext);
 
         static::assertFalse($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
         static::assertSame(['variant-a', 'variant-b'], array_values($result->getEntities()->getIds()));
+    }
+
+    #[DataProvider('includeInactiveProvider')]
+    public function testIncludeInactiveStateKeepsUnavailableProducts(bool $includeInactive): void
+    {
+        $closeoutFilter = new MultiFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('isCloseout', true)]);
+        $this->productCloseoutFilterFactory->method('create')->willReturn($closeoutFilter);
+
+        $this->systemConfigService
+            ->expects($this->exactly($includeInactive ? 1 : 2))
+            ->method('getBool')
+            ->willReturnCallback(static fn (string $key): bool => match ($key) {
+                'core.listing.partialDataLoading' => false,
+                'core.listing.hideCloseoutProductsWhenOutOfStock' => true,
+                default => throw new \RuntimeException('Unexpected config key ' . $key),
+            });
+
+        $searchIds = function (Criteria $criteria) use ($closeoutFilter, $includeInactive): IdSearchResult {
+            if ($includeInactive) {
+                static::assertNotContainsEquals($closeoutFilter, $criteria->getFilters());
+            } else {
+                static::assertContainsEquals($closeoutFilter, $criteria->getFilters());
+            }
+
+            return $this->createIdSearchResult($criteria, ['inactive' => ['score' => 1.0]]);
+        };
+
+        $this->eventDispatcher->addListener(
+            ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
+            static function (LoadPreviewExtension $extension): void {
+                $extension->result = array_combine($extension->ids, $extension->ids);
+                $extension->stopPropagation();
+            }
+        );
+
+        $availableFilter = new ProductAvailableFilter('sales-channel-id');
+
+        $search = function (Criteria $criteria) use ($availableFilter, $includeInactive): EntitySearchResult {
+            static::assertSame(['inactive'], $criteria->getIds());
+            // without a ProductAvailableFilter the sales channel repository adds its default one, which requires active products
+            static::assertEquals($includeInactive ? [$availableFilter] : [], $criteria->getFilters());
+
+            return $this->createProductSearchResult($criteria, ['inactive']);
+        };
+
+        $criteria = new Criteria();
+        $criteria->addFilter($availableFilter);
+        if ($includeInactive) {
+            $criteria->addState(ProductListingLoader::STATE_INCLUDE_INACTIVE);
+        }
+
+        $repository = StaticSalesChannelRepository::of(ProductCollection::class, [$searchIds, new AggregationResultCollection(), $search]);
+
+        $result = $this->createLoader($repository)->load($criteria, $this->salesChannelContext);
+
+        static::assertSame(['inactive'], array_values($result->getEntities()->getIds()));
+    }
+
+    public static function includeInactiveProvider(): \Generator
+    {
+        yield 'storefront listing' => [false];
+        yield 'include inactive' => [true];
     }
 
     public function testLoadResolvesPreviewOnSearchRouteWithOptionPostFilterWhenFindBestVariantIsDisabled(): void
@@ -226,21 +267,13 @@ class ProductListingLoaderTest extends TestCase
                 };
             });
 
-        $this->productRepository
-            ->expects($this->once())
-            ->method('searchIds')
-            ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
-                static::assertSame([], $criteria->getIds());
+        $searchIds = function (Criteria $criteria): IdSearchResult {
+            static::assertSame([], $criteria->getIds());
 
-                return $this->createIdSearchResult($criteria, [
-                    'variant-id' => ['score' => 10.0],
-                ]);
-            });
-
-        $this->productRepository
-            ->expects($this->once())
-            ->method('aggregate')
-            ->willReturn(new AggregationResultCollection());
+            return $this->createIdSearchResult($criteria, [
+                'variant-id' => ['score' => 10.0],
+            ]);
+        };
 
         $this->eventDispatcher->addListener(
             ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
@@ -263,21 +296,20 @@ class ProductListingLoaderTest extends TestCase
             }
         );
 
-        $this->productRepository
-            ->expects($this->once())
-            ->method('search')
-            ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
-                static::assertSame(['preview-id'], $criteria->getIds());
-                static::assertTrue($criteria->hasAssociation('options'));
+        $search = function (Criteria $criteria): EntitySearchResult {
+            static::assertSame(['preview-id'], $criteria->getIds());
+            static::assertTrue($criteria->hasAssociation('options'));
 
-                return $this->createProductSearchResult($criteria, ['preview-id']);
-            });
+            return $this->createProductSearchResult($criteria, ['preview-id']);
+        };
 
         $criteria = new Criteria();
         $criteria->addState(ResolvedCriteriaProductSearchRoute::STATE);
         $criteria->addPostFilter(new EqualsFilter('product.options.id', 'option-id'));
 
-        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+        $repository = StaticSalesChannelRepository::of(ProductCollection::class, [$searchIds, new AggregationResultCollection(), $search]);
+
+        $result = $this->createLoader($repository)->load($criteria, $this->salesChannelContext);
 
         static::assertTrue($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
@@ -308,22 +340,14 @@ class ProductListingLoaderTest extends TestCase
                 };
             });
 
-        $this->productRepository
-            ->expects($this->once())
-            ->method('searchIds')
-            ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
-                static::assertSame([], $criteria->getIds());
-                static::assertContains(Criteria::STATE_SCORE_RANKED_GROUPING, $criteria->getStates());
+        $searchIds = function (Criteria $criteria): IdSearchResult {
+            static::assertSame([], $criteria->getIds());
+            static::assertContains(Criteria::STATE_SCORE_RANKED_GROUPING, $criteria->getStates());
 
-                return $this->createIdSearchResult($criteria, [
-                    'variant-id' => ['score' => 10.0],
-                ]);
-            });
-
-        $this->productRepository
-            ->expects($this->once())
-            ->method('aggregate')
-            ->willReturn(new AggregationResultCollection());
+            return $this->createIdSearchResult($criteria, [
+                'variant-id' => ['score' => 10.0],
+            ]);
+        };
 
         $this->eventDispatcher->addListener(
             ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
@@ -332,20 +356,19 @@ class ProductListingLoaderTest extends TestCase
             }
         );
 
-        $this->productRepository
-            ->expects($this->once())
-            ->method('search')
-            ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
-                static::assertSame(['variant-id'], $criteria->getIds());
-                static::assertTrue($criteria->hasAssociation('options'));
+        $search = function (Criteria $criteria): EntitySearchResult {
+            static::assertSame(['variant-id'], $criteria->getIds());
+            static::assertTrue($criteria->hasAssociation('options'));
 
-                return $this->createProductSearchResult($criteria, ['variant-id']);
-            });
+            return $this->createProductSearchResult($criteria, ['variant-id']);
+        };
 
         $criteria = new Criteria();
         $criteria->addState(ResolvedCriteriaProductSearchRoute::STATE);
 
-        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+        $repository = StaticSalesChannelRepository::of(ProductCollection::class, [$searchIds, new AggregationResultCollection(), $search]);
+
+        $result = $this->createLoader($repository)->load($criteria, $this->salesChannelContext);
 
         static::assertFalse($previewLoaded);
         static::assertSame(['variant-id'], array_values($result->getEntities()->getIds()));
@@ -427,6 +450,31 @@ class ProductListingLoaderTest extends TestCase
         static::assertSame([$ids->get('main-a')], $resultIds);
     }
 
+    public function testLoadPreviewsKeepsConfiguredVariantWhenIncludingInactive(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->productCloseoutFilterFactory->method('create')
+            ->willReturn(new MultiFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('isCloseout', true)]));
+
+        $availableFilter = new ProductAvailableFilter('sales-channel-id');
+        $criteria = new Criteria();
+        $criteria->addFilter($availableFilter);
+        $criteria->addState(ProductListingLoader::STATE_INCLUDE_INACTIVE);
+
+        [$availabilityCriteria, $resultIds] = $this->loadWithPreviews(
+            [$this->createPreviewConfigRow($ids, 'found-a', 'parent-a', ['mainVariantId' => $ids->get('main-a')])],
+            [],
+            [$ids->get('main-a')],
+            $criteria,
+            true
+        );
+
+        // the configured variant is checked like the listing itself: no default available filter and no closeout filter
+        static::assertEquals([$availableFilter], $availabilityCriteria->getFilters());
+        static::assertSame([$ids->get('main-a')], $resultIds);
+    }
+
     /**
      * @param list<array{variantListingConfig: string, id: string, parentId: string}> $configRows
      * @param list<Filter> $postFilters
@@ -434,43 +482,39 @@ class ProductListingLoaderTest extends TestCase
      *
      * @return array{Criteria, list<string>}
      */
-    private function loadWithPreviews(array $configRows, array $postFilters, array $availableIds): array
+    private function loadWithPreviews(array $configRows, array $postFilters, array $availableIds, ?Criteria $criteria = null, bool $hideCloseout = false): array
     {
         $this->systemConfigService
             ->expects($this->atLeastOnce())
             ->method('getBool')
             ->willReturnCallback(static fn (string $key): bool => match ($key) {
-                'core.listing.partialDataLoading', 'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
+                'core.listing.partialDataLoading' => false,
+                'core.listing.hideCloseoutProductsWhenOutOfStock' => $hideCloseout,
                 default => throw new \RuntimeException('Unexpected config key ' . $key),
             });
 
         $this->connection->method('fetchAllAssociative')->willReturn($configRows);
 
         $availabilityCriteria = null;
-        $this->productRepository
-            ->expects($this->exactly(2))
-            ->method('searchIds')
-            ->willReturnCallback(function (Criteria $criteria) use ($configRows, $availableIds, &$availabilityCriteria): IdSearchResult {
-                if ($criteria->getIds() === []) {
-                    return $this->createIdSearchResult($criteria, array_fill_keys(array_column($configRows, 'id'), []));
-                }
+        $searchIds = function (Criteria $criteria) use ($configRows, $availableIds, &$availabilityCriteria): IdSearchResult {
+            if ($criteria->getIds() === []) {
+                return $this->createIdSearchResult($criteria, array_fill_keys(array_column($configRows, 'id'), []));
+            }
 
-                $availabilityCriteria = $criteria;
+            $availabilityCriteria = $criteria;
 
-                return $this->createIdSearchResult($criteria, array_fill_keys($availableIds, []));
-            });
+            return $this->createIdSearchResult($criteria, array_fill_keys($availableIds, []));
+        };
+        $search = fn (Criteria $criteria): EntitySearchResult => $this->createProductSearchResult($criteria, array_values(array_filter($criteria->getIds(), 'is_string')));
 
-        $this->productRepository->method('aggregate')->willReturn(new AggregationResultCollection());
-        $this->productRepository
-            ->method('search')
-            ->willReturnCallback(fn (Criteria $criteria): EntitySearchResult => $this->createProductSearchResult($criteria, array_values(array_filter($criteria->getIds(), 'is_string'))));
-
-        $criteria = new Criteria();
+        $criteria ??= new Criteria();
         foreach ($postFilters as $postFilter) {
             $criteria->addPostFilter($postFilter);
         }
 
-        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+        $repository = StaticSalesChannelRepository::of(ProductCollection::class, [$searchIds, new AggregationResultCollection(), $searchIds, $search]);
+
+        $result = $this->createLoader($repository)->load($criteria, $this->salesChannelContext);
 
         static::assertInstanceOf(Criteria::class, $availabilityCriteria);
 
@@ -491,10 +535,13 @@ class ProductListingLoaderTest extends TestCase
         ];
     }
 
-    private function createLoader(): ProductListingLoader
+    /**
+     * @param SalesChannelRepository<ProductCollection> $productRepository
+     */
+    private function createLoader(SalesChannelRepository $productRepository): ProductListingLoader
     {
         return new ProductListingLoader(
-            $this->productRepository,
+            $productRepository,
             $this->systemConfigService,
             $this->connection,
             $this->eventDispatcher,
@@ -554,25 +601,19 @@ class ProductListingLoaderTest extends TestCase
             });
 
         $resolved = null;
-        $this->productRepository
-            ->expects($this->once())
-            ->method('searchIds')
-            ->willReturnCallback(function (Criteria $criteria) use (&$resolved): IdSearchResult {
-                $resolved = $criteria;
+        $searchIds = function (Criteria $criteria) use (&$resolved): IdSearchResult {
+            $resolved = $criteria;
 
-                // no ids: the loader stops right after resolving them
-                return $this->createIdSearchResult($criteria, []);
-            });
-
-        $this->productRepository
-            ->expects($this->once())
-            ->method('aggregate')
-            ->willReturn(new AggregationResultCollection());
+            // no ids: the loader stops right after resolving them
+            return $this->createIdSearchResult($criteria, []);
+        };
 
         $criteria = new Criteria();
         $criteria->addState(ResolvedCriteriaProductSearchRoute::STATE);
 
-        $this->createLoader()->load($criteria, $this->salesChannelContext);
+        $repository = StaticSalesChannelRepository::of(ProductCollection::class, [$searchIds, new AggregationResultCollection()]);
+
+        $this->createLoader($repository)->load($criteria, $this->salesChannelContext);
 
         static::assertInstanceOf(Criteria::class, $resolved);
 

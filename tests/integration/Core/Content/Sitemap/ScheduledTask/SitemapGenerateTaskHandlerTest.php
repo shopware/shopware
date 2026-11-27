@@ -234,6 +234,45 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $this->sitemapHandler->run();
     }
 
+    public function testSkipsInactiveSalesChannels(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM sales_channel');
+
+        $activeId = Uuid::randomHex();
+        $this->createSalesChannel([
+            'id' => $activeId,
+            'name' => 'active',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://active.test',
+            ]],
+        ]);
+        $this->createSalesChannel([
+            'name' => 'inactive',
+            'active' => false,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://inactive.test',
+            ]],
+        ]);
+
+        $message = new SitemapMessage($activeId, Defaults::LANGUAGE_SYSTEM, null, null, false);
+
+        $this->messageBusMock->expects($this->once())
+            ->method('dispatch')
+            ->with($message)
+            ->willReturn(new Envelope($message));
+
+        $this->sitemapHandler->run();
+    }
+
     public function testDispatchesHeadlessSalesChannelWithExternalStorefrontDomain(): void
     {
         $connection = static::getContainer()->get(Connection::class);

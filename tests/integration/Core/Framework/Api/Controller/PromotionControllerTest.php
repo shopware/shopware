@@ -229,8 +229,8 @@ class PromotionControllerTest extends TestCase
         $promotion = $this->getPromotionFromDB($promotionId);
         static::assertNotNull($promotion);
         static::assertNotNull($promotion->getDiscounts());
-        /** @var PromotionDiscountEntity $discount */
         $discount = $promotion->getDiscounts()->get($discountId);
+        static::assertInstanceOf(PromotionDiscountEntity::class, $discount);
 
         static::assertSame('percentage', $discount->getType());
         static::assertSame(12.5, $discount->getValue());
@@ -270,7 +270,6 @@ class PromotionControllerTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('discounts');
 
-        /** @var PromotionEntity|null $promotion */
         $promotion = $this->promotionRepository->search($criteria, $this->context)->getEntities()->get($id);
 
         return $promotion;

@@ -284,9 +284,8 @@ class ProductExportControllerTest extends TestCase
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = static::getContainer()->get('sales_channel_domain.repository');
 
-        /** @var SalesChannelDomainEntity $salesChannelDomain */
         $salesChannelDomain = $repository->search(new Criteria(), $this->context)->getEntities()->first();
-        static::assertNotNull($salesChannelDomain);
+        static::assertInstanceOf(SalesChannelDomainEntity::class, $salesChannelDomain);
 
         return $salesChannelDomain;
     }
@@ -316,9 +315,8 @@ class ProductExportControllerTest extends TestCase
             ],
         ], $this->context);
 
-        /** @var ProductExportEntity $productExport */
         $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->getEntities()->get($productExportId);
-        static::assertNotNull($productExport);
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         return $productExport;
     }
@@ -349,9 +347,8 @@ class ProductExportControllerTest extends TestCase
             ],
         ], $this->context);
 
-        /** @var ProductExportEntity $productExport */
         $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->getEntities()->get($productExportId);
-        static::assertNotNull($productExport);
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         return $productExport;
     }

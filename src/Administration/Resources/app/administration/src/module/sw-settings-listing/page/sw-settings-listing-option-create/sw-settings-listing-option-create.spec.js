@@ -83,20 +83,12 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
     async function createWrapper() {
         productSortingRepositoryMock = {
-            search: (param) => {
-                let response = null;
+            searchIds: (param) => {
+                const ids = getProductSortings()
+                    .filter((element) => element[param.filters[0].field] === param.filters[0].value)
+                    .map((element) => element.id);
 
-                getProductSortings().forEach((element) => {
-                    if (element[param.filters.field]) {
-                        response = element;
-                    }
-                });
-
-                return Promise.resolve({
-                    first: () => {
-                        return response;
-                    },
-                });
+                return Promise.resolve({ total: ids.length, data: ids });
             },
             create: () => getProductSortings()[0],
             save: jest.fn(() =>
@@ -190,8 +182,8 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
     it('should handle the "KeyAlreadyExists" case', async () => {
         wrapper.vm.productSortingEntity.key = 'existingKey';
-        const resolvedValue = [{}];
-        wrapper.vm.productSortingRepository.search = jest.fn().mockResolvedValue(resolvedValue);
+        const resolvedValue = { total: 1, data: ['existing-product-sorting-id'] };
+        wrapper.vm.productSortingRepository.searchIds = jest.fn().mockResolvedValue(resolvedValue);
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.onSave();

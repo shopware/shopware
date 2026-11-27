@@ -33,6 +33,11 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
     final public const DEMOTED_DISCOVERY_TOOLS_PARAMETER = 'shopware.mcp.demoted_discovery_tools';
 
     /**
+     * Groups that lost tools to `shopware.mcp.allowed_tools`.
+     */
+    final public const TRIMMED_TOOL_GROUPS_PARAMETER = 'shopware.mcp.tool_groups_trimmed_by_allowed_tools';
+
+    /**
      * The element kinds the bundle's McpPass resolves against the configured patterns, by the tag it
      * reads each one from. "apps" is replayed there purely so an app pattern counts as used, so it
      * has to be considered here as well.
@@ -52,6 +57,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             $container->setParameter($paramPrefix . 'tool_privileges', []);
             $container->setParameter($paramPrefix . 'advertised_tools', []);
             $container->setParameter($paramPrefix . 'tool_groups', []);
+            $container->setParameter($paramPrefix . 'tool_group_descriptions', []);
         }
         $container->setParameter(self::DEMOTED_DISCOVERY_TOOLS_PARAMETER, []);
 
@@ -330,15 +336,24 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             return;
         }
 
+        $trimmedGroups = [];
         foreach ($serviceIds as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
 
             if ($toolInfo === null || !\in_array($toolInfo['name'], $allowedTools, true)) {
+                $group = McpToolAttributeReader::resolveInfo($class, McpToolGroup::class, ['group'])['group'] ?? null;
+                if (\is_string($group) && $group !== '') {
+                    $trimmedGroups[$group] = true;
+                }
+
                 $container->removeDefinition($serviceId);
             }
         }
+
+        // An authored toolset description promises the whole toolset, see McpToolAnalysisCompilerPass.
+        $container->setParameter(self::TRIMMED_TOOL_GROUPS_PARAMETER, array_keys($trimmedGroups));
     }
 
     /**

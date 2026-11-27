@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Store\StoreException;
 
 /**
  * @internal
@@ -87,6 +88,15 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
     {
         if ($type === 'plugin') {
             $plugin = $this->pluginService->getPluginByName($technicalName, $context);
+
+            if ($plugin->getManagedByComposer() && !$plugin->isLocatedInCustomPluginDirectory()) {
+                throw StoreException::cannotDeleteManaged($plugin->getName());
+            }
+
+            if ($plugin->getInstalledAt() !== null) {
+                $this->pluginLifecycleService->uninstallPlugin($plugin, $context, $keepUserData);
+            }
+
             $this->pluginManagementService->deletePlugin($plugin, $context);
 
             return;

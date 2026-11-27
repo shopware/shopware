@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\Framework\Mcp\McpServerInstructions;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -32,29 +33,50 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
         $adminRegistry[] = 'Shopware\\Storefront\\Mcp\\';
     }
 
+    // Cache hints (SEP-2549) on the answers of the stateless 2026-07-28 revision; the handshake
+    // revisions carry none. Every answer is `private`, because both servers answer per caller: the
+    // allowlist of the integration or user and `?toolsets=` shape the lists. A shared cache must never
+    // hand them to another caller. Nothing is fresh by default. `server/discover` and the lists stay fresh for a
+    // minute, a fallback for clients that do not follow `subscriptions/listen`, so an allowlist change reaches
+    // every client within that minute. The reference resources name their own TTL, see McpResourceCacheHint.
+    $listTtlMs = 60_000;
+    $cache = [
+        'ttl_ms' => 0,
+        'scope' => 'private',
+        'methods' => [
+            'server/discover' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+            'tools/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+            'prompts/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+            'resources/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+            'resources/templates/list' => ['ttl_ms' => $listTtlMs, 'scope' => 'private'],
+        ],
+    ];
+
     $container->extension('mcp', [
         'servers' => [
             'admin' => [
                 'name' => 'Shopware',
                 'version' => '1.0.0',
                 'description' => 'Shopware MCP server providing tools for entity management, system configuration, and storefront operations.',
-                'instructions' => "This MCP server exposes Shopware e-commerce platform capabilities.\nUse entity tools to search, read, and manage shop data.\nThe advertised tool list is not the full catalogue. If no advertised tool matches the requested action, call shopware-tool-search first instead of assuming the action is unsupported; use shopware-toolsets-list and shopware-toolset-enable to make a matched tool callable if your client cannot invoke it inline.\nAll operations respect the authenticated user's ACL permissions.\n",
+                'instructions' => McpServerInstructions::ADMIN,
                 // Both endpoints are routed by Shopware's own controllers (api.mcp.endpoint and
                 // store-api.mcp.endpoint), which apply authentication, rate limiting and the
                 // capability allowlist. The bundle's controller and route loader stay switched off.
                 'transports' => ['http' => false, 'stdio' => false],
                 'registry' => $adminRegistry,
+                'cache' => $cache,
             ],
             'store_api' => [
                 'name' => 'Shopware Store API',
                 'version' => '1.0.0',
                 'description' => 'Shopware Store API MCP server for sales-channel and customer-context operations.',
-                'instructions' => 'This MCP server exposes Store API capabilities. All operations run in the current sales-channel context and use Store API authentication headers. The advertised tool list is not the full catalogue: if no advertised tool matches the requested action, call shopware-tool-search first instead of assuming the action is unsupported, then use shopware-toolsets-list and shopware-toolset-enable to make a matched tool callable if your client cannot invoke it inline.',
+                'instructions' => McpServerInstructions::STORE_API,
                 'transports' => ['http' => false, 'stdio' => false],
                 'registry' => [
                     'tools' => ['Shopware\\Core\\System\\SalesChannel\\Mcp\\'],
                     'resource_templates' => ['Shopware\\Core\\System\\SalesChannel\\Mcp\\Resource\\'],
                 ],
+                'cache' => $cache,
             ],
         ],
     ]);

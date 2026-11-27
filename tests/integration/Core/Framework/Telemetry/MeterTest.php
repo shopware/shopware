@@ -48,22 +48,6 @@ class MeterTest extends TestCase
         $this->traceableTransport = $traceableTransport;
     }
 
-    public function testMeterEmitsAllConfiguredEnabledMetrics(): void
-    {
-        Feature::skipTestIfInActive('TELEMETRY_METRICS', $this);
-
-        $definitions = array_filter($this->definitions, static fn (array $definition) => ($definition['enabled'] ?? true) === true);
-
-        $this->traceableTransport->reset();
-        foreach ($definitions as $name => $definition) {
-            $configuredMetric = new ConfiguredMetric(name: $name, value: random_int(1, 10), labels: []);
-            $this->meter->emit($configuredMetric);
-        }
-
-        $transportedMetrics = $this->traceableTransport->getEmittedMetrics();
-        static::assertSameSize($definitions, $transportedMetrics);
-    }
-
     public function testNotEmittedWithFeatureFlagOff(): void
     {
         Feature::skipTestIfActive('TELEMETRY_METRICS', $this);

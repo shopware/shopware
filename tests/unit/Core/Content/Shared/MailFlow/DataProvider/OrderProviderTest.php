@@ -46,6 +46,7 @@ class OrderProviderTest extends AbstractProviderTestCase
             'stateMachineState',
             'transactions.stateMachineState',
             'transactions.paymentMethod',
+            'transactions.captures.refunds',
             'deliveries.stateMachineState',
             'currency',
             'addresses.country',

@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 const advancedModeSettings = {
     value: {
@@ -57,13 +58,15 @@ const defaultSalesChannelData = {
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
+    const updateCanonicalUrlMock = jest.fn(() => Promise.resolve());
+
     async function createWrapper(
         searchFunction = () => Promise.resolve([]),
         getFunction = () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
+        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn(), routedComponent = null } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -85,7 +88,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
-                    seoUrlService: {},
+                    seoUrlService: { updateCanonicalUrl: updateCanonicalUrlMock },
                     mediaService: {},
                     repositoryFactory: {
                         create: (entity) => ({
@@ -113,6 +116,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                                 if (product && !product.isNew) {
                                     product.isNew = () => false;
+                                }
+
+                                if (product && !product.getOrigin) {
+                                    product.getOrigin = () => product._origin;
                                 }
 
                                 return product;
@@ -146,6 +153,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-page': {
                         template: `<div class="sw-page">
                             <slot name="smart-bar-actions"></slot>
+                            <slot name="language-switch"></slot>
                             <slot name="content">
                                 <div class="sw-tabs"></div>
                             </slot>
@@ -153,7 +161,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         </div>`,
                     },
                     'sw-product-variant-info': true,
-                    'sw-button-group': true,
+                    'sw-button-group': { template: '<div><slot /></div>' },
                     'sw-button-process': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
@@ -162,7 +170,12 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },
                     'sw-language-info': true,
-                    'router-view': true,
+                    'router-view': routedComponent
+                        ? {
+                              components: { RoutedContent: routedComponent },
+                              template: '<slot :Component="$options.components.RoutedContent"/>',
+                          }
+                        : true,
 
                     'sw-context-menu-divider': true,
                     'sw-checkbox-field': true,
@@ -270,7 +283,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             productId: null,
         });
 
-        wrapper.vm.onDuplicate();
+        await wrapper.vm.onDuplicate();
 
         expect(wrapper.vm.cloning).toBe(true);
     });
@@ -877,6 +890,176 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
 
+    /* eslint-disable sw-test-rules/no-vm-access -- save, duplicate and the language switch are only reachable through the stubbed smart bar */
+    describe('saving queued variant document updates', () => {
+        const operation = { mediaId: 'media-id', title: 'Manual', changes: { title: 'Guide' } };
+        let sync;
+
+        beforeAll(() => {
+            Shopware.Service().register('productDocumentVariantService', () => ({ sync: () => Promise.resolve([]) }));
+        });
+
+        beforeEach(async () => {
+            wrapper.unmount();
+            wrapper = await createWrapper(undefined, () => Promise.resolve({ id: 'product-id', variation: [] }));
+            await flushPromises();
+            wrapper.vm.createNotificationError = jest.fn();
+            sync = jest.spyOn(Shopware.Service('productDocumentVariantService'), 'sync').mockResolvedValue([]);
+            Shopware.Store.get('swProductDetail').documentVariantOperations = { 'document-id': operation };
+            Shopware.Store.get('swProductDetail').product.prices = [];
+        });
+
+        it('sends the queued operations for the saved product in its language after the product save', async () => {
+            await wrapper.vm.saveProduct();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, wrapper.vm.productApiContext.languageId);
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+
+        it('sends the queued operations when the product itself has no changes', async () => {
+            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(false);
+
+            const response = await wrapper.vm.saveProduct();
+
+            expect(response).toBe('empty');
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+
+        it('sends the operations to the saved product when another product is loaded before they are sent', async () => {
+            const saveDocumentVariants = wrapper.vm.getDocumentVariantsSaver();
+            Shopware.Store.get('swProductDetail').product = { id: 'other-product' };
+
+            await saveDocumentVariants();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+        });
+
+        it('keeps the queued operations and shows an error when the variant update fails', async () => {
+            sync.mockRejectedValue(new Error('Request failed'));
+
+            await wrapper.vm.getDocumentVariantsSaver()();
+
+            expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+                message: 'sw-product.documentForm.errorSaveVariants',
+            });
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
+        });
+
+        it('sends nothing when no operation is queued', async () => {
+            Shopware.Store.get('swProductDetail').documentVariantOperations = {};
+
+            await wrapper.vm.saveProduct();
+
+            expect(sync).not.toHaveBeenCalled();
+        });
+
+        it('asks before a language switch while variant updates are queued', () => {
+            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(false);
+
+            expect(wrapper.vm.abortOnLanguageChange()).toBe(true);
+
+            Shopware.Store.get('swProductDetail').documentVariantOperations = {};
+
+            expect(wrapper.vm.abortOnLanguageChange()).toBe(false);
+        });
+
+        it('saves the product with the queued operations before it is duplicated', async () => {
+            sync.mockImplementation(() => {
+                expect(wrapper.vm.cloning).toBe(false);
+                return Promise.resolve([]);
+            });
+
+            await wrapper.vm.onDuplicate();
+            await flushPromises();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+            expect(wrapper.vm.cloning).toBe(true);
+        });
+
+        it('does not duplicate the product when its save fails', async () => {
+            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(true);
+            jest.spyOn(wrapper.vm.syncRepository, 'save').mockRejectedValue(new Error('Save failed'));
+
+            await wrapper.vm.onDuplicate();
+            await flushPromises();
+
+            expect(sync).not.toHaveBeenCalled();
+            expect(wrapper.vm.cloning).toBe(false);
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
+        });
+
+        it('duplicates the product right away when no operation is queued', () => {
+            Shopware.Store.get('swProductDetail').documentVariantOperations = {};
+
+            wrapper.vm.onDuplicate();
+
+            expect(sync).not.toHaveBeenCalled();
+            expect(wrapper.vm.cloning).toBe(true);
+        });
+
+        it('discards the queued operations when a product is loaded', async () => {
+            await wrapper.vm.loadProduct();
+
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+    });
+    /* eslint-enable sw-test-rules/no-vm-access */
+
+    describe('saving SEO URLs', () => {
+        async function saveWithSeoUrl({ foreignKey = 'product-id', seoPathInfo, isModified }) {
+            updateCanonicalUrlMock.mockClear();
+
+            wrapper.unmount();
+            wrapper = await createWrapper(undefined, () => Promise.resolve({ id: 'product-id', variation: [] }));
+            await flushPromises();
+
+            const original = {
+                id: 'sc',
+                foreignKey,
+                salesChannelId: 'sc',
+                languageId: 'lang',
+                seoPathInfo: 'Custom/Path',
+                isModified,
+            };
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [original];
+            seoStore.seoUrlCollection = [{ ...original, seoPathInfo }];
+
+            // eslint-disable-next-line sw-test-rules/no-vm-access -- the save button sits inside the stubbed sw-button-group
+            await wrapper.vm.saveProduct();
+        }
+
+        afterEach(() => {
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [];
+            seoStore.seoUrlCollection = null;
+        });
+
+        it.each([
+            { state: 'cleared', seoPathInfo: '', originalIsModified: true, isModified: false },
+            { state: 'whitespace-only', seoPathInfo: '  ', originalIsModified: true, isModified: false },
+            { state: 'edited', seoPathInfo: 'New/Path', originalIsModified: false, isModified: true },
+        ])(
+            'should send a $state SEO URL with isModified=$isModified',
+            async ({ seoPathInfo, originalIsModified, isModified }) => {
+                await saveWithSeoUrl({ seoPathInfo, isModified: originalIsModified });
+
+                expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
+                expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
+                    expect.objectContaining({ id: 'sc', seoPathInfo, isModified }),
+                    'lang',
+                );
+            },
+        );
+
+        it('should not send SEO URLs left over from another product', async () => {
+            await saveWithSeoUrl({ foreignKey: 'other-product-id', seoPathInfo: '', isModified: true });
+
+            expect(updateCanonicalUrlMock).not.toHaveBeenCalled();
+        });
+    });
+
     it('should set isSaveSuccessful to true when no SEO promises exist', () => {
         wrapper.vm.loadProduct = jest.fn();
 
@@ -888,29 +1071,69 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
-    it.each(['success', 'empty'])('should announce a save that finished with "%s"', async (response) => {
-        wrapper.vm.loadProduct = jest.fn();
-        wrapper.vm.updateSeoPromises = [];
+    it.each(['success', 'empty'])(
+        'emits save success without repeating document Apply notifications for "%s"',
+        async (response) => {
+            const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+            wrapper.vm.loadProduct = jest.fn();
+            wrapper.vm.updateSeoPromises = [];
+            Shopware.Utils.EventBus.emit = jest.fn();
 
-        Shopware.Utils.EventBus.emit = jest.fn();
+            wrapper.vm.onSaveFinished(response);
+            await flushPromises();
 
-        wrapper.vm.onSaveFinished(response);
-        await flushPromises();
-
-        expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
-    });
+            expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
+            expect(notificationSpy).not.toHaveBeenCalledWith(
+                expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.applySuccess' }),
+            );
+        },
+    );
 
     it('should not announce a save that failed', async () => {
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         wrapper.vm.loadProduct = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.updateSeoPromises = [];
-
         Shopware.Utils.EventBus.emit = jest.fn();
 
         wrapper.vm.onSaveFinished({ response: { data: { errors: [{ detail: 'nope' }] } } });
         await flushPromises();
 
         expect(Shopware.Utils.EventBus.emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
+        expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
+    });
+
+    it('keeps the active language when an earlier page lookup finishes last', async () => {
+        wrapper.unmount();
+        let resolveGerman;
+        wrapper = await createWrapper(undefined, (id) => {
+            if (id === 'german') {
+                return new Promise((resolve) => {
+                    resolveGerman = resolve;
+                });
+            }
+            return Promise.resolve({ id, variation: [] });
+        });
+        await flushPromises();
+        const api = Shopware.Store.get('context').api;
+        const originalLanguageId = api.languageId;
+        const originalLanguage = api.language;
+
+        try {
+            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'german');
+            await flushPromises();
+            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'french');
+            await flushPromises();
+            expect(api.language.id).toBe('french');
+
+            resolveGerman({ id: 'german', locale: { code: 'de-DE' } });
+            await flushPromises();
+            expect(api.languageId).toBe('french');
+            expect(api.language.id).toBe('french');
+        } finally {
+            api.languageId = originalLanguageId;
+            api.language = originalLanguage;
+        }
     });
 
     it('should handle success response correctly', async () => {

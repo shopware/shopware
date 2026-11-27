@@ -121,7 +121,7 @@
   },
   "src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.spec.js": {
     "sw-test-rules/no-vm-access": {
-      "count": 80
+      "count": 78
     }
   },
   "src/modules/sw-theme-manager/page/sw-theme-manager-list/index.js": {

@@ -10,6 +10,7 @@ use League\OAuth2\Server\RequestRefreshTokenEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
 use Shopware\Core\Framework\Sso\UserService\ExternalAuthUser;
@@ -22,6 +23,12 @@ use Shopware\Core\Framework\Sso\UserService\UserService;
 class ShopwareGrantType extends AbstractGrant
 {
     public const TYPE = 'shopware_grant';
+
+    /**
+     * How old the identity provider authentication may be for the token to carry the `user-verified` scope.
+     * The code exchange follows the login within seconds; the margin covers clock skew between both sides.
+     */
+    public const VERIFIED_LOGIN_MAX_AGE_SECONDS = 300;
 
     public function __construct(
         RefreshTokenRepositoryInterface $refreshTokenRepository,
@@ -45,6 +52,12 @@ class ShopwareGrantType extends AbstractGrant
         $user = $this->validateUser($request);
         $userIdentifier = $user->getIdentifier();
         $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $userIdentifier);
+
+        // The scope repository reserves `user-verified` for the password grant. A login the identity
+        // provider just performed is the SSO counterpart of re-entering the password.
+        if ($user->isAuthenticatedWithin(self::VERIFIED_LOGIN_MAX_AGE_SECONDS, $this->clock->now())) {
+            $finalizedScopes[] = new UserVerifiedScope();
+        }
 
         // take the shorter token TTL to avoid that the external token gets invalid
         $lowerTTL = TokenTimeToLive::getLowerTTL($accessTokenTTL, $this->clock->now()->diff($user->expiry));

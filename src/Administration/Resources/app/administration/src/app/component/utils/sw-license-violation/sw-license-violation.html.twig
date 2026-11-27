@@ -46,7 +46,15 @@
                     </template>
                 </td>
 
-                <td>{{ violation.extensions.licenseViolation.text }}</td>
+                <td>
+                    {{ violation.extensions.licenseViolation.text }}
+                    <p
+                        v-if="getPluginForViolation(violation) && !getPluginForViolation(violation).allowUpdate"
+                        class="sw-license-violation__removal-hint"
+                    >
+                        {{ $t('sw-license-violation.removeExternally') }}
+                    </p>
+                </td>
 
                 <td class="sw-license-violation__table-actions">
                     <div
@@ -55,6 +63,7 @@
                         class="sw-license-violation__table-actions-wrap"
                     >
                         <mt-button
+                            v-if="getPluginForViolation(violation)?.allowUpdate"
                             class="sw-license-violation__table-action-remove"
                             variant="critical"
                             ghost

@@ -5,11 +5,14 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -95,6 +98,76 @@ class DeliveryNoteRendererTest extends TestCase
 
         static::assertArrayHasKey($orderId, $result->getSuccess());
         static::assertCount(0, $result->getErrors());
+    }
+
+    public function testRenderFailsBeforeReservingANumberForADeliveryOfAnotherOrder(): void
+    {
+        $order = $this->createOrder();
+        $orderDelivery = new OrderDeliveryEntity();
+        $orderDelivery->setId(Uuid::randomHex());
+        $order->setDeliveries(new OrderDeliveryCollection([$orderDelivery]));
+
+        $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
+        $numberRangeValueGenerator->expects($this->never())->method('getValue');
+
+        $foreignDeliveryId = Uuid::randomHex();
+        $operation = new DocumentGenerateOperation($order->getId(), config: ['custom' => ['orderDeliveryId' => $foreignDeliveryId]]);
+
+        $result = $this->createRenderer($order, $numberRangeValueGenerator)
+            ->render([$order->getId() => $operation], Context::createDefaultContext(), new DocumentRendererConfig());
+
+        static::assertSame([], $result->getSuccess());
+        static::assertEquals(
+            DocumentException::orderDeliveryNotFound($foreignDeliveryId, $order->getId()),
+            $result->getErrors()[$order->getId()] ?? null,
+        );
+    }
+
+    public function testRenderFailsForAnOrderDeliveryIdThatIsNoString(): void
+    {
+        $order = $this->createOrder();
+        $operation = new DocumentGenerateOperation($order->getId(), config: ['custom' => ['orderDeliveryId' => ['not', 'an', 'id']]]);
+
+        $result = $this->createRenderer($order, static::createStub(NumberRangeValueGeneratorInterface::class))
+            ->render([$order->getId() => $operation], Context::createDefaultContext(), new DocumentRendererConfig());
+
+        static::assertEquals(
+            DocumentException::invalidRequestParameter('custom.orderDeliveryId'),
+            $result->getErrors()[$order->getId()] ?? null,
+        );
+    }
+
+    private function createRenderer(OrderEntity $order, NumberRangeValueGeneratorInterface $numberRangeValueGenerator): DeliveryNoteRenderer
+    {
+        $context = Context::createDefaultContext();
+
+        $orderRepository = static::createStub(EntityRepository::class);
+        $orderRepository->method('search')->willReturn(new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
+            1,
+            new OrderCollection([$order]),
+            null,
+            new Criteria(),
+            $context
+        ));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            [
+                'language_id' => Defaults::LANGUAGE_SYSTEM,
+                'ids' => $order->getId(),
+            ],
+        ]);
+
+        return new DeliveryNoteRenderer(
+            $orderRepository,
+            new DocumentConfigLoader(static::createStub(EntityRepository::class), static::createStub(EntityRepository::class)),
+            static::createStub(EventDispatcherInterface::class),
+            $numberRangeValueGenerator,
+            $connection,
+            static::createStub(DocumentFileRendererRegistry::class),
+            new NativeClock()
+        );
     }
 
     private function createOrder(): OrderEntity

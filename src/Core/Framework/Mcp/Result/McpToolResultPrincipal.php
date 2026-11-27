@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Result;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\HeaderBag;
@@ -50,10 +51,23 @@ final class McpToolResultPrincipal
 
         $integrationId = $source->getIntegrationId();
         $userId = $source->getUserId();
+
+        if ($userId === null && $integrationId !== null && !self::authenticatedAsUser($request)) {
+            $headerUserId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID);
+            if ($headerUserId !== null && Uuid::isValid($headerUserId)) {
+                $userId = $headerUserId;
+            }
+        }
+
         if ($integrationId === null && $userId === null) {
             return null;
         }
 
         return 'admin:' . ($integrationId ?? '') . ':' . ($userId ?? '');
+    }
+
+    private static function authenticatedAsUser(Request $request): bool
+    {
+        return (bool) $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID);
     }
 }

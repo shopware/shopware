@@ -5,6 +5,7 @@ import MockAdapter from 'axios-mock-adapter';
 import SystemConfigService from 'src/core/service/api/system-config.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
+import { deprecations } from 'test/_helper_/deprecations';
 
 /**
  * @returns {{apiService, mockAdapter: MockAdapter}}
@@ -131,6 +132,7 @@ describe('Test getConfig at file src/core/service/api/system-config.api.service.
         const res = await systemConfigService.getConfig('dummy.domain');
 
         expect(res).toEqual({});
+        expect(deprecations).toHaveTriggered('systemConfigApiService.getConfig() is deprecated');
     });
 });
 

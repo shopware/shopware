@@ -274,11 +274,10 @@ EOF;
 
         static::assertCount(1, $exception->getExceptions());
 
-        /** @var WriteConstraintViolationException $violationException */
         $violationException = $exception->getExceptions()[0];
+        static::assertInstanceOf(WriteConstraintViolationException::class, $violationException);
         $violation = $violationException->getViolations()->findByCodes(LockValidator::VIOLATION_LOCKED);
 
-        static::assertNotNull($violation);
         static::assertSame(LockValidator::VIOLATION_LOCKED, $violation->get(0)->getCode());
     }
 }

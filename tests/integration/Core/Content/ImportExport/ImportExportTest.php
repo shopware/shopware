@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
@@ -75,15 +76,13 @@ use Shopware\Core\Content\Test\ImportExport\StockSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
@@ -208,7 +207,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, $criteria);
 
-        /** @var EntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
+        /** @var EntityRepository<ImportExportFileCollection> $fileRepository */
         $fileRepository = static::getContainer()->get('import_export_file.repository');
         $criteria = new Criteria(array_filter([$this->getLogEntity($progress->getLogId())->getFileId()]));
         $file = $fileRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
@@ -646,7 +645,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $criteria = new Criteria();
         $criteria->addAssociation('options.group');
-        $criteria->addFilter(new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)]));
+        $criteria->addFilter(new NotEqualsFilter('parentId', null));
 
         $products = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities();
 

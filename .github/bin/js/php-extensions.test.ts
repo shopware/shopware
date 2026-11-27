@@ -17,7 +17,18 @@ const recordingCore = () => {
 };
 
 test('missingExtensions is empty when every required extension is loaded', () => {
-    assert.deepEqual(missingExtensions(['Core', 'imagick', 'pdo_sqlite', 'zstd'], REQUIRED), []);
+    assert.deepEqual(
+        missingExtensions(
+            [
+                'Core',
+                'imagick',
+                'pdo_sqlite',
+                'zstd',
+            ],
+            REQUIRED,
+        ),
+        [],
+    );
 });
 
 test('missingExtensions lists each extension that is not loaded, in the required order', () => {

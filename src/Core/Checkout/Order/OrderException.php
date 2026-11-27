@@ -27,6 +27,8 @@ class OrderException extends HttpException
     final public const ORDER_MISSING_ORDER_NUMBER_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_NUMBER';
     final public const ORDER_MISSING_TRANSACTIONS_CODE = 'CHECKOUT__ORDER_MISSING_TRANSACTIONS';
     final public const ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_NOT_FOUND';
+    final public const ORDER_ORDER_TRANSACTION_CAPTURE_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_CAPTURE_NOT_FOUND';
+    final public const ORDER_ORDER_TRANSACTION_CAPTURE_REFUND_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_CAPTURE_REFUND_NOT_FOUND';
     final public const ORDER_PAYMENT_METHOD_UNAVAILABLE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE';
     final public const ORDER_ORDER_ALREADY_PAID_CODE = 'CHECKOUT__ORDER_ORDER_ALREADY_PAID';
     final public const ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION_CODE = 'CHECKOUT__ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION';
@@ -81,6 +83,26 @@ class OrderException extends HttpException
             self::ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE,
             self::$couldNotFindMessage,
             ['entity' => 'order transaction', 'field' => 'id', 'value' => $id]
+        );
+    }
+
+    public static function orderTransactionCaptureNotFound(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_ORDER_TRANSACTION_CAPTURE_NOT_FOUND_CODE,
+            self::$couldNotFindMessage,
+            ['entity' => 'order transaction capture', 'field' => 'id', 'value' => $id]
+        );
+    }
+
+    public static function orderTransactionCaptureRefundNotFound(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_ORDER_TRANSACTION_CAPTURE_REFUND_NOT_FOUND_CODE,
+            self::$couldNotFindMessage,
+            ['entity' => 'order transaction capture refund', 'field' => 'id', 'value' => $id]
         );
     }
 

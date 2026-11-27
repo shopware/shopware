@@ -26,6 +26,7 @@
             <template #default="{ isInherited }">
                 <mt-select
                     v-model="element.config.type.value"
+                    :hide-clearable-button="true"
                     :options="formTypeOptions"
                     :disabled="isInherited"
                 />
@@ -91,7 +92,10 @@
     {% endblock %}
 </template>
 
-<template v-else>
+<sw-silence-deprecations
+    v-else
+    flag="V6_9_0_0"
+>
     <sw-tabs
         position-identifier="sw-cms-element-config-form"
         class="sw-cms-el-config-form__tabs"
@@ -139,6 +143,7 @@
                     <template #default="{ isInherited }">
                         <mt-select
                             v-model="element.config.type.value"
+                            :hide-clearable-button="true"
                             :options="formTypeOptions"
                             :disabled="isInherited"
                         />
@@ -204,5 +209,5 @@
             {% endblock %}
         </template>
     </sw-tabs>
-</template>
+</sw-silence-deprecations>
 {% endblock %}

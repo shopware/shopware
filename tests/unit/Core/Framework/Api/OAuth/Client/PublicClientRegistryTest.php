@@ -28,7 +28,15 @@ class PublicClientRegistryTest extends TestCase
                 'name' => 'My App',
                 'redirect_uris' => ['https://my-app.example/oauth/callback'],
             ],
-        ]);
+            'local-app' => [
+                'name' => 'Local App',
+                'redirect_uris' => ['http://localhost:8080/callback'],
+            ],
+            'insecure-app' => [
+                'name' => 'Insecure App',
+                'redirect_uris' => ['http://insecure.example/callback', 'com.example.app:/callback'],
+            ],
+        ], 'prod');
     }
 
     public function testHas(): void
@@ -82,5 +90,38 @@ class PublicClientRegistryTest extends TestCase
         yield 'non loopback uri must match exactly' => ['my-app', 'https://my-app.example/oauth/callback', true];
         yield 'non loopback uri with other port is rejected' => ['my-app', 'https://my-app.example:8443/oauth/callback', false];
         yield 'unknown client is rejected' => ['unknown', 'http://127.0.0.1:54321/callback', false];
+        yield 'registered localhost uri with its port is allowed' => ['local-app', 'http://localhost:8080/callback', true];
+        yield 'registered localhost uri with another port is rejected' => ['local-app', 'http://localhost:9090/callback', false];
+        yield 'registered plain http uri on a public host is rejected' => ['insecure-app', 'http://insecure.example/callback', false];
+        yield 'registered private-use scheme uri is allowed' => ['insecure-app', 'com.example.app:/callback', true];
+    }
+
+    #[DataProvider('transportProvider')]
+    public function testIsTransportAllowed(string $environment, string $redirectUri, bool $expected): void
+    {
+        $registry = new PublicClientRegistry([], $environment);
+
+        static::assertSame($expected, $registry->isTransportAllowed($redirectUri));
+    }
+
+    /**
+     * @return iterable<string, array{string, string, bool}>
+     */
+    public static function transportProvider(): iterable
+    {
+        yield 'https is allowed' => ['prod', 'https://my-app.example/callback', true];
+        yield 'https in upper case is allowed' => ['prod', 'HTTPS://my-app.example/callback', true];
+        yield 'http on localhost is allowed' => ['prod', 'http://localhost:8080/callback', true];
+        yield 'http on localhost in upper case is allowed' => ['prod', 'http://LocalHost/callback', true];
+        yield 'http on the IPv4 loopback literal is allowed' => ['prod', 'http://127.0.0.1:54321/callback', true];
+        yield 'http on the IPv6 loopback literal is allowed' => ['prod', 'http://[::1]:54321/callback', true];
+        yield 'http on a public host is rejected' => ['prod', 'http://my-app.example/callback', false];
+        yield 'http on a localhost lookalike is rejected' => ['prod', 'http://localhost.example/callback', false];
+        yield 'http on a public host is rejected in the test environment' => ['test', 'http://my-app.example/callback', false];
+        yield 'http on a public host is allowed in the dev environment' => ['dev', 'http://shop.test/callback', true];
+        yield 'http in upper case on a public host is rejected' => ['prod', 'HTTP://my-app.example/callback', false];
+        yield 'private-use scheme of a native app is allowed' => ['prod', 'cursor://anysphere.cursor-retrieval/oauth/callback', true];
+        yield 'reverse domain private-use scheme is allowed' => ['prod', 'com.example.app:/callback', true];
+        yield 'uri without scheme is rejected' => ['prod', '//my-app.example/callback', false];
     }
 }

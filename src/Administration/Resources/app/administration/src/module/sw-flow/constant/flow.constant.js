@@ -2,7 +2,7 @@
  * @private
  * @sw-package after-sales
  */
-export const ACTION = Object.freeze({
+const ACTION = Object.freeze({
     ADD_TAG: 'action.add.tag',
     ADD_ORDER_TAG: 'action.add.order.tag',
     ADD_CUSTOMER_TAG: 'action.add.customer.tag',
@@ -28,7 +28,7 @@ export const ACTION = Object.freeze({
  * @private
  * @sw-package after-sales
  */
-export const ACTION_TYPE = Object.freeze({
+const ACTION_TYPE = Object.freeze({
     ADD_TAG: 'action.add.entity.tag',
     REMOVE_TAG: 'action.remove.entity.tag',
     SET_CUSTOM_FIELD: 'action.set.entity.custom.field',
@@ -39,28 +39,28 @@ export const ACTION_TYPE = Object.freeze({
  * @private
  * @sw-package after-sales
  */
-export const GENERAL_GROUP = 'general';
+const GENERAL_GROUP = 'general';
 /**
  * @private
  * @sw-package after-sales
  */
-export const TAG_GROUP = 'tag';
+const TAG_GROUP = 'tag';
 /**
  * @private
  * @sw-package after-sales
  */
-export const CUSTOMER_GROUP = 'customer';
+const CUSTOMER_GROUP = 'customer';
 /**
  * @private
  * @sw-package after-sales
  */
-export const ORDER_GROUP = 'order';
+const ORDER_GROUP = 'order';
 
 /**
  * @private
  * @sw-package after-sales
  */
-export const ACTION_GROUP = Object.freeze({
+const ACTION_GROUP = Object.freeze({
     [ACTION.ADD_ORDER_TAG]: TAG_GROUP,
     [ACTION.ADD_CUSTOMER_TAG]: TAG_GROUP,
     [ACTION.REMOVE_ORDER_TAG]: TAG_GROUP,
@@ -82,7 +82,7 @@ export const ACTION_GROUP = Object.freeze({
  * @private
  * @sw-package after-sales
  */
-export const GROUPS = [
+const GROUPS = [
     GENERAL_GROUP,
     TAG_GROUP,
     CUSTOMER_GROUP,

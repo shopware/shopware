@@ -39,6 +39,21 @@ class CartContextHasher
             $struct->addLineItem($item->getId(), $item->getHashContent());
         }
 
+        foreach ($cart->getDeliveries() as $delivery) {
+            $positions = [];
+            foreach ($delivery->getPositions() as $position) {
+                $positions[$position->getIdentifier()] = $position->getQuantity();
+            }
+
+            $address = $delivery->getLocation()->getAddress();
+
+            $struct->addDelivery([
+                'shippingMethod' => $delivery->getShippingMethod()->getId(),
+                'address' => $address === null ? null : ['id' => $address->getId(), 'hash' => $address->getHash()],
+                'positions' => $positions,
+            ]);
+        }
+
         $event = $this
             ->eventDispatcher
             ->dispatch(new CartContextHashEvent($context, $cart, $struct));

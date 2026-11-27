@@ -2,7 +2,7 @@
     {% set deliveryPosition = null %}
 
     {% if page.cart.deliveries.count > 0 %}
-        {% set delivery = page.cart.deliveries.first %}
+        {% set delivery = page.cart.deliveries|find(delivery => delivery.positions.has(lineItem.id)) ?: page.cart.deliveries.first %}
 
         {% set deliveryPosition = delivery.positions.get(lineItem.id) %}
     {% endif %}

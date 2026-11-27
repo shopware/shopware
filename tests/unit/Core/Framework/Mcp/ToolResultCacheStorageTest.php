@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointerSigner;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultStoredFormat;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Clock\MockClock;
@@ -161,6 +163,32 @@ class ToolResultCacheStorageTest extends TestCase
         static::assertSame('', array_values($rows)[0]['session_id'], 'a call without MCP session stores the row without one');
         static::assertSame(['content' => '{"data": 1}', 'mimeType' => 'application/json'], $storage->readFor($pointer->token, 'admin:integration-a:'));
         static::assertNull($storage->readFor($pointer->token, 'admin:integration-b:'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function storedMimeTypeProvider(): iterable
+    {
+        yield 'a legacy envelope, as every row written before the format was recorded' => ['application/json', 'application/json'];
+        yield 'the plain data of the spec format' => [McpToolResultStoredFormat::Spec->value, 'application/json'];
+        yield 'a media type of another caller' => ['text/plain', 'text/plain'];
+    }
+
+    #[DataProvider('storedMimeTypeProvider')]
+    public function testReadForServesEveryStoredFormatAsJson(string $storedMimeType, string $servedMimeType): void
+    {
+        $signer = new McpToolResultPointerSigner('secret', new NativeClock());
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn(['content' => '{"a":1}', 'mime_type' => $storedMimeType]);
+
+        $storage = new ToolResultCacheStorage($connection, new NativeClock(), $signer);
+
+        static::assertSame(
+            ['content' => '{"a":1}', 'mimeType' => $servedMimeType],
+            $storage->readFor($signer->sign(Uuid::randomHex(), 'p')->token, 'p'),
+        );
     }
 
     public function testReadForReturnsNullWhenTheRowIsGone(): void

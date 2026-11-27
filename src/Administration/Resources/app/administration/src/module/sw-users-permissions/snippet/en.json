@@ -51,7 +51,8 @@
                         "message": "Role \"{name}\" deleted."
                     },
                     "deleteError": {
-                        "message": "The role \"{name}\" could not be deleted."
+                        "message": "The role \"{name}\" could not be deleted.",
+                        "FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK": "The webhook {webhookNames} uses it. | The webhooks {webhookNames} use it."
                     }
                 }
             },

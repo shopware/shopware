@@ -52,7 +52,7 @@ class AppLoaderTest extends TestCase
         static::assertSame('1.0.0', $app->getMetadata()->getVersion());
 
         $this->expectExceptionObject(AppException::cannotDeleteManaged('test'));
-        $appLoader->deleteApp('test');
+        $appLoader->deleteApp($app);
     }
 
     public function testLoadAppByComposerWithInvalidAppManifest(): void

@@ -23,6 +23,10 @@ final readonly class ParsedIdToken
         public string $username,
         public string $givenName,
         public string $familyName,
+        /**
+         * when the identity provider authenticated the user, from the optional `auth_time` claim
+         */
+        public ?\DateTimeImmutable $authenticatedAt,
     ) {
     }
 
@@ -37,7 +41,20 @@ final readonly class ParsedIdToken
             self::prepareValue($dataSet->get('preferred_username'), $dataSet->get('email')),
             self::prepareValue($dataSet->get('given_name'), $dataSet->get('email')),
             self::prepareValue($dataSet->get('family_name'), $dataSet->get('email')),
+            self::parseAuthTime($dataSet->get('auth_time')),
         );
+    }
+
+    /**
+     * `auth_time` is seconds since the epoch; an identity provider that does not report it yields null.
+     */
+    private static function parseAuthTime(mixed $authTime): ?\DateTimeImmutable
+    {
+        if (!\is_int($authTime) && !(\is_string($authTime) && ctype_digit($authTime))) {
+            return null;
+        }
+
+        return new \DateTimeImmutable('@' . (int) $authTime);
     }
 
     private static function validate(DataSet $dataSet): void

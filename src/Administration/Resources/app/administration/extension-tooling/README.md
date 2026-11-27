@@ -1,6 +1,6 @@
 # Administration Extension Tooling
 
-This folder ships the TypeScript and ESLint contract for Administration
+This folder ships the TypeScript, ESLint and Jest contract for Administration
 extensions. It travels with the Administration package, so a platform checkout,
 a Composer install, and a production shop all carry the identical toolchain —
 matching the installed Shopware version. Only the way you invoke the commands
@@ -14,7 +14,9 @@ below).
 | `tsconfig.base.json` | Strict TypeScript preset for extension code (ESNext, Bundler resolution, `noEmit`). Resolves `vue`, `@vue/*`, and `src/*` into the installed Administration. |
 | `admin-types.d.ts` | The one type surface: imports the live `global.types.ts`, the generated `entity-schema-definition.d.ts`, `html-shim.d.ts`, and `shopware-virtual-modules.d.ts`. Injected into every extension program via `files`. |
 | `eslint.mjs` | Parameterized flat-config factory `shopwareAdminExtension(options)`. All plugins resolve from the Administration's `node_modules`. |
+| `jest.mjs` | Jest config factory `shopwareAdminJest(options)`: the Administration's test harness with every path resolved into the installed Administration. The Administration's own Jest config composes it too. |
 | `legacy-twig.mjs` | Lint preset for legacy `.html.twig` component templates (Twig-Vue processor). |
+| `codemods.mjs` | Flat-config factory `shopwareAdminCodemods(rules)` used by `administration:upgrade-extensions`. Enables only the given codemod rules. |
 | `host-modules.json` | Declares the bare modules the Administration host provides to extensions at runtime. v1: `vue` only — the Vite externals plugin replaces exactly the bare `vue` import. If a module is added there, it must be added here and to `tsconfig.base.json` `paths` in the same change. |
 
 The `shopware:*` modules (`shopware:utils`, `shopware:data`, `shopware:composables`, `shopware:mixins`,
@@ -37,6 +39,7 @@ You normally do not reference this folder manually.
 bin/console administration:setup-extension-tooling              # generate configs for all installed extensions
 bin/console administration:check-extensions -- --only=MyPlugin  # type-check + lint your plugin
 bin/console administration:check-extensions -- --all            # check every extension
+bin/console administration:test-extensions -- --only=MyPlugin   # run your plugin's specs (see Running specs with Jest)
 bin/console administration:generate-entity-schema-types         # (re)generate the entity-schema types
 ```
 
@@ -56,6 +59,8 @@ composer admin:check-extensions -- --all                        # check every ex
 composer admin:check-extensions -- --only=MyPlugin --fix        # apply ESLint autofixes
 composer admin:check-extensions -- --only=MyPlugin --update-baseline  # record current findings (see Baseline)
 composer admin:check-extensions -- --all --fail-on-skipped      # CI: fail if any writable extension is not checked
+composer admin:test-extensions -- --only=MyPlugin               # run your plugin's specs with the Administration's Jest
+composer admin:test-extensions -- --only=MyPlugin -- --watch    # Jest options go after a second --
 composer admin:setup-extension-tooling -- --help                # full option reference
 ```
 
@@ -119,6 +124,45 @@ generated configs.
 - A bridge that cannot be written (a read-only vendor directory, say) degrades to
   a warning — those sources stay covered by the root `tsconfig.json`.
 
+## Upgrading to a new Shopware major
+
+`administration:upgrade-extensions` runs the codemods that prepare your Administration code for a Shopware major.
+
+```bash
+bin/console administration:upgrade-extensions -- --only=MyPlugin                # preview, writes nothing
+bin/console administration:upgrade-extensions -- --only=MyPlugin --write        # apply
+bin/console administration:check-extensions -- --only=MyPlugin                  # check the result
+```
+
+In a platform checkout use `composer admin:upgrade-extensions -- …`.
+With shopware-cli use `shopware-cli project console administration:upgrade-extensions -- …`.
+
+- `--target=<major>` picks the Shopware major to prepare for.
+  It defaults to the newest major the installed Administration ships codemods for.
+  A run applies the codemods of that major and of every earlier one, so you can skip a major.
+- `--list` prints the codemods per major.
+- `--with=sfc-migration` also converts Options API components into native setup SFCs.
+  It writes a `.vue` draft next to each component and keeps the original files registered.
+  Switch the registration to the draft once you have reviewed it.
+  It only converts components whose `index.js`/`index.ts` exports the options with `export default`.
+- `--write` refuses an extension that has uncommitted or untracked changes.
+  Run `git checkout . && git clean -f` in the extension folder to undo a run.
+  `--skip-git-check` writes anyway, and then `git clean -f` can also delete files that existed before the run.
+- Without an interactive terminal, for example in CI or with `docker compose exec -T`, `--write` needs `--only` or `--all`.
+  A dry run without either previews every writable extension.
+- Vendor-installed extensions are only rewritten when you name them via `--only`.
+- The command finds extensions through `var/plugins.json`, which lists active plugins only.
+  An `--only` name that is not listed there is looked up as a folder in `custom/plugins`,
+  so you can upgrade a plugin before it is installed or activated.
+  `administration:check-extensions` has no such fallback, so activate the plugin and run `bin/console bundle:dump` before you check it.
+- Spec files are not rewritten.
+
+The report lists every spot a codemod found but could not rewrite safely.
+Fix those by hand, then run `administration:check-extensions`.
+The ESLint codemods run with their own config that enables only the codemod rules.
+Your extension's ESLint config does not change what gets rewritten.
+In `.html.twig` templates, `{{ … }}` is Twig syntax, so the `$tc` codemod only rewrites bindings like `:label="$tc(…)"` there.
+
 ## Native-setup components
 
 Native-setup authoring works out of the box — no extra config to copy. The
@@ -170,6 +214,102 @@ to resolve them against. `vue-tsc` is what type-checks specs — ESLint is not.
 
 Type-checking specs surfaces findings that were previously invisible. Record them once with
 `--update-baseline` (see below) so the check fails only on new ones.
+
+## Running specs with Jest
+
+The bridge also carries `.shopware/jest.mjs`.
+It hands your specs the harness the Administration's own specs run on:
+the `shopware:*` virtual modules, the registered feature flags behind `Shopware.Feature.triggerDeprecationOrThrow()`,
+`it.deprecated()` and `it.activeFeatureFlags()`, the global `Shopware` object, the Vue and Twig transforms,
+and one shared copy of Vue, `@vue/test-utils`, Pinia, `vue-i18n`, `vue-router`, lodash and the Meteor component library.
+When the harness changes, your specs pick it up with the next Shopware version, without an edit to your config.
+
+Setup does not scaffold a Jest config, because not every extension has specs.
+Opt in with a committed `jest.config.mjs` beside the bridge:
+
+```js
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+    setupFilesAfterEnv: ['<rootDir>/test/setup.js'],
+});
+```
+
+`<rootDir>` is the folder that holds `.shopware/`.
+A config somewhere else, for example a shared test folder of a multi-bundle plugin,
+imports `shopwareAdminJest` from the bridge or from `extension-tooling/jest.mjs` and passes its own `rootDir`.
+
+The factory accepts an explicit allowlist of Jest options, and throws on any other option with the list of accepted ones.
+The options that build the harness are merged, so your config cannot drop it by accident:
+
+| Option | Merged how |
+| --- | --- |
+| `setupFiles`, `setupFilesAfterEnv` | Yours run after the Administration's, so `Shopware` and the feature flags are ready. |
+| `moduleNameMapper`, `transform`, `moduleDirectories` | Yours are tried first, so your alias or dependency wins over the host's. |
+| `globals`, `testEnvironmentOptions` | Merged; your values win, except `globals.adminPath` and `globals['vue-jest'].tsConfig`, which stay pinned to the installed Administration. |
+
+The other accepted options replace the default as a whole,
+for example `roots`, `testMatch`, `testPathIgnorePatterns`, `testTimeout`, `maxWorkers`, `reporters` and the `coverage*` options.
+`REPLACEABLE_OPTIONS` in `extension-tooling/jest.mjs` holds the full list.
+The harness owns `testEnvironment` and `resolver`, so the factory rejects both.
+`it.activeFeatureFlags()` depends on the environment, and the resolver strips Vite query suffixes such as `?worker` from imports.
+
+Dependencies in `node_modules` need no configuration:
+the harness converts the ES modules among them to CommonJS and hands every other file to Jest unchanged.
+
+Run the specs with `test-extensions`, which uses the Administration's own Jest, so an extension needs no Jest installation of its own:
+
+```bash
+composer admin:test-extensions -- --only=MyPlugin                  # platform checkout
+bin/console administration:test-extensions -- --only=MyPlugin      # Composer install
+composer admin:test-extensions -- --only=MyPlugin -- --watch       # Jest options go after a second --
+```
+
+It runs every `jest.config.{js,ts,mjs,cjs}` it finds at the extension root, beside an Administration folder, or beside the extension's own tsconfig or ESLint config.
+Without `--only` or `--all`, an interactive terminal offers a picker of the extensions that have a Jest config.
+Elsewhere, and with `--all`, every such extension runs, vendor-installed ones included.
+`--only` names extensions by extension or bundle name.
+As in `check-extensions`, a failing vendor-installed extension does not fail the run: the report marks it with `!`.
+Pass `--strict-vendor` to fail on it.
+Each Jest run starts with a `▶ <extension> · <jest config>` line, and the report ends with one line per Jest config.
+A run in which no spec ran exits 1, so a CI job cannot pass without running a spec.
+Jest's `--watch` and `--watchAll` need exactly one Jest config, so name one extension via `--only`; otherwise the command exits 2.
+When a spec filter goes to more than one Jest config, the command adds `--passWithNoTests`,
+so the filter fails the run only on a failing spec, not on an extension without a matching spec.
+A filter is a spec path pattern or an option such as `-t`, `--testPathPatterns`, `--onlyChanged`, `--changedSince` or `--shard`.
+Put a spec path pattern first or after an option written with `=`: after an option without `=`, the command reads it as that option's value.
+Other options, such as `--ci` or `--coverage`, leave it out, so an extension without specs still fails the run.
+The report marks such an extension with `–`, and the run still fails when no Jest config ran a spec; pass `--passWithNoTests` yourself to allow that.
+The command counts the specs with its own `--testResultsProcessor`, which replaces one set in the Jest config.
+It leaves out its own when the Jest config file or the Jest options name `testResultsProcessor`; that run then does not count its specs.
+A processor that comes in through a preset or an imported base config is not detected, so name it in the Jest config file itself.
+
+Which Jest runs a config depends on the config:
+
+- A config on the harness runs on the Administration's Jest, which the harness is built for.
+  The command recognizes it by an import of `.shopware/jest.mjs` or `extension-tooling/jest.mjs`, or a call of `shopwareAdminJest`.
+- Any other config runs on the Jest the extension installs between the config's folder and the extension root.
+  The `▶` line and the report mark it with `(own Jest)`.
+- When a `package.json` there declares Jest but it is not installed, the config does not run.
+  The report marks it with `⊘` and names the `npm ci` or `npm install` that installs it;
+  the run fails on it only when `--only` or the picker named its extension.
+- A config with neither runs on the Administration's Jest.
+
+An extension that installs its own Jest can keep running it directly, as long as it has the same major version as the Administration's.
+
+The harness lives in the Administration's `test/` folder and works in a platform checkout and in a Composer install alike.
+It reads two files that every installation generates itself.
+Generate them before the first run and after every Shopware update:
+
+```bash
+bin/console administration:generate-entity-schema-types                 # test/_mocks_/entity-schema.json
+( cd <administration> && npm run unit-setup )                            # test/_helper_/componentWrapper/component-imports.js
+```
+
+`test-extensions` generates the component import map itself when it is missing;
+the entity schema and a stale import map still need the commands above.
+When a file is still missing, the factory fails with the command that generates it.
 
 ## From JavaScript to TypeScript
 
@@ -247,7 +387,7 @@ re-running setup restores them.
 | --- | --- | --- | --- |
 | `var/admin-extension-tooling/manifest.json` | disposable host state | no | Rewritten every run; git-ignored in a shop. |
 | Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | The shop-wide IDE/CLI view; the tsconfig covers whatever no extension config governs. Marker-owned and git-ignored (the platform monorepo commits its own, so setup stands down there). |
-| `<plugin>/…/.shopware/` (`tsconfig.json`, `eslint.mjs`, `.gitignore`, `README.md`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`) and self-explaining. One per directory that owns a config. |
+| `<plugin>/…/.shopware/` (`tsconfig.json`, `eslint.mjs`, `jest.mjs`, `.gitignore`, `README.md`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`) and self-explaining. One per directory that owns a config. |
 | `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | plugin config | **yes** under `custom/plugins/` | Small files that extend/compose the bridge. Edit freely; keep the `extends`/import. |
 | `<plugin>/tsconfig.aliases.json` | plugin config | **yes** | Your path aliases; merged into the bridge. |
 | `<plugin>/.shopware-admin-baseline.json` | committable plugin data | **yes** | Findings baseline; travels with the plugin. |

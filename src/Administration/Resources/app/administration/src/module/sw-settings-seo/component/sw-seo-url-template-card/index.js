@@ -342,12 +342,35 @@ export default {
                     this.previewLoadingStates[entity.id] = false;
                 })
                 .catch((err) => {
-                    this.setErrorMessagesForEntity(entity, err.response.data.errors[0].detail);
+                    const error = err.response.data.errors[0];
+                    const seoUrlRouteNotFoundErrorCodes = [
+                        // @deprecated tag:v6.8.0 - FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND code will be removed
+                        'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND',
+                        'CONTENT__SEO_URL_ROUTE_NOT_FOUND',
+                    ];
+
+                    if (seoUrlRouteNotFoundErrorCodes.includes(error.code)) {
+                        this.removeSeoUrlTemplatesOfRoute(entity.routeName);
+
+                        return;
+                    }
+
+                    this.setErrorMessagesForEntity(entity, error.detail);
 
                     this.previews[entity.id] = [];
 
                     this.previewLoadingStates[entity.id] = false;
                 });
+        },
+        removeSeoUrlTemplatesOfRoute(routeName) {
+            [
+                this.seoUrlTemplates,
+                this.defaultSeoUrlTemplates,
+            ].forEach((collection) => {
+                collection
+                    .filter((seoUrlTemplate) => seoUrlTemplate.routeName === routeName)
+                    .forEach((seoUrlTemplate) => collection.remove(seoUrlTemplate.id));
+            });
         },
         fetchSalesChannels() {
             const criteria = new Criteria(1, 25);
@@ -357,8 +380,34 @@ export default {
                 this.salesChannels = response;
             });
         },
-        onSalesChannelChanged(salesChannelId) {
+        /**
+         * Only the first page of sales channels is loaded up front, so the selected one may be missing.
+         */
+        fetchSalesChannel(salesChannelId) {
+            const criteria = new Criteria(1, 1);
+            criteria.setIds([salesChannelId]);
+            criteria.addAssociation('domains');
+
+            return this.salesChannelRepository.search(criteria).then((response) => {
+                const salesChannel = response.first();
+
+                if (salesChannel && !this.currentSalesChannel) {
+                    this.salesChannels.push(salesChannel);
+                }
+            });
+        },
+        async onSalesChannelChanged(salesChannelId) {
             this.salesChannelId = salesChannelId;
+
+            if (salesChannelId && !this.currentSalesChannel) {
+                await this.fetchSalesChannel(salesChannelId);
+
+                // another sales channel was selected while this one was loading
+                if (this.salesChannelId !== salesChannelId) {
+                    return;
+                }
+            }
+
             this.$emit('sales-channel-changed', this.salesChannelIsHeadless);
             this.fetchSeoUrlTemplates(salesChannelId);
         },

@@ -36,6 +36,8 @@ class AdminApiSource implements ContextSource, \JsonSerializable
      */
     private array $permissions = [];
 
+    private ?string $appId = null;
+
     public function __construct(
         private readonly ?string $userId,
         private readonly ?string $integrationId = null,
@@ -50,6 +52,41 @@ class AdminApiSource implements ContextSource, \JsonSerializable
     public function getIntegrationId(): ?string
     {
         return $this->integrationId;
+    }
+
+    /**
+     * Whether the request is authenticated directly as this user. False for any integration,
+     * including one acting for the user named in the `sw-app-user-id` header.
+     *
+     * @phpstan-assert-if-true non-empty-string $this->getUserId()
+     */
+    public function isDirectUser(): bool
+    {
+        return $this->userId !== null && $this->userId !== '' && $this->integrationId === null;
+    }
+
+    /**
+     * Whether the request is authenticated directly as the given user.
+     */
+    public function isSelf(string $userId): bool
+    {
+        return $this->isDirectUser() && $this->userId === $userId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setAppId(?string $appId): void
+    {
+        $this->appId = $appId;
+    }
+
+    /**
+     * @internal
+     */
+    public function getAppId(): ?string
+    {
+        return $this->appId;
     }
 
     public function setIsAdmin(bool $isAdmin): void

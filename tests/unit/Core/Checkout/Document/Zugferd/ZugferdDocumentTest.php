@@ -575,6 +575,85 @@ class ZugferdDocumentTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('unitCodeProvider')]
+    public function testLineUsesTheUnitCodeFromThePayload(array $payload, string $expectedCode): void
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(100.0);
+        $order->setAmountNet(100);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId(Uuid::randomHex());
+        $lineItem->setLabel('Product ' . $lineItem->getId());
+        $lineItem->setQuantity(1);
+        $lineItem->setPosition(1);
+        $lineItem->setPayload($payload);
+        $lineItem->setPrice(new CalculatedPrice(
+            100.0,
+            100.0,
+            new CalculatedTaxCollection([]),
+            new TaxRuleCollection(),
+        ));
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withProductLineItem($lineItem, '');
+        $document->withPaidAmount(100.0);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $line = $document->getDomContent($order, $calculator)
+            ->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(0);
+
+        $basisQuantity = $line?->getElementsByTagName('BasisQuantity')->item(0);
+        $billedQuantity = $line?->getElementsByTagName('BilledQuantity')->item(0);
+
+        static::assertInstanceOf(\DOMElement::class, $basisQuantity);
+        static::assertInstanceOf(\DOMElement::class, $billedQuantity);
+        static::assertSame($expectedCode, $basisQuantity->getAttribute('unitCode'));
+        static::assertSame($expectedCode, $billedQuantity->getAttribute('unitCode'));
+    }
+
+    /**
+     * @return \Generator<string, array{payload: array<string, mixed>, expectedCode: string}>
+     */
+    public static function unitCodeProvider(): \Generator
+    {
+        yield 'code stored at order time is used' => [
+            'payload' => ['uneceCode' => 'KGM'],
+            'expectedCode' => 'KGM',
+        ];
+        yield 'order placed before the code existed falls back to piece' => [
+            'payload' => ['productNumber' => '123'],
+            'expectedCode' => 'H87',
+        ];
+        yield 'product without a code falls back to piece' => [
+            'payload' => ['uneceCode' => null],
+            'expectedCode' => 'H87',
+        ];
+        yield 'code is used without a purchase unit' => [
+            'payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => null],
+            'expectedCode' => 'KGM',
+        ];
+        yield 'code is used when one pack is exactly one unit' => [
+            'payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => 1.0],
+            'expectedCode' => 'KGM',
+        ];
+        yield 'packed goods keep piece so the quantity still counts packs' => [
+            'payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => 0.5],
+            'expectedCode' => 'H87',
+        ];
+    }
+
     public function testUnitPriceIsWrittenWithFourDecimals(): void
     {
         $order = new OrderEntity();

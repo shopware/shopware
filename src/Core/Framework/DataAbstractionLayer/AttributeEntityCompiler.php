@@ -128,15 +128,16 @@ class AttributeEntityCompiler
      * @param class-string<EntityStruct> $class
      *
      * @return list<array{
-     *     type: 'entity'|'mapping',
+     *     type: 'entity'|'mapping'|'reverse',
      *     since?: string|null,
      *     parent: string|null,
      *     inheritance_aware?: bool,
-     *     entity_class: class-string<EntityStruct>,
+     *     entity_class?: class-string<EntityStruct>,
      *     entity_name: string,
      *     hydrator_class?: class-string<EntityHydrator>,
      *     collection_class?: class-string<EntityCollection<EntityStruct>>,
-     *     fields: list<FieldArray>,
+     *     fields?: list<FieldArray>,
+     *     field?: FieldArray,
      *     source?: string,
      *     reference?: string
      * }>
@@ -169,6 +170,11 @@ class AttributeEntityCompiler
 
             if ($field['type'] === ManyToMany::TYPE) {
                 $definitions[] = $this->mapping($instance->name, $property);
+
+                $reverse = $this->reverse($instance->name, $property);
+                if ($reverse !== null) {
+                    $definitions[] = $reverse;
+                }
             }
         }
 
@@ -371,18 +377,9 @@ class AttributeEntityCompiler
             $flags[AllowHtml::class] = ['class' => AllowHtml::class, 'args' => ['sanitized' => $instance->sanitized]];
         }
 
-        if ($field->api !== false) {
-            $aware = [];
-            if (\is_array($field->api)) {
-                if (isset($field->api['admin-api']) && $field->api['admin-api'] === true) {
-                    $aware[] = AdminApiSource::class;
-                }
-                if (isset($field->api['store-api']) && $field->api['store-api'] === true) {
-                    $aware[] = SalesChannelApiSource::class;
-                }
-            }
-
-            $flags[ApiAware::class] = ['class' => ApiAware::class, 'args' => $aware];
+        $apiAware = $this->apiAwareFlag($field->api);
+        if ($apiAware !== null) {
+            $flags[ApiAware::class] = $apiAware;
         }
 
         if ($protection = $this->getAttribute($property, Protection::class)) {
@@ -497,6 +494,87 @@ class AttributeEntityCompiler
             'entity_class' => ArrayEntity::class,
             'entity_name' => self::mappingName($entity, $field),
             'fields' => $fields,
+            'source' => $entity,
+            'reference' => $field->entity,
+        ];
+    }
+
+    /**
+     * @param bool|array{admin-api: bool, store-api: bool} $api
+     *
+     * @return array{class: string, args: list<string>}|null
+     */
+    private function apiAwareFlag(bool|array $api): ?array
+    {
+        if ($api === false) {
+            return null;
+        }
+
+        $aware = [];
+        if (\is_array($api)) {
+            if (isset($api['admin-api']) && $api['admin-api'] === true) {
+                $aware[] = AdminApiSource::class;
+            }
+            if (isset($api['store-api']) && $api['store-api'] === true) {
+                $aware[] = SalesChannelApiSource::class;
+            }
+        }
+
+        return ['class' => ApiAware::class, 'args' => $aware];
+    }
+
+    /**
+     * @return array{
+     *     type: 'reverse',
+     *     parent: null,
+     *     entity_name: string,
+     *     field: FieldArray,
+     *     source: string,
+     *     reference: string
+     * }|null
+     */
+    private function reverse(string $entity, \ReflectionProperty $property): ?array
+    {
+        $attribute = $this->getAttribute($property, ManyToMany::class);
+
+        if (!$attribute instanceof \ReflectionAttribute) {
+            throw DataAbstractionLayerException::canNotFindAttribute(ManyToMany::class, $property->getName());
+        }
+        $field = $attribute->newInstance();
+
+        if ($field->reversedBy === null || $field->reversedBy === '') {
+            return null;
+        }
+
+        $flags = [];
+
+        $apiAware = $this->apiAwareFlag($field->reverseApi ?? $field->api);
+        if ($apiAware !== null) {
+            $flags[ApiAware::class] = $apiAware;
+        }
+
+        $deleteFlag = match ($field->reverseOnDelete ?? $field->onDelete) {
+            OnDelete::CASCADE => CascadeDelete::class,
+            OnDelete::SET_NULL => SetNullOnDelete::class,
+            OnDelete::RESTRICT => RestrictDelete::class,
+            default => null,
+        };
+        if ($deleteFlag !== null) {
+            $flags[$deleteFlag] = ['class' => $deleteFlag];
+        }
+
+        return [
+            'type' => 'reverse',
+            'parent' => null,
+            'entity_name' => $field->entity,
+            'field' => [
+                'type' => ManyToMany::TYPE,
+                'name' => $field->reversedBy,
+                'class' => ManyToManyAssociationField::class,
+                'flags' => $flags,
+                'translated' => false,
+                'args' => [$field->reversedBy, $entity, self::mappingName($entity, $field), $field->entity . '_id', $entity . '_id'],
+            ],
             'source' => $entity,
             'reference' => $field->entity,
         ];

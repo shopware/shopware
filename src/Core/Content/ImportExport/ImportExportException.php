@@ -8,6 +8,7 @@ use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\RequiredByUserException;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -349,7 +350,7 @@ class ImportExportException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::FAILED_MEDIA_URL_PARSE,
             'Error parsing media URL: {{ url }}',
-            ['url' => $url]
+            ['url' => PathHelper::stripCredentials($url)]
         );
     }
 

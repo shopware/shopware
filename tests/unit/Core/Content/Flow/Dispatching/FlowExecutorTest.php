@@ -53,6 +53,7 @@ use Shopware\Core\Framework\Event\SalesChannelContextAware;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -1190,7 +1191,7 @@ class FlowExecutorTest extends TestCase
             new ExtensionDispatcher($this->eventDispatcherMock),
             $this->loggerMock,
             $actions,
-            new FlowMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new TriggerGroupResolver()),
+            new FlowMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new TriggerGroupResolver(new LabelMappingRegistry([], 'other'))),
         );
     }
 }

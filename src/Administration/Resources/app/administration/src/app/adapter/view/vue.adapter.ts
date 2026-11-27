@@ -11,12 +11,13 @@ import type {
     RouteLocationNormalizedLoaded,
     RouteLocationRaw,
 } from 'vue-router';
-import { createApp, defineAsyncComponent, h } from 'vue';
+import { compile, createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
+import TemplateFactory from 'src/core/factory/template.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { createDeprecatedTc, createTranslate } from 'src/core/helper/i18n-legacy-syntax.helper';
 
@@ -81,7 +82,7 @@ import type { LegacyConditionCaseOptions } from '../../component/structure/sw-bl
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
 
 /**
@@ -111,6 +112,17 @@ type RouteGuard = (
 type RouteEnterCallback =
     Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
 type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
+
+type VueHmrRuntime = {
+    rerender(id: string, render: ReturnType<typeof compile>): void;
+};
+
+type HmrComponentConfig = ComponentConfig & { __hmrId?: string };
+
+const getHmrId = (componentName: string) => `shopware-component:${componentName}`;
+
+const isTemplateConfig = (config: ComponentConfig | boolean | undefined): config is ComponentConfig & { template: string } =>
+    typeof config === 'object' && typeof config.template === 'string';
 
 const routeGuardNames: RouteGuardName[] = ['beforeRouteEnter', 'beforeRouteLeave', 'beforeRouteUpdate'];
 
@@ -158,7 +170,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initPlugins();
         this.initDirectives();
 
-        const vuexRoot = State._store;
+        const vuexRoot = Shopware._state._store;
         const i18n = this.initLocales();
 
         // add router to View
@@ -362,7 +374,7 @@ export default class VueAdapter extends ViewAdapter {
 
         // initialize all module locales
         if (!Shopware.Feature.isActive('V6_8_0_0')) {
-            this.initModuleLocales();
+            Shopware.Feature.silence('V6_8_0_0', () => this.initModuleLocales());
         }
 
         // initialize all module routes
@@ -497,6 +509,11 @@ export default class VueAdapter extends ViewAdapter {
      * @deprecated tag:v6.8.0 - Will be removed. Module snippets are loaded by the initial snippets request.
      */
     initModuleLocales() {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'VueAdapter.initModuleLocales() is deprecated and will be removed. Module snippets are loaded by the initial snippets request.',
+        );
+
         // Extend default snippets with module specific snippets
         const moduleSnippets = this.applicationFactory.module.getModuleSnippets();
 
@@ -557,6 +574,12 @@ export default class VueAdapter extends ViewAdapter {
                         if (typeof componentConfig === 'boolean') {
                             resolve(false);
                         } else {
+                            if (process.env.NODE_ENV !== 'production') {
+                                // Lets the Vue HMR runtime find the mounted instances when a template file changes.
+                                // Native SFCs keep the id of their Vite plugin, which hot updates their script.
+                                (componentConfig as HmrComponentConfig).__hmrId ??= getHmrId(componentName);
+                            }
+
                             attachSetupOverrideShim(componentName, componentConfig);
                             this.resolveMixins(componentConfig);
                         }
@@ -568,6 +591,56 @@ export default class VueAdapter extends ViewAdapter {
         }
 
         return this.resolvedComponentConfigs.get(componentName) as Promise<ComponentConfig | boolean>;
+    }
+
+    /**
+     * Applies an edited template file to the mounted components during development.
+     * Resolves to false when the change needs a page reload.
+     *
+     * @private
+     */
+    async hotUpdateTemplate(previousTemplate: string, nextTemplate: string): Promise<boolean> {
+        if (process.env.NODE_ENV === 'production') {
+            return false;
+        }
+
+        const runtime = (window as Window & { __VUE_HMR_RUNTIME__?: VueHmrRuntime }).__VUE_HMR_RUNTIME__;
+        if (!runtime) {
+            return false;
+        }
+
+        const affected = TemplateFactory.replaceTemplate(previousTemplate, nextTemplate) ?? [];
+        const builtComponents = affected.filter((name) => this.resolvedComponentConfigs.has(name));
+
+        if (builtComponents.length === 0) {
+            return false;
+        }
+
+        try {
+            const updates = await Promise.all(
+                builtComponents.map(async (name) => {
+                    const config = await this.resolvedComponentConfigs.get(name);
+                    const template = await Component.getTemplate(name);
+
+                    return isTemplateConfig(config) && typeof template === 'string' ? { name, config, template } : null;
+                }),
+            );
+
+            const applicable = updates.filter((update) => update !== null);
+
+            if (applicable.length !== updates.length) {
+                return false;
+            }
+
+            applicable.forEach(({ name, config, template }) => {
+                config.template = template;
+                runtime.rerender(getHmrId(name), compile(template, this.app.config.compilerOptions));
+            });
+
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     /**

@@ -64,6 +64,12 @@
                         @inline-edit-cancel="cancelUnit"
                     >
 
+                        <template #column-uneceCode="{ item }">
+                            <template v-if="item.uneceCode">
+                                {{ getUneceCodeLabel(item.uneceCode) }}
+                            </template>
+                        </template>
+
                         <template #actions="{ item }">
                             <sw-context-menu-item
                                 class="sw-settings-units__edit-action"

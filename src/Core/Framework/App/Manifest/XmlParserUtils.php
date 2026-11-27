@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\App\Manifest;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\XmlParser;
 use Shopware\Core\Framework\Util\XmlReader;
-use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -19,7 +19,7 @@ class XmlParserUtils
     public static function loadFile(string $xmlFile, string $xsdFile): \DOMDocument
     {
         try {
-            return XmlUtils::loadFile($xmlFile, $xsdFile);
+            return XmlParser::loadFile($xmlFile, $xsdFile);
         } catch (\Exception $e) {
             throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }

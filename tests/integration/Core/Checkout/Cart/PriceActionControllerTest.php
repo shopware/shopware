@@ -27,8 +27,8 @@ class PriceActionControllerTest extends TestCase
     {
         $this->getBrowser()->request('POST', '/api/price/actions/calculate');
 
-        /** @var string $response */
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
@@ -38,8 +38,8 @@ class PriceActionControllerTest extends TestCase
     {
         $this->getBrowser()->request('POST', '/api/price/actions/calculate', ['price' => 10]);
 
-        /** @var string $response */
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -53,8 +53,8 @@ class PriceActionControllerTest extends TestCase
             'taxId' => Uuid::randomHex(),
         ]);
 
-        /** @var string $response */
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -245,8 +245,8 @@ class PriceActionControllerTest extends TestCase
     {
         $this->getBrowser()->request('POST', 'api/_action/calculate-prices');
 
-        /** @var string $response */
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
@@ -256,8 +256,8 @@ class PriceActionControllerTest extends TestCase
     {
         $this->getBrowser()->request('POST', 'api/_action/calculate-prices', ['prices' => [['price' => 10]]]);
 
-        /** @var string $response */
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -275,8 +275,8 @@ class PriceActionControllerTest extends TestCase
             'taxId' => Uuid::randomHex(),
         ]);
 
-        /** @var string $response */
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -1389,8 +1389,8 @@ class PriceActionControllerTest extends TestCase
         $url = '/api/_action/calculate-price';
         $this->getBrowser()->request('POST', $url, $data);
 
-        /** @var string $response */
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -1417,8 +1417,8 @@ class PriceActionControllerTest extends TestCase
         $url = '/api/_action/calculate-prices';
         $this->getBrowser()->request('POST', $url, $data);
 
-        /** @var string $response */
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $response);

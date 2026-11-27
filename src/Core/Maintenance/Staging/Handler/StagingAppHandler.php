@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Maintenance\Staging\Handler;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 
@@ -14,27 +16,32 @@ use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 readonly class StagingAppHandler
 {
     public function __construct(
-        private Connection $connection,
-        private ShopIdProvider $shopIdProvider
+        private Resolver $shopIdChangeResolver,
     ) {
     }
 
     public function __invoke(SetupStagingEvent $event): void
     {
-        $this->deleteAppsWithAppServer($event);
+        $strategy = $this->strategyName($event);
 
-        $this->shopIdProvider->deleteShopId();
+        try {
+            $this->shopIdChangeResolver->resolve($strategy, $event->context);
+        } catch (AppException $e) {
+            $event->io->error($e->getMessage());
+            $event->canceled = true;
+
+            return;
+        }
+
+        $event->io->info(\sprintf('Staging: applied the shop ID change strategy "%s".', $strategy));
     }
 
-    private function deleteAppsWithAppServer(SetupStagingEvent $event): void
+    private function strategyName(SetupStagingEvent $event): string
     {
-        $apps = $this->connection->fetchAllAssociative('SELECT id, integration_id, name FROM app WHERE app_secret IS NOT NULL');
-
-        foreach ($apps as $app) {
-            $this->connection->delete('app', ['id' => $app['id']]);
-            $this->connection->delete('integration', ['id' => $app['integration_id']]);
-
-            $event->io->info(\sprintf('Uninstalled app %s, install app again to establish a correct connection ', $app['name']));
+        if ($event->reinstallApps) {
+            return ReinstallAppsStrategy::STRATEGY_NAME;
         }
+
+        return UninstallAppsStrategy::STRATEGY_NAME;
     }
 }

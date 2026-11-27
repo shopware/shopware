@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\Log\Package;
@@ -101,6 +102,16 @@ class ProductDefinitionTest extends TestCase
         $type = $fields->get('type');
         static::assertNotNull($type);
         static::assertFalse($type->is(Required::class));
+    }
+
+    public function testWishlistsAreNotCloned(): void
+    {
+        $wishlists = $this->getDefinition()->getFields()->get('wishlists');
+        static::assertNotNull($wishlists);
+
+        $flag = $wishlists->getFlag(CascadeDelete::class);
+        static::assertInstanceOf(CascadeDelete::class, $flag);
+        static::assertFalse($flag->isCloneRelevant());
     }
 
     private function getDefinition(): ProductDefinition

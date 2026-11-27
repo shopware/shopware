@@ -1,0 +1,14 @@
+Public API check failed: 1 unannounced break.
+
+Break (1)
+  block_missing  component:sw-example-field-set/block:sw_example_field_set_tabs  major
+    The block is gone in the major state, so plugin template overrides of sw_example_field_set_tabs render nothing with v6.8.0.0 on.
+    Fix: pattern "Rename". Keep sw_example_field_set_tabs in the branch for v6.8.0.0 off and mark it {# @deprecated tag:v6.8.0 - Use {@link sw_example_field_set_mt_tabs} instead. #}.
+    Possible rename: sw_example_field_set_mt_tabs.
+    At: src/app/component/form/sw-example-field-set/sw-example-field-set.html.twig:1
+
+Addition (1)
+  block_added  component:sw-example-field-set/block:sw_example_field_set_mt_tabs  major
+    A new public block that plugins can rely on from now on.
+    Fix: mark it @private if it is not meant for plugins.
+    At: src/app/component/form/sw-example-field-set/sw-example-field-set.html.twig:4

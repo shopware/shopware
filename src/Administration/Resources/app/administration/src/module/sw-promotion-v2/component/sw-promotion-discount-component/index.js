@@ -70,12 +70,29 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
          */
         ruleFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-promotion-discount-component.ruleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.',
+            );
+
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('conditions');
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - will be removed with `ruleFilter`, the rule select then uses its default rule filter
+         */
+        ruleFilterDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return undefined;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.ruleFilter);
         },
 
         currencyPriceColumns() {
@@ -192,6 +209,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         maxValueAdvancedPricesTooltip() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-promotion-discount-component.maxValueAdvancedPricesTooltip is deprecated. Will be removed without replacement.',
+            );
+
             if (
                 this.discount.type === DiscountTypes.PERCENTAGE &&
                 this.discount.maxValue !== null &&

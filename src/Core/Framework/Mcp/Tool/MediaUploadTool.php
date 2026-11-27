@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -20,9 +22,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[McpTool(
     name: 'shopware-media-upload',
     title: 'Media Upload',
+    annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true),
     description: 'Upload any image or file — including product cover images — to Shopware\'s media library from a URL. url is the only required parameter; productId, fileName, and mediaFolderId are all optional. Call this tool immediately with just the URL whenever the user asks to upload, import, or add an image. Returns the new mediaId.'
 )]
-#[McpToolGroup('media')]
+#[McpToolGroup('media', description: 'Upload images and other files from a URL into the media library, for example a product cover image. Enable it when a task adds or imports a file.')]
 #[McpToolRequires('media:create')]
 #[McpToolRequires('product:update')]
 class MediaUploadTool extends McpToolResponse
@@ -42,7 +45,7 @@ class MediaUploadTool extends McpToolResponse
         string $fileName = '',
         string $mediaFolderId = '',
         string $productId = '',
-    ): string {
+    ): McpToolResult {
         $context = $this->contextProvider->getContext();
 
         $requiredPrivileges = ['media:create'];
@@ -50,7 +53,7 @@ class MediaUploadTool extends McpToolResponse
             $requiredPrivileges[] = 'product:update';
         }
 
-        if ($error = $this->requirePrivilege($context, ...$requiredPrivileges)) {
+        if ($error = $this->requirePrivilegeResult($context, ...$requiredPrivileges)) {
             return $error;
         }
 
@@ -62,7 +65,7 @@ class MediaUploadTool extends McpToolResponse
         try {
             $mediaId = $this->mediaUploadService->uploadFromURL($url, $context, $params);
         } catch (\Throwable $e) {
-            return $this->error('Upload failed: ' . $e->getMessage());
+            return $this->errorResult('Upload failed: ' . $e->getMessage());
         }
 
         $result = ['mediaId' => $mediaId];
@@ -73,11 +76,11 @@ class MediaUploadTool extends McpToolResponse
                 $result['productId'] = $productId;
                 $result['assignedAsCover'] = true;
             } catch (\Throwable $e) {
-                return $this->error('Media uploaded (ID: ' . $mediaId . ') but product assignment failed: ' . $e->getMessage());
+                return $this->errorResult('Media uploaded (ID: ' . $mediaId . ') but product assignment failed: ' . $e->getMessage());
             }
         }
 
-        return $this->success($result);
+        return $this->successResult($result);
     }
 
     private function assignToProduct(string $mediaId, string $productId, Context $context): void

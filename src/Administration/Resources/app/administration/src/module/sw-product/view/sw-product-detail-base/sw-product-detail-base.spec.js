@@ -67,6 +67,7 @@ async function createWrapper() {
                 'sw-text-editor': true,
 
                 'sw-product-media-form': true,
+                'sw-product-document-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,
                 'sw-text-field': true,
@@ -85,6 +86,9 @@ async function createWrapper() {
                 },
             },
             provide: {
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => Promise.resolve('default-folder-id'),
+                },
                 repositoryFactory: {
                     create: () => ({
                         search: () =>

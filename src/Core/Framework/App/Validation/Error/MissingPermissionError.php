@@ -6,27 +6,38 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
-class MissingPermissionError extends Error
+class MissingPermissionError implements Error
 {
-    private const KEY = 'manifest-missing-permission';
+    public const CODE = 'FRAMEWORK__APP_MISSING_PERMISSIONS';
 
     /**
      * @param list<string> $violations
      */
-    public function __construct(array $violations)
+    public function __construct(private readonly array $violations)
     {
-        $this->message = \sprintf(
-            "The following permissions are missing:\n- %s",
-            implode("\n- ", $violations)
-        );
-
-        parent::__construct($this->message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return \sprintf('Missing permissions: %s', implode(', ', $this->violations));
+    }
+
+    public function getErrorCode(): string
+    {
+        return self::CODE;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Fail;
     }
 }

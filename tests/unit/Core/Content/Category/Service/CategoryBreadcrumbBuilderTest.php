@@ -221,6 +221,34 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame($categoryEntity, $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext));
     }
 
+    public function testGetProductSeoCategoryLoadsMissingMainCategoryAssociation(): void
+    {
+        $category = new CategoryEntity();
+        $category->setId(Uuid::randomHex());
+
+        $mainCategory = new MainCategoryEntity();
+        $mainCategory->setId(Uuid::randomHex());
+        $mainCategory->setSalesChannelId($this->salesChannelContext->getSalesChannelId());
+        $mainCategory->setCategoryId($category->getId());
+
+        $product = $this->getProductEntity([], [$category->getId()]);
+        $product->setMainCategories(new MainCategoryCollection([$mainCategory]));
+
+        $loadedMainCategory = clone $mainCategory;
+        $loadedMainCategory->setCategory($category);
+        $loadedProduct = clone $product;
+        $loadedProduct->setMainCategories(new MainCategoryCollection([$loadedMainCategory]));
+
+        $builder = new CategoryBreadcrumbBuilder(
+            $this->getCategoryRepositoryMock([], []),
+            $this->getProductRepositoryMock([$loadedProduct], []),
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        static::assertSame($category, $builder->getProductSeoCategory($product, $this->salesChannelContext));
+    }
+
     public function testGetProductCategoryByReferrerShouldReturnReferrerCategoryHiddenInNavigation(): void
     {
         $categoryId = Uuid::randomHex();

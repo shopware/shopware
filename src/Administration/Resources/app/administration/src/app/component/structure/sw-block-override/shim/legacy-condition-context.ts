@@ -81,7 +81,7 @@ export type LegacyConditionCaseOptions = {
  *
  * @private
  */
-export type LegacyConditionCaseReservation = {
+type LegacyConditionCaseReservation = {
     caseStartIndex: number;
     caseCount: number;
     startsChain?: boolean;

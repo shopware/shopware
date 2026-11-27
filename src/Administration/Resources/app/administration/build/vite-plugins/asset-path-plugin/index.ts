@@ -15,15 +15,25 @@ function escapeBundleName(bundleName: string): string {
  * This plugin is used to dynamically change the public path of the assets.
  */
 export default function assetPathPlugin(bundleName = 'administration'): Plugin {
+    const workerUrlRegex = new RegExp(
+        `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${escapeBundleName(bundleName)}\\/administration\\/[^"]*)"`,
+        'g',
+    );
+    const workerUrlReplacement =
+        '$1(new URL(window.__sw__.assetPath,location.href).origin===location.origin?window.__sw__.assetPath:Shopware.Context.api.basePath)+"$2"';
+
     return {
         name: 'shopware-vite-plugin-asset-path',
+        augmentChunkHash() {
+            // generateBundle rewrites run after chunk hashing, so include their inputs explicitly.
+            return `${workerUrlRegex}:${workerUrlReplacement}`;
+        },
         renderChunk(code) {
             // The code is minified afterward, so we can look for the none minified version directly
             // This code could change with every minor version of vite but there is no way around this.
             if (code.includes(`const assetsURL = function(dep) { return "/bundles/${bundleName}/administration/"+dep };`)) {
                 const modified = code.replace(
                     `const assetsURL = function(dep) { return "/bundles/${bundleName}/administration/"+dep }`,
-                    // eslint-disable-next-line max-len
                     `const assetsURL = function(dep) { return window.__sw__.assetPath+"/bundles/${bundleName}/administration/"+dep }`,
                 );
 
@@ -38,19 +48,12 @@ export default function assetPathPlugin(bundleName = 'administration'): Plugin {
         generateBundle(_options, bundle) {
             // Vite bakes Worker/SharedWorker script URLs as literal absolute strings, e.g.
             //   new SharedWorker("/bundles/administration/administration/assets/adminWorker-<hash>.js")
-            // These bypass the assetsURL() helper patched above, so they never pick up
-            // window.__sw__.assetPath and always resolve against the domain root. That breaks the
-            // Admin Worker when the Administration is hosted under a base path / subdirectory.
-            // Prefix them the same way assetsURL() is prefixed above. This runs on the final,
-            // minified output because that is the only place the literal reliably matches.
-            const workerUrlRegex = new RegExp(
-                `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${escapeBundleName(bundleName)}\\/administration\\/[^"]*)"`,
-                'g',
-            );
-
+            // Workers must stay on the shop origin, even when assets are hosted on a CDN.
+            // Keep same-origin asset prefixes; use the request base path for cross-origin assets.
+            // This runs on the final, minified output where the literal reliably matches.
             for (const output of Object.values(bundle)) {
                 if (output.type === 'chunk' && typeof output.code === 'string') {
-                    output.code = output.code.replace(workerUrlRegex, '$1window.__sw__.assetPath+"$2"');
+                    output.code = output.code.replace(workerUrlRegex, workerUrlReplacement);
                 }
             }
         },

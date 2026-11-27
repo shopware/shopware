@@ -11,9 +11,13 @@ const { get, format, array } = Utils;
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed, is not used anymore.',
+    },
 
     emits: ['error'],
 

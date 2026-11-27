@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
@@ -30,7 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(CartCalculator::class)]
 class CartCalculatorTest extends TestCase
 {
-    public const EXPECTED_HASH = '0e7471dd6822e878f04962fc750993c42ccfe121672409e8ef92237658055942';
+    public const EXPECTED_HASH = '2c26f87f573ea8b800a3f1e2afe27a0fec4dedfa382b26d28972a49652b0f891';
 
     public function testCalculate(): void
     {
@@ -50,7 +51,7 @@ class CartCalculatorTest extends TestCase
         $calculator = new CartCalculator(
             $cartRuleLoader,
             new CartContextHasher(new EventDispatcher()),
-            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver()),
+            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver(new LabelMappingRegistry([], 'other'))),
         );
         $calculatedCart = $calculator->calculate($cart, $context);
 
@@ -90,7 +91,7 @@ class CartCalculatorTest extends TestCase
         $calculator = new CartCalculator(
             $cartRuleLoader,
             new CartContextHasher(new EventDispatcher()),
-            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver()),
+            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver(new LabelMappingRegistry([], 'other'))),
         );
         $calculatedCart = $calculator->calculate($cart, $context);
 
@@ -124,7 +125,7 @@ class CartCalculatorTest extends TestCase
         $calculator = new CartCalculator(
             $cartRuleLoader,
             new CartContextHasher(new EventDispatcher()),
-            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver()),
+            new CartMetricsInstrumentor(new Telemetry(static::createStub(Meter::class), 'test'), new SalesChannelTypeResolver(new LabelMappingRegistry([], 'other'))),
         );
 
         $calculatedCart = $calculator->calculateByToken('hatoken', $context);

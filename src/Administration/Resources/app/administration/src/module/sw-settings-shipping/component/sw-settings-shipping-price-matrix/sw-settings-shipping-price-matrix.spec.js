@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -112,6 +113,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
     afterEach(() => {
         wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+        Shopware.Component.getOverrideRegistry().delete('sw-settings-shipping-price-matrix');
     });
 
     it('should not add conditions association', async () => {
@@ -122,44 +124,80 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const ruleFilterCriteria = wrapper
             .findComponent('.sw-settings-shipping-price-matrix__top-container-rule-select')
             .props('ruleFilter');
-        const shippingRuleFilterCriteria = wrapper
+        const calculationRuleFilterCriteria = wrapper
             .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
             .props('ruleFilter');
 
         expect(ruleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
-        expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
+        expect(calculationRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
     });
 
-    // @deprecated tag:v6.8.0 - The test will be removed with the shippingRuleFilterCriteria shipping option.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy shipping rule type.
     it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
         const wrapper = await createWrapper(
             {},
             { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
         );
-        const shippingRuleFilterCriteria = wrapper
+        const calculationRuleFilterCriteria = wrapper
             .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
             .props('ruleFilter');
 
-        expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(3);
-        expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('shipping');
-        expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBe('price');
-        expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
+        expect(calculationRuleFilterCriteria.filters[0].queries).toHaveLength(3);
+        expect(calculationRuleFilterCriteria.filters[0].queries[0].value).toBe('shipping');
+        expect(calculationRuleFilterCriteria.filters[0].queries[1].value).toBe('price');
+        expect(calculationRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
+        expect(deprecations).not.toHaveTriggered(
+            'sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated',
+        );
     });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the shippingRuleFilterCriteria computed.
+    it.deprecated('v6.8.0.0')(
+        'should pass an override of shippingRuleFilterCriteria to the calculation rule select',
+        async () => {
+            const overriddenCriteria = new Shopware.Data.Criteria(1, 5);
+            Shopware.Component.override('sw-settings-shipping-price-matrix', {
+                computed: {
+                    shippingRuleFilterCriteria() {
+                        return overriddenCriteria;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper(
+                {},
+                { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
+            );
+
+            expect(
+                wrapper
+                    .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
+                    .props('ruleFilter'),
+            ).toBe(overriddenCriteria);
+        },
+    );
 
     it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
         const wrapper = await createWrapper(
             {},
             { calculation: null, prices: [{ id: 'rule-price', calculationRuleId: 'rule-id', currencyPrice: null }] },
         );
-
-        // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
-        const shippingRuleFilterCriteria = wrapper
+        const calculationRuleFilterCriteria = wrapper
             .findComponent('.sw-settings-shipping-price-matrix__column-calculation-rule-select')
             .props('ruleFilter');
 
-        expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(2);
-        expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('price');
-        expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBeNull();
+        expect(calculationRuleFilterCriteria.filters[0].queries).toHaveLength(2);
+        expect(calculationRuleFilterCriteria.filters[0].queries[0].value).toBe('price');
+        expect(calculationRuleFilterCriteria.filters[0].queries[1].value).toBeNull();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the shippingRuleFilterCriteria computed.
+    it.deprecated('v6.8.0.0')('should report reading shippingRuleFilterCriteria directly', async () => {
+        const wrapper = await createWrapper();
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- reading the computed directly is what reports it
+        expect(wrapper.vm.shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('shipping');
+        expect(deprecations).toHaveTriggered('sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated');
     });
 
     it('should show all prices', async () => {

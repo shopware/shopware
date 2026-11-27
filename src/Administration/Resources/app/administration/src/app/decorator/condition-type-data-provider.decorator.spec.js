@@ -77,6 +77,7 @@ const EXPECTED_CONDITION_TYPES = [
     'cartLineItemDimensionWidth',
     'cartLineItemDimensionHeight',
     'cartLineItemDimensionLength',
+    'cartLineItemDimensionLongestAndGirth',
     'cartLineItemDimensionWeight',
     'cartLineItemDimensionVolume',
     'cartLineItemListPrice',

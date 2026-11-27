@@ -36,6 +36,9 @@ return [
         // Expected to be appended when a new internal route default is added; existing entries are never removed
         preg_quote('Value of constant Shopware\Core\PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS', '/'),
 
+        // Expected to grow when new robots.txt directives are supported
+        preg_quote('ADDED: Case Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType::', '/') . '.* was added',
+
         // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
         // BC changes are in the third-party OpenApi\Analysis API. Extensions
         // that only define OpenAPI annotations/attributes continue to work; code
@@ -71,6 +74,9 @@ return [
         // AbstractCartLoadRoute::load(), which keeps its signature until the change announced for 6.8.
         // CartLoadRoute is not an extension point, its getDecorated() throws a DecorationPatternException.
         preg_quote('ADDED: Parameter cart was added to Method load() of class Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute', '/'),
+
+        // Optional parameter added with default null; existing callers and subclass constructors are unaffected
+        preg_quote('ADDED: Parameter text was added to Method __construct() of class Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel\LegalGuaranteeNoticeRouteResponse', '/'),
 
         // Promoted properties expose their default on the constructor parameter rather than
         // ReflectionProperty. CustomerZipCode still initializes this property to true.
@@ -139,6 +145,9 @@ return [
         // intended to be internal on release
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
+
+        // AppException is internal, but its methods are still compared through subclasses that are not marked internal
+        preg_quote('Shopware\Core\Framework\App\AppException', '/') . '(::|#|$)',
 
         // Only thrown during the legacy commercial license sync; all services
         // that used it have published versions using the new webhooks instead

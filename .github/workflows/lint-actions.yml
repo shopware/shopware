@@ -1,7 +1,8 @@
 name: Lint Actions
 # Lints GitHub Actions workflows/actions with actionlint, checks their formatting
 # with yamlfmt, and audits them with zizmor. Mirrors `composer run lint:actions`
-# locally.
+# locally. Also tests, lints and format-checks the scripts under .github
+# (`composer run lint:github-scripts`).
 
 on:
   pull_request:
@@ -12,6 +13,8 @@ on:
       - ".github/zizmor.yml"
       - ".github/bin/lint-actions.bash"
       - ".github/bin/js/**"
+      - ".github/**/*.ts"
+      - ".github/**/*.*js"
       - ".yamlfmt"
   workflow_dispatch:
 
@@ -70,6 +73,18 @@ jobs:
       - name: Lint workflows
         run: .github/bin/lint-actions.bash
 
-      # dependency-free unit tests for the automation modules under .github/bin/js
       - name: Test automation scripts
         run: cd .github/bin/js && node --test
+
+      - name: Install automation script dependencies
+        working-directory: .github/bin/js
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      # Both fail when their glob matches no file, so a moved script cannot silently drop out of the check.
+      - name: Check formatting of automation scripts
+        working-directory: .github/bin/js
+        run: npm run format
+
+      - name: Lint automation scripts
+        working-directory: .github/bin/js
+        run: npm run lint

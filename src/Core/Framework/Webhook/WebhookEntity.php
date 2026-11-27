@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationEntity;
+use Shopware\Core\System\User\UserEntity;
 
 /**
  * @codeCoverageIgnore
@@ -27,15 +30,23 @@ class WebhookEntity extends Entity
 
     protected ?string $appId = null;
 
-    /**
-     * @internal
-     */
     protected ?string $ownerUserId = null;
+
+    protected ?UserEntity $ownerUser = null;
+
+    protected ?string $ownerIntegrationId = null;
+
+    protected ?IntegrationEntity $ownerIntegration = null;
 
     /**
      * @internal
      */
-    protected ?string $ownerIntegrationId = null;
+    protected ?IdentityType $ownerType = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $secret = null;
 
     protected bool $active;
 
@@ -108,40 +119,78 @@ class WebhookEntity extends Entity
         $this->app = $app;
     }
 
-    /**
-     * @internal
-     */
     public function getOwnerUserId(): ?string
     {
-        $this->checkIfPropertyAccessIsAllowed('ownerUserId');
-
         return $this->ownerUserId;
     }
 
-    /**
-     * @internal
-     */
     public function setOwnerUserId(?string $ownerUserId): void
     {
         $this->ownerUserId = $ownerUserId;
     }
 
-    /**
-     * @internal
-     */
+    public function getOwnerUser(): ?UserEntity
+    {
+        return $this->ownerUser;
+    }
+
+    public function setOwnerUser(?UserEntity $ownerUser): void
+    {
+        $this->ownerUser = $ownerUser;
+    }
+
     public function getOwnerIntegrationId(): ?string
     {
-        $this->checkIfPropertyAccessIsAllowed('ownerIntegrationId');
-
         return $this->ownerIntegrationId;
+    }
+
+    public function setOwnerIntegrationId(?string $ownerIntegrationId): void
+    {
+        $this->ownerIntegrationId = $ownerIntegrationId;
+    }
+
+    public function getOwnerIntegration(): ?IntegrationEntity
+    {
+        return $this->ownerIntegration;
+    }
+
+    public function setOwnerIntegration(?IntegrationEntity $ownerIntegration): void
+    {
+        $this->ownerIntegration = $ownerIntegration;
     }
 
     /**
      * @internal
      */
-    public function setOwnerIntegrationId(?string $ownerIntegrationId): void
+    public function getOwnerType(): ?IdentityType
     {
-        $this->ownerIntegrationId = $ownerIntegrationId;
+        return $this->ownerType;
+    }
+
+    /**
+     * @internal
+     */
+    public function setOwnerType(?IdentityType $ownerType): void
+    {
+        $this->ownerType = $ownerType;
+    }
+
+    /**
+     * @internal
+     */
+    public function getSecret(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('secret');
+
+        return $this->secret;
+    }
+
+    /**
+     * @internal
+     */
+    public function setSecret(#[\SensitiveParameter] ?string $secret): void
+    {
+        $this->secret = $secret;
     }
 
     public function isActive(): bool

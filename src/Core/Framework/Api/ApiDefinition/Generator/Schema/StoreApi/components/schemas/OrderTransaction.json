@@ -105,6 +105,12 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "payload": {
+                        "description": "Data extensions attached to the transaction in the cart. Core defines no keys. An empty payload is an empty array.",
+                        "type": ["object", "array"],
+                        "maxItems": 0,
+                        "additionalProperties": true
+                    },
                     "customFields": {
                         "type": "object"
                     },

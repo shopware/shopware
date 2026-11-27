@@ -98,9 +98,7 @@ describe('repository.data.ts', () => {
             },
         });
 
-        const repository = repositoryFactory.create('product', null, {
-            useAxiosV1: false,
-        });
+        const repository = repositoryFactory.create('product');
 
         const criteriaWithoutTitle = new Criteria();
         const criteriaWithTitle = new Criteria();
@@ -119,22 +117,31 @@ describe('repository.data.ts', () => {
         expect(clientMock.history.post[3].url).toBe('/search-ids/product?title=ImmaTest');
     });
 
-    it('should use axios v1 for repository requests regardless of repository options', async () => {
+    it('should iterate ids without requesting a total count', async () => {
         responses.addResponse({
             method: 'POST',
-            url: '/search/product',
+            url: '/search-ids/product',
             status: 200,
             response: {
-                data: [],
+                total: 1,
+                data: ['product-id'],
             },
         });
 
         const repository = repositoryFactory.create('product');
+        const criteria = new Criteria(1, 2);
+        const callback = jest.fn(() => Promise.resolve());
 
-        await repository.search(new Criteria());
+        await repository.iterateIds(criteria, callback);
 
+        expect(callback).toHaveBeenCalledWith(['product-id']);
         expect(clientMock.history.post).toHaveLength(1);
-        expect(clientMock.history.post[0].useAxiosV1).toBe(true);
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual(
+            expect.objectContaining({
+                limit: 2,
+                'total-count-mode': 0,
+            }),
+        );
     });
 
     it('should build the correct headers', async () => {

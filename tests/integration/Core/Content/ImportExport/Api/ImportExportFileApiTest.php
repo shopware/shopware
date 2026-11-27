@@ -4,9 +4,8 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -27,7 +26,7 @@ class ImportExportFileApiTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     * @var EntityRepository<ImportExportFileCollection>
      */
     private EntityRepository $repository;
 

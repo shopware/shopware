@@ -82,7 +82,7 @@ class SecurityExtension extends AbstractExtension
 
     /**
      * @param iterable<mixed> $array
-     * @param callable-string|callable(mixed): mixed|\Closure $function
+     * @param callable-string|callable(mixed, mixed, array-key): mixed|\Closure $function
      */
     public function reduce(?iterable $array, string|callable|\Closure $function, mixed $initial = null): mixed
     {
@@ -106,7 +106,17 @@ class SecurityExtension extends AbstractExtension
             $array = iterator_to_array($array);
         }
 
-        return array_reduce($array, $function, $initial);
+        if (\is_string($function)) {
+            // mirror the map filter: custom string functions receive only the carry and the value
+            return array_reduce($array, $function, $initial);
+        }
+
+        $carry = $initial;
+        foreach ($array as $key => $value) {
+            $carry = $function($carry, $value, $key);
+        }
+
+        return $carry;
     }
 
     /**

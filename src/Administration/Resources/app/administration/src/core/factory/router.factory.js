@@ -92,6 +92,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 return true;
             }
 
+            const ssoPreviousRoute = consumeSsoPreviousRoute(loggedIn);
+            if (ssoPreviousRoute && ssoPreviousRoute !== to.fullPath) {
+                return ssoPreviousRoute;
+            }
+
             // The login route will be called and the user is not logged in, let him see the login.
             if (
                 !loggedIn &&
@@ -148,6 +153,32 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         });
 
         return router;
+    }
+
+    /**
+     * The SSO login always returns to the plain Administration URL. Returns the route which was
+     * requested before the SSO forwarding, so the user continues there instead of the dashboard.
+     *
+     * @param {boolean} loggedIn
+     * @returns {string|null}
+     */
+    function consumeSsoPreviousRoute(loggedIn) {
+        if (!loggedIn || !sessionStorage.getItem('sw-sso-restore-previous-route')) {
+            return null;
+        }
+
+        sessionStorage.removeItem('sw-sso-restore-previous-route');
+
+        let previousRoute = null;
+        try {
+            previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
+        } catch {
+            return null;
+        } finally {
+            sessionStorage.removeItem('sw-admin-previous-route');
+        }
+
+        return typeof previousRoute?.fullPath === 'string' ? previousRoute.fullPath : null;
     }
 
     function addModuleInfoToTarget(to) {

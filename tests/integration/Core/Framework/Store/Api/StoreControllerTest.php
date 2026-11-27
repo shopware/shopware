@@ -48,8 +48,8 @@ class StoreControllerTest extends TestCase
 
     public function testCheckLoginWithoutStoreToken(): void
     {
-        /** @var UserEntity $adminUser */
         $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
+        static::assertInstanceOf(UserEntity::class, $adminUser);
 
         $storeController = $this->getStoreController();
         $context = new Context(new AdminApiSource($adminUser->getId()));
@@ -68,8 +68,8 @@ class StoreControllerTest extends TestCase
             'password' => 'v3rys3cr3t',
         ]);
 
-        /** @var UserEntity $adminUser */
         $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
+        static::assertInstanceOf(UserEntity::class, $adminUser);
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
@@ -92,8 +92,8 @@ class StoreControllerTest extends TestCase
             'password' => 'v3rys3cr3t',
         ]);
 
-        /** @var UserEntity $adminUser */
         $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
+        static::assertInstanceOf(UserEntity::class, $adminUser);
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
@@ -119,8 +119,8 @@ class StoreControllerTest extends TestCase
             'password' => null,
         ]);
 
-        /** @var UserEntity $adminUser */
         $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
+        static::assertInstanceOf(UserEntity::class, $adminUser);
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
@@ -136,8 +136,8 @@ class StoreControllerTest extends TestCase
 
     public function testCheckLoginWithStoreToken(): void
     {
-        /** @var UserEntity $adminUser */
         $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
+        static::assertInstanceOf(UserEntity::class, $adminUser);
 
         $this->userRepository->update([[
             'id' => $adminUser->getId(),
@@ -159,8 +159,8 @@ class StoreControllerTest extends TestCase
 
     public function testCheckLoginWithMultipleStoreTokens(): void
     {
-        /** @var UserEntity $adminUser */
         $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
+        static::assertInstanceOf(UserEntity::class, $adminUser);
 
         $this->userRepository->update([[
             'id' => $adminUser->getId(),

@@ -113,6 +113,40 @@ class CacheWatchDelayedCommandTest extends TestCase
         static::assertStringContainsString('theme-config', $tester->getDisplay());
     }
 
+    #[TestDox('keeps polling until a signal requests the stop and re-renders only when the tags change')]
+    public function testWatchKeepsPollingUntilSignalAndRerendersOnChange(): void
+    {
+        $container = static::createStub(ContainerInterface::class);
+        $command = new CacheWatchDelayedCommand($container);
+
+        $polls = 0;
+        $adapter = $this->createMock(\Redis::class);
+        $adapter->expects($this->exactly(4))
+            ->method('sMembers')
+            ->willReturnCallback(static function (string $key) use (&$polls, $command): array {
+                self::assertSame('invalidation', $key);
+                ++$polls;
+
+                // 1st poll: initial render, 2nd: unchanged, 3rd: changed, 4th: the signal arrives while polling
+                if ($polls === 4) {
+                    $command->handleSignal(\SIGTERM);
+                }
+
+                return $polls >= 3 ? ['theme-config', 'product-listing'] : ['theme-config'];
+            });
+
+        $container->method('has')->willReturn(true);
+        $container->method('get')->willReturn($adapter);
+
+        $tester = new CommandTester($command);
+        $tester->execute(['--interval' => '1'], ['capture_stderr_separately' => true]);
+
+        $tester->assertCommandIsSuccessful();
+        $display = $tester->getDisplay();
+        static::assertSame(2, substr_count($display, 'Tags at:'), 'The table must be rendered once initially and once for the changed tag set');
+        static::assertStringContainsString('product-listing', $display);
+    }
+
     private function runWithConsoleOutput(CacheWatchDelayedCommand $command): CommandTester
     {
         // The watch command requires a ConsoleOutputInterface; "capture_stderr_separately" makes the

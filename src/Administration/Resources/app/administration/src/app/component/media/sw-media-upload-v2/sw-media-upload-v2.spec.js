@@ -7,12 +7,20 @@ import { mount } from '@vue/test-utils';
 import FileValidationService from 'src/app/service/file-validation.service';
 
 let repositoryFactoryMock;
+let mediaServiceMock;
 async function createWrapper(customOptions = {}) {
     repositoryFactoryMock = {
         create: () => ({}),
         save: () => Promise.resolve({}),
         saveAll: () => Promise.resolve({}),
         sync: () => Promise.resolve({}),
+    };
+    mediaServiceMock = {
+        addListener: jest.fn(),
+        addUploads: () => Promise.resolve(),
+        addUpload: () => Promise.resolve(),
+        removeByTag: () => {},
+        removeListener: () => null,
     };
 
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
@@ -38,7 +46,7 @@ async function createWrapper(customOptions = {}) {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                'sw-popover': true,
+                'mt-floating-ui': true,
                 'sw-help-text': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -59,13 +67,7 @@ async function createWrapper(customOptions = {}) {
                 repositoryFactory: {
                     create: () => repositoryFactoryMock,
                 },
-                mediaService: {
-                    addListener: () => {},
-                    addUploads: () => Promise.resolve(),
-                    addUpload: () => Promise.resolve(),
-                    removeByTag: () => {},
-                    removeListener: () => null,
-                },
+                mediaService: mediaServiceMock,
             },
         },
         ...customOptions,
@@ -271,7 +273,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': true,
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                        'sw-popover': true,
+                        'mt-floating-ui': true,
                         'sw-help-text': true,
                         'router-link': true,
                         'sw-loader': true,
@@ -344,7 +346,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-field-error': true,
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                        'sw-popover': true,
+                        'mt-floating-ui': true,
                         'sw-help-text': true,
                         'router-link': true,
                         'sw-loader': true,
@@ -751,8 +753,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     describe('pending upload cleanup', () => {
         beforeEach(() => {
             // Defaults so the teardown cleanup has a repository to call; deletion tests override these.
-            wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValue({ hasFile: true });
-            wrapper.vm.mediaRepository.delete = jest.fn().mockResolvedValue({});
+            wrapper.vm.mediaRepository.search = jest.fn().mockResolvedValue([]);
+            wrapper.vm.mediaRepository.syncDeleted = jest.fn().mockResolvedValue({});
         });
 
         it('tracks synced media entities as pending until the upload finishes', async () => {
@@ -787,38 +789,74 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             expect(wrapper.vm.pendingUploadMediaIds.has('media-2')).toBe(true);
         });
 
-        it('deletes empty pending media but keeps media that already has a file', async () => {
-            const getMock = jest
-                .fn()
-                .mockResolvedValueOnce({ id: 'media-1', hasFile: false })
-                .mockResolvedValueOnce({ id: 'media-2', hasFile: true });
-            const deleteMock = jest.fn().mockResolvedValue({});
-            wrapper.vm.mediaRepository.get = getMock;
-            wrapper.vm.mediaRepository.delete = deleteMock;
+        it('leaves the media of a duplicated file name to the duplicate dialog', async () => {
+            repositoryFactoryMock.create = () => ({ id: 'media-1' });
+            repositoryFactoryMock.search = jest.fn().mockResolvedValue([{ id: 'media-1', hasFile: false }]);
 
-            wrapper.vm.pendingUploadMediaIds.add('media-1');
-            wrapper.vm.pendingUploadMediaIds.add('media-2');
-
-            wrapper.vm.cleanupOrphanedMedia();
+            fileInputFilesGet.mockReturnValue([new File([''], 'foo.jpg')]);
+            await fileInput.trigger('change');
             await flushPromises();
 
-            expect(deleteMock).toHaveBeenCalledWith('media-1', expect.anything());
-            expect(deleteMock).not.toHaveBeenCalledWith('media-2', expect.anything());
-            expect(wrapper.vm.pendingUploadMediaIds.size).toBe(0);
+            const [[, handleMediaServiceUploadEvent]] = mediaServiceMock.addListener.mock.calls;
+            handleMediaServiceUploadEvent({
+                action: 'media-upload-fail',
+                payload: {
+                    targetId: 'media-1',
+                    error: { response: { data: { errors: [{ code: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME' }] } } },
+                },
+            });
+
+            wrapper.unmount();
+            await flushPromises();
+
+            expect(repositoryFactoryMock.syncDeleted).not.toHaveBeenCalled();
+        });
+
+        it('deletes empty pending media but keeps media that already has a file', async () => {
+            const { mediaRepository, pendingUploadMediaIds, cleanupOrphanedMedia } = wrapper.vm;
+            mediaRepository.search = jest.fn().mockResolvedValue([
+                { id: 'media-1', hasFile: false },
+                { id: 'media-2', hasFile: true },
+                { id: 'media-3', hasFile: false },
+            ]);
+            mediaRepository.syncDeleted = jest.fn().mockResolvedValue({});
+
+            ['media-1', 'media-2', 'media-3'].forEach((id) => pendingUploadMediaIds.add(id));
+
+            cleanupOrphanedMedia();
+            await flushPromises();
+
+            expect(mediaRepository.search).toHaveBeenCalledTimes(1);
+            expect(mediaRepository.search.mock.calls[0][0].ids).toEqual(['media-1', 'media-2', 'media-3']);
+            expect(mediaRepository.syncDeleted).toHaveBeenCalledTimes(1);
+            expect(mediaRepository.syncDeleted).toHaveBeenCalledWith(['media-1', 'media-3'], expect.anything());
+            expect(pendingUploadMediaIds.size).toBe(0);
+        });
+
+        it('does not delete anything when every pending media already has a file', async () => {
+            const { mediaRepository, pendingUploadMediaIds, cleanupOrphanedMedia } = wrapper.vm;
+            mediaRepository.search = jest.fn().mockResolvedValue([{ id: 'media-1', hasFile: true }]);
+            mediaRepository.syncDeleted = jest.fn().mockResolvedValue({});
+
+            pendingUploadMediaIds.add('media-1');
+
+            cleanupOrphanedMedia();
+            await flushPromises();
+
+            expect(mediaRepository.syncDeleted).not.toHaveBeenCalled();
         });
 
         it('cleans up abandoned empty media on unmount', async () => {
-            const getMock = jest.fn().mockResolvedValue({ id: 'media-1', hasFile: false });
-            const deleteMock = jest.fn().mockResolvedValue({});
-            wrapper.vm.mediaRepository.get = getMock;
-            wrapper.vm.mediaRepository.delete = deleteMock;
+            const syncDeletedMock = jest.fn().mockResolvedValue({});
+            wrapper.vm.mediaRepository.search = jest.fn().mockResolvedValue([{ id: 'media-1', hasFile: false }]);
+            wrapper.vm.mediaRepository.syncDeleted = syncDeletedMock;
 
             wrapper.vm.pendingUploadMediaIds.add('media-1');
 
             wrapper.unmount();
             await flushPromises();
 
-            expect(deleteMock).toHaveBeenCalledWith('media-1', expect.anything());
+            expect(syncDeletedMock).toHaveBeenCalledWith(['media-1'], expect.anything());
         });
     });
 });

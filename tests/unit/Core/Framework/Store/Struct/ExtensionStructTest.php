@@ -102,6 +102,7 @@ class ExtensionStructTest extends TestCase
         $extension->setUpdateSource('update-source');
         $extension->setAllowDisable(true);
         $extension->setAllowUpdate(true);
+        $extension->setAllowRemove(true);
         $extension->setDomains(['domains' => 'domains']);
         $extension->setLastUpdateDate('last-update-date');
         $extension->setProducerWebsite('producer-website');
@@ -134,6 +135,7 @@ class ExtensionStructTest extends TestCase
         static::assertSame('update-source', $extension->getUpdateSource());
         static::assertTrue($extension->isAllowDisable());
         static::assertTrue($extension->isAllowUpdate());
+        static::assertTrue($extension->isAllowRemove());
         static::assertSame(['domains' => 'domains'], $extension->getDomains());
         static::assertSame('last-update-date', $extension->getLastUpdateDate());
         static::assertSame('producer-website', $extension->getProducerWebsite());

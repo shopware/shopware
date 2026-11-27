@@ -13,7 +13,6 @@ const { debounce } = Shopware.Utils;
  * @component-example
  * <sw-condition-not-found :condition="condition" :level="0"></sw-condition-not-found>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

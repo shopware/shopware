@@ -8,7 +8,7 @@
     {% block sw_extension_removal_modal_content %}
     <template #default>
         {% block sw_installed_extension_card_removal_content_modal_body %}
-        <p>
+        <p v-if="hasDeletableFiles">
             {{ $t('sw-extension-store.component.sw-extension-removal-modal.description') }}
         </p>
 

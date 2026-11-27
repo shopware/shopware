@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -48,18 +50,42 @@ class EntityDefinitionQueryHelper
     }
 
     /**
-     * Rejects the characters that break out of the backtick quoting escape() applies: the backtick,
-     * plus question marks and colons (parsed as placeholders by PDO MySQL emulated prepares even
-     * inside backtick-quoted identifiers on PHP < 8.4) and control characters.
-     *
-     * @see https://www.php.net/manual/en/regexp.reference.unicode.php \p{Cc} matches control characters
+     * Guards identifiers that escape() wraps in backticks and reflects into SQL, such as aggregation
+     * names chosen by the API client. Until PHP 8.4 the PDO MySQL emulated-prepare scanner ignores
+     * backtick quoting, so a quote, a comment marker (double-dash or the slash-star block comment) or
+     * a placeholder character (question mark, colon) inside the alias can desync placeholder parsing
+     * and enable SQL injection. Those, plus the backtick and backslash that would break the quoting
+     * outright, the semicolon, and control characters, are rejected.
      */
     public static function isValidIdentifier(string $identifier): bool
     {
-        return !str_contains($identifier, '`')
-            && !str_contains($identifier, '?')
-            && !str_contains($identifier, ':')
-            && preg_match('/\p{Cc}/u', $identifier) !== 1;
+        // `#` is intentionally absent: the pre-PHP-8.4 PDO emulated-prepare scanner does not treat it as a comment,
+        // and it's can't desync scanner (validated during testing). Also core relies on # as a delimiter in few places
+        // (see self::addTranslationSelect or EntityReader).
+        foreach (['`', '?', ':', '\'', '"', '\\', ';', '--', '/*', '*/'] as $forbidden) {
+            if (str_contains($identifier, $forbidden)) {
+                return false;
+            }
+        }
+
+        return preg_match('/\p{Cc}/u', $identifier) === 0;
+    }
+
+    /**
+     * Guards a JSON path segment before it is embedded as an SQL string literal (via JSON_EXTRACT).
+     * Because quote() wraps the path, it is harmless on its own and only matters as the closing half
+     * of a block comment an identifier opened elsewhere, so only the slash-star block-comment markers
+     * and control characters are rejected.
+     */
+    public static function isValidJsonPath(string $path): bool
+    {
+        foreach (['/*', '*/'] as $forbidden) {
+            if (str_contains($path, $forbidden)) {
+                return false;
+            }
+        }
+
+        return preg_match('/\p{Cc}/u', $path) === 0;
     }
 
     /**
@@ -114,11 +140,52 @@ class EntityDefinitionQueryHelper
     }
 
     /**
+     * Removes `extensions` segments during entity traversal and preserves the suffix of a resolved value field.
+     * Field-access validation and SQL construction must share this normalization.
+     */
+    public static function removeExtensionPathSegments(string $accessor, EntityDefinition $definition, ?string $root = null): string
+    {
+        if (!str_contains($accessor, 'extensions')) {
+            return $accessor;
+        }
+
+        $root ??= $definition->getEntityName();
+        $prefix = str_starts_with($accessor, $root . '.') ? $root . '.' : '';
+        $parts = explode('.', substr($accessor, \strlen($prefix)));
+
+        foreach ($parts as $index => $part) {
+            if ($part === 'extensions') {
+                unset($parts[$index]);
+
+                continue;
+            }
+
+            if ($prefix === '' && $part === $root && $index === array_key_first($parts)) {
+                continue;
+            }
+
+            $field = $definition->getFields()->get($part);
+            if ($field === null) {
+                continue;
+            }
+
+            if (!$field instanceof AssociationField) {
+                // Association traversal ends here, so any remaining `extensions` keys stay in the accessor.
+                break;
+            }
+
+            $definition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
+        }
+
+        return $prefix . implode('.', $parts);
+    }
+
+    /**
      * @return array<Field>
      */
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
-        $parts = explode('.', $accessor);
+        $parts = explode('.', self::removeExtensionPathSegments($accessor, $definition));
         if ($definition->getEntityName() === $parts[0]) {
             array_shift($parts);
         }
@@ -128,10 +195,6 @@ class EntityDefinitionQueryHelper
         $source = $definition;
 
         foreach ($parts as $part) {
-            if ($part === 'extensions') {
-                continue;
-            }
-
             $fields = $source->getFields();
             $field = $fields->get($part);
 
@@ -168,6 +231,31 @@ class EntityDefinitionQueryHelper
         }
 
         return \array_values(\array_filter($accessorFields));
+    }
+
+    public static function validateFieldIsApiAware(Field $field, string $accessor, Context $context): void
+    {
+        if ($field->is(ApiCriteriaAware::class)) {
+            return;
+        }
+
+        $flag = $field->getFlag(ApiAware::class);
+        if ($flag === null || !$flag->isSourceAllowed($context->getSource()::class)) {
+            throw DataAbstractionLayerException::accessorNotAllowedInApiScope($accessor);
+        }
+    }
+
+    /**
+     * Partial field selections load associations along the accessor path.
+     * Scalar field visibility remains enforced by the response encoder.
+     */
+    public static function validateFieldsAccessorIsApiAware(EntityDefinition $definition, string $accessor, Context $context): void
+    {
+        foreach (self::getFieldsOfAccessor($definition, $accessor) as $field) {
+            if ($field instanceof AssociationField) {
+                self::validateFieldIsApiAware($field, $field->getPropertyName(), $context);
+            }
+        }
     }
 
     /**
@@ -279,7 +367,7 @@ class EntityDefinitionQueryHelper
      */
     public function getFieldAccessor(string $fieldName, EntityDefinition $definition, string $root, Context $context): string
     {
-        $fieldName = str_replace('extensions.', '', $fieldName);
+        $fieldName = self::removeExtensionPathSegments($fieldName, $definition, $root);
 
         $original = $fieldName;
         $prefix = $root . '.';
@@ -300,11 +388,7 @@ class EntityDefinitionQueryHelper
         $parts = explode('.', $fieldName);
         $associationKey = array_shift($parts);
 
-        if ($associationKey === 'extensions') {
-            $associationKey = array_shift($parts);
-        }
-
-        if (!\is_string($associationKey) || !$fields->has($associationKey)) {
+        if (!$fields->has($associationKey)) {
             throw DataAbstractionLayerException::unmappedField($original, $definition);
         }
 
@@ -408,7 +492,7 @@ class EntityDefinitionQueryHelper
         Context $context,
         ?CriteriaPartInterface $criteriaPart = null
     ): void {
-        $accessor = str_replace('extensions.', '', $accessor);
+        $accessor = self::removeExtensionPathSegments($accessor, $definition, $root);
 
         $parts = explode('.', $accessor);
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Resource;
 
+use Mcp\Schema\Content\TextResourceContents;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -32,12 +33,13 @@ class BusinessEventsResourceTest extends TestCase
         $contextProvider->method('getContext')->willReturn($context);
 
         $resource = new BusinessEventsResource($collector, $contextProvider);
-        $result = ($resource)();
+        $result = ($resource)()->contents[0];
+        static::assertInstanceOf(TextResourceContents::class, $result);
 
-        static::assertSame('shopware://business-events', $result['uri']);
-        static::assertSame('application/json', $result['mimeType']);
+        static::assertSame('shopware://business-events', $result->uri);
+        static::assertSame('application/json', $result->mimeType);
 
-        $events = json_decode($result['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $events = json_decode($result->text, true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $events);
         static::assertSame('test.event', $events[0]['name']);
         static::assertSame(TestResourceEventClass::class, $events[0]['class']);

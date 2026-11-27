@@ -60,14 +60,14 @@ class MyProductFinderTool extends McpToolResponse
         private readonly ProductListingLoader $listingLoader,
     ) {}
 
-    public function __invoke(string $query): string
+    public function __invoke(string $query): McpToolResult
     {
         $context = $this->contextProvider->getSalesChannelContext();
         if ($context === null) {
-            return $this->error('No sales-channel context available.');
+            return $this->errorResult('No sales-channel context available.');
         }
         // use $this->listingLoader with $context
-        return $this->success([...]);
+        return $this->successResult([...]);
     }
 }
 ```
@@ -127,6 +127,8 @@ The endpoint supports browser-based MCP clients. `CoreCorsHeaderProvider` contri
 (`CorsListener`) and exposes `mcp-session-id` on responses. A browser client can therefore
 read the session ID from the `initialize` response header and send it on all subsequent
 requests.
+It also allows the `Mcp-Method` and `Mcp-Name` request headers, which the stateless era
+requires, so browser clients can use both eras.
 
 Bundles that introduce their own API headers add them the same way, by registering a
 `Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface` service. The lists are
@@ -153,7 +155,7 @@ multi-worker or multi-server deployments, configure a `session` store per server
 | Name | Type | Description |
 |------|------|-------------|
 | `shopware-store-api-context` | Tool | Returns the current session metadata: sales channel ID, context token, language, currency, and customer authentication state |
-| `tool-result` (`shopware://tool-result/{id}`) | Resource template | Reads a tool result larger than 100 KB that a previous call stored and linked with `resource_link`. The link is signed for the sales channel and the `sw-context-token` of the call, and expires after an hour. A call without `sw-context-token` gets its result inline, because a token minted for that one request could never read it back |
+| `tool-result` (`shopware://tool-result/{id}`) | Resource template | Reads a tool result too large to return inline (about 100 KB of data) that a previous call stored and linked with `resource_link`. The link is signed for the sales channel and the `sw-context-token` of the call, and expires after an hour. A call without `sw-context-token` gets its result inline, because a token minted for that one request could never read it back |
 
 ## Known Limitations
 

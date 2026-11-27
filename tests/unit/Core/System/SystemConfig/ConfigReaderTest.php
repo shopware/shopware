@@ -33,6 +33,15 @@ class ConfigReaderTest extends TestCase
         static::assertSame($this->getExpectedConfig(), $actualConfig);
     }
 
+    public function testConfigReaderIgnoresACommentBeforeTheRootElement(): void
+    {
+        $config = $this->configReader->read(__DIR__ . '/_fixtures/config_with_leading_comment.xml');
+
+        static::assertCount(1, $config);
+        static::assertSame(['en-GB' => 'Basic configuration'], $config[0]['cards'][0]['title']);
+        static::assertSame('email', $config[0]['cards'][0]['elements'][0]['name']);
+    }
+
     public function testConfigReaderWithInvalidPath(): void
     {
         $this->expectException(UtilException::class);

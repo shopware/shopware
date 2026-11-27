@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Util\FloatComparator;
  * line item or an order delivery's shipping cost. Positive `isCharge` marks the entry as a
  * charge; everything else is treated as an allowance.
  *
+ * Promotion-based charges carry no reason code: `95` only exists in the allowance code list
+ * (UNCL 5189), and the free-text reason satisfies EN 16931 on its own.
+ *
  * Zero-amount rows are emitted to match v1 wire output.
  *
  * @internal
@@ -33,7 +36,7 @@ final readonly class AllowanceChargeView
         public float $actualAmount,
         public ?float $basisAmount,
         public ?float $calculationPercent,
-        public AllowanceChargeReason $reasonCode,
+        public ?AllowanceChargeReason $reasonCode,
         public string $reason,
         public TaxCategory $taxCategory,
         public float $taxRate,
@@ -141,7 +144,7 @@ final readonly class AllowanceChargeView
     ): void {
         if (!\in_array(
             $lineItem->getType(),
-            [LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::CREDIT_LINE_ITEM_TYPE],
+            [LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::DISCOUNT_LINE_ITEM, LineItem::CREDIT_LINE_ITEM_TYPE],
             true,
         )) {
             return;
@@ -192,7 +195,7 @@ final readonly class AllowanceChargeView
                 actualAmount: $amount,
                 basisAmount: $basisAmount,
                 calculationPercent: $isPercentage ? $discountValue : null,
-                reasonCode: AllowanceChargeReason::DISCOUNT,
+                reasonCode: $isCharge ? null : AllowanceChargeReason::DISCOUNT,
                 reason: $lineItem->getReferencedId() ?? ($lineItem->getLabel() ?: AllowanceChargeReason::DISCOUNT->defaultLabel()),
                 taxCategory: TaxCategory::fromRate($tax->getTaxRate()),
                 taxRate: $tax->getTaxRate(),
@@ -222,7 +225,7 @@ final readonly class AllowanceChargeView
             actualAmount: $amount,
             basisAmount: $basisAmount,
             calculationPercent: $isPercentage ? $discountValue : null,
-            reasonCode: AllowanceChargeReason::DISCOUNT,
+            reasonCode: $isCharge ? null : AllowanceChargeReason::DISCOUNT,
             reason: $lineItem->getReferencedId() ?? ($lineItem->getLabel() ?: AllowanceChargeReason::DISCOUNT->defaultLabel()),
             taxCategory: TaxCategory::ZERO_RATED,
             taxRate: 0.0,

@@ -138,6 +138,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         hasMoreThanOneTab() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.hasMoreThanOneTab is deprecated and will be removed.',
+            );
+
             return Object.values(this.structuredThemeFields.tabs).length > 1;
         },
 
@@ -286,6 +291,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         openMediaSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.openMediaSidebar() is deprecated and will be removed.',
+            );
+
             this.$refs.mediaSidebarItem.openContent();
         },
 
@@ -323,6 +333,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         restoreMediaInheritance(currentValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.restoreMediaInheritance() is deprecated and will be removed without replacement.',
+            );
+
             return currentValue;
         },
 
@@ -654,11 +669,10 @@ export default {
 
         getThemeCompatibleSalesChannels() {
             const criteria = new Criteria();
-            criteria.addAssociation('type');
             criteria.addFilter(Criteria.equalsAny('type.name', ['Storefront', 'Headless']));
 
-            return this.salesChannelRepository.search(criteria).then((searchResult) => {
-                return searchResult.getIds();
+            return this.salesChannelRepository.searchIds(criteria).then(({ data }) => {
+                return data;
             });
         },
 
@@ -710,7 +724,10 @@ export default {
         getBind(field, inheritance = null, inheritedValue = null) {
             const config = Object.assign({}, field);
 
-            if (!this.isFieldHandlingLabelAndHelpText(field)) {
+            if (this.isFieldHandlingLabelAndHelpText(field)) {
+                config.label = this.getSnippet(field.labelSnippetKey) || field.label;
+                config.helpText = this.getSnippet(field.helpTextSnippetKey) || field.helpText;
+            } else {
                 config.label = undefined;
                 config.labelSnippetKey = undefined;
                 config.helpText = undefined;
@@ -758,6 +775,7 @@ export default {
          * @param {string} [fallback=''] - DEPRECATED: The fallback value to return if the snippet is not found.
          * @returns {string}
          */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, a used fallback triggers the deprecation itself
         getSnippet(key, fallback = '') {
             for (let themeName of this.inheritedSnippetPrefixes) {
                 const snippetKey = `sw-theme.${themeName}.${key}`;
@@ -768,9 +786,12 @@ export default {
                 }
             }
 
-            console.warn(
-                `[DEPRECATED] v6.8.0 - Theme config labels & helpTexts will be removed entirely, use snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`,
-            );
+            if (fallback) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    `Theme config labels & helpTexts are deprecated and will be removed entirely in v6.8.0.0. Please use the snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`,
+                );
+            }
 
             return fallback;
         },
@@ -833,6 +854,7 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
          */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, getSnippet triggers it when a fallback is used
         getTabLabel(key, fallback = '') {
             const snippet = this.getSnippet(key, fallback);
             if (snippet.length >= 1) {

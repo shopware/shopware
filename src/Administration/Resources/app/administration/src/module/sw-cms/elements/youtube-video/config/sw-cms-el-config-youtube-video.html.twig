@@ -143,6 +143,7 @@
         <template #default="{ isInherited }">
             <mt-select
                 v-model="element.config.displayMode.value"
+                :hide-clearable-button="true"
                 :placeholder="$t('sw-cms.elements.general.config.label.displayMode')"
                 :options="displayModeOptions"
                 :disabled="isInherited"

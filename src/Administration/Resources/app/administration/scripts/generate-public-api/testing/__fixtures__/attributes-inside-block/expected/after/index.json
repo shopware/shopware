@@ -1,0 +1,25 @@
+{
+    "components": {
+        "sw-example-panel": {
+            "file": "app/component/base/sw-example-panel",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_example_panel",
+                "sw_example_panel_actions",
+                "sw_example_panel_empty_state",
+                "sw_example_panel_header",
+                "sw_example_panel_list",
+                "sw_example_panel_list_item",
+                "sw_example_panel_title"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

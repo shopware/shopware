@@ -3,7 +3,7 @@ import { type Snackbar, useSnackbar as useMeteorSnackbar } from '@shopware-ag/me
 /**
  * @sw-package framework
  *
- * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function useSnackbar() {

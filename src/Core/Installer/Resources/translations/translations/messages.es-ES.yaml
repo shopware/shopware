@@ -52,6 +52,257 @@ shopware.installer:
     select_language_tr-TR: Turco
     select_language_uk-UA: Ucraniano
     select_language_vi-VN: Vietnamita
+    select_country_jam: Jamaica
+    select_country_mmr: Myanmar
+    select_country_pan: Panamá
+    select_country_aus: Australia
+    select_country_jpn: Japón
+    select_country_dnk: Dinamarca
+    select_country_rou: Rumanía
+    select_country_bra: Brasil
+    select_country_fin: Finlandia
+    select_country_isr: Israel
+    select_country_bel: Bélgica
+    select_country_usa: 'Estados Unidos'
+    select_country_lie: Liechtenstein
+    select_country_pol: Polonia
+    select_country_nam: Namibia
+    select_country_aut: Austria
+    select_country_gbr: 'Reino Unido'
+    select_country_cze: 'República Checa'
+    select_country_are: 'Emiratos Árabes Unidos'
+    select_country_isl: Islandia
+    select_country_can: Canadá
+    select_country_grc: Grecia
+    select_country_irl: Irlanda
+    select_country_che: Suiza
+    select_country_fra: Francia
+    select_country_swe: Suecia
+    select_country_svk: Eslovaquia
+    select_country_deu: Alemania
+    select_country_lux: Luxemburgo
+    select_country_ita: Italia
+    select_country_hun: Hungría
+    select_country_nor: Noruega
+    select_country_nld: 'Países Bajos'
+    select_country_prt: Portugal
+    select_country_tur: Turquía
+    select_country_esp: España
+    select_country_bgr: Bulgaria
+    select_country_est: Estonia
+    select_country_hrv: Croacia
+    select_country_lva: Letonia
+    select_country_ltu: Lituania
+    select_country_mlt: Malta
+    select_country_svn: Eslovenia
+    select_country_cyp: Chipre
+    select_country_afg: Afganistán
+    select_country_ala: 'Islas Åland'
+    select_country_alb: Albania
+    select_country_dza: Argelia
+    select_country_asm: 'Samoa Americana'
+    select_country_and: Andorra
+    select_country_ago: Angola
+    select_country_aia: Anguila
+    select_country_ata: Antártida
+    select_country_atg: 'Antigua y Barbuda'
+    select_country_arg: Argentina
+    select_country_arm: Armenia
+    select_country_abw: Aruba
+    select_country_aze: Azerbaiyán
+    select_country_bhs: Bahamas
+    select_country_bhr: Baréin
+    select_country_bgd: Bangladés
+    select_country_brb: Barbados
+    select_country_blr: Bielorrusia
+    select_country_blz: Belice
+    select_country_ben: Benín
+    select_country_bmu: Bermudas
+    select_country_btn: Bután
+    select_country_bol: Bolivia
+    select_country_bes: 'Bonaire, San Eustaquio y Saba'
+    select_country_bih: 'Bosnia y Herzegovina'
+    select_country_bwa: Botsuana
+    select_country_bvt: 'Isla Bouvet'
+    select_country_iot: 'Territorio Británico del Océano Índico'
+    select_country_umi: 'Islas Ultramarinas Menores de los Estados Unidos'
+    select_country_vgb: 'Islas Vírgenes Británicas'
+    select_country_vir: 'Islas Vírgenes de los Estados Unidos'
+    select_country_brn: Brunéi
+    select_country_bfa: 'Burkina Faso'
+    select_country_bdi: Burundi
+    select_country_khm: Camboya
+    select_country_cmr: Camerún
+    select_country_cpv: 'Cabo Verde'
+    select_country_cym: 'Islas Caimán'
+    select_country_caf: 'República Centroafricana'
+    select_country_tcd: Chad
+    select_country_chl: Chile
+    select_country_chn: China
+    select_country_cxr: 'Isla de Navidad'
+    select_country_cck: 'Islas Cocos (Keeling)'
+    select_country_col: Colombia
+    select_country_com: Comoras
+    select_country_cog: Congo
+    select_country_cod: 'Congo (República Democrática del)'
+    select_country_cok: 'Islas Cook'
+    select_country_cri: 'Costa Rica'
+    select_country_cub: Cuba
+    select_country_cuw: Curazao
+    select_country_dji: Yibuti
+    select_country_dma: Dominica
+    select_country_dom: 'República Dominicana'
+    select_country_ecu: Ecuador
+    select_country_egy: Egipto
+    select_country_slv: 'El Salvador'
+    select_country_gnq: 'Guinea Ecuatorial'
+    select_country_eri: Eritrea
+    select_country_eth: Etiopía
+    select_country_flk: 'Islas Malvinas'
+    select_country_fro: 'Islas Feroe'
+    select_country_fji: Fiyi
+    select_country_guf: 'Guayana Francesa'
+    select_country_pyf: 'Polinesia Francesa'
+    select_country_atf: 'Territorios Australes Franceses'
+    select_country_gab: Gabón
+    select_country_gmb: Gambia
+    select_country_geo: Georgia
+    select_country_gha: Ghana
+    select_country_gib: Gibraltar
+    select_country_grl: Groenlandia
+    select_country_grd: Granada
+    select_country_glp: Guadalupe
+    select_country_gum: Guam
+    select_country_gtm: Guatemala
+    select_country_ggy: Guernsey
+    select_country_gin: Guinea
+    select_country_gnb: Guinea-Bisáu
+    select_country_guy: Guyana
+    select_country_hti: Haití
+    select_country_hmd: 'Islas Heard y McDonald'
+    select_country_vat: 'Ciudad del Vaticano'
+    select_country_hnd: Honduras
+    select_country_hkg: 'Hong Kong'
+    select_country_ind: India
+    select_country_idn: Indonesia
+    select_country_civ: 'Costa de Marfil'
+    select_country_irn: Irán
+    select_country_irq: Irak
+    select_country_imn: 'Isla de Man'
+    select_country_jey: Jersey
+    select_country_jor: Jordania
+    select_country_kaz: Kazajistán
+    select_country_ken: Kenia
+    select_country_kir: Kiribati
+    select_country_kwt: Kuwait
+    select_country_kgz: Kirguistán
+    select_country_lao: Laos
+    select_country_lbn: Líbano
+    select_country_lso: Lesoto
+    select_country_lbr: Liberia
+    select_country_lby: Libia
+    select_country_mac: Macao
+    select_country_mkd: 'Macedonia del Norte'
+    select_country_mdg: Madagascar
+    select_country_mwi: Malaui
+    select_country_mys: Malasia
+    select_country_mdv: Maldivas
+    select_country_mli: Malí
+    select_country_mhl: 'Islas Marshall'
+    select_country_mtq: Martinica
+    select_country_mrt: Mauritania
+    select_country_mus: Mauricio
+    select_country_myt: Mayotte
+    select_country_mex: México
+    select_country_fsm: Micronesia
+    select_country_mda: Moldavia
+    select_country_mco: Mónaco
+    select_country_mng: Mongolia
+    select_country_mne: Montenegro
+    select_country_msr: Montserrat
+    select_country_mar: Marruecos
+    select_country_moz: Mozambique
+    select_country_mnr: Myanmar
+    select_country_nru: Nauru
+    select_country_npl: Nepal
+    select_country_ncl: 'Nueva Caledonia'
+    select_country_nzl: 'Nueva Zelanda'
+    select_country_nic: Nicaragua
+    select_country_ner: Níger
+    select_country_nga: Nigeria
+    select_country_niu: Niue
+    select_country_nfk: 'Isla Norfolk'
+    select_country_prk: 'Corea del Norte'
+    select_country_mnp: 'Islas Marianas del Norte'
+    select_country_omn: Omán
+    select_country_pak: Pakistán
+    select_country_plw: Palaos
+    select_country_pse: Palestina
+    select_country_png: 'Papúa Nueva Guinea'
+    select_country_pry: Paraguay
+    select_country_per: Perú
+    select_country_phl: Filipinas
+    select_country_pcn: 'Islas Pitcairn'
+    select_country_pri: 'Puerto Rico'
+    select_country_qat: Catar
+    select_country_kos: Kosovo
+    select_country_reu: Reunión
+    select_country_rus: Rusia
+    select_country_rwa: Ruanda
+    select_country_blm: 'San Bartolomé'
+    select_country_shn: 'Santa Elena, Ascensión y Tristán de Acuña'
+    select_country_kna: 'San Cristóbal y Nieves'
+    select_country_lca: 'Santa Lucía'
+    select_country_maf: 'San Martín (parte francesa)'
+    select_country_spm: 'San Pedro y Miquelón'
+    select_country_vct: 'San Vicente y las Granadinas'
+    select_country_wsm: Samoa
+    select_country_smr: 'San Marino'
+    select_country_stp: 'Santo Tomé y Príncipe'
+    select_country_sau: 'Arabia Saudí'
+    select_country_sen: Senegal
+    select_country_srb: Serbia
+    select_country_syc: Seychelles
+    select_country_sle: 'Sierra Leona'
+    select_country_sgp: Singapur
+    select_country_sxm: 'Sint Maarten (parte neerlandesa)'
+    select_country_slb: 'Islas Salomón'
+    select_country_som: Somalia
+    select_country_zaf: Sudáfrica
+    select_country_sgs: 'Islas Georgias del Sur y Sandwich del Sur'
+    select_country_kor: 'Corea del Sur'
+    select_country_ssd: 'Sudán del Sur'
+    select_country_lka: 'Sri Lanka'
+    select_country_sdn: Sudán
+    select_country_sur: Surinam
+    select_country_sjm: 'Svalbard y Jan Mayen'
+    select_country_swz: Esuatini
+    select_country_syr: Siria
+    select_country_twn: Taiwán
+    select_country_tjk: Tayikistán
+    select_country_tza: Tanzania
+    select_country_tha: Tailandia
+    select_country_tls: 'Timor Oriental'
+    select_country_tgo: Togo
+    select_country_tkl: Tokelau
+    select_country_ton: Tonga
+    select_country_tto: 'Trinidad y Tobago'
+    select_country_tun: Túnez
+    select_country_tkm: Turkmenistán
+    select_country_tca: 'Islas Turcas y Caicos'
+    select_country_tuv: Tuvalu
+    select_country_uga: Uganda
+    select_country_ukr: Ucrania
+    select_country_ury: Uruguay
+    select_country_uzb: Uzbekistán
+    select_country_vut: Vanuatu
+    select_country_ven: Venezuela
+    select_country_vnm: Vietnam
+    select_country_wlf: 'Wallis y Futuna'
+    select_country_esh: 'Sáhara Occidental'
+    select_country_yem: Yemen
+    select_country_zmb: Zambia
+    select_country_zwe: Zimbabue
     language-selection_select_language: 'Idioma del asistente de instalación'
     welcome:
         title: 'Bienvenido/a a Shopware 6'
@@ -96,6 +347,10 @@ shopware.installer:
     database-configuration-create_new_database: 'Crear nueva base de datos'
     database-configuration_non_empty_database: 'La base de datos seleccionada ya contiene datos. Por favor, selecciona una base de datos vacía o crea una nueva.'
     database-configuration_error_required_fields: 'Rellena todos los campos.'
+    database-configuration_field_ssl_ca_path: 'Ruta de la autoridad de certificación SSL'
+    database-configuration_field_ssl_cert_path: 'Ruta del certificado SSL'
+    database-configuration_field_ssl_cert_key_path: 'Ruta de la clave del certificado SSL'
+    database-configuration_field_ssl_dont_verify_cert: 'No verificar el certificado del servidor'
     database-configuration_fetch_error: 'Se ha producido un error al obtener la información de la base de datos'
     database-configuration_access_denied: 'Acceso denegado, credenciales incorrectas'
     database-configuration_host_not_found: 'No se pudo conectar al servidor de base de datos'
@@ -128,6 +383,7 @@ shopware.installer:
     configuration_sconfig_domain: 'Dominio de la tienda:'
     configuration_sconfig_language: 'Idioma estándar del sistema:'
     configuration_sconfig_currency: 'Moneda estándar:'
+    configuration_sconfig_country: 'País estándar:'
     configuration_sconfig_currency_info: 'Esta moneda se utilizará por defecto para los precios de los productos.'
     configuration_admin_currency_eur: Euro
     configuration_admin_currency_usd: 'Dólar (US)'

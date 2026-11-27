@@ -85,4 +85,4 @@ const VIDEO_DEFAULT_CONFIG = {
  * @private
  * @sw-package discovery
  */
-export { COMMON_MEDIA_CONFIG, IMAGE_DEFAULT_CONFIG, VIDEO_DEFAULT_CONFIG };
+export { IMAGE_DEFAULT_CONFIG, VIDEO_DEFAULT_CONFIG };

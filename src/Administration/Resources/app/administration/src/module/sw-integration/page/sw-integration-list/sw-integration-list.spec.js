@@ -12,8 +12,11 @@ const appIntegration = {
     mcpAllowlist: null,
 };
 
+const searchIntegrations = jest.fn();
+
 async function createWrapper(privileges = [], integrations = null) {
     const defaultIntegrations = integrations ?? [{ id: '44de136acf314e7184401d36406c1e90' }];
+    searchIntegrations.mockResolvedValue(defaultIntegrations);
 
     const wrapper = mount(await wrapTestComponent('sw-integration-list', { sync: true }), {
         global: {
@@ -26,9 +29,7 @@ async function createWrapper(privileges = [], integrations = null) {
                             });
                         },
 
-                        search: () => {
-                            return Promise.resolve(defaultIntegrations);
-                        },
+                        search: searchIntegrations,
 
                         save: () => {
                             return Promise.resolve();
@@ -219,6 +220,19 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(modalAfterSave.exists()).toBeFalsy();
     });
 
+    it('should reload the integrations after editing an integration', async () => {
+        const wrapper = await createWrapper(['integration.editor']);
+        expect(searchIntegrations).toHaveBeenCalledTimes(1);
+
+        await wrapper.find('.sw_integration_list__edit-action').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-integration-detail-modal__save-action').trigger('click');
+        await flushPromises();
+
+        expect(searchIntegrations).toHaveBeenCalledTimes(2);
+    });
+
     it('should be able to delete a integration', async () => {
         const wrapper = await createWrapper(['integration.deleter']);
 
@@ -291,6 +305,23 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await flushPromises();
 
         expect(saveMock).toHaveBeenCalledWith(integration.id, ['shopware-entity-read']);
+    });
+
+    it('should reload the integrations after saving the MCP allowlist', async () => {
+        const wrapper = await createWrapper(['integration_mcp.editor'], [appIntegration]);
+        expect(searchIntegrations).toHaveBeenCalledTimes(1);
+
+        await wrapper.find('.sw_integration_list__edit-mcp-action').trigger('click');
+        await flushPromises();
+
+        const saveButton = wrapper
+            .find('.sw-integration-list__mcp-modal')
+            .findAll('button')
+            .find((button) => button.text().trim() === 'sw-integration.detail.buttonApplyEdit');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(searchIntegrations).toHaveBeenCalledTimes(2);
     });
 
     it('should gate Edit MCP Tools on integration_mcp.editor not integration.editor', async () => {

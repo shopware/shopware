@@ -1,0 +1,64 @@
+name: Major label report
+
+# Lists the pull requests that were merged with, or newly given, a `major/<version>` label,
+# into the job summary, so changes to an unreleased major can be challenged while its gate is
+# closing. Pull requests without an UPGRADE-<version>.md change come first.
+# It reads labels only; major-label.yml sets them. Rule and reasoning:
+# .github/bin/js/major-label-report.ts
+
+on:
+  schedule:
+    - cron: "30 5 * * *" # every day at 05:30 UTC, before the European working day
+  workflow_dispatch:
+    inputs:
+      days:
+        description: How many days back the report looks
+        type: number
+        default: 1
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  report:
+    name: Report major-labelled pull requests
+    # Labels and pull request numbers belong to the public repository.
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/bin/js
+            src/Core/Framework/Resources/config/packages/feature.yaml
+      - id: report
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          DAYS: ${{ inputs.days || 1 }}
+        with:
+          retries: 3
+          script: |
+            const { readFileSync } = await import('node:fs')
+            const { reportMajorLabels } = await import('${{ github.workspace }}/.github/bin/js/major-label-report.ts')
+            const readFile = (path) => readFileSync(`${{ github.workspace }}/${path}`, 'utf8')
+            const sections = await reportMajorLabels({ github, core, context }, readFile, { now: new Date(), days: Number(process.env.DAYS) })
+            core.setOutput('sections', sections)
+      # Every run writes at least one section, even when nothing happened; none means the
+      # script ended before the summary.
+      - name: Assert the report was written
+        env:
+          SECTIONS: ${{ steps.report.outputs.sections }}
+        run: |
+          set -euo pipefail
+          if [[ "${SECTIONS:-0}" -lt 1 ]]; then
+            echo "::error::the report wrote no section to the job summary"
+            exit 1
+          fi

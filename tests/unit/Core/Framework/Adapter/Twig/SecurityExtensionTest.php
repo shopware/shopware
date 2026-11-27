@@ -116,6 +116,28 @@ class SecurityExtensionTest extends TestCase
         static::assertSame('3', $this->runTwig('{{ test|reduce((a, b) => a + b)|json_encode|raw }}', [], ['test' => new \ArrayIterator([1, 2])]));
     }
 
+    /**
+     * @param iterable<string, int> $values
+     */
+    #[DataProvider('reduceInputsWithKeys')]
+    public function testReduceClosureReceivesKey(iterable $values): void
+    {
+        static::assertSame('a1b2', $this->runTwig('{{ values|reduce((carry, value, key) => carry ~ key ~ value, "") }}', [], ['values' => $values]));
+    }
+
+    public static function reduceInputsWithKeys(): \Generator
+    {
+        yield 'key of a mapping reaches the arrow' => [['a' => 1, 'b' => 2]];
+
+        yield 'key of an iterator reaches the arrow' => [new \ArrayIterator(['a' => 1, 'b' => 2])];
+    }
+
+    public function testReduceWithAllowedTwoArgumentFunction(): void
+    {
+        // strcmp() accepts exactly two arguments, so this pins the carry and value calling convention
+        static::assertSame('-1', $this->runTwig('{{ ["b"]|reduce("strcmp", "a") }}', ['strcmp']));
+    }
+
     public function testReduceWithNotCallableFunction(): void
     {
         static::assertSame(

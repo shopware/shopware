@@ -109,7 +109,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.orderRepository.search(this.orderCriteria).then((response) => {
+            this.orderRepository.searchIds(this.orderCriteria).then((response) => {
                 this.orderCount = response.total;
             });
         },

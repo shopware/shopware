@@ -523,21 +523,14 @@ class SnippetServiceTest extends TestCase
         ?SnippetFilterFactory $snippetFilterFactory = null,
         ?ExtensionDispatcher $extensionDispatcher = null
     ): SnippetService {
-        if ($snippetRepository === null) {
-            $snippetRepository = new StaticEntityRepository([]);
-        }
-
-        if ($snippetSetRepository === null) {
-            $snippetSetRepository = new StaticEntityRepository([]);
-        }
+        $snippetRepository ??= StaticEntityRepository::of(SnippetCollection::class);
+        $snippetSetRepository ??= StaticEntityRepository::of(SnippetSetCollection::class);
 
         $snippetFileCollection = $snippetFileCollection ?? $this->snippetCollection;
         $connection = $connection ?? $this->connection;
         $snippetFilterFactory = $snippetFilterFactory ?? static::createStub(SnippetFilterFactory::class);
         $extensionDispatcher = $extensionDispatcher ?? new ExtensionDispatcher(new EventDispatcher());
 
-        /** @var EntityRepository<SnippetCollection> $snippetRepository */
-        /** @var EntityRepository<SnippetSetCollection> $snippetSetRepository */
         return new SnippetService(
             $connection,
             $snippetFileCollection,

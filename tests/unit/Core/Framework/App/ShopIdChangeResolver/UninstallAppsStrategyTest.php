@@ -10,6 +10,8 @@ use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
@@ -21,7 +23,7 @@ use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 #[CoversClass(UninstallAppsStrategy::class)]
 class UninstallAppsStrategyTest extends TestCase
 {
-    public function testDeletesShopIdAndDeletesEveryAppLocally(): void
+    public function testDeletesShopIdAndDeletesEveryAppWithAnAppSecretLocally(): void
     {
         $context = Context::createDefaultContext();
         $appOne = AppFixture::createAppEntity(name: 'app-one', id: 'app-one-id');
@@ -39,7 +41,13 @@ class UninstallAppsStrategyTest extends TestCase
                 self::assertSame($context, $passedContext);
             });
 
-        $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
+        $appRepository = new StaticEntityRepository([
+            static function (Criteria $criteria) use ($appOne, $appTwo): AppCollection {
+                static::assertEquals([new NotEqualsFilter('appSecret', null)], $criteria->getFilters());
+
+                return new AppCollection([$appOne, $appTwo]);
+            },
+        ]);
 
         $strategy = new UninstallAppsStrategy($appRepository, $shopIdProvider, $appManager);
 

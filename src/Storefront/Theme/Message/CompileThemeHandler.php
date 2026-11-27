@@ -96,11 +96,11 @@ final readonly class CompileThemeHandler
             return;
         }
 
-        $salesChannel = $this->saleschannelRepository->search(
+        $salesChannelExists = $this->saleschannelRepository->searchIds(
             new Criteria([$message->getSalesChannelId()]),
             $message->getContext()
-        )->getEntities()->first();
-        if (!$salesChannel) {
+        )->has($message->getSalesChannelId());
+        if (!$salesChannelExists) {
             throw ThemeException::salesChannelNotFound($message->getSalesChannelId());
         }
 

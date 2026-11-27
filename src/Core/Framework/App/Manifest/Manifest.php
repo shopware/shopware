@@ -22,6 +22,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\XmlParser;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -66,13 +67,17 @@ class Manifest
         private readonly ?Tax $tax,
         private readonly ?ShippingMethods $shippingMethods,
         private readonly ?Gateways $gateways,
+        /**
+         * @var list<string>
+         */
+        public readonly array $unsupportedSections,
     ) {
     }
 
     public static function validate(string $fileContent, string $file): void
     {
         try {
-            $doc = XmlUtils::parse($fileContent, self::XSD_FILE);
+            $doc = XmlParser::parse($fileContent, self::validateSupportedSections(...));
         } catch (\Exception $e) {
             throw AppException::xmlParsingException($file, $e->getMessage());
         }
@@ -83,7 +88,7 @@ class Manifest
     public static function createFromXml(string $xml): self
     {
         try {
-            $doc = XmlUtils::parse($xml, self::XSD_FILE);
+            $doc = XmlParser::parse($xml, self::validateSupportedSections(...));
         } catch (\Exception $e) {
             throw AppXmlParsingException::cannotParseContent($e->getMessage());
         }
@@ -94,7 +99,7 @@ class Manifest
     public static function createFromXmlFile(string $xmlFile): self
     {
         try {
-            $doc = XmlUtils::loadFile($xmlFile, self::XSD_FILE);
+            $doc = XmlParser::loadFile($xmlFile, self::validateSupportedSections(...));
         } catch (\Exception $e) {
             throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }
@@ -369,7 +374,8 @@ class Manifest
             $storefront,
             $tax,
             $shippingMethods,
-            $gateways
+            $gateways,
+            self::readUnsupportedSections($manifest),
         );
     }
 
@@ -393,5 +399,65 @@ class Manifest
         }
 
         return $requirements;
+    }
+
+    private static function validateSupportedSections(\DOMDocument $doc): bool
+    {
+        $supported = clone $doc;
+        $manifest = $supported->documentElement;
+        \assert($manifest !== null);
+
+        foreach (self::findUnsupportedSections($manifest) as $section) {
+            $manifest->removeChild($section);
+        }
+
+        return $supported->schemaValidate(self::XSD_FILE);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function readUnsupportedSections(\DOMElement $manifest): array
+    {
+        return array_map(
+            static fn (\DOMElement $section): string => $section->tagName,
+            self::findUnsupportedSections($manifest)
+        );
+    }
+
+    /**
+     * @return list<\DOMElement>
+     */
+    private static function findUnsupportedSections(\DOMElement $manifest): array
+    {
+        $supportedNames = self::supportedSectionNames();
+
+        $sections = [];
+        foreach ($manifest->childNodes as $node) {
+            if ($node instanceof \DOMElement && !\in_array($node->tagName, $supportedNames, true)) {
+                $sections[] = $node;
+            }
+        }
+
+        return $sections;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function supportedSectionNames(): array
+    {
+        $schema = new \DOMDocument();
+        $schema->load(self::XSD_FILE);
+
+        $xpath = new \DOMXPath($schema);
+        $xpath->registerNamespace('xs', 'http://www.w3.org/2001/XMLSchema');
+
+        $names = [];
+        foreach ($xpath->query('/xs:schema/xs:element[@name="manifest"]/xs:complexType/xs:all/xs:element/@name') ?: [] as $name) {
+            $names[] = (string) $name->nodeValue;
+        }
+
+        return $names;
     }
 }

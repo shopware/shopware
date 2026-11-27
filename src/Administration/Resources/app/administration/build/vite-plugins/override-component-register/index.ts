@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import type { Plugin } from 'vite';
 import { findFilesRecursively } from '../utils';
@@ -20,14 +21,48 @@ export default function viteOverridePlugin(options: Options): Plugin {
 
     let overrideFiles = [] as string[];
 
+    // Sorted because the directory walk follows filesystem order, which differs between machines - and
+    // the generated entry numbers its imports in this order, so sorting keeps the emitted source byte-stable.
+    const findOverrideFiles = () => findFilesRecursively(root, pattern).sort();
+    // Editors and scaffolds create a file empty first; @vitejs/plugin-vue rejects an SFC without blocks.
+    // A build still imports empty files, so it keeps failing on them.
+    const findOverrideFilesWithContent = () =>
+        findOverrideFiles().filter((file) => fs.readFileSync(file, 'utf8').trim() !== '');
+
     return {
         name: 'shopware-vite-plugin-override-component',
 
-        configResolved() {
-            // Find all override files. Sorted because the directory walk follows filesystem order, which
-            // differs between machines - and the generated entry numbers its imports in this order, so
-            // sorting is what keeps the emitted source byte-stable across builds.
-            overrideFiles = findFilesRecursively(root, pattern).sort();
+        configResolved({ command }) {
+            overrideFiles = command === 'serve' ? findOverrideFilesWithContent() : findOverrideFiles();
+        },
+
+        /**
+         * The entry imports every override file with content found at startup, so adding or removing one,
+         * or giving an empty one content, changes the entry.
+         * The new entry registers the overrides again, which only a page reload can apply.
+         */
+        hotUpdate({ file }) {
+            if (this.environment.name !== 'client' || !pattern.test(file)) {
+                return undefined;
+            }
+
+            const discovered = findOverrideFilesWithContent();
+
+            if (discovered.join('\n') === overrideFiles.join('\n')) {
+                return undefined;
+            }
+
+            overrideFiles = discovered;
+            const entry = this.environment.moduleGraph.getModuleById(pluginEntryFile);
+
+            if (!entry) {
+                return undefined;
+            }
+
+            this.environment.moduleGraph.invalidateModule(entry);
+            this.environment.hot.send({ type: 'full-reload', path: '*' });
+
+            return [];
         },
 
         transform(code, id) {

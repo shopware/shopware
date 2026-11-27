@@ -9,6 +9,7 @@ use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageQueueTelemetrySubscriber;
 use Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 use Symfony\Component\Messenger\Envelope;
@@ -123,7 +124,7 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
         return new MessageQueueTelemetrySubscriber(
             $this->meter,
             $sizeCalculator,
-            new MessageGroupResolver(),
+            new MessageGroupResolver(new LabelMappingRegistry([], 'other')),
             new WorkerMessageTimingHelper()
         );
     }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
@@ -24,10 +26,11 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[McpTool(
     name: 'shopware-entity-search',
     title: 'Entity Search',
+    annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false),
     description: 'Search, list and filter Shopware entities of any type — orders, products, customers, categories and the rest. Use this to LIST or page through records ("the last 10 orders", "all customers in Berlin"), and to look one up by productNumber or any other exact field value, including as the first step in Storefront cart/checkout workflows. Sort with criteria.sort, e.g. [{"field":"orderDateTime","order":"DESC"}]. For count/sum/average reporting, use shopware-entity-aggregate instead (the _meta.total here is pagination metadata, not a reporting count). Accepts Admin API criteria JSON. Returns {success, data: [...], _meta: {total, page, limit}}. If you don\'t already know the field names, shopware-entity-schema will tell you.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]
-#[McpToolGroup('entity')]
+#[McpToolGroup('entity', description: 'Find, read, count, create, update and delete any shop data, such as products, orders, customers and categories, and look up entity fields. Enable it for most data questions and changes.')]
 #[McpToolRequires(entityParam: 'entity', operations: ['read'])]
 class EntitySearchTool extends McpToolResponse
 {
@@ -56,19 +59,19 @@ class EntitySearchTool extends McpToolResponse
         int $page = 1,
         #[Schema(description: 'Free-text search across the entity\'s searchable fields. Prefer an exact "filter" in `criteria` when you know the field.')]
         string $term = '',
-    ): string {
+    ): McpToolResult {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {
-            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
+            return $this->errorResult(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
         }
 
-        if ($error = $this->requirePrivilege($context, $entity . ':read')) {
+        if ($error = $this->requirePrivilegeResult($context, $entity . ':read')) {
             return $error;
         }
 
-        $payload = $this->decodeJsonOrError($criteria, 'criteria');
-        if (\is_string($payload)) {
+        $payload = $this->decodeJsonOrErrorResult($criteria, 'criteria');
+        if ($payload instanceof McpToolResult) {
             return $payload;
         }
 
@@ -96,14 +99,14 @@ class EntitySearchTool extends McpToolResponse
             // below is a bug, not bad input, and must still reach the log.
             // `fromArray()` only parses the payload and checks field flags, so
             // every ShopwareHttpException it raises is something the caller can fix.
-            return $this->invalidCriteriaError($e);
+            return $this->invalidCriteriaResult($e);
         }
 
         // Criteria can reference associated entities that require their own read privileges
         // (same association ACL model as the Admin API).
         $missing = $this->criteriaValidator->validate($entity, $criteriaObj, $context);
         if ($missing !== []) {
-            return $this->missingPrivilegesError($missing);
+            return $this->missingPrivilegesResult($missing);
         }
 
         $this->applyDefaultIncludes($definition, $criteriaObj);
@@ -114,7 +117,7 @@ class EntitySearchTool extends McpToolResponse
 
         $encoded = $this->encoder->encode($criteriaObj, $definition, $result->getEntities(), '/api');
 
-        return $this->success($encoded, [
+        return $this->successResult($encoded, [
             'total' => $result->getTotal(),
             'page' => $criteriaObj->getOffset() ? (int) ($criteriaObj->getOffset() / $limit) + 1 : 1,
             'limit' => $limit,

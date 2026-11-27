@@ -19,6 +19,11 @@ export default {
             type: Boolean,
             required: true,
         },
+        hasDeletableFiles: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
         isLoading: {
             type: Boolean,
             required: true,
@@ -30,12 +35,22 @@ export default {
             return this.$t(
                 'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel',
                 {
-                    removeLabel: this.isLicensed
-                        ? this.$t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel')
-                        : this.$t('global.default.remove'),
+                    removeLabel: this.removeLabel,
                 },
                 0,
             );
+        },
+
+        removeLabel() {
+            if (!this.isLicensed) {
+                return this.$t('global.default.remove');
+            }
+
+            if (!this.hasDeletableFiles) {
+                return this.$t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelSubscriptionLabel');
+            }
+
+            return this.$t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel');
         },
     },
 

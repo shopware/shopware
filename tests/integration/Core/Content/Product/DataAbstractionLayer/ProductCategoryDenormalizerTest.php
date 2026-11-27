@@ -102,8 +102,8 @@ class ProductCategoryDenormalizerTest extends TestCase
     private function getProductCategoryList(string $productId): ?array
     {
         $productRepository = static::getContainer()->get('product.repository');
-        /** @var ProductEntity $testableProduct */
         $testableProduct = $productRepository->search(new Criteria([$productId]), $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $testableProduct);
 
         $productCategoryIds = $testableProduct->getCategoryTree();
         if ($productCategoryIds !== null) {

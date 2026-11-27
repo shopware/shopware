@@ -40,6 +40,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -617,6 +618,69 @@ class DocumentGeneratorTest extends TestCase
         $request = new Request(['fileName' => 'invoice'], [], [], [], [], ['HTTP_CONTENT_LENGTH' => '5'], 'hello');
 
         $generator->upload($documentId, $context, $request);
+    }
+
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function testUploadRemovesTempFile(bool $saveFails): void
+    {
+        $documentId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setOrderId(Uuid::randomHex());
+        $document->setOrderVersionId(Uuid::randomHex());
+        $document->setStatic(true);
+        $document->setConfig([]);
+        $document->setTypeName('invoice');
+        $document->setDeepLinkCode('deepLinkCode');
+
+        $documentRepository = new StaticEntityRepository([
+            new EntitySearchResult('document', 1, new DocumentCollection([$document]), null, new Criteria([$documentId]), $context),
+        ]);
+
+        $tempFile = null;
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('fetchFile')->willReturnCallback(static function (Request $request, ?string $path) use (&$tempFile): MediaFile {
+            $tempFile = $path;
+            (new Filesystem())->dumpFile((string) $path, 'hello');
+
+            return new MediaFile((string) $path, 'application/pdf', 'pdf', 5);
+        });
+        $tempFileExistedOnSave = false;
+        $mediaService->method('saveMediaFile')->willReturnCallback(static function (MediaFile $mediaFile) use ($saveFails, &$tempFileExistedOnSave): string {
+            $tempFileExistedOnSave = is_file($mediaFile->getFileName());
+
+            if ($saveFails) {
+                throw new \LogicException('save failed');
+            }
+
+            return Uuid::randomHex();
+        });
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([]),
+            static::createStub(DocumentFileRendererRegistry::class),
+            $mediaService,
+            $documentRepository,
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
+        );
+
+        $exception = null;
+
+        try {
+            $generator->upload($documentId, $context, new Request(['fileName' => 'invoice'], [], [], [], [], [], 'hello'));
+        } catch (\LogicException $exception) {
+        }
+
+        static::assertSame($saveFails ? 'save failed' : null, $exception?->getMessage());
+        static::assertTrue($tempFileExistedOnSave);
+        static::assertIsString($tempFile);
+        static::assertFileDoesNotExist($tempFile);
     }
 
     /**

@@ -3,7 +3,7 @@
  */
 
 import types from 'src/core/service/utils/types.utils';
-import type { AxiosResponse } from 'axios';
+import type { HttpResponse } from 'src/core/factory/http-client.types';
 import Entity from './entity.data';
 import Criteria from './criteria.data';
 import EntityCollection from './entity-collection.data';
@@ -48,6 +48,13 @@ type data = {
     aggregations: aggregations;
 };
 
+/**
+ * Payload of a repository search response that the hydrator turns into an `EntityCollection`.
+ *
+ * @private
+ */
+export type EntitySearchResponseData = data;
+
 type field = {
     entity: keyof EntitySchema.Entities;
 };
@@ -81,7 +88,7 @@ export default class EntityHydrator {
     hydrateSearchResult<EntityName extends keyof EntitySchema.Entities>(
         route: string,
         entityName: EntityName,
-        response: AxiosResponse<data>,
+        response: HttpResponse<data>,
         context: apiContext,
         criteria: Criteria,
     ): EntityCollection<EntityName> {

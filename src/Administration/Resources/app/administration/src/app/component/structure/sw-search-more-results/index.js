@@ -15,7 +15,6 @@ const { Application } = Shopware;
  * <sw-search-more-results :result="{ entity: 'customer', total: 5 }" :entity="customer" :term="query">
  * </sw-search-more-results>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

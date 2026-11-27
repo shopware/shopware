@@ -56,6 +56,25 @@ export default {
             required: false,
             default: 'image/*',
         },
+
+        /**
+         * Additional tabs of an app (`{ label, locationId }`), rendered after the built-in ones.
+         * Their location selects with `ui.mediaModal.select()`.
+         */
+        extensionTabs: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+
+        /**
+         * Base URL of the app the extension tabs belong to.
+         */
+        extensionBaseUrl: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -87,7 +106,19 @@ export default {
                         this.resetSelection();
                     },
                 },
+                ...this.extensionTabs.map((tab) => {
+                    return {
+                        label: this.$t(tab.label),
+                        name: this.getExtensionTabName(tab),
+                    };
+                }),
             ];
+        },
+
+        activeExtensionTab() {
+            return this.extensionTabs.find((tab) => {
+                return this.getExtensionTabName(tab) === this.activeTab;
+            });
         },
 
         mediaRepository() {
@@ -205,9 +236,13 @@ export default {
         onActiveTabChanged(activeTab) {
             this.activeTab = activeTab;
 
-            if (activeTab === this.tabNameUpload) {
+            if (activeTab === this.tabNameUpload || this.activeExtensionTab) {
                 this.resetSelection();
             }
+        },
+
+        getExtensionTabName(tab) {
+            return `extension-${tab.locationId}`;
         },
 
         refreshList() {

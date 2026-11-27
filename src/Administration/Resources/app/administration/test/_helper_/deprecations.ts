@@ -5,10 +5,11 @@
 
 import type { DeprecationOptions } from 'src/core/feature';
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
-import normalizeFeatureFlag from './normalizeFeatureFlag';
+import { isSameFlag } from '../../scripts/feature-flags';
 import { location, ownFrames, usageSite } from './deprecationUsageSite';
 import { isBaselined, isListed, recordUsedBaselineEntry } from './deprecationBaseline';
 import { isBaselineUpdateRun } from './isBaselineUpdateRun';
+import { isPlatformDeprecationRun } from './platformDeprecationRun';
 
 /**
  * What an assertion or allowance matches a deprecation message against: a string matches part of it, a RegExp
@@ -166,9 +167,7 @@ export function shouldHandleDeprecationsThroughMock(
     isMajorActive: boolean,
     isMajorKnown: boolean,
 ): boolean {
-    const normalizedMajor = normalizeFeatureFlag(majorFlag);
-    const isActivatedByTest =
-        isMajorActive && !getDefaultActiveFeatureFlags().some((flag) => normalizeFeatureFlag(flag) === normalizedMajor);
+    const isActivatedByTest = isMajorActive && !getDefaultActiveFeatureFlags().some((flag) => isSameFlag(flag, majorFlag));
 
     return deprecations.isRecording && isMajorKnown && !isActivatedByTest;
 }
@@ -239,7 +238,8 @@ export function startDeprecationLog(): void {
 /**
  * Ends the log of the current test and clears it with its allowances, then throws one error listing every
  * deprecation that fails the test, each with where it is used and the frames that lead there. The usages the
- * deprecation baseline still needs go to its reporter. The Jest setup calls it after each test.
+ * deprecation baseline still needs go to its reporter. Only the platform's own run throws, see
+ * `isPlatformDeprecationRun()`. The Jest setup calls it after each test.
  *
  * @private
  * @example
@@ -255,7 +255,7 @@ export function endDeprecationLog(): void {
     deprecations.entries.length = 0;
     deprecations.allowed.length = 0;
 
-    if (failing.length === 0) {
+    if (failing.length === 0 || !isPlatformDeprecationRun()) {
         return;
     }
 

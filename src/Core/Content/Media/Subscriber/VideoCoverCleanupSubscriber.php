@@ -9,9 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -53,7 +52,7 @@ class VideoCoverCleanupSubscriber implements EventSubscriberInterface
         }
 
         $filters = [
-            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('metaData', null)]),
+            new NotEqualsFilter('metaData', null),
             new ContainsFilter('mimeType', 'video/'),
             new MultiFilter(MultiFilter::CONNECTION_OR, $coverIdFilters),
         ];

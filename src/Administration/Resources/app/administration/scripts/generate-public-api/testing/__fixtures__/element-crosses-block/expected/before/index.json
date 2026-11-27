@@ -1,0 +1,23 @@
+{
+    "components": {
+        "sw-example-card": {
+            "file": "app/component/base/sw-example-card",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_example_card",
+                "sw_example_card_grid",
+                "sw_example_card_header",
+                "sw_example_card_header_label_manual",
+                "sw_example_card_header_title"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

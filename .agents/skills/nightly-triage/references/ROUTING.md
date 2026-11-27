@@ -48,7 +48,6 @@ Check new failures against these before declaring a new cluster:
 |---|---|---|
 | `Table 'root_test.import_export_profile_translation' doesn't exist` | major migration drops the table; fixtures still reference it | crm-after-sales |
 | `WriteException` + `[/N/type] This value should not be blank` (incl. `[/0/children/0/type]`) | `product.type` gets `Required()` under `v6.8.0.0` — `src/Core/Content/Product/ProductDefinition.php` (flag block) | inventory |
-| `FeatureException: Defining custom fields inline in manifest.xml is deprecated` — ALSO surfaces as `App synchronisation failed: Array(...same message)` via `AppSystemTestBehaviour` | App test fixtures not migrated to `Resources/config/custom-fields.xml` | service-enablement |
 | `The mail.sent Event did not run` / `Expected to send order_confirmation_mail` | mail pipeline changes under `v6.8.0.0` in `SendMailAction`, `MailPayload`, `MailPayloadFactory` | crm-after-sales |
 | tests expecting legacy DAL exceptions (`UnmappedFieldException`, `InvalidSortingDirectionException`, …) get `DataAbstractionLayerException` | DAL exception-class consolidation | framework |
 | OpenSearch `query_shard_exception: [nested] failed to find nested object under path [visibilities]` / `[categoriesRo]` | ES index mapping change — `ElasticsearchProductDefinition` (marked `framework`) | framework |

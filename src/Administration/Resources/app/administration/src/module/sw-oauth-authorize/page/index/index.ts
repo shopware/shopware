@@ -20,7 +20,7 @@ const REQUIRED_PARAMS = [
     'code_challenge_method',
 ] as const;
 
-const OPTIONAL_PARAMS = ['state', 'scope'] as const;
+const OPTIONAL_PARAMS = ['state', 'scope', 'resource'] as const;
 
 /**
  * @sw-package framework
@@ -87,6 +87,10 @@ export default Component.wrapComponentConfig({
             return this.info?.client.name ?? '';
         },
 
+        resource(): string {
+            return this.info?.resource ?? '';
+        },
+
         redirectHost(): string {
             if (!this.info?.redirectUri) {
                 return '';
@@ -132,10 +136,7 @@ export default Component.wrapComponentConfig({
 
         async loadShopName() {
             try {
-                const values = (await this.systemConfigApiService.getValues('core.basicInformation')) as Record<
-                    string,
-                    unknown
-                >;
+                const values = await this.systemConfigApiService.getValues('core.basicInformation');
                 const shopName = values['core.basicInformation.shopName'];
 
                 this.shopName = typeof shopName === 'string' && shopName.length > 0 ? shopName : 'Shopware';

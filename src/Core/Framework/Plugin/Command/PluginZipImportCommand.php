@@ -31,6 +31,9 @@ class PluginZipImportCommand extends Command
     public function __construct(
         private readonly PluginManagementService $pluginManagementService,
         private readonly PluginService $pluginService,
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+         */
         protected CacheClearer $cacheClearer
     ) {
         parent::__construct();
@@ -56,15 +59,11 @@ class PluginZipImportCommand extends Command
         $io->title('Shopware Plugin Zip Import');
 
         try {
-            $type = $this->pluginManagementService->extractPluginZip($zipFile, (bool) $input->getOption('delete'));
+            $this->pluginManagementService->extractPluginZip($zipFile, (bool) $input->getOption('delete'));
         } catch (NoPluginFoundInZipException $e) {
             $io->error($e->getMessage());
 
             return self::FAILURE;
-        }
-
-        if ($type === PluginManagementService::PLUGIN) {
-            $this->cacheClearer->clearContainerCache();
         }
 
         $io->success('Successfully import zip file ' . basename((string) $zipFile));

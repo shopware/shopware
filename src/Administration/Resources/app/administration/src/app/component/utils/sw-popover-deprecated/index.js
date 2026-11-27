@@ -13,7 +13,6 @@ import './sw-popover.scss';
  * @component-example
  * <sw-popover></sw-popover>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

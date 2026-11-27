@@ -301,5 +301,18 @@ describe('ZoomModalPlugin tests', () => {
 
             expect(zoomModalPlugin._showModal).toHaveBeenCalledWith(modal);
         });
+
+        test('shows the modal only once when it is opened again while images are still loading', () => {
+            modal.insertAdjacentHTML('beforeend', '<img class="js-load-img" data-src="/media/cat.jpg">');
+
+            zoomModalPlugin._loadImages(modal);
+            zoomModalPlugin._loadImages(modal);
+
+            expect(zoomModalPlugin._showModal).not.toHaveBeenCalled();
+
+            modal.querySelector('.js-load-img').onload();
+
+            expect(zoomModalPlugin._showModal).toHaveBeenCalledTimes(1);
+        });
     });
 });

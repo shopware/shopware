@@ -4,6 +4,11 @@
     {% sw_include '@Storefront/storefront/page/search/meta.html.twig' %}
 {% endblock %}
 
+{% block base_body_skip_to_content %}
+    {% set productListing = page.listing %}
+    {{ parent() }}
+{% endblock %}
+
 {% block base_content %}
     {% block page_search %}
         <div class="cms-page search-page">

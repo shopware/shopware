@@ -21,7 +21,7 @@ abstract class XmlReader
     public function read(string $xmlFile): array
     {
         try {
-            $dom = XmlUtils::loadFile($xmlFile, $this->xsdFile);
+            $dom = XmlParser::loadFile($xmlFile, $this->xsdFile);
         } catch (\Exception $e) {
             throw UtilException::xmlParsingException($xmlFile, $e->getMessage());
         }

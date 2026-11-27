@@ -34,6 +34,8 @@ test(
         const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
         await ShopCustomer.presses(orderLocators.orderActionsButton);
         await ShopCustomer.presses(orderLocators.orderChangePaymentMethodButton);
+        // The link is server-rendered, but Bootstrap binds the modal toggle only after the storefront JS has run.
+        await StorefrontCheckoutOrderEdit.page.waitForURL(/\/account\/order\/edit\//, { waitUntil: 'load' });
 
         await test.step('The guarantee button opens the notice modal.', async () => {
             await ShopCustomer.expects(legalGuaranteeNoticeLink).toBeVisible();
@@ -48,6 +50,13 @@ test(
                 'href',
                 /^https:\/\/europa\.eu\/youreurope\//,
             );
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toHaveAccessibleName(
+                /\(opens in a new tab\)|\(öffnet in einem neuen Tab\)/,
+            );
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toHaveAccessibleDescription(
+                /europa\.eu\/youreurope\//,
+            );
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.locator('svg')).toHaveAttribute('aria-hidden', 'true');
         });
 
         await test.step('The inline setting displays the notice without a modal.', async () => {
@@ -57,6 +66,13 @@ test(
             await ShopCustomer.expects(page.locator('a[href="#legalGuaranteeNoticeInline"]')).toBeVisible();
             await ShopCustomer.expects(legalGuaranteeNoticeInline).toBeVisible();
             await ShopCustomer.expects(legalGuaranteeNoticeInline.locator('svg')).toBeVisible();
+            await ShopCustomer.expects(legalGuaranteeNoticeInline.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+            await ShopCustomer.expects(legalGuaranteeNoticeInline.getByRole('link')).toHaveAccessibleName(
+                /\(opens in a new tab\)|\(öffnet in einem neuen Tab\)/,
+            );
+            await ShopCustomer.expects(legalGuaranteeNoticeInline.getByRole('link')).toHaveAccessibleDescription(
+                /europa\.eu\/youreurope\//,
+            );
             await ShopCustomer.expects(legalGuaranteeNoticeModal).toHaveCount(0);
         });
 

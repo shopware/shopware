@@ -134,10 +134,13 @@ class ThemeRuntimeConfigService
             $importMap = $this->storage->getById($themeId)?->importMap;
         }
 
+        $copyIds = array_values($this->storage->getCopiesIds($themeId));
+        $resolvedConfigs = $this->mergedConfigBuilder->getPlainThemeConfigurations([$themeId, ...$copyIds], $context);
+
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
             'themeId' => $themeId,
             'technicalName' => $this->storage->getOwnThemeTechnicalName($themeId),
-            'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context),
+            'resolvedConfig' => $resolvedConfigs[$themeId],
             'viewInheritance' => $themeConfig->getViewInheritance(),
             'scriptFiles' => $scriptFiles,
             'iconSets' => $this->prepareIconSets($themeConfig),
@@ -149,12 +152,11 @@ class ThemeRuntimeConfigService
         $this->cacheConfig($runtimeConfig);
 
         // Handle theme copies
-        $copyIds = $this->storage->getCopiesIds($themeId);
         foreach ($copyIds as $copyId) {
             $copyConfig = $runtimeConfig->with([
                 'themeId' => $copyId,
                 'technicalName' => null,
-                'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($copyId, $context),
+                'resolvedConfig' => $resolvedConfigs[$copyId],
                 'updatedAt' => $this->clock->now(),
             ]);
 

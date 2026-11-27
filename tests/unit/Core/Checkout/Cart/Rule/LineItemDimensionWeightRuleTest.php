@@ -98,7 +98,7 @@ class LineItemDimensionWeightRuleTest extends TestCase
         yield 'match / operator greater than equals / higher weight' => [Rule::OPERATOR_GTE, 100, 200, true];
         // OPERATOR_LT
         yield 'match / operator lower than / lower weight' => [Rule::OPERATOR_LT, 100, 50, true];
-        yield 'no match / operator lower  than / same weight' => [Rule::OPERATOR_LT, 100, 100, false];
+        yield 'no match / operator lower than / same weight' => [Rule::OPERATOR_LT, 100, 100, false];
         yield 'no match / operator lower than / higher weight' => [Rule::OPERATOR_LT, 100, 200, false];
         // OPERATOR_LTE
         yield 'match / operator lower than equals / lower weight' => [Rule::OPERATOR_LTE, 100, 50, true];
@@ -319,7 +319,7 @@ class LineItemDimensionWeightRuleTest extends TestCase
             'lineItemWeight2' => 120,
             'expected' => true,
         ];
-        yield 'no match / operator lower  than / same weight' => [
+        yield 'no match / operator lower than / same weight' => [
             'operator' => Rule::OPERATOR_LT,
             'weight' => 100,
             'lineItemWeight1' => 100,

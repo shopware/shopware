@@ -182,6 +182,44 @@ class ConfigurationTest extends TestCase
         (new Processor())->processConfiguration(new Configuration(), [['cookie_consent' => ['retention_days' => 0]]]);
     }
 
+    public function testProductDocumentSettingsHaveDefaults(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => []]]);
+
+        // the core list lives in shopware.yaml, like filesystem.allowed_extensions
+        static::assertSame([
+            'allowed_extensions' => [],
+            'max_file_size' => 20 * 1024 * 1024,
+        ], $config['product_documents']);
+    }
+
+    public function testAShopReplacesTheProductDocumentSettings(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_file_size' => 20 * 1024 * 1024]],
+            ['product_documents' => ['allowed_extensions' => ['pdf'], 'max_file_size' => 5 * 1024 * 1024]],
+        ]);
+
+        static::assertSame([
+            'allowed_extensions' => ['pdf'],
+            'max_file_size' => 5 * 1024 * 1024,
+        ], $config['product_documents']);
+    }
+
+    public function testTheLargestProductDocumentFileAcceptsAUnit(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => '5M']]]);
+
+        static::assertSame(5 * 1024 * 1024, $config['product_documents']['max_file_size']);
+    }
+
+    public function testTheLargestProductDocumentFileMustBePositive(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => '0']]]);
+    }
+
     public function testTranslationConfigTreeNode(): void
     {
         $configuration = new Configuration();
@@ -292,6 +330,7 @@ class ConfigurationTest extends TestCase
         static::assertSame([
             'repository_url' => null,
             'metadata_url' => null,
+            'archive_manifest_url' => null,
             'community_translations_url' => null,
             'documentation_url_snippet_key' => null,
             'completeness_threshold' => null,
@@ -562,6 +601,22 @@ class ConfigurationTest extends TestCase
         ]);
     }
 
+    public function testMediaAllowedProtocolsDefaultToAllSupportedProtocols(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['media' => []]]);
+
+        static::assertSame(['http', 'https', 'ftp'], $config['media']['allowed_protocols']);
+    }
+
+    public function testMediaAllowedProtocolsRejectUnsupportedProtocol(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('The value "gopher" is not allowed for path "shopware.media.allowed_protocols.1". Permissible values: "http", "https", "ftp".'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            ['media' => ['allowed_protocols' => ['https', 'gopher']]],
+        ]);
+    }
+
     public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void
     {
         $configuration = new Configuration();
@@ -815,6 +870,210 @@ class ConfigurationTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    public function testTelemetryAddAllowedValuesUnionsAcrossSources(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['add_allowed_values' => ['core_a', 'core_b', 'other']],
+            ['add_allowed_values' => ['plugin_a', 'core_b']],
+        );
+
+        static::assertSame(['core_a', 'core_b', 'other', 'plugin_a'], $label['add_allowed_values']);
+        static::assertSame([], $label['allowed_values'] ?? []);
+    }
+
+    public function testTelemetryAllowedValuesReplacesAndDiscardsContributions(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['add_allowed_values' => ['core_a', 'core_b']],
+            ['add_allowed_values' => ['plugin_a']],
+            ['allowed_values' => ['project_a', 'other']],
+        );
+
+        static::assertSame(['project_a', 'other'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryLaterAllowedValuesWins(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['allowed_values' => ['first']],
+            ['allowed_values' => ['second']],
+        );
+
+        static::assertSame(['second'], $label['allowed_values']);
+    }
+
+    public function testTelemetryContributionsAfterLockAreStillDiscarded(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['allowed_values' => ['base']],
+            ['add_allowed_values' => ['plugin_a']],
+        );
+
+        static::assertSame(['base'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryOpenLabelKeepsContributionsVisible(): void
+    {
+        // no base list to extend on an open label: the contributions are inert at runtime,
+        // but stay in the processed config so debug:config shows what a source tried to add
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['add_allowed_values' => ['plugin_a']],
+        );
+
+        static::assertSame('open', $label['policy']);
+        static::assertSame(['plugin_a'], $label['add_allowed_values']);
+        static::assertSame([], $label['allowed_values'] ?? []);
+    }
+
+    public function testTelemetryOpenLabelLockIsLegal(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['add_allowed_values' => ['plugin_a']],
+            ['allowed_values' => ['product', 'other']],
+        );
+
+        static::assertSame('open', $label['policy']);
+        // folding mechanism is still applied, even though open policy ignores bounding afterwards
+        static::assertSame(['product', 'other'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryLaterSourcePolicyOverrideBoundsAnOpenLabel(): void
+    {
+        // bounding an open label is an explicit policy override: `policy` is last-source-wins,
+        // so project config can turn a shipped open label into a bounded one
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['policy' => 'replace', 'allowed_values' => ['product', 'other']],
+        );
+
+        static::assertSame('replace', $label['policy']);
+        static::assertSame(['product', 'other'], $label['allowed_values']);
+    }
+
+    public function testTelemetryLabelRejectsMissingValuesAndPolicy(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->processTelemetryLabel([]);
+    }
+
+    public function testTelemetryMappingsMergePerKey(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'entity_group' => ['swag_blog_*' => 'blog', 'swag_shared' => 'core_value'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'entity_group' => ['swag_shared' => 'project_value'],
+                            'swag_custom' => ['foo' => 'bar'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $mappings = $config['telemetry']['metrics']['mappings'];
+        static::assertSame('blog', $mappings['entity_group']['swag_blog_*']);
+        static::assertSame('project_value', $mappings['entity_group']['swag_shared']);
+        static::assertSame(['foo' => 'bar'], $mappings['swag_custom']);
+    }
+
+    public function testTelemetryMappingKeysAreNotNormalized(): void
+    {
+        // route names and action segments carry dashes, message keys carry backslashes; the default
+        // config-tree key normalization (`-` → `_`) would silently break every such lookup at runtime
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'route_domain' => ['store-api.product*' => 'product', 'frontend.checkout.line-item*' => 'cart'],
+                            'action_domain' => ['import-export' => 'import-export'],
+                            'message_group' => ['Swag\\Blog\\Message\\*' => 'blog'],
+                            'swag-paypal_refund_kind' => ['refund-full' => 'full'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame([
+            'route_domain' => ['store-api.product*' => 'product', 'frontend.checkout.line-item*' => 'cart'],
+            'action_domain' => ['import-export' => 'import-export'],
+            'message_group' => ['Swag\\Blog\\Message\\*' => 'blog'],
+            'swag-paypal_refund_kind' => ['refund-full' => 'full'],
+        ], $config['telemetry']['metrics']['mappings']);
+    }
+
+    #[DataProvider('nonStringTelemetryMappingValues')]
+    public function testTelemetryMappingRejectsNonStringValues(mixed $value): void
+    {
+        try {
+            (new Processor())->processConfiguration(new Configuration(), [
+                ['telemetry' => ['metrics' => ['mappings' => ['entity_group' => ['swag_blog_*' => $value]]]]],
+            ]);
+            static::fail('Expected a non-string mapping value to be rejected');
+        } catch (InvalidConfigurationException $e) {
+            static::assertStringContainsString('Telemetry label mapping values must be strings', $e->getMessage());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonStringTelemetryMappingValues(): iterable
+    {
+        yield 'integer' => [1];
+        yield 'float' => [1.5];
+        yield 'boolean' => [true];
+        yield 'null' => [null];
+    }
+
+    /**
+     * Each argument is one config source (framework, plugin, project, ...) for the same label,
+     * merged in argument order.
+     *
+     * @param array<string, mixed> ...$labelSources
+     *
+     * @return array<string, mixed> the processed configuration of that label
+     */
+    private function processTelemetryLabel(array ...$labelSources): array
+    {
+        $sources = [];
+        foreach ($labelSources as $labelSource) {
+            $sources[] = [
+                'telemetry' => [
+                    'metrics' => [
+                        'definitions' => [
+                            'test.metric' => [
+                                'type' => 'counter',
+                                'labels' => ['test_label' => $labelSource],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        $config = (new Processor())->processConfiguration(new Configuration(), $sources);
+
+        return $config['telemetry']['metrics']['definitions']['test.metric']['labels']['test_label'];
     }
 
     /**

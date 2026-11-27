@@ -111,8 +111,8 @@ class CustomEntityLifecycleService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
 
-        $customEntities = $this->customEntityRepository->search($criteria, $context)->getEntities();
-        if ($customEntities->count() === 0) {
+        $customEntityIds = $this->customEntityRepository->searchIds($criteria, $context)->getIds();
+        if ($customEntityIds === []) {
             return;
         }
 
@@ -120,12 +120,12 @@ class CustomEntityLifecycleService
             $deletedAt = $this->clock->now();
 
             $this->customEntityRepository->update(array_values(array_map(
-                static fn (CustomEntityEntity $customEntity): array => [
-                    'id' => $customEntity->getId(),
+                static fn (string $id): array => [
+                    'id' => $id,
                     'appId' => null,
                     'deletedAt' => $deletedAt,
                 ],
-                $customEntities->getElements()
+                $customEntityIds
             )), $context);
 
             return;
@@ -133,7 +133,7 @@ class CustomEntityLifecycleService
 
         $this->customEntityRepository->delete(array_values(array_map(
             static fn (string $id): array => ['id' => $id],
-            $customEntities->getIds()
+            $customEntityIds
         )), $context);
         $this->customEntitySchemaUpdater->update();
     }

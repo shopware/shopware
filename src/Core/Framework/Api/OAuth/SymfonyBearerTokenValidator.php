@@ -9,6 +9,7 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -30,7 +31,11 @@ readonly class SymfonyBearerTokenValidator
     ) {
     }
 
-    public function validateAuthorization(Request $request): void
+    /**
+     * A token bound to an RFC 8707 resource (the MCP endpoint) is rejected unless the caller explicitly accepts it.
+     * Only the authentication of `/api/_mcp` does, see ApiAuthenticationListener.
+     */
+    public function validateAuthorization(Request $request, bool $acceptResourceBoundToken = false): void
     {
         if ($request->headers->has('authorization') === false) {
             throw OAuthServerException::accessDenied('Missing "Authorization" header');
@@ -66,14 +71,28 @@ readonly class SymfonyBearerTokenValidator
             throw OAuthServerException::accessDenied('Access token has been revoked');
         }
 
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, $claims->get('jti'));
         $aud = $claims->get('aud');
+        $resources = [];
 
         if (\is_array($aud)) {
-            $aud = array_shift($aud);
+            $resources = $aud;
+            $aud = array_shift($resources);
         }
 
+        // the client id is the first audience, a bound RFC 8707 resource follows it
+        $resource = $resources[0] ?? null;
+        $isResourceBound = \is_string($resource) && $resource !== '';
+
+        if ($isResourceBound && !$acceptResourceBoundToken) {
+            throw ApiException::oauthTokenNotValidForResource();
+        }
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, $claims->get('jti'));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $aud);
+
+        if ($isResourceBound) {
+            $request->attributes->set(OAuthResource::REQUEST_ATTRIBUTE, $resource);
+        }
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES, $claims->get('scopes'));
 
         $userId = $claims->get('sub');

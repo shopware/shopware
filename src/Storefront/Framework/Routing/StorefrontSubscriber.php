@@ -68,10 +68,16 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $parameters = [
-            'redirectTo' => $request->attributes->get('_route'),
-            'redirectParameters' => json_encode($request->attributes->get('_route_params'), \JSON_THROW_ON_ERROR),
-        ];
+        $parameters = [];
+        $route = $request->attributes->get('_route');
+
+        // Only GET routes can be revisited after the login, other methods would end in a 405
+        if (\is_string($route) && $request->isMethod(Request::METHOD_GET)) {
+            $parameters = [
+                'redirectTo' => $route,
+                'redirectParameters' => json_encode($this->getRequestParameters($request), \JSON_THROW_ON_ERROR),
+            ];
+        }
 
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
 

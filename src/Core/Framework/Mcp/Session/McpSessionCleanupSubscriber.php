@@ -38,7 +38,8 @@ final class McpSessionCleanupSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if (!$request->isMethod('DELETE')) {
+        // A rejected DELETE, e.g. for a session of another principal, must not wipe that session's data.
+        if (!$request->isMethod('DELETE') || !$event->getResponse()->isSuccessful()) {
             return;
         }
 

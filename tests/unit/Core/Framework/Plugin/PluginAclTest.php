@@ -75,8 +75,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedAclRole */
         $enrichedAclRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedAclRole);
 
         static::assertSame(['product.viewer', 'product:read'], $enrichedAclRole->getPrivileges());
     }
@@ -95,8 +95,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedAclRole */
         $enrichedAclRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedAclRole);
 
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedAclRole->getPrivileges());
     }
@@ -115,8 +115,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedAclRole */
         $enrichedAclRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedAclRole);
 
         static::assertSame($enrichedAclRole->getPrivileges(), array_values($enrichedAclRole->getPrivileges()));
     }
@@ -135,8 +135,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedAclRole */
         $enrichedAclRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedAclRole);
 
         static::assertSame(['product.viewer', 'product:read'], $enrichedAclRole->getPrivileges());
     }
@@ -155,8 +155,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedAclRole */
         $enrichedAclRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedAclRole);
 
         static::assertSame(['product.viewer', 'product:read', 'open_to_all:read'], $enrichedAclRole->getPrivileges());
     }
@@ -178,8 +178,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedAclRole */
         $enrichedAclRole = $event->getEntities()[1];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedAclRole);
 
         static::assertSame(['product.writer', 'product:write'], $enrichedAclRole->getPrivileges());
     }
@@ -201,8 +201,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedAclRole */
         $enrichedAclRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedAclRole);
 
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedAclRole->getPrivileges());
 
@@ -221,8 +221,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedAclRole */
         $enrichedAclRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedAclRole);
 
         static::assertSame(['product.viewer', 'product:read'], $enrichedAclRole->getPrivileges());
     }
@@ -245,11 +245,11 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedReaderRole */
         $enrichedReaderRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedReaderRole);
 
-        /** @var AclRoleEntity $enrichedWriterRole */
         $enrichedWriterRole = $event->getEntities()[1];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedWriterRole);
 
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedReaderRole->getPrivileges());
         static::assertSame(['product.writer', 'product:write', 'swag_demo_data:write'], $enrichedWriterRole->getPrivileges());
@@ -270,8 +270,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedRole */
         $enrichedRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedRole);
 
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedRole->getPrivileges());
     }
@@ -291,8 +291,8 @@ class PluginAclTest extends TestCase
 
         $this->pluginAclSubscriber->onAclRoleLoaded($event);
 
-        /** @var AclRoleEntity $enrichedRole */
         $enrichedRole = $event->getEntities()[0];
+        static::assertInstanceOf(AclRoleEntity::class, $enrichedRole);
 
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedRole->getPrivileges());
     }

@@ -9,7 +9,6 @@ import template from './sw-condition-always-valid.html.twig';
  * @component-example
  * <sw-condition-is-always-valid :condition="condition"></sw-condition-is-always-valid>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

@@ -49,7 +49,7 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
 
     public function getDescription(): string
     {
-        return 'This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.';
+        return 'This is only the right option if you have permanently moved your live shop to a new server or environment. Shopware re-registers the apps with the same shop identifier, so they keep their data. The apps stop working in the previous installation, even if it is still running. Never choose this for a staging or test copy: the apps in your live shop will stop working.';
     }
 
     public function resolve(Context $context): void

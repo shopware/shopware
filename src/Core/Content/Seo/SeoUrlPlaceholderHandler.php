@@ -37,10 +37,15 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $path = $this->router->generate($name, $parameters);
 
         $request = $this->requestStack->getMainRequest();
-        $basePath = $request ? $request->getBasePath() : '';
-        $path = $this->removePrefix($path, $basePath);
 
-        return self::DOMAIN_PLACEHOLDER . $path . '#';
+        // getBaseUrl() includes the script name (e.g. /subdir/index.php), getBasePath() does not.
+        // The domain never contains it, and placeholders are cached across requests.
+        $stripped = $this->removePrefix($path, $request ? $request->getBaseUrl() : '');
+        if ($stripped === $path) {
+            $stripped = $this->removePrefix($path, $request ? $request->getBasePath() : '');
+        }
+
+        return self::DOMAIN_PLACEHOLDER . $stripped . '#';
     }
 
     public function replace(string $content, string $host, SalesChannelContext $context): string

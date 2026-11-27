@@ -9,19 +9,16 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxEntity;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
@@ -29,13 +26,13 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 #[Package('discovery')]
 class ProductUrlProviderTest extends TestCase
 {
-    use AdminApiTestBehaviour;
-    use IntegrationTestBehaviour;
-    use StorefrontSalesChannelTestHelper;
+    use SalesChannelFunctionalTestBehaviour;
 
     private const CONFIG_EXCLUDE_LINKED_PRODUCTS = 'core.sitemap.excludeLinkedProducts';
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
+
+    private const EXTERNAL_STOREFRONT_URL = 'http://product-sitemap.headless.test';
 
     private SalesChannelContext $salesChannelContext;
 
@@ -50,15 +47,22 @@ class ProductUrlProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
-            static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
-        }
-
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->seoUrlPlaceholderHandler = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
         $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
-        $this->salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-product-sitemap');
+        // A headless sales channel resolves its routes through the core store-api SEO URL routes,
+        // so the provider is tested without depending on the Storefront bundle.
+        $this->salesChannelContext = $this->createSalesChannelContext([
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => self::EXTERNAL_STOREFRONT_URL,
+                'isExternalStorefront' => true,
+            ]],
+        ]);
     }
 
     public function testProductUrlObjectContainsValidContent(): void
@@ -76,13 +80,11 @@ class ProductUrlProviderTest extends TestCase
         static::assertSame(ProductEntity::class, $firstUrl->getResource());
         static::assertTrue(Uuid::isValid($firstUrl->getIdentifier()));
 
-        $host = $this->getHost($this->salesChannelContext);
-
         foreach ($products as $product) {
             $urlGenerate = $this->getComparisonUrl($product['id']);
             $check = false;
             foreach ($urls as $url) {
-                if ($urlGenerate === $host . '/' . $url->getLoc()) {
+                if ($urlGenerate === self::EXTERNAL_STOREFRONT_URL . '/' . $url->getLoc()) {
                     $check = true;
 
                     break;
@@ -136,8 +138,7 @@ class ProductUrlProviderTest extends TestCase
         $this->productRepository->create($products, $this->salesChannelContext->getContext());
 
         $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 3);
-        $host = $this->getHost($this->salesChannelContext);
-        $locations = array_map(static fn ($url) => $host . '/' . $url->getLoc(), $urlResult->getUrls());
+        $locations = array_map(static fn ($url) => self::EXTERNAL_STOREFRONT_URL . '/' . $url->getLoc(), $urlResult->getUrls());
 
         foreach ($products as $product) {
             $urlGenerate = $this->getComparisonUrl($product['id']);
@@ -189,9 +190,8 @@ class ProductUrlProviderTest extends TestCase
 
         static::assertCount(1, $urls);
 
-        $host = $this->getHost($this->salesChannelContext);
         $urlGenerate = $this->getComparisonUrl($canonicalProductId);
-        static::assertSame($urlGenerate, $host . '/' . $urls[0]->getLoc());
+        static::assertSame($urlGenerate, self::EXTERNAL_STOREFRONT_URL . '/' . $urls[0]->getLoc());
     }
 
     public function testContainsOutOfStockCloseoutProducts(): void
@@ -322,27 +322,11 @@ class ProductUrlProviderTest extends TestCase
         return $products;
     }
 
-    private function getHost(SalesChannelContext $context): string
-    {
-        $domains = $context->getSalesChannel()->getDomains();
-        $languageId = $context->getLanguageId();
-
-        if ($domains instanceof SalesChannelDomainCollection) {
-            foreach ($domains as $domain) {
-                if ($domain->getLanguageId() === $languageId) {
-                    return $domain->getUrl();
-                }
-            }
-        }
-
-        throw new \RuntimeException('Empty domain');
-    }
-
     private function getComparisonUrl(string $productId): string
     {
-        $loc = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
+        $loc = $this->seoUrlPlaceholderHandler->generate(ProductStoreApiUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
-        return $this->seoUrlPlaceholderHandler->replace($loc, $this->getHost($this->salesChannelContext), $this->salesChannelContext);
+        return $this->seoUrlPlaceholderHandler->replace($loc, self::EXTERNAL_STOREFRONT_URL, $this->salesChannelContext);
     }
 
     /**
@@ -432,10 +416,8 @@ class ProductUrlProviderTest extends TestCase
      */
     private function getLocations(int $limit): array
     {
-        $host = $this->getHost($this->salesChannelContext);
-
         return array_map(
-            static fn ($url) => $host . '/' . $url->getLoc(),
+            static fn ($url) => self::EXTERNAL_STOREFRONT_URL . '/' . $url->getLoc(),
             $this->getProductUrlProvider()->getUrls($this->salesChannelContext, $limit)->getUrls()
         );
     }

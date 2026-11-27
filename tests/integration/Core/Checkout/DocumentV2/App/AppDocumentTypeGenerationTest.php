@@ -87,7 +87,7 @@ class AppDocumentTypeGenerationTest extends TestCase
         $this->numberRangeTypeRepository = static::getContainer()->get('number_range_type.repository');
         $this->numberRangeRepository = static::getContainer()->get('number_range.repository');
 
-        $this->loadAppsFromDir(__DIR__ . '/_fixtures/DocumentWarrantyApp');
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/swagIntegrationTestDocumentWarrantyApp');
 
         static::getContainer()->get(DocumentTypeRegistry::class)->reset();
     }

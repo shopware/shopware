@@ -135,17 +135,16 @@ class PromotionCodeServiceTest extends TestCase
         $criteria = (new Criteria([$id]))
             ->addAssociation('individualCodes');
 
-        /** @var PromotionEntity|null $promotion */
         $promotion = $promotionRepository->search($criteria, $context)->getEntities()->get($id);
 
-        static::assertNotNull($promotion);
+        static::assertInstanceOf(PromotionEntity::class, $promotion);
         static::assertNotNull($promotion->getIndividualCodes());
         static::assertCount(2, $promotion->getIndividualCodes()->getElements());
 
         $this->codesService->replaceIndividualCodes($id, 'newPattern_%d%d%s', 10, $context);
 
-        /** @var PromotionEntity $promotion */
         $promotion = $promotionRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(PromotionEntity::class, $promotion);
         static::assertNotNull($promotion->getIndividualCodes());
         $individualCodes = $promotion->getIndividualCodes()->getElements();
         static::assertCount(10, $individualCodes);
@@ -213,10 +212,9 @@ class PromotionCodeServiceTest extends TestCase
 
         $this->codesService->addIndividualCodes($id, $newCodeAmount, $salesChannelContext->getContext());
 
-        /** @var PromotionEntity|null $promotion */
         $promotion = $promotionRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
 
-        static::assertNotNull($promotion);
+        static::assertInstanceOf(PromotionEntity::class, $promotion);
         static::assertNotNull($promotion->getIndividualCodes());
         static::assertCount($expectedCodeAmount, $promotion->getIndividualCodes()->getIds());
     }

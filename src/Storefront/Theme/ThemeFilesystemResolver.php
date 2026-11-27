@@ -54,6 +54,7 @@ class ThemeFilesystemResolver
 
         \assert($bundle instanceof BundleInterface);
 
-        return new Filesystem($bundle->getPath());
+        // themes of bundles may reference files outside of the bundle, e.g. in node_modules
+        return new Filesystem($bundle->getPath(), restrictToLocation: false);
     }
 }

@@ -149,13 +149,16 @@ use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Validation\AppNameValidator;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\AppValidator;
+use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\HookableValidator;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
 use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\App\Validation\TranslationValidator;
+use Shopware\Core\Framework\App\Validation\UnsupportedSectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Log\ExceptionLogger;
@@ -205,6 +208,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomFieldProtectionSubscriber::class)
         ->args([
             service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -231,10 +235,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(TranslationValidator::class)
         ->tag('shopware.app_manifest.validator');
 
-    $services->set(AppNameValidator::class)
+    $services->set(UnsupportedSectionValidator::class)
         ->tag('shopware.app_manifest.validator');
 
-    $services->set(ManifestValidator::class)
+    $services->set(AppNameValidator::class)
+        ->args([
+            service(SourceResolver::class),
+        ])
+        ->tag('shopware.app_manifest.validator');
+
+    $services->set(AppValidator::class)
         ->args([
             tagged_iterator('shopware.app_manifest.validator'),
         ]);
@@ -242,12 +252,27 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ConfigValidator::class)
         ->args([
             service(ConfigReader::class),
+            service(SourceResolver::class),
         ])
         ->tag('shopware.app_manifest.validator');
 
     $services->set(HookableValidator::class)
         ->args([
             service(SubscriptionValidator::class),
+        ])
+        ->tag('shopware.app_manifest.validator');
+
+    $services->set(CompatibilityValidator::class)
+        ->args([
+            param('kernel.shopware_version'),
+        ])
+        ->tag('shopware.app_manifest.validator');
+
+    $services->set(AppRequirementsValidator::class)
+        ->args([
+            tagged_iterator('app.requirements_validator'),
+            service('logger'),
+            param('kernel.environment'),
         ])
         ->tag('shopware.app_manifest.validator');
 
@@ -260,13 +285,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('app.requirements_validator')
         ->tag('kernel.reset', ['method' => 'reset']);
-
-    $services->set(AppRequirementsValidator::class)
-        ->args([
-            tagged_iterator('app.requirements_validator'),
-            service('logger'),
-            param('kernel.environment'),
-        ]);
 
     $services->set(PermissionLifecycleService::class)
         ->args([
@@ -362,6 +380,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomFieldLifecycleHandler::class)
         ->args([
             service(CustomFieldSetPersister::class),
+            service('logger'),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1100]);
 
@@ -549,19 +568,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ActiveAppsLoader::class),
             service('language.repository'),
             service(SystemConfigService::class),
-            service(ConfigValidator::class),
             service('integration.repository'),
             service('acl_role.repository'),
             service(AssetService::class),
             service(ScriptExecutor::class),
             param('kernel.project_dir'),
             service(CustomEntityLifecycleService::class),
-            param('kernel.shopware_version'),
             service(AppFeatureValidator::class),
             service(SourceResolver::class),
             service(ConfigReader::class),
             service(DeletedAppsGateway::class),
-            service(AppRequirementsValidator::class),
+            service(AppValidator::class),
             service(ClockInterface::class),
         ]);
 
@@ -779,7 +796,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AppService::class),
             service(AppPrinter::class),
-            service(ManifestValidator::class),
         ])
         ->tag('console.command');
 
@@ -788,7 +804,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppLoader::class),
             service(AppLifecycle::class),
             service(AppPrinter::class),
-            service(ManifestValidator::class),
         ])
         ->tag('console.command');
 
@@ -823,7 +838,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ValidateAppCommand::class)
         ->args([
             param('shopware.app_dir'),
-            service(ManifestValidator::class),
+            service(AppValidator::class),
         ])
         ->tag('console.command');
 

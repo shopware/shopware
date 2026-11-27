@@ -10,7 +10,6 @@ import './sw-condition-goods-count.scss';
  * @component-example
  * <sw-condition-goods-count :condition="condition" :level="0"></sw-condition-goods-count>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -41,6 +42,10 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         if ($jsonPath === null || $jsonPath === '') {
             return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+        }
+
+        if (!EntityDefinitionQueryHelper::isValidJsonPath($jsonPath)) {
+            throw DataAbstractionLayerException::invalidIdentifier($jsonPath);
         }
 
         // enquote hyphenated json keys in path

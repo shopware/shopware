@@ -28,9 +28,9 @@ export default function initializeWorker() {
     const context = Shopware.Context.app;
     const configService = Shopware.Service('configService');
 
-    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    if (!Shopware.Feature.isActive('V6_8_0_0')) {
         const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
-        registerThumbnailMiddleware(workerNotificationFactory);
+        Shopware.Feature.silence('V6_8_0_0', () => registerThumbnailMiddleware(workerNotificationFactory));
     }
 
     function getConfig() {
@@ -42,8 +42,10 @@ export default function initializeWorker() {
                 });
             });
 
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                enableWorkerNotificationListener(loginService, Shopware.Context.api);
+            if (!Shopware.Feature.isActive('V6_8_0_0')) {
+                Shopware.Feature.silence('V6_8_0_0', () =>
+                    enableWorkerNotificationListener(loginService, Shopware.Context.api),
+                );
             }
 
             // Enable worker notification listener regardless of the config
@@ -159,7 +161,14 @@ function getWorker(): SharedWorker {
  * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
  */
 function enableWorkerNotificationListener(loginService: LoginService, context: ContextStore['api']) {
-    let workerNotificationListener = new WorkerNotificationListener(context);
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'enableWorkerNotificationListener() is deprecated. The increment-based message queue statistics are deprecated.',
+    );
+
+    // The login callbacks run after the caller's `Feature.silence()` has returned.
+    const createListener = () => Shopware.Feature.silence('V6_8_0_0', () => new WorkerNotificationListener(context));
+    let workerNotificationListener = createListener();
 
     if (loginService.isLoggedIn()) {
         workerNotificationListener.start();
@@ -167,13 +176,13 @@ function enableWorkerNotificationListener(loginService: LoginService, context: C
 
     loginService.addOnTokenChangedListener(() => {
         workerNotificationListener.terminate();
-        workerNotificationListener = new WorkerNotificationListener(context);
+        workerNotificationListener = createListener();
         workerNotificationListener.start();
     });
 
     loginService.addOnLogoutListener(() => {
         workerNotificationListener.terminate();
-        workerNotificationListener = new WorkerNotificationListener(context);
+        workerNotificationListener = createListener();
     });
 }
 
@@ -202,11 +211,36 @@ function enableNotificationWorker(loginService: LoginService) {
  * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
  */
 function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'registerThumbnailMiddleware() is deprecated. The increment-based message queue statistics are deprecated.',
+    );
+
     const ids = {};
+
+    // Runs only the notification silenced, so a deprecation of the middlewares after it stays visible.
+    const silencedNotification: typeof messageQueueNotification = (key, queueIds, next, ...rest) => {
+        let callsNext = false;
+        Shopware.Feature.silence('V6_8_0_0', () =>
+            messageQueueNotification(
+                key,
+                queueIds,
+                () => {
+                    callsNext = true;
+                },
+                ...rest,
+            ),
+        );
+
+        if (callsNext) {
+            next();
+        }
+    };
+
     factory.register('DalIndexingMessage', {
         name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('dalIndexing', ids, next, entry, $root, notification, {
+            silencedNotification('dalIndexing', ids, next, entry, $root, notification, {
                 title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.dalIndexing.message',
                 success: 'global.notification-center.worker-listener.dalIndexing.messageSuccess',
@@ -218,7 +252,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('EsIndexingMessage', {
         name: 'Shopware\\Elasticsearch\\Framework\\Indexing\\IndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('esIndexing', ids, next, entry, $root, notification, {
+            silencedNotification('esIndexing', ids, next, entry, $root, notification, {
                 title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.esIndexing.message',
                 success: 'global.notification-center.worker-listener.esIndexing.messageSuccess',
@@ -229,7 +263,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('generateThumbnailsMessage', {
         name: 'Shopware\\Core\\Content\\Media\\Message\\GenerateThumbnailsMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('thumbnails', ids, next, entry, $root, notification, {
+            silencedNotification('thumbnails', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.thumbnailGeneration.title',
                 message: 'global.notification-center.worker-listener.thumbnailGeneration.message',
                 success: 'global.notification-center.worker-listener.thumbnailGeneration.messageSuccess',
@@ -240,7 +274,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('PromotionIndexingMessage', {
         name: 'Shopware\\Core\\Checkout\\Promotion\\DataAbstractionLayer\\PromotionIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification(
+            silencedNotification(
                 'promotion',
                 ids,
                 next,
@@ -260,7 +294,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('ProductStreamIndexingMessage', {
         name: 'Shopware\\Core\\Content\\ProductStream\\DataAbstractionLayer\\ProductStreamIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification(
+            silencedNotification(
                 'productStream',
                 ids,
                 next,
@@ -280,7 +314,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('CategoryIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Category\\DataAbstractionLayer\\CategoryIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification(
+            silencedNotification(
                 'category',
                 ids,
                 next,
@@ -300,7 +334,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('MediaIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Media\\DataAbstractionLayer\\MediaIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification(
+            silencedNotification(
                 'media',
                 ids,
                 next,
@@ -320,7 +354,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('SalesChannelIndexingMessage', {
         name: 'Shopware\\Core\\System\\SalesChannel\\DataAbstractionLayer\\SalesChannelIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification(
+            silencedNotification(
                 'salesChannel',
                 ids,
                 next,
@@ -340,7 +374,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('RuleIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Rule\\DataAbstractionLayer\\RuleIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification(
+            silencedNotification(
                 'rule',
                 ids,
                 next,
@@ -360,7 +394,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('ProductIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Product\\DataAbstractionLayer\\ProductIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification(
+            silencedNotification(
                 'product',
                 ids,
                 next,
@@ -380,7 +414,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('ElasticSearchIndexingMessage', {
         name: 'Shopware\\Elasticsearch\\Framework\\Indexing\\ElasticsearchIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification(
+            silencedNotification(
                 'esIndexing',
                 ids,
                 next,
@@ -400,7 +434,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('ImportExportMessage', {
         name: 'Shopware\\Core\\Content\\ImportExport\\Message\\ImportExportMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('importExport', ids, next, entry, $root, notification, {
+            silencedNotification('importExport', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.importExport.title',
                 message: 'global.notification-center.worker-listener.importExport.message',
                 success: 'global.notification-center.worker-listener.importExport.messageSuccess',
@@ -411,7 +445,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('FlowIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Flow\\Indexing\\FlowIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('flow', ids, next, entry, $root, notification, {
+            silencedNotification('flow', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.flow.title',
                 message: 'global.notification-center.worker-listener.flow.message',
                 success: 'global.notification-center.worker-listener.flow.messageSuccess',
@@ -422,7 +456,7 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     factory.register('NewsletterRecipientIndexingMessage', {
         name: 'Shopware\\Core\\Content\\Newsletter\\DataAbstractionLayer\\NewsletterRecipientIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('newsletterRecipient', ids, next, entry, $root, notification, {
+            silencedNotification('newsletterRecipient', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.newsletterRecipient.title',
                 message: 'global.notification-center.worker-listener.newsletterRecipient.message',
                 success: 'global.notification-center.worker-listener.newsletterRecipient.messageSuccess',
@@ -456,6 +490,11 @@ function messageQueueNotification(
     },
     multiplier = 1,
 ) {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'messageQueueNotification() is deprecated. The increment-based message queue statistics are deprecated.',
+    );
+
     let notificationId = null;
     let didSendForegroundMessage = false;
 

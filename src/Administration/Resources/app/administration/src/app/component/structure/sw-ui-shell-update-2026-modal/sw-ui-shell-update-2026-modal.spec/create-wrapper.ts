@@ -14,7 +14,7 @@ import swUiShellUpdate2026Modal from '../index';
  *
  * @private
  */
-export const BEFORE_RELEASE = '2024-01-01T00:00:00.000Z';
+const BEFORE_RELEASE = '2024-01-01T00:00:00.000Z';
 
 /**
  * @private

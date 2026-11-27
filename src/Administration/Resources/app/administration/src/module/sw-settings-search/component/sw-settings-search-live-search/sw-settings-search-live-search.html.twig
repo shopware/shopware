@@ -32,14 +32,12 @@
     {% endblock %}
 
     {% block sw_settings_search_view_live_search_sales_channel %}
-    <sw-single-select
+    <sw-entity-single-select
         class="sw-settings-search-live-search__sales-channel-select"
-        value-property="id"
-        label-property="translated.name"
+        entity="sales_channel"
         :placeholder="$t('sw-settings-search.liveSearchTab.textPlaceholderSalesChannel')"
         :label="$t('sw-settings-search.liveSearchTab.labelSalesChannelSelect')"
         :value="salesChannelId"
-        :options="salesChannels"
         show-clearable-button
         @update:value="changeSalesChannel"
     />

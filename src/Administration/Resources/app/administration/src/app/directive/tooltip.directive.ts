@@ -20,7 +20,6 @@ const availableTooltipPlacements: Placements[] = [
 /**
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const tooltipRegistry = new Map<string, Tooltip>();
 
 /**

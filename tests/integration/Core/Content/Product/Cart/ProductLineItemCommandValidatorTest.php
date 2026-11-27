@@ -92,8 +92,8 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
-        /** @var OrderLineItemEntity $first */
         $first = $lineItems->first();
+        static::assertInstanceOf(OrderLineItemEntity::class, $first);
 
         static::assertSame($id, $first->getReferencedId());
         static::assertSame($id, $first->getProductId());
@@ -116,8 +116,8 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
-        /** @var OrderLineItemEntity $first */
         $first = $lineItems->first();
+        static::assertInstanceOf(OrderLineItemEntity::class, $first);
 
         static::assertSame($id, $first->getReferencedId());
         static::assertSame($id, $first->getProductId());

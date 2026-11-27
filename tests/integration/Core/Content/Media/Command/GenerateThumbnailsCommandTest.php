@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -50,14 +49,11 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private array $initialMediaIds;
 
-    private bool $remoteThumbnailsEnable = false;
-
     protected function setUp(): void
     {
         $this->mediaRepository = static::getContainer()->get('media.repository');
         $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $this->context = Context::createDefaultContext();
-        $this->remoteThumbnailsEnable = static::getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
 
         $this->thumbnailCommand = static::getContainer()->get(GenerateThumbnailsCommand::class);
 
@@ -67,10 +63,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testExecuteHappyPath(): void
     {
-        if ($this->remoteThumbnailsEnable) {
-            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
-        }
-
         $this->createValidMediaFiles();
 
         $commandTester = new CommandTester($this->thumbnailCommand);
@@ -94,10 +86,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testExecuteWithCustomLimit(): void
     {
-        if ($this->remoteThumbnailsEnable) {
-            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
-        }
-
         $this->createValidMediaFiles();
 
         $commandTester = new CommandTester($this->thumbnailCommand);
@@ -121,10 +109,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testItSkipsNotSupportedMediaTypes(): void
     {
-        if ($this->remoteThumbnailsEnable) {
-            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
-        }
-
         $this->createNotSupportedMediaFiles();
 
         $commandTester = new CommandTester($this->thumbnailCommand);
@@ -150,10 +134,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testHappyPathWithGivenFolderName(): void
     {
-        if ($this->remoteThumbnailsEnable) {
-            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
-        }
-
         $this->createValidMediaFiles();
 
         $commandTester = new CommandTester($this->thumbnailCommand);
@@ -171,26 +151,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    public function testExecuteHappyPathWithRemoteThumbnailsEnable(): void
-    {
-        if (!$this->remoteThumbnailsEnable) {
-            static::markTestSkipped('Remote thumbnails is disabled');
-        }
-
-        $this->createValidMediaFiles();
-
-        $commandTester = new CommandTester($this->thumbnailCommand);
-        $commandTester->execute([]);
-
-        static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
-    }
-
     public function testSkipsMediaEntitiesFromDifferentFolders(): void
     {
-        if ($this->remoteThumbnailsEnable) {
-            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
-        }
-
         $this->createValidMediaFiles();
         $this->mediaFolderRepository->create([
             [
@@ -213,10 +175,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testCommandAbortsIfNoFolderCanBeFound(): void
     {
-        if ($this->remoteThumbnailsEnable) {
-            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
-        }
-
         $this->expectExceptionObject(MediaException::mediaFolderNameNotFound('non-existing-folder'));
 
         $commandTester = new CommandTester($this->thumbnailCommand);
@@ -225,10 +183,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testItThrowsExceptionOnNonNumericLimit(): void
     {
-        if ($this->remoteThumbnailsEnable) {
-            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
-        }
-
         $this->expectExceptionObject(MediaException::invalidBatchSize());
 
         $commandTester = new CommandTester($this->thumbnailCommand);

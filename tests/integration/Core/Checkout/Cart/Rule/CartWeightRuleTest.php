@@ -108,7 +108,7 @@ class CartWeightRuleTest extends TestCase
         yield 'match / operator greater than equals / higher weight' => [Rule::OPERATOR_GTE, 200, 100, 100, true];
         // OPERATOR_LT
         yield 'match / operator lower than / lower weight' => [Rule::OPERATOR_LT, 700, 100, 100, true];
-        yield 'no match / operator lower  than / same weight' => [Rule::OPERATOR_LT, 600, 100, 100, false];
+        yield 'no match / operator lower than / same weight' => [Rule::OPERATOR_LT, 600, 100, 100, false];
         yield 'no match / operator lower than / higher weight' => [Rule::OPERATOR_LT, 200, 100, 100, false];
         // OPERATOR_LTE
         yield 'match / operator lower than equals / lower weight' => [Rule::OPERATOR_LTE, 700, 100, 100, true];

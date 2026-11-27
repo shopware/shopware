@@ -5,7 +5,12 @@
 import type { uiMediaModalOpen, uiMediaModalOpenSaveMedia } from '@shopware-ag/meteor-admin-sdk/es/ui/media-modal';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type MediaModalConfig = Omit<uiMediaModalOpen, 'responseType'>;
+export type MediaModalConfig = Omit<uiMediaModalOpen, 'responseType'> & {
+    /**
+     * Base URL of the app that opened the modal; its `tabs` render locations of this app.
+     */
+    baseUrl?: string;
+};
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type SaveMediaModalConfig = Omit<uiMediaModalOpenSaveMedia, 'responseType'>;
 

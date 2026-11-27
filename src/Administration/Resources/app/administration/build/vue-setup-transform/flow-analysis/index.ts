@@ -24,17 +24,14 @@
  * @private
  */
 export {
-    type ExpressionOccurrence,
     type OccurrenceExpansion,
     addPatternNames,
     collectExpressionOccurrences,
-    collectExpressionReferences,
     collectPatternOccurrences,
-    collectPatternReferences,
     parseBindingPattern,
 } from './references';
 
 /**
  * @private
  */
-export { type SetupRenameExpansion, type SetupRenameTarget, collectSetupRenameTargets } from './setup-references';
+export { type SetupRenameTarget, collectSetupRenameTargets } from './setup-references';

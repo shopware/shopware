@@ -100,7 +100,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
         yield 'match / operator greater than equals / higher width' => [Rule::OPERATOR_GTE, 100, 200, true];
         // OPERATOR_LT
         yield 'match / operator lower than / lower width' => [Rule::OPERATOR_LT, 100, 50, true];
-        yield 'no match / operator lower  than / same width' => [Rule::OPERATOR_LT, 100, 100, false];
+        yield 'no match / operator lower than / same width' => [Rule::OPERATOR_LT, 100, 100, false];
         yield 'no match / operator lower than / higher width' => [Rule::OPERATOR_LT, 100, 200, false];
         // OPERATOR_LTE
         yield 'match / operator lower than equals / lower width' => [Rule::OPERATOR_LTE, 100, 50, true];
@@ -324,7 +324,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
             'lineItemAmount2' => 120,
             'expected' => true,
         ];
-        yield 'no match / operator lower  than / same width' => [
+        yield 'no match / operator lower than / same width' => [
             'operator' => Rule::OPERATOR_LT,
             'amount' => 100,
             'lineItemAmount1' => 100,

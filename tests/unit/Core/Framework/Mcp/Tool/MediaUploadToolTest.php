@@ -37,9 +37,8 @@ class MediaUploadToolTest extends TestCase
         $tool = new MediaUploadTool($uploadService, $contextProvider, $registry);
         $output = $tool('https://example.com/image.jpg');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertSame($mediaId, $data['data']['mediaId']);
+        static::assertFalse($output->isError());
+        static::assertSame($mediaId, $output->data['mediaId']);
     }
 
     public function testUploadWithProductAssignment(): void
@@ -62,11 +61,10 @@ class MediaUploadToolTest extends TestCase
         $tool = new MediaUploadTool($uploadService, $contextProvider, $registry);
         $output = $tool('https://example.com/image.jpg', productId: $productId);
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertSame($mediaId, $data['data']['mediaId']);
-        static::assertSame($productId, $data['data']['productId']);
-        static::assertTrue($data['data']['assignedAsCover']);
+        static::assertFalse($output->isError());
+        static::assertSame($mediaId, $output->data['mediaId']);
+        static::assertSame($productId, $output->data['productId']);
+        static::assertTrue($output->data['assignedAsCover']);
     }
 
     public function testUploadExceptionReturnsError(): void
@@ -80,10 +78,9 @@ class MediaUploadToolTest extends TestCase
         $tool = new MediaUploadTool($uploadService, $contextProvider, static::createStub(DefinitionInstanceRegistry::class));
         $output = $tool('https://example.com/broken.jpg');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Upload failed', $data['error']);
-        static::assertStringContainsString('Download failed', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Upload failed', $output->error->message);
+        static::assertStringContainsString('Download failed', $output->error->message);
     }
 
     public function testProductAssignmentExceptionReturnsError(): void
@@ -105,10 +102,9 @@ class MediaUploadToolTest extends TestCase
         $tool = new MediaUploadTool($uploadService, $contextProvider, $registry);
         $output = $tool('https://example.com/image.jpg', productId: 'bad-product');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('product assignment failed', $data['error']);
-        static::assertStringContainsString($mediaId, $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('product assignment failed', $output->error->message);
+        static::assertStringContainsString($mediaId, $output->error->message);
     }
 
     public function testMissingAclReturnsError(): void
@@ -123,8 +119,7 @@ class MediaUploadToolTest extends TestCase
         $tool = new MediaUploadTool($uploadService, $contextProvider, $registry);
         $output = $tool('https://example.com/image.jpg');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
+        static::assertTrue($output->isError());
     }
 
     /**

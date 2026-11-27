@@ -43,6 +43,7 @@ use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\ShippingMethodAdminSearchIndexer;
+use Shopware\Elasticsearch\Admin\Subscriber\ProductInheritanceSubscriber;
 use Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber;
 use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
 use Shopware\Elasticsearch\FieldQueryBuilder;
@@ -154,6 +155,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CriteriaParser::class),
             service('shopware.elasticsearch.logger'),
             service(SystemConfigService::class),
+            param('elasticsearch.search.term_max_words'),
+            service(ElasticsearchTokenizer::class),
         ]);
 
     $services->set(ElasticsearchIndexingUtils::class)
@@ -572,6 +575,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(ProductInheritanceSubscriber::class)
+        ->args([
+            service(AdminSearchRegistry::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
     $services->set(SystemInstallListener::class)
         ->args([
             service(ElasticsearchIndexer::class),
@@ -635,6 +644,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('elasticsearch.administration.index.mapping'),
             param('kernel.environment'),
             service(ClockInterface::class),
+            param('elasticsearch.administration.indexing_batch_size'),
         ])
         ->tag('kernel.event_subscriber')
         ->tag('messenger.message_handler');

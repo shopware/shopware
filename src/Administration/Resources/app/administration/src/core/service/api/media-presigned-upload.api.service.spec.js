@@ -53,6 +53,7 @@ describe('mediaPresignedUploadService', () => {
             mimeType: 'image/jpeg',
             mediaFolderId: 'folder-123',
             isPrivate: false,
+            fileSize: 2048,
         });
 
         expect(postSpy).toHaveBeenCalledWith(
@@ -64,6 +65,7 @@ describe('mediaPresignedUploadService', () => {
                 mediaFolderId: 'folder-123',
                 private: false,
                 mediaId: null,
+                fileSize: 2048,
             }),
             expect.objectContaining({ headers: expect.any(Object) }),
         );

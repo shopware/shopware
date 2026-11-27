@@ -76,7 +76,7 @@ class SsoController extends AbstractController
             $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
             // @phpstan-ignore catch.neverThrown (SsoUserNotFoundException is thrown inside an external library where we implemented an interface)
         } catch (SsoUserNotFoundException $ssoException) {
-            return $this->loginResponseService->createErrorResponse($ssoException->getEmail());
+            return $this->loginResponseService->createErrorResponse($ssoException->getEmail() ?? '');
         }
 
         return $this->loginResponseService->create($response);

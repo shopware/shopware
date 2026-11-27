@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -61,6 +62,7 @@ class DocumentGenerator
         private readonly ClockInterface $clock,
         private readonly DocumentFileResolver $documentFileResolver,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Filesystem $filesystem = new Filesystem(),
     ) {
     }
 
@@ -180,21 +182,32 @@ class DocumentGenerator
 
                 $this->checkDocumentNumberAlreadyExits($documentType, $document->getNumber(), $operation->getDocumentId());
 
-                $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                $mediaId = $this->resolveMediaId($operation, $context, $document);
-                $mediaIdForHtmlA11y = $this->resolveMediaIdForA11y($operation, $context, $document);
+                // A document generated again only gets the files it is missing and keeps its deep link code,
+                // which customers already have in links. While it keeps a stored file, it also keeps the order
+                // version and config that file was rendered from.
+                $storedDocument = $this->loadStoredDocument($operation, $context);
+                [$storedMediaId, $storedA11yMediaId] = Feature::silent('v6.9.0.0', static fn (): array => [
+                    $storedDocument?->getDocumentMediaFileId(),
+                    $storedDocument?->getDocumentA11yMediaFileId(),
+                ]);
+
+                $keptDocument = $storedMediaId !== null || $storedA11yMediaId !== null ? $storedDocument : null;
+                $orderVersionId = $keptDocument?->getOrderVersionId() ?: $operation->getOrderVersionId();
+                $deepLinkCode = $storedDocument?->getDeepLinkCode() ?? Random::getAlphanumericString(32);
+                $mediaId = $storedMediaId ?? $this->resolveMediaId($operation, $context, $document);
+                $mediaIdForHtmlA11y = $storedA11yMediaId ?? $this->resolveMediaIdForA11y($operation, $context, $document);
 
                 $records[] = [
                     'id' => $id,
                     'documentTypeId' => $documentTypeId,
                     'fileType' => $operation->getFileType(),
                     'orderId' => $operation->getOrderId(),
-                    'orderVersionId' => $operation->getOrderVersionId(),
+                    'orderVersionId' => $orderVersionId,
                     'static' => $operation->isStatic(),
                     'documentMediaFileId' => $mediaId,
-                    'config' => $document->getConfig(),
+                    'config' => $keptDocument?->getConfig() ?? $document->getConfig(),
                     'deepLinkCode' => $deepLinkCode,
                     'referencedDocumentId' => $operation->getReferencedDocumentId(),
                     'documentA11yMediaFileId' => $mediaIdForHtmlA11y,
@@ -203,7 +216,7 @@ class DocumentGenerator
                 $generatedDocuments[] = [
                     'id' => $id,
                     'orderId' => $operation->getOrderId(),
-                    'orderVersionId' => $operation->getOrderVersionId(),
+                    'orderVersionId' => $orderVersionId,
                     'documentNumber' => $document->getNumber(),
                 ];
 
@@ -248,17 +261,23 @@ class DocumentGenerator
             throw DocumentException::documentGenerationException('This document is dynamically generated and cannot be overwritten');
         }
 
-        $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest);
-
         $fileName = (string) $uploadedFileRequest->query->get('fileName');
 
         if ($fileName === '') {
             throw DocumentException::documentGenerationException('Parameter "fileName" is missing');
         }
 
-        // Media is written under system scope because the route-level document:update
-        // ACL check already authorizes the caller to create document media.
-        $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
+        $tempFile = $this->filesystem->tempnam(sys_get_temp_dir(), '');
+
+        try {
+            $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest, $tempFile);
+
+            // Media is written under system scope because the route-level document:update
+            // ACL check already authorizes the caller to create document media.
+            $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
+        } finally {
+            $this->filesystem->remove($tempFile);
+        }
 
         $this->documentRepository->upsert([
             [
@@ -375,6 +394,16 @@ class DocumentGenerator
         $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 
         return $document;
+    }
+
+    private function loadStoredDocument(DocumentGenerateOperation $operation, Context $context): ?DocumentEntity
+    {
+        $documentId = $operation->getDocumentId();
+        if ($documentId === null) {
+            return null;
+        }
+
+        return $this->documentRepository->search(new Criteria([$documentId]), $context)->getEntities()->first();
     }
 
     private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -41,9 +42,14 @@ class DocumentConfigLoaderTest extends TestCase
     public function testLoad(): void
     {
         $expectedCriteria = new Criteria();
-        $expectedCriteria->addFilter(new EqualsFilter('documentType.technicalName', 'invoice'));
+        $expectedCriteria->addFilter(
+            new EqualsFilter('documentType.technicalName', 'invoice'),
+            new OrFilter([
+                new EqualsFilter('global', true),
+                new EqualsFilter('salesChannels.salesChannelId', $this->ids->get('sales-channel-id')),
+            ]),
+        );
         $expectedCriteria->addAssociation('logo');
-        $expectedCriteria->getAssociation('salesChannels')->addFilter(new EqualsFilter('salesChannelId', $this->ids->get('sales-channel-id')));
 
         $context = Context::createDefaultContext();
         $countryId = Uuid::randomHex();

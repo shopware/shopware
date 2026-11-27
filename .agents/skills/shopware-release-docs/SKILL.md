@@ -1,6 +1,14 @@
 ---
 name: shopware-release-docs
-description: Decide and write Shopware developer-facing release documentation (RELEASE_INFO / UPGRADE / changelog entries). Use when a change may affect extension authors, API consumers, operators, or storefront/theme developers — public APIs, deprecations, removals, configuration, or upgrade steps.
+description: >
+  Decide and write Shopware developer-facing release documentation (RELEASE_INFO /
+  UPGRADE / changelog entries). Use when a change may affect extension authors, API
+  consumers, operators, or storefront/theme developers — public APIs, deprecations,
+  removals, configuration, or upgrade steps. Also use for issue-style fix or feature
+  requests where it must be decided whether a release entry is needed, such as
+  "deprecate this method", "add a config option for X", "change the Store API response",
+  or "does this fix need a changelog entry?", even when no docs are mentioned.
+  Not for PR descriptions or for writing the code and tests of a change.
 license: MIT
 ---
 
@@ -38,6 +46,13 @@ Write from the outside user's perspective: what changed, who is affected, and wh
 State the change and its impact.
 Add one sentence on why only when it tells developers how urgent the change is, for example a bug, a security or a performance problem.
 Leave out the internals of how it works and the history of the problem.
+
+## Security Release Notes
+
+State the security impact and necessary compatibility changes in general terms.
+Omit exploit payloads, sensitive field or association examples, and credential or recovery chains.
+Keep required response-status and error-code guidance, and use the coordinated security advisory for detailed impact and remediation.
+Do not infer compromise or prescribe broad credential resets or token rotations without confirmed security guidance.
 
 ## Formatting
 

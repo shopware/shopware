@@ -349,7 +349,6 @@ class EntityWriteGatewayTest extends TestCase
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 
-        /** @var EntityDeleteEvent $event */
         $event = $spy->event;
         static::assertInstanceOf(EntityDeleteEvent::class, $event);
         static::assertTrue($event->filled());

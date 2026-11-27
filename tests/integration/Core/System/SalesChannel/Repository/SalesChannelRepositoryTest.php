@@ -184,10 +184,10 @@ class SalesChannelRepositoryTest extends TestCase
 
         $this->salesChannelRepository->create([$data], Context::createDefaultContext());
 
-        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository
             ->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()
             ->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         static::assertSame(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL, $salesChannel->getTaxCalculationType());
     }

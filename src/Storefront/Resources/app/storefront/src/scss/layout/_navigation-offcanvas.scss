@@ -45,6 +45,7 @@ Based on custom offcanvas component.
 
 .navigation-offcanvas-headline {
     padding: 20px $spacer-md $spacer-md;
+    overflow-wrap: anywhere;
 }
 
 .navigation-offcanvas-link-icon {

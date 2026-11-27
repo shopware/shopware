@@ -8,10 +8,10 @@ import type { FullState } from 'src/core/factory/state.factory';
 import type { Module, Store } from 'vuex';
 import { createStore } from 'vuex';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, sw-deprecation-rules/require-deprecation-guard -- the boot sequence runs it until Vuex is removed
 export default function initState() {
-    initVuexState(Shopware.State);
-    initVuexModules(VuexModules, Shopware.State);
+    initVuexState(Shopware._state);
+    initVuexModules(VuexModules, Shopware._state);
 
     return true;
 }

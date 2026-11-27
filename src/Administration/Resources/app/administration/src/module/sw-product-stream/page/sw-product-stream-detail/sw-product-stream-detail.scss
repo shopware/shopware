@@ -12,6 +12,10 @@
         padding-top: var(--scale-size-16);
     }
 
+    &__display-as-group {
+        margin-bottom: 0;
+    }
+
     &__product-type-warning,
     &__product-stream-warning {
         margin: var(--scale-size-24) var(--scale-size-24) 0;

@@ -9,8 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -25,7 +25,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -51,8 +50,9 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -73,10 +73,7 @@ class EntityRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var EntityRepository<CategoryCollection> $categoryRepository */
-        $categoryRepository = $this->createRepository(CategoryDefinition::class);
-
-        $this->categoryRepository = $categoryRepository;
+        $this->categoryRepository = $this->createRepository(CategoryDefinition::class, CategoryCollection::class);
     }
 
     protected function tearDown(): void
@@ -424,7 +421,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testWrite(): void
     {
-        $repository = $this->createRepository(LocaleDefinition::class);
+        $repository = $this->createRepository(LocaleDefinition::class, LocaleCollection::class);
 
         $context = Context::createDefaultContext();
 
@@ -480,7 +477,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testWrittenEventsFired(): void
     {
-        $repository = $this->createRepository(LocaleDefinition::class);
+        $repository = $this->createRepository(LocaleDefinition::class, LocaleCollection::class);
 
         $context = Context::createDefaultContext();
 
@@ -504,7 +501,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testRead(): void
     {
-        $repository = $this->createRepository(LocaleDefinition::class);
+        $repository = $this->createRepository(LocaleDefinition::class, LocaleCollection::class);
 
         $context = Context::createDefaultContext();
 
@@ -533,13 +530,12 @@ class EntityRepositoryTest extends TestCase
 
         static::assertTrue($locale->getEntities()->has($id));
         $locale = $locale->getEntities()->get($id);
-        static::assertInstanceOf(LocaleEntity::class, $locale);
         static::assertSame('Test', $locale->getName());
     }
 
     public function testLoadedEventFired(): void
     {
-        $repository = $this->createRepository(LocaleDefinition::class);
+        $repository = $this->createRepository(LocaleDefinition::class, LocaleCollection::class);
 
         $context = Context::createDefaultContext();
 
@@ -571,13 +567,12 @@ class EntityRepositoryTest extends TestCase
 
         static::assertTrue($locale->getEntities()->has($id));
         $locale = $locale->getEntities()->get($id);
-        static::assertInstanceOf(LocaleEntity::class, $locale);
         static::assertSame('Test', $locale->getName());
     }
 
     public function testReadWithManyToOneAssociation(): void
     {
-        $repository = $this->createRepository(ProductDefinition::class);
+        $repository = $this->createRepository(ProductDefinition::class, ProductCollection::class);
 
         $context = Context::createDefaultContext();
 
@@ -642,13 +637,12 @@ class EntityRepositoryTest extends TestCase
 
         static::assertTrue($products->getEntities()->has($id));
         $product = $products->getEntities()->get($id);
-        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame('Test', $product->getName());
     }
 
     public function testReadAndWriteWithOneToMany(): void
     {
-        $repository = $this->createRepository(ProductDefinition::class);
+        $repository = $this->createRepository(ProductDefinition::class, ProductCollection::class);
 
         $context = Context::createDefaultContext();
 
@@ -799,7 +793,7 @@ class EntityRepositoryTest extends TestCase
             ],
         ];
 
-        $repository = $this->createRepository(CategoryDefinition::class);
+        $repository = $this->createRepository(CategoryDefinition::class, CategoryCollection::class);
         $context = Context::createDefaultContext();
 
         $repository->create([$data], $context);
@@ -829,9 +823,6 @@ class EntityRepositoryTest extends TestCase
 
         $old = $entities->getEntities()->get($id);
         $new = $entities->getEntities()->get($newId);
-
-        static::assertInstanceOf(CategoryEntity::class, $old);
-        static::assertInstanceOf(CategoryEntity::class, $new);
 
         static::assertSame($old->getName(), $new->getName());
         static::assertSame($old->getChildren(), $new->getChildren());
@@ -1009,7 +1000,7 @@ class EntityRepositoryTest extends TestCase
             ],
         ];
 
-        $repository = $this->createRepository(CustomerDefinition::class);
+        $repository = $this->createRepository(CustomerDefinition::class, CustomerCollection::class);
         $context = Context::createDefaultContext();
 
         $repository->create([$record], $context);
@@ -1048,8 +1039,6 @@ class EntityRepositoryTest extends TestCase
 
         $old = $entities->getEntities()->get($recordA);
         $new = $entities->getEntities()->get($newId);
-        static::assertInstanceOf(CustomerEntity::class, $old);
-        static::assertInstanceOf(CustomerEntity::class, $new);
 
         static::assertNotNull($oldAddresses = $old->getAddresses());
         static::assertNotNull($newAddresses = $new->getAddresses());
@@ -1607,7 +1596,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testSnippetWriteWithoutValueFieldThrowsWriteValidationError(): void
     {
-        $snippetRepo = $this->createRepository(SnippetDefinition::class);
+        $snippetRepo = $this->createRepository(SnippetDefinition::class, SnippetCollection::class);
         $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
 
         $this->expectException(WriteException::class);
@@ -1689,18 +1678,20 @@ class EntityRepositoryTest extends TestCase
     }
 
     /**
-     * @param class-string<EntityDefinition> $definitionClass
+     * @template TCollection of EntityCollection
      *
-     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
+     * @param class-string<EntityDefinition> $definitionClass
+     * @param class-string<TCollection> $collectionClass
+     *
+     * @return EntityRepository<TCollection>
      */
-    private function createRepository(
-        string $definitionClass,
-        ?EntityLoadedEventFactory $eventFactory = null
-    ): EntityRepository {
+    private function createRepository(string $definitionClass, string $collectionClass): EntityRepository
+    {
         $definition = static::getContainer()->get($definitionClass);
         static::assertInstanceOf(EntityDefinition::class, $definition);
+        static::assertSame($collectionClass, $definition->getCollectionClass());
 
-        /** @var EntityRepository<covariant EntityCollection<covariant Entity>> */
+        /** @var EntityRepository<TCollection> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),
@@ -1708,7 +1699,7 @@ class EntityRepositoryTest extends TestCase
             static::getContainer()->get(EntitySearcherInterface::class),
             static::getContainer()->get(EntityAggregatorInterface::class),
             static::getContainer()->get('event_dispatcher'),
-            $eventFactory ?: static::getContainer()->get(EntityLoadedEventFactory::class)
+            static::getContainer()->get(EntityLoadedEventFactory::class)
         );
     }
 }

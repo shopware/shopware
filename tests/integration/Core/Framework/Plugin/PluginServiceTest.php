@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
-use Shopware\Core\System\Locale\LocaleEntity;
 use SwagTestNoDefaultLang\SwagTestNoDefaultLang;
 use SwagTestPlugin\SwagTestPlugin;
 
@@ -288,7 +287,6 @@ class PluginServiceTest extends TestCase
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', $baseClass));
 
-        /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
             ->getEntities()->first();
@@ -306,7 +304,6 @@ class PluginServiceTest extends TestCase
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', SwagTestNoDefaultLang::class));
 
-        /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
             ->getEntities()->first();
@@ -370,7 +367,6 @@ class PluginServiceTest extends TestCase
 
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
-        /** @var LocaleEntity|null $locale */
         $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($locale, \sprintf('Locale with code %s not found', $iso));

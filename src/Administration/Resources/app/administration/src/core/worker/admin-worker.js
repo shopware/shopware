@@ -13,12 +13,11 @@ import Axios from 'axios';
 self.onmessage = onMessage;
 self.onconnect = onconnect;
 
-const { CancelToken } = Axios;
 let isRunning = false;
 let loginService;
 let scheduledTaskService;
 let messageQueueService;
-let cancelTokenSource = CancelToken.source();
+let abortController = new AbortController();
 let consumeTimeoutIds = {};
 let ports = [];
 
@@ -116,7 +115,7 @@ function consumeMessages(receiver, _setTimeout = setTimeout) {
     }
 
     messageQueueService
-        .consume(receiver, cancelTokenSource.token)
+        .consume(receiver, abortController.signal)
         .then((response) => {
             // no message handled, set timeout to 20 seconds to send next consume call.
             // if a message handled, directly send next consume call.
@@ -140,13 +139,13 @@ function consumeMessages(receiver, _setTimeout = setTimeout) {
 }
 
 function cancelConsumeMessages() {
-    cancelTokenSource.cancel();
+    abortController.abort();
 
     Object.values(consumeTimeoutIds).forEach((id) => {
         clearTimeout(id);
     });
 
-    cancelTokenSource = CancelToken.source();
+    abortController = new AbortController();
     consumeTimeoutIds = {};
     isRunning = false;
 }

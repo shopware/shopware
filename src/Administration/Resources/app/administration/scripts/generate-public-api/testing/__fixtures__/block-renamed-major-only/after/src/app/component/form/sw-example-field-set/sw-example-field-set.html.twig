@@ -1,0 +1,49 @@
+{% block sw_example_field_set %}
+<div class="sw-example-field-set">
+    <template v-if="feature.isActive('v6.8.0.0')">
+        {% block sw_example_field_set_mt_tabs %}
+        <mt-tabs
+            class="sw-example-field-set__tabs"
+            position-identifier="sw-example-field-set"
+            :default-item="activeTab"
+            :items="tabItems"
+            :small="true"
+            @new-item-active="onChangeTab"
+        />
+        {% endblock %}
+    </template>
+
+    <template v-else>
+        {% block sw_example_field_set_tabs %}
+        <sw-tabs
+            class="sw-example-field-set__tabs"
+            position-identifier="sw-example-field-set"
+            variant="minimal"
+            :default-item="activeTab"
+            @new-item-active="(tab) => onChangeTab(tab.name)"
+        >
+            <template #default="{ active }">
+                <sw-tabs-item
+                    v-for="tab in tabItems"
+                    :key="tab.name"
+                    variant="minimal"
+                    :name="tab.name"
+                    :active-tab="active"
+                >
+                    {{ tab.label }}
+                </sw-tabs-item>
+            </template>
+        </sw-tabs>
+        {% endblock %}
+    </template>
+
+    {% block sw_example_field_set_content %}
+    <div class="sw-example-field-set__content">
+        <sw-custom-field-set-renderer
+            :sets="fieldSets.filter((set) => set.id === activeTab)"
+            variant="media"
+        />
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -15,7 +15,6 @@ import './sw-step-item.scss';
  *     Finish
  * </sw-step-item>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

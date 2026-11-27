@@ -188,6 +188,7 @@
         <template #default="{ isInherited }">
             <mt-select
                 v-model:model-value="element.config.displayMode.value"
+                :hide-clearable-button="true"
                 class="sw-cms-el-config-video__display-mode"
                 :help-text="$t('sw-cms.elements.general.config.helpText.displayMode')"
                 :options="displayModeOptions"

@@ -2,13 +2,16 @@
 
 namespace Shopware\Storefront\Theme\Controller;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Theme\AbstractScssCompiler;
 use Shopware\Storefront\Theme\Exception\ThemeConfigException;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +31,8 @@ class ThemeController extends AbstractController
     public function __construct(
         private readonly ThemeService $themeService,
         private readonly AbstractScssCompiler $scssCompiler,
+        private readonly Connection $connection,
+        private readonly ThemeRuntimeConfigService $themeRuntimeConfigService,
         private readonly array $customAllowedRegex = []
     ) {
     }
@@ -92,16 +97,32 @@ class ThemeController extends AbstractController
             );
         }
 
-        if ($request->query->getBoolean('reset')) {
-            $this->themeService->resetTheme($themeId, $context);
+        $parentThemeId = (string) $request->request->get('parentThemeId');
+
+        if (!$request->query->getBoolean('reset')) {
+            $this->themeService->updateTheme($themeId, $config, $parentThemeId, $context);
+
+            return new JsonResponse([]);
         }
 
-        $this->themeService->updateTheme(
-            $themeId,
-            $config,
-            (string) $request->request->get('parentThemeId'),
-            $context
-        );
+        // Reset and value write are committed together, so a failing save keeps the saved config.
+        try {
+            RetryableTransaction::transactional($this->connection, function () use ($themeId, $config, $parentThemeId, $context): void {
+                $this->themeService->resetTheme($themeId, $context);
+                $context->state(
+                    fn () => $this->themeService->updateTheme($themeId, $config, $parentThemeId, $context),
+                    ThemeService::STATE_SKIP_COMPILE
+                );
+            });
+        } catch (\Throwable $e) {
+            // The rollback restores the stored runtime config, but not the copies the reset cached in memory.
+            $this->themeRuntimeConfigService->resetCaches();
+
+            throw $e;
+        }
+
+        // Compiling after the commit, so an async compile never reads the uncommitted config.
+        $this->themeService->compileThemeById($themeId, $context, null, false);
 
         return new JsonResponse([]);
     }

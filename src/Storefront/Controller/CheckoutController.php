@@ -189,7 +189,7 @@ class CheckoutController extends StorefrontController
             return $this->redirectToRoute(
                 'frontend.account.edit-order.page',
                 [
-                    'orderId' => $request->query->get('orderId'),
+                    'orderId' => $request->attributes->get('orderId') ?? $request->query->get('orderId'),
                     'error-code' => 'CHECKOUT__UNKNOWN_ERROR',
                 ]
             );

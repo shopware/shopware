@@ -27,6 +27,7 @@ describe('extension tooling command layout', () => {
             check: 'bin/console administration:check-extensions',
             setup: 'bin/console administration:setup-extension-tooling',
             generateSchema: 'bin/console administration:generate-entity-schema-types',
+            upgrade: 'bin/console administration:upgrade-extensions',
         });
     });
 

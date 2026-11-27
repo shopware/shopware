@@ -161,7 +161,7 @@ export const baseUnits = {
  * @example
  * const convertedValue = convertUnit(1, { from: 'kg', to: 'g' }); // return value: 1000
  */
-export function convertUnit(value: number, { to, from }: Options, roundPrecision = 10): number {
+function convertUnit(value: number, { to, from }: Options, roundPrecision = 10): number {
     return round(conversions[from][to](value), roundPrecision);
 }
 

@@ -80,6 +80,9 @@ class RequestTransformer implements RequestTransformerInterface
         '/_fragment/',
         '/robots.txt',
         '/storybook/',
+        // OAuth discovery of the Admin API MCP endpoint, the root paths stay with the sales channel
+        '/.well-known/oauth-protected-resource/api/_mcp/',
+        '/.well-known/oauth-authorization-server/api/',
     ];
 
     /**

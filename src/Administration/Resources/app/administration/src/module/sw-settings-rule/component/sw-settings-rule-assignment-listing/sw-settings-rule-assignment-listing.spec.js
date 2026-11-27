@@ -39,7 +39,7 @@ const gridColumnsMock = [
 ];
 
 const defaultProps = {
-    items: createEntityCollectionMock('item', [itemMock]),
+    dataSource: createEntityCollectionMock('item', [itemMock]),
     repository: repositoryMock,
     columns: gridColumnsMock,
     criteriaLimit: 5,

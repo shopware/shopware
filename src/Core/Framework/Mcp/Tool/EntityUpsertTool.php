@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\Mcp\Result\McpToolError;
 #[McpTool(
     name: 'shopware-entity-upsert',
     title: 'Entity Upsert',
+    annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false),
     description: 'Create or update Shopware entity data. Always use dryRun=true (default) first to validate, then set dryRun=false to persist. If you don\'t already know the required fields, shopware-entity-schema will tell you. Returns validation result in dryRun mode, or the written entity data on commit. Many-to-many links (e.g. product categories) can only be added here. To remove one, use shopware-entity-delete on the mapping entity; a "remove" flag inside "categories" would be written to the category itself.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]
@@ -44,15 +47,15 @@ class EntityUpsertTool extends McpToolResponse
         string $payload,
         #[Schema(description: 'Validate without writing. Leave true first, then call again with false to persist.')]
         bool $dryRun = true,
-    ): string {
+    ): McpToolResult {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {
-            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
+            return $this->errorResult(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
         }
 
-        $data = $this->decodeJsonOrError($payload, 'payload');
-        if (\is_string($data)) {
+        $data = $this->decodeJsonOrErrorResult($payload, 'payload');
+        if ($data instanceof McpToolResult) {
             return $data;
         }
 
@@ -81,22 +84,22 @@ class EntityUpsertTool extends McpToolResponse
             $privileges[] = $entity . ':create';
         }
 
-        if ($error = $this->requirePrivilege($context, ...$privileges)) {
+        if ($error = $this->requirePrivilegeResult($context, ...$privileges)) {
             return $error;
         }
 
         $repository = $this->registry->getRepository($entity);
 
         if ($dryRun) {
-            return $this->executeWithDryRun($this->connection, $context, function () use ($repository, $data, $context) {
+            return $this->executeWithDryRunResult($this->connection, $context, function () use ($repository, $data, $context) {
                 $events = $repository->upsert($data, $context);
 
-                return $this->success($this->formatWriteEvents($events, 'upsert'), ['dryRun' => true]);
+                return $this->successResult($this->formatWriteEvents($events, 'upsert'), ['dryRun' => true]);
             });
         }
 
         $events = $repository->upsert($data, $context);
 
-        return $this->success($this->formatWriteEvents($events, 'upsert'), ['dryRun' => false]);
+        return $this->successResult($this->formatWriteEvents($events, 'upsert'), ['dryRun' => false]);
     }
 }

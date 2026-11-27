@@ -1,0 +1,87 @@
+name: Shopware Docs Impact dispatch
+
+on:
+  push:
+    branches: [trunk]
+    paths-ignore:
+      - "tests/**"
+      - "src/**/Test/**"
+      - "**/*.spec.js"
+      - "**/*.spec.ts"
+      - "**/__snapshots__/**"
+      - "**/__mocks__/**"
+      - "src/Administration/Resources/app/administration/test/**"
+      - "src/Storefront/Resources/app/storefront/test/**"
+      - "src/Core/DevOps/StaticAnalyze/**"
+      - "**/eslint-rules/**"
+      - "**/eslint.config.*"
+      - "**/stylelint.config.*"
+      - "**/jest.config.*"
+      - "**/vitest.config.*"
+      - ".github/**"
+      - ".agents/**"
+      - ".agents-templates/**"
+      - ".claude/**"
+      - "**/AGENTS.md"
+      - "**/CLAUDE.md"
+      - "coding-guidelines/**"
+      - "adr/**"
+      - "changelog/**"
+      - "delivery-process/**"
+      - ".devcontainer/**"
+      - ".idea/**"
+      - ".run/**"
+      - ".vscode/**"
+      - "devenv.*"
+      - ".envrc"
+      - "**/composer.lock"
+      - "**/package-lock.json"
+      - "vendor-bin/**"
+      - "phpstan*.neon*"
+      - "phpstan-baseline.php"
+      - "phpstan-paths.php"
+      - "phpunit.xml.dist"
+      - "phpbench.json"
+      - "rector*"
+      - ".php-cs-fixer.dist.php"
+      - ".phpstorm.meta.php"
+      - "composer-dependency-analyser.php"
+      - ".bc-exclude.php"
+      - "deprecation.ignore"
+      - ".danger.php"
+      - ".codeowners"
+      - "codeowners.toml"
+      - "sonar-project.properties"
+      - "snippet-validation.json"
+      - ".allowed-licenses"
+      - ".git-blame-ignore-revs"
+      - ".gitattributes"
+      - ".gitignore"
+      - ".editorconfig"
+      - ".nvmrc"
+      - ".yamlfmt"
+
+permissions: {}
+
+jobs:
+  dispatch:
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/bin/js
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          SW_DOCS_IMPACT_POST: ${{ vars.SW_DOCS_IMPACT_POST }}
+        with:
+          retries: 3
+          script: |
+            const { dispatchDocsChecks } = await import('${{ github.workspace }}/.github/bin/js/docs-impact.ts')
+            await dispatchDocsChecks({ github, context, core })

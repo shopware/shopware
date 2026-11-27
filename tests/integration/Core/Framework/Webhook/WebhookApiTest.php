@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -43,6 +45,26 @@ class WebhookApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(204, $response->getStatusCode(), \print_r($response->getContent(), true));
+    }
+
+    public function testTheSecretIsStoredAsSentButNeverReturned(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'id' => $webhookId,
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+            'secret' => ' ab<cd>ef&gh ',
+        ]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->jsonRequest('GET', '/api/webhook/' . $webhookId);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertStringNotContainsString('ab<cd>ef&gh', (string) $response->getContent());
+        static::assertSame(' ab<cd>ef&gh ', $this->loadWebhook($webhookId)->getSecret());
     }
 
     public function testAWebhookCannotBeCreatedForAnApp(): void
@@ -89,6 +111,7 @@ class WebhookApiTest extends TestCase
         $webhook = $this->loadWebhook($webhookId);
         static::assertSame($user->getUserId(), $webhook->getOwnerUserId());
         static::assertNull($webhook->getOwnerIntegrationId());
+        static::assertSame(IdentityType::User, $webhook->getOwnerType());
     }
 
     public function testTheIntegrationCreatingAWebhookOwnsIt(): void
@@ -110,6 +133,89 @@ class WebhookApiTest extends TestCase
         $webhook = $this->loadWebhook($webhookId);
         static::assertSame($integrationId, $webhook->getOwnerIntegrationId());
         static::assertNull($webhook->getOwnerUserId());
+        static::assertSame(IdentityType::Integration, $webhook->getOwnerType());
+    }
+
+    public function testAnAppCreatingAWebhookOwnsItThroughItsIntegration(): void
+    {
+        $app = (new AppFixture(static::getContainer()->get('app.repository')))->createAppFromData([
+            'aclRole' => ['name' => 'app-role', 'privileges' => ['webhook:create', 'product:read']],
+        ]);
+        $this->authorizeBrowserWithIntegration($this->getBrowser(), $app->getIntegrationId());
+
+        $webhookId = Uuid::randomHex();
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'id' => $webhookId,
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+
+        $webhook = $this->loadWebhook($webhookId);
+        static::assertSame($app->getIntegrationId(), $webhook->getOwnerIntegrationId());
+        static::assertSame(IdentityType::AppIntegration, $webhook->getOwnerType());
+    }
+
+    /**
+     * @param non-empty-string $association
+     */
+    #[DataProvider('ownerAssociationProvider')]
+    public function testAWebhookCannotBeCreatedForSomeoneElseThroughTheOwnerAssociation(string $association): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ownerId = $association === 'ownerUser'
+            ? TestUser::createNewTestUser($connection)->getUserId()
+            : TestIntegration::create($connection, [])->getId();
+
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+            $association => ['id' => $ownerId],
+        ]);
+
+        $this->assertApiErrors([
+            ['code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', 'field' => $association],
+            ['code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', 'field' => $association . 'Id'],
+        ]);
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function ownerAssociationProvider(): iterable
+    {
+        yield 'owner user' => ['ownerUser'];
+        yield 'owner integration' => ['ownerIntegration'];
+    }
+
+    public function testTheOwningUserCanBeRead(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $userId = TestUser::createNewTestUser($connection)->getUserId();
+        $webhookId = WebhookBuilder::ownedByUser($userId)->insert($connection);
+
+        $webhook = $this->searchWebhook($webhookId, 'ownerUser');
+
+        static::assertSame($userId, $webhook['ownerUserId']);
+        static::assertSame($userId, $webhook['ownerUser']['id']);
+        static::assertNull($webhook['ownerIntegrationId']);
+    }
+
+    public function testTheOwningIntegrationCanBeRead(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $integrationId = TestIntegration::create($connection, [])->getId();
+        $webhookId = WebhookBuilder::ownedByIntegration($integrationId)->insert($connection);
+
+        $webhook = $this->searchWebhook($webhookId, 'ownerIntegration');
+
+        static::assertSame($integrationId, $webhook['ownerIntegrationId']);
+        static::assertSame($integrationId, $webhook['ownerIntegration']['id']);
+        static::assertNull($webhook['ownerUserId']);
     }
 
     public function testAppWebhookCannotBeUpdatedViaApi(): void
@@ -516,10 +622,30 @@ class WebhookApiTest extends TestCase
                 'name' => 'App webhook',
                 'eventName' => 'product.written',
                 'url' => 'https://app.example',
+                'ownerType' => 'app',
             ]],
         ]);
 
         return $webhookId;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function searchWebhook(string $webhookId, string $association): array
+    {
+        $this->getBrowser()->jsonRequest('POST', '/api/search/webhook', [
+            'ids' => [$webhookId],
+            'associations' => [$association => []],
+        ], ['HTTP_ACCEPT' => 'application/json']);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+        $webhook = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data'][0];
+        static::assertIsArray($webhook);
+
+        return $webhook;
     }
 
     private function loadWebhook(string $webhookId): WebhookEntity

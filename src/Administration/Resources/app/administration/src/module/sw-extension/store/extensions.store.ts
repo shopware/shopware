@@ -9,7 +9,7 @@ import type { MappedError } from '../service/extension-error-handler.service';
 /**
  * @private
  */
-export interface ShopwareExtensionsState {
+interface ShopwareExtensionsState {
     search: {
         page: number;
         limit: number;

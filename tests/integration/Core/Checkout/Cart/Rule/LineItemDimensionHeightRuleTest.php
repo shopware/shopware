@@ -116,7 +116,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
         yield 'match / operator greater than equals / higher height' => [Rule::OPERATOR_GTE, 100, 200, true];
         // OPERATOR_LT
         yield 'match / operator lower than / lower height' => [Rule::OPERATOR_LT, 100, 50, true];
-        yield 'no match / operator lower  than / same height' => [Rule::OPERATOR_LT, 100, 100, false];
+        yield 'no match / operator lower than / same height' => [Rule::OPERATOR_LT, 100, 100, false];
         yield 'no match / operator lower than / higher height' => [Rule::OPERATOR_LT, 100, 200, false];
         // OPERATOR_LT
         yield 'match / operator lower than equals / lower height' => [Rule::OPERATOR_LTE, 100, 50, true];
@@ -338,7 +338,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
             'lineItemHeight2' => 120,
             'expected' => true,
         ];
-        yield 'no match / operator lower  than / same height' => [
+        yield 'no match / operator lower than / same height' => [
             'operator' => Rule::OPERATOR_LT,
             'height' => 100,
             'lineItemHeight1' => 100,

@@ -299,15 +299,13 @@ export default {
                 .get(
                     this.value,
                     { ...this.context, inheritance: true },
-                    this.criteria,
+                    Criteria.fromCriteria(this.criteria),
                     this.getCacheOptions(['selected', this.value]),
                 )
                 .then((item) => {
                     if (!item && !this.disabled) {
                         this.$emit('update:value', null);
                     }
-
-                    this.criteria.setIds([]);
 
                     this.singleSelection = item;
                     this.isLoading = false;
@@ -391,7 +389,7 @@ export default {
         },
 
         paginate() {
-            if (!this.resultCollection || this.resultCollection.total < this.criteria.page * this.criteria.limit) {
+            if (!this.resultCollection || this.resultCollection.length < this.criteria.page * this.criteria.limit) {
                 return;
             }
 
@@ -436,16 +434,14 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(1, this.resultLimit);
-            criteria.addIncludes({
-                [this.entity]: ['id', 'name'],
-            });
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('name', term));
 
-            return this.repository.search(criteria, this.context).then((response) => {
-                this.entityExists = response.total > 0;
+            return this.repository.searchIds(criteria, this.context).then((response) => {
+                this.entityExists = response.data.length > 0;
 
-                return response.total > 0;
+                return this.entityExists;
             });
         },
 

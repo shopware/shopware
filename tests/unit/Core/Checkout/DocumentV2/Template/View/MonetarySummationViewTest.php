@@ -118,7 +118,7 @@ class MonetarySummationViewTest extends TestCase
             name: 'item',
             quantity: 1.0,
             basisQuantity: 1.0,
-            unitCode: UnitCode::PIECE,
+            unitCode: UnitCode::PIECE->value,
             netUnitPrice: $lineTotal,
             lineTotal: $lineTotal,
             taxCategory: TaxCategory::STANDARD_RATE,

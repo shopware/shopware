@@ -1,0 +1,45 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/_action/unit/unece-codes": {
+            "get": {
+                "tags": [
+                    "Unit"
+                ],
+                "summary": "List the unit codes",
+                "description": "Returns all UN/ECE Recommendation 20 and 21 unit codes that can be saved as `uneceCode` on a unit, with their English name.",
+                "operationId": "getUnitUneceCodes",
+                "responses": {
+                    "200": {
+                        "description": "List of unit codes.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "code",
+                                            "name"
+                                        ],
+                                        "properties": {
+                                            "code": {
+                                                "type": "string",
+                                                "example": "KGM"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "kilogram"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -56,7 +56,6 @@ const OPTION_TIERS: Record<string, ReportKind> = sourceKeyed<ReportKind>({
     render: 'skip',
     renderError: 'skip',
     metaInfo: 'todo',
-    shortcuts: 'todo',
     provide: 'todo',
     filters: 'todo',
     compatConfig: 'todo',
@@ -128,6 +127,7 @@ const GENERATED_HELPER_NAMES = new Set([
     'slots',
     'attrs',
     'nextTick',
+    'useShortcut',
 ]);
 
 export {

@@ -223,4 +223,20 @@ class DemodataCommandTest extends TestCase
         static::assertStringContainsString('Demodata Generator', $tester->getDisplay());
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
     }
+
+    public function testPropertyOptions(): void
+    {
+        $options = null;
+        $this->dispatcher->addListener(DemodataRequestCreatedEvent::class, static function (DemodataRequestCreatedEvent $event) use (&$options): void {
+            $options = $event->getRequest()->getOptions(PropertyGroupDefinition::class);
+        });
+
+        $tester = new CommandTester($this->command);
+        $tester->execute([
+            '--property-options' => 25,
+        ]);
+
+        static::assertSame(['options' => 25], $options);
+        static::assertSame(Command::SUCCESS, $tester->getStatusCode());
+    }
 }

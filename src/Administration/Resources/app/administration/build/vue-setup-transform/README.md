@@ -66,6 +66,8 @@ developers working on the transform itself.
   actually forwards locals, together with the module-root accessor `__swSetupOverrideScope` that resolves
   the namespace inside the slot scope without a `]` (a dynamic directive argument ends at the first one).
   Uniqueness comes from the symbol, so the binding name can be fixed.
+  With the `hotUpdates` option, the symbol is `Symbol.for()` keyed by the file instead,
+  so a hot-updated module version reads the state that components set up by the previous version still hold.
 - **Reference rewrite** — the replacement of one identifier inside `<sw-block extends>` content with the
   path it is reachable under in the generated slot scope (`__swSetupScope`). The whole scope is bound
   under one name instead of destructured, because a destructured slot prop is a plain local: reads would

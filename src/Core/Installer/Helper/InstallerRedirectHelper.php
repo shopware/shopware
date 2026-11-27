@@ -53,7 +53,8 @@ class InstallerRedirectHelper
             return;
         }
 
-        \parse_str($queryString, $params);
+        // Truncate everything after a null byte, which mimics the behaviour of `parse_str` before PHP 8.6
+        \parse_str(explode("\0", $queryString, 2)[0], $params);
 
         foreach ($params as $key => $value) {
             if (!\array_key_exists($key, $this->allowedParameterRegexp)) {

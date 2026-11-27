@@ -100,7 +100,7 @@ export default {
         getTotalProduct() {
             this.isLoading = true;
             this.productRepository
-                .search(this.productCriteria, Context.api)
+                .searchIds(this.productCriteria, Context.api)
                 .then((result) => {
                     this.totalProduct = result?.total;
                 })

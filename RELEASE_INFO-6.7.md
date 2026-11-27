@@ -79,6 +79,21 @@ The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPr
 
 The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
 
+### Cart deliveries and transactions have an identifier
+
+`Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery` and `Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction` take a new last constructor argument `identifier`, read through `getIdentifier()`.
+It names the delivery or transaction within the cart like the id of a line item: it is unique in the cart, and the same delivery or transaction gets the same identifier again in the next calculation.
+Whoever builds a delivery or transaction sets it, for example an extension that splits deliveries per warehouse can use the warehouse id.
+The delivery and transaction core builds use `Delivery::DEFAULT_IDENTIFIER` and `Transaction::DEFAULT_IDENTIFIER` (`default`), and a shipping discount delivery gets the identifier of the delivery it discounts, followed by `-` and the id of the discount line item.
+A delivery or transaction without an identifier can not be addressed, and neither can the shipping discount delivery of such a delivery.
+
+The identifier is stored on the order delivery and order transaction and restored when an order is converted back to a cart, so editing or recalculating an order keeps it.
+Order deliveries and order transactions that did not come from a cart delivery or transaction have no identifier, for example those of orders placed before this release or the transaction a payment method change adds after checkout.
+Converting such an order to a cart names them by their order delivery or order transaction id, and so it does for a delivery or transaction that repeats the identifier of an earlier one in the order.
+Recalculating the order stores that id as their identifier, for transactions only while the order is awaiting payment.
+Not passing an identifier is deprecated, it becomes required in 6.8.
+Converting a cart that holds two deliveries or two transactions with the same identifier to an order is deprecated too, it throws an `OrderException` in 6.8.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it
@@ -92,6 +107,13 @@ If you generate types from the schema, regenerate them and handle `null` for the
 
 `GET /store-api/legal-guarantee-notice` also returns `text`, the notice as HTML in the language of `svg`.
 The SVG is now `aria-hidden`, so headless frontends should render `text` as its text alternative.
+
+### Deliveries and transactions have an `identifier`
+
+Deliveries and transactions of the Store API cart have a new `identifier` field that names them within the cart and stays the same across calculations.
+Order deliveries and order transactions in the Admin API and Store API have a new `identifier` field with the identifier of the cart delivery or transaction the order was placed from.
+It is `null` for order deliveries and order transactions that did not come from the cart, for example those of orders placed before this release or the transaction a payment method change adds after checkout.
+Recalculating such an order fills it with the id of the order delivery, or of the order transaction while the order is awaiting payment.
 
 ## App System
 

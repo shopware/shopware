@@ -135,7 +135,8 @@ class DeliveryProcessorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $originalCart->setDeliveries(new DeliveryCollection([$delivery]));
@@ -188,7 +189,8 @@ class DeliveryProcessorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $deliveryDiscount = new Delivery(
@@ -196,7 +198,8 @@ class DeliveryProcessorTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(-10, -10, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(-10, -10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'shipping-discount'
         );
 
         $originalCart->setDeliveries(new DeliveryCollection([$delivery, $deliveryDiscount]));

@@ -670,7 +670,8 @@ class OrderServiceTest extends TestCase
                     new CalculatedTaxCollection(),
                     new TaxRuleCollection()
                 ),
-                $this->getValidPaymentMethodId()
+                $this->getValidPaymentMethodId(),
+                Transaction::DEFAULT_IDENTIFIER
             ),
         ]);
     }

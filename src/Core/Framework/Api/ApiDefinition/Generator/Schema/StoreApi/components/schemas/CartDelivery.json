@@ -8,6 +8,17 @@
                 "type": "object",
                 "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
                 "properties": {
+                    "identifier": {
+                        "description": "Unique identity of the delivery within the cart, the same for the same delivery in the next calculation. `null` only for deliveries an extension builds without one and for their shipping discount deliveries, it is always set from 6.8.0.0 on.",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "deliveryDate": {
                         "type": "object",
                         "properties": {
@@ -54,7 +65,8 @@
                     "payload": {
                         "$ref": "#/components/schemas/OrderDelivery/properties/payload"
                     }
-                }
+                },
+                "required": ["identifier"]
             }
         }
     }

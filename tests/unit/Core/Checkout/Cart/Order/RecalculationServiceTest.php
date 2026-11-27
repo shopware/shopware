@@ -1034,7 +1034,8 @@ class RecalculationServiceTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
     }
 

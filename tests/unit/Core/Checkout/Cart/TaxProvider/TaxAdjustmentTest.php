@@ -188,6 +188,7 @@ class TaxAdjustmentTest extends TestCase
             new Transaction(
                 new CalculatedPrice(110.0, 110.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 $this->ids->get('old-payment-method'),
+                Transaction::DEFAULT_IDENTIFIER,
             ),
         ]));
 
@@ -658,7 +659,8 @@ class TaxAdjustmentTest extends TestCase
                 new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
                 new ShippingMethodEntity(),
                 new ShippingLocation(new CountryEntity(), new CountryStateEntity(), null),
-                clone $calculatedPrice
+                clone $calculatedPrice,
+                Delivery::DEFAULT_IDENTIFIER
             ),
         ]);
 

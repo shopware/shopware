@@ -38,6 +38,8 @@ class OrderException extends HttpException
     final public const ORDER_CUSTOMER_ADDRESS_NOT_FOUND = 'CHECKOUT__ORDER_CUSTOMER_ADDRESS_NOT_FOUND';
     final public const ORDER_INVALID_ORDER_ADDRESS_MAPPING = 'CHECKOUT__INVALID_ORDER_ADDRESS_MAPPING';
     final public const ORDER_DELIVERY_WITHOUT_ADDRESS = 'CHECKOUT__DELIVERY_WITHOUT_ADDRESS';
+    final public const ORDER_DUPLICATE_DELIVERY_IDENTIFIER = 'CHECKOUT__ORDER_DUPLICATE_DELIVERY_IDENTIFIER';
+    final public const ORDER_DUPLICATE_TRANSACTION_IDENTIFIER = 'CHECKOUT__ORDER_DUPLICATE_TRANSACTION_IDENTIFIER';
     final public const CHECKOUT_GUEST_NOT_AUTHENTICATED = 'CHECKOUT__GUEST_NOT_AUTHENTICATED';
     final public const CHECKOUT_GUEST_WRONG_CREDENTIALS = 'CHECKOUT__GUEST_WRONG_CREDENTIALS';
     final public const CHECKOUT_INVALID_UUID = 'CHECKOUT__INVALID_UUID';
@@ -216,6 +218,26 @@ class OrderException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::ORDER_DELIVERY_WITHOUT_ADDRESS,
             'Delivery contains no shipping address',
+        );
+    }
+
+    public static function duplicateDeliveryIdentifier(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ORDER_DUPLICATE_DELIVERY_IDENTIFIER,
+            'The cart holds more than one delivery with the identifier "{{ identifier }}".',
+            ['identifier' => $identifier]
+        );
+    }
+
+    public static function duplicateTransactionIdentifier(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ORDER_DUPLICATE_TRANSACTION_IDENTIFIER,
+            'The cart holds more than one transaction with the identifier "{{ identifier }}".',
+            ['identifier' => $identifier]
         );
     }
 

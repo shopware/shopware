@@ -152,7 +152,8 @@ class CheckoutGatewayRouteTest extends TestCase
                     new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
                     $shippingMethod,
                     new ShippingLocation(new CountryEntity(), null, null),
-                    new CalculatedPrice(100.00, 100.00, new CalculatedTaxCollection(), new TaxRuleCollection())
+                    new CalculatedPrice(100.00, 100.00, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    Delivery::DEFAULT_IDENTIFIER
                 ),
             ])
         );

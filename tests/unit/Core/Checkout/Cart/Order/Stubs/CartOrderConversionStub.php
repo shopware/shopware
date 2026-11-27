@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Stubs;
 
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -217,6 +218,7 @@ final class CartOrderConversionStub
                         'regulationPrice' => null,
                         'extensions' => [],
                     ],
+                    'identifier' => 'order-delivery-id',
                     'payload' => [],
                     'extensions' => [
                         'originalId' => [
@@ -253,6 +255,7 @@ final class CartOrderConversionStub
                     ],
                     'paymentMethodId' => 'order-transaction-cancelled-payment-method-id',
                     'validationStruct' => null,
+                    'identifier' => 'order-transaction-cancelled-id',
                     'payload' => [],
                     'extensions' => [
                         'originalId' => [
@@ -275,6 +278,7 @@ final class CartOrderConversionStub
                     ],
                     'paymentMethodId' => 'order-transaction-payment-method-id',
                     'validationStruct' => null,
+                    'identifier' => 'order-transaction-id',
                     'payload' => [],
                     'extensions' => [
                         'originalId' => [
@@ -297,6 +301,7 @@ final class CartOrderConversionStub
                     ],
                     'paymentMethodId' => 'order-transaction-failed-payment-method-id',
                     'validationStruct' => null,
+                    'identifier' => 'order-transaction-failed-id',
                     'payload' => [],
                     'extensions' => [
                         'originalId' => [
@@ -401,6 +406,7 @@ final class CartOrderConversionStub
                     ],
                 ],
                 'deliveries' => [[
+                    'identifier' => Delivery::DEFAULT_IDENTIFIER,
                     'positions' => [],
                     'shippingCosts' => [
                         'calculatedTaxes' => [],
@@ -556,6 +562,7 @@ final class CartOrderConversionStub
                 ],
             ],
             'deliveries' => [[
+                'identifier' => Delivery::DEFAULT_IDENTIFIER,
                 'positions' => [],
                 'shippingCosts' => [
                     'calculatedTaxes' => [],

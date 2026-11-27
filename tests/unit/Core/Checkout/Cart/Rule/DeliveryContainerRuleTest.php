@@ -175,7 +175,8 @@ class DeliveryContainerRuleTest extends TestCase
             $deliveryDate,
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            $price
+            $price,
+            Delivery::DEFAULT_IDENTIFIER
         );
     }
 }

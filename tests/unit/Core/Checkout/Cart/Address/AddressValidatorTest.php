@@ -480,6 +480,7 @@ class AddressValidatorTest extends TestCase
             new ShippingMethodEntity(),
             ShippingLocation::createFromAddress($address),
             new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $address->getId(),
         );
     }
 

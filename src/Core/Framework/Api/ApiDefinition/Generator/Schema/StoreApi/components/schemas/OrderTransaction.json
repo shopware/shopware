@@ -9,6 +9,7 @@
                 "required": [
                     "id",
                     "orderId",
+                    "identifier",
                     "paymentMethodId",
                     "amount",
                     "stateId"
@@ -30,6 +31,17 @@
                     "orderVersionId": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "identifier": {
+                        "description": "Unique identity of the transaction in the cart the order was placed from. `null` for order transactions that did not come from a cart transaction, such as the one a payment method change adds after checkout, those of older orders that were not recalculated while awaiting payment, or those written through the Admin API without one.",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "paymentMethodId": {
                         "description": "Unique identity of payment method.",

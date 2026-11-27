@@ -7,9 +7,12 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -125,24 +128,25 @@ class SqlQueryParser
         $key = $this->getKey();
 
         $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+        $definitionField = $this->queryHelper->getField($query->getField(), $definition, $root);
 
         $where = [];
 
         if ($query->hasParameter(RangeFilter::GT)) {
-            $where[] = $field . ' > :' . $key;
+            $where[] = $field . ' > ' . $this->castValue(':' . $key, $query->getField(), $definitionField, $definition, $root);
             $result->addParameter($key, $query->getParameter(RangeFilter::GT));
         } elseif ($query->hasParameter(RangeFilter::GTE)) {
-            $where[] = $field . ' >= :' . $key;
+            $where[] = $field . ' >= ' . $this->castValue(':' . $key, $query->getField(), $definitionField, $definition, $root);
             $result->addParameter($key, $query->getParameter(RangeFilter::GTE));
         }
 
         $key = $this->getKey();
 
         if ($query->hasParameter(RangeFilter::LT)) {
-            $where[] = $field . ' < :' . $key;
+            $where[] = $field . ' < ' . $this->castValue(':' . $key, $query->getField(), $definitionField, $definition, $root);
             $result->addParameter($key, $query->getParameter(RangeFilter::LT));
         } elseif ($query->hasParameter(RangeFilter::LTE)) {
-            $where[] = $field . ' <= :' . $key;
+            $where[] = $field . ' <= ' . $this->castValue(':' . $key, $query->getField(), $definitionField, $definition, $root);
             $result->addParameter($key, $query->getParameter(RangeFilter::LTE));
         }
 
@@ -285,10 +289,11 @@ class SqlQueryParser
             return $result;
         }
 
+        $placeholder = $this->castValue(':' . $key, $query->getField(), $field, $definition, $root);
         if ($negated || $query->getValue() === null) {
-            $result->addWhere($select . ' <=> :' . $key);
+            $result->addWhere($select . ' <=> ' . $placeholder);
         } else {
-            $result->addWhere($select . ' = :' . $key);
+            $result->addWhere($select . ' = ' . $placeholder);
         }
 
         $value = $query->getValue();
@@ -350,6 +355,34 @@ class SqlQueryParser
         }
 
         return $result;
+    }
+
+    /**
+     * Casts the placeholder of a value that is compared with a field inside a JSON field to the type of its accessor.
+     */
+    private function castValue(string $placeholder, string $fieldName, ?Field $field, EntityDefinition $definition, string $root): string
+    {
+        if (!$field instanceof JsonField) {
+            return $placeholder;
+        }
+
+        $accessorBuilder = $field->getAccessorBuilder();
+        if (!$accessorBuilder instanceof JsonFieldAccessorBuilder) {
+            return $placeholder;
+        }
+
+        // The accessor builder gets the path below the definition of the JSON field, like in `EntityDefinitionQueryHelper::getFieldAccessor()`
+        $accessor = EntityDefinitionQueryHelper::removeExtensionPathSegments($fieldName, $definition, $root);
+        if (str_starts_with($accessor, $root . '.')) {
+            $accessor = mb_substr($accessor, mb_strlen($root) + 1);
+        }
+
+        $associationPath = EntityDefinitionQueryHelper::getAssociationPath($accessor, $definition);
+        if ($associationPath !== null) {
+            $accessor = mb_substr($accessor, mb_strlen($associationPath) + 1);
+        }
+
+        return $accessorBuilder->castValue($placeholder, $field, $accessor);
     }
 
     private function getKey(): string

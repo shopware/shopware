@@ -19,14 +19,26 @@ class ConfigJsonFieldAccessorBuilder extends JsonFieldAccessorBuilder
             return null;
         }
 
+        return parent::buildAccessor($root, $field, $context, $this->getStorageAccessor($field, $accessor));
+    }
+
+    public function castValue(string $value, Field $field, string $accessor): string
+    {
+        if (!$field instanceof ConfigJsonField) {
+            return $value;
+        }
+
+        return parent::castValue($value, $field, $this->getStorageAccessor($field, $accessor));
+    }
+
+    private function getStorageAccessor(ConfigJsonField $field, string $accessor): string
+    {
         $jsonPath = preg_replace(
             '#^' . preg_quote($field->getPropertyName(), '#') . '#',
             '',
             $accessor
         );
 
-        $accessor = $field->getPropertyName() . '.' . ConfigJsonField::STORAGE_KEY . $jsonPath;
-
-        return parent::buildAccessor($root, $field, $context, $accessor);
+        return $field->getPropertyName() . '.' . ConfigJsonField::STORAGE_KEY . $jsonPath;
     }
 }

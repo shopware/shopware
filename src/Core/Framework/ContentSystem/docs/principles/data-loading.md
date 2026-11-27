@@ -19,7 +19,7 @@ In code:
 - See [Hydration/DataLoader/README.md](../../Hydration/DataLoader/README.md#degradation-boundary).
 
 ```text
-repository throws   UuidException::invalidUuid('not-a-uuid'), a ShopwareHttpException
+repository throws   a ShopwareHttpException
 load() returns      ContentDataLoaderResult::foundNothing('product-' . $id), data null
 repository throws   \TypeError('Argument #1 ($criteria) must be of type Criteria, null given')
 load() throws       the same \TypeError instance, unmodified

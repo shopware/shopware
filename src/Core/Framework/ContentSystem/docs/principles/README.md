@@ -10,7 +10,7 @@
 | FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off the steps the [mode table](rendering.md#structure-is-a-function-independent-of-rendering-mode) lists. | [rendering.md](rendering.md) |
 | write gate / write boundary | Both sit on the DAL write path of a layout tree. | The write boundary (`LayoutWriteBoundary::apply()`) returns a new tree from its passes, while the write gate (`LayoutGate`, `StoredTreeConstraints`) only checks the tree. | [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md) |
 | client defect / internal fault | Both are defects that `ContentSystemException` throws. | A code a client causes through the element tree is a client defect (`CLIENT_DEFECT_CODES`), while a defect whose only possible cause is a core or plugin bug or data that bypassed the write gate is an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
-| no input / found nothing | Both name what a loader read outside the stored layout. | With no input the loader read nothing outside the stored layout, so the layout tags of the render cover the result. A loader that found nothing ran a lookup, and its empty result depends on what it requested. | [caching.md](caching.md) |
+| no input / found nothing | Both name what a loader read outside the stored layout. | With no input the loader read nothing outside the stored layout, so the layout tags of the render cover the result. A loader that found nothing ran its own lookup, and its empty result depends on what that lookup requested. | [caching.md](caching.md) |
 | interface translation / content translation | Both make text appear in more than one language. | Interface translation resolves snippet keys for declaration text the Administration shows, while content translation stores per-language property values as language maps. | [extending.md](../extending.md#administration-translations), [translation.md](translation.md) |
 
 ## Glossary
@@ -47,7 +47,7 @@
 - cache context: the `RenderingCacheContext` of one render, which collects the cache tags the render path adds and can mark the render as uncacheable.
 - covering tag: a recorded cache tag that every change of a value invalidates: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-a-recorded-tag-covers-every-value-it-shows).
 - no input, found nothing: a loader result that read nothing outside the stored layout,
-  or one whose lookup found nothing or threw a caught `ShopwareHttpException`.
+  or one whose own lookup found nothing or threw a caught `ShopwareHttpException`.
   `noInput()` and `layoutOnly()` state no input.
   `foundNothing()` and `foundNothingUncacheable()` state found nothing: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-a-recorded-tag-covers-every-value-it-shows).
 

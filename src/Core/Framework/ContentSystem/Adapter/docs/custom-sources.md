@@ -37,7 +37,7 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
     { /* Extract optional elementId from request query parameters */ }
 
     public function resolveCacheTags(string $path, Request $request, SalesChannelContext $context): array
-    { /* Return cache tags for the blog post entity */ }
+    { /* Return the tags that cover the blog post root source this source resolves */ }
 
     public function placeholderQueryParameters(): array
     { /* Optional: list the query parameters a request may pass as placeholders, see placeholders.md */ }
@@ -63,6 +63,8 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
 **Required: an assignable-entity definition.** A `content_system.entity_specification_source` source must receive an `AbstractContentLayoutAssignableDefinition` subclass (here `BlogPostContentLayoutDefinition`) as a constructor argument. At container build, `ContentLayoutAssignableCompilerPass` introspects each tagged source's arguments for such a definition and derives the entity type from its `getContentLayoutEntityType()`. A source with no assignable-definition argument fails compilation with `missingAssignableDefinition`. Define the assignment entity and its definition alongside the source — see `Adapter/Entity/AbstractContentLayoutAssignableDefinition`.
 
 Reference: `src/Core/Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource.php` (and `ProductContentLayoutDefinition.php` in the same directory)
+
+A specification source receives no cache context, and `resolveCacheTags()` returns tags only, so the method cannot mark the render uncacheable. Return the tags that cover the root source that the source resolves. A source whose data no tag covers must not return an empty list as though the data were covered ([caching.md](../../docs/principles/caching.md#the-component-that-adds-a-value-to-a-render-records-its-tag-or-disables-the-cache-context)).
 
 ## Assignment-Free Resolution (Preview Support)
 

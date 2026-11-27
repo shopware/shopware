@@ -13,12 +13,12 @@ The empty result of a lookup therefore needs a covering tag like a loaded value 
 A loader that returns with no input needs no tag of its own, because the layout tags of the render cover the stored layout.
 A loader result states its cache dependency separately from whether it carries data.
 For a tag that the platform defines, the module relies on the invalidation of the platform.
-A change that invalidates none of the tags the platform records for a value is a defect of the platform.
+When a change of a value invalidates none of the tags that the platform defines for that value, the platform has a defect.
 For a tag that the module defines, the module invalidates the tag on every change of the value.
 
 Why: The HTTP cache stores the whole response.
-After a change of data, only the invalidation of a recorded tag removes the stored response before it expires.
-A value without a covering tag stays in the stored response after its data changed, and nothing invalidates it.
+No write removes the stored response before it expires, unless the write invalidates a recorded tag.
+A change of a value without a covering tag can leave every recorded tag valid, so the stored response can outlive the change.
 The HTTP cache has no unit smaller than the response.
 One value without a covering tag therefore makes the whole render uncacheable.
 
@@ -31,7 +31,7 @@ In code:
 - `ElementDataResolver::processCacheTags()` calls `RenderingCacheContext::disable()` for a loader result that carries no cache tag list.
 - `ContentDataLoaderResult::noInput()` returns a cache-aware result without data and with an empty tag list for a loader that read nothing outside the stored layout.
 - `ContentDataLoaderResult::layoutOnly()` returns the value that depends only on the stored layout, in a cache-aware result with an empty tag list.
-- `ContentDataLoaderResult::foundNothing()` returns a result without data after a lookup that found nothing or threw a caught `ShopwareHttpException`, with tags covering the request.
+- `ContentDataLoaderResult::foundNothing()` returns a result without data after its own lookup that found nothing or threw a caught `ShopwareHttpException`, with tags covering the request.
 - `ContentDataLoaderResult::foundNothingUncacheable()` returns a result without data and without a cache tag list after that same lookup when no tag covers the request.
 - `CacheFinalizer::finalize()` sets `PlatformRequest::ATTRIBUTE_HTTP_CACHE` to `false` on the request when the cache context is disabled.
 - `EntityCacheTagResolver::resolve()` returns null for an entity without a tag pattern.

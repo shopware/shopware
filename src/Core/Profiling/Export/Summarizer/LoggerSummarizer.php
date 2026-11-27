@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling\Export\Summarizer;
 
+use Monolog\Level;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 use Symfony\Component\HttpKernel\DataCollector\LoggerDataCollector;
@@ -13,8 +14,6 @@ use Symfony\Component\VarDumper\Cloner\Data;
 #[Package('framework')]
 class LoggerSummarizer implements PanelSummarizer
 {
-    private const WARNING = 300;
-
     private const MAX_ENTRIES = 30;
 
     private const MAX_DEPRECATIONS = 10;
@@ -42,7 +41,7 @@ class LoggerSummarizer implements PanelSummarizer
                 continue;
             }
 
-            if ($log['priority'] < self::WARNING) {
+            if ($log['priority'] < Level::Warning->value) {
                 continue;
             }
 

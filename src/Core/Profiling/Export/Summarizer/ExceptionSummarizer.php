@@ -35,7 +35,7 @@ class ExceptionSummarizer implements PanelSummarizer
 
         return [
             ...$this->describe($exception),
-            'statusCode' => $exception->getStatusCode(),
+            'status' => $exception->getStatusCode(),
             'trace' => array_map($this->frame(...), \array_slice($exception->getTrace(), 0, self::MAX_FRAMES)),
             'previous' => array_map($this->describe(...), $exception->getAllPrevious()),
         ];

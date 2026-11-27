@@ -36,7 +36,7 @@ class RequestSummarizer implements PanelSummarizer
             'route' => $collector->getRoute(),
             'routeParams' => $this->converter->convert($collector->getRouteParams(), $limits),
             'controller' => \is_array($controller) && isset($controller['class'], $controller['method']) ? $controller['class'] . '::' . $controller['method'] : $controller,
-            'statusCode' => $collector->getStatusCode(),
+            'status' => $collector->getStatusCode(),
             'contentType' => $collector->getContentType(),
             'query' => $this->converter->convert($collector->getRequestQuery()->all(), $limits),
             'body' => $this->converter->convert($collector->getRequestRequest()->all(), $limits),

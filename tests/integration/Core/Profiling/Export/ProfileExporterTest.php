@@ -67,7 +67,7 @@ class ProfileExporterTest extends TestCase
         static::assertSame('GET', $summary['panels']['request']['method']);
         static::assertSame('/api/_info/version', $summary['panels']['request']['path']);
         static::assertSame('api.info.shopware.version', $summary['panels']['request']['route']);
-        static::assertSame(200, $summary['panels']['request']['statusCode']);
+        static::assertSame(200, $summary['panels']['request']['status']);
         static::assertSame('[redacted]', $summary['panels']['request']['requestHeaders']['authorization']);
         static::assertSame('[redacted]', $summary['panels']['request']['requestHeaders']['sw-context-token']);
         static::assertArrayHasKey('durationMs', $summary['panels']['time']);

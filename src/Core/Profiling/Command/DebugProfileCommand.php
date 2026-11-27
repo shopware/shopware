@@ -58,7 +58,7 @@ class DebugProfileCommand extends Command
 
         $type = (string) $input->getOption('type');
         if (!\in_array($type, self::TYPES, true)) {
-            throw new \InvalidArgumentException(\sprintf('The type must be one of "%s".', implode('", "', self::TYPES)));
+            throw new \InvalidArgumentException(\sprintf('The option "--type" must be one of "%s".', implode('", "', self::TYPES)));
         }
 
         $url = $this->stringOption($input, 'url');
@@ -69,7 +69,7 @@ class DebugProfileCommand extends Command
         if (!\is_string($token) || $token === '') {
             $limit = $this->intOption($input, 'limit') ?? 20;
 
-            return $this->write(['profiles' => $this->exporter->list($url, $method, $status, $type, $limit)], $input, $output);
+            return $this->write(['profiles' => $this->exporter->list($url, $method, $status, $type, $limit, !$input->getOption('keep-secrets'))], $input, $output);
         }
 
         $profile = $this->exporter->load($token, $url, $method, $status, $type);

@@ -15,12 +15,14 @@ class SecretRedactor
 
     private const SECRET_WORDS = [
         'apikey',
+        'auth',
         'authorization',
         'cookie',
         'cookies',
         'credential',
         'credentials',
         'dsn',
+        'passphrase',
         'passwd',
         'password',
         'pw',
@@ -92,6 +94,10 @@ class SecretRedactor
             return true;
         }
 
+        if (preg_match('/^[A-Z0-9_]+_(KEY|PASS)$/D', $key) === 1) {
+            return true;
+        }
+
         for ($i = 1, $count = \count($words); $i < $count; ++$i) {
             if (\in_array($words[$i - 1] . ' ' . $words[$i], self::SECRET_WORD_PAIRS, true)) {
                 return true;
@@ -112,11 +118,27 @@ class SecretRedactor
         }
 
         $value = (string) preg_replace('/\beyJ[A-Za-z0-9_-]{5,}\.eyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]*/', self::MARKER, $value);
-        $value = (string) preg_replace('#\b([a-z][a-z0-9+.\-]*://[^\s/:@]*):[^\s/@]+@#i', '$1:' . self::MARKER . '@', $value);
+        $value = (string) preg_replace_callback(
+            '#\b([a-z][a-z0-9+.\-]*://)(?:([^\s/:@?\#]*):)?[^\s/@?\#]+@#i',
+            static fn (array $match): string => $match[1] . (($match[2] ?? '') !== '' ? $match[2] . ':' : '') . self::MARKER . '@',
+            $value,
+        );
+
+        $value = (string) preg_replace_callback(
+            '/(^|[\s"\'?&;,(])(-{0,2})([\w.\[\]-]+)=("[^"]*"|\'[^\']*\'|[^\s&;,"\')]*)/',
+            fn (array $match): string => $this->isSecretKey(rawurldecode($match[3])) ? $match[1] . $match[2] . $match[3] . '=' . self::MARKER : $match[0],
+            $value,
+        );
+
+        $value = (string) preg_replace_callback(
+            '/(^|[\r\n\'"]|[<>] )([A-Za-z][\w-]*):[ \t]*([^\r\n\'"]+)/',
+            fn (array $match): string => $this->isSecretKey($match[2]) ? $match[1] . $match[2] . ': ' . self::MARKER : $match[0],
+            $value,
+        );
 
         return (string) preg_replace_callback(
-            '/([?&])([^=&#\s]+)=([^&#\s]*)/',
-            fn (array $match): string => $this->isSecretKey(rawurldecode($match[2])) ? $match[1] . $match[2] . '=' . self::MARKER : $match[0],
+            '/(^|\s)(--?[\w.-]+)\s+(\'[^\']*\'|"[^"]*"|[^\s\'"-]\S*)/',
+            fn (array $match): string => $this->isSecretKey($match[2]) ? $match[1] . $match[2] . ' ' . self::MARKER : $match[0],
             $value,
         );
     }

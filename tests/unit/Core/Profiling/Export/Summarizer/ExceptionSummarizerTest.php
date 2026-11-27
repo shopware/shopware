@@ -45,7 +45,7 @@ class ExceptionSummarizerTest extends TestCase
         static::assertNotNull($summary);
         static::assertSame(NotFoundHttpException::class, $summary['class']);
         static::assertSame('Product not found', $summary['message']);
-        static::assertSame(404, $summary['statusCode']);
+        static::assertSame(404, $summary['status']);
         static::assertSame(__FILE__, $summary['file']);
         static::assertSame([['class' => \RuntimeException::class, 'message' => 'Connection refused', 'code' => 2002, 'file' => __FILE__, 'line' => $previous->getLine()]], $summary['previous']);
         static::assertSame(__FILE__ . ':' . $exception->getLine(), $summary['trace'][0]);

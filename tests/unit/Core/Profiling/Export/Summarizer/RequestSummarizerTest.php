@@ -55,7 +55,7 @@ class RequestSummarizerTest extends TestCase
         static::assertSame('/store-api/product', $summary['path']);
         static::assertSame('store-api.product.search', $summary['route']);
         static::assertSame(RequestSummarizerControllerFixture::class . '::search', $summary['controller']);
-        static::assertSame(200, $summary['statusCode']);
+        static::assertSame(200, $summary['status']);
         static::assertSame('application/json', $summary['contentType']);
         static::assertSame(['limit' => '1'], $summary['query']);
         static::assertSame(['includes' => ['product' => ['id']]], $summary['body']);

@@ -40,15 +40,15 @@ class ProfileExporter
     /**
      * @return list<ProfileListEntry>
      */
-    public function list(?string $url = null, ?string $method = null, ?string $status = null, string $type = 'request', int $limit = 20): array
+    public function list(?string $url = null, ?string $method = null, ?string $status = null, string $type = 'request', int $limit = 20, bool $redact = true): array
     {
         $profiles = $this->profiler->find(null, $url, $limit, $method, null, null, $status, static fn (array $profile): bool => $profile['virtual_type'] === $type);
 
-        return array_values(array_map(static fn (array $profile): array => [
+        return array_values(array_map(fn (array $profile): array => [
             'token' => (string) $profile['token'],
             'type' => (string) $profile['virtual_type'],
             'method' => (string) $profile['method'],
-            'url' => (string) $profile['url'],
+            'url' => $redact ? $this->redactor->redactString((string) $profile['url']) : (string) $profile['url'],
             'status' => is_numeric($profile['status_code']) ? (int) $profile['status_code'] : null,
             'time' => self::formatTime((int) $profile['time']),
             'ip' => (string) $profile['ip'],
@@ -70,10 +70,14 @@ class ProfileExporter
      */
     public function panels(Profile $profile): array
     {
+        $names = array_keys($profile->getCollectors());
+        $taken = array_fill_keys($names, true);
+
         $panels = [];
-        foreach (array_keys($profile->getCollectors()) as $name) {
+        foreach ($names as $name) {
             $alias = self::PANEL_ALIASES[$name] ?? self::shortName($name);
-            $panels[$name] = \in_array($alias, $panels, true) ? $name : $alias;
+            $panels[$name] = $alias === $name || isset($taken[$alias]) ? $name : $alias;
+            $taken[$panels[$name]] = true;
         }
 
         return $panels;

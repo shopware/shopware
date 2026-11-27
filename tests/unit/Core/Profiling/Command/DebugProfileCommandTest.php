@@ -25,7 +25,7 @@ class DebugProfileCommandTest extends TestCase
         $exporter = $this->createMock(ProfileExporter::class);
         $exporter->expects($this->once())
             ->method('list')
-            ->with(null, null, null, 'request', 20)
+            ->with(null, null, null, 'request', 20, true)
             ->willReturn([['token' => 'aaa111']]);
 
         $tester = $this->execute($exporter, []);
@@ -39,10 +39,10 @@ class DebugProfileCommandTest extends TestCase
         $exporter = $this->createMock(ProfileExporter::class);
         $exporter->expects($this->once())
             ->method('list')
-            ->with('/detail', 'GET', '200', 'command', 5)
+            ->with('/detail', 'GET', '200', 'command', 5, false)
             ->willReturn([]);
 
-        $tester = $this->execute($exporter, ['--url' => '/detail', '--method' => 'GET', '--status' => '200', '--type' => 'command', '--limit' => '5']);
+        $tester = $this->execute($exporter, ['--url' => '/detail', '--method' => 'GET', '--status' => '200', '--type' => 'command', '--limit' => '5', '--keep-secrets' => true]);
 
         $tester->assertCommandIsSuccessful();
     }
@@ -127,7 +127,7 @@ class DebugProfileCommandTest extends TestCase
 
     public function testRejectsAnUnknownType(): void
     {
-        $this->expectExceptionObject(new \InvalidArgumentException('The type must be one of "request", "command".'));
+        $this->expectExceptionObject(new \InvalidArgumentException('The option "--type" must be one of "request", "command".'));
 
         $this->execute(static::createStub(ProfileExporter::class), ['--type' => 'worker']);
     }

@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -254,7 +253,8 @@ readonly class LayoutRevisionService
     /**
      * The layout write's well-formedness admission without its resolvability step, which only publishing
      * enforces: the write boundary, the stored-tree constraints plus the `NotBlank` the required layout field
-     * adds, and the gate's intrinsic errors.
+     * adds, and the gate's intrinsic errors only once the constraints pass, as a DAL write never reaches its gate
+     * past a constraint error. `LayoutAdmissionParityTest` pins both paths to the same rejection.
      *
      * @return list<StoredElement>
      */
@@ -270,11 +270,13 @@ readonly class LayoutRevisionService
             throw ContentSystemException::layoutWriteRejection($exception, 'layout', $this->treeCodec->encode($tree), '');
         }
 
-        $violations = new ConstraintViolationList();
-        $violations->addAll($this->validator->validate($this->treeCodec->encode($tree), [...$this->treeConstraints->build(), new NotBlank()]));
-        $violations->addAll($this->violationMapper->toConstraintViolationList(
-            $this->gate->wellFormedness($tree->roots)->intrinsicErrors()
-        ));
+        $violations = $this->validator->validate($this->treeCodec->encode($tree), [...$this->treeConstraints->build(), new NotBlank()]);
+
+        if ($violations->count() === 0) {
+            $violations = $this->violationMapper->toConstraintViolationList(
+                $this->gate->wellFormedness($tree->roots)->intrinsicErrors()
+            );
+        }
 
         if ($violations->count() > 0) {
             throw ContentSystemException::invalidLayoutStructure($violations);

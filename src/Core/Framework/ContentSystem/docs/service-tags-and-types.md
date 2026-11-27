@@ -5,11 +5,11 @@
 | Tag                                   | Index Method           | Attributes                                     |
 |---------------------------------------|------------------------|------------------------------------------------|
 | `content_system.entity_specification_source` | N/A             | `priority` (optional, default 0)               |
-| `content_system.specification_source` | `section` attribute    | `section` (required, e.g. `header` / `footer`) |
+| `content_system.specification_source` | `section` attribute    | `section` (required, the section the source serves) |
 | `content_system.data_loader`          | `getRequirementType()` | None                                           |
 | `content_system.config_serializer`    | `getSource()`          | None                                           |
 | `content_system.mapping_candidate_provider` | `registeredCandidateKeys()`, `supports()` / `provide()` | Stable duplicate keys fail compilation; runtime collisions exclude every owner |
-| `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main` / `header` / `footer`) |
+| `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main`)                |
 
 Framework-owned DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`. Domain sources register in their owning module's DI instead: `content_system.entity_specification_source` is tagged in `src/Core/Content/DependencyInjection/product.php`, `category.php` and `landing_page.php`.
 

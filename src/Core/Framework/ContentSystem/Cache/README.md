@@ -31,7 +31,8 @@ Category `category.media` mappings additionally record `content-system-mapped-me
 - **assignment tables** (product/category/landing_page) → looks up associated entity and invalidates its tag
 
 Every table name comes from its definition's `ENTITY_NAME`.
-Section assignment tables reach the subscriber through the container parameter `shopware.content_system.section_assignment_entities`; Core declares it empty.
+No section assignment tables ship.
+A bundle that adds a section hands its assignment tables to the subscriber through the container parameter `shopware.content_system.section_assignment_entities`, which Core declares empty.
 
 `MappedMediaCacheInvalidator` invalidates the corresponding per-media tags for media and media-translation writes/deletions, including direct translation operations identified by their composite primary keys. It also listens to `MediaIndexerEvent` for index-time updates. DAL handling works when remote thumbnails skip indexing and does not depend on the cache-rework flags. It uses the normal immediate/delayed invalidation policy. A render records the tag of a media only when its layout maps that media, so this invalidator evicts no page that does not map it.
 

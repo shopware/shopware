@@ -1,7 +1,6 @@
 .sw-filter-item {
     --sw-filter-item-dropdown-min-width: 180px;
     --sw-filter-item-dropdown-max-width: 320px;
-    --sw-filter-item-icon-size: 0.8rem;
     --sw-filter-item-icon-transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
 
     &.is--hidden {
@@ -16,15 +15,7 @@
 }
 
 .sw-filter-item__btn {
-    padding-right: 2.2rem;
-
     .sw-icon {
-        width: var(--sw-filter-item-icon-size);
-        height: var(--sw-filter-item-icon-size);
-        margin-left: 0.5rem;
-        position: absolute;
-        right: 0.5rem;
-        top: 0.7rem;
         transition: var(--sw-filter-item-icon-transition);
     }
 
@@ -39,7 +30,6 @@
     }
 
     &[aria-expanded="true"] {
-        border-bottom-color: var(--bs-body-bg);
         color: var(--bs-btn-active-color);
         background-color: var(--bs-btn-active-bg);
         border-color: var(--bs-btn-active-border-color);

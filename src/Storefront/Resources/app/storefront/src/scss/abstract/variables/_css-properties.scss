@@ -34,6 +34,10 @@ Exposes custom SCSS variables of the Storefront as CSS custom properties.
     --disabled-btn-bg: #{$disabled-btn-bg};
     --disabled-btn-border-color: #{$disabled-btn-border-color};
 
+    --form-select-padding-y: #{$form-select-padding-y};
+    --form-select-padding-x: #{$form-select-padding-x};
+    --form-select-line-height: #{$form-select-line-height};
+
     --cms-block-text-hero-hr-color: #{$cms-block-text-hero-hr-color};
     --cms-element-text-quotes-color: #{$cms-element-text-quotes-color};
     --cms-element-product-listing-gutter-width: #{$cms-element-product-listing-gutter-width};

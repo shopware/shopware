@@ -38,7 +38,13 @@
 <div {{ attributes.defaults(attributeDefaults) }}>
 
     {% block actions %}
-        <twig:Sw:Grid:Container>
+        <twig:Sw:Grid:Container
+            class="sw-product-listing__toolbar"
+            inner:class="sw-product-listing__toolbar-grid"
+            :columns="{ xs: '1', sm: '1', md: '1', lg: '2', xl: '2' }"
+            margin="0 0 24px 0"
+        >
+            <twig:Slot name="filters-panel"></twig:Slot>
             <div class="sw-product-listing__actions">
                 <span class="sw-product-listing__counter text-light-emphasis text-nowrap d-none d-lg-inline-block">
                     {{ 'listing.resultCount'|trans({ '%count%': totalCount })|sw_sanitize }}

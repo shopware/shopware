@@ -1,0 +1,5 @@
+.sw-offcanvas .offcanvas-header {
+    /* Restore the Bootstrap default padding. Default storefront styles set it to 0. */
+    --bs-offcanvas-padding-y: inherit;
+    --bs-offcanvas-padding-x: inherit;
+}

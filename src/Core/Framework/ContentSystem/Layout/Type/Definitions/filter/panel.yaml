@@ -44,6 +44,48 @@ properties:
       helpText: "Use vertical when the panel sits in a narrow column, so the filters sit one below another and expand in place instead of opening floating menus."
       helpTextSnippet: "sw-experience-studio.elements.filter-panel.displayType.helpText"
 
+  showFiltersInOffcanvas:
+    type: string
+    title: "Show Filters in Off-Canvas"
+    titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.title"
+    description: "Viewports on which the panel shows only a filter button that opens the filters in an off-canvas, instead of showing the filters directly. Mirrors Bootstrap's responsive off-canvas, which switches at a single breakpoint. `never` (or no value) always shows the filters directly; a breakpoint (`sm` to `xxl`) uses the off-canvas below that breakpoint and shows the filters directly from it upward; `always` uses the off-canvas on every viewport."
+    default: "lg"
+    enum:
+      - "never"
+      - "sm"
+      - "md"
+      - "lg"
+      - "xl"
+      - "xxl"
+      - "always"
+    adminUI:
+      component: "select"
+      props:
+        options:
+          - value: "never"
+            label: "Never"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.never.label"
+          - value: "sm"
+            label: "Below SM"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.sm.label"
+          - value: "md"
+            label: "Below MD"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.md.label"
+          - value: "lg"
+            label: "Below LG"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.lg.label"
+          - value: "xl"
+            label: "Below XL"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.xl.label"
+          - value: "xxl"
+            label: "Below XXL"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.xxl.label"
+          - value: "always"
+            label: "Always"
+            labelSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.options.always.label"
+      helpText: "Below the selected breakpoint, the filters are shown as a filter button that opens all filters in an off-canvas menu. From the breakpoint upward, the filters are shown directly."
+      helpTextSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.helpText"
+
   visibleFilterCount:
     type: integer
     title: "Visible Filter Count"

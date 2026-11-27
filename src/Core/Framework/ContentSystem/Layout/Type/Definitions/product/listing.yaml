@@ -1,7 +1,7 @@
 meta:
   label: "Product Listing"
   labelSnippet: "sw-experience-studio.elements.product-listing.label"
-  description: "Displays a category product listing with grid and pagination slots."
+  description: "Displays a category product listing with filter panel, grid and pagination slots."
   icon: "regular-products"
   illustration: "product-listing"
   category: "commerce"
@@ -10,7 +10,7 @@ meta:
     summary: "Category product listing component."
     hints:
       - "The listing is loaded per request from the page's category, no configuration needed."
-      - "Filters are a separate Filter Panel element. Place one alongside the listing."
+      - "Filters are a separate Filter Panel element. Place one in the filters-panel slot or alongside the listing."
       - "Use slots to customize the grid and pagination."
 
 properties:
@@ -57,6 +57,8 @@ properties:
       panel: "sorting"
 
 slots:
+  - name: filters-panel
+    description: "Filter panel shown above the product grid, next to the sorting actions from the lg breakpoint and above them on smaller breakpoints."
   - name: product-grid
     description: "Container slot for product grid rendering."
   - name: pagination

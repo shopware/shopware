@@ -1,0 +1,23 @@
+name: "Category page - full width"
+nameSnippet: "sw-experience-studio.presets.category-page-full-width.name"
+description: "Full width category page with product listing and filters."
+descriptionSnippet: "sw-experience-studio.presets.category-page-full-width.description"
+icon: "regular-boxes"
+illustration: "preset-category-page-full-width"
+category: "commerce"
+priority: 190
+layout:
+  - component: Sw:Grid:Container
+    properties:
+      mode: explicit
+      columns: 1
+    slots:
+      content:
+        - component: Sw:Navigation:Breadcrumb
+        - component: Sw:Content:Text
+          properties:
+            text: "<h1>{{map:category.name}}</h1>"
+  - component: Sw:Product:Listing
+    slots:
+      filters-panel:
+        - component: Sw:Filter:Panel

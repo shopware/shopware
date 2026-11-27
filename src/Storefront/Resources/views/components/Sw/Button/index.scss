@@ -79,11 +79,22 @@
     --bs-btn-active-color: var(--bs-body-color);
     --bs-btn-bg: var(--bs-gray-200);
     --bs-btn-hover-bg: var(--bs-white);
+    --bs-btn-padding-y: var(--form-select-padding-y);
+    --bs-btn-padding-x: var(--form-select-padding-x);
+    --bs-btn-line-height: var(--form-select-line-height);
+    --sw-btn-filter-icon-size: 0.8rem;
     font-weight: normal;
     position: relative;
+    padding-right: calc(var(--sw-btn-filter-icon-size) * 2 + var(--bs-btn-padding-x));
     text-align: left;
 
     .sw-icon {
+        width: var(--sw-btn-filter-icon-size);
+        height: var(--sw-btn-filter-icon-size);
         margin-inline: var(--spacer-xs);
+        margin-block: auto;
+        inset-block: 0;
+        position: absolute;
+        right: var(--bs-btn-padding-x);
     }
 }

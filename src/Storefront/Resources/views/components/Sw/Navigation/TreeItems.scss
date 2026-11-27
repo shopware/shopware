@@ -8,7 +8,7 @@
 .sw-navigation-tree-items.is--root {
     --sw-navigation-tree-items-indent: var(--spacer-md);
     --sw-navigation-tree-items-stripe-width: var(--bs-border-width);
-    --sw-navigation-tree-items-stripe-color: var(--bs-border-color);
+    --sw-navigation-tree-items-stripe-color: var(--bs-border-color-translucent);
 }
 
 .sw-navigation-tree-items__link,
@@ -59,7 +59,9 @@
 .sw-navigation-tree-items.is--collapse > .sw-navigation-tree-items__item > .sw-navigation-tree-items__link,
 .sw-navigation-tree-items.is--collapse > .sw-navigation-tree-items__item > .sw-navigation-tree-items__folder {
     border-top: 0;
-    flex: 1 1 auto;
+    flex: 1 1 0%;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .sw-navigation-tree-items.is--collapse > .sw-navigation-tree-items__item > .sw-navigation-tree-items {
@@ -71,6 +73,7 @@
     --bs-btn-color: var(--bs-secondary-color);
     --bs-btn-hover-color: var(--bs-nav-link-hover-color);
     flex: 0 0 auto;
+    align-self: center;
     text-decoration: none;
 }
 

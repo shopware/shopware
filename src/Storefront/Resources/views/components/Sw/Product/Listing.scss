@@ -1,5 +1,16 @@
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
 .sw-product-listing {
     width: 100%;
+}
+
+// The filter panel takes the remaining width next to the sorting actions instead of an equal column.
+.sw-product-listing .sw-product-listing__toolbar > .sw-product-listing__toolbar-grid {
+    @include media-breakpoint-up(lg) {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
 }
 
 .sw-product-listing__grid {
@@ -14,11 +25,21 @@
     }
 }
 
+// Without a filter panel in the slot the actions span the toolbar, so they stay right-aligned.
+.sw-product-listing__actions:only-child {
+    grid-column: 1 / -1;
+}
+
 .sw-product-listing__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: end;
     gap: var(--spacer-sm);
-    margin-bottom: var(--spacer-sm);
+}
+
+.sw-product-listing__counter {
+    align-self: start;
+    padding-block: var(--form-select-padding-y);
+    line-height: var(--form-select-line-height);
 }

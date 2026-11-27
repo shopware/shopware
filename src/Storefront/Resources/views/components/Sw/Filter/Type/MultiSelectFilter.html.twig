@@ -15,13 +15,15 @@
 } %}
 
 <div {{ attributes.defaults(defaultAttributes) }}>
-    <input
-        type="search"
-        class="sw-multi-select-filter__search form-control"
-        name="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
-        placeholder="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
-        aria-label="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
-    >
+    <div class="sw-multi-select-filter__search-wrapper">
+        <input
+            type="search"
+            class="sw-multi-select-filter__search form-control"
+            name="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
+            placeholder="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
+            aria-label="{{ 'listing.filterSearchPlaceholder'|trans({ '%displayName%': displayName })|sw_sanitize }}"
+        >
+    </div>
 
     <ul class="sw-multi-select-filter__list p-0 m-0">
         {% for filterOption in options %}

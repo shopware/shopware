@@ -3,18 +3,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: start;
-    gap: 0.5rem;
+    align-self: start;
     background-color: var(--sw-filter-panel-background-color, transparent);
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-// Only the inline variant pins
-.sw-filter-panel.is--inline {
-    position: sticky;
-    top: 0;
-    z-index: 10;
 }
 
 .sw-filter-panel__filter {
@@ -22,6 +12,30 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
+}
+
+.sw-filter-panel__expand.btn-filter,
+.sw-filter-panel__offcanvas-toggle.btn-filter {
+    --sw-btn-filter-icon-size: 1.1rem;
+}
+
+.sw-filter-panel__expand {
+    // The open offcanvas shows every filter, so there is nothing to expand
+    .sw-offcanvas.show & {
+        display: none;
+    }
+}
+
+.sw-filter-panel__offcanvas-toggle.btn-filter {
+    padding-right: var(--bs-btn-padding-x);
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: var(--spacer-xs);
+
+    .sw-icon {
+        position: static;
+    }
 }
 
 .sw-filter-panel.is--vertical {

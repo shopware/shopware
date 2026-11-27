@@ -22,10 +22,13 @@ export default {
             },
         },
 
+        /** @deprecated tag:v6.8.0 - Use sw-purchase-price-field separately. */
         purchasePrices: {
             type: Array,
-            default() {
-                return [];
+            required: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use sw-purchase-price-field separately.',
             },
         },
 
@@ -98,10 +101,15 @@ export default {
             default: false,
         },
 
+        /** @deprecated tag:v6.8.0 - Use sw-purchase-price-field separately. */
         hidePurchasePrices: {
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use sw-purchase-price-field separately.',
+            },
         },
 
         hideRegulationPrices: {

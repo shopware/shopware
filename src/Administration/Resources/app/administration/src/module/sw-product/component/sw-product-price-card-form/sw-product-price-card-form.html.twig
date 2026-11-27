@@ -1,0 +1,123 @@
+{% block sw_product_price_card_form %}
+<div class="sw-product-price-card-form">
+    {% block sw_product_price_card_form_tax_field %}
+    <sw-container columns="1fr var(--scale-size-56) 1fr">
+        <sw-inherit-wrapper
+            v-if="!isLoading"
+            v-model:value="product.taxId"
+            class="sw-product-price-card-form__tax-rate"
+            :inherited-value="parentProduct.taxId"
+            :has-parent="!!parentProduct.id"
+            :help-text="taxRateHelpText"
+            :label="$t('sw-product.priceForm.labelTaxRate')"
+            :disabled="!allowEdit"
+            required
+        >
+            <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                <mt-select
+                    name="sw-field--product-taxId"
+                    :placeholder="$t('sw-product.priceForm.placeholderTaxRate')"
+                    validation="required"
+                    :disabled="isInherited || !allowEdit || undefined"
+                    :model-value="currentValue"
+                    :error="productTaxIdError"
+                    :options="taxRateOptions"
+                    @update:model-value="updateCurrentValue"
+                />
+            </template>
+        </sw-inherit-wrapper>
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_product_price_card_form_display_prices %}
+    <sw-inherit-wrapper
+        v-if="!isLoading"
+        v-model:value="product.price"
+        class="sw-product-price-card-form__display-prices"
+        :label="$t('sw-product.priceForm.displayPrices.title')"
+        :has-parent="!!parentProduct.id"
+        :inherited-value="parentProduct.price"
+        :disabled="!allowEdit"
+        :custom-remove-inheritance-function="copyDefaultPrice"
+        :custom-inheritation-check-function="isPriceInherited"
+    >
+        <template #content="{ currentValue, isInherited }">
+            <p class="sw-product-price-card-form__section-description">
+                {{ $t('sw-product.priceForm.displayPrices.description') }}
+            </p>
+
+            <sw-list-price-field
+                vertical
+                :price="currentValue || []"
+                :tax-rate="productTaxRate"
+                :disabled="isInherited || !allowEdit || undefined"
+                :error="productPriceError ? productPriceError[0] : null"
+                :currency="defaultCurrency"
+                :show-setting-price="showModeSetting"
+            />
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_product_price_card_form_currency_link %}
+    <a
+        v-if="displayPrices"
+        class="sw-product-price-card-form__currency-link"
+        role="button"
+        tabindex="0"
+        @click.prevent="displayMaintainCurrencies = true"
+        @keydown.enter.prevent="displayMaintainCurrencies = true"
+    >
+        {{ $t('sw-product.detailBase.linkMaintainCurrencyPrices') }}
+        <mt-icon
+            name="regular-long-arrow-right"
+            size="var(--scale-size-16)"
+        />
+    </a>
+    {% endblock %}
+
+    {% block sw_product_price_card_form_purchase_prices %}
+    <sw-inherit-wrapper
+        v-if="!isLoading && showModeSetting"
+        v-model:value="product.purchasePrices"
+        class="sw-product-price-card-form__purchase-prices"
+        :label="$t('sw-product.priceForm.purchasePrices.title')"
+        :has-parent="!!parentProduct.id"
+        :inherited-value="parentProduct.purchasePrices"
+        :disabled="!allowEdit"
+        :custom-remove-inheritance-function="copyDefaultPurchasePrice"
+        :custom-inheritation-check-function="isPriceInherited"
+    >
+        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+            <p class="sw-product-price-card-form__section-description">
+                {{ $t('sw-product.priceForm.purchasePrices.description') }}
+            </p>
+
+            <sw-purchase-price-field
+                class="sw-product-price-card-form__purchase-prices-field"
+                :error="productPurchasePricesError ? productPurchasePricesError[0] : null"
+                :price="currentValue || []"
+                :tax-rate="productTaxRate"
+                :disabled="isInherited || !allowEdit || undefined"
+                :currency="defaultCurrency"
+                @update:value="updateCurrentValue"
+            />
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_product_price_card_form_maintain_currencies_modal %}
+    <sw-maintain-currencies-modal
+        v-if="displayMaintainCurrencies"
+        variant="full"
+        :currencies="currencies"
+        :prices="displayPrices"
+        :default-price="defaultPrice"
+        :tax-rate="productTaxRate"
+        :disabled="displayPricesInherited || !allowEdit || undefined"
+        @modal-close="onMaintainCurrenciesClose"
+        @update-prices="updatePrices"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

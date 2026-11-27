@@ -27,7 +27,7 @@ computed
   purchasePrice: any  [private]
 
 methods
-  purchasePriceChanged(value: any): any  [private]
+  purchasePriceChanged(newPurchasePrice: any): any  [private]
 
 blocks
   sw_purchase_price_field  [private]

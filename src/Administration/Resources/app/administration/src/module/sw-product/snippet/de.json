@@ -91,6 +91,14 @@
       "taxRateHelpText": {
         "label": "Passe den anzuwendenden Umsatzsteuersatz an. Wenn Du einen Steuerservice-Anbieter (Tax Provider) aktiviert hast, könnte der hier festgelegte Steuersatz überschrieben werden. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
         "linkText": "Einstellungen"
+      },
+      "displayPrices": {
+        "title": "Verkaufspreis",
+        "description": "Für Kunden sichtbar."
+      },
+      "purchasePrices": {
+        "title": "Einkaufspreis",
+        "description": "Für Kunden nicht sichtbar. Nur für die interne Kalkulation."
       }
     },
     "seoForm": {

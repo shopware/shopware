@@ -860,7 +860,10 @@ export default {
                     },
                 ];
 
-                this.product.purchasePrices = this.getDefaultPurchasePrices();
+                // @deprecated tag:v6.8.0 - Remove the legacy branch; new products keep `purchasePrices` empty.
+                this.product.purchasePrices = this.feature.isActive('V6_8_0_0')
+                    ? null
+                    : Shopware.Feature.silence('V6_8_0_0', () => this.getDefaultPurchasePrices());
 
                 // Set default tax rate / sales channels on creation
                 if (this.product.isNew) {
@@ -924,11 +927,19 @@ export default {
                     }
 
                     if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
-                        if (!this.defaultCurrency?.id) {
-                            await this.loadCurrencies();
+                        // @deprecated tag:v6.8.0 - Remove the legacy branch; set `purchasePrices` to null.
+                        if (this.feature.isActive('V6_8_0_0')) {
+                            product.purchasePrices = null;
+                        } else {
+                            if (!this.defaultCurrency?.id) {
+                                await this.loadCurrencies();
+                            }
+
+                            product.purchasePrices = Shopware.Feature.silence('V6_8_0_0', () =>
+                                this.getDefaultPurchasePrices(),
+                            );
                         }
 
-                        product.purchasePrices = this.getDefaultPurchasePrices();
                         product._origin.purchasePrices = cloneDeep(product.purchasePrices);
                     }
 
@@ -951,7 +962,11 @@ export default {
 
                     if (this.product.parentId) {
                         await this.loadParentProduct();
-                        this.syncVariantPriceInheritance();
+
+                        // @deprecated tag:v6.8.0 - Remove the call; display and purchase prices inherit independently.
+                        if (!this.feature.isActive('V6_8_0_0')) {
+                            Shopware.Feature.silence('V6_8_0_0', () => this.syncVariantPriceInheritance());
+                        }
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
@@ -990,7 +1005,15 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. Display and purchase prices inherit independently.
+         */
         syncVariantPriceInheritance() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.syncVariantPriceInheritance() is deprecated. Display and purchase prices inherit independently.',
+            );
+
             const priceInherited = this.product.price === null;
             const purchasePricesInherited = this.product.purchasePrices === null;
 
@@ -1006,7 +1029,15 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. Set `product.purchasePrices` explicitly instead.
+         */
         getDefaultPurchasePrices() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.getDefaultPurchasePrices() is deprecated. Set product.purchasePrices explicitly instead.',
+            );
+
             return [
                 {
                     currencyId: this.defaultCurrency.id,
@@ -1024,11 +1055,19 @@ export default {
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then(async (parent) => {
                     if (!parent.purchasePrices || parent.purchasePrices.length === 0) {
-                        if (!this.defaultCurrency?.id) {
-                            await this.loadCurrencies();
+                        // @deprecated tag:v6.8.0 - Remove the legacy branch; set `purchasePrices` to null.
+                        if (this.feature.isActive('V6_8_0_0')) {
+                            parent.purchasePrices = null;
+                        } else {
+                            if (!this.defaultCurrency?.id) {
+                                await this.loadCurrencies();
+                            }
+
+                            parent.purchasePrices = Shopware.Feature.silence('V6_8_0_0', () =>
+                                this.getDefaultPurchasePrices(),
+                            );
                         }
 
-                        parent.purchasePrices = this.getDefaultPurchasePrices();
                         parent._origin.purchasePrices = cloneDeep(parent.purchasePrices);
                     }
 

@@ -1,4 +1,4 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error -- Legacy spec exceeds the current file-size limit. */
 
 /**
  * @sw-package inventory
@@ -6,7 +6,48 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import { shouldHandleDeprecationsThroughMock, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 import 'src/module/sw-settings-seo/component/sw-seo-url/store';
+
+/**
+ * The advanced-mode members core still calls on every mount, listed in the core deprecation baseline.
+ *
+ * @deprecated tag:v6.8.0 - Remove once sw-product-detail stops calling them while the major flag is active.
+ */
+const baselinedAdvancedModeDeprecations = [
+    'sw-product-detail.advancedModeSetting is deprecated',
+    'sw-product-detail.changeModeSettings() is deprecated',
+    'sw-product-detail.createUserModeSetting() is deprecated',
+    'sw-product-detail.getAdvancedModeDefaultSetting() is deprecated',
+    'sw-product-detail.getAdvancedModeSetting() is deprecated',
+    'sw-product-detail.getModeSettingGeneralTab is deprecated',
+    'sw-product-detail.getModeSettingSpecificationsTab is deprecated',
+    'sw-product-detail.initAdvancedModeSettings() is deprecated',
+];
+
+/**
+ * A test that activates the major flag itself runs the production guard, which logs these baselined
+ * deprecations as errors. Skip only them in such a test; the baseline still covers them in every other test.
+ *
+ * @deprecated tag:v6.8.0 - Remove together with `baselinedAdvancedModeDeprecations`.
+ */
+function skipBaselinedAdvancedModeDeprecations() {
+    const majorFlag = 'V6_8_0_0';
+
+    if (shouldHandleDeprecationsThroughMock(majorFlag, Shopware.Feature.isActive(majorFlag), true)) {
+        return;
+    }
+
+    const { triggerDeprecationOrThrow } = Shopware.Feature;
+
+    jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation((flag, message, options) => {
+        if (baselinedAdvancedModeDeprecations.some((prefix) => message.startsWith(prefix))) {
+            return;
+        }
+
+        triggerDeprecationOrThrow.call(Shopware.Feature, flag, message, options);
+    });
+}
 
 const advancedModeSettings = {
     value: {
@@ -66,7 +107,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn(), routedComponent = null } = {},
+        { routeName = 'sw.product.detail.base', routerPush = jest.fn(), routedComponent = null } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -82,9 +123,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                 },
                 provide: {
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
@@ -243,6 +281,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     beforeEach(async () => {
         jest.restoreAllMocks();
+        skipBaselinedAdvancedModeDeprecations();
         jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
         jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
@@ -258,7 +297,21 @@ describe('module/sw-product/page/sw-product-detail', () => {
         }
     });
 
-    it('should show item tabs', async () => {
+    /* eslint-disable sw-test-rules/no-vm-access -- Deprecated extension callbacks require direct API coverage. */
+    it.activeFeatureFlags(['v6.8.0.0'])('should reject legacy price callbacks', () => {
+        useProductionDeprecationGuard();
+
+        expect(() => wrapper.vm.syncVariantPriceInheritance()).toThrow(
+            'sw-product-detail.syncVariantPriceInheritance() is deprecated',
+        );
+        expect(() => wrapper.vm.getDefaultPurchasePrices()).toThrow(
+            'sw-product-detail.getDefaultPurchasePrices() is deprecated',
+        );
+    });
+    /* eslint-enable sw-test-rules/no-vm-access */
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should show item tabs', async () => {
         await wrapper.setProps({
             productId: '1234',
         });
@@ -426,71 +479,67 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.find('.sw-card-view').exists()).toBe(false);
     });
 
-    it('should render the fallback tabs branch while the major feature flag is inactive', () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the fallback tabs branch while the major feature flag is inactive', () => {
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
 
         expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor route tabs when the major feature flag is active', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
-        await flushPromises();
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render meteor route tabs when the major feature flag is active',
+        async () => {
+            Shopware.Store.get('swProductDetail').product = { parentId: null };
+            Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
-        Shopware.Store.get('swProductDetail').product = { parentId: null };
-        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+            await nextTick();
 
-        await nextTick();
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            const items = tabs.props('items');
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
-        const items = tabs.props('items');
+            expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
+            expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
+            expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
+                {
+                    label: 'sw-product.detail.tabGeneral',
+                    name: 'sw.product.detail.base',
+                },
+                {
+                    label: 'sw-product.detail.tabSpecifications',
+                    name: 'sw.product.detail.specifications',
+                },
+                {
+                    label: 'sw-product.detail.tabAdvancedPrices',
+                    name: 'sw.product.detail.prices',
+                },
+                {
+                    label: 'sw-product.detail.tabVariation',
+                    name: 'sw.product.detail.variants',
+                },
+                {
+                    label: 'sw-product.detail.tabLayout',
+                    name: 'sw.product.detail.layout',
+                },
+                {
+                    label: 'sw-product.detail.tabSeo',
+                    name: 'sw.product.detail.seo',
+                },
+                {
+                    label: 'sw-product.detail.tabCrossSelling',
+                    name: 'sw.product.detail.crossSelling',
+                },
+                {
+                    label: 'sw-product.detail.tabReviews',
+                    name: 'sw.product.detail.reviews',
+                },
+            ]);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+            expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
+        },
+    );
 
-        expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
-        expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
-        expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
-            {
-                label: 'sw-product.detail.tabGeneral',
-                name: 'sw.product.detail.base',
-            },
-            {
-                label: 'sw-product.detail.tabSpecifications',
-                name: 'sw.product.detail.specifications',
-            },
-            {
-                label: 'sw-product.detail.tabAdvancedPrices',
-                name: 'sw.product.detail.prices',
-            },
-            {
-                label: 'sw-product.detail.tabVariation',
-                name: 'sw.product.detail.variants',
-            },
-            {
-                label: 'sw-product.detail.tabLayout',
-                name: 'sw.product.detail.layout',
-            },
-            {
-                label: 'sw-product.detail.tabSeo',
-                name: 'sw.product.detail.seo',
-            },
-            {
-                label: 'sw-product.detail.tabCrossSelling',
-                name: 'sw.product.detail.crossSelling',
-            },
-            {
-                label: 'sw-product.detail.tabReviews',
-                name: 'sw.product.detail.reviews',
-            },
-        ]);
-        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
-        expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
-    });
-
-    it('should show the layout meteor tab for variant products', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
-        await flushPromises();
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should show the layout meteor tab for variant products', async () => {
         Shopware.Store.get('swProductDetail').product = { parentId: 'parent-id' };
         Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
@@ -507,12 +556,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(tabNames).not.toContain('sw.product.detail.variants');
     });
 
-    it('should navigate when a meteor route tab is selected', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is selected', async () => {
         const routerPush = jest.fn();
 
         wrapper.unmount();
         wrapper = await createWrapper(undefined, undefined, '1234', {
-            featureActive: true,
             routerPush,
         });
         await flushPromises();
@@ -535,7 +583,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
-    it('should show item tabs when advanced mode deactivate', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should show item tabs when advanced mode deactivate', async () => {
         Shopware.Store.get('swProductDetail').product = { parentId: '' };
         await wrapper.setProps({
             productId: '1234',
@@ -565,10 +614,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
-    it('should show Advance mode setting on the variant product page', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should show Advance mode setting on the variant product page', async () => {
         await flushPromises();
         Shopware.Store.get('swProductDetail').product = {
-            ...wrapper.vm.product,
+            ...Shopware.Store.get('swProductDetail').product,
             parentId: 'parent-id',
         };
 
@@ -621,7 +671,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(settings.some((entry) => entry.key === mockKey)).toBeFalsy();
     });
 
-    it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy purchase price defaults.
+    it.deprecated('v6.8.0.0')('should set purchasePrices to default value when given purchasePrices are empty', async () => {
         await flushPromises();
         wrapper.unmount();
         wrapper = await createWrapper(() =>
@@ -636,7 +687,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         await nextTick();
 
-        expect(wrapper.vm.product.purchasePrices).toStrictEqual([
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toStrictEqual([
             {
                 currencyId: undefined,
                 gross: 0,
@@ -646,15 +697,33 @@ describe('module/sw-product/page/sw-product-detail', () => {
         ]);
     });
 
+    it.activeFeatureFlags(['v6.8.0.0'])('should keep purchasePrices optional when creating a product', async () => {
+        await flushPromises();
+        wrapper.unmount();
+        wrapper = await createWrapper(() =>
+            Promise.resolve([
+                {
+                    id: '123',
+                    name: 'EUR',
+                },
+            ]),
+        );
+
+        await flushPromises();
+        await nextTick();
+
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeNull();
+    });
+
     it('should validate and clear listPrices/regulationPrices on save', async () => {
         wrapper.vm.getCmsPageOverrides = jest.fn(() => {
             return null;
         });
-        wrapper.vm.product.isNew = jest.fn(() => {
+        Shopware.Store.get('swProductDetail').product.isNew = jest.fn(() => {
             return false;
         });
-        wrapper.vm.product.prices = [];
-        wrapper.vm.product.price = [
+        Shopware.Store.get('swProductDetail').product.prices = [];
+        Shopware.Store.get('swProductDetail').product.price = [
             {
                 currencyId: undefined,
                 linked: true,
@@ -677,7 +746,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         wrapper.vm.onSave();
 
-        expect(wrapper.vm.product.price).toStrictEqual([
+        expect(Shopware.Store.get('swProductDetail').product.price).toStrictEqual([
             {
                 currencyId: undefined,
                 gross: 100,
@@ -709,7 +778,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await flushPromises();
         await flushPromises();
-        expect(wrapper.vm.product.visibilities).toHaveLength(1);
+        expect(Shopware.Store.get('swProductDetail').product.visibilities).toHaveLength(1);
     });
 
     it('should request every default sales channel by id', async () => {
@@ -1319,11 +1388,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         wrapper.vm.getCmsPageOverrides = jest.fn(() => {
             return null;
         });
-        wrapper.vm.product.isNew = jest.fn(() => {
+        Shopware.Store.get('swProductDetail').product.isNew = jest.fn(() => {
             return false;
         });
-        wrapper.vm.product.prices = [];
-        wrapper.vm.product.price = [
+        Shopware.Store.get('swProductDetail').product.prices = [];
+        Shopware.Store.get('swProductDetail').product.price = [
             {
                 currencyId: undefined,
                 linked: true,
@@ -1348,7 +1417,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve();
         });
 
-        wrapper.vm.product.getEntityName = () => 'product';
+        Shopware.Store.get('swProductDetail').product.getEntityName = () => 'product';
         Shopware.EntityDefinition.get = () => ({
             properties: {
                 name: {
@@ -1365,13 +1434,13 @@ describe('module/sw-product/page/sw-product-detail', () => {
             parentId: 'd4e5f6',
         };
 
-        wrapper.vm.product.name = null;
+        Shopware.Store.get('swProductDetail').product.name = null;
 
         await wrapper.vm.onSave();
 
         expect(wrapper.vm.ignoreFieldsValidation).toContain('name');
         expect(spyValidationService).toHaveBeenCalledWith(
-            wrapper.vm.product,
+            Shopware.Store.get('swProductDetail').product,
             expect.anything(),
             expect.arrayContaining(['name']),
         );
@@ -1383,11 +1452,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         wrapper.vm.getCmsPageOverrides = jest.fn(() => {
             return null;
         });
-        wrapper.vm.product.isNew = jest.fn(() => {
+        Shopware.Store.get('swProductDetail').product.isNew = jest.fn(() => {
             return false;
         });
-        wrapper.vm.product.prices = [];
-        wrapper.vm.product.price = [
+        Shopware.Store.get('swProductDetail').product.prices = [];
+        Shopware.Store.get('swProductDetail').product.price = [
             {
                 currencyId: undefined,
                 linked: true,
@@ -1412,7 +1481,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve();
         });
 
-        wrapper.vm.product.getEntityName = () => 'product';
+        Shopware.Store.get('swProductDetail').product.getEntityName = () => 'product';
         Shopware.EntityDefinition.get = () => ({
             properties: {
                 name: {
@@ -1429,15 +1498,19 @@ describe('module/sw-product/page/sw-product-detail', () => {
             parentId: null,
         };
 
-        wrapper.vm.product.name = null;
+        Shopware.Store.get('swProductDetail').product.name = null;
 
         await wrapper.vm.onSave();
 
         expect(wrapper.vm.ignoreFieldsValidation).not.toContain('name');
-        expect(spyValidationService).toHaveBeenCalledWith(wrapper.vm.product, expect.anything(), []);
+        expect(spyValidationService).toHaveBeenCalledWith(
+            Shopware.Store.get('swProductDetail').product,
+            expect.anything(),
+            [],
+        );
     });
 
-    it('should handle the purchase price if its not set', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should handle the purchase price if its not set', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
             () =>
@@ -1453,12 +1526,14 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
-        expect(wrapper.vm.product._origin.purchasePrices).toEqual(wrapper.vm.product.purchasePrices);
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeNull();
+        expect(Shopware.Store.get('swProductDetail').product._origin.purchasePrices).toEqual(
+            Shopware.Store.get('swProductDetail').product.purchasePrices,
+        );
     });
 
-    it('should handle the purchase price if its null', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should handle the purchase price if its null', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
             () =>
@@ -1475,11 +1550,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeNull();
     });
 
-    it('should handle the purchase price if its undefined', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should handle the purchase price if its undefined', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
             () =>
@@ -1496,40 +1571,45 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeNull();
     });
 
-    it('should synchronize the default purchase price with the parent product origin', async () => {
-        wrapper = await createWrapper(
-            () => Promise.resolve([]),
-            (id) => {
-                if (id === 'parent-id') {
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should synchronize the default purchase price with the parent product origin',
+        async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                (id) => {
+                    if (id === 'parent-id') {
+                        return Promise.resolve({
+                            id: 'parent-id',
+                            purchasePrices: undefined,
+                        });
+                    }
+
                     return Promise.resolve({
-                        id: 'parent-id',
-                        purchasePrices: undefined,
+                        id: 'test',
+                        parentId: 'parent-id',
+                        price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                        purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
                     });
-                }
+                },
+            );
 
-                return Promise.resolve({
-                    id: 'test',
-                    parentId: 'parent-id',
-                    price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
-                    purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
-                });
-            },
-        );
+            await wrapper.setProps({
+                productId: '1234',
+            });
 
-        await wrapper.setProps({
-            productId: '1234',
-        });
+            await wrapper.vm.loadProduct();
+            await flushPromises();
 
-        await wrapper.vm.loadProduct();
-        await flushPromises();
-
-        expect(wrapper.vm.parentProduct.purchasePrices).toEqual([{ currencyId: undefined, gross: 0, net: 0, linked: true }]);
-        expect(wrapper.vm.parentProduct._origin.purchasePrices).toEqual(wrapper.vm.parentProduct.purchasePrices);
-    });
+            expect(Shopware.Store.get('swProductDetail').parentProduct.purchasePrices).toBeNull();
+            expect(Shopware.Store.get('swProductDetail').parentProduct._origin.purchasePrices).toEqual(
+                Shopware.Store.get('swProductDetail').parentProduct.purchasePrices,
+            );
+        },
+    );
 
     it('should not overwrite purchase price for variant products with parentId when null', async () => {
         wrapper = await createWrapper(
@@ -1550,32 +1630,35 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeNull();
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeNull();
     });
 
-    it('should not overwrite purchase price for variant products with parentId when undefined', async () => {
-        wrapper = await createWrapper(
-            () => Promise.resolve([]),
-            () =>
-                Promise.resolve({
-                    id: 'test',
-                    parentId: 'parent-id',
-                    price: null,
-                    purchasePrices: undefined,
-                }),
-        );
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not overwrite purchase price for variant products with parentId when undefined',
+        async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                () =>
+                    Promise.resolve({
+                        id: 'test',
+                        parentId: 'parent-id',
+                        price: null,
+                        purchasePrices: undefined,
+                    }),
+            );
 
-        await wrapper.setProps({
-            productId: '1234',
-        });
+            await wrapper.setProps({
+                productId: '1234',
+            });
 
-        await wrapper.vm.loadProduct();
-        await flushPromises();
+            await wrapper.vm.loadProduct();
+            await flushPromises();
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeNull();
-    });
+            expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+            expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeUndefined();
+        },
+    );
 
     it('should keep existing purchase price for variant products with their own values', async () => {
         wrapper = await createWrapper(
@@ -1610,26 +1693,101 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 5, linked: true, gross: 6 }]);
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toEqual([
+            { currencyId: undefined, net: 5, linked: true, gross: 6 },
+        ]);
     });
 
-    it('should sync purchasePrices to null when price is inherited but purchasePrices is not', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should load inherited displayPrices without changing overridden purchasePrices',
+        async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                (id) => {
+                    if (id === 'parent-id') {
+                        return Promise.resolve({
+                            id: 'parent-id',
+                            price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                            purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                        });
+                    }
+
+                    return Promise.resolve({
+                        id: 'test',
+                        parentId: 'parent-id',
+                        price: null,
+                        purchasePrices: [
+                            {
+                                currencyId: undefined,
+                                net: 5,
+                                gross: 6,
+                                linked: true,
+                            },
+                        ],
+                    });
+                },
+            );
+
+            await wrapper.setProps({
+                productId: '1234',
+            });
+
+            await wrapper.vm.loadProduct();
+            await flushPromises();
+
+            expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+            expect(Shopware.Store.get('swProductDetail').product.price).toBeNull();
+            expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toEqual([
+                { currencyId: undefined, net: 5, gross: 6, linked: true },
+            ]);
+        },
+    );
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should load inherited purchasePrices without changing overridden displayPrices',
+        async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                (id) => {
+                    if (id === 'parent-id') {
+                        return Promise.resolve({
+                            id: 'parent-id',
+                            price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                            purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                        });
+                    }
+
+                    return Promise.resolve({
+                        id: 'variant-id',
+                        parentId: 'parent-id',
+                        price: [{ currencyId: undefined, net: 100, gross: 120, linked: true }],
+                        purchasePrices: null,
+                    });
+                },
+            );
+
+            await wrapper.setProps({
+                productId: '1234',
+            });
+
+            await wrapper.vm.loadProduct();
+            await flushPromises();
+
+            expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeNull();
+            expect(Shopware.Store.get('swProductDetail').product.price).toEqual([
+                { currencyId: undefined, net: 100, gross: 120, linked: true },
+            ]);
+        },
+    );
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy purchase price defaults.
+    it.deprecated('v6.8.0.0')('should handle the purchase price if its not set', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
             () =>
                 Promise.resolve({
                     id: 'test',
-                    parentId: 'parent-id',
-                    price: null,
-                    purchasePrices: [
-                        {
-                            currencyId: undefined,
-                            net: 5,
-                            gross: 6,
-                            linked: true,
-                        },
-                    ],
                 }),
         );
 
@@ -1640,27 +1798,80 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeNull();
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toEqual([
+            { currencyId: undefined, net: 0, linked: true, gross: 0 },
+        ]);
+        expect(Shopware.Store.get('swProductDetail').product._origin.purchasePrices).toEqual(
+            Shopware.Store.get('swProductDetail').product.purchasePrices,
+        );
     });
 
-    it('should sync purchasePrices from parent when price is not inherited but purchasePrices is', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy purchase price defaults.
+    it.deprecated('v6.8.0.0')('should handle the purchase price if its null', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    purchasePrices: null,
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toEqual([
+            { currencyId: undefined, net: 0, linked: true, gross: 0 },
+        ]);
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy purchase price defaults.
+    it.deprecated('v6.8.0.0')('should handle the purchase price if its undefined', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    purchasePrices: undefined,
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toEqual([
+            { currencyId: undefined, net: 0, linked: true, gross: 0 },
+        ]);
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy purchase price defaults.
+    it.deprecated('v6.8.0.0')('should synchronize the default purchase price with the parent product origin', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
             (id) => {
                 if (id === 'parent-id') {
                     return Promise.resolve({
                         id: 'parent-id',
-                        price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
-                        purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                        purchasePrices: undefined,
                     });
                 }
 
                 return Promise.resolve({
-                    id: 'variant-id',
+                    id: 'test',
                     parentId: 'parent-id',
                     price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
-                    purchasePrices: null,
+                    purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
                 });
             },
         );
@@ -1672,8 +1883,111 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, gross: 50, net: 42, linked: true }]);
+        expect(Shopware.Store.get('swProductDetail').parentProduct.purchasePrices).toEqual([
+            { currencyId: undefined, gross: 0, net: 0, linked: true },
+        ]);
+        expect(Shopware.Store.get('swProductDetail').parentProduct._origin.purchasePrices).toEqual(
+            Shopware.Store.get('swProductDetail').parentProduct.purchasePrices,
+        );
     });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy purchase price defaults.
+    it.deprecated('v6.8.0.0')(
+        'should not overwrite purchase price for variant products with parentId when undefined',
+        async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                () =>
+                    Promise.resolve({
+                        id: 'test',
+                        parentId: 'parent-id',
+                        price: null,
+                        purchasePrices: undefined,
+                    }),
+            );
+
+            await wrapper.setProps({
+                productId: '1234',
+            });
+
+            await wrapper.vm.loadProduct();
+            await flushPromises();
+
+            expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+            expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeNull();
+        },
+    );
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy purchase price defaults.
+    it.deprecated('v6.8.0.0')(
+        'should sync purchasePrices to null when price is inherited but purchasePrices is not',
+        async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                () =>
+                    Promise.resolve({
+                        id: 'test',
+                        parentId: 'parent-id',
+                        price: null,
+                        purchasePrices: [
+                            {
+                                currencyId: undefined,
+                                net: 5,
+                                gross: 6,
+                                linked: true,
+                            },
+                        ],
+                    }),
+            );
+
+            await wrapper.setProps({
+                productId: '1234',
+            });
+
+            await wrapper.vm.loadProduct();
+            await flushPromises();
+
+            expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+            expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toBeNull();
+        },
+    );
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy purchase price defaults.
+    it.deprecated('v6.8.0.0')(
+        'should sync purchasePrices from parent when price is not inherited but purchasePrices is',
+        async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                (id) => {
+                    if (id === 'parent-id') {
+                        return Promise.resolve({
+                            id: 'parent-id',
+                            price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                            purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                        });
+                    }
+
+                    return Promise.resolve({
+                        id: 'variant-id',
+                        parentId: 'parent-id',
+                        price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                        purchasePrices: null,
+                    });
+                },
+            );
+
+            await wrapper.setProps({
+                productId: '1234',
+            });
+
+            await wrapper.vm.loadProduct();
+            await flushPromises();
+
+            expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toEqual([
+                { currencyId: undefined, gross: 50, net: 42, linked: true },
+            ]);
+        },
+    );
 
     it('should ignore purchase price if its set', async () => {
         wrapper = await createWrapper(
@@ -1699,8 +2013,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 10, linked: false, gross: 19 }]);
+        expect(Shopware.Store.get('swProductDetail').product.id).toBe('test');
+        expect(Shopware.Store.get('swProductDetail').product.purchasePrices).toEqual([
+            { currencyId: undefined, net: 10, linked: false, gross: 19 },
+        ]);
     });
 
     it('should reset mode settings to default when creating a new product', async () => {

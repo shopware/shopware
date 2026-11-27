@@ -42,7 +42,7 @@
         {% endblock %}
 
         {% block sw_price_field_lock_button %}
-        <button
+        <mt-button
             class="sw-price-field__lock"
             :class="{
                 'is--locked': priceForCurrency.linked,
@@ -50,6 +50,9 @@
             }"
             :aria-label="$t('global.sw-price-field.toggleLinkedCurrency')"
             :aria-pressed="priceForCurrency.linked"
+            :disabled="isDisabled"
+            variant="tertiary"
+            square
             @click="onLockSwitch"
         >
             <mt-icon
@@ -62,7 +65,7 @@
                 name="regular-lock-open"
                 size="16"
             />
-        </button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_price_field_net %}

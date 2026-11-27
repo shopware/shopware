@@ -15,6 +15,7 @@ mixins
 
 inject
   acl
+  feature
   mediaDefaultFolderService
   repositoryFactory
 
@@ -75,7 +76,8 @@ blocks
         sw_product_detail_base_media_card_title  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance]
     sw_product_detail_base_media_modal  [after v-if]
     sw_product_detail_base_price_card  [after v-if]
-      sw_product_detail_base_advanced_prices_link
+      sw_product_detail_base_advanced_prices_link  [deprecated tag:v6.8.0]
+      sw_product_detail_base_price_card_advanced_prices_button
       sw_product_detail_base_price_form
     sw_product_detail_base_settings_card  [after v-if]
       sw_product_detail_base_settings_form

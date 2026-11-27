@@ -8,9 +8,16 @@ import './sw-product-price-form.scss';
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.8.0 - Component will be removed. Use sw-product-price-card-form instead.
+ */
 export default {
     template,
+
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Use sw-product-price-card-form instead.',
+    },
 
     mixins: [Mixin.getByName('placeholder')],
 

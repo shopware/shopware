@@ -106,6 +106,20 @@ Apps that need such a section should require that version in `<compatibility>`.
 
 ## Administration
 
+### Product prices card restructured behind the `v6.8.0.0` feature flag
+
+With the `v6.8.0.0` feature flag, the product prices card renders the new `sw-product-price-card-form` instead of `sw-product-price-form`.
+It shows display prices and purchase prices in separate sections with their own inheritance controls, and the advanced pricing link moves to the card header.
+Without the flag, the card keeps `sw-product-price-form` with its current layout, blocks and callbacks.
+`sw-product-price-form` and some members of `sw-product-detail-base`, `sw-product-detail` and `sw-list-price-field` are deprecated;
+see [Product prices card extension points](./UPGRADE-6.8.md#product-prices-card-extension-points) for their replacements.
+
+The shared price fields changed independently of the flag:
+
+* The lock button of `sw-price-field` is an `mt-button` instead of a plain `button`; the class `sw-price-field__lock` stays.
+* `sw-purchase-price-field` emits a new price array on `update:value` instead of changing the passed one, and emits `null` once all purchase prices are cleared.
+* `sw-list-price-field` renders its purchase price field only when the deprecated `purchasePrices` prop is passed.
+
 ### Core popovers render with `mt-floating-ui` before 6.8
 
 `sw-context-button`, `sw-select-result-list` and `sw-multi-tag-select` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.

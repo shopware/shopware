@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const parentProductData = {
     id: 'productId',
@@ -133,6 +134,11 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     /** @type Wrapper */
     let wrapper;
+
+    beforeEach(() => {
+        allowDeprecation('The component "sw-product-price-form" is deprecated');
+        allowDeprecation('The prop "purchasePrices" of the component "sw-list-price-field" is deprecated');
+    });
 
     it('should disable all price fields and toggle inheritance switch on if product price and purchase price are null', async () => {
         wrapper = await createWrapper();

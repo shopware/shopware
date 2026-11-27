@@ -1664,6 +1664,51 @@ Use `'sha256'` directly if you computed the imitation token hash yourself.
 
 # Administration
 
+## Product prices card extension points
+
+The product prices card shows display prices and purchase prices in separate sections with their own inheritance controls.
+The advanced pricing link moved to the card header.
+During 6.7, the new layout was only active with the `v6.8.0.0` feature flag.
+
+`sw-product-price-form` was deprecated and is removed.
+The prices card renders `sw-product-price-card-form` instead.
+Move overrides of `sw-product-price-form` to `sw-product-price-card-form`:
+
+| Removed block of `sw-product-price-form` | Replacement |
+| --- | --- |
+| `sw_product_price_form` | `sw_product_price_card_form` |
+| `sw_product_price_form_fields` | `sw_product_price_card_form_tax_field`, `sw_product_price_card_form_display_prices` and `sw_product_price_card_form_purchase_prices` |
+| `sw_product_price_form_tax_field` | `sw_product_price_card_form_tax_field` |
+| `sw_product_price_form_price_field` | `sw_product_price_card_form_display_prices` and `sw_product_price_card_form_purchase_prices` |
+| `sw_product_price_form_link` and `sw_product_price_form_maintain_currencies_link` | `sw_product_price_card_form_currency_link` |
+| `sw_product_price_form_advanced_prices_link` | `sw_product_detail_base_price_card_advanced_prices_button` in `sw-product-detail-base` |
+| `sw_product_price_form_maintain_currencies_modal` | `sw_product_price_card_form_maintain_currencies_modal` |
+
+The display and purchase price sections bind their own price array to the inheritance wrapper, so `currentValue` is that array instead of an object with `price` and `purchasePrices`.
+
+| Removed member of `sw-product-price-form` | Replacement in `sw-product-price-card-form` |
+| --- | --- |
+| `prices` and `parentPrices` | `product.price`, `product.purchasePrices`, `parentProduct.price` and `parentProduct.purchasePrices`; `displayPrices` returns the effective display prices, including inherited ones |
+| `removePriceInheritation()` | `copyDefaultPrice(prices)` for display prices or `copyDefaultPurchasePrice(prices)` for purchase prices |
+| `inheritationCheckFunction()` | `isPriceInherited(prices)` |
+
+The CSS classes of `sw-product-price-form` are replaced by the `sw-product-price-card-form__*` classes of the new component.
+
+The block `sw_product_detail_base_advanced_prices_link` of `sw-product-detail-base` was deprecated and is removed.
+Use `sw_product_detail_base_price_card_advanced_prices_button` instead.
+
+`sw-list-price-field` no longer renders purchase prices.
+Its `purchasePrices` and `hidePurchasePrices` props and the `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated and are removed.
+Render `sw-purchase-price-field` separately where purchase prices are needed.
+
+The following methods of `sw-product-detail` were deprecated and are removed:
+
+* `syncVariantPriceInheritance()`: display and purchase prices of a variant inherit independently.
+  Remove calls to it, as it would reset independently overridden purchase prices.
+  Move load-time customizations that overrode it to `loadProduct()`.
+* `getDefaultPurchasePrices()`: products without purchase prices keep `purchasePrices` as `null`.
+  Set `product.purchasePrices` explicitly in an extension when a default purchase price is required.
+
 ## Jest helper `test/_helper_/majorFeatureFlags` removed
 
 Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` to activate the major feature flags should run on the Jest harness of the extension tooling instead.

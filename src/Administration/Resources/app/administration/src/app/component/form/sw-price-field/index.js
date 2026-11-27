@@ -294,6 +294,10 @@ export default {
         onPriceGrossInputChange(value) {
             this.priceForCurrency.gross = value;
 
+            if (this.priceForCurrency.linked && value === null) {
+                this.priceForCurrency.net = this.allowEmpty ? null : 0;
+            }
+
             this.$emit('price-gross-change', value);
             this.$emit('change', this.priceForCurrency);
 
@@ -304,6 +308,10 @@ export default {
 
         onPriceNetInputChange(value) {
             this.priceForCurrency.net = value;
+
+            if (this.priceForCurrency.linked && value === null) {
+                this.priceForCurrency.gross = this.allowEmpty ? null : 0;
+            }
 
             this.$emit('price-net-change', value);
             this.$emit('change', this.priceForCurrency);

@@ -110,7 +110,7 @@ methods
   getAdvancedModeDefaultSetting(): any  [deprecated tag:v6.8.0]
   getAdvancedModeSetting(): Promise<any>  [deprecated tag:v6.8.0]
   getCmsPageOverrides(): any  [deprecated tag:v6.8.0]
-  getDefaultPurchasePrices(): any
+  getDefaultPurchasePrices(): any  [deprecated tag:v6.8.0]
   getDefaultSalesChannels(): Promise<any>
   getDefaultTaxRate(): any
   getDocumentVariantsSaver(): any  [private]
@@ -146,7 +146,7 @@ methods
   saveOnLanguageChange(): any
   savePreferenceUnits(): any
   saveProduct(): Promise<any>
-  syncVariantPriceInheritance(): any
+  syncVariantPriceInheritance(): any  [deprecated tag:v6.8.0]
   trackProductSaveEvents(productType: any, productIsNew: any, productWasActivated: any): any
   validatePrices(priceLabel: any, prices: any): any
   validateProductPrices(): any

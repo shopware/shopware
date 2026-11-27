@@ -71,11 +71,14 @@ class MediaDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media';
 
+    private bool $remoteThumbnailsEnabled = false;
+
     /**
      * @internal
      */
-    public function __construct(private readonly bool $remoteThumbnailsEnabled = false)
+    public function setRemoteThumbnailsEnabled(bool $enabled): void
     {
+        $this->remoteThumbnailsEnabled = $enabled;
     }
 
     public function getEntityName(): string

@@ -180,7 +180,12 @@ The limit of 20 is the constant `LayoutRevisionService::PUBLISHED_REVISIONS_KEPT
 
 ### Admin API
 
-The draft routes live under `/api/_action/content-system/layout/{layoutId}`, in the action style of the other Experience Studio routes:
+Edits need no route of their own: they go through the existing persisted mutation routes with a `draftId`.
+Only the draft lifecycle gets new routes, under the same `/api/_action/content-system/layout/{layoutId}` prefix as those mutation routes.
+They sit in `ContentLayoutDraftController` rather than `ContentLayoutMutationController`, because none of them changes a tree:
+creating a draft has no `draftId` yet, the reads mutate nothing, and publishing and discarding move pointers.
+Every route of the mutation controller runs one tree operation through the same pipeline, and these would break that.
+The writes are named as actions like `remove-element`, the reads name what they return:
 
 | Method | Path | Body | ACL |
 |---|---|---|---|

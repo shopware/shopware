@@ -39,6 +39,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -203,7 +206,17 @@ class ApiController extends AbstractController
             throw ApiException::definitionNotFound($e);
         }
 
+        // The change set below is removed without a privilege of its own, so the version privilege guards it.
+        // It is checked before the first write, because the entity delete checks nothing when the id has no row.
+        $missing = $this->validateAclPermissions($context, $this->definitionRegistry->getByEntityName(VersionDefinition::ENTITY_NAME), AclRoleDefinition::PRIVILEGE_DELETE);
+        if ($missing) {
+            throw ApiException::missingPrivileges([$missing]);
+        }
+
         $versionContext = $context->createWithVersionId($versionId);
+
+        // A version discard must not enter the change set: merge() replays recorded deletions against its target version.
+        $versionContext->addState(VersionManager::DISABLE_AUDIT_LOG);
 
         $entityRepository = $this->definitionRegistry->getRepository($entityDefinition->getEntityName());
 
@@ -211,7 +224,13 @@ class ApiController extends AbstractController
             $entityRepository->delete([['id' => $entityId]], $versionContext);
         });
 
-        $versionRepository = $this->definitionRegistry->getRepository('version');
+        // Drop the change set before the version, so a merge starting in between finds no commits to replay.
+        // The change set is written in system scope, so removing it needs no privilege of its own either.
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($versionId): void {
+            $this->deleteVersionCommits($versionId, $context);
+        });
+
+        $versionRepository = $this->definitionRegistry->getRepository(VersionDefinition::ENTITY_NAME);
         $versionRepository->delete([['id' => $versionId]], $context);
 
         return new JsonResponse();
@@ -445,6 +464,23 @@ class ApiController extends AbstractController
         throw ApiException::unsupportedAssociation($association->getPropertyName());
     }
 
+    private function deleteVersionCommits(string $versionId, Context $context): void
+    {
+        $repository = $this->definitionRegistry->getRepository(VersionCommitDefinition::ENTITY_NAME);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('versionId', $versionId));
+
+        /** @var list<string> $ids */
+        $ids = $repository->searchIds($criteria, $context)->getIds();
+
+        if ($ids === []) {
+            return;
+        }
+
+        $repository->delete(array_map(static fn (string $id): array => ['id' => $id], $ids), $context);
+    }
+
     /**
      * @return array{0: Criteria, 1: EntityRepository}
      */
@@ -657,7 +693,7 @@ class ApiController extends AbstractController
 
         $last = $pathSegments[\count($pathSegments) - 1];
 
-        if ($type === self::WRITE_CREATE && !empty($last['value'])) {
+        if ($type === self::WRITE_CREATE && $last['value'] !== null && $last['value'] !== '') {
             $methods = ['GET', 'PATCH', 'DELETE'];
 
             throw ApiException::methodNotAllowed($methods, \sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));

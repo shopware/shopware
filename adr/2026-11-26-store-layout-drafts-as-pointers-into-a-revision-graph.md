@@ -230,12 +230,5 @@ A draft in a response is `{id, name, baseRevisionId, headRevisionId, liveAtOpenR
 * Who made an intermediate edit is not kept after the next edit; a revision keeps the author of its own edit and its first publisher.
 * Draft edits on different drafts of one layout serialize on the layout lock.
 * Draft writes bypass the DAL, so they fire no entity events and invalidate no cache.
-
-## Extensibility
-
-The classes of this feature are `@internal`, and no event is dispatched for draft edits.
-Publishing and live edits write the `layout` column through the DAL, so extensions observe them through `content_layout.written`.
-
-An activity log ("who did what, when") is a separate append-only record of operations, written at the points where `PersistedLayoutMutator` and `LayoutRevisionService` already know the operation, the affected elements, the draft and the user.
-It references revisions without a foreign key, because compaction deletes them.
-A public event for draft edits is designed together with that log, so its payload carries no `@internal` types.
+  Extensions observe publishing through `content_layout.written`; there is no event for draft edits yet.
+* An activity log ("who did what, when") is a separate append-only record of operations, not the revisions, which compaction deletes.

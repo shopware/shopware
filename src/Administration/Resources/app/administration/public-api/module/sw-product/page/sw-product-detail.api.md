@@ -59,6 +59,7 @@ computed
   getDefaultFeatureSet: any
   getModeSettingGeneralTab: any  [deprecated tag:v6.8.0]
   getModeSettingSpecificationsTab: any  [deprecated tag:v6.8.0]
+  hasUnsavedVariantDocuments: any  [private]
   identifier: any
   ignoreFieldsValidation: any
   isChild: any

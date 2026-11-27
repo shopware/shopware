@@ -20,15 +20,18 @@ class ElasticsearchMigrationCompilerPassTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->register(MigrationSource::class . '.core.V6_5', MigrationSource::class)->setPublic(true);
+        $container->register(MigrationSource::class . '.core.V6_7', MigrationSource::class)->setPublic(true);
 
         $container->addCompilerPass(new ElasticsearchMigrationCompilerPass());
         $container->compile();
 
-        $calls = $container->getDefinition(MigrationSource::class . '.core.V6_5')->getMethodCalls();
-        static::assertCount(1, $calls);
+        foreach (['V6_5', 'V6_7'] as $version) {
+            $calls = $container->getDefinition(MigrationSource::class . '.core.' . $version)->getMethodCalls();
+            static::assertCount(1, $calls);
 
-        static::assertSame('addDirectory', $calls[0][0]);
-        static::assertStringContainsString('Migration/V6_5', $calls[0][1][0]);
-        static::assertSame('Shopware\Elasticsearch\Migration\V6_5', $calls[0][1][1]);
+            static::assertSame('addDirectory', $calls[0][0]);
+            static::assertStringContainsString('Migration/' . $version, $calls[0][1][0]);
+            static::assertSame('Shopware\Elasticsearch\Migration\\' . $version, $calls[0][1][1]);
+        }
     }
 }

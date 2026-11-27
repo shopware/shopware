@@ -4,6 +4,13 @@
 import template from './sw-bulk-edit-save-modal-confirm.html.twig';
 import './sw-bulk-edit-save-modal-confirm.scss';
 
+const FLOW_TRIGGERING_FIELDS = [
+    'orderDeliveries',
+    'orderTransactions',
+    'orders',
+    'requestedCustomerGroupId',
+];
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -56,15 +63,9 @@ export default {
         },
 
         triggeredFlows() {
-            const triggeredFlows = [];
-
-            Object.entries(this.bulkEditData).forEach(([key, value]) => {
-                if (key === this.$t(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.key`) && value.isChanged === true) {
-                    triggeredFlows.push(this.$t(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.label`));
-                }
-            });
-
-            return triggeredFlows;
+            return Object.entries(this.bulkEditData)
+                .filter(([field, change]) => FLOW_TRIGGERING_FIELDS.includes(field) && change?.isChanged === true)
+                .map(([field]) => this.$t(`sw-bulk-edit.modal.confirm.triggeredFlows.${field}.label`));
         },
 
         hasDocumentDeletionSelected() {

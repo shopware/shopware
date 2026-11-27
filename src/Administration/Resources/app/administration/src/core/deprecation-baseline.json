@@ -46,19 +46,7 @@
         "sw-condition-unit-menu > sw-popover": [
             "default"
         ],
-        "sw-context-button > sw-popover": [
-            "default"
-        ],
         "sw-media-field > sw-popover": [
-            "default"
-        ],
-        "sw-multi-tag-ip-select > sw-popover": [
-            "default"
-        ],
-        "sw-multi-tag-select > sw-popover": [
-            "default"
-        ],
-        "sw-select-result-list > sw-popover": [
             "default"
         ]
     },

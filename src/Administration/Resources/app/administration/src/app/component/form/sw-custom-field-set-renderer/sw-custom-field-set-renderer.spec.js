@@ -126,7 +126,8 @@ async function createWrapper(props, options = {}) {
                     'mt-skeleton-bar': true,
                     'sw-skeleton-bar-deprecated': true,
                     'mt-floating-ui': {
-                        template: '<div><slot /></div>',
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-color-badge': true,
                     'sw-media-upload-v2': true,

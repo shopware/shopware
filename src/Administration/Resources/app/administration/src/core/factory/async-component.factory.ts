@@ -613,10 +613,12 @@ function extend(
         }
 
         config = { ...awaitedConfigResult };
-        registration.ownMembers = {
-            computed: { ...(config.computed as ComputedOptions) },
-            methods: { ...(config.methods as MethodOptions) },
-        };
+        if (process.env.NODE_ENV !== 'production') {
+            registration.ownMembers = {
+                computed: { ...(config.computed as ComputedOptions) },
+                methods: { ...(config.methods as MethodOptions) },
+            };
+        }
 
         if (config.template) {
             /**
@@ -1524,11 +1526,7 @@ function accessorOf(
 ): unknown {
     const member = (config[section] as Record<string, unknown> | undefined)?.[name];
 
-    if (accessor === null || typeof member === 'function') {
-        return accessor === 'set' ? undefined : member;
-    }
-
-    return types.isPlainObject(member) ? (member as Record<string, unknown>)[accessor] : undefined;
+    return memberAccessors(section, member).find(([memberAccessor]) => memberAccessor === accessor)?.[1];
 }
 
 /**

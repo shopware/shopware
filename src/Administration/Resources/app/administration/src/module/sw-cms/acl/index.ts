@@ -14,6 +14,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'cms_section:read',
                 'cms_block:read',
                 'cms_slot:read',
+                'cms_slot_translation:read',
                 'landing_page:read',
                 'media:read',
                 'media_folder:read',

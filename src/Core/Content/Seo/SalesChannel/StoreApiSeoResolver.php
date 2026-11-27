@@ -120,7 +120,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     }
 
     /**
-     * @param array<int, true> $visited
+     * @param array<int, Struct> $visited
      */
     private function findStruct(SeoResolverData $data, Struct $struct, array &$visited): void
     {
@@ -130,7 +130,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             return;
         }
 
-        $visited[$objectId] = true;
+        $visited[$objectId] = $struct;
 
         if ($struct instanceof Entity) {
             $definition = $this->definitionInstanceRegistry->getByEntityClass($struct) ?? $this->salesChannelDefinitionInstanceRegistry->getByEntityClass($struct);

@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -215,6 +216,24 @@ class StoreApiSeoResolverTest extends TestCase
         $event = $this->createProductListResponseEvent($product, static::createStub(SalesChannelContext::class));
 
         static::assertCount(0, $product->getSeoUrls() ?? []);
+
+        $storeApiSeoResolver = $this->createStoreApiSeoResolver();
+        $storeApiSeoResolver->addSeoInformation($event);
+
+        static::assertNotCount(0, $product->getSeoUrls() ?? []);
+    }
+
+    public function testAddSeoInformationWithStructExtensionHoldingBackReference(): void
+    {
+        $product = $this->createProductEntity();
+
+        $extension = new class extends Struct {
+            public ?Struct $parent = null;
+        };
+        $extension->parent = $product;
+        $product->addExtension('backReference', $extension);
+
+        $event = $this->createProductListResponseEvent($product, static::createStub(SalesChannelContext::class));
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);

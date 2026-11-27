@@ -55,8 +55,15 @@ final class StructuredPropertyTypeValidator extends ConstraintValidator
         }
 
         $hasObject = \in_array('object', $types, true);
+        $hasArray = \in_array('array', $types, true);
 
-        if (\in_array('array', $types, true) !== ($value->items !== null)) {
+        if ($hasArray && $value->items === null) {
+            $this->context->buildViolation($constraint->arrayRequiresItemsMessage)
+                ->atPath('items')
+                ->addViolation();
+        }
+
+        if (!$hasArray && $value->items !== null) {
             $this->context->buildViolation($constraint->itemsRequireArrayTypeMessage)
                 ->atPath('items')
                 ->addViolation();

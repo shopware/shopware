@@ -95,9 +95,21 @@ class StructuredPropertyTypeValidatorTest extends TestCase
             $violations = $this->validate($dto);
             static::assertCount(1, $violations);
             static::assertSame($index === 0 ? 'items' : 'items.items', $violations->get(0)->getPropertyPath());
-            static::assertSame((new StructuredPropertyType())->itemsRequireArrayTypeMessage, $violations->get(0)->getMessage());
+            static::assertSame((new StructuredPropertyType())->arrayRequiresItemsMessage, $violations->get(0)->getMessage());
             static::assertNull($violations->get(0)->getCode());
         }
+    }
+
+    public function testRejectsItemsOnATypeWithoutArray(): void
+    {
+        $item = new PropertySpecificationDto('items', 'string', false, false, 'Entry', 'Entry.', null, null, null);
+        $dto = new PropertySpecificationDto('label', 'string', false, false, 'Label', 'Label.', null, null, null, items: $item);
+
+        $violations = $this->validate($dto);
+
+        static::assertCount(1, $violations);
+        static::assertSame('items', $violations->get(0)->getPropertyPath());
+        static::assertSame((new StructuredPropertyType())->itemsRequireArrayTypeMessage, $violations->get(0)->getMessage());
     }
 
     #[DataProvider('rejectsInvalidSpecificationProvider')]

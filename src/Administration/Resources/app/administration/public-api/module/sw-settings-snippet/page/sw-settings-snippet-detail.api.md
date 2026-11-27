@@ -37,6 +37,7 @@ data
   translationKeyOrigin: any
 
 computed
+  backLabel: any
   backPath: any
   currentAuthor: any
   identifier: any

@@ -76,6 +76,30 @@ class ThemeLifecycleServiceTest extends TestCase
         static::assertSame([[]], $themeChildRepository->deletes);
     }
 
+    public function testRefreshThemeStoresConfigInheritanceWithoutFields(): void
+    {
+        $configuration = new StorefrontPluginConfiguration('ExampleTheme');
+        $configuration->setName('Example');
+        $configuration->setAuthor('Author');
+        $configuration->setThemeJson(null);
+        $configuration->setConfigInheritance(['@Storefront']);
+        $configuration->setThemeConfig(['configInheritance' => ['@Storefront']]);
+
+        $themeRepository = $this->createThemeRepositoryWithExistingTheme();
+        /** @var StaticEntityRepository<EntityCollection<Entity>> $themeChildRepository */
+        $themeChildRepository = new StaticEntityRepository([[]]);
+        $service = $this->createService(
+            $themeRepository,
+            $themeChildRepository,
+            static::createStub(ThemeRuntimeConfigService::class),
+            static::createStub(ThemeSnippetFileWriter::class),
+        );
+
+        $service->refreshTheme($configuration, Context::createDefaultContext());
+
+        static::assertSame(['configInheritance' => ['@Storefront']], $themeRepository->upserts[0][0]['baseConfig']);
+    }
+
     public function testRefreshThemeNoLongerPersistsLegacyLabelTranslations(): void
     {
         $themeRepository = $this->createThemeRepositoryWithExistingTheme();

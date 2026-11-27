@@ -8,10 +8,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,14 +29,18 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;
 
+    private MockObject&CacheInvalidator $cacheInvalidator;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
     }
 
     public function testGetSubscribedEvents(): void
     {
         $this->connection->expects($this->never())->method('executeStatement');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
 
         $events = CustomFieldSearchableSubscriber::getSubscribedEvents();
 
@@ -44,7 +50,7 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
     public function testOnCustomFieldWrittenReturnsEarlyWhenEsEnabled(): void
     {
-        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag(['elasticsearch.enabled' => true]));
+        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag(['elasticsearch.enabled' => true]), $this->cacheInvalidator);
         $context = Context::createDefaultContext();
         $customFieldId = Uuid::randomHex();
 
@@ -59,13 +65,14 @@ class CustomFieldSearchableSubscriberTest extends TestCase
         $containerEvent = new EntityWrittenContainerEvent($context, new NestedEventCollection([$event]), []);
 
         $this->connection->expects($this->never())->method('executeStatement');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
 
         $subscriber->onCustomFieldWritten($containerEvent);
     }
 
     public function testOnCustomFieldWrittenIgnoresWhenSearchableNotInPayload(): void
     {
-        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag());
+        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag(), $this->cacheInvalidator);
         $context = Context::createDefaultContext();
         $customFieldId = Uuid::randomHex();
 
@@ -80,13 +87,14 @@ class CustomFieldSearchableSubscriberTest extends TestCase
         $containerEvent = new EntityWrittenContainerEvent($context, new NestedEventCollection([$event]), []);
 
         $this->connection->expects($this->never())->method('executeStatement');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
 
         $subscriber->onCustomFieldWritten($containerEvent);
     }
 
     public function testOnCustomFieldWrittenIgnoresWhenSearchableNotFalse(): void
     {
-        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag());
+        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag(), $this->cacheInvalidator);
         $context = Context::createDefaultContext();
         $customFieldId = Uuid::randomHex();
 
@@ -101,13 +109,14 @@ class CustomFieldSearchableSubscriberTest extends TestCase
         $containerEvent = new EntityWrittenContainerEvent($context, new NestedEventCollection([$event]), []);
 
         $this->connection->expects($this->never())->method('executeStatement');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
 
         $subscriber->onCustomFieldWritten($containerEvent);
     }
 
     public function testOnCustomFieldWrittenDeletesFromProductSearchConfigField(): void
     {
-        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag(['elasticsearch.enabled' => false]));
+        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag(['elasticsearch.enabled' => false]), $this->cacheInvalidator);
         $context = Context::createDefaultContext();
         $customFieldId1 = Uuid::randomHex();
         $customFieldId2 = Uuid::randomHex();
@@ -139,6 +148,10 @@ class CustomFieldSearchableSubscriberTest extends TestCase
                 ['customFieldIds' => $customFieldIdsBytes],
                 ['customFieldIds' => ArrayParameterType::BINARY]
             );
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([CachedSearchConfigLoader::CACHE_KEY], true);
 
         $subscriber->onCustomFieldWritten($containerEvent);
     }

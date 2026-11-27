@@ -1,0 +1,131 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "\/_info\/system-check\/results": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "List the system checks with their last stored result",
+                "description": "Reads the stored results and runs no check. A check that never ran has no result.",
+                "operationId": "systemCheckResults",
+                "responses": {
+                    "200": {
+                        "description": "Every registered system check with its last result",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "checks": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "name",
+                                                    "category",
+                                                    "result"
+                                                ],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "category": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "SYSTEM",
+                                                            "FEATURE",
+                                                            "EXTERNAL",
+                                                            "AUXILIARY"
+                                                        ]
+                                                    },
+                                                    "result": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "required": [
+                                                                    "status",
+                                                                    "healthy",
+                                                                    "message",
+                                                                    "extra",
+                                                                    "checkedAt"
+                                                                ],
+                                                                "properties": {
+                                                                    "status": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "OK",
+                                                                            "UNKNOWN",
+                                                                            "SKIPPED",
+                                                                            "WARNING",
+                                                                            "ERROR",
+                                                                            "FAILURE"
+                                                                        ]
+                                                                    },
+                                                                    "healthy": {
+                                                                        "type": [
+                                                                            "boolean",
+                                                                            "null"
+                                                                        ]
+                                                                    },
+                                                                    "message": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "extra": {
+                                                                        "type": "object",
+                                                                        "additionalProperties": true
+                                                                    },
+                                                                    "checkedAt": {
+                                                                        "type": "string",
+                                                                        "format": "date-time"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/_action\/system-check\/run": {
+            "post": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Run the system checks in the background",
+                "description": "Queues all system checks, or the one named in `check`. Their results can be read from `\/_info\/system-check\/results` once a worker ran them.",
+                "operationId": "runSystemChecks",
+                "parameters": [
+                    {
+                        "name": "check",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Name of the check to run. Without it, all checks run."
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The checks are queued"
+                    },
+                    "400": {
+                        "description": "No check has this name"
+                    }
+                }
+            }
+        }
+    }
+}

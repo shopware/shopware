@@ -7,6 +7,8 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
+use Shopware\Core\Framework\SystemCheck\Message\RunSystemChecks;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -19,19 +21,45 @@ class SystemChecker
      *
      * @internal
      */
-    public function __construct(private readonly iterable $checks)
-    {
+    public function __construct(
+        private readonly iterable $checks,
+        private readonly SystemCheckResultStorage $resultStorage,
+        private readonly MessageBusInterface $messageBus,
+    ) {
     }
 
     /**
+     * Runs all checks, or only the check with the given name, in the background.
+     */
+    public function queueCheck(?string $name = null): void
+    {
+        $names = array_map(static fn (BaseCheck $check) => $check->name(), [...$this->checks]);
+        if ($name !== null && !\in_array($name, $names, true)) {
+            throw SystemCheckException::unknownCheck($name);
+        }
+
+        $this->messageBus->dispatch(new RunSystemChecks($name));
+    }
+
+    /**
+     * Runs every check that is allowed in at least one of the given contexts, or only the check with the given name.
+     *
+     * @param SystemCheckExecutionContext|list<SystemCheckExecutionContext> $contexts
+     *
      * @return array<Result>
      */
-    public function check(SystemCheckExecutionContext $context): array
+    public function check(SystemCheckExecutionContext|array $contexts, ?string $name = null): array
     {
-        [$allowedChecks, $disallowedChecks] = $this->groupByPermissionToRun($context);
+        $contexts = \is_array($contexts) ? $contexts : [$contexts];
+        [$allowedChecks, $disallowedChecks] = $this->groupByPermissionToRun($contexts, $name);
 
         $results = $this->runChecksByCategory($this->groupByCategory($allowedChecks));
-        $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf('Check not allowed to run in this execution context: %s', $context->name));
+        $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf(
+            'Check not allowed to run in this execution context: %s',
+            implode(', ', array_map(static fn (SystemCheckExecutionContext $context) => $context->name, $contexts))
+        ));
+
+        $this->resultStorage->save($results);
 
         return array_merge($results, $skippedChecksResults);
     }
@@ -128,14 +156,20 @@ class SystemChecker
     }
 
     /**
+     * @param list<SystemCheckExecutionContext> $contexts
+     *
      * @return array{array<BaseCheck>, array<BaseCheck>} segregated checks by permission to run
      */
-    private function groupByPermissionToRun(SystemCheckExecutionContext $context): array
+    private function groupByPermissionToRun(array $contexts, ?string $name): array
     {
         $allowedChecks = [];
         $disallowedChecks = [];
         foreach ($this->checks as $check) {
-            if ($check->allowedToRunIn($context)) {
+            if ($name !== null && $check->name() !== $name) {
+                continue;
+            }
+
+            if ($this->allowedToRunInAny($check, $contexts)) {
                 $allowedChecks[] = $check;
             } else {
                 $disallowedChecks[] = $check;
@@ -143,5 +177,19 @@ class SystemChecker
         }
 
         return [$allowedChecks, $disallowedChecks];
+    }
+
+    /**
+     * @param list<SystemCheckExecutionContext> $contexts
+     */
+    private function allowedToRunInAny(BaseCheck $check, array $contexts): bool
+    {
+        foreach ($contexts as $context) {
+            if ($check->allowedToRunIn($context)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

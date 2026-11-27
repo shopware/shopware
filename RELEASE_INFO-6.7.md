@@ -79,6 +79,12 @@ The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPr
 
 The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
 
+### Product comparison exports leave out hidden clearance products
+
+When "Hide products after clearance" (`core.listing.hideCloseoutProductsWhenOutOfStock`) is enabled for the storefront sales channel of a product comparison export, the export now leaves out sold-out clearance products and variants.
+Their product pages return 404 in that storefront, so the feed linked to pages that do not exist.
+Feeds of shops with this setting enabled contain fewer products after the next generation.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

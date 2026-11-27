@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -44,6 +45,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -166,7 +168,9 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get(ProductDefinition::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(TwigVariableParserFactory::class),
-            static::getContainer()->get(CategoryBreadcrumbBuilder::class)
+            static::getContainer()->get(CategoryBreadcrumbBuilder::class),
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(ProductCloseoutFilterFactory::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -230,7 +234,9 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get(ProductDefinition::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(TwigVariableParserFactory::class),
-            static::getContainer()->get(CategoryBreadcrumbBuilder::class)
+            static::getContainer()->get(CategoryBreadcrumbBuilder::class),
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get(ProductCloseoutFilterFactory::class)
         );
 
         try {
@@ -384,6 +390,79 @@ class ProductExportGeneratorTest extends TestCase
         yield 'excluded variants' => [false, ['parent-1', 'stand-alone-1']];
     }
 
+    /**
+     * @param list<string> $expectedProductNumbers
+     */
+    #[DataProvider('hideCloseoutProductsProvider')]
+    public function testExportLeavesOutSoldOutCloseoutProductsWhenTheStorefrontHidesThem(bool $hideCloseoutProducts, array $expectedProductNumbers): void
+    {
+        $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', $hideCloseoutProducts, $salesChannelId);
+
+        $ids = new IdsCollection();
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'closeout-in-stock'))->price(10)->closeout()->stock(5)->visibility($salesChannelId)->build(),
+            (new ProductBuilder($ids, 'closeout-sold-out'))->price(10)->closeout()->stock(0)->visibility($salesChannelId)->build(),
+            (new ProductBuilder($ids, 'regular-sold-out'))->price(10)->stock(0)->visibility($salesChannelId)->build(),
+        ], $this->context);
+
+        $content = $this->exportProductNumbers($ids, ['closeout-in-stock', 'closeout-sold-out', 'regular-sold-out'], includeVariants: false);
+
+        static::assertSame(implode(\PHP_EOL, $expectedProductNumbers) . \PHP_EOL, $content);
+    }
+
+    public static function hideCloseoutProductsProvider(): \Generator
+    {
+        yield 'storefront hides sold-out closeouts' => [true, ['closeout-in-stock', 'regular-sold-out']];
+        yield 'storefront shows sold-out closeouts' => [false, ['closeout-in-stock', 'closeout-sold-out', 'regular-sold-out']];
+    }
+
+    public function testExportWithVariantsLeavesOutSoldOutVariantsOfACloseoutProduct(): void
+    {
+        $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true, $salesChannelId);
+
+        $ids = new IdsCollection();
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'closeout-parent'))
+                ->price(10)
+                ->closeout()
+                ->stock(5)
+                ->visibility($salesChannelId)
+                ->variant((new ProductBuilder($ids, 'variant-in-stock'))->closeout(null)->stock(5)->build())
+                ->variant((new ProductBuilder($ids, 'variant-sold-out'))->closeout(null)->stock(0)->build())
+                ->build(),
+        ], $this->context);
+
+        $content = $this->exportProductNumbers($ids, ['closeout-parent', 'variant-in-stock', 'variant-sold-out'], includeVariants: true);
+
+        static::assertSame('variant-in-stock' . \PHP_EOL, $content);
+    }
+
+    public function testExportWithoutVariantsKeepsAParentWhoseVariantsAreInStock(): void
+    {
+        $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true, $salesChannelId);
+
+        $ids = new IdsCollection();
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'closeout-parent'))
+                ->price(10)
+                ->closeout()
+                ->stock(0)
+                ->visibility($salesChannelId)
+                ->variant((new ProductBuilder($ids, 'variant-in-stock'))->closeout(null)->stock(5)->build())
+                ->build(),
+        ], $this->context);
+
+        $content = $this->exportProductNumbers($ids, ['closeout-parent', 'variant-in-stock'], includeVariants: false);
+
+        static::assertSame('closeout-parent' . \PHP_EOL, $content);
+    }
+
     public function testExportWithHeadlessSalesChannel(): void
     {
         $headlessSalesChannelId = Uuid::randomHex();
@@ -443,6 +522,26 @@ class ProductExportGeneratorTest extends TestCase
         static::assertInstanceOf(ProductExportResult::class, $exportResult);
 
         static::assertSame(implode(\PHP_EOL, $expectedUrls) . \PHP_EOL, $exportResult->getContent());
+    }
+
+    /**
+     * @param list<string> $keys
+     */
+    private function exportProductNumbers(IdsCollection $ids, array $keys, bool $includeVariants): string
+    {
+        $productExportId = $this->createProductExportForProductStream($this->getProductStreamId(array_values($ids->getList($keys))), [
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ product.productNumber }}',
+            'includeVariants' => $includeVariants,
+        ]);
+
+        $productExport = $this->repository->search($this->createProductExportCriteria($productExportId), $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+
+        return $exportResult->getContent();
     }
 
     private function createProductExportCriteria(string $id): Criteria

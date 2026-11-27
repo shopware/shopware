@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -12,6 +13,8 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -36,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,6 +52,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Twig\Environment;
@@ -92,6 +97,8 @@ class ProductExportGeneratorTest extends TestCase
 
     private MockObject&CategoryBreadcrumbBuilder $breadcrumbBuilder;
 
+    private StaticSystemConfigService $systemConfigService;
+
     protected function setUp(): void
     {
         $registry = new StaticDefinitionInstanceRegistry(
@@ -118,6 +125,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->parserFactory = $this->createMock(TwigVariableParserFactory::class);
         $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $this->systemConfigService = new StaticSystemConfigService();
     }
 
     public function testGenerateWithInvalidProductExportId(): void
@@ -163,7 +171,9 @@ class ProductExportGeneratorTest extends TestCase
             $this->productDefinition,
             $this->languageLocaleProvider,
             $this->parserFactory,
-            $this->breadcrumbBuilder
+            $this->breadcrumbBuilder,
+            $this->systemConfigService,
+            new ProductCloseoutFilterFactory()
         );
 
         $this->expectExceptionObject(ProductExportException::productExportNotFound($productExport->getId()));
@@ -211,7 +221,9 @@ class ProductExportGeneratorTest extends TestCase
             $this->productDefinition,
             $this->languageLocaleProvider,
             $this->parserFactory,
-            $this->breadcrumbBuilder
+            $this->breadcrumbBuilder,
+            $this->systemConfigService,
+            new ProductCloseoutFilterFactory()
         );
 
         $this->expectExceptionObject(ProductExportException::renderProductException($errorMessage));
@@ -260,7 +272,9 @@ class ProductExportGeneratorTest extends TestCase
             $this->productDefinition,
             $this->languageLocaleProvider,
             $this->parserFactory,
-            $this->breadcrumbBuilder
+            $this->breadcrumbBuilder,
+            $this->systemConfigService,
+            new ProductCloseoutFilterFactory()
         );
 
         // Reaching the "not found" result (no products resolve) proves the interface-only builder was routed
@@ -674,6 +688,62 @@ class ProductExportGeneratorTest extends TestCase
         static::assertNotNull($result);
     }
 
+    #[DataProvider('hideCloseoutProductsProvider')]
+    public function testGenerateFiltersSoldOutCloseoutProductsOnlyWhenTheStorefrontHidesThem(bool $hideCloseoutProducts): void
+    {
+        $productExport = $this->getProductExportEntity();
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{{ product.id }}');
+
+        $this->systemConfigService->set('core.listing.hideCloseoutProductsWhenOutOfStock', $hideCloseoutProducts, 'storefrontSalesChannelId');
+
+        $context = $this->createSalesChannelContext();
+
+        $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+
+        $results = [
+            $this->createProductSearchResult($this->createProduct('product-id'), $context),
+            $this->createEmptyProductSearchResult($context),
+        ];
+        $filters = [];
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$results, &$filters): EntitySearchResult {
+                $filters = $criteria->getFilters();
+
+                $next = array_shift($results);
+                \assert($next instanceof EntitySearchResult);
+
+                return $next;
+            });
+
+        $this->productExportRender->expects($this->once())->method('renderBody')->willReturn('product');
+        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->expects($this->once())->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+        $this->breadcrumbBuilder->expects($this->never())->method('getProductSeoCategory');
+
+        $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        $closeoutFilter = new OrFilter([
+            new RangeFilter('childCount', [RangeFilter::GT => 0]),
+            new ProductCloseoutFilter(),
+        ]);
+
+        if ($hideCloseoutProducts) {
+            static::assertContainsEquals($closeoutFilter, $filters);
+        } else {
+            static::assertNotContainsEquals($closeoutFilter, $filters);
+        }
+    }
+
+    public static function hideCloseoutProductsProvider(): \Generator
+    {
+        yield 'storefront hides sold-out closeouts' => [true];
+        yield 'storefront shows sold-out closeouts' => [false];
+    }
+
     public function testGenerateJsonlSkipsParentProductsAndAddsLineSeparators(): void
     {
         $productExport = $this->getProductExportEntity();
@@ -975,7 +1045,9 @@ class ProductExportGeneratorTest extends TestCase
             $this->productDefinition,
             $this->languageLocaleProvider,
             $this->parserFactory,
-            $this->breadcrumbBuilder
+            $this->breadcrumbBuilder,
+            $this->systemConfigService,
+            new ProductCloseoutFilterFactory()
         );
     }
 

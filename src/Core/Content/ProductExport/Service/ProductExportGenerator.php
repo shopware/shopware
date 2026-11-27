@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -38,6 +40,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
@@ -67,7 +70,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         private readonly ProductDefinition $productDefinition,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         TwigVariableParserFactory $parserFactory,
-        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
     ) {
         $this->twigVariableParser = $parserFactory->getParser($twig);
     }
@@ -137,6 +142,13 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         } else {
             // Only fetch main and standalone products
             $criteria->addFilter(new EqualsFilter('parentId', null));
+        }
+
+        if ($this->systemConfigService->getBool('core.listing.hideCloseoutProductsWhenOutOfStock', $context->getSalesChannelId())) {
+            $criteria->addFilter(new OrFilter([
+                new RangeFilter('childCount', [RangeFilter::GT => 0]),
+                $this->productCloseoutFilterFactory->create($context),
+            ]));
         }
 
         foreach ($associations as $association) {

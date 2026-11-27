@@ -27,7 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelReposit
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -131,7 +131,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         if ($productExport->isIncludeVariants()) {
             // Only fetch variants and standalone products; parent products that have variants are skipped
             $criteria->addFilter(new OrFilter([
-                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)]),
+                new NotEqualsFilter('parentId', null),
                 new EqualsFilter('childCount', 0),
             ]));
         } else {

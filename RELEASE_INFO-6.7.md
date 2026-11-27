@@ -2,6 +2,11 @@
 
 ## Core
 
+### Faster DAL writes
+
+DAL writes avoid redundant database queries for versioned entities and translations.
+Local benchmarks on a catalogue with three million products showed approximately 20% lower write times without indexing on MySQL and MariaDB.
+
 ### Moving a category re-indexes its products
 
 Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.
@@ -21,6 +26,16 @@ Check existing environment-specific configuration that was previously ignored, i
 While a stored file is kept, the document also keeps its order version and config.
 The missing file is rendered from the current order.
 To get fresh files for an existing document, generate a new document instead of regenerating it.
+
+### Price sorted listings can display the variant that determines the position
+
+The new listing setting `core.listing.ignoreMainVariantOnPriceSorting` ("Ignore main variant on price sorting") is disabled by default.
+When it is enabled, product listings, search results, cross-sellings and product stream sliders sorted by price ignore the main variant or main product selected in the "Storefront presentation > Product listings" configuration, like `core.listing.findBestVariant` does for search results.
+Each product displays the variant that determines its position instead: the cheapest matching variant when sorted ascending, the most expensive matching variant when sorted descending.
+
+The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPriceSorting`.
+
+The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
 
 ## API
 
@@ -46,6 +61,30 @@ The system config key `core.app.shopId` is deprecated, read the shop ID from `co
 
 A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.
 Apps that need such a section should require that version in `<compatibility>`.
+
+## Administration
+
+### Core popovers render with `mt-floating-ui` before 6.8
+
+`sw-context-button`, `sw-select-result-list` and `sw-multi-tag-select` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+`sw-category-tree-field` renders its dropdown with `mt-floating-ui` instead of `sw-popover-deprecated`.
+An open select dropdown now follows its field while the page scrolls, instead of staying where it was when it opened.
+
+The popovers are still teleported to `<body>`, but the markup around them changed.
+Extensions have to be adjusted:
+
+- `.sw-popover__wrapper` around these popovers is replaced by `.mt-floating-ui__content`.
+  Update styles and end-to-end selectors that matched the old wrapper.
+- The `--placement-*` modifier classes are gone.
+  `mt-floating-ui` flips the popover itself and marks the side that faces the anchor with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
+  A popover below its field or button carries `.mt-floating-ui--top`.
+  The context menu also has its resolved placement, such as `bottom-end`, in the `data-placement` attribute of `.mt-floating-ui__content`.
+- Classes passed via `popover-classes` on `sw-select-result-list` land on `.mt-floating-ui__content` and on the `mt-floating-ui` element that stays inside the field.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the popover.
+- The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
+  The private `zIndex` prop of `sw-context-button` was removed.
+- `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
 
 ## Storefront
 

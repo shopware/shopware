@@ -385,13 +385,17 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $languages[] = Defaults::LANGUAGE_SYSTEM;
         }
 
-        // visibilities are read in a subquery, a join next to the tags join would multiply the rows of a product (visibilities x tags) before grouping
         $baseSql = <<<'SQL'
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(p.active, pp.active) AS active,
     p.available AS available,
-    #tags#,
+    (
+        SELECT #tags#
+        FROM product_tag
+            LEFT JOIN tag ON tag.id = product_tag.tag_id
+        WHERE product_tag.product_id = p.tags AND product_tag.product_version_id = p.version_id
+    ) AS tags,
     (
         SELECT #visibilities#
         FROM product_visibility
@@ -434,12 +438,8 @@ SELECT
 
 FROM product p
     LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)
-    LEFT JOIN product_tag ON (product_tag.product_id = p.tags AND product_tag.product_version_id = p.version_id)
-    LEFT JOIN tag ON tag.id = product_tag.tag_id
 
 WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL OR JSON_EXTRACT(`p`.`variant_listing_config`, "$.displayParent") = 1)
-
-GROUP BY p.id
 SQL;
 
         $baseMapping = [

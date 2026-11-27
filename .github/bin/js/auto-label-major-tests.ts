@@ -309,18 +309,24 @@ export function diffFromFiles(files: PullRequestFile[]): string {
         .join('\n');
 }
 
-export async function fetchDiff({
-    github,
-    core,
-    context,
-}: {
+type DiffRequest = {
     github: PullRequestDiffClient;
     core: Pick<CoreLogger, 'warning'>;
     context: {
         repo: { owner: string; repo: string };
         payload: { pull_request: { number: number } };
     };
-}): Promise<string> {
+};
+
+/** The files endpoint stops at 3,000 files. */
+const FILES_ENDPOINT_LIMIT = 3000;
+
+/** `complete` is false once a file's lines went unseen, so a missing marker proves nothing. */
+export async function fetchPullRequestDiff({
+    github,
+    core,
+    context,
+}: DiffRequest): Promise<{ diff: string; complete: boolean }> {
     const pullRequest = {
         owner: context.repo.owner,
         repo: context.repo.repo,
@@ -330,14 +336,13 @@ export async function fetchDiff({
     try {
         const { data } = await github.rest.pulls.get({ ...pullRequest, mediaType: { format: 'diff' } });
 
-        return String(data);
+        return { diff: String(data), complete: true };
     } catch (error) {
         if (!isDiffTooLarge(error)) {
             throw error;
         }
     }
 
-    // The files endpoint stops at 3,000 files; beyond that some markers go unseen.
     const files = await github.paginate(github.rest.pulls.listFiles, { ...pullRequest, per_page: 100 });
     const withoutPatch = files.filter(({ patch }) => patch === undefined).length;
     core.warning(
@@ -345,7 +350,11 @@ export async function fetchDiff({
             (withoutPatch > 0 ? `; ${withoutPatch} without a patch are matched by path only` : ''),
     );
 
-    return diffFromFiles(files);
+    return { diff: diffFromFiles(files), complete: withoutPatch === 0 && files.length < FILES_ENDPOINT_LIMIT };
+}
+
+export async function fetchDiff(request: DiffRequest): Promise<string> {
+    return (await fetchPullRequestDiff(request)).diff;
 }
 
 export async function detectMajorTestArms({ github, core, context }: DetectionToolkit): Promise<MajorTestArms> {

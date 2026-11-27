@@ -24,11 +24,14 @@
     {% endblock %}
 
     {% block sw_context_button_menu %}
-    <sw-popover
+    {# Mounted only while open: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
+    <mt-floating-ui
         v-if="showMenu"
-        class="sw-context-button__menu-position"
-        popover-class="sw-context-button__menu-popover"
-        :z-index="zIndex"
+        class="sw-context-button__menu-position sw-context-button__menu-popover"
+        :is-opened="true"
+        :anchor-element="$refs.swContextButton"
+        :offset="10"
+        :floating-ui-options="menuFloatingUiOptions"
     >
         <sw-context-menu
             ref="swContextMenu"
@@ -39,7 +42,7 @@
             {% block sw_context_button_menu_slot_default %}{% endblock %}
             </slot>
         </sw-context-menu>
-    </sw-popover>
+    </mt-floating-ui>
     {% endblock %}
 </button>
 {% endblock %}

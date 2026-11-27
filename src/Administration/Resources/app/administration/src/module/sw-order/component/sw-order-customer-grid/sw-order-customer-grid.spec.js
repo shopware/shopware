@@ -132,7 +132,7 @@ async function createWrapper() {
                         </li>`,
                     methods: {
                         onClickResult() {
-                            this.$parent.$parent.$emit('item-select', this.item);
+                            Shopware.Utils.EventBus.emit('item-select', this.item);
                         },
                     },
                 },
@@ -147,8 +147,9 @@ async function createWrapper() {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
-                'sw-popover': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },

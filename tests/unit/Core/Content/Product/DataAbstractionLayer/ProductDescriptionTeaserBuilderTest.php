@@ -23,6 +23,16 @@ class ProductDescriptionTeaserBuilderTest extends TestCase
         );
     }
 
+    public function testStripsHtmlWhenSanitizerIsDisabled(): void
+    {
+        $builder = new ProductDescriptionTeaserBuilder(new HtmlSanitizer(enabled: false));
+
+        static::assertSame(
+            'Test',
+            $builder->build('<h2></h2><h1 class="' . str_repeat('padding', 100) . '">Test</h1>')
+        );
+    }
+
     public function testTruncatesToMaxLength(): void
     {
         $teaser = $this->builder()->build(str_repeat('a', 1000));

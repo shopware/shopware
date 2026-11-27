@@ -29,7 +29,7 @@ class ProductDescriptionTeaserBuilder
             return $description;
         }
 
-        $stripped = $this->sanitizer->sanitize($description, [], false, self::TEASER_FIELD);
+        $stripped = $this->sanitizer->stripTags($this->sanitizer->sanitize($description, [], false, self::TEASER_FIELD));
 
         return mb_substr($stripped, 0, self::MAX_LENGTH);
     }

@@ -5,13 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Adapter\FactoryHelper
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\SectionContentLayoutAssignmentCollection;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\SectionContentLayoutAssignmentEntity;
 
 /**
  * @internal
@@ -65,18 +65,18 @@ class EntityLayoutResolverTest extends TestCase
     }
 
     /**
-     * @return StaticEntityRepository<SectionContentLayoutAssignmentCollection>
+     * @return StaticEntityRepository<CategoryContentLayoutCollection>
      */
-    private function createRepository(SectionContentLayoutAssignmentEntity ...$entities): StaticEntityRepository
+    private function createRepository(CategoryContentLayoutEntity ...$entities): StaticEntityRepository
     {
-        $repository = StaticEntityRepository::of(SectionContentLayoutAssignmentCollection::class, [$entities]);
+        $repository = StaticEntityRepository::of(CategoryContentLayoutCollection::class, [$entities]);
 
         return $repository;
     }
 
-    private function createAssignmentEntity(string $layoutId): SectionContentLayoutAssignmentEntity
+    private function createAssignmentEntity(string $layoutId): CategoryContentLayoutEntity
     {
-        $entity = new SectionContentLayoutAssignmentEntity();
+        $entity = new CategoryContentLayoutEntity();
         $entity->setId($this->ids->get('assignment'));
         $entity->setContentLayoutId($layoutId);
 

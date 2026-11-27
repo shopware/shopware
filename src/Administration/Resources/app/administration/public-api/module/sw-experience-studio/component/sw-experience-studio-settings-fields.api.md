@@ -37,7 +37,7 @@ emits
 
 data
   mappingModalFieldKey: any  [private]
-  radioPanelDescriptionIdPrefix: any  [private]
+  radioPanelIdPrefix: any  [private]
   selectedBreakpoints: any  [private]
 
 computed

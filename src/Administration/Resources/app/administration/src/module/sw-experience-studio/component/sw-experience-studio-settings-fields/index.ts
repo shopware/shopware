@@ -160,7 +160,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            radioPanelDescriptionIdPrefix: Shopware.Utils.createId(),
+            radioPanelIdPrefix: Shopware.Utils.createId(),
             selectedBreakpoints: {} as Partial<Record<string, ContentSystemBreakpoint>>,
             mappingModalFieldKey: null as string | null,
         };
@@ -620,11 +620,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getRadioPanelDescriptionId(key: string): string {
-            return `sw-experience-studio-radio-panel-description-${this.radioPanelDescriptionIdPrefix}-${encodeURIComponent(key)}`;
+            return `sw-experience-studio-radio-panel-description-${this.radioPanelIdPrefix}-${encodeURIComponent(key)}`;
         },
 
         getRadioPanelOptionId(key: string, optionValue: string): string {
-            return `sw-experience-studio-radio-panel-${this.radioPanelDescriptionIdPrefix}-${encodeURIComponent(JSON.stringify([key, optionValue]))}`;
+            return `sw-experience-studio-radio-panel-${this.radioPanelIdPrefix}-${encodeURIComponent(JSON.stringify([key, optionValue]))}`;
         },
 
         getFieldControlKey(key: string): string {

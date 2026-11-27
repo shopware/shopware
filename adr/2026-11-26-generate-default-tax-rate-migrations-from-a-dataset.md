@@ -49,10 +49,17 @@ The file answers "what rate does a fresh installation ship" without a database, 
 
 ### Two commands own the file
 
-`bin/console tax:update-default-rates` fetches the published rates from the EU Commission's TEDB and from GOV.UK for the United Kingdom, and rewrites the dataset.
+`bin/console sync:tax:default-rates` fetches the published rates from the EU Commission's TEDB and from GOV.UK for the United Kingdom, and rewrites the dataset.
 It is the only writer, and it keeps the plausibility guards that reject an implausible rate, a stale period or a truncated response rather than committing it.
 
-`bin/console tax:generate-rate-migration` emits the migration and its test for the current dataset.
+`bin/console make:tax-migration` emits the migration and its test for the current dataset.
+
+Both commands write into the shopware/shopware working tree, yet everything under `src/Core` ships in `shopware/core` and is present in every vendor installation.
+Three decisions keep platform tooling from posing as shop tooling there:
+
+- The commands live in the DevOps area under its command namespaces — `sync:tax:default-rates` beside `sync:composer:version`, `make:tax-migration` beside `make:coverage` — not under `tax:`, where the command list would present rewriting the platform's defaults as an operation on the shop's own tax rates.
+- They are registered in the DevOps bundle's `services_dev.php`, which loads only when the kernel environment is `dev`, exactly as `make:coverage` already is. A production installation does not contain the commands at all.
+- A `dev` environment alone does not prove a monorepo checkout, because a plugin developer's vendor installation runs `dev` too. Each command therefore asserts it runs inside a `shopware/platform` project and aborts otherwise: every path it writes resolves into `vendor/` anywhere else.
 
 Drift detection is then a diff, not a second implementation of the rate comparison: a scheduled job runs both commands and inspects the working tree.
 A clean tree is the record that the review found nothing and changed nothing, which is what step 3 of #23032 asks for.
@@ -113,8 +120,8 @@ No shipped data exercises that comparison, so the first generated migration usin
 
 | Step | Done by | When |
 | ---- | ------- | ---- |
-| Rewrite the dataset from the published rates | `tax:update-default-rates` | Monthly, on a schedule |
-| Generate the migration and its test | `tax:generate-rate-migration`, in the same run | Only when the dataset changed |
+| Rewrite the dataset from the published rates | `sync:tax:default-rates` | Monthly, on a schedule |
+| Generate the migration and its test | `make:tax-migration`, in the same run | Only when the dataset changed |
 | Open one pull request carrying dataset, migration and test | The same run | Only when the dataset changed |
 | Accept or reject the rates | Codeowner of the dataset | On that pull request |
 | Set the `backport-` labels | Reviewer | Before merge |
@@ -143,4 +150,5 @@ Its parsing, in particular the TEDB envelope and the scoping of the rate element
 * Nothing changes for an existing installation: the runtime read path, the seeded rows and merchant edits are untouched, and no migration is rewritten.
 * Announced changes can ship before they take effect, at the cost of a second `tax_rule` row per announced change and a test covering the `activeFrom` comparison.
 * Two commands are new tooling to maintain, and a dataset edit that bypasses the generator produces no migration at all; the check asserting `tax_rule` against the dataset is what catches that.
+* The commands follow the DevOps tooling pattern: absent from a production installation, present but refusing to run in a `dev` environment outside the monorepo. The scheduled job has to boot the kernel with `APP_ENV=dev` for them to exist.
 * Both checks still need an installed Shopware, because the commands boot the kernel; what disappears is the second implementation of the rate comparison, not the installation step.

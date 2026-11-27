@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -31,6 +32,8 @@ export default {
             selectedFeatureType: null,
             showPageOne: true,
             term: '',
+            customFieldSearchTerm: '',
+            customFieldLimit: 10,
             showCustomField: false,
             showPropertyGroups: false,
             showProductInfo: false,
@@ -117,7 +120,35 @@ export default {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, this.customFieldLimit);
+            const term = this.customFieldSearchTerm.trim();
+
+            if (term) {
+                const locales = new Set([
+                    Shopware.Store.get('session').currentLocale,
+                    Shopware.Context.app.fallbackLocale,
+                ]);
+                const fields = [
+                    'name',
+                    'type',
+                    ...[...locales].filter(Boolean).map((locale) => `config.label.${locale}`),
+                ];
+                const words = [...new Set(term.split(/\s+/).filter((word) => word.length > 1))];
+
+                criteria.addSorting(Criteria.sort('_score', 'DESC'));
+
+                fields.forEach((field) => {
+                    criteria.addQuery(Criteria.equals(field, term), searchRankingPoint.HIGH_SEARCH_RANKING);
+                    criteria.addQuery(Criteria.contains(field, term), searchRankingPoint.MIDDLE_SEARCH_RANKING);
+
+                    if (words.length > 1) {
+                        words.forEach((word) => {
+                            criteria.addQuery(Criteria.contains(field, word), searchRankingPoint.LOW_SEARCH_RANKING);
+                        });
+                    }
+                });
+            }
+
             criteria.addSorting(Criteria.sort('type', 'DESC'));
 
             const featureIds = this.getFeaturesIds('customField');
@@ -220,7 +251,6 @@ export default {
                 this.features = this.productFeatureSet.features;
             }
 
-            this.customFieldCriteria.setLimit(10);
             this.propertyGroupCriteria.setLimit(10);
 
             this.getCustomFieldList();
@@ -229,7 +259,7 @@ export default {
         },
 
         onSearchCustomFields() {
-            this.customFieldCriteria.setTerm(this.term);
+            this.customFieldSearchTerm = this.term;
             this.getCustomFieldList();
         },
 
@@ -463,6 +493,7 @@ export default {
         },
 
         paginateCustomFieldGrid({ page, limit }) {
+            this.customFieldLimit = limit;
             this.customFieldCriteria.setPage(page);
             this.customFieldCriteria.setLimit(limit);
 

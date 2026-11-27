@@ -277,4 +277,169 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(selectItemMock).toHaveBeenCalledTimes(1);
         expect(selectItemMock).toHaveBeenCalledWith(true, { id: 'prop-id-2', name: 'prop-2' });
     });
+
+    it('should search custom fields by the label shown in the grid', async () => {
+        const search = jest.fn(() => Promise.resolve([]));
+        const wrapper = await createWrapper({
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
+                },
+                repositoryFactory: {
+                    create: () => ({ search }),
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+        search.mockClear();
+
+        const searchField = wrapper.findComponent('.sw-simple-search-field');
+        await searchField.vm.$emit('update:value', 'Shown label');
+        await searchField.vm.$emit('search-term-change', 'Shown label');
+        await flushPromises();
+
+        const customFieldSearch = search.mock.calls.find(([criteria]) => criteria.sortings.some((s) => s.field === 'type'));
+        expect(customFieldSearch).toBeDefined();
+
+        const parsed = JSON.stringify(customFieldSearch[0].parse());
+        expect(parsed).toContain('config.label');
+        expect(parsed).toContain('Shown label');
+        expect(customFieldSearch[0].term).toBeNull();
+        expect(customFieldSearch[0].queries).toEqual(
+            expect.arrayContaining([
+                { score: 250, query: { type: 'contains', field: 'name', value: 'Shown label' } },
+                { score: 250, query: { type: 'contains', field: 'type', value: 'Shown label' } },
+            ]),
+        );
+    });
+
+    it('should keep the chosen page size when searching custom fields', async () => {
+        const search = jest.fn((criteria) => {
+            const isCustomFieldSearch = criteria.sortings.some((s) => s.field === 'type');
+            return Promise.resolve(Object.assign([], { total: isCustomFieldSearch ? 50 : 0 }));
+        });
+        const wrapper = await createWrapper({
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
+                },
+                repositoryFactory: {
+                    create: () => ({ search }),
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.findComponent({ name: 'sw-pagination' }).vm.$emit('page-change', { page: 3, limit: 25 });
+        await flushPromises();
+        search.mockClear();
+
+        const searchField = wrapper.findComponent('.sw-simple-search-field');
+        await searchField.vm.$emit('update:value', 'Shown label');
+        await searchField.vm.$emit('search-term-change', 'Shown label');
+        await flushPromises();
+
+        const customFieldSearch = search.mock.calls.find(([criteria]) => criteria.sortings.some((s) => s.field === 'type'));
+        expect(customFieldSearch).toBeDefined();
+        expect(customFieldSearch[0].limit).toBe(25);
+        expect(customFieldSearch[0].page).toBe(1);
+    });
+
+    describe('custom field search ranking', () => {
+        const session = Shopware.Store.get('session');
+        let previousLocale;
+        let previousFallbackLocale;
+
+        beforeEach(() => {
+            previousLocale = session.currentLocale;
+            previousFallbackLocale = Shopware.Context.app.fallbackLocale;
+            session.setAdminLocaleState({ locales: ['de-DE', 'en-GB', 'nl-NL'], locale: 'de-DE', languageId: '' });
+            Shopware.Context.app.fallbackLocale = 'en-GB';
+        });
+
+        afterEach(() => {
+            session.setAdminLocaleState({ locales: [previousLocale], locale: previousLocale, languageId: '' });
+            Shopware.Context.app.fallbackLocale = previousFallbackLocale;
+        });
+
+        async function searchCustomFields(term) {
+            const search = jest.fn(() => Promise.resolve([]));
+            const wrapper = await createWrapper({
+                provide: {
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
+                    },
+                    repositoryFactory: {
+                        create: () => ({ search }),
+                    },
+                },
+            });
+            await flushPromises();
+
+            await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+            await flushPromises();
+            search.mockClear();
+
+            const searchField = wrapper.findComponent('.sw-simple-search-field');
+            await searchField.vm.$emit('update:value', term);
+            await searchField.vm.$emit('search-term-change', term);
+            await flushPromises();
+
+            const customFieldSearch = search.mock.calls.find(([criteria]) =>
+                criteria.sortings.some((s) => s.field === 'type'),
+            );
+
+            return customFieldSearch[0];
+        }
+
+        const fields = [
+            'name',
+            'type',
+            'config.label.de-DE',
+            'config.label.en-GB',
+        ];
+
+        it('should rank exact matches above partial matches and sort by score first', async () => {
+            const criteria = await searchCustomFields('Material');
+
+            expect(criteria.sortings.map(({ field, order }) => ({ field, order }))).toEqual([
+                { field: '_score', order: 'DESC' },
+                { field: 'type', order: 'DESC' },
+            ]);
+            expect(criteria.queries).toEqual(
+                fields.flatMap((field) => [
+                    { score: 500, query: { type: 'equals', field, value: 'Material' } },
+                    { score: 250, query: { type: 'contains', field, value: 'Material' } },
+                ]),
+            );
+        });
+
+        it('should also match the single words of a multi-word term with a lower score', async () => {
+            const criteria = await searchCustomFields('  Material thickness ');
+
+            expect(criteria.queries).toEqual(
+                fields.flatMap((field) => [
+                    { score: 500, query: { type: 'equals', field, value: 'Material thickness' } },
+                    { score: 250, query: { type: 'contains', field, value: 'Material thickness' } },
+                    { score: 80, query: { type: 'contains', field, value: 'Material' } },
+                    { score: 80, query: { type: 'contains', field, value: 'thickness' } },
+                ]),
+            );
+        });
+
+        it('should not search the labels of other locales', async () => {
+            const criteria = await searchCustomFields('Material');
+
+            expect(JSON.stringify(criteria.parse())).not.toContain('nl-NL');
+        });
+    });
 });

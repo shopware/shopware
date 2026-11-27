@@ -20,6 +20,8 @@ emits
   modal-close(...args: any[])
 
 data
+  customFieldLimit: any
+  customFieldSearchTerm: any
   customFields: any
   featureType: any
   features: any

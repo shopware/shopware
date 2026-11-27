@@ -79,6 +79,14 @@ The Store API shop settings expose the setting as `listing.ignoreMainVariantOnPr
 
 The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL searcher represent each group by its first entity in sorting order.
 
+### Storefront search aggregations skip the score calculation
+
+When the product search runs on MySQL with OR logic, the listing aggregations of the search result no longer repeat the score calculation.
+For this, the search now only matches search keywords with a ranking above 0.
+Keywords with a ranking of 0 never added to the score, so for them the search results stay the same.
+Keywords with a negative ranking no longer lower the score, so a negative ranking in the search configuration no longer moves products down or out of the search result.
+This also applies to keyword rankings that a custom keyword analyzer writes.
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

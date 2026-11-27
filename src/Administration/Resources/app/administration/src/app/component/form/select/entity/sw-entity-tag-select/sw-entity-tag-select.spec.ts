@@ -88,4 +88,40 @@ describe('src/app/component/form/select/entity/sw-entity-tag-select', () => {
         expect(repository.create).not.toHaveBeenCalled();
         expect(context.resultCollection).toEqual([]);
     });
+
+    it('should remove the add tag entry from the results', () => {
+        const { filterSearchGeneratedTags } = swEntityTagSelect.methods as {
+            filterSearchGeneratedTags: (this: { resultCollection: { id: string | number }[] }) => void;
+        };
+        const context = { resultCollection: [{ id: -1 }, { id: 'tag-id' }] };
+
+        filterSearchGeneratedTags.call(context);
+
+        expect(context.resultCollection).toEqual([{ id: 'tag-id' }]);
+    });
+
+    it('should add a tag entry when no tag matches the searched term', async () => {
+        const { search } = swEntityTagSelect.methods as {
+            search: (this: Record<string, unknown>) => void;
+        };
+        const newTag = { id: -1, name: '' };
+        const repository = { create: jest.fn(() => newTag) };
+        const context: Record<string, unknown> = {
+            searchTerm: 'Sal',
+            tagExists: false,
+            resultCollection: [],
+            entityCollection: { context: {} },
+            filterSearchGeneratedTags: jest.fn(),
+            checkTagExists: jest.fn(() => Promise.resolve()),
+            $super: jest.fn(() => Promise.resolve()),
+            $t: jest.fn(() => 'Add "Sal"'),
+            $nextTick: jest.fn(),
+            repository,
+        };
+
+        search.call(context);
+        await flushPromises();
+
+        expect(context.resultCollection).toEqual([{ id: -1, name: 'Add "Sal"' }]);
+    });
 });

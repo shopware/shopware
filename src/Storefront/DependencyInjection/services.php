@@ -331,6 +331,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('request_stack'),
             param('shopware.staging.storefront.show_banner'),
             service(Connection::class),
+            param('shopware.cookie_consent.log_storage'),
         ])
         ->tag('twig.extension');
 
@@ -754,6 +755,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CookieProviderInterface::class, CookieProvider::class)
         ->args([
             param('session.storage.options'),
+            '$consentLogStorage' => param('shopware.cookie_consent.log_storage'),
+            '$consentLogRetentionDays' => param('shopware.cookie_consent.retention_days'),
         ])
         ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 

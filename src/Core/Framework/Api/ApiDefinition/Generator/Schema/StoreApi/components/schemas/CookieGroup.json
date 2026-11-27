@@ -28,6 +28,10 @@
           "entries": {
             "$ref": "#/components/schemas/CookieEntryCollection"
           },
+          "technicalName": {
+            "type": "string",
+            "description": "Identifier of the cookie group that does not change with the language, e.g. `cookie.groupRequired`."
+          },
           "apiAlias": {
             "type": "string",
             "const": "cookie_group"
@@ -59,6 +63,7 @@
         },
         "required": [
           "name",
+          "technicalName",
           "isRequired",
           "apiAlias"
         ]

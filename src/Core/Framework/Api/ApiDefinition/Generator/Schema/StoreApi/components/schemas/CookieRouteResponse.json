@@ -72,6 +72,7 @@
                   "apiAlias": "cookie_entry"
                 }
               ],
+              "technicalName": "cookie.groupRequired",
               "apiAlias": "cookie_group"
             },
             {
@@ -88,6 +89,7 @@
                   "apiAlias": "cookie_entry"
                 }
               ],
+              "technicalName": "cookie.groupStatistical",
               "apiAlias": "cookie_group"
             },
             {
@@ -104,6 +106,7 @@
                   "apiAlias": "cookie_entry"
                 }
               ],
+              "technicalName": "cookie.groupMarketing",
               "apiAlias": "cookie_group"
             },
             {
@@ -119,6 +122,7 @@
                   "apiAlias": "cookie_entry"
                 }
               ],
+              "technicalName": "cookie.groupComfortFeatures",
               "apiAlias": "cookie_group"
             }
           ],

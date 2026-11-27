@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
-use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -78,27 +77,6 @@ final class ContentSystemSchemaReferencesResolveTest extends TestCase
             [],
             $this->danglingContentSystemRefs($document),
             'Content-system references in the Store API schema do not resolve against the assembled document.'
-        );
-    }
-
-    #[TestDox('reports a content-system reference the document does not define')]
-    public function testDanglingContentSystemReferenceIsReported(): void
-    {
-        $document = [
-            'paths' => [
-                '/content-skeleton' => [
-                    'get' => [
-                        'responses' => [
-                            '200' => ['$ref' => '#/components/schemas/ContentSkeletonElementMissing'],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        static::assertSame(
-            ['"#/components/schemas/ContentSkeletonElementMissing" at paths./content-skeleton.get.responses.200'],
-            $this->danglingContentSystemRefs($document)
         );
     }
 

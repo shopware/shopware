@@ -535,6 +535,11 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(httpClient.delete).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * Cancelling a rented extension that the server could not delete also tried to remove it and failed.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21999
+     */
     it.each([
         [
             'is managed by Composer',
@@ -575,6 +580,11 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.emitted('update-list')).toHaveLength(1);
     });
 
+    /**
+     * Cards offered removal for Composer-managed extensions, which the server then refused.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22342
+     */
     it('should not offer to remove an extension whose files are managed by Composer', async () => {
         const wrapper = await createWrapper(
             createExtension({
@@ -605,6 +615,11 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find(removalLink).exists()).toBe(true);
     });
 
+    /**
+     * Failed removals on bought cards showed no error because the card called a missing method.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22342
+     */
     it('should show the error when removing the extension fails', async () => {
         jest.spyOn(extensionStoreActionService, 'removeExtension').mockRejectedValue({
             response: {
@@ -628,6 +643,11 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         );
     });
 
+    /**
+     * After a failed removal the card still looked like an active subscription.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21999
+     */
     it('should reload the list when removing fails after the subscription was cancelled', async () => {
         jest.spyOn(extensionStoreActionService, 'cancelLicense').mockResolvedValue();
         jest.spyOn(extensionStoreActionService, 'removeExtension').mockRejectedValue({

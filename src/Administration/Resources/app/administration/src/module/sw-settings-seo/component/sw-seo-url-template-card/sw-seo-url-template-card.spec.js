@@ -373,6 +373,11 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         expect(wrapper.emitted('sales-channel-changed').at(-1)).toEqual([false]);
     });
 
+    /**
+     * Settings › SEO treated a headless sales channel outside the first loaded page like a storefront.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22017
+     */
     it('should load a selected sales channel that is not part of the initially loaded sales channels', async () => {
         // with many sales channels, the initially loaded page does not contain every sales channel
         const { wrapper } = await createWrapper({ initiallyLoadedSalesChannelIds: [STOREFRONT_SALES_CHANNEL_ID] });
@@ -447,52 +452,64 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
         expect(wrapper.vm.errorMessages[entity.id]).toBe('Twig syntax error');
     });
 
-    it.each([
-        // @deprecated tag:v6.8.0 - Will be removed together with the FRAMEWORK__ code of the component
-        'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND',
-        'CONTENT__SEO_URL_ROUTE_NOT_FOUND',
-    ])('should not display templates whose SEO URL route is not registered (%s)', async (errorCode) => {
-        const { wrapper, seoUrlTemplateService } = await createWrapper({
-            defaultTemplates: [...ALL_DEFAULTS, UNREGISTERED_ROUTE_DEFAULT],
-            preview: previewFailingForUnregisteredRoute(errorCode),
+    /**
+     * A template of an unregistered SEO URL route stayed in the card and blocked saving the other templates.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/21705
+     */
+    describe('templates of unregistered SEO URL routes', () => {
+        /**
+         * Templates of an unregistered route showed up as a field with an untranslated label.
+         * @regression
+         */
+        it.each([
+            // @deprecated tag:v6.8.0 - Will be removed together with the FRAMEWORK__ code of the component
+            'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND',
+            'CONTENT__SEO_URL_ROUTE_NOT_FOUND',
+        ])('should not display templates whose SEO URL route is not registered (%s)', async (errorCode) => {
+            const { wrapper, seoUrlTemplateService } = await createWrapper({
+                defaultTemplates: [...ALL_DEFAULTS, UNREGISTERED_ROUTE_DEFAULT],
+                preview: previewFailingForUnregisteredRoute(errorCode),
+            });
+
+            expect(routeNamesForSalesChannel(wrapper, null)).toEqual([
+                'frontend.detail.page',
+                'frontend.landing.page',
+                'frontend.navigation.page',
+            ]);
+            expect(wrapper.findAll('.sw-seo-url-template-card__seo-url')).toHaveLength(3);
+
+            wrapper
+                .findComponent('sw-sales-channel-switch-stub')
+                .vm.$emit('change-sales-channel-id', STOREFRONT_SALES_CHANNEL_ID);
+            await flushPromises();
+
+            expect(routeNamesForSalesChannel(wrapper, STOREFRONT_SALES_CHANNEL_ID)).not.toContain(UNREGISTERED_ROUTE_NAME);
+            expect(seoUrlTemplateService.preview).not.toHaveBeenCalledWith(
+                expect.objectContaining({ routeName: UNREGISTERED_ROUTE_NAME, salesChannelId: STOREFRONT_SALES_CHANNEL_ID }),
+            );
         });
 
-        expect(routeNamesForSalesChannel(wrapper, null)).toEqual([
-            'frontend.detail.page',
-            'frontend.landing.page',
-            'frontend.navigation.page',
-        ]);
-        expect(wrapper.findAll('.sw-seo-url-template-card__seo-url')).toHaveLength(3);
+        /** @regression */
+        it('should save the other templates while a template of an unregistered SEO URL route exists', async () => {
+            const { wrapper, seoUrlTemplateRepository } = await createWrapper({
+                defaultTemplates: [...ALL_DEFAULTS, UNREGISTERED_ROUTE_DEFAULT],
+                preview: previewFailingForUnregisteredRoute('CONTENT__SEO_URL_ROUTE_NOT_FOUND'),
+            });
 
-        wrapper
-            .findComponent('sw-sales-channel-switch-stub')
-            .vm.$emit('change-sales-channel-id', STOREFRONT_SALES_CHANNEL_ID);
-        await flushPromises();
+            // the first field is the product template, see the default order asserted above
+            wrapper.findAllComponents('sw-inherit-wrapper-stub')[0].vm.$emit('update:value', '{{ product.productNumber }}');
 
-        expect(routeNamesForSalesChannel(wrapper, STOREFRONT_SALES_CHANNEL_ID)).not.toContain(UNREGISTERED_ROUTE_NAME);
-        expect(seoUrlTemplateService.preview).not.toHaveBeenCalledWith(
-            expect.objectContaining({ routeName: UNREGISTERED_ROUTE_NAME, salesChannelId: STOREFRONT_SALES_CHANNEL_ID }),
-        );
-    });
+            // eslint-disable-next-line sw-test-rules/no-vm-access -- the settings page saves the card through a template ref
+            wrapper.vm.onClickSave();
+            await flushPromises();
 
-    it('should save the other templates while a template of an unregistered SEO URL route exists', async () => {
-        const { wrapper, seoUrlTemplateRepository } = await createWrapper({
-            defaultTemplates: [...ALL_DEFAULTS, UNREGISTERED_ROUTE_DEFAULT],
-            preview: previewFailingForUnregisteredRoute('CONTENT__SEO_URL_ROUTE_NOT_FOUND'),
+            expect(seoUrlTemplateRepository.sync).toHaveBeenCalledTimes(1);
+            const synced = [...seoUrlTemplateRepository.sync.mock.calls[0][0]];
+            expect(synced.map((entry) => entry.routeName)).not.toContain(UNREGISTERED_ROUTE_NAME);
+            expect(synced.find((entry) => entry.routeName === 'frontend.detail.page').template).toBe(
+                '{{ product.productNumber }}',
+            );
         });
-
-        // the first field is the product template, see the default order asserted above
-        wrapper.findAllComponents('sw-inherit-wrapper-stub')[0].vm.$emit('update:value', '{{ product.productNumber }}');
-
-        // eslint-disable-next-line sw-test-rules/no-vm-access -- the settings page saves the card through a template ref
-        wrapper.vm.onClickSave();
-        await flushPromises();
-
-        expect(seoUrlTemplateRepository.sync).toHaveBeenCalledTimes(1);
-        const synced = [...seoUrlTemplateRepository.sync.mock.calls[0][0]];
-        expect(synced.map((entry) => entry.routeName)).not.toContain(UNREGISTERED_ROUTE_NAME);
-        expect(synced.find((entry) => entry.routeName === 'frontend.detail.page').template).toBe(
-            '{{ product.productNumber }}',
-        );
     });
 });

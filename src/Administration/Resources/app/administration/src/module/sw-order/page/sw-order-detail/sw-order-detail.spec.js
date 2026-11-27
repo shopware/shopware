@@ -139,6 +139,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         Shopware.Store.get('shopwareApps').selectedIds = [];
     });
 
+    /**
+     * Opening an order with view-only access created a working version.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22713
+     */
     it('should load the live order without writing or cleaning up a version for viewers', async () => {
         global.activeAclRoles = ['order.viewer'];
         const lineItem = {

@@ -332,6 +332,11 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         expect(wrapper.vm.allowInput).toBe(true);
     });
 
+    /**
+     * The SEO tab let headless sales channels outside the first loaded page edit their SEO path.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22017
+     */
     it('loads a selected sales channel that is not part of the initially loaded sales channels', async () => {
         wrapper.unmount();
         wrapper = await createWrapper({

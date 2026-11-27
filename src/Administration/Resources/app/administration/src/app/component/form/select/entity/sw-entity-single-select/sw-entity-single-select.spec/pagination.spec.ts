@@ -7,6 +7,11 @@ import type Criteria from 'src/core/data/criteria.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 describe('components/sw-entity-single-select', () => {
+    /**
+     * Results stopped loading after the second page when the search returned no total count.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/23040
+     */
     it('keeps loading pages without an exact total count and stops after a short page', async () => {
         const repository = {
             search: jest.fn((criteria: Criteria) => {

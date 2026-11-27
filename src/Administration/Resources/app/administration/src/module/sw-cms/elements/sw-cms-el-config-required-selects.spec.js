@@ -36,6 +36,10 @@ function configField(tag) {
 }
 
 describe('module/sw-cms/elements/required-config-selects', () => {
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15901
+     */
     it.each([
         ['cross-selling', crossSellingTemplate, 4],
         ['form', formTemplate, 2],
@@ -76,6 +80,10 @@ describe('module/sw-cms/elements/required-config-selects', () => {
         });
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15901
+     */
     it('should not offer to clear the product assignment type of the product slider', () => {
         const assignmentTypeSelects = findSelects(productSliderTemplate, 'sw-single-select').filter(
             (tag) => configField(tag) === 'products',

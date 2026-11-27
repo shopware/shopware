@@ -979,29 +979,46 @@ describe('module/sw-product/page/sw-product-detail', () => {
             expect(wrapper.vm.abortOnLanguageChange()).toBe(false);
         });
 
-        it('saves the product with the queued operations before it is duplicated', async () => {
-            sync.mockImplementation(() => {
-                expect(wrapper.vm.cloning).toBe(false);
-                return Promise.resolve([]);
+        /**
+         * Variant document updates ran out of step with the product save.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/23269
+         */
+        describe('save and duplicate', () => {
+            /**
+             * Save & duplicate updated the variants' documents before the product was saved.
+             * @regression
+             */
+            it('saves the product with the queued operations before it is duplicated', async () => {
+                sync.mockImplementation(() => {
+                    expect(wrapper.vm.cloning).toBe(false);
+                    return Promise.resolve([]);
+                });
+
+                await wrapper.vm.onDuplicate();
+                await flushPromises();
+
+                expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+                expect(wrapper.vm.cloning).toBe(true);
             });
 
-            await wrapper.vm.onDuplicate();
-            await flushPromises();
+            /**
+             * Variant documents were updated even when the product save failed.
+             * @regression
+             */
+            it('does not duplicate the product when its save fails', async () => {
+                jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(true);
+                jest.spyOn(wrapper.vm.syncRepository, 'save').mockRejectedValue(new Error('Save failed'));
 
-            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
-            expect(wrapper.vm.cloning).toBe(true);
-        });
+                await wrapper.vm.onDuplicate();
+                await flushPromises();
 
-        it('does not duplicate the product when its save fails', async () => {
-            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(true);
-            jest.spyOn(wrapper.vm.syncRepository, 'save').mockRejectedValue(new Error('Save failed'));
-
-            await wrapper.vm.onDuplicate();
-            await flushPromises();
-
-            expect(sync).not.toHaveBeenCalled();
-            expect(wrapper.vm.cloning).toBe(false);
-            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
+                expect(sync).not.toHaveBeenCalled();
+                expect(wrapper.vm.cloning).toBe(false);
+                expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({
+                    'document-id': operation,
+                });
+            });
         });
 
         it('duplicates the product right away when no operation is queued', () => {

@@ -207,6 +207,11 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
     });
 
+    /**
+     * The newsletter recipient filter offered only the first 100 sales channels.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22017
+     */
     it('should filter the recipients by the sales channels picked in the lazy loading select', async () => {
         const salesChannelRepository = { search: jest.fn(() => Promise.resolve([])) };
         const newsletterRecipientRepository = {

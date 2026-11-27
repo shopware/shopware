@@ -237,6 +237,11 @@ describe('sw-product-document-remove-modal', () => {
             expect(getVariantOperations()).toEqual({});
         });
 
+        /**
+         * Removing a document from variants after an unapplied edit matched no variant copy.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/23269
+         */
         it('matches a saved document by its saved values after an edit that was not applied to the variants', async () => {
             const document = createDocument('Manual v2');
             Object.assign(document, { _isNew: false });

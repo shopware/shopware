@@ -12,6 +12,11 @@ jest.mock('html2canvas', () => ({
 }));
 
 describe('src/core/service/login.service.ts', () => {
+    /**
+     * The logout screenshot reloaded every iframe, sending expired signed app requests.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22946
+     */
     it('leaves iframes out of the inactivity logout screenshot', async () => {
         document.body.innerHTML = '<div id="app"></div>';
         Shopware.Application.view = {

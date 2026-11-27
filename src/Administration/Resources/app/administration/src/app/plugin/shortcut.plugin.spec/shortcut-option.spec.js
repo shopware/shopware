@@ -110,6 +110,11 @@ describe('app/plugins/shortcut.plugin - option shapes', () => {
         expect(onSaveMock).toHaveBeenCalledWith();
     });
 
+    /**
+     * An object shortcut without active crashed the shortcut plugin and broke the payment method page.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22904
+     */
     it('Object without active: should call the method and register the following shortcuts', async () => {
         const onSaveMock = jest.fn();
         const onCancelMock = jest.fn();

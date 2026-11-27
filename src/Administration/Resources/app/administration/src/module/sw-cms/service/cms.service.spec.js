@@ -814,6 +814,11 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
+        /**
+         * Only the first 50 custom fields of an entity were offered as text editor variables.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/21961
+         */
         it('should load custom fields from all pages', async () => {
             const createPage = (names, total) =>
                 new Shopware.Data.EntityCollection(

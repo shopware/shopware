@@ -794,6 +794,11 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             expect(wrapper.vm.pendingUploadMediaIds.has('media-2')).toBe(true);
         });
 
+        /**
+         * The duplicate dialog hung after Replace file because the failed upload's media was deleted on unmount.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/23048
+         */
         it('leaves the media of a duplicated file name to the duplicate dialog', async () => {
             repositoryFactoryMock.create = () => ({ id: 'media-1' });
             repositoryFactoryMock.search = jest.fn().mockResolvedValue([{ id: 'media-1', hasFile: false }]);

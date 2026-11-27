@@ -119,6 +119,11 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-visibilit
         expect(nameElement.attributes()['tooltip-mock-message']).toBe(name);
     });
 
+    /**
+     * The default sales channel visibility modal showed rows without a name beyond the loaded sales channels.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22017
+     */
     it('should show the name of every configured sales channel, also beyond the first 500', async () => {
         const salesChannels = Array.from({ length: 501 }, (_, index) => ({
             id: `sales-channel-${index}`,

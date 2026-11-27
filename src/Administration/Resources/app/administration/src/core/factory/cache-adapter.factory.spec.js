@@ -642,6 +642,11 @@ describe('core/factory/cache-adapter.factory.js', () => {
         expect(mockAdapter).toHaveBeenCalledTimes(3);
     });
 
+    /**
+     * Searches whose url only started with an allowed url were cached and served stale.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/23328
+     */
     it.each([
         '/search/product-warehouse-group',
         '/search/product-manufacturer',
@@ -675,6 +680,11 @@ describe('core/factory/cache-adapter.factory.js', () => {
         expect(console.warn).not.toHaveBeenCalled();
     });
 
+    /**
+     * Creating an entity did not clear cached searches, so they served the old result.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/23328
+     */
     it.each([
         '/product',
         'product',
@@ -742,6 +752,11 @@ describe('core/factory/cache-adapter.factory.js', () => {
         expect(mockAdapter).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * Action writes such as order state transitions left cached reads in place.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/23328
+     */
     it.each([
         [
             { url: '_action/system-config', method: 'get', params: { domain: 'core.listing' } },

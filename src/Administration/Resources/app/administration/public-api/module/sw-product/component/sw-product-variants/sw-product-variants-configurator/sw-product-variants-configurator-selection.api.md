@@ -35,6 +35,7 @@ computed
 
 methods
   addOptionCount(): any
+  createConfiguratorSetting(option: any): any  [private]
   onOptionSelect(selection: any, item: any): any
   selectOptions(grid: any): any
 

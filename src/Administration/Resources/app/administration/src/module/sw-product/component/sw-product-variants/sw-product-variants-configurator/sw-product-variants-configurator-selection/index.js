@@ -93,25 +93,20 @@ export default {
             if (exists) {
                 this.removedOptions[item.id] = exists;
                 this.options.remove(exists.id);
-                this.addOptionCount();
-                return;
+            } else {
+                this.options.add(this.removedOptions[item.id] ?? this.createConfiguratorSetting(item));
             }
-
-            const removedOption = this.removedOptions[item.id];
-
-            if (removedOption) {
-                this.options.add(removedOption);
-                this.addOptionCount();
-                return;
-            }
-
-            const newOption = this.configuratorSettingsRepository.create();
-            newOption.optionId = item.id;
-            newOption.option = item;
-
-            this.options.add(newOption);
 
             this.addOptionCount();
+        },
+
+        /** @private */
+        createConfiguratorSetting(option) {
+            const setting = this.configuratorSettingsRepository.create();
+            setting.optionId = option.id;
+            setting.option = option;
+
+            return setting;
         },
     },
 };

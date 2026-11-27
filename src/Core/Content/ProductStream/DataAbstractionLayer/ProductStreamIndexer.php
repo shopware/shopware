@@ -48,7 +48,7 @@ class ProductStreamIndexer extends EntityIndexer
     }
 
     /**
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {

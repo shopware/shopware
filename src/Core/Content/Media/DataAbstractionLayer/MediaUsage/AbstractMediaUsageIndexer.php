@@ -52,7 +52,7 @@ abstract class AbstractMediaUsageIndexer extends EntityIndexer
     /**
      * Iterates the entities for a full reindex, indexers can skip entities which can not show media
      *
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      */
     protected function createIterator(?array $offset): IterableQuery
     {

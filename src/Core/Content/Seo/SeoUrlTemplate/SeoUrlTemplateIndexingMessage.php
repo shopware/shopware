@@ -20,7 +20,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 class SeoUrlTemplateIndexingMessage implements AsyncMessageInterface
 {
     /**
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      * @param bool $onlyChangedTemplate regenerates only the sales channels affected by the changed template:
      *                                  `$templateSalesChannelId` when its own template changed, or the sales channels
      *                                  without an own template when it is `null`

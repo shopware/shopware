@@ -330,7 +330,7 @@ SQL;
     }
 
     /**
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      */
     private function getIterator(?array $offset): IterableQuery
     {

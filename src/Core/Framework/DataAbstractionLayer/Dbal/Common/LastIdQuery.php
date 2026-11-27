@@ -2,26 +2,38 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('framework')]
 class LastIdQuery implements IterableQuery
 {
-    private ?int $lastId = null;
+    private int|string|null $lastId = null;
 
-    public function __construct(private readonly QueryBuilder $query)
+    public function __construct(private readonly QueryBuilder $query, private ?string $initialUuidPredicate = null)
     {
     }
 
     public function fetch(): array
     {
         $data = $this->query->executeQuery()->fetchAllKeyValue();
+        if ($data === []) {
+            return [];
+        }
 
-        $keys = array_keys($data);
-        $this->lastId = (int) array_pop($keys);
+        $lastId = array_key_last($data);
+        $binary = $this->initialUuidPredicate !== null || $this->query->getParameterType('lastId') === ParameterType::BINARY;
+        if ($this->initialUuidPredicate !== null) {
+            $this->query->andWhere($this->initialUuidPredicate);
+            $this->initialUuidPredicate = null;
+        }
 
-        $this->query->setParameter('lastId', $this->lastId);
+        $this->lastId = $binary ? Uuid::fromBytesToHex((string) $lastId) : (int) $lastId;
+
+        $this->query->setParameter('lastId', $binary ? (string) $lastId : $this->lastId, $binary ? ParameterType::BINARY : ParameterType::INTEGER);
 
         return $data;
     }
@@ -44,6 +56,7 @@ class LastIdQuery implements IterableQuery
         return $this->query;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: 'array{offset: int|string|null}')]
     public function getOffset(): array
     {
         return ['offset' => $this->lastId];

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
@@ -22,7 +23,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
 
     /**
      * @param array<string>|string $data
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      */
     public function __construct(
         protected array|string $data,
@@ -43,8 +44,9 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     }
 
     /**
-     * @return array{offset: int|null}|null
+     * @return array{offset: int|string|null}|null
      */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: 'array{offset: int|string|null}|null')]
     public function getOffset(): ?array
     {
         return $this->offset;

@@ -24,9 +24,16 @@ test(
         const product = await TestDataService.createProductWithPriceRange();
         const sc = TestDataService.defaultSalesChannel as unknown as {
             id: string;
+            currencyId: string;
             paymentMethodId: string;
             shippingMethodId: string;
         };
+
+        const productExportId = TestDataService.IdProvider.getIdPair().uuid;
+        TestDataService.addCreatedRecord('product-export', productExportId);
+
+        const currencyResponse = await TestDataService.AdminApiClient.get(`currency/${sc.currencyId}`);
+        const currencyIsoCode = ((await currencyResponse.json()) as { data: { isoCode: string } }).data.isoCode;
 
         const domainResponse = await TestDataService.AdminApiClient.post('search/sales-channel-domain', {
             data: { limit: 1, filter: [{ type: 'equals', field: 'salesChannelId', value: sc.id }] },
@@ -61,14 +68,14 @@ test(
                 name: `Google feed ${Date.now()}`,
                 typeId: PRODUCT_COMPARISON_TYPE_ID,
                 languageId: TestDataService.defaultLanguageId,
-                currencyId: TestDataService.defaultCurrencyId,
+                currencyId: sc.currencyId,
                 navigationCategoryId: TestDataService.defaultCategoryId,
                 customerGroupId: TestDataService.defaultCustomerGroupId,
                 paymentMethodId: sc.paymentMethodId,
                 shippingMethodId: sc.shippingMethodId,
                 countryId: TestDataService.defaultCountryId,
                 accessKey: `ACTEST${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
-                currencies: [{ id: TestDataService.defaultCurrencyId }],
+                currencies: [{ id: sc.currencyId }],
                 languages: [{ id: TestDataService.defaultLanguageId }],
                 countries: [{ id: TestDataService.defaultCountryId }],
                 paymentMethods: [{ id: sc.paymentMethodId }],
@@ -84,12 +91,13 @@ test(
 
         const exportResponse = await TestDataService.AdminApiClient.post('product-export?_response=detail', {
             data: {
+                id: productExportId,
                 productStreamId,
                 storefrontSalesChannelId: sc.id,
                 salesChannelId,
                 salesChannelDomainId: domainId,
-                currencyId: TestDataService.defaultCurrencyId,
-                fileName: 'google-feed.xml',
+                currencyId: sc.currencyId,
+                fileName: `google-feed-${productExportId}.xml`,
                 accessKey: `ACTEST${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
                 encoding: 'UTF-8',
                 fileFormat: 'xml',
@@ -118,11 +126,11 @@ test(
             await page.getByRole('button', { name: 'Generate preview' }).click();
 
             const previewResponse = await previewResponsePromise;
-            ShopAdmin.expects(previewResponse.ok()).toBeTruthy();
+            ShopAdmin.expects(previewResponse.ok(), await previewResponse.text()).toBeTruthy();
             const preview = (await previewResponse.json()) as { content: string; errors: unknown[] };
             ShopAdmin.expects(preview.errors).toEqual([]);
-            ShopAdmin.expects(preview.content).toContain('<g:price>100.00 EUR</g:price>');
-            ShopAdmin.expects(preview.content).not.toContain('<g:price>70.00 EUR</g:price>');
+            ShopAdmin.expects(preview.content).toContain(`<g:price>100.00 ${currencyIsoCode}</g:price>`);
+            ShopAdmin.expects(preview.content).not.toContain(`<g:price>70.00 ${currencyIsoCode}</g:price>`);
 
             await ShopAdmin.expects(page.locator('.sw-modal .sw-code-editor')).toBeVisible();
         });

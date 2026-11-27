@@ -20,7 +20,7 @@ final class ContentLayoutReplaceRequest
         public readonly string $newType,
         public readonly ?string $expectedVersion,
         public readonly ?string $draftId = null,
-        public readonly ?string $expectedHead = null,
+        public readonly ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

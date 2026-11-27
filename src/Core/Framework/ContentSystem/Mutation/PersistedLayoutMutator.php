@@ -73,7 +73,7 @@ class PersistedLayoutMutator
      * written. The mutation runs the draft pipeline, consumer mirroring included, and its result is admitted for
      * well-formedness only, so only publishing enforces resolvability.
      */
-    public function mutateDraft(string $layoutId, string $draftId, string $expectedHead, LayoutMutation $mutation, Context $context): DraftMutationResult
+    public function mutateDraft(string $layoutId, string $draftId, string $expectedHeadRevisionId, LayoutMutation $mutation, Context $context): DraftMutationResult
     {
         $this->checkWritePrivilege($mutation, $context);
 
@@ -81,7 +81,7 @@ class PersistedLayoutMutator
         $appended = $this->revisions->appendRevision(
             $layoutId,
             $draftId,
-            $expectedHead,
+            $expectedHeadRevisionId,
             function (array $head) use ($layoutId, $mutation, $context, &$result): StoredTree {
                 $rootSource = $this->load($layoutId, $context)->getRootSource();
                 $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);

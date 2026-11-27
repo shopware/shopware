@@ -132,10 +132,10 @@ class LayoutRevisionService
      *
      * @return array{revision: LayoutRevision, draft: LayoutDraft, layout: list<StoredElement>}
      */
-    public function appendRevision(string $layoutId, string $draftId, string $expectedHead, \Closure $derive, Context $context): array
+    public function appendRevision(string $layoutId, string $draftId, string $expectedHeadRevisionId, \Closure $derive, Context $context): array
     {
-        return $this->locked($layoutId, function (string $live) use ($layoutId, $draftId, $expectedHead, $derive, $context): array {
-            $appended = $this->append($layoutId, $draftId, $expectedHead, fn (array $head): array => $this->admit($derive($head)), $context);
+        return $this->locked($layoutId, function (string $live) use ($layoutId, $draftId, $expectedHeadRevisionId, $derive, $context): array {
+            $appended = $this->append($layoutId, $draftId, $expectedHeadRevisionId, fn (array $head): array => $this->admit($derive($head)), $context);
             $this->compact($layoutId, $live);
 
             return $appended;
@@ -149,12 +149,12 @@ class LayoutRevisionService
      * every newer draft contains. The DAL update and the pointer move share one transaction, so a tree the write gate refuses
      * leaves the draft and the live pointer where they were.
      */
-    public function publish(string $layoutId, string $draftId, string $expectedHead, Context $context): void
+    public function publish(string $layoutId, string $draftId, string $expectedHeadRevisionId, Context $context): void
     {
-        $this->locked($layoutId, function (string $live) use ($layoutId, $draftId, $expectedHead, $context): void {
+        $this->locked($layoutId, function (string $live) use ($layoutId, $draftId, $expectedHeadRevisionId, $context): void {
             $draft = $this->draft($layoutId, $draftId);
 
-            if ($draft->head !== $expectedHead) {
+            if ($draft->head !== $expectedHeadRevisionId) {
                 throw ContentSystemException::layoutVersionConflict($layoutId);
             }
 
@@ -224,11 +224,11 @@ class LayoutRevisionService
      *
      * @return array{revision: LayoutRevision, draft: LayoutDraft, layout: list<StoredElement>}
      */
-    private function append(string $layoutId, string $draftId, string $expectedHead, \Closure $admitted, Context $context): array
+    private function append(string $layoutId, string $draftId, string $expectedHeadRevisionId, \Closure $admitted, Context $context): array
     {
         $draft = $this->draft($layoutId, $draftId);
 
-        if ($draft->head !== $expectedHead) {
+        if ($draft->head !== $expectedHeadRevisionId) {
             throw ContentSystemException::layoutVersionConflict($layoutId);
         }
 

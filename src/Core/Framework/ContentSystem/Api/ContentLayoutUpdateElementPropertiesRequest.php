@@ -31,7 +31,7 @@ final class ContentLayoutUpdateElementPropertiesRequest
         #[Assert\Unique]
         public readonly array $removeKeys = [],
         public readonly ?string $draftId = null,
-        public readonly ?string $expectedHead = null,
+        public readonly ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

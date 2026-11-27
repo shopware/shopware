@@ -7,8 +7,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\DraftMutationResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The mutation response of a draft mutation, plus the draft it moved; its `head` is the revision the mutation
- * appended and the `expectedHead` of the next edit.
+ * The mutation response of a draft mutation, plus the draft it moved; its `headRevisionId` is the revision the mutation
+ * appended and the `expectedHeadRevisionId` of the next edit.
  *
  * @internal
  *

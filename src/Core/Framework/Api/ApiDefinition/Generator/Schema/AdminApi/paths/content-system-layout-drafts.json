@@ -327,7 +327,7 @@
                                 "type": "object",
                                 "required": [
                                     "draftId",
-                                    "expectedHead"
+                                    "expectedHeadRevisionId"
                                 ],
                                 "properties": {
                                     "draftId": {
@@ -335,9 +335,9 @@
                                         "description": "The draft to publish.",
                                         "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3c"
                                     },
-                                    "expectedHead": {
+                                    "expectedHeadRevisionId": {
                                         "type": "string",
-                                        "description": "The draft head revision id as last read (`draft.head`).",
+                                        "description": "The draft head revision id as last read (`draft.headRevisionId`).",
                                         "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3d"
                                     }
                                 }
@@ -356,7 +356,7 @@
                         "$ref": "#/components/responses/404"
                     },
                     "409": {
-                        "description": "Conflict. Either `expectedHead` is no longer the draft head (`CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT`), or another revision went live after the draft was opened (`CONTENT_SYSTEM__LAYOUT_PUBLISH_CONFLICT`), including a rollback to a revision the draft descends from. Nothing was written. Open a new draft from the live state.",
+                        "description": "Conflict. Either `expectedHeadRevisionId` is no longer the draft head (`CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT`), or another revision went live after the draft was opened (`CONTENT_SYSTEM__LAYOUT_PUBLISH_CONFLICT`), including a rollback to a revision the draft descends from. Nothing was written. Open a new draft from the live state.",
                         "content": {
                             "application/json": {
                                 "schema": {

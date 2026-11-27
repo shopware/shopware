@@ -26,7 +26,7 @@ final class ContentLayoutAttachRequest
         public readonly ?string $slot = null,
         public readonly ?int $index = null,
         public readonly ?string $draftId = null,
-        public readonly ?string $expectedHead = null,
+        public readonly ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

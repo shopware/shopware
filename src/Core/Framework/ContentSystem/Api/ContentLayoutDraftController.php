@@ -106,7 +106,7 @@ class ContentLayoutDraftController
         ContentLayoutPublishDraftRequest $payload,
         Context $context,
     ): Response {
-        $this->revisionService->publish($layoutId, $payload->draftId, $payload->expectedHead, $context);
+        $this->revisionService->publish($layoutId, $payload->draftId, $payload->expectedHeadRevisionId, $context);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

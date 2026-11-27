@@ -37,12 +37,12 @@ class ContentLayoutDraftControllerTest extends TestCase
         $draft = $this->json('POST', $layoutId . '/create-draft', ['name' => 'My draft'])['draft'];
         static::assertSame('My draft', $draft['name']);
         static::assertIsString($draft['createdById']);
-        static::assertSame($draft['base'], $draft['liveAtOpen']);
+        static::assertSame($draft['baseRevisionId'], $draft['liveAtOpenRevisionId']);
 
         $edited = $this->json('POST', $layoutId . '/remove-element', [
             'elementId' => 'other',
             'draftId' => $draft['id'],
-            'expectedHead' => $draft['head'],
+            'expectedHeadRevisionId' => $draft['headRevisionId'],
         ]);
         static::assertSame($draft['id'], $edited['draft']['id']);
         static::assertSame(['live'], array_column($edited['layout'], 'id'));
@@ -50,13 +50,13 @@ class ContentLayoutDraftControllerTest extends TestCase
         static::assertSame([$edited['draft']], $this->json('GET', $layoutId . '/drafts')['drafts']);
 
         $detail = $this->json('GET', $layoutId . '/drafts/' . $draft['id']);
-        static::assertSame($edited['draft']['head'], $detail['draft']['head']);
+        static::assertSame($edited['draft']['headRevisionId'], $detail['draft']['headRevisionId']);
         static::assertSame(['live'], array_column($detail['layout'], 'id'));
         static::assertSame(['live', 'other'], $this->liveIds($layoutId));
 
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
             'draftId' => $draft['id'],
-            'expectedHead' => $edited['draft']['head'],
+            'expectedHeadRevisionId' => $edited['draft']['headRevisionId'],
         ]);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -72,15 +72,15 @@ class ContentLayoutDraftControllerTest extends TestCase
         $edited = $this->json('POST', $layoutId . '/remove-element', [
             'elementId' => 'other',
             'draftId' => $draft['id'],
-            'expectedHead' => $draft['head'],
+            'expectedHeadRevisionId' => $draft['headRevisionId'],
         ]);
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
             'draftId' => $draft['id'],
-            'expectedHead' => $edited['draft']['head'],
+            'expectedHeadRevisionId' => $edited['draft']['headRevisionId'],
         ]);
 
         $revisions = $this->json('GET', $layoutId . '/published-revisions')['revisions'];
-        static::assertSame([$edited['draft']['head'], $draft['base']], array_column($revisions, 'id'));
+        static::assertSame([$edited['draft']['headRevisionId'], $draft['baseRevisionId']], array_column($revisions, 'id'));
         static::assertSame([true, false], array_column($revisions, 'live'));
         static::assertSame(
             ['id', 'live', 'createdAt', 'createdById', 'publishedAt', 'publishedById', 'lastLiveAt'],
@@ -88,15 +88,15 @@ class ContentLayoutDraftControllerTest extends TestCase
         );
 
         $rollback = $this->json('POST', $layoutId . '/create-draft', ['fromRevisionId' => $revisions[1]['id']])['draft'];
-        static::assertSame($revisions[1]['id'], $rollback['base']);
-        static::assertSame($revisions[0]['id'], $rollback['liveAtOpen']);
+        static::assertSame($revisions[1]['id'], $rollback['baseRevisionId']);
+        static::assertSame($revisions[0]['id'], $rollback['liveAtOpenRevisionId']);
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
             'draftId' => $rollback['id'],
-            'expectedHead' => $rollback['head'],
+            'expectedHeadRevisionId' => $rollback['headRevisionId'],
         ]);
 
         static::assertSame(['live', 'other'], $this->liveIds($layoutId));
-        static::assertSame($draft['base'], $this->json('GET', $layoutId . '/published-revisions')['revisions'][0]['id']);
+        static::assertSame($draft['baseRevisionId'], $this->json('GET', $layoutId . '/published-revisions')['revisions'][0]['id']);
     }
 
     #[TestDox('the published revisions of an unknown layout answer 404')]
@@ -128,12 +128,12 @@ class ContentLayoutDraftControllerTest extends TestCase
         $this->json('POST', $layoutId . '/remove-element', [
             'elementId' => 'other',
             'draftId' => $draft['id'],
-            'expectedHead' => $draft['head'],
+            'expectedHeadRevisionId' => $draft['headRevisionId'],
         ]);
 
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/publish-draft', [
             'draftId' => $draft['id'],
-            'expectedHead' => $draft['head'],
+            'expectedHeadRevisionId' => $draft['headRevisionId'],
         ]);
 
         $response = $this->getBrowser()->getResponse();
@@ -230,7 +230,7 @@ class ContentLayoutDraftControllerTest extends TestCase
 
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $layoutId . '/' . $route, $sendsDraft ? [
             'draftId' => $draft['id'],
-            'expectedHead' => $draft['head'],
+            'expectedHeadRevisionId' => $draft['headRevisionId'],
         ] : []);
 
         $this->assertMissingPrivilege('content_layout:update');
@@ -256,8 +256,8 @@ class ContentLayoutDraftControllerTest extends TestCase
         $this->actAs(['content_layout:read']);
 
         static::assertSame([$draft], $this->json('GET', $layoutId . '/drafts')['drafts']);
-        static::assertSame($draft['head'], $this->json('GET', $layoutId . '/drafts/' . $draft['id'])['draft']['head']);
-        static::assertSame([$draft['base']], array_column($this->json('GET', $layoutId . '/published-revisions')['revisions'], 'id'));
+        static::assertSame($draft['headRevisionId'], $this->json('GET', $layoutId . '/drafts/' . $draft['id'])['draft']['headRevisionId']);
+        static::assertSame([$draft['baseRevisionId']], array_column($this->json('GET', $layoutId . '/published-revisions')['revisions'], 'id'));
     }
 
     #[DataProvider('readingRoutes')]

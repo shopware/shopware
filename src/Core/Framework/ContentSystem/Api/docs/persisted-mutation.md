@@ -19,9 +19,9 @@ A fresh insert with a required `resolvedBy` reference and no compatible mapping 
 ## Drafts
 
 A draft is a named pointer into the layout's revision graph (`Layout/Revision/LayoutRevisionService`); a layout can have several at once.
-`Api/ContentLayoutDraftController` manages them; every draft response carries the draft as `{id, name, base, head, liveAtOpen, createdAt, createdById, updatedAt}`.
-`base` is the revision the draft was opened from and `liveAtOpen` the revision live at that moment; they differ only for a rollback or a draft branched from another draft's head.
-Comparing `liveAtOpen` with the live revision is a hint only: the binding answer is the `409` on publish, because a layout write that bypassed publishing moves live only at the next draft write.
+`Api/ContentLayoutDraftController` manages them; every draft response carries the draft as `{id, name, baseRevisionId, headRevisionId, liveAtOpenRevisionId, createdAt, createdById, updatedAt}`.
+`baseRevisionId` is the revision the draft was opened from and `liveAtOpenRevisionId` the revision live at that moment; they differ only for a rollback or a draft branched from another draft's head.
+Comparing `liveAtOpenRevisionId` with the live revision is a hint only: the binding answer is the `409` on publish, because a layout write that bypassed publishing moves live only at the next draft write.
 
 | Route                                                    | Body                         | ACL                     | Response                  |
 |----------------------------------------------------------|------------------------------|-------------------------|---------------------------|
@@ -30,7 +30,7 @@ Comparing `liveAtOpen` with the live revision is a hint only: the binding answer
 | `GET /api/_action/content-system/layout/{layoutId}/published-revisions` | —                         | `content_layout:read`   | `{revisions}`, most recently live first |
 | `POST /api/_action/content-system/layout/{layoutId}/create-draft`    | `name?`, `fromRevisionId?`   | `content_layout:update` | `{draft}`                 |
 | `POST /api/_action/content-system/layout/{layoutId}/discard-draft`   | `draftId`                    | `content_layout:update` | `204`                     |
-| `POST /api/_action/content-system/layout/{layoutId}/publish-draft`   | `draftId`, `expectedHead`    | `content_layout:update` | `204`                     |
+| `POST /api/_action/content-system/layout/{layoutId}/publish-draft`   | `draftId`, `expectedHeadRevisionId`    | `content_layout:update` | `204`                     |
 
 Each `POST` binds its body to a request DTO (`ContentLayoutCreateDraftRequest`, `ContentLayoutDiscardDraftRequest`, `ContentLayoutPublishDraftRequest`) via `#[MapRequestPayload]`, so an unknown field is a `400` `UNKNOWN_REQUEST_FIELD` and a missing or wrongly typed field a `400`.
 A `name` is at most 255 characters and not blank; without one the draft is named `Draft`.
@@ -58,22 +58,22 @@ Compaction runs under the layout row lock, so no job is needed and an untouched 
 A body with `draftId` edits that draft instead of the live layout.
 The action applies the edit to the draft head and appends the result as one revision; the live layout is not written.
 It delegates to `PersistedLayoutMutator::mutateDraft()`, which runs the stateless draft pipeline, consumer mirroring included, and admits the tree for well-formedness only, so only publishing enforces resolvability ([Mutation/docs/runners.md](../../Mutation/docs/runners.md#draft-target)).
-The body carries `expectedHead`, the draft head revision id as last read, instead of `expectedVersion`.
-A stale `expectedHead` is a `409`, a missing one a `400` `MISSING_REQUEST_FIELD`, and nothing is appended in either case.
+The body carries `expectedHeadRevisionId`, the draft head revision id as last read, instead of `expectedVersion`.
+A stale `expectedHeadRevisionId` is a `409`, a missing one a `400` `MISSING_REQUEST_FIELD`, and nothing is appended in either case.
 The controller reads the three fields into an `Api/MutationTarget`, which rejects every other combination.
-The response is the mutation response plus `draft`; the next mutation sends `draft.head` as its `expectedHead`.
-A live mutation with `expectedHead`, or a draft mutation with `expectedVersion`, is a `400` `UNKNOWN_REQUEST_FIELD`.
+The response is the mutation response plus `draft`; the next mutation sends `draft.headRevisionId` as its `expectedHeadRevisionId`.
+A live mutation with `expectedHeadRevisionId`, or a draft mutation with `expectedVersion`, is a `400` `UNKNOWN_REQUEST_FIELD`.
 
 ## Request
 
 The layout is named in the path.
-Every body carries the operation's fields (identical to the stateless endpoints, minus the shared envelope) plus the token of its target: `expectedVersion` for the live layout, `draftId` and `expectedHead` for a draft.
+Every body carries the operation's fields (identical to the stateless endpoints, minus the shared envelope) plus the token of its target: `expectedVersion` for the live layout, `draftId` and `expectedHeadRevisionId` for a draft.
 
 | Field             | Required       | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 |-------------------|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `expectedVersion` | live: yes (nullable); draft: no | Optimistic-concurrency token of a live mutation: the layout's `updatedAt` as last read. `null` for a never-updated layout. A mismatch is a `409`, an unparseable token a `400`, and nothing is written in either case.                                                                                                                                                                                                                                                                                                         |
 | `draftId`         | no             | The draft to mutate instead of the live layout. |
-| `expectedHead`    | draft: yes; live: no | Optimistic-concurrency token of a draft mutation: the draft head revision id as last read (`draft.head`). A stale head is a `409`, a missing one a `400`, and nothing is appended. |
+| `expectedHeadRevisionId`    | draft: yes; live: no | Optimistic-concurrency token of a draft mutation: the draft head revision id as last read (`draft.headRevisionId`). A stale head is a `409`, a missing one a `400`, and nothing is appended. |
 | operation fields  | per op         | `insert-element` (`ContentLayoutInsertRequest`): `type` (+ `parentElementId`, `slot`, `index`, `bindingSpecificationId`); `remove-element` (`ContentLayoutRemoveRequest`): `elementId`; `move-element` (`ContentLayoutMoveRequest`): `elementId` (+ `newParentId`, `newSlot`, `index`); `replace-element` (`ContentLayoutReplaceRequest`): `elementId`, `newType`; `duplicate-element` (`ContentLayoutDuplicateRequest`): `elementId` (+ `index`); `wrap-elements` (`ContentLayoutWrapElementsRequest`): `elementIds`, `containerType`, `slot`; `unwrap-element` (`ContentLayoutUnwrapRequest`): `containerElementId`; `attach-element` (`ContentLayoutAttachRequest`): `element` (a raw subtree, ids reminted) (+ `parentElementId`, `slot`, `index`); `bind-element` (`ContentLayoutBindRequest`): `elementId`, `bindingSpecificationId`; `map-property` (`ContentLayoutMapPropertyRequest`): `elementId`, `propertyKey`, `source`; `unmap-property` (`ContentLayoutUnmapPropertyRequest`): `elementId`, `propertyKey`; `update-element-properties` (`ContentLayoutUpdateElementPropertiesRequest`): `elementId` (+ `values`, `removeKeys`, at least one non-empty, per [mutation.md](mutation.md#request)); `translate-element` (`ContentLayoutTranslateElementRequest`): `elementId`, `values` (non-empty, per [mutation.md](mutation.md#request)). |
 
 Example (`replace-element`):

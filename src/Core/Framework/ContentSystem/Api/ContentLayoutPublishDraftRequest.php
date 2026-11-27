@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Body of the publish-draft action. `expectedHead` is the draft head revision id as last read.
+ * Body of the publish-draft action. `expectedHeadRevisionId` is the draft head revision id as last read.
  *
  * @internal
  */
@@ -14,7 +14,7 @@ final class ContentLayoutPublishDraftRequest
 {
     public function __construct(
         public readonly string $draftId,
-        public readonly string $expectedHead,
+        public readonly string $expectedHeadRevisionId,
     ) {
     }
 }

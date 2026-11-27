@@ -41,13 +41,13 @@ class MutationTargetTest extends TestCase
 
         static::assertTrue($target->isDraft());
         static::assertSame('draft', $target->draftId);
-        static::assertSame('head', $target->expectedHead);
+        static::assertSame('head', $target->expectedHeadRevisionId);
     }
 
     #[TestDox('a live target refuses the head token')]
     public function testLiveTargetRejectsTheHeadToken(): void
     {
-        $this->expectExceptionObject(ContentSystemException::unknownRequestField(['expectedHead']));
+        $this->expectExceptionObject(ContentSystemException::unknownRequestField(['expectedHeadRevisionId']));
 
         MutationTarget::fromRequest(null, null, 'head');
     }
@@ -63,7 +63,7 @@ class MutationTargetTest extends TestCase
     #[TestDox('a draft target requires the head token')]
     public function testDraftTargetRequiresTheHeadToken(): void
     {
-        $this->expectExceptionObject(ContentSystemException::missingRequestField(['expectedHead']));
+        $this->expectExceptionObject(ContentSystemException::missingRequestField(['expectedHeadRevisionId']));
 
         MutationTarget::fromRequest('draft', null, null);
     }

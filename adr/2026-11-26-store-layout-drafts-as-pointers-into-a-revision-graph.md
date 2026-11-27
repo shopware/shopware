@@ -59,12 +59,12 @@ A layout that has no revision yet is adopted the same way on its first write, so
 Each persisted mutation route takes an optional `draftId`.
 With it, `PersistedLayoutMutator::mutateDraft()` applies the operation to the draft head and `LayoutRevisionService::appendRevision()` stores the result as a new revision.
 Draft edits check well-formedness only; resolvability is enforced when publishing.
-The optimistic-concurrency token is `expectedHead` instead of `expectedVersion`.
+The optimistic-concurrency token is `expectedHeadRevisionId` instead of `expectedVersion`.
 
 ### One lock per layout for writes, none for reads
 
 Every write (create, edit, publish, discard) runs under `LayoutRowLock`, a transaction with `SELECT … FOR UPDATE` on the layout row, which live persisted mutations take as well.
-Concurrent writers of one layout therefore serialize, and the stale one fails its `expectedHead` or `expectedVersion` check.
+Concurrent writers of one layout therefore serialize, and the stale one fails its `expectedHeadRevisionId` or `expectedVersion` check.
 
 Listing and reading drafts and listing the published revisions take no lock and never reconcile.
 `LayoutRevisionStore::draftWithHead()` reads the draft and its head tree in one statement, so a concurrent write cannot fall between the two.
@@ -72,8 +72,8 @@ Listing and reading drafts and listing the published revisions take no lock and 
 ### Publishing never replaces a live state the draft has not seen
 
 ```
-publish(draft, expectedHead):
-    if draft.head != expectedHead:                     -> 409 LAYOUT_VERSION_CONFLICT
+publish(draft, expectedHeadRevisionId):
+    if draft.head != expectedHeadRevisionId:                     -> 409 LAYOUT_VERSION_CONFLICT
     if draft.liveAtOpen != live
        and not (isAncestorOrSelf(draft.liveAtOpen, live)  # live only moved forward
                 and isAncestorOrSelf(live, draft.head)):  # and the draft contains it
@@ -117,10 +117,10 @@ The draft routes live under `/api/_action/content-system/layout/{layoutId}`, in 
 | GET | `/published-revisions` | | `content_layout:read` |
 | POST | `/create-draft` | `name`, `fromRevisionId` (both optional) | `content_layout:update` |
 | POST | `/discard-draft` | `draftId` | `content_layout:update` |
-| POST | `/publish-draft` | `draftId`, `expectedHead` | `content_layout:update` |
+| POST | `/publish-draft` | `draftId`, `expectedHeadRevisionId` | `content_layout:update` |
 
-A draft in a response is `{id, name, base, head, liveAtOpen, createdAt, createdById, updatedAt}`.
-`base` says where the draft came from, `liveAtOpen` which live state its author saw; a client needs both to tell a rollback from a draft whose live state moved on.
+A draft in a response is `{id, name, baseRevisionId, headRevisionId, liveAtOpenRevisionId, createdAt, createdById, updatedAt}`.
+`baseRevisionId` says where the draft came from, `liveAtOpenRevisionId` which live state its author saw; a client needs both to tell a rollback from a draft whose live state moved on.
 
 ### Decided against
 

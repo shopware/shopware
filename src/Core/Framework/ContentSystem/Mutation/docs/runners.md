@@ -63,7 +63,7 @@ values.
 
 `mutateDraft()` applies the mutation to the head of a draft, a named pointer into the revision graph, instead of the live tree.
 It checks the declared write privilege first, exactly like `mutate()`.
-`expectedHead` is the draft head revision id the caller last saw; a stale head is `layoutVersionConflict`, 409.
+`expectedHeadRevisionId` is the draft head revision id the caller last saw; a stale head is `layoutVersionConflict`, 409.
 `Layout/Revision/LayoutRevisionService::appendRevision()` checks the head under the layout row lock and hands the head tree to the mutation.
 The mutation runs through `MutationPipeline::run()`, consumer mirroring included, against the layout's `root_source` and its resolved root context.
 The result is admitted for well-formedness only and appended as one revision whose parent is the old head.
@@ -73,7 +73,7 @@ A rejected operation or admission appends nothing and leaves the head where it w
 
 ### Interim limitations
 
-Drafts guard their own edits with `expectedHead` and leave `expectedVersion` in place for live mutations, so one limitation remains:
+Drafts guard their own edits with `expectedHeadRevisionId` and leave `expectedVersion` in place for live mutations, so one limitation remains:
 
 1. A layout write through the DAL takes neither the lock nor the `expectedVersion` token, so it overwrites a
    persisted mutation that committed after the writer loaded the layout, and neither side gets an error.

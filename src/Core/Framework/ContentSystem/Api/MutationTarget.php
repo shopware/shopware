@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * What a persisted mutation request writes to: the live layout, guarded by `expectedVersion` (its updatedAt), or a
- * draft, guarded by `expectedHead` (the id of the draft's head revision).
+ * draft, guarded by `expectedHeadRevisionId` (the id of the draft's head revision).
  *
  * @internal
  */
@@ -17,15 +17,15 @@ final readonly class MutationTarget
     private function __construct(
         public ?string $draftId,
         public ?string $expectedVersion,
-        public ?string $expectedHead,
+        public ?string $expectedHeadRevisionId,
     ) {
     }
 
-    public static function fromRequest(?string $draftId, ?string $expectedVersion, ?string $expectedHead): self
+    public static function fromRequest(?string $draftId, ?string $expectedVersion, ?string $expectedHeadRevisionId): self
     {
         if ($draftId === null) {
-            if ($expectedHead !== null) {
-                throw ContentSystemException::unknownRequestField(['expectedHead']);
+            if ($expectedHeadRevisionId !== null) {
+                throw ContentSystemException::unknownRequestField(['expectedHeadRevisionId']);
             }
 
             return new self(null, $expectedVersion, null);
@@ -35,16 +35,16 @@ final readonly class MutationTarget
             throw ContentSystemException::unknownRequestField(['expectedVersion']);
         }
 
-        if ($expectedHead === null) {
-            throw ContentSystemException::missingRequestField(['expectedHead']);
+        if ($expectedHeadRevisionId === null) {
+            throw ContentSystemException::missingRequestField(['expectedHeadRevisionId']);
         }
 
-        return new self($draftId, null, $expectedHead);
+        return new self($draftId, null, $expectedHeadRevisionId);
     }
 
     /**
      * @phpstan-assert-if-true !null $this->draftId
-     * @phpstan-assert-if-true !null $this->expectedHead
+     * @phpstan-assert-if-true !null $this->expectedHeadRevisionId
      */
     public function isDraft(): bool
     {

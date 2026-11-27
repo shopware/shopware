@@ -27,7 +27,7 @@ final class ContentLayoutWrapElementsRequest
         public readonly ?string $expectedVersion,
         public readonly ?string $slot = null,
         public readonly ?string $draftId = null,
-        public readonly ?string $expectedHead = null,
+        public readonly ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

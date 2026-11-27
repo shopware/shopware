@@ -25,7 +25,7 @@ final class ContentLayoutTranslateElementRequest
         #[Assert\Count(min: 1)]
         public readonly array $values = [],
         public readonly ?string $draftId = null,
-        public readonly ?string $expectedHead = null,
+        public readonly ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

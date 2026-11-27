@@ -576,12 +576,12 @@ class LayoutRevisionServiceTest extends TestCase
      *
      * @return array{revision: LayoutRevision, draft: LayoutDraft, layout: list<StoredElement>}
      */
-    private function save(string $layoutId, string $draftId, array $elementIds, string $expectedHead): array
+    private function save(string $layoutId, string $draftId, array $elementIds, string $expectedHeadRevisionId): array
     {
         return $this->service->appendRevision(
             $layoutId,
             $draftId,
-            $expectedHead,
+            $expectedHeadRevisionId,
             fn (): StoredTree => new StoredTree($this->storedTree($elementIds)),
             $this->context,
         );

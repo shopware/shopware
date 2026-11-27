@@ -20,7 +20,7 @@ final class ContentLayoutDuplicateRequest
         public readonly ?string $expectedVersion,
         public readonly ?int $index = null,
         public readonly ?string $draftId = null,
-        public readonly ?string $expectedHead = null,
+        public readonly ?string $expectedHeadRevisionId = null,
     ) {
     }
 }

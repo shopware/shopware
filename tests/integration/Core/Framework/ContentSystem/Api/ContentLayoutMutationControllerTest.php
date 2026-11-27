@@ -1071,12 +1071,12 @@ class ContentLayoutMutationControllerTest extends TestCase
         $body = $this->mutate('insert-element', $layoutId, [
             'draftId' => $draft->id,
             'type' => TestElementTypeLoader::RESOLVABLE,
-            'expectedHead' => $draft->head,
+            'expectedHeadRevisionId' => $draft->head,
         ]);
 
         static::assertCount(2, $body['layout']);
         static::assertSame($draft->id, $body['draft']['id']);
-        static::assertNotSame($draft->head, $body['draft']['head']);
+        static::assertNotSame($draft->head, $body['draft']['headRevisionId']);
         static::assertArrayNotHasKey('revision', $body);
         static::assertCount(2, $this->revisions()->getDraft($layoutId, $draft->id)['layout']);
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
@@ -1087,9 +1087,9 @@ class ContentLayoutMutationControllerTest extends TestCase
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
         $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
-        $this->mutate('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $draft->head]);
+        $this->mutate('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHeadRevisionId' => $draft->head]);
 
-        $this->request('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $draft->head]);
+        $this->request('insert-element', $layoutId, ['draftId' => $draft->id, 'type' => TestElementTypeLoader::RESOLVABLE, 'expectedHeadRevisionId' => $draft->head]);
 
         $this->assertErrorCode(Response::HTTP_CONFLICT, ContentSystemException::LAYOUT_VERSION_CONFLICT);
         static::assertCount(2, $this->revisions()->getDraft($layoutId, $draft->id)['layout']);
@@ -1100,7 +1100,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
 
-        $this->request('remove-element', $layoutId, ['draftId' => $this->ids->get('missing-draft'), 'elementId' => 'block-a', 'expectedHead' => $this->ids->get('head')]);
+        $this->request('remove-element', $layoutId, ['draftId' => $this->ids->get('missing-draft'), 'elementId' => 'block-a', 'expectedHeadRevisionId' => $this->ids->get('head')]);
 
         $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::CONTENT_LAYOUT_DRAFT_NOT_FOUND);
     }
@@ -1122,7 +1122,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
 
-        $this->request('remove-element', $layoutId, ['draftId' => 'not-a-uuid', 'elementId' => 'block-a', 'expectedHead' => $this->ids->get('head')]);
+        $this->request('remove-element', $layoutId, ['draftId' => 'not-a-uuid', 'elementId' => 'block-a', 'expectedHeadRevisionId' => $this->ids->get('head')]);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
@@ -1140,10 +1140,10 @@ class ContentLayoutMutationControllerTest extends TestCase
             'draftId' => $draft->id,
             'elementId' => 'block-a',
             'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
-            'expectedHead' => $draft->head,
+            'expectedHeadRevisionId' => $draft->head,
         ]);
 
-        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedHead' => $body['draft']['head']]);
+        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedHeadRevisionId' => $body['draft']['headRevisionId']]);
 
         $this->assertMissingPrivilege('content_layout:update');
     }
@@ -1154,17 +1154,17 @@ class ContentLayoutMutationControllerTest extends TestCase
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
         $draft = $this->revisions()->createDraft($layoutId, Context::createDefaultContext());
 
-        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHead' => $draft->head]);
+        $this->request('remove-element', $layoutId, ['draftId' => $draft->id, 'elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHeadRevisionId' => $draft->head]);
 
         $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
     }
 
     #[TestDox('a live mutation refuses the draft head token')]
-    public function testLiveMutationRejectsExpectedHead(): void
+    public function testLiveMutationRejectsExpectedHeadRevisionId(): void
     {
         $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
 
-        $this->request('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => null, 'expectedHead' => $this->ids->get('head')]);
+        $this->request('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => null, 'expectedHeadRevisionId' => $this->ids->get('head')]);
 
         $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
         static::assertSame(['block-a'], $this->layoutIds($layoutId));

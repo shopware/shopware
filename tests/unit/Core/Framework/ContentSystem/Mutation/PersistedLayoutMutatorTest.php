@@ -347,7 +347,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $revisions = $this->createMock(LayoutRevisionService::class);
         $revisions->expects($this->once())->method('appendRevision')
             ->with($id, 'draft', 'revision-1', static::anything(), static::identicalTo($context))
-            ->willReturnCallback(static function (string $layoutId, string $draftId, string $expectedHead, \Closure $derive) use ($head, $revision, $draft): array {
+            ->willReturnCallback(static function (string $layoutId, string $draftId, string $expectedHeadRevisionId, \Closure $derive) use ($head, $revision, $draft): array {
                 $derived = $derive($head);
                 static::assertInstanceOf(StoredTree::class, $derived);
                 static::assertSame(['block-b'], array_map(static fn (StoredElement $e): string => $e->id, $derived->roots));

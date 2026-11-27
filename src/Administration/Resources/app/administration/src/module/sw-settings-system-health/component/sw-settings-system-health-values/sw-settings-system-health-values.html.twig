@@ -1,0 +1,14 @@
+{% block sw_settings_system_health_values %}
+<dl class="sw-settings-system-health-values">
+    <div
+        v-for="item in items"
+        :key="item.key"
+        class="sw-settings-system-health-values__item"
+    >
+        <dt>{{ item.label }}</dt>
+        <dd :title="item.value">
+            {{ item.value }}
+        </dd>
+    </div>
+</dl>
+{% endblock %}

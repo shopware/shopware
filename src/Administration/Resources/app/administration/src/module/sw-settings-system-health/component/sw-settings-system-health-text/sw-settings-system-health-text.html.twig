@@ -1,0 +1,14 @@
+{% block sw_settings_system_health_text %}
+<span class="sw-settings-system-health-text">
+    <template
+        v-for="(segment, index) in segments"
+        :key="index"
+    >
+        <code
+            v-if="segment.isCode"
+            class="sw-settings-system-health-text__code"
+        >{{ segment.text }}</code>
+        <template v-else>{{ segment.text }}</template>
+    </template>
+</span>
+{% endblock %}

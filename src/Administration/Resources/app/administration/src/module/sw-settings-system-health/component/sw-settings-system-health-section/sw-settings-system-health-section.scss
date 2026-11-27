@@ -1,0 +1,20 @@
+// every section keeps its distance to the next one, also across the wrappers of the detail components
+.sw-settings-system-health-section {
+    margin-bottom: var(--scale-size-24);
+
+    // the title, and an optional action aligned to the right of it
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--scale-size-16);
+        margin-bottom: var(--scale-size-8);
+    }
+
+    &__title {
+        margin: 0;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-secondary-default);
+    }
+}

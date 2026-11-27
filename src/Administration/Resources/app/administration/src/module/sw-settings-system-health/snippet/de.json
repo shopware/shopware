@@ -1,0 +1,67 @@
+{
+    "sw-settings-system-health": {
+        "general": {
+            "title": "Systemzustand",
+            "description": "Ergebnisse der Systemprüfungen"
+        },
+        "index": {
+            "loading-error": "Die Systemprüfungen konnten nicht geladen werden.",
+            "checks-title": "Prüfungen",
+            "checks-subtitle": "Das letzte Ergebnis jeder Prüfung.",
+            "run-all": "Alle ausführen"
+        },
+        "status": {
+            "OK": "OK",
+            "UNKNOWN": "Unbekannt",
+            "SKIPPED": "Übersprungen",
+            "FAILURE": "Fehlgeschlagen",
+            "NOT_RUN": "Nicht ausgeführt",
+            "RUNNING": "Läuft"
+        },
+        "category": {
+            "SYSTEM": {
+                "name": "System",
+                "description": "Prüft das Fundament des Shops, zum Beispiel die Datenbankverbindung. Schlägt eine Systemprüfung fehl, werden die folgenden Prüfungen nicht ausgeführt."
+            },
+            "FEATURE": {
+                "name": "Funktion",
+                "description": "Prüft, ob eine bestimmte Funktion arbeitet, zum Beispiel Zahlungen."
+            },
+            "EXTERNAL": {
+                "name": "Extern",
+                "description": "Prüft, ob externe Dienste antworten, zum Beispiel der SMTP-Server."
+            },
+            "AUXILIARY": {
+                "name": "Hilfsdienste",
+                "description": "Prüft unterstützende Dienste, zum Beispiel ob Hintergrundaufgaben laufen."
+            }
+        },
+        "check-row": {
+            "run": "Prüfung ausführen",
+            "not-run": "Diese Prüfung lief noch nicht.",
+            "category-line": "Prüfung der Kategorie {category}",
+            "checked-at": "Zuletzt {date}"
+        },
+        "resolution": {
+            "resolve": "Klären"
+        },
+        "section": {
+            "what-happened": "Was ist passiert",
+            "what-to-do": "Was zu tun ist",
+            "details": "Details"
+        },
+        "group": {
+            "attention": "Braucht Aufmerksamkeit",
+            "passed": "Bestanden",
+            "not-run": "Nicht ausgeführt",
+            "attention-empty": "Nichts braucht deine Aufmerksamkeit."
+        }
+    },
+    "sw-privileges": {
+        "additional_permissions": {
+            "system": {
+                "system_health": "Systemzustand"
+            }
+        }
+    }
+}

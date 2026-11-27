@@ -15293,6 +15293,67 @@
                 "sw_settings_store_smart_bar_header_title_text"
             ]
         },
+        "sw-settings-system-health-check-default": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-check-default",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_check_default"
+            ]
+        },
+        "sw-settings-system-health-check-details": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-check-details",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_check_details"
+            ]
+        },
+        "sw-settings-system-health-check-row": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-check-row",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_check_row",
+                "sw_settings_system_health_check_row_panel",
+                "sw_settings_system_health_check_row_summary"
+            ]
+        },
+        "sw-settings-system-health-index": {
+            "file": "module/sw-settings-system-health/page/sw-settings-system-health-index",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_index",
+                "sw_settings_system_health_index_checks",
+                "sw_settings_system_health_index_content",
+                "sw_settings_system_health_index_smart_bar_header"
+            ]
+        },
+        "sw-settings-system-health-section": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-section",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_section"
+            ]
+        },
+        "sw-settings-system-health-text": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-text",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_text"
+            ]
+        },
+        "sw-settings-system-health-values": {
+            "file": "module/sw-settings-system-health/component/sw-settings-system-health-values",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_system_health_values"
+            ]
+        },
         "sw-settings-tag-detail-assignments": {
             "file": "module/sw-settings-tag/component/sw-settings-tag-detail-assignments",
             "visibility": "public",

@@ -1,0 +1,78 @@
+.sw-settings-system-health-check-row {
+    border-bottom: 1px solid var(--color-border-secondary-default);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    // status, name, message and the row menu
+    &__summary {
+        display: grid;
+        grid-template-columns: 8rem minmax(0, 16rem) minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--scale-size-12);
+        padding: var(--scale-size-20) 0;
+
+        &.is--expandable {
+            cursor: pointer;
+        }
+    }
+
+    &__status {
+        justify-self: start;
+    }
+
+    // the name, with the category and last run on a quiet second line
+    &__name {
+        display: grid;
+        gap: var(--scale-size-2);
+        min-width: 0;
+
+        strong {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    // styled like the old panel footer: small, grey, the category explained on hover
+    // the items wrap as a whole, never inside one
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: var(--scale-size-4);
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-2xs, 1.4);
+        color: var(--color-text-secondary-default);
+    }
+
+    &__meta-category {
+        text-decoration: underline dotted;
+        cursor: help;
+    }
+
+    &__meta > span {
+        white-space: nowrap;
+    }
+
+    // the message, with when the check last ran underneath
+    &__message {
+        display: grid;
+        gap: var(--scale-size-2);
+        color: var(--color-text-secondary-default);
+    }
+
+    &__checked-at {
+        font-size: var(--font-size-2xs);
+    }
+
+    // the details read as their own area: indented under the name, on a sunken background;
+    // no bottom padding: the last section brings its own spacing, and flow-root keeps that margin inside the panel
+    &__panel {
+        display: flow-root;
+        margin: 0 0 var(--scale-size-20) calc(8rem + var(--scale-size-12));
+        padding: var(--scale-size-24) var(--scale-size-24) 0;
+        border-radius: var(--border-radius-card, 8px);
+        background: var(--color-elevation-surface-sunken);
+    }
+}

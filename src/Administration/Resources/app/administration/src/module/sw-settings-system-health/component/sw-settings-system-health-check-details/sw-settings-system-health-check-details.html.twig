@@ -1,0 +1,59 @@
+{% block sw_settings_system_health_check_details %}
+<div class="sw-settings-system-health-check-details">
+    <template v-if="showsResolution">
+        <sw-settings-system-health-section
+            v-if="summary"
+            :title="$t('sw-settings-system-health.section.what-happened')"
+        >
+            <template
+                v-if="actionOnTop"
+                #action
+            >
+                <slot name="action">
+                    <mt-button
+                        v-if="resolveRoute"
+                        variant="secondary"
+                        size="small"
+                        @click="resolve"
+                    >
+                        {{ actionLabel }}
+                    </mt-button>
+                </slot>
+            </template>
+
+            <p>
+                <sw-settings-system-health-text :text="summary" />
+            </p>
+        </sw-settings-system-health-section>
+
+        <sw-settings-system-health-section :title="$t('sw-settings-system-health.section.what-to-do')">
+            <template
+                v-if="!actionOnTop"
+                #action
+            >
+                <slot name="action">
+                    <mt-button
+                        v-if="resolveRoute"
+                        variant="secondary"
+                        size="small"
+                        @click="resolve"
+                    >
+                        {{ actionLabel }}
+                    </mt-button>
+                </slot>
+            </template>
+
+            <p>
+                <sw-settings-system-health-text :text="impactText" />
+            </p>
+        </sw-settings-system-health-section>
+    </template>
+
+    <sw-settings-system-health-section
+        v-if="$slots.default"
+        :title="$t('sw-settings-system-health.section.details')"
+    >
+        <slot></slot>
+    </sw-settings-system-health-section>
+</div>
+{% endblock %}

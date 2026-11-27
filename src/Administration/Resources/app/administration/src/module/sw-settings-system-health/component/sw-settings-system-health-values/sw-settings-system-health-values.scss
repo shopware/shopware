@@ -1,0 +1,25 @@
+// values in columns, each label above its value, so a handful of values takes a couple of rows
+.sw-settings-system-health-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: var(--scale-size-16) var(--scale-size-24);
+    margin: 0;
+
+    &__item {
+        min-width: 0;
+    }
+
+    dt {
+        margin-bottom: var(--scale-size-2);
+        font-size: var(--font-size-2xs);
+        color: var(--color-text-secondary-default);
+    }
+
+    // one line per value; a long one (a URL, a file list) is cut off and shown in full on hover
+    dd {
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

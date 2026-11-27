@@ -1,0 +1,67 @@
+{
+    "sw-settings-system-health": {
+        "general": {
+            "title": "System health",
+            "description": "Results of the system checks"
+        },
+        "index": {
+            "loading-error": "The system checks could not be loaded.",
+            "checks-title": "Checks",
+            "checks-subtitle": "The last result of each check.",
+            "run-all": "Run all"
+        },
+        "status": {
+            "OK": "OK",
+            "UNKNOWN": "Unknown",
+            "SKIPPED": "Skipped",
+            "FAILURE": "Failed",
+            "NOT_RUN": "Not run",
+            "RUNNING": "Running"
+        },
+        "category": {
+            "SYSTEM": {
+                "name": "System",
+                "description": "Checks the backbone of the shop, for example the database connection. If a system check fails, the checks after it are not run."
+            },
+            "FEATURE": {
+                "name": "Feature",
+                "description": "Checks that a specific feature works, for example payments."
+            },
+            "EXTERNAL": {
+                "name": "External",
+                "description": "Checks that external services respond, for example the SMTP server."
+            },
+            "AUXILIARY": {
+                "name": "Auxiliary",
+                "description": "Checks supporting services, for example that background tasks run."
+            }
+        },
+        "check-row": {
+            "run": "Run check",
+            "not-run": "This check has not run yet.",
+            "category-line": "{category} check",
+            "checked-at": "Last run {date}"
+        },
+        "resolution": {
+            "resolve": "Resolve"
+        },
+        "section": {
+            "what-happened": "What happened",
+            "what-to-do": "What to do",
+            "details": "Details"
+        },
+        "group": {
+            "attention": "Needs attention",
+            "passed": "Passed",
+            "not-run": "Not run",
+            "attention-empty": "Nothing needs your attention."
+        }
+    },
+    "sw-privileges": {
+        "additional_permissions": {
+            "system": {
+                "system_health": "System health"
+            }
+        }
+    }
+}

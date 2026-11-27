@@ -1,0 +1,87 @@
+{% block sw_settings_system_health_check_row %}
+<mt-collapsible
+    class="sw-settings-system-health-check-row"
+    :open="isOpen && hasPanel"
+>
+    {% block sw_settings_system_health_check_row_summary %}
+    <div
+        class="sw-settings-system-health-check-row__summary"
+        :class="{ 'is--expandable': hasPanel }"
+        :role="hasPanel ? 'button' : undefined"
+        :tabindex="hasPanel ? 0 : undefined"
+        :aria-expanded="hasPanel ? isOpen : undefined"
+        @click="toggle"
+        @keydown.enter="toggle"
+    >
+        <sw-status
+            class="sw-settings-system-health-check-row__status"
+            :color="statusColor"
+        >
+            {{ $t(statusLabel) }}
+        </sw-status>
+
+        <span class="sw-settings-system-health-check-row__name">
+            <strong>{{ label }}</strong>
+            <span class="sw-settings-system-health-check-row__meta">
+                <span
+                    v-tooltip="{ message: categoryDescription, width: 280 }"
+                    class="sw-settings-system-health-check-row__meta-category"
+                >
+                    {{ $t('sw-settings-system-health.check-row.category-line', { category: categoryName }) }}
+                </span>
+
+            </span>
+        </span>
+
+        <span class="sw-settings-system-health-check-row__message">
+            <span>{{ message }}</span>
+            <span
+                v-if="checkedAt"
+                class="sw-settings-system-health-check-row__checked-at"
+            >
+                {{ $t('sw-settings-system-health.check-row.checked-at', { date: checkedAt }) }}
+            </span>
+        </span>
+
+        <!-- the menu sits in the clickable header; stop its clicks from toggling the row -->
+        <span @click.stop>
+            <sw-context-button :disabled="isRunning || undefined">
+                <sw-context-menu-item @click="$emit('run', check.name)">
+                    {{ $t('sw-settings-system-health.check-row.run') }}
+                </sw-context-menu-item>
+            </sw-context-button>
+        </span>
+    </div>
+    {% endblock %}
+
+    {% block sw_settings_system_health_check_row_panel %}
+    <mt-collapsible-content v-if="hasPanel">
+        <div class="sw-settings-system-health-check-row__panel">
+            <component
+                :is="resultComponent"
+                v-if="check.result"
+                :check="check"
+            />
+
+            <sw-settings-system-health-section
+                v-else
+                :title="$t('sw-settings-system-health.section.what-to-do')"
+            >
+                <template #action>
+                    <mt-button
+                        variant="secondary"
+                        size="small"
+                        :is-loading="isRunning"
+                        @click="$emit('run', check.name)"
+                    >
+                        {{ $t('sw-settings-system-health.check-row.run') }}
+                    </mt-button>
+                </template>
+
+                <p>{{ $t('sw-settings-system-health.check-row.not-run') }}</p>
+            </sw-settings-system-health-section>
+        </div>
+    </mt-collapsible-content>
+    {% endblock %}
+</mt-collapsible>
+{% endblock %}

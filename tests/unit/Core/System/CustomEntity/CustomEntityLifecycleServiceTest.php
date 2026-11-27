@@ -227,8 +227,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchOne')
-            ->with('SELECT COUNT(*) FROM `custom_entity_test`')
-            ->willReturn(0);
+            ->willReturn(false);
 
         $customEntityLifecycleService = $this->createLifecycleService($connection);
 
@@ -256,8 +255,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('fetchOne')
-            ->with('SELECT COUNT(*) FROM `custom_entity_test`')
-            ->willReturn(1);
+            ->willReturn('1');
 
         $customEntityLifecycleService = $this->createLifecycleService($connection);
 

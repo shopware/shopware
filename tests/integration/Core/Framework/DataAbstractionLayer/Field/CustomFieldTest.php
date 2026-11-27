@@ -741,6 +741,28 @@ class CustomFieldTest extends TestCase
         static::assertEqualsCanonicalizing([$noonId, $nextDayId], array_values($result->getEntities()->getIds()));
     }
 
+    public function testDateTimeFilterKeepsSubMillisecondBoundPrecision(): void
+    {
+        $this->addCustomFields(['datetime' => CustomFieldTypes::DATETIME]);
+
+        $id = Uuid::randomHex();
+
+        $repo = $this->getTestRepository();
+        $repo->create([
+            ['id' => $id, 'custom' => ['datetime' => new \DateTime('1990-01-01T00:00:00.001')]],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new RangeFilter('custom.datetime', [RangeFilter::LT => '1990-01-01 00:00:00.0014']));
+        $result = $repo->search($criteria, Context::createDefaultContext());
+        static::assertSame([$id], array_values($result->getEntities()->getIds()));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('custom.datetime', '1990-01-01 00:00:00.0014'));
+        $result = $repo->search($criteria, Context::createDefaultContext());
+        static::assertSame([], array_values($result->getEntities()->getIds()));
+    }
+
     public function testSetCustomFieldsOnNullColumn(): void
     {
         $this->addCustomFields(['foo' => CustomFieldTypes::TEXT]);

@@ -38,7 +38,7 @@ class JsonFieldAccessorBuilderTest extends TestCase
 
     public static function castValueProvider(): \Generator
     {
-        yield 'datetime field is cast to datetime with milliseconds' => ['data.createdAt', 'CAST(:value AS datetime(3))'];
+        yield 'datetime field is cast to datetime with microseconds' => ['data.createdAt', 'CAST(:value AS datetime(6))'];
         yield 'date field in a nested mapping is cast to date' => ['data.child.birthday', 'CAST(:value AS DATE)'];
         yield 'string field keeps the plain value' => ['data.name', ':value'];
         yield 'key without mapping keeps the plain value' => ['data.unknown', ':value'];

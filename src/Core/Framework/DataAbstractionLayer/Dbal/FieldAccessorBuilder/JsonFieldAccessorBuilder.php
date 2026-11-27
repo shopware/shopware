@@ -73,7 +73,9 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return $value;
         }
 
-        $type = $this->getCastType($this->getField($jsonPath, $field->getPropertyMapping()));
+        // Cast the value with full fractional precision, so a sub-millisecond bound keeps its order
+        // against the column, which the accessor reads as datetime(3).
+        $type = $this->getCastType($this->getField($jsonPath, $field->getPropertyMapping()), 'datetime(6)');
         if ($type === null) {
             return $value;
         }
@@ -165,10 +167,10 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         return \sprintf('CONVERT(JSON_UNQUOTE(%s) USING "utf8mb4") COLLATE utf8mb4_unicode_ci', $jsonValueExpr);
     }
 
-    private function getCastType(?Field $field): ?string
+    private function getCastType(?Field $field, string $dateTime = 'datetime(3)'): ?string
     {
         return match (true) {
-            $field instanceof DateTimeField => 'datetime(3)',
+            $field instanceof DateTimeField => $dateTime,
             $field instanceof DateField => 'DATE',
             default => null,
         };

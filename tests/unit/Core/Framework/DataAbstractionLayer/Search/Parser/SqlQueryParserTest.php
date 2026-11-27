@@ -107,8 +107,9 @@ class SqlQueryParserTest extends TestCase
 
     public static function equalsFilterOnJsonFieldProvider(): \Generator
     {
-        yield 'datetime custom field is cast to datetime' => [UnitDefinition::ENTITY_NAME, 'customFields.my_date', 'CAST(:#key# AS datetime(3))'];
-        yield 'datetime custom field behind an association is cast to datetime' => [UnitTranslationDefinition::ENTITY_NAME, 'unit_translation.unit.customFields.my_date', 'CAST(:#key# AS datetime(3))'];
+        yield 'datetime custom field is cast to datetime' => [UnitDefinition::ENTITY_NAME, 'customFields.my_date', 'CAST(:#key# AS datetime(6))'];
+        yield 'datetime custom field behind an association is cast to datetime' => [UnitTranslationDefinition::ENTITY_NAME, 'unit_translation.unit.customFields.my_date', 'CAST(:#key# AS datetime(6))'];
+        yield 'datetime custom field reached through an extensions segment is cast to datetime' => [UnitTranslationDefinition::ENTITY_NAME, 'unit_translation.extensions.unit.customFields.my_date', 'CAST(:#key# AS datetime(6))'];
         yield 'text custom field keeps the plain value' => [UnitDefinition::ENTITY_NAME, 'customFields.my_text', ':#key#'];
         yield 'date field in the property mapping of a JSON field is cast to date' => [JsonDefinition::ENTITY_NAME, 'root.child.childDate', 'CAST(:#key# AS DATE)'];
     }
@@ -126,8 +127,8 @@ class SqlQueryParserTest extends TestCase
         $keys = array_keys($result->getParameters());
         static::assertCount(2, $keys);
         static::assertCount(1, $result->getWheres());
-        static::assertStringContainsString(' >= CAST(:' . $keys[0] . ' AS datetime(3))', $result->getWheres()[0]);
-        static::assertStringContainsString(' < CAST(:' . $keys[1] . ' AS datetime(3))', $result->getWheres()[0]);
+        static::assertStringContainsString(' >= CAST(:' . $keys[0] . ' AS datetime(6))', $result->getWheres()[0]);
+        static::assertStringContainsString(' < CAST(:' . $keys[1] . ' AS datetime(6))', $result->getWheres()[0]);
         static::assertSame(['1990-01-01', '1990-01-02'], array_values($result->getParameters()));
     }
 

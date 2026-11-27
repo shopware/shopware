@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -128,25 +127,24 @@ class SqlQueryParser
         $key = $this->getKey();
 
         $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
-        $definitionField = $this->queryHelper->getField($query->getField(), $definition, $root);
 
         $where = [];
 
         if ($query->hasParameter(RangeFilter::GT)) {
-            $where[] = $field . ' > ' . $this->castValue(':' . $key, $query->getField(), $definitionField, $definition, $root);
+            $where[] = $field . ' > ' . $this->castValue(':' . $key, $query->getField(), $definition, $root);
             $result->addParameter($key, $query->getParameter(RangeFilter::GT));
         } elseif ($query->hasParameter(RangeFilter::GTE)) {
-            $where[] = $field . ' >= ' . $this->castValue(':' . $key, $query->getField(), $definitionField, $definition, $root);
+            $where[] = $field . ' >= ' . $this->castValue(':' . $key, $query->getField(), $definition, $root);
             $result->addParameter($key, $query->getParameter(RangeFilter::GTE));
         }
 
         $key = $this->getKey();
 
         if ($query->hasParameter(RangeFilter::LT)) {
-            $where[] = $field . ' < ' . $this->castValue(':' . $key, $query->getField(), $definitionField, $definition, $root);
+            $where[] = $field . ' < ' . $this->castValue(':' . $key, $query->getField(), $definition, $root);
             $result->addParameter($key, $query->getParameter(RangeFilter::LT));
         } elseif ($query->hasParameter(RangeFilter::LTE)) {
-            $where[] = $field . ' <= ' . $this->castValue(':' . $key, $query->getField(), $definitionField, $definition, $root);
+            $where[] = $field . ' <= ' . $this->castValue(':' . $key, $query->getField(), $definition, $root);
             $result->addParameter($key, $query->getParameter(RangeFilter::LTE));
         }
 
@@ -289,7 +287,7 @@ class SqlQueryParser
             return $result;
         }
 
-        $placeholder = $this->castValue(':' . $key, $query->getField(), $field, $definition, $root);
+        $placeholder = $this->castValue(':' . $key, $query->getField(), $definition, $root);
         if ($negated || $query->getValue() === null) {
             $result->addWhere($select . ' <=> ' . $placeholder);
         } else {
@@ -360,8 +358,13 @@ class SqlQueryParser
     /**
      * Casts the placeholder of a value that is compared with a field inside a JSON field to the type of its accessor.
      */
-    private function castValue(string $placeholder, string $fieldName, ?Field $field, EntityDefinition $definition, string $root): string
+    private function castValue(string $placeholder, string $fieldName, EntityDefinition $definition, string $root): string
     {
+        // Resolve the field from the normalized path, like `EntityDefinitionQueryHelper::getFieldAccessor()`,
+        // so a value behind an `extensions` segment is cast like its accessor.
+        $accessor = EntityDefinitionQueryHelper::removeExtensionPathSegments($fieldName, $definition, $root);
+
+        $field = $this->queryHelper->getField($accessor, $definition, $root);
         if (!$field instanceof JsonField) {
             return $placeholder;
         }
@@ -371,8 +374,6 @@ class SqlQueryParser
             return $placeholder;
         }
 
-        // The accessor builder gets the path below the definition of the JSON field, like in `EntityDefinitionQueryHelper::getFieldAccessor()`
-        $accessor = EntityDefinitionQueryHelper::removeExtensionPathSegments($fieldName, $definition, $root);
         if (str_starts_with($accessor, $root . '.')) {
             $accessor = mb_substr($accessor, mb_strlen($root) + 1);
         }

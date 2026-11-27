@@ -248,6 +248,78 @@ describe('focus-handler.helper', () => {
         });
     });
 
+    describe('setInitialFocus', () => {
+        test('focuses the first focusable element within the container', () => {
+            document.body.innerHTML = `
+                <div class="modal" tabindex="-1">
+                    <p>Text</p>
+                    <button class="first" disabled>Disabled</button>
+                    <button class="second">Close</button>
+                    <a class="third" href="#">Link</a>
+                </div>`;
+
+            const modal = document.querySelector('.modal');
+            const closeButton = document.querySelector('.second');
+
+            expect(focusHandler.setInitialFocus(modal)).toBe(closeButton);
+            expect(document.activeElement).toBe(closeButton);
+        });
+
+        test('prefers an element marked with autofocus', () => {
+            document.body.innerHTML = `
+                <div class="modal" tabindex="-1">
+                    <button class="close">Close</button>
+                    <input class="field" type="text" autofocus>
+                </div>`;
+
+            const field = document.querySelector('.field');
+
+            expect(focusHandler.setInitialFocus(document.querySelector('.modal'))).toBe(field);
+            expect(document.activeElement).toBe(field);
+        });
+
+        test('falls back to the container without focusable content', () => {
+            document.body.innerHTML = '<div class="modal" tabindex="-1"><p>Text</p></div>';
+
+            const modal = document.querySelector('.modal');
+
+            expect(focusHandler.setInitialFocus(modal)).toBe(modal);
+            expect(document.activeElement).toBe(modal);
+        });
+
+        test('keeps the focus on an element that is already focused within the container', () => {
+            document.body.innerHTML = `
+                <div class="modal" tabindex="-1">
+                    <button class="close">Close</button>
+                    <a class="link" href="#">Link</a>
+                </div>`;
+
+            const link = document.querySelector('.link');
+            link.focus();
+
+            expect(focusHandler.setInitialFocus(document.querySelector('.modal'))).toBe(link);
+            expect(document.activeElement).toBe(link);
+        });
+
+        test('moves the focus from the container itself to its first focusable element', () => {
+            document.body.innerHTML = `
+                <div class="modal" tabindex="-1">
+                    <button class="close">Close</button>
+                </div>`;
+
+            const modal = document.querySelector('.modal');
+            modal.focus();
+
+            focusHandler.setInitialFocus(modal);
+
+            expect(document.activeElement).toBe(document.querySelector('.close'));
+        });
+
+        test('does nothing without a container', () => {
+            expect(focusHandler.setInitialFocus(null)).toBeNull();
+        });
+    });
+
     describe('_removeFocusTrapGuard', () => {
         test('removes the previously added focus-trap guard', () => {
             document.body.innerHTML = '<div class="modal">Modal</div>';

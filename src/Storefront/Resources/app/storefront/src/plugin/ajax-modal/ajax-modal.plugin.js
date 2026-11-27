@@ -66,13 +66,28 @@ export default class AjaxModalPlugin extends Plugin {
             event.stopPropagation();
         }
 
+        /**
+         * The trigger keeps the focus until the modal is fully shown.
+         * Bootstrap can not hide a modal during its transition, so another modal would leave its backdrop behind.
+         */
+        if (this._isModalOpening) {
+            return;
+        }
+
+        this._isModalOpening = true;
+
         const pseudoModal = new PseudoModalUtil('', this.options.modalBackdrop);
 
         window.focusHandler.saveFocusState('ajax-modal');
 
         this._openModal(pseudoModal);
 
+        pseudoModal.getModal().addEventListener('shown.bs.modal', () => {
+            this._isModalOpening = false;
+        });
+
         pseudoModal.getModal().addEventListener('hidden.bs.modal', () => {
+            this._isModalOpening = false;
             window.focusHandler.resumeFocusState('ajax-modal');
         });
 

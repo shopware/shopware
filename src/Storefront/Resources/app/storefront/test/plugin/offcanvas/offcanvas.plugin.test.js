@@ -1,4 +1,5 @@
-import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import OffCanvas, { OffCanvasInstance } from 'src/plugin/offcanvas/offcanvas.plugin';
+import FocusHandler from 'src/helper/focus-handler.helper';
 
 /**
  * @package storefront
@@ -9,6 +10,7 @@ describe('OffCanvas tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            setInitialFocus: jest.fn(),
             // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
             _addFocusTrapGuard: jest.fn(),
             _removeFocusTrapGuard: jest.fn(),
@@ -124,6 +126,46 @@ describe('OffCanvas tests', () => {
         jest.runAllTimers();
 
         expect(document.activeElement).toBe(trigger);
+    });
+
+    it('moves the focus to the first focusable element when opened', () => {
+        const focusHandler = new FocusHandler();
+        window.focusHandler.setInitialFocus = focusHandler.setInitialFocus.bind(focusHandler);
+
+        jest.useFakeTimers();
+        OffCanvas.open('<button class="js-offcanvas-close">Close</button><a href="#">Link</a>');
+        jest.runAllTimers();
+
+        expect(document.activeElement).toBe(document.querySelector('.offcanvas .js-offcanvas-close'));
+    });
+
+    it('moves the focus to the first focusable element when the content is loaded after opening', () => {
+        const focusHandler = new FocusHandler();
+        window.focusHandler.setInitialFocus = focusHandler.setInitialFocus.bind(focusHandler);
+
+        jest.useFakeTimers();
+        OffCanvas.open('<div class="loader"></div>');
+        jest.runAllTimers();
+
+        const offCanvasElement = document.querySelector('.offcanvas');
+        expect(document.activeElement).toBe(offCanvasElement);
+
+        OffCanvasInstance.setContent('<button class="js-offcanvas-close">Close</button>', 350);
+
+        expect(document.activeElement).toBe(offCanvasElement.querySelector('.js-offcanvas-close'));
+    });
+
+    it('keeps the focus untouched when the content changes while the offcanvas itself is not focused', () => {
+        jest.useFakeTimers();
+        OffCanvas.open('<button class="js-offcanvas-close">Close</button>');
+        jest.runAllTimers();
+
+        window.focusHandler.setInitialFocus.mockClear();
+        document.querySelector('.offcanvas .js-offcanvas-close').focus();
+
+        OffCanvasInstance.setContent('<button class="js-offcanvas-close">Close</button>', 350);
+
+        expect(window.focusHandler.setInitialFocus).not.toHaveBeenCalled();
     });
 
     it('should close via click on backdrop', () => {

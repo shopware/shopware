@@ -117,6 +117,13 @@ The notice SVGs are now `aria-hidden`, and the notice link is described by the n
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
+### Modals and offcanvas move the keyboard focus to their first focusable element
+
+Modals opened with `PseudoModalUtil` and every offcanvas now focus their first focusable element when they open, instead of the dialog element itself.
+An element with the `autofocus` attribute inside the dialog takes precedence.
+The same logic is available for custom dialogs with the new `window.focusHandler.setInitialFocus(container)`.
+JavaScript that sets its own focus after opening a modal or offcanvas keeps working, as it runs after the default focus.
+
 # 6.7.17.0
 
 ## Critical Fixes

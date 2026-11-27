@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -120,24 +121,35 @@ export default {
 
         customFieldCriteria() {
             const criteria = new Criteria(1, this.customFieldLimit);
-            criteria.addSorting(Criteria.sort('type', 'DESC'));
+            const term = this.customFieldSearchTerm.trim();
 
-            if (this.customFieldSearchTerm) {
+            if (term) {
                 const locales = new Set([
                     Shopware.Store.get('session').currentLocale,
                     Shopware.Context.app.fallbackLocale,
                 ]);
+                const fields = [
+                    'name',
+                    'type',
+                    ...[...locales].filter(Boolean).map((locale) => `config.label.${locale}`),
+                ];
+                const words = [...new Set(term.split(/\s+/).filter((word) => word.length > 1))];
 
-                criteria.addFilter(
-                    Criteria.multi('OR', [
-                        Criteria.contains('name', this.customFieldSearchTerm),
-                        Criteria.contains('type', this.customFieldSearchTerm),
-                        ...[...locales].filter(Boolean).map((locale) => {
-                            return Criteria.contains(`config.label.${locale}`, this.customFieldSearchTerm);
-                        }),
-                    ]),
-                );
+                criteria.addSorting(Criteria.sort('_score', 'DESC'));
+
+                fields.forEach((field) => {
+                    criteria.addQuery(Criteria.equals(field, term), searchRankingPoint.HIGH_SEARCH_RANKING);
+                    criteria.addQuery(Criteria.contains(field, term), searchRankingPoint.MIDDLE_SEARCH_RANKING);
+
+                    if (words.length > 1) {
+                        words.forEach((word) => {
+                            criteria.addQuery(Criteria.contains(field, word), searchRankingPoint.LOW_SEARCH_RANKING);
+                        });
+                    }
+                });
             }
+
+            criteria.addSorting(Criteria.sort('type', 'DESC'));
 
             const featureIds = this.getFeaturesIds('customField');
             if (featureIds.length > 0) {

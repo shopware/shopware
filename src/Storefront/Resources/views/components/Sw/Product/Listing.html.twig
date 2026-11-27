@@ -34,12 +34,11 @@
 } %}
 
 {% set listingLayout = app.request.get('listingLayout') %}
-{% set listingGrid = {
-    lg: { columns: [{ type: 'auto' }], areas: [['a1']] },
-} %}
+{% set singleColumnGrid = { columns: [{ type: 'auto' }], areas: [['a1']] } %}
+{% set listingGrid = { lg: singleColumnGrid } %}
 {% if listingLayout != 'horizontal' %}
     {% set listingGrid = listingGrid|merge({
-        xs: listingGrid.lg,
+        xs: singleColumnGrid,
         sm: { columns: [{ type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2']] },
         md: { columns: [{ type: 'auto' }, { type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2', 'a3']] },
         lg: { columns: [{ type: 'auto' }, { type: 'auto' }, { type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2', 'a3', 'a4']] },

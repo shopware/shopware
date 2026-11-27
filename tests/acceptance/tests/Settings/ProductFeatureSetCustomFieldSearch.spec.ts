@@ -14,10 +14,11 @@ test(
             type: 'text',
             config: { label: { 'en-GB': label } },
         });
+        const decoyLabel = `Other ${IdProvider.getIdPair().uuid}`;
         await TestDataService.createCustomField(customFieldSet.id, {
             name: `cf_other_${IdProvider.getIdPair().id}`,
             type: 'text',
-            config: { label: { 'en-GB': `Other label ${IdProvider.getIdPair().id}` } },
+            config: { label: { 'en-GB': decoyLabel } },
         });
 
         const featureSetId = IdProvider.getIdPair().uuid;
@@ -39,8 +40,9 @@ test(
         await searchResponse;
 
         const rows = modal.locator('tbody.sw-data-grid__body:not(.sw-data-grid-skeleton) > tr.sw-data-grid__row');
-        await expect(rows).toHaveCount(1);
-        await expect(rows.first()).toContainText(label);
+        const names = rows.locator('.sw-data-grid__cell--name');
+        await expect(names.first()).toHaveText(label);
+        await expect(names.filter({ hasText: decoyLabel })).toHaveCount(0);
 
         await rows.first().getByRole('checkbox').check();
         const saveResponse = ShopAdmin.page.waitForResponse(`**/api/product-feature-set/${featureSetId}`);

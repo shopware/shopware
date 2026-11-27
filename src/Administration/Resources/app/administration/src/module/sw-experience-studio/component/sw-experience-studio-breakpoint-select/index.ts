@@ -17,16 +17,18 @@ import './sw-experience-studio-breakpoint-select.scss';
 /** @private */
 export const BASE_BREAKPOINT = 'lg' satisfies ContentSystemBreakpoint;
 
+const baseSize = {
+    id: BASE_BREAKPOINT,
+    labelSnippet: 'sw-experience-studio.detail.toolbar.viewportDesktop',
+    short: true,
+    icon: 'regular-desktop',
+} as const;
+
 const sizes = [
     { id: 'xs', labelSnippet: 'sw-experience-studio.breakpointSelect.extraSmall', icon: 'regular-mobile' },
     { id: 'sm', labelSnippet: 'sw-experience-studio.detail.toolbar.viewportMobile', short: true, icon: 'regular-mobile' },
     { id: 'md', labelSnippet: 'sw-experience-studio.detail.toolbar.viewportTablet', short: true, icon: 'regular-tablet' },
-    {
-        id: BASE_BREAKPOINT,
-        labelSnippet: 'sw-experience-studio.detail.toolbar.viewportDesktop',
-        short: true,
-        icon: 'regular-desktop',
-    },
+    baseSize,
     { id: 'xl', labelSnippet: 'sw-experience-studio.breakpointSelect.extraLarge', icon: 'regular-desktop' },
     { id: 'xxl', labelSnippet: 'sw-experience-studio.breakpointSelect.ultrawide', icon: 'regular-desktop' },
 ] as const satisfies readonly { id: ContentSystemBreakpoint; labelSnippet: string; icon: string; short?: true }[];
@@ -78,7 +80,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.canReset && this.modelValue !== BASE_BREAKPOINT && this.overrides.includes(this.modelValue);
         },
         selectedSize(): Size {
-            return sizes.find(({ id }) => id === this.modelValue) ?? sizes[3];
+            return sizes.find(({ id }) => id === this.modelValue) ?? baseSize;
         },
         triggerLabel(): string {
             return this.modelValue === this.base

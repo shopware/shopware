@@ -167,6 +167,14 @@ The notice SVGs are now `aria-hidden`, and the notice link is described by the n
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
+### YouTube and Vimeo cookie entries can be hidden per sales channel
+
+Two new settings in Basic information > Legal and compliance hide the "YouTube video" and "Vimeo video" entries from the cookie consent of a sales channel: `core.basicInformation.hideYoutubeVideoCookieEntry` and `core.basicInformation.hideVimeoVideoCookieEntry`.
+Both default to `false`, so existing shops keep both entries.
+Enable them when the matching CMS element is not used, so customers are not asked for consent to unused services.
+The CMS elements are not changed and still ask for consent in their own overlay.
+The entries are removed in `CookieProvider::getCookieGroups()`, so they are also missing in the `/store-api/cookie-groups` response.
+
 # 6.7.17.0
 
 ## Critical Fixes

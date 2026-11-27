@@ -341,6 +341,24 @@
         </input-field>
 
         <input-field type="bool">
+            <name>hideYoutubeVideoCookieEntry</name>
+            <label>Hide YouTube video cookie entry</label>
+            <label lang="de-DE">Cookie-Eintrag für YouTube-Videos ausblenden</label>
+            <helpText>If active, customers are not asked for consent to YouTube videos in the cookie notification. Activate this only if you do not use YouTube video elements in this sales channel.</helpText>
+            <helpText lang="de-DE">Wenn aktiv, wird im Cookie-Hinweis nicht nach der Zustimmung zu YouTube-Videos gefragt. Aktiviere diese Option nur, wenn Du in diesem Verkaufskanal keine YouTube-Video-Elemente verwendest.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>hideVimeoVideoCookieEntry</name>
+            <label>Hide Vimeo video cookie entry</label>
+            <label lang="de-DE">Cookie-Eintrag für Vimeo-Videos ausblenden</label>
+            <helpText>If active, customers are not asked for consent to Vimeo videos in the cookie notification. Activate this only if you do not use Vimeo video elements in this sales channel.</helpText>
+            <helpText lang="de-DE">Wenn aktiv, wird im Cookie-Hinweis nicht nach der Zustimmung zu Vimeo-Videos gefragt. Aktiviere diese Option nur, wenn Du in diesem Verkaufskanal keine Vimeo-Video-Elemente verwendest.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
             <name>firstNameFieldRequired</name>
             <label>First name in contact forms required</label>
             <label lang="de-DE">Vorname in Kontaktformularen als Pflichtfeld behandeln</label>

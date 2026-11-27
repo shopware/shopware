@@ -29,6 +29,15 @@ Extensions calling `CacheInvalidationSubscriber::invalidateMedia()` directly can
 The regular 6.7 migration clears cached values in `media.thumbnails_ro` in batches.
 During a rolling deployment, instances still running the previous version can return empty thumbnail collections for cleared rows, and old media indexer workers can repopulate the cache.
 On large media catalogs, allow time for the database writes and subsequent InnoDB purge.
+
+### UUID cursor pagination for entity indexing
+
+With the `v6.8.0.0` feature flag enabled, indexing iterators use UUID cursors for entities whose only primary key is `id`, avoiding increasing row offsets during large rebuilds such as the Administration media search index.
+This becomes the default in Shopware 6.8.
+Extensions consuming `IterableQuery::getOffset()` or entity indexing messages must treat the offset as an opaque cursor that can contain a hex UUID string as well as an integer.
+Previously queued row-offset cursors remain supported.
+Update all indexing workers before starting new indexing runs that produce UUID cursors.
+
 ### Search config cache is kept per language
 
 `CachedSearchConfigLoader` now caches the search config per language id chain and tags each entry with `CachedSearchConfigLoader::CACHE_KEY`.
@@ -163,13 +172,6 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
-### UUID cursor pagination for entity indexing
-
-With the `v6.8.0.0` feature flag enabled, indexing iterators use UUID cursors for entities whose only primary key is `id`, avoiding increasing row offsets during large rebuilds such as the Administration media search index.
-This becomes the default in Shopware 6.8.
-Extensions consuming `IterableQuery::getOffset()` or entity indexing messages must treat the offset as an opaque cursor that can contain a hex UUID string as well as an integer.
-Previously queued row-offset cursors remain supported.
-Update all indexing workers before starting new indexing runs that produce UUID cursors.
 ### Address-format snippets use Twig whitespace control
 
 The shared address-format renderer uses Twig whitespace control instead of the deprecated `spaceless` filter.

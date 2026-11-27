@@ -10,6 +10,20 @@ component sw-agentic-commerce-tracking-config  public  js
   source src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/index.js
   template src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/sw-agentic-commerce-tracking-config.html.twig
 
+props
+  disabled?: boolean  default=false
+  salesChannel: object
+
+emits
+  change(...args: any[])
+
+computed
+  trackingConfig: any
+
+methods
+  onAffiliateCodeChange(value: any): any
+  onCampaignCodeChange(value: any): any
+
 blocks
   sw_agentic_commerce_tracking_config
     sw_agentic_commerce_tracking_config_affiliate

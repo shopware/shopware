@@ -11,6 +11,19 @@ component sw-collapse  private  js  [private]
   template src/app/component/base/sw-collapse/sw-collapse.html.twig  [private]
   visibility-source export  [private]
 
+props
+  expandOnLoading?: boolean  default=false  [private]
+
+slots
+  content  {}  block=sw_collapse_panel_content  [private]
+  header  { ...{ expanded } }  block=sw_collapse_panel_header  [private]
+
+data
+  expanded: any  [private]
+
+methods
+  collapseItem(): any  [private]
+
 blocks
   sw_collapse_panel  [private]
     sw_collapse_panel_content  [private]

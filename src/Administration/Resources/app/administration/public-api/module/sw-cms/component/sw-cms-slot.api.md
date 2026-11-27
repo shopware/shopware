@@ -11,6 +11,46 @@ component sw-cms-slot  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-slot/sw-cms-slot.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  cmsElementFavorites  [private]
+  cmsService  [private]
+
+props
+  active?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  element: Entity<'cms_slot'>  [private]
+
+data
+  elementNotFound: any  [private]
+  isElementSettingsInitialized: any  [private]
+  showElementSelection: any  [private]
+  showElementSettings: any  [private]
+
+computed
+  cmsElements: any  [private]
+  cmsServiceState: any  [private]
+  cmsSlotSettingsClasses: any  [private]
+  componentClasses: any  [private]
+  elementConfig: any  [private]
+  elementModalTitle: any  [private]
+  groupedCmsElements: any  [private]
+  isElementLocked: any  [private]
+  modalVariant: any  [private]
+  slotElementId: any  [private]
+  tooltipDisabled: any  [private]
+
+methods
+  elementInElementGroup(element: CmsElementConfig, elementGroup: string): any  [private]
+  getFavoriteIconToggleState(element: CmsElementConfig): boolean  [private]
+  mountedComponent(): any  [private]
+  onCloseElementModal(): any  [private]
+  onCloseSettingsModal(): Promise<any>  [private]
+  onElementButtonClick(): any  [private]
+  onSelectElement(element: CmsElementConfig): any  [private]
+  onSettingsButtonClick(): any  [private]
+  onToggleElementFavorite(elementName: string): any  [private]
+  toggleHoverElement(element: CmsElementConfig, targetState: boolean): any  [private]
+
 blocks
   sw_cms_slot  [private]
     sw_cms_slot_content  [private]
@@ -37,4 +77,7 @@ blocks
 
 crossings
   v-if  sw_cms_slot_content_component -> sw_cms_slot_content  [private]
+
+refs
+  elementComponentRef  -> component  block=sw_cms_slot_content_settings_modal_component  [private]
 ```

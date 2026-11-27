@@ -10,6 +10,37 @@ component sw-sales-channel-list  public  js
   source src/module/sw-sales-channel/page/sw-sales-channel-list/index.js
   template src/module/sw-sales-channel/page/sw-sales-channel-list/sw-sales-channel-list.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  domainLinkService
+  repositoryFactory
+
+data
+  isLoading: any
+  lastSortedColumn: any
+  productsForSalesChannel: any
+  salesChannels: any
+  searchConfigEntity: any
+  sortBy: any
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  salesChannelColumns: any
+  salesChannelCriteria: any
+  salesChannelFavoritesService: any
+  salesChannelRepository: any
+
+methods
+  checkForDomainLink(salesChannel: any): any
+  getList(): Promise<any>
+  isFavorite(salesChannelId: any): any
+  isStorefrontSalesChannel(salesChannel: any): any
+  onAddSalesChannel(): any
+  openStorefrontLink(storeFrontLink: any): any
+
 blocks
   sw_sales_channel_list
     sw_sales_channel_list_actions

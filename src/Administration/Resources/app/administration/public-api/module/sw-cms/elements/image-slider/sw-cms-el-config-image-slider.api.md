@@ -11,6 +11,56 @@ component sw-cms-el-config-image-slider  private  js  [private]
   template src/module/sw-cms/elements/image-slider/config/sw-cms-el-config-image-slider.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+  entity: any  [private]
+  initialFolderId: any  [private]
+  mediaItems: any  [private]
+  mediaModalIsOpen: any  [private]
+  showSlideConfig: any  [private]
+
+computed
+  autoplayTimeoutDefault: any  [private]
+  defaultFolderName: any  [private]
+  displayModeValueOptions: any  [private]
+  items: any  [private]
+  mediaRepository: any  [private]
+  navigationArrowsValueOptions: any  [private]
+  navigationDotsValueOptions: any  [private]
+  speedDefault: any  [private]
+  tabs: any  [private]
+  uploadTag: any  [private]
+  verticalAlignValueOptions: any  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+  emitUpdateEl(): any  [private]
+  getMediaItem(mediaItem: any): Promise<any>  [private]
+  getMediaItemById(mediaId: any): any  [private]
+  initSliderItems(): Promise<any>  [private]
+  onChangeAutoSlide(value: any): any  [private]
+  onChangeDisplayMode(value: any): any  [private]
+  onChangeIsDecorative(value: any): any  [private]
+  onChangeMinHeight(value: any): any  [private]
+  onChangeUseFetchPriorityOnFirstItem(value: any): any  [private]
+  onCloseMediaModal(): any  [private]
+  onImageUpload(mediaItem: any): Promise<any>  [private]
+  onItemRemove(mediaItem: any, index: any): any  [private]
+  onItemSort(dragData: any, dropData: any): any  [private]
+  onMediaSelectionChange(mediaItems: any): any  [private]
+  onOpenMediaModal(): any  [private]
+  updateMediaDataValue(): any  [private]
+
 blocks
   sw_cms_element_image_slider_config  [private]
     sw_cms_element_image_slider_config_tabs  [private]
@@ -43,11 +93,11 @@ blocks
         sw_cms_element_image_slider_config_settings_auto_slide  [scope: active] [until v6.8.0] [private]
         sw_cms_element_image_slider_config_settings_autoplay_timeout  [scope: active] [until v6.8.0] [private]
         sw_cms_element_image_slider_config_settings_display_mode  [scope: active] [until v6.8.0] [private]
-          sw_cms_element_image_gallery_config_settings_display_mode  [scope: active] [until v6.8.0] [private]
+          sw_cms_element_image_gallery_config_settings_display_mode  [scope: active] [until v6.8.0] [deprecated tag:v6.8.0] [private]
             sw_cms_element_image_slider_config_settings_display_mode_select  [scope: active] [until v6.8.0] [private]
-              sw_cms_element_image_gallery_config_settings_display_mode_select  [scope: active] [until v6.8.0] [private]
+              sw_cms_element_image_gallery_config_settings_display_mode_select  [scope: active] [until v6.8.0] [deprecated tag:v6.8.0] [private]
             sw_cms_element_image_slider_config_settings_min_height  [scope: active] [until v6.8.0] [private]
-              sw_cms_element_image_gallery_config_settings_min_height  [scope: active] [until v6.8.0] [private]
+              sw_cms_element_image_gallery_config_settings_min_height  [scope: active] [until v6.8.0] [deprecated tag:v6.8.0] [private]
         sw_cms_element_image_slider_config_settings_links  [scope: active] [until v6.8.0] [private]
           sw_cms_element_image_slider_config_settings_link_aria_label  [scope: active, index, sliderItem] [until v6.8.0] [private]
           sw_cms_element_image_slider_config_settings_link_target  [scope: active, index, sliderItem] [until v6.8.0] [private]
@@ -58,7 +108,7 @@ blocks
         sw_cms_element_image_slider_config_settings_speed  [scope: active] [until v6.8.0] [private]
         sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item  [scope: active] [until v6.8.0] [private]
         sw_cms_element_image_slider_config_settings_vertical_align  [scope: active] [until v6.8.0] [private]
-          sw_cms_element_image_gallery_config_settings_vertical_align  [scope: active] [until v6.8.0] [private]
+          sw_cms_element_image_gallery_config_settings_vertical_align  [scope: active] [until v6.8.0] [deprecated tag:v6.8.0] [private]
       sw_cms_element_image_slider_config_tab_content  [scope: active] [until v6.8.0] [private]
       sw_cms_element_image_slider_config_tab_options  [scope: active] [until v6.8.0] [private]
 ```

@@ -11,6 +11,9 @@ component sw-cms-block-text-on-image  private  js  [private]
   template src/module/sw-cms/blocks/text-image/text-on-image/component/sw-cms-block-text-on-image.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_text_on_image  [private]
+
 blocks
   sw_cms_block_text_on_image  [private]
 ```

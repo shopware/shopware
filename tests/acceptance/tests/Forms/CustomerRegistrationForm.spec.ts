@@ -72,6 +72,13 @@ test.describe('Customer Registration Form', () => {
                 /Your legal guarantee rights|Ihre gesetzlichen Gewährleistungsrechte/i,
             );
             await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toBeVisible();
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toHaveAccessibleName(
+                /\(opens in a new tab\)|\(öffnet in einem neuen Tab\)/,
+            );
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toHaveAccessibleDescription(
+                /europa\.eu\/youreurope\//,
+            );
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.locator('svg')).toHaveAttribute('aria-hidden', 'true');
 
             // Checkbox enabled, legal guarantee notice enabled: both the checkbox and the notice paragraph are shown.
             await TestDataService.setSystemConfig({

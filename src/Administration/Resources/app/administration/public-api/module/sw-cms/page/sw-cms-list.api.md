@@ -10,6 +10,116 @@ component sw-cms-list  public  js
   source src/module/sw-cms/page/sw-cms-list/index.js
   template src/module/sw-cms/page/sw-cms-list/sw-cms-list.html.twig
 
+mixins
+  listing, notification, user-settings
+
+inject
+  acl
+  cmsPageTypeService
+  feature
+  mediaDefaultFolderService
+  repositoryFactory
+  systemConfigApiService
+
+data
+  assignablePageTypes: any
+  associationLimit: any
+  cardViewIdentifier: any
+  compactLayoutBreakpoint: any
+  currentPage: any
+  currentPageType: any
+  defaultCategoryId: any
+  defaultMediaFolderId: any
+  defaultProductId: any
+  isCompactLayout: any
+  isLoading: any
+  layoutResizeObserver: any
+  limit: any
+  limitDefaults: object
+    cardView: any
+    gridView: any
+  linkedLayouts: any
+  listMode: any
+  maxVisibleAssignedPages: any
+  newDefaultLayout: any
+  newName: any
+  pages: any
+  searchConfigEntity: any
+  showDeleteModal: any
+  showLayoutSetAsDefaultModal: any
+  showMediaModal: any
+  showRenameModal: any
+  sortBy: any
+  sortDirection: any
+  term: any
+
+computed
+  activePageTypeTab: any
+  adminEsEnable: any
+  associatedCategoryBuckets: any  [deprecated tag:v6.8.0]
+  associatedProductBuckets: any  [deprecated tag:v6.8.0]
+  cmsListPageTypeTabs: any
+  columnConfig: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  defaultFolderRepository: any  [deprecated tag:v6.8.0]
+  isLinkedCriteria: any
+  listCriteria: any
+  pageRepository: any
+  sortPageTypes: any
+
+methods
+  addLinkedLayoutsAggregation(criteria: any): any
+  beforeUnmountComponent(): any
+  createdComponent(): Promise<any>
+  deleteCmsPage(page: any): Promise<any>
+  deleteDisabledToolTip(page: any): any
+  getColumnConfig(): any
+  getDefaultFolderId(): any
+  getDefaultLayouts(): Promise<any>
+  getList(): Promise<any>
+  getPageCategoryCount(page: any): any
+  getPageCount(page: any): any
+  getPageLandingPageCount(page: any): any
+  getPageProductCount(page: any): any
+  getPageType(page: any): any
+  getPages(page: any): any
+  getPagesString(page: any): any
+  getPagesTooltip(page: any): any
+  isDefaultLayout(page: any): any
+  layoutIsLinked(pageId: any): any
+  loadGridUserSettings(): Promise<any>
+  mountedComponent(): any
+  onChangeLanguage(languageId: any): any
+  onCloseDeleteModal(): any
+  onCloseLayoutSetAsDefault(): any
+  onCloseRenameModal(): any
+  onConfirmLayoutSetAsDefault(): Promise<any>
+  onConfirmPageDelete(): any
+  onConfirmPageRename(): any
+  onCreateNewLayout(): any
+  onDeleteCmsPage(page: any): any
+  onDuplicateCmsPage(page: any, behavior?: any = { overwrites: {} }): any
+  onListItemClick(page: any): any
+  onListModeChange(): any
+  onModalClose(): any
+  onOpenLayoutSetAsDefault(page: any): any
+  onPageChange(arg0: any): any
+  onPreviewChange(page: any): any
+  onPreviewImageChange(arg0: any): any
+  onPreviewImageRemove(page: any): any
+  onRenameCmsPage(page: any): any
+  onSearch(value?: any = null): any
+  onSortPageType(value?: any = null): any
+  onSortingChanged(value: any): any
+  optionContextDeleteDisabled(page: any): any
+  registerLayoutResizeObserver(): any
+  resetList(): any
+  saveCmsPage(page: any, context?: any = Shopware.Context.api): Promise<any>
+  saveGridUserSettings(): any
+  setPageContext(): any
+  showDefaultLayoutContextMenu(cmsPage: any): any
+  updateLimit(): any
+
 blocks
   sw_cms_list
     sw_cms_list_card_view

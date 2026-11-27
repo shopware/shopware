@@ -1,0 +1,6 @@
+.mt-modal:has(.sw-product-document-form__remove-content) {
+    .mt-modal__title {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}

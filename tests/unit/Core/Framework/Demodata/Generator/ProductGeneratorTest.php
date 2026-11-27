@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
+use Shopware\Core\Framework\Demodata\Generator\ProductDocumentFileProvider;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -190,6 +191,8 @@ class ProductGeneratorTest extends TestCase
                 static::assertContains($media['mediaId'], $mediaIds);
             }
 
+            static::assertArrayNotHasKey('documents', $product);
+
             static::assertIsArray($product['properties']);
             static::assertIsArray($product['properties'][0]);
             static::assertIsString($product['properties'][0]['id']);
@@ -348,6 +351,42 @@ class ProductGeneratorTest extends TestCase
         }
     }
 
+    public function testProductsGetDocumentsFromTheProvidedFiles(): void
+    {
+        $files = [];
+        for ($i = 0; $i < 10; ++$i) {
+            $files[] = ['title' => 'Document ' . $i, 'mediaId' => Uuid::randomHex()];
+        }
+
+        $documentFileProvider = static::createStub(ProductDocumentFileProvider::class);
+        $documentFileProvider->method('getDocuments')->willReturn($files);
+
+        $products = $this->generateProducts(41, documentFileProvider: $documentFileProvider, fakerSeed: 1);
+        static::assertCount(41, $products);
+
+        $documentCounts = [];
+        foreach ($products as $product) {
+            $documents = $product['documents'];
+            static::assertIsArray($documents);
+            $documentCounts[] = \count($documents);
+            static::assertSame(array_keys($documents), array_column($documents, 'position'));
+
+            foreach ($documents as $document) {
+                static::assertContains(['title' => $document['title'], 'mediaId' => $document['mediaId']], $files);
+                static::assertSame(['shopwareDemoData' => true], $document['customFields']);
+            }
+
+            static::assertIsArray($product['children'] ?? []);
+            foreach ($product['children'] ?? [] as $variant) {
+                static::assertIsArray($variant);
+                static::assertArrayNotHasKey('documents', $variant);
+            }
+        }
+
+        static::assertContains(0, $documentCounts);
+        static::assertGreaterThan(4, max($documentCounts));
+    }
+
     /**
      * @param array<string, int> $categoryUsage
      * @param list<string> $mediaIds
@@ -366,6 +405,8 @@ class ProductGeneratorTest extends TestCase
         ?StatesUpdater $statesUpdater = null,
         ?SymfonyStyle $io = null,
         ?\Throwable $firstTransactionError = null,
+        ?ProductDocumentFileProvider $documentFileProvider = null,
+        ?int $fakerSeed = null,
     ): array {
         $propertyGroupId = Uuid::randomHex();
         $salesChannelIds = $this->salesChannelIds;
@@ -420,6 +461,9 @@ class ProductGeneratorTest extends TestCase
 
         $faker = Factory::create();
         $faker->addProvider(new Commerce($faker));
+        if ($fakerSeed !== null) {
+            $faker->seed($fakerSeed);
+        }
 
         $context = static::createStub(DemodataContext::class);
         $context->method('getFaker')->willReturn($faker);
@@ -430,6 +474,7 @@ class ProductGeneratorTest extends TestCase
             $registry,
             $inheritanceUpdater ?? static::createStub(InheritanceUpdater::class),
             $statesUpdater ?? static::createStub(StatesUpdater::class),
+            $documentFileProvider,
         );
         $productGenerator->generate($count, $context);
 

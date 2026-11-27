@@ -11,6 +11,28 @@ component sw-time-ago  private  ts  [private]
   template src/app/component/utils/sw-time-ago/sw-time-ago.html.twig  [private]
   visibility-source export  [private]
 
+props
+  date: Date | string  [private]
+  dateTimeFormat?: Intl.DateTimeFormatOptions  default={}  [private]
+
+data
+  formattedRelativeTime: any  [private]
+  interval: any  [private]
+  now: any  [private]
+
+computed
+  dateFilter: any  [private]
+  dateObject: Date  [private]
+  fullDatetime: string  [private]
+  isToday: boolean  [private]
+  lessThanOneHour: boolean  [private]
+  lessThanOneHourFromNow: boolean  [private]
+  lessThanOneMinute: boolean  [private]
+  lessThanOneMinuteFromNow: boolean  [private]
+
+methods
+  formatRelativeTime(): string  [private]
+
 blocks
   sw_time_ago  [private]
 ```

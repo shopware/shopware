@@ -10,6 +10,27 @@ component sw-order-state-history-card-entry  public  js
   source src/module/sw-order/component/sw-order-state-history-card-entry/index.js
   template src/module/sw-order/component/sw-order-state-history-card-entry/sw-order-state-history-card-entry.html.twig
 
+inject
+  stateStyleDataProviderService
+
+props
+  disabled?: boolean  default=false
+  history: any[]
+  stateMachineName: string
+  title?: string  default=''
+  transitionOptions: any[]
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+
+methods
+  getBackgroundColorFromState(stateName: any): any
+  getDisplayName(historyEntry: any): any
+  getIconColorFromState(stateName: any): any
+  getIconFromState(stateName: any): any
+  integrationDisplayName(integration: any): any
+  userDisplayName(user: any): any
+
 blocks
   sw_order_state_card_entry
     sw_order_state_card_entry_headline

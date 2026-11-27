@@ -10,6 +10,66 @@ component sw-media-folder-item  public  js
   source src/app/component/media/sw-media-folder-item/index.js
   template src/app/component/media/sw-media-folder-item/sw-media-folder-item.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  isParent?: boolean  default=false
+
+emits
+  media-folder-changed(...args: any[])
+  media-folder-delete(...args: any[])
+  media-folder-dissolve(...args: any[])
+  media-folder-move(...args: any[])
+  media-folder-remove(...args: any[])
+
+slots
+  default  {}  block=sw_media_folder_item_context_menu
+
+data
+  iconConfig: object
+    color: any
+    name: any
+  lastDefaultFolderId: any
+  showDeleteModal: any
+  showDissolveModal: any
+  showMoveModal: any
+  showSettings: any
+
+computed
+  assetFilter: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  folderColor: any
+  iconName: any
+  mediaDefaultFolderRepository: any
+  mediaFolder: any
+  mediaFolderRepository: any
+  moduleFactory: any
+  moduleIconColor: any
+
+methods
+  closeDeleteModal(): any
+  closeDissolveModal(): any
+  closeMoveModal(): any
+  closeSettings(mediaFolderChanged: any): any
+  createdComponent(): any
+  emitItemDeleted(ids: any): any
+  getIconConfigFromFolder(): Promise<any>
+  navigateToFolder(id: any): any
+  onBlur(event: any, item: any, endInlineEdit: any): any
+  onChangeName(updatedName: any, item: any, endInlineEdit: any): Promise<any>
+  onFolderDissolved(ids: any): any
+  onFolderMoved(ids: any): any
+  openDeleteModal(): any
+  openDissolveModal(): any
+  openMoveModal(): any
+  openSettings(): any
+  refreshIconConfig(): Promise<any>
+  rejectRenaming(item: any, cause: any, endInlineEdit: any): any
+
 blocks
   sw_media_folder_item
     sw_media_folder_item_context_menu
@@ -37,4 +97,7 @@ blocks
 crossings
   v-if  sw_media_folder_default_icon -> sw_media_folder_folder_icon
   v-if  sw_media_folder_parent_icon -> sw_media_folder_default_icon
+
+refs
+  itemName  -> div  block=sw_media_base_item_name
 ```

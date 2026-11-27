@@ -11,6 +11,19 @@ component sw-extension-domains-modal  private  js  [private]
   template src/module/sw-extension/component/sw-extension-domains-modal/sw-extension-domains-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  domains: any[]  [private]
+  extensionLabel: string  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+computed
+  modalTitle: any  [private]
+
+methods
+  close(): any  [private]
+
 blocks
   sw_extension_domains_modal  [private]
     sw_extension_domains_modal_description  [private]

@@ -1,0 +1,33 @@
+{% block sw_product_document_empty_state %}
+<div
+    class="sw-product-document-empty-state"
+    :class="{ 'sw-product-document-empty-state--translated': !isSystemDefaultLanguage }"
+>
+    <mt-empty-state
+        centered
+        icon="regular-file-text"
+        :headline="$t('sw-product.documentForm.emptyState')"
+        :description="isSystemDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
+    >
+        <template
+            v-if="isSystemDefaultLanguage"
+            #button
+        >
+            {% block sw_product_document_empty_state_add %}
+            <slot name="add-button"></slot>
+            {% endblock %}
+        </template>
+    </mt-empty-state>
+
+    {% block sw_product_document_empty_state_language_hint %}
+    <mt-text
+        v-if="!isSystemDefaultLanguage"
+        size="xs"
+        color="color-text-secondary-default"
+        class="sw-product-document-empty-state__language-hint"
+    >
+        <sw-product-document-language-hint />
+    </mt-text>
+    {% endblock %}
+</div>
+{% endblock %}

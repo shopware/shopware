@@ -10,6 +10,48 @@ component sw-media-modal-move  public  js
   source src/app/component/media/sw-media-modal-move/index.js
   template src/app/component/media/sw-media-modal-move/sw-media-modal-move.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+provide
+  filterItems: any
+
+props
+  itemsToMove: any[]
+
+emits
+  media-move-modal-close(...args: any[])
+  media-move-modal-items-move(...args: any[])
+
+data
+  displayFolder: any
+  displayFolderId: any
+  parentFolder: any
+  targetFolder: any
+
+computed
+  assetFilter: any
+  isMoveDisabled: any
+  mediaFolderRepository: any
+  mediaNameFilter: any
+  mediaRepository: any
+  rootFolderName: any
+  startFolderId: any
+  targetFolderId: any
+
+methods
+  _moveSelection(item: any): Promise<any>
+  closeMoveModal(): any
+  fetchParentFolder(id: any): Promise<any>
+  isNotPartOfItemsToMove(item: any): any
+  mountedComponent(): Promise<any>
+  moveSelection(): Promise<any>
+  onSelection(folder: any): any
+  updateParentFolder(child: any): Promise<any>
+
 blocks
   sw_media_modal_move
     sw_media_modal_body

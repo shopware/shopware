@@ -11,6 +11,32 @@ component sw-cms-el-config-product-description-reviews  private  js  [private]
   template src/module/sw-cms/elements/product-description-reviews/config/sw-cms-el-config-product-description-reviews.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+
+computed
+  alignmentOptions: any  [private]
+  isProductPage: any  [private]
+  productCriteria: any  [private]
+  productRepository: any  [private]
+  productSelectContext: any  [private]
+  selectedProductCriteria: any  [private]
+  tabs: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onProductChange(productId: any): any  [private]
+
 blocks
   sw_cms_element_product_description_reviews_config  [private]
     sw_cms_element_product_description_reviews_config_tabs  [private]
@@ -21,11 +47,11 @@ blocks
       sw_cms_element_product_description_reviews_config_content  [scope: active] [until v6.8.0] [private]
         sw_cms_element_product_description_reviews_config_product_select  [after v-if] [scope: active] [until v6.8.0] [private]
           sw_cms_element_product_description_reviews_config_product_select_result_item  [scope: active, isInherited] [until v6.8.0] [private]
-            sw_entity_single_select_variant_result_item  [scope: active, isInherited] [until v6.8.0] [private]
+            sw_entity_single_select_variant_result_item  [scope: active, isInherited] [until v6.8.0] [deprecated tag:v6.8.0] [private]
               sw_cms_element_product_description_reviews_config_product_select_result_item_inner  [scope: active, index, isInherited, item] [until v6.8.0] [private]
-                sw_entity_single_select_base_results_list_result_label  [scope: active, index, isInherited, item] [until v6.8.0] [private]
+                sw_entity_single_select_base_results_list_result_label  [scope: active, index, isInherited, item] [until v6.8.0] [deprecated tag:v6.8.0] [private]
           sw_cms_element_product_description_reviews_config_product_selection_label  [scope: active, isInherited] [until v6.8.0] [private]
-            sw_entity_single_select_variant_selected_item  [scope: active, isInherited] [until v6.8.0] [private]
+            sw_entity_single_select_variant_selected_item  [scope: active, isInherited] [until v6.8.0] [deprecated tag:v6.8.0] [private]
         sw_cms_element_product_description_reviews_warning  [scope: active] [until v6.8.0] [private]
       sw_cms_element_product_description_reviews_config_mt_content  [from v6.8.0] [private]
         sw_cms_element_product_description_reviews_config_mt_product_select  [after v-if] [from v6.8.0] [private]
@@ -36,4 +62,8 @@ blocks
       sw_cms_element_product_description_reviews_config_mt_tabs  [from v6.8.0] [private]
       sw_cms_element_product_description_reviews_config_tab_content  [scope: active] [until v6.8.0] [private]
       sw_cms_element_product_description_reviews_config_tab_options  [scope: active] [until v6.8.0] [private]
+
+refs
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_product_description_reviews_config_mt_product_select  [from v6.8.0] [private]
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_product_description_reviews_config_product_select  [until v6.8.0] [private]
 ```

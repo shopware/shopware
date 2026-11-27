@@ -11,6 +11,32 @@ component sw-condition-delivery-container  private  ts  [private]
   template src/app/component/rule/sw-condition-delivery-container/sw-condition-delivery-container.html.twig  [private]
   visibility-source export  [private]
 
+provide
+  unwrapDeliveryCondition: any  [private]
+
+props
+  condition: RuleConditionNode  [private]
+  disabled?: boolean  default=false  [private]
+  level: number  [private]
+  parentCondition: RuleConditionNode  [private]
+
+emits
+  create-after(...args: any[])  [private]
+  create-before(...args: any[])  [private]
+
+computed
+  childType: string | null  [private]
+  children: EntityCollection<'rule_condition'>  [private]
+  childrenLength: number  [private]
+
+methods
+  onInsertAfter(): void  [private]
+  onInsertBefore(): void  [private]
+  unwrapCondition(childCondition: RuleCondition): void  [private]
+
 blocks
   sw_condition_delivery_container  [private]
+
+notes
+  unresolved options setup  [private]
 ```

@@ -1,0 +1,34 @@
+{% block sw_product_document_add_button %}
+<span class="sw-product-document-add-button">
+    <mt-button
+        v-if="isSystemDefaultLanguage && !isInherited"
+        :disabled="disabled"
+        size="small"
+        variant="secondary"
+        @click="$emit('documents-add')"
+    >
+        {{ $t('sw-product.documentForm.buttonAdd') }}
+    </mt-button>
+    {% block sw_product_document_add_button_language_hint %}
+    <mt-tooltip
+        v-else
+        :content="tooltipContent"
+        :hide-delay-duration-in-ms="600"
+        placement="top"
+        @click="onTooltipClick"
+    >
+        <template #default="tooltip">
+            <mt-button
+                v-bind="tooltip"
+                class="sw-product-document-add-button__trigger"
+                disabled
+                size="small"
+                variant="secondary"
+            >
+                {{ $t('sw-product.documentForm.buttonAdd') }}
+            </mt-button>
+        </template>
+    </mt-tooltip>
+    {% endblock %}
+</span>
+{% endblock %}

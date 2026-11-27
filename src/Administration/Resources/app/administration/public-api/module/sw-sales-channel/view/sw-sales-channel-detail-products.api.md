@@ -10,17 +10,66 @@ component sw-sales-channel-detail-products  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-products/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-products/sw-sales-channel-detail-products.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  repositoryFactory
+  salesChannelProductAssignmentApiService
+
+props
+  salesChannel?: object  default=factory
+
+slots
+  default  { ...{ item } }  block=sw_sales_channel_detail_products_card_section_primary_filled_state
+  default  { ...{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty } }  block=sw_sales_channel_detail_products_card_section_primary_filled_state
+
+data
+  isAssignProductLoading: any
+  isLoading: any
+  limit: any
+  page: any
+  productSelection: any
+  products: any
+  searchTerm: any
+  showProductsModal: any
+  total: any
+
+computed
+  assetFilter: any
+  productColumns: any
+  productCriteria: any
+  productRepository: any
+  productVisibilityRepository: any
+
+methods
+  getDeleteId(product: any): any
+  getExceededAssignmentLimit(idLists: any): any
+  getProducts(): Promise<any>
+  isProductRemovable(product: any): any
+  onAddProducts(products: any, selection?: any = null): Promise<any>
+  onChangePage(data: any): any
+  onChangeSearchTerm(searchTerm: any): any
+  onDeleteProduct(product: any): Promise<any>
+  onDeleteProducts(): Promise<any>
+  onProductSelectionChanged(selection: any): any
+  openAddProductsModal(): any
+  saveProductVisibilities(data: any): any  [deprecated tag:v6.8.0]
+  showNotificationError(errors: any): any
+
 blocks
   sw_sales_channel_detail_products
     sw_sales_channel_detail_products_assignment_modal  [after v-if]
     sw_sales_channel_detail_products_empty_state
       sw_sales_channel_detail_products_empty_state_button
-      sw_sales_channel_detail_products_empty_state_image  [after v-if]
+      sw_sales_channel_detail_products_empty_state_image  [after v-if] [deprecated tag:v6.8.0]
     sw_sales_channel_detail_products_filled_state
       sw_sales_channel_detail_products_card_section
         sw_sales_channel_detail_products_card_section_primary
           sw_sales_channel_detail_products_card_section_primary_empty_state  [after v-if]
-            sw_sales_channel_detail_products_card_section_primary_image
+            sw_sales_channel_detail_products_card_section_primary_image  [deprecated tag:v6.8.0]
           sw_sales_channel_detail_products_card_section_primary_filled_state
             sw_sales_channel_detail_products_listing_bulk
             sw_sales_channel_detail_products_listing_column_active  [scope: item]
@@ -34,4 +83,7 @@ blocks
 
 crossings
   v-if  sw_sales_channel_detail_products_card_section_primary_filled_state -> sw_sales_channel_detail_products_card_section_primary_empty_state
+
+refs
+  entityListing  -> sw-entity-listing  block=sw_sales_channel_detail_products_card_section_primary_filled_state
 ```

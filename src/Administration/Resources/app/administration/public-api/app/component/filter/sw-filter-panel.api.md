@@ -11,6 +11,39 @@ component sw-filter-panel  private  js  [private]
   template src/app/component/filter/sw-filter-panel/sw-filter-panel.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+props
+  defaults: any[]  [private]
+  filters: any[]  [private]
+  storeKey: string  [private]
+
+emits
+  criteria-changed(...args: any[])  [private]
+
+data
+  activeFilters: any  [private]
+  filterChanged: any  [private]
+  storedFilters: any  [private]
+  storedFiltersRequestId: any  [private]
+
+computed
+  activeFiltersNumber: any  [private]
+  criteria: any  [private]
+  isFilterActive: any  [private]
+  listFilters: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getBreadcrumb(item: any): any  [private]
+  getLabelName(item: any): any  [private]
+  resetAll(): any  [private]
+  resetFilter(name: any): any  [private]
+  showFilter(filter: any, type: any): any  [private]
+  updateFilter(name: any, filter: any, value: any): any  [private]
+
 blocks
   sw_filter_panel  [private]
     sw_filter_panel_item  [private]

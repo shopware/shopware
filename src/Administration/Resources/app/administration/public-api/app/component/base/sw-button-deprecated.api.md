@@ -11,8 +11,28 @@ component sw-button-deprecated  private  js  [private]
   template src/app/component/base/sw-button-deprecated/sw-button.html.twig  [private]
   visibility-source export  [private]
 
+props
+  block?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  isLoading?: boolean  default=false  [private]
+  link?: string  default=null  [private]
+  routerLink?: object  [private]
+  size?: string  default=''  [private]
+  square?: boolean  default=false  [private]
+  variant?: string  default=''  [private]
+
+slots
+  default  {}  block=sw_button_button_content  [private]
+  default  {}  block=sw_button_link_content  [private]
+  default  {}  block=sw_button_router_link_content  [private]
+
+computed
+  buttonClasses: any  [private]
+  contentVisibilityClass: any  [private]
+  filteredAttributes: any  [private]
+
 blocks
-  sw_button  [private]
+  sw_button  [deprecated tag:v6.8.0] [private]
     sw_button_button  [after v-if] [private]
       sw_button_button_content  [private]
         sw_button_button_slot_default  [private]

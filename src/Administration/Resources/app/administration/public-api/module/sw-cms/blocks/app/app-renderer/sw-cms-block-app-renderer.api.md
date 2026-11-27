@@ -11,6 +11,16 @@ component sw-cms-block-app-renderer  private  ts  [private]
   template src/module/sw-cms/blocks/app/app-renderer/component/sw-cms-block-app-renderer.html.twig  [private]
   visibility-source export  [private]
 
+props
+  block?: { slots: Array<{ slot: string; type: string; }>; customFields?: { slotLayout?: { grid?: string; }; }; }  default=factory  [private]
+
+computed
+  blockStyle: any  [private]
+  slots: any  [private]
+
 blocks
   sw_cms_block_app_renderer  [private]
+
+notes
+  dynamic-slot slot.slot  [private]
 ```

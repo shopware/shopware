@@ -8,9 +8,16 @@
             <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
                target="_blank"
                rel="noopener"
-               aria-label="{{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|striptags }}">
+               aria-label="{{ 'checkout.confirmLegalGuaranteeNoticeYourEuropeLink'|trans|striptags }}"
+               aria-describedby="legalGuaranteeNoticeInline-text">
                 {{ context.languageId|sw_legal_guarantee_notice }}
             </a>
+        {% endblock %}
+
+        {% block page_checkout_confirm_legal_guarantee_notice_inline_text %}
+            <div id="legalGuaranteeNoticeInline-text" class="visually-hidden">
+                {{ context.languageId|sw_legal_guarantee_notice_text }}
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

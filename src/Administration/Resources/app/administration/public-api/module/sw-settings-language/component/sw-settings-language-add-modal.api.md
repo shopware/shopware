@@ -10,6 +10,39 @@ component sw-settings-language-add-modal  public  js
   source src/module/sw-settings-language/component/sw-settings-language-add-modal/index.js
   template src/module/sw-settings-language/component/sw-settings-language-add-modal/sw-settings-language-add-modal.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+  translationService
+
+emits
+  close(...args: any[])
+  language-added(...args: any[])
+
+data
+  completenessThreshold: any
+  documentationUrlSnippetKey: any
+  existingLanguageLocales: any
+  isLoading: any
+  isSaving: any
+  selectedLocale: any
+  translations: any
+
+computed
+  languageOptions: any
+  languageRepository: any
+  selectedTranslation: any
+  translationsHintTextKey: any
+  translationsSufficient: any
+
+methods
+  createdComponent(): Promise<any>
+  loadExistingLanguageLocales(): Promise<any>
+  onAddLanguage(): Promise<any>
+  onClose(): any
+
 blocks
   sw_settings_language_add_modal
     sw_settings_language_add_modal_footer

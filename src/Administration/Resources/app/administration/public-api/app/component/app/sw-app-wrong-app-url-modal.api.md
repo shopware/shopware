@@ -11,6 +11,36 @@ component sw-app-wrong-app-url-modal  private  js  [private]
   template src/app/component/app/sw-app-wrong-app-url-modal/sw-app-wrong-app-url-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  commandCopied: any  [private]
+  notification: object  [private]
+    actions: any  [private]
+    message: any  [private]
+    title: any  [private]
+    uuid: any  [private]
+  verifyCommand: any  [private]
+  wasModalAlreadyShown: any  [private]
+
+computed
+  appUrl: any  [private]
+  appUrlStatusCode: any  [private]
+  assetFilter: any  [private]
+  display: any  [private]
+  hasAppsThatRequireAppUrl: any  [private]
+  isAppUrlReachable: any  [private]
+
+methods
+  closeModal(): any  [private]
+  copyVerifyCommand(): Promise<any>  [private]
+  createAlertNotification(): any  [private]
+  removeAlertNotification(): any  [private]
+
 blocks
   sw_app_wrong_app_url_modal  [private]
 ```

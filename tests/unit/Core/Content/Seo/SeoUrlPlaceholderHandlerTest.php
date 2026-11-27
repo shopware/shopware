@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -205,6 +206,75 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $actual = $this->seoUrlPlaceholderHandler->replace($content, 'https://my-storefront.com', $context);
 
         static::assertSame('SEO: product/' . $productId, $actual);
+    }
+
+    /**
+     * @return iterable<string, array{generatedPath: string, server: array<string, string>, expected: string}>
+     */
+    public static function generateDataProvider(): iterable
+    {
+        yield 'no base url' => [
+            'generatedPath' => '/navigation/abc',
+            'server' => [],
+            'expected' => '/navigation/abc',
+        ];
+
+        yield 'script name in url' => [
+            'generatedPath' => '/index.php/navigation/abc',
+            'server' => ['SCRIPT_NAME' => '/index.php', 'SCRIPT_FILENAME' => '/index.php', 'PHP_SELF' => '/index.php/navigation/abc'],
+            'expected' => '/navigation/abc',
+        ];
+
+        yield 'sub directory' => [
+            'generatedPath' => '/subdir/navigation/abc',
+            'server' => ['SCRIPT_NAME' => '/subdir/index.php', 'SCRIPT_FILENAME' => '/subdir/index.php', 'PHP_SELF' => '/subdir/navigation/abc'],
+            'expected' => '/navigation/abc',
+        ];
+
+        yield 'sub directory and script name in url' => [
+            'generatedPath' => '/subdir/index.php/navigation/abc',
+            'server' => ['SCRIPT_NAME' => '/subdir/index.php', 'SCRIPT_FILENAME' => '/subdir/index.php', 'PHP_SELF' => '/subdir/index.php/navigation/abc'],
+            'expected' => '/navigation/abc',
+        ];
+
+        yield 'generated path without the base url of the request' => [
+            'generatedPath' => '/navigation/abc',
+            'server' => ['SCRIPT_NAME' => '/index.php', 'SCRIPT_FILENAME' => '/index.php', 'PHP_SELF' => '/index.php/navigation/abc'],
+            'expected' => '/navigation/abc',
+        ];
+    }
+
+    /**
+     * @param array<string, string> $server
+     */
+    #[DataProvider('generateDataProvider')]
+    public function testGenerateRemovesBaseUrlOfRequest(string $generatedPath, array $server, string $expected): void
+    {
+        $router = static::createStub(Router::class);
+        $router->method('generate')->willReturn($generatedPath);
+
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create($server['PHP_SELF'] ?? '/navigation/abc', server: $server));
+
+        $handler = new SeoUrlPlaceholderHandler($requestStack, $router, $this->connection);
+
+        static::assertSame(
+            SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . $expected . '#',
+            $handler->generate('frontend.navigation.page', ['navigationId' => 'abc'])
+        );
+    }
+
+    public function testGenerateWithoutRequest(): void
+    {
+        $router = static::createStub(Router::class);
+        $router->method('generate')->willReturn('/navigation/abc');
+
+        $handler = new SeoUrlPlaceholderHandler(new RequestStack(), $router, $this->connection);
+
+        static::assertSame(
+            SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/navigation/abc#',
+            $handler->generate('frontend.navigation.page')
+        );
     }
 
     private function createHeadlessSalesChannelContext(bool $externalStorefront, ?string $domainLanguageId = null): SalesChannelContext

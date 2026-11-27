@@ -161,8 +161,9 @@ async function createWrapper(
                     'sw-field-copyable': true,
                     'sw-inheritance-switch': true,
                     'sw-help-text': true,
-                    'sw-popover': {
-                        template: '<div class="sw-popover"><slot></slot></div>',
+                    'mt-floating-ui': {
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-context-menu': {
                         template: '<div class="sw-context-menu"><slot></slot></div>',

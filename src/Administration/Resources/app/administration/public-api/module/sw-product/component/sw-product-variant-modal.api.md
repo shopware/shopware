@@ -10,6 +10,94 @@ component sw-product-variant-modal  public  js
   source src/module/sw-product/component/sw-product-variant-modal/index.js
   template src/module/sw-product/component/sw-product-variant-modal/sw-product-variant-modal.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+
+props
+  productEntity: object
+
+emits
+  modal-close(...args: any[])
+
+data
+  currency: any
+  filterOptions: any
+  filterWindowOpen: any
+  groups: any
+  includeOptions: any
+  isDeleteButtonLoading: any
+  isDeletionOver: any
+  isLoading: any
+  paginationLimit: any
+  paginationPage: any
+  productVariants: any
+  searchTerm: any
+  showBulkEditModal: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  toBeDeletedVariants: any
+
+computed
+  canBeDeletedCriteria: any
+  contextMenuEditText: any
+  currencyRepository: any
+  filterCriteria: any
+  filterOptionsListing: any
+  gridColumns: any
+  groupCriteria: any
+  groupRepository: any
+  modalTitle: any
+  openMainProductText: any
+  productConfigurationRepository: any
+  productMediaRepository: any
+  productRepository: any
+  productVariantCriteria: any
+  selectedGroups: any
+  stockColorVariantFilter: any
+
+methods
+  buildVariantName(variant: any): any
+  buildVariantOptions(variant: any, seperator?: any = ', ', ommitParenthesis?: any = false, ommitOptionGroupName?: any = false): any
+  canVariantsBeDeleted(): Promise<any>
+  closeDeleteModal(): any
+  createdComponent(): Promise<any>
+  deleteVariants(): any
+  fetchProductConfiguration(): Promise<any>
+  fetchProductMedias(): Promise<any>
+  fetchProductVariants(): Promise<any>
+  fetchSystemCurrency(): Promise<any>
+  filterOptionChecked(option: any): any
+  getDefaultPriceForVariant(variant: any): any
+  getItemMedia(item: any): any
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any
+  getOptionsForGroup(groupId: any): any
+  getVariantPrice(variant: any): any
+  isMediaFieldInherited(variant: any): any
+  loadGroups(): Promise<any>
+  onClickBulkDelete(): any
+  onDeleteVariant(variant: any): any
+  onEditItems(): Promise<any>
+  onInheritanceRemove(variant: any, currency: any): any
+  onInheritanceRestore(variant: any, currency: any): any
+  onInlineEditCancel(): any
+  onInlineEditSave(editedVariant: any): any
+  onMediaInheritanceRemove(variant: any, isInlineEdit: any): any
+  onMediaInheritanceRestore(variant: any, isInlineEdit: any): any
+  onPageChange(arg0: any): any
+  onSearchTermChange(): any
+  onSortColumn(column: any): any
+  resetFilterOptions(): any
+  sortOptions(options: any): any
+  toggleBulkEditModal(): any
+  toggleFilterMenu(): any
+  variantIsDigital(variant: any): any
+  visitProduct(productId: any): any
+
 blocks
   sw_product_variant_modal
     sw_product_variant_modal_body
@@ -77,4 +165,8 @@ crossings
   v-if  sw_product_variant_modal_body_grid_column_active_inline_edit -> sw_product_variant_modal_body_grid_column_active_content
   v-if  sw_product_variant_modal_body_grid_column_name_inline_edit -> sw_product_variant_modal_body_grid_column_name_content
   v-if  sw_product_variant_modal_body_grid_column_stock_inline_edit -> sw_product_variant_modal_body_grid_column_stock_content
+
+refs
+  pagination  -> sw-pagination  block=sw_product_variant_modal_body_grid_pagination
+  variantGrid  -> sw-data-grid  block=sw_product_variant_modal_body_grid
 ```

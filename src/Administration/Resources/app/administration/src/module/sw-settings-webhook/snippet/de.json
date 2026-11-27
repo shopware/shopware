@@ -34,7 +34,18 @@
       "actionSetSecret": "Signatur-Secret festlegen",
       "deletedRole": "Gelöschte Rolle",
       "allOwnerRoles": "Alle Rollen des Eigentümers",
-      "tooltipWebhookNotOwned": "Nur der Besitzer dieses Webhooks oder ein Administrator kann ihn löschen."
+      "tooltipWebhookNotOwned": "Nur der Besitzer dieses Webhooks oder ein Administrator kann ihn löschen.",
+      "actionEditRoles": "Auf Rollen beschränken",
+      "tooltipAppWebhookNotEditable": "Webhooks von Apps können nicht auf Rollen beschränkt werden.",
+      "tooltipWebhookNotOwnedEdit": "Nur der Besitzer dieses Webhooks oder ein Administrator kann ihn ändern."
+    },
+    "roles": {
+      "title": "\"{name}\" auf Rollen beschränken",
+      "label": "Rollen",
+      "placeholder": "Alle Rollen des Eigentümers",
+      "helpText": "Der Webhook sendet nur Ereignisse, die diese Rollen sehen dürfen. Lass das Feld leer, um alle Rollen des Eigentümers zu verwenden.",
+      "messageEventNotCovered": "Diese Rollen erlauben das Ereignis von \"{name}\" nicht. Wähle Rollen, die es sehen dürfen.",
+      "hintUnheldRoles": "Der Eigentümer hat diese Rollen nicht mehr, daher kann der Webhook sie nicht verwenden: {roles}"
     },
     "secret": {
       "title": "Signatur-Secret von \"{name}\"",

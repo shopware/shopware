@@ -10,6 +10,35 @@ component sw-first-run-wizard-shopware-domain  public  js
   source src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain/index.js
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain/sw-first-run-wizard-shopware-domain.html.twig
 
+inject
+  firstRunWizardService
+
+emits
+  buttons-update(...args: any[])
+  frw-redirect(...args: any[])
+  frw-set-title(...args: any[])
+
+data
+  createShopDomain: any
+  domainError: any
+  isLoading: any
+  licenceDomains: any
+  newShopDomain: any
+  selectedShopDomain: any
+  testEnvironment: any
+
+computed
+  domainOptions: any
+  domainToVerify: any
+  isDomainEmpty: any
+  nextAction: any
+
+methods
+  createdComponent(): any
+  setTitle(): any
+  updateButtons(): any
+  verifyDomain(): Promise<any>
+
 blocks
   sw_first_run_wizard_shopware_domain
 ```

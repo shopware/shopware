@@ -11,6 +11,12 @@ component sw-in-app-purchase-checkout  private  ts  [private]
   template src/app/component/structure/sw-in-app-purchase-checkout/sw-in-app-purchase-checkout.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  entry: InAppPurchaseRequest | null  [private]
+
+methods
+  closeModal(): any  [private]
+
 blocks
   sw_in_app_purchase_checkout_modal  [private]
 ```

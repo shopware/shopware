@@ -564,8 +564,14 @@
       "imagesFilter": {
         "label": "Images",
         "placeholder": "Select an image status...",
-        "textHasCriteria": "At least one product image assigned",
-        "textNoCriteria": "No product images assigned"
+        "textHasCriteria": "At least one image assigned",
+        "textNoCriteria": "No images assigned"
+      },
+      "documentsFilter": {
+        "label": "Documents",
+        "placeholder": "Select a document status...",
+        "textHasCriteria": "At least one document assigned",
+        "textNoCriteria": "No documents assigned"
       },
       "releaseDateFilter": {
         "label": "Release date"
@@ -613,6 +619,60 @@
     },
     "notification": {
       "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."
+    },
+    "documentForm": {
+      "variantOnly": "Variant only",
+      "cardTitle": "Documents ({count})",
+      "cardSubtitle": "Files customers can download on the product detail page in the Storefront.",
+      "emptyState": "No documents yet",
+      "emptyDescription": "Add files such as manuals, datasheets or certificates. Customers download them on the product detail page in the Storefront.",
+      "emptyDescriptionOtherLanguage": "Switch the content language to the default language {language} to add documents.",
+      "defaultLanguage": "default language",
+      "buttonAdd": "Add documents",
+      "addLanguageVersion": "Add {language} version",
+      "fileFallbackHint": "Without a file here, customers get the file from the fallback language.",
+      "removeLanguageVersion": "Remove {language} version",
+      "removeLanguageVersionTitle": "Remove {language} version of \"{name}\"?",
+      "removeLanguageVersionSuccess": "The {language} version of \"{name}\" has been removed.",
+      "removeLanguageVersionDescription": "The {language} version will be removed. The fallback values for the name and file will be used instead. The file remains available in Media.",
+      "changedForLanguage": "Changed for this language.",
+      "columnPosition": "Position",
+      "columnTitle": "Name",
+      "columnFileName": "File",
+      "columnFileType": "Format",
+      "columnFileSize": "Size",
+      "contextMoveUp": "Move up",
+      "contextDownload": "Download",
+      "contextMoveDown": "Move down",
+      "editTitle": "Edit document",
+      "nameHint": "Customers see this name on the product detail page.",
+      "errorNameRequired": "Enter a name.",
+      "errorFileRequired": "Select a file.",
+      "applyToVariants": "Also apply to variants where the document inheritance was removed",
+      "applyToVariantsHelp": "Also updates the document in variants where the inheritance was removed, as long as their copy still has the same name and file. Variants that inherit the parent product's documents are updated either way.",
+      "draftHint": "The changes are applied after saving the product.",
+      "errorLoadVariants": "The variant documents could not be loaded. Try again.",
+      "errorSaveVariants": "The product was saved, but its variants could not be updated.",
+      "applySuccess": "Document \"{name}\" has been applied. | Document \"{name}\" has been applied and updated in {count} variant. | Document \"{name}\" has been applied and updated in {count} variants.",
+      "removeSuccess": "\"{name}\" has been removed. | \"{name}\" has been removed, also from {count} variant. | \"{name}\" has been removed, also from {count} variants.",
+      "bulkRemoveTitle": "Remove {count} documents?",
+      "bulkRemoveLanguageVersionTitle": "Remove the {language} versions of {count} documents?",
+      "bulkRemoveDescription": "The selected documents are removed from the product in all languages. The files stay in Media.",
+      "bulkRemoveSuccess": "{count} documents have been removed.",
+      "bulkRemoveLanguageVersionSuccess": "The {language} versions of {count} documents have been removed.",
+      "removeTitle": "Remove \"{name}\"?",
+      "removeDescription": "The document is removed from the product in all languages. The file stays in Media.",
+      "restoreInheritanceTitle": "Restore inheritance for all documents?",
+      "restoreInheritanceDescription": "The variant gets the parent product's documents again, with the same names, files and order. The changes made for this variant are lost.",
+      "restoreInheritanceButton": "Restore inheritance",
+      "restoreInheritanceSuccess": "This variant uses the parent product's documents again.",
+      "removeFromVariants": "Also remove from variants where the document inheritance was removed",
+      "removeFromVariantsHelp": "Also removes the document from variants where the inheritance was removed, as long as their copy still has the same name and file. Variants that inherit the parent product's documents lose the document either way.",
+      "errorLoadMedia": "The uploaded file could not be loaded. Try again.",
+      "errorDocumentDuplicated": "This file is already assigned to the product.",
+      "fileUploadLabel": "File upload",
+      "uploadHint": "{extensions}, up to {size} each.",
+      "unlinkToAdd": "Remove the inheritance to add documents for this variant."
     }
   },
   "sw-privileges": {

@@ -490,6 +490,28 @@ describe('sw-theme-manager-detail', () => {
         });
     });
 
+    it('passes snippet labels and help texts to boolean theme config fields', async () => {
+        const { methods } = await Shopware.Component.build('sw-theme-manager-detail');
+        const context = {
+            ...methods,
+            inheritedSnippetPrefixes: ['MyTheme'],
+            $t: (key) =>
+                ({
+                    'sw-theme.MyTheme.field.label': 'Snippet label',
+                    'sw-theme.MyTheme.field.helpText': 'Snippet help',
+                })[key] ?? key,
+        };
+
+        const bind = methods.getBind.call(context, {
+            type: 'switch',
+            labelSnippetKey: 'field.label',
+            helpTextSnippetKey: 'field.helpText',
+        });
+
+        expect(bind.config.label).toBe('Snippet label');
+        expect(bind.config.helpText).toBe('Snippet help');
+    });
+
     it('attaches inheritance event listeners to fields handling inheritance themselves', async () => {
         const wrapper = await createWrapper();
         const inheritance = {

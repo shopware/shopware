@@ -11,6 +11,50 @@ component sw-file-input  private  js  [private]
   template src/app/component/form/sw-file-input/sw-file-input.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+
+props
+  allowedFileExtensions?: any[]  default=null  [private]
+  allowedMimeTypes?: any[]  default=null  [private]
+  disabled?: boolean  default=false  [private]
+  label?: string  default=null  [private]
+  maxFileSize?: number  default=null  [private]
+  value?: any  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+slots
+  caption-label  {}  block=sw_file_input_caption  [private]
+
+data
+  isDragActive: any  [private]
+  selectedFile: any  [private]
+  utilsId: any  [private]
+
+computed
+  id: any  [private]
+  isDragActiveClass: any  [private]
+
+methods
+  beforeUnmountComponent(): any  [private]
+  checkFileExtension(file: any): any  [private]
+  checkFileSize(file: any): any  [private]
+  checkFileType(file: any): any  [private]
+  mountedComponent(): any  [private]
+  onChooseButtonClick(): any  [private]
+  onDragEnter(): any  [private]
+  onDragLeave(event: any): any  [private]
+  onDrop(event: any): any  [private]
+  onFileInputChange(): any  [private]
+  onRemoveIconClick(): any  [private]
+  setSelectedFile(newFile: any): any  [private]
+  stopEventPropagation(event: any): any  [private]
+
 blocks
   sw_file_input  [private]
     sw_file_input_hidden_form  [private]
@@ -21,4 +65,9 @@ blocks
         sw_file_input_caption  [private]
       sw_file_input_regular_header  [private]
         sw_file_input_regular_header_label  [private]
+
+refs
+  dropzone  -> div  block=sw_file_input_regular_drop_zone  [private]
+  fileForm  -> form  block=sw_file_input_hidden_form  [private]
+  fileInput  -> input  block=sw_file_input_hidden_form  [private]
 ```

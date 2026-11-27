@@ -11,6 +11,18 @@ component sw-extension-my-extensions-listing-controls  private  js  [private]
   template src/module/sw-extension/component/sw-extension-my-extensions-listing-controls/sw-extension-my-extensions-listing-controls.html.twig  [private]
   visibility-source export  [private]
 
+props
+  sortingOption?: string  default='updated-at'  [private]
+
+emits
+  update:active-state(...args: any[])  [private]
+  update:sorting-option(...args: any[])  [private]
+
+data
+  filterByActiveState: any  [private]
+  selectedSortingOption: any  [private]
+  sortingOptions: any  [private]
+
 blocks
   sw_extension_my_extensions_listing_controls  [private]
     sw_extension_my_extensions_listing_controls_active_switch  [private]

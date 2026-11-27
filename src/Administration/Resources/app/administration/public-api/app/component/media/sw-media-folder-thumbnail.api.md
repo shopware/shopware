@@ -11,6 +11,14 @@ component sw-media-folder-thumbnail  private  ts  [private]
   template src/app/component/media/sw-media-folder-thumbnail/sw-media-folder-thumbnail.html.twig  [private]
   visibility-source export  [private]
 
+props
+  color?: string  default=null  [private]
+  variant?: string  default='default'  [private]
+
+computed
+  colorStyle: Record<string, string> | null  [private]
+  isColored: boolean  [private]
+
 blocks
   sw_media_folder_thumbnail  [private]
 ```

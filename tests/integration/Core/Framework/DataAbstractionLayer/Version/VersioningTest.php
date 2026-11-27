@@ -921,6 +921,35 @@ class VersioningTest extends TestCase
         static::assertSame('updated', $product->getEan());
     }
 
+    public function testICanUpdateAVersionByItsVersionIdInTheLiveContext(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $versionId = $this->productRepository->createVersion($id, $context);
+        $this->productRepository->upsert([['id' => $id, 'versionId' => $versionId, 'ean' => 'updated']], $context);
+
+        $product = $this->productRepository->search(new Criteria([$id]), $context->createWithVersionId($versionId))->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('updated', $product->getEan());
+
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('EAN', $product->getEan());
+    }
+
     public function testICanMergeIntoNonLiveVersion(): void
     {
         $id = Uuid::randomHex();

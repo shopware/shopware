@@ -10,6 +10,55 @@ component sw-settings-country-general  public  js
   source src/module/sw-settings-country/component/sw-settings-country-general/index.js
   template src/module/sw-settings-country/component/sw-settings-country-general/sw-settings-country-general.html.twig
 
+mixins
+  notification, placeholder, discard-detail-page-changes
+
+inject
+  acl
+  repositoryFactory
+
+props
+  country: object
+  isLoading: boolean
+  userConfig: object
+  userConfigValues: object
+
+emits
+  modal-save(...args: any[])
+
+data
+  baseCurrencyId: any
+  countryId: any
+  currencies: any
+  currencyDependsValue: any
+  menuOptions: any
+  showCurrencyModal: any
+  taxFreeType: any
+
+computed
+  countryNameError: any
+  countryRepository: any
+  currencyRepository: any
+  isVatIdFormatCheckWithoutEffect: any
+
+methods
+  addCheckedHamburgerMenu(): any
+  addDisabledBaseCurrencyCheckBox(): any
+  calculateInheritedPrice(currencyId: any): any
+  changeBaseItem(item: any): any
+  clearMenuOptions(): any
+  createDataModal(): any
+  createdComponent(): any
+  getCurrencyById(currencyId: any): any
+  getPriceByCurrency(basePrice: any, currencyId: any): any
+  loadCurrencies(): Promise<any>
+  onToggleCurrencyModal(taxFreeType: any): any
+  openCompanyTaxModal(): any
+  openCustomerTaxModal(): any
+  pushDataFromUserConfig(): any
+  saveCountryCurrencyDependent(): any
+  sortCurrencyCheckBox(): any
+
 blocks
   sw_settings_country_general
     sw_settings_country_general_card

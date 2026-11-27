@@ -10,6 +10,87 @@ component sw-product-modal-variant-generation  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/sw-product-modal-variant-generation.html.twig
 
+mixins
+  listing, notification
+
+inject
+  feature
+  mediaService
+  repositoryFactory
+  swProductDetailLoadAll
+
+props
+  actualStatus?: string  default='is-physical'
+  groups: any[]
+  product: object
+  selectedGroups: any[]
+
+emits
+  modal-close(...args: any[])
+  variations-finish-generate(...args: any[])
+
+data
+  activeTab: any
+  actualProgress: any
+  allowDigitalVariantsWithoutDownloads: any
+  disableRouteParams: any
+  downloadFilesForAllVariants: any
+  idToIndex: any
+  isAddOnly: any
+  isLoading: any
+  maxProgress: any
+  originalConfiguratorSettings: any
+  paginatedVariantArray: any
+  productDownloadFolderId: any
+  progressType: any
+  showUploadModal: any
+  term: any
+  usageOfFiles: any
+  variantGenerationQueue: object
+    createQueue: any
+    deleteQueue: any
+  variantsGenerator: any
+  variantsNumber: any
+
+computed
+  buttonLabel: any
+  buttonVariant: any
+  currencies: any
+  isGenerateButtonDisabled: any
+  mediaRepository: any
+  optionRepository: any
+  productRepository: any
+  progressInPercentage: any  [deprecated tag:v6.8.0]
+  progressMessage: any
+  uploadCardDescription: any
+  variantGenerationTabs: any
+
+methods
+  addOriginalConfiguratorSettings(): any
+  beforeUnmountComponent(): any
+  calcVariantsNumber(): any
+  createdComponent(): any
+  emptyConfiguratorSettings(): any
+  generateVariants(): any
+  getList(): any
+  handlePageChange(opts: any): any
+  isExistingMedia(files: any, targetId: any): any
+  isUploadDisabled(item: any): any
+  onChangeAllVariantValues(checked: any): any
+  onChangeVariantValue(checked: any, item: any): any
+  onModalCancel(): any
+  onProgressActualHandler(actualProgress: any): any
+  onProgressMaxHandler(maxProgress: any): any
+  onQueuesHandler(queues: any): any
+  onTermChange(term: any): any
+  pushFileToUsageList(fileName: any, id: any): any
+  removeDuplicateEntries(): any
+  removeFile(fileName: any, variant: any): any
+  removeFileForAllVariants(file: any): any
+  showNextStep(): any
+  successfulUpload(event: any, item: any): any
+  updateUsageForAllVariantFiles(id: any): any
+
 blocks
   sw_product_modal_variant_generation
     sw_product_modal_variant_generation_download_external_management_switch

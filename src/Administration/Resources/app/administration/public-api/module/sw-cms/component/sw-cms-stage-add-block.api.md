@@ -11,6 +11,9 @@ component sw-cms-stage-add-block  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-stage-add-block/sw-cms-stage-add-block.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  stage-block-add(...args: any[])  [private]
+
 blocks
   sw_cms_add_block  [private]
     sw_cms_add_block_button  [private]

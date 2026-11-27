@@ -10,6 +10,10 @@ component sw-settings-delivery-time-create  public  js
   registered src/module/sw-settings-delivery-times/index.js
   source src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-create/index.js
 
+methods
+  createdComponent(): any
+  saveFinish(): any
+
 blocks
   sw_settings_delivery_time_detail  [inherited]
     sw_settings_delivery_time_detail_content  [inherited]

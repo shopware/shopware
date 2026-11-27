@@ -11,6 +11,9 @@ component sw-cms-block-product-description-reviews  private  js  [private]
   template src/module/sw-cms/blocks/commerce/product-description-reviews/component/sw-cms-block-product-description-reviews.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_product_description_reviews  [private]
+
 blocks
   sw_cms_block_product_description_reviews  [private]
     sw_cms_block_product_description_reviews_slot_content  [private]

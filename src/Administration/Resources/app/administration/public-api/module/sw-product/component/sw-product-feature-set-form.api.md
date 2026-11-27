@@ -10,6 +10,14 @@ component sw-product-feature-set-form  public  js
   source src/module/sw-product/component/sw-product-feature-set-form/index.js
   template src/module/sw-product/component/sw-product-feature-set-form/sw-product-feature-set-form.html.twig
 
+props
+  allowEdit?: boolean  default=true
+
+computed
+  isLoading: any
+  parentProduct: any
+  product: any
+
 blocks
   sw_product_detail_base_feature_set_form
     sw_product_feature_set_form_container

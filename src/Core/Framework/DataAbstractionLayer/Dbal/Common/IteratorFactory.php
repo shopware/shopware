@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\Feature;
@@ -44,8 +45,14 @@ class IteratorFactory
         $entity = $definition->getEntityName();
 
         $escaped = EntityDefinitionQueryHelper::escape($entity);
-        $query = new QueryBuilder($this->connection);
-        $query->from($escaped);
+        $index = $this->getIterationIndex($definition);
+        if ($index === null) {
+            $query = new QueryBuilder($this->connection);
+            $query->from($escaped);
+        } else {
+            $query = new PrimaryKeyScanQueryBuilder($this->connection, $entity, $index);
+            $query->orderBy($escaped . '.id');
+        }
         $query->setMaxResults($limit);
 
         if ($definition->isVersionAware() && $versionId !== null) {
@@ -88,7 +95,7 @@ class IteratorFactory
         if ($primaryKeys->count() === 1 && $primaryKey instanceof IdField && $primaryKey->getStorageName() === 'id'
             && !\is_int($offset) && (Feature::isActive('v6.8.0.0') || \is_string($offset))) {
             $query->select($escaped . '.id', 'LOWER(HEX(' . $escaped . '.id)) as id');
-            $query->addOrderBy($escaped . '.id');
+            $query->orderBy($escaped . '.id');
             $predicate = $escaped . '.id > :lastId';
             if ($offset === null) {
                 return new LastIdQuery($query, $predicate);
@@ -120,5 +127,18 @@ class IteratorFactory
         }
 
         return new OffsetQuery($query);
+    }
+
+    private function getIterationIndex(EntityDefinition $definition): ?string
+    {
+        $field = $definition->getField('id');
+        $index = $field?->getFlag(PrimaryKey::class)?->iterationIndex;
+        if ($index === null || !$field instanceof IdField || $field->getStorageName() !== 'id'
+            || $definition->getPrimaryKeys()->count() !== 1 || $definition->hasAutoIncrement()
+            || $definition->isVersionAware() || $definition instanceof EntityTranslationDefinition) {
+            return null;
+        }
+
+        return $index;
     }
 }

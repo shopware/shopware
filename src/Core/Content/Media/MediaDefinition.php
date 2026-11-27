@@ -116,7 +116,7 @@ class MediaDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the media.'),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(iterationIndex: 'idx_media_id_only'), new Required())->setDescription('Unique identity of the media.'),
             (new FkField('user_id', 'userId', UserDefinition::class))->setDescription('Unique identity of the user'),
             (new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class))->setDescription('Unique identity of the media folder.'),
             (new StringField('mime_type', 'mimeType'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING))->setDescription('A string sent along with a file indicating the type of the file. For example: image/jpeg.'),

@@ -12,6 +12,12 @@ Rebuilt bundles receive new filenames to invalidate cached worker URL handling.
 
 ## Core
 
+### Covering index for media ID scans
+
+The migration adds a secondary index on `media(id)` for DAL indexing jobs.
+Allow time and disk space for the online index build on large catalogs.
+For non-versioned entities iterated by a single UUID `id`, extensions can pass the name of an ID-only secondary index to `new PrimaryKey(iterationIndex: 'idx_example_id')`.
+
 ### Media thumbnails are available immediately after a write
 
 Read `media.thumbnails` through the DAL.

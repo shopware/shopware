@@ -138,4 +138,24 @@ describe('VariantSwitchPlugin tests', () => {
         const mockInput = variantSwitchPlugin.el.firstChild;
         mockInput.click();
     });
+
+    test('shows the URL of the variant when the page was requested by its parent', () => {
+        window.history.replaceState({}, '', '/Parent-Product/SW10000?referrerCategoryId=abc#reviews');
+
+        new VariantSwitchPlugin(document.createElement('form'), {
+            variantUrl: 'http://localhost/Parent-Product/SW10000.1',
+        });
+
+        expect(window.location.pathname).toBe('/Parent-Product/SW10000.1');
+        expect(window.location.search).toBe('?referrerCategoryId=abc');
+        expect(window.location.hash).toBe('#reviews');
+    });
+
+    test('keeps the URL when the page was requested by the variant itself', () => {
+        window.history.replaceState({}, '', '/Parent-Product/SW10000.2');
+
+        new VariantSwitchPlugin(document.createElement('form'));
+
+        expect(window.location.pathname).toBe('/Parent-Product/SW10000.2');
+    });
 });

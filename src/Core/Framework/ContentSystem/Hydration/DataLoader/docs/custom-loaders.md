@@ -67,7 +67,8 @@ final class WeatherLoader extends AbstractContentDataLoader
     {
         $weather = $this->weatherClient->fetch($inputs->string('location'), $inputs->string('units'));
         if ($weather === null) {
-            return ContentDataLoaderResult::uncacheable();
+            // The lookup ran, and no tag covers its empty result
+            return ContentDataLoaderResult::foundNothingUncacheable();
         }
         // External API - cannot track for invalidation
         return ContentDataLoaderResult::uncacheable($weather);
@@ -96,16 +97,18 @@ A loader whose `PropertyReference` key resolves to an entity id needs a `Uuid::i
 
 Every data loader returns a `ContentDataLoaderResult`. Each factory names one fact about how the loader reached its result, and the cache dependency follows from that fact.
 
-| Factory Method       | When a loader returns it                                                                                                 | Effect on the cache context                                                                   |
-|----------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `noInput()`          | It read nothing outside the stored layout, for example a guard returned before a lookup.                                 | Adds no tag, and the layout tags of the render cover the result.                              |
-| `foundNothing()`     | Its own lookup produced no data, either because it found nothing or because the loader caught a `ShopwareHttpException`. | Adds the tags that cover the requested data.                                                  |
-| `failedExternally()` | A delegate, such as a Store API route, threw a `ShopwareHttpException`.                                                  | Adds no tag, and the delegate owns the caching of that outcome.                               |
-| `cached()`           | It read its own data, and at least one tag covers that data.                                                             | Adds the given tags.                                                                          |
-| `cachedExternally()` | A delegate, such as a Store API route, provided the data.                                                                | Adds no tag, and the delegate owns the caching of that data.                                  |
-| `uncacheable()`      | No tag covers the result, for example data from an external API.                                                         | Disables the cache context, so the render is not cached (`RenderingCacheContext::disable()`). |
+| Factory Method               | When a loader returns it                                                                                                                  | Effect on the cache context                                                                   |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `noInput()`                  | It read nothing outside the stored layout and has no value, for example a guard returned before a lookup.                                  | Adds no tag, and the layout tags of the render cover the result.                              |
+| `layoutOnly()`               | It read nothing outside the stored layout, and the value depends only on that layout.                                                      | Adds no tag, and the layout tags of the render cover the result.                              |
+| `foundNothing()`             | Its own lookup produced no data, either because it found nothing or because the loader caught a `ShopwareHttpException`.                   | Adds the tags that cover the requested data.                                                  |
+| `foundNothingUncacheable()`  | Its own lookup produced no data, either because it found nothing or because the loader caught a `ShopwareHttpException`, and no tag covers the request. | Disables the cache context, so the render is not cached (`RenderingCacheContext::disable()`). |
+| `failedExternally()`         | A delegate, such as a Store API route, threw a `ShopwareHttpException`.                                                                    | Adds no tag, and the delegate owns the caching of that outcome.                               |
+| `cached()`                   | It read its own data, and at least one tag covers that data.                                                                               | Adds the given tags.                                                                          |
+| `cachedExternally()`         | A delegate, such as a Store API route, provided the data.                                                                                  | Adds no tag, and the delegate owns the caching of that data.                                  |
+| `uncacheable($data)`         | It loaded data, and no tag covers that data, for example data from an external API.                                                        | Disables the cache context, so the render is not cached (`RenderingCacheContext::disable()`). |
 
-If any loader returns an `uncacheable()` result, the entire page becomes uncacheable (`RenderingCacheContext::disable()`).
+If any loader returns an `uncacheable($data)` or `foundNothingUncacheable()` result, the entire page becomes uncacheable (`RenderingCacheContext::disable()`).
 
 For entity-based data, provide cache tags that match Shopware's existing invalidation patterns:
 

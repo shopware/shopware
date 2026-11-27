@@ -29,11 +29,13 @@ A delete, a translation write or a write that skips the indexer then leaves the 
 In code:
 
 - `ElementDataResolver::processCacheTags()` calls `RenderingCacheContext::disable()` for a loader result that carries no cache tag list.
-- `ContentDataLoaderResult::noInput()` returns a cache-aware result with an empty tag list for a loader that read nothing outside the stored layout.
+- `ContentDataLoaderResult::noInput()` returns a cache-aware result without data and with an empty tag list for a loader that read nothing outside the stored layout.
+- `ContentDataLoaderResult::layoutOnly()` returns the value that depends only on the stored layout, in a cache-aware result with an empty tag list.
 - `ContentDataLoaderResult::foundNothing()` returns a result without data after a lookup that found nothing or threw a caught `ShopwareHttpException`, with tags covering the request.
+- `ContentDataLoaderResult::foundNothingUncacheable()` returns a result without data and without a cache tag list after that same lookup when no tag covers the request.
 - `CacheFinalizer::finalize()` sets `PlatformRequest::ATTRIBUTE_HTTP_CACHE` to `false` on the request when the cache context is disabled.
 - `EntityCacheTagResolver::resolve()` returns null for an entity without a tag pattern.
-- `EntityLoader::load()` returns `ContentDataLoaderResult::uncacheable()` when `EntityCacheTagResolver::resolve()` returns null.
+- `EntityLoader::load()` returns `ContentDataLoaderResult::uncacheable($entity)` for a loaded entity when `EntityCacheTagResolver::resolve()` returns null.
 - `ElementDataResolverTest::testUncacheableResultDisablesTheCacheContext` pins that a loader result without a cache tag list disables the cache context.
 - `ElementDataResolverTest::testDisableIsNotReversedByALaterCacheAwareResult` pins that a later result with tags leaves the cache context disabled.
 - `CacheFinalizerTest::testFinalizeSetsCacheDisabledAttribute` pins that a disabled cache context sets the request attribute to `false`.
@@ -42,7 +44,7 @@ In code:
 - `EntityLoaderTest::testLoadTagsTheRequestedIdWhenEntityNotFoundInRepository` and `testLoadTagsTheRequestedIdWhenRepositoryThrows` pin that a lookup without an entity records the tag of the requested id on a result without data.
 - `EntityCollectionLoaderTest::testLoadTagsEveryRequestedIdWhenRepositoryThrows` pins that a lookup that throws records the tag of every requested id on a result without data.
 - `EntityLoaderTest::testLoadReturnsNoInputWhenPropertyInputIsUnresolved` pins that a loader that read nothing outside the stored layout records no tag.
-- No test pins that a result without data and without a tag disables the cache context.
+- `ElementDataResolverTest::testFoundNothingUncacheableDisablesTheCacheContext` pins that a result without data and without a cache tag list disables the cache context.
 - See [Cache/README.md](../../Cache/README.md#cache-tag-patterns).
 
 ## The component that adds a value to a render records its tag or disables the cache context

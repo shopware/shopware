@@ -27,10 +27,19 @@ final class ContentDataLoaderResult
     }
 
     /**
-     * The loader read nothing outside the stored layout, so it records no tag.
+     * The loader read nothing outside the stored layout, and that read produced no value, so it records no tag.
      * The layout tags of the render cover the result.
      */
-    public static function noInput(?Struct $data = null): self
+    public static function noInput(): self
+    {
+        return new self(data: null, cacheTags: []);
+    }
+
+    /**
+     * The loader read nothing outside the stored layout, and the value depends only on that layout, so it
+     * records no tag. The layout tags of the render cover the result.
+     */
+    public static function layoutOnly(Struct $data): self
     {
         return new self(data: $data, cacheTags: []);
     }
@@ -46,6 +55,16 @@ final class ContentDataLoaderResult
     }
 
     /**
+     * The loader's own lookup produced no data, either because it found nothing or because it threw a
+     * `ShopwareHttpException` that the loader caught, and no tag covers the request.
+     * No tag covers the empty result, so the render must not be cached.
+     */
+    public static function foundNothingUncacheable(): self
+    {
+        return new self(data: null, cacheTags: null);
+    }
+
+    /**
      * A delegate, such as a Store API route or a platform loader, threw a `ShopwareHttpException`.
      * The delegate owns the caching of that outcome, so the loader records no tag.
      */
@@ -55,9 +74,9 @@ final class ContentDataLoaderResult
     }
 
     /**
-     * No tag covers the result, so the render must not be cached.
+     * The loader loaded the given data, and no tag covers it, so the render must not be cached.
      */
-    public static function uncacheable(?Struct $data = null): self
+    public static function uncacheable(Struct $data): self
     {
         return new self(data: $data, cacheTags: null);
     }

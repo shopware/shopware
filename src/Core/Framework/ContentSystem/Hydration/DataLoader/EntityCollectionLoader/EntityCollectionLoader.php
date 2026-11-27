@@ -144,9 +144,9 @@ class EntityCollectionLoader extends AbstractContentDataLoader
 
         // Any ShopwareHttpException degrades the element to noInput() before the search and, during it, to
         // foundNothing() over the tags of the requested ids; when an id's entity has no tag pattern, no tag
-        // covers the result and that outcome is uncacheable(). Everything else, such as a \TypeError or a
-        // database driver failure, propagates. Why the catch is the covering ancestor and never an enumerated
-        // union:
+        // covers the result and that outcome is foundNothingUncacheable(). Everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union:
         // src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // The set is fully open here: this loader searches an arbitrary registered entity.
         // The has() check above only proves the entity name is in the registry's map
@@ -166,7 +166,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
             $entities = $this->search($repository, $entityIds, $inputs->stringList('associations'), $context);
         } catch (ShopwareHttpException) {
             if ($requestedTags === null) {
-                return ContentDataLoaderResult::uncacheable();
+                return ContentDataLoaderResult::foundNothingUncacheable();
             }
 
             return ContentDataLoaderResult::foundNothing(...$requestedTags);
@@ -231,7 +231,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::noInput();
         }
 
-        return ContentDataLoaderResult::noInput(new $collectionClass());
+        return ContentDataLoaderResult::layoutOnly(new $collectionClass());
     }
 
     /**

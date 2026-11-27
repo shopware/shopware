@@ -600,6 +600,7 @@ class EntityCollectionLoaderTest extends TestCase
 
         static::assertNull($result->data);
         static::assertFalse($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
     #[TestDox('lets a TypeError from the repository propagate instead of degrading')]

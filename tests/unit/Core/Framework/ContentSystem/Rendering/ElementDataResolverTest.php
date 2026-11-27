@@ -150,6 +150,17 @@ class ElementDataResolverTest extends TestCase
         static::assertTrue($cacheContext->isDisabled());
     }
 
+    #[TestDox('disables the cache context for an uncacheable result without data')]
+    public function testFoundNothingUncacheableDisablesTheCacheContext(): void
+    {
+        $loader = $this->loaderReturning(ContentDataLoaderResult::foundNothingUncacheable());
+        $cacheContext = new RenderingCacheContext();
+
+        $this->resolveWith($loader, $this->elementWithRequirement('product'), $cacheContext);
+
+        static::assertTrue($cacheContext->isDisabled());
+    }
+
     #[TestDox('adds the cache tags of a cache aware result to the cache context')]
     public function testCacheAwareResultContributesItsTags(): void
     {

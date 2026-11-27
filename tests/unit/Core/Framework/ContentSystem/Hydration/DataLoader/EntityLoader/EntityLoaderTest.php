@@ -348,6 +348,7 @@ class EntityLoaderTest extends TestCase
 
         static::assertNull($result->data);
         static::assertFalse($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
     #[TestDox('returns a no-input result instead of throwing when the configured entity is not registered')]

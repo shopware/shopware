@@ -202,6 +202,11 @@ A draft in a response is `{id, name, baseRevisionId, headRevisionId, liveAtOpenR
 * **Dropping `base`, since it equals `liveAtOpen` for a normal draft.**
   For a rollback or a branched draft, `base` is the only record of the revision it started from; once the draft is edited and compaction runs, that origin cannot be reconstructed.
   A client needs it to tell a rollback from a draft whose live state moved on, and a diff of what a draft changed starts from it.
+* **DAL versioning of `content_layout`.**
+  DAL versions expire after `shopware.dal.versioning.expire_days`, merging replays the last writer, and a version row carries no revision history.
+* **The whole revision graph in one JSON column of `content_layout`.**
+  Every save decoded and rewrote every tree of the layout, and listing drafts read them all.
+  One row per revision writes one row per save and lists metadata only.
 * **A separate publication table.**
   The live pointer on the revision row, made unique by `live_content_layout_id`, already says which revision is live.
 * **A route that saves a whole tree into a draft.**

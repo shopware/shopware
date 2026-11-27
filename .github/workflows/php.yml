@@ -306,7 +306,8 @@ jobs:
   phpunit:
     # runs the unit, migration and devops suites with coverage on PHP 8.5, where composer resolves
     # PHPUnit 13, and tolerates no PHPUnit notices, warnings or deprecations; plain PHP ones stay
-    # tolerated. PHPUnit 11 on PHP 8.2 runs in the nightly through php-phpunit-11.yml.
+    # tolerated. PHPUnit 11 on PHP 8.2 runs in the nightly and the release gate through
+    # php-phpunit-11.yml.
     name: "PHPUnit for ${{ matrix.suite }}"
     needs:
       - markdown-only-changes

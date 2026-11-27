@@ -19,14 +19,25 @@ function verdict(findings: Finding[]): string {
         : 'Public API check passed: no breaks.';
 }
 
-function formatFinding(finding: Finding): string[] {
-    const details = [
+/**
+ * @private
+ *
+ * What a finding says beside its rule, element and location, each detail only when the finding has it.
+ */
+export function findingDetails(finding: Finding): string[] {
+    return [
         finding.explanation,
         finding.fix === undefined ? undefined : `Fix: ${finding.fix}`,
         finding.possibleRename === undefined ? undefined : `Possible rename: ${finding.possibleRename}.`,
         finding.alsoAffects === undefined ? undefined : `Also affects: ${finding.alsoAffects.join(', ')}.`,
-        finding.at === undefined ? undefined : `At: ${finding.at}`,
     ].filter((detail) => detail !== undefined);
+}
+
+function formatFinding(finding: Finding): string[] {
+    const details = [
+        ...findingDetails(finding),
+        ...(finding.at === undefined ? [] : [`At: ${finding.at}`]),
+    ];
 
     return [
         `  ${finding.rule}  ${finding.element}  ${finding.states.join(', ')}`,

@@ -10,6 +10,8 @@ import { byCodePoint } from '../helpers/code-point-order';
 import { FLAG_STATES } from '../model/flag-states';
 import type { FlagContext, FlagState } from '../model/flag-states';
 import type { Model } from '../model/model';
+import { buildModel } from '../read/build-model';
+import type { SourceTree } from '../source/source-tree';
 import { announced } from './announcements';
 import type { ChangedFacts } from './facts/unit-facts';
 import { FINDING_GROUPS, findingFor } from './finding';
@@ -179,4 +181,14 @@ export function classifyChanges(base: Model, head: Model): Finding[] {
     );
 
     return [...reportedOnce(findings), ...unitFindings(before, after, head.flags)].sort(inSummaryOrder);
+}
+
+/**
+ * @private
+ *
+ * The findings of the change from one source tree to another. Both are read with the same major flags, so the
+ * two models only differ where the sources do.
+ */
+export function compareSourceTrees(base: SourceTree, head: SourceTree, majorFlags: readonly string[]): Finding[] {
+    return classifyChanges(buildModel(base, { majorFlags }), buildModel(head, { majorFlags }));
 }

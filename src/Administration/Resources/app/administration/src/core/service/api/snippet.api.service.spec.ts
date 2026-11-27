@@ -39,6 +39,11 @@ describe('core/service/api/snippet.api.service.ts', () => {
     });
 
     describe('getSnippets', () => {
+        /**
+         * Plugin translations added via Locale.extend were overwritten when snippets finished loading.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13848
+         */
         it('should load snippets and add them to locale registry', async () => {
             const { snippetApiService, clientMock } = createSnippetApiService();
 
@@ -158,6 +163,11 @@ describe('core/service/api/snippet.api.service.ts', () => {
             await expect(snippetApiService.getSnippets(LocaleFactory, 'en-GB')).resolves.not.toThrow();
         });
 
+        /**
+         * Loaded snippets were not pushed to i18n, so the view did not update.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13848
+         */
         it('should call setLocaleMessage when Shopware.Snippet is instantiated', async () => {
             const { snippetApiService, clientMock } = createSnippetApiService();
 
@@ -200,6 +210,11 @@ describe('core/service/api/snippet.api.service.ts', () => {
             });
         });
 
+        /**
+         * Snippet updates did not trigger a view refresh, leaving placeholders shown.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13848
+         */
         it('should set empty messages first to trigger reactivity update', async () => {
             const { snippetApiService, clientMock } = createSnippetApiService();
 
@@ -341,6 +356,11 @@ describe('core/service/api/snippet.api.service.ts', () => {
             await expect(snippetApiService.getSnippets(LocaleFactory, 'en-GB')).resolves.not.toThrow();
         });
 
+        /**
+         * Plugin translations added via Locale.extend were overwritten when snippets finished loading.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/13848
+         */
         it('should properly merge snippets with existing locale messages', async () => {
             const { snippetApiService, clientMock } = createSnippetApiService();
 

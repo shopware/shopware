@@ -62,6 +62,11 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         expect((await createWrapper()).get('.sw-cms-el-buy-box__skeleton')).toBeTruthy();
     });
 
+    /**
+     * Opening a product layout marked it as changed and triggered the unsaved changes modal.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8552
+     */
     it('should not change the persisted lock state on product detail pages', async () => {
         const element = {
             data: {},

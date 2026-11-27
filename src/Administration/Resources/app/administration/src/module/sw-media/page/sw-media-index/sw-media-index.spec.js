@@ -53,6 +53,11 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         global.activeAclRoles = [];
     });
 
+    /**
+     * The media upload accepted only images, so PDF files could not be selected.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/806
+     */
     it('should contain the default accept value', async () => {
         const wrapper = await createWrapper();
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
@@ -107,6 +112,11 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         expect(wrapper.vm.uploads).toHaveLength(0);
     });
 
+    /**
+     * Failed uploads left placeholder entries in the media list.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14273
+     */
     it('refreshes the list when the last upload fails', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.reloadList = jest.fn();
@@ -138,6 +148,11 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         expect(wrapper.vm.term).toBe('logo.png');
     });
 
+    /**
+     * Clicking a search suggestion updated the URL term but not the media grid.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14242
+     */
     it('syncs the search term when the route query.term changes in the same folder', async () => {
         const wrapper = await createWrapper();
 

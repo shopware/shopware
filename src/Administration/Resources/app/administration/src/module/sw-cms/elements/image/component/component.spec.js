@@ -132,6 +132,11 @@ describe('src/module/sw-cms/elements/image/component', () => {
         );
     });
 
+    /**
+     * A min-height was applied even when display mode was not cover.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6265
+     */
     it('should not apply a min-height in the preview when display mode is not cover', async () => {
         const wrapper = await createWrapper();
 
@@ -159,6 +164,11 @@ describe('src/module/sw-cms/elements/image/component', () => {
         expect(wrapper.vm.styles['min-height']).toBe('500px');
     });
 
+    /**
+     * Media custom fields could not be used as a mapped source for media elements.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14648
+     */
     it('should resolve mapped media ids from custom fields', async () => {
         Shopware.Store.get('cmsPage').setCurrentDemoEntity({
             customFields: {

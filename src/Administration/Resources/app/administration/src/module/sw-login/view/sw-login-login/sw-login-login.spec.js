@@ -271,6 +271,11 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
     });
 
+    /**
+     * The login page ignored the system default language and showed English.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14373
+     */
     it('should use the system fallback locale when browser and english fallbacks are unavailable', async () => {
         Object.defineProperty(window.navigator, 'language', {
             value: 'es-ES',

@@ -12,6 +12,11 @@ describe('src/module/sw-cms/elements/buy-box', () => {
         preview: 'sw-cms-el-preview-buy-box',
     });
 
+    /**
+     * The buy box requested a non-existent deliveryMedia association.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11435
+     */
     it('registers the product criteria with the deliveryTime association', async () => {
         await import('src/module/sw-cms/elements/buy-box');
 

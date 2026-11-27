@@ -67,6 +67,11 @@ describe('src/app/component/structure/sw-admin-menu: flyout module colors', () =
         expect(flyout.getAttribute('style')).toBeNull();
     });
 
+    /**
+     * With module colors enabled, the active flyout item still used the brand blue.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20247
+     */
     it('should hand the module color of the hovered entry to the flyout when the preference is enabled', async () => {
         useModuleIconColors().enabled.value = true;
 

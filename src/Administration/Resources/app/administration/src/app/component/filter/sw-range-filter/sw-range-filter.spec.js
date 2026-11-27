@@ -106,6 +106,11 @@ describe('src/app/component/filter/sw-range-filter', () => {
         expect(container.classes()).not.toContain('sw-container--has-divider');
     });
 
+    /**
+     * Filtering stock from 0 to 0 dropped the lower bound and matched negative values.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14307
+     */
     it('should emit `filter-update` event when `From` and `To` values are both 0', async () => {
         const wrapper = await createWrapper();
 

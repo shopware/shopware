@@ -53,6 +53,11 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
             expect(deprecations).not.toHaveTriggered('vue-i18n 8 argument order');
         });
 
+        /**
+         * Calls in the vue-i18n 8 argument order lost their named parameters.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/20775
+         */
         it('keeps the named parameters of calls in the vue-i18n 8 argument order and warns once per call site', () => {
             useProductionDeprecationGuard();
             const t = createTranslate(createGlobalT());

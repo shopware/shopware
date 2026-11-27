@@ -346,6 +346,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(store.isDownloadExternallyManaged).toBe(expected);
     });
 
+    /**
+     * The product detail view rendered before the product loaded and crashed in the media form.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/18943
+     */
     it('should flag the product as loading before awaiting the measurement units', async () => {
         await wrapper.unmount();
         wrapper = null;
@@ -388,6 +393,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(Shopware.Store.get('swProductDetail').loading.product).toBe(false);
     });
 
+    /**
+     * A removed product's detail page still opened instead of redirecting to the product list.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14786
+     */
     it('should redirect to product listing when product no longer exists', async () => {
         await wrapper.unmount();
 
@@ -712,6 +722,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.visibilities).toHaveLength(1);
     });
 
+    /**
+     * New products only received the first 25 default sales channels.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22254
+     */
     it('should request every default sales channel by id', async () => {
         await flushPromises();
         await wrapper.unmount();
@@ -964,29 +979,46 @@ describe('module/sw-product/page/sw-product-detail', () => {
             expect(wrapper.vm.abortOnLanguageChange()).toBe(false);
         });
 
-        it('saves the product with the queued operations before it is duplicated', async () => {
-            sync.mockImplementation(() => {
-                expect(wrapper.vm.cloning).toBe(false);
-                return Promise.resolve([]);
+        /**
+         * Variant document updates ran out of step with the product save.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/23269
+         */
+        describe('save and duplicate', () => {
+            /**
+             * Save & duplicate updated the variants' documents before the product was saved.
+             * @regression
+             */
+            it('saves the product with the queued operations before it is duplicated', async () => {
+                sync.mockImplementation(() => {
+                    expect(wrapper.vm.cloning).toBe(false);
+                    return Promise.resolve([]);
+                });
+
+                await wrapper.vm.onDuplicate();
+                await flushPromises();
+
+                expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+                expect(wrapper.vm.cloning).toBe(true);
             });
 
-            await wrapper.vm.onDuplicate();
-            await flushPromises();
+            /**
+             * Variant documents were updated even when the product save failed.
+             * @regression
+             */
+            it('does not duplicate the product when its save fails', async () => {
+                jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(true);
+                jest.spyOn(wrapper.vm.syncRepository, 'save').mockRejectedValue(new Error('Save failed'));
 
-            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
-            expect(wrapper.vm.cloning).toBe(true);
-        });
+                await wrapper.vm.onDuplicate();
+                await flushPromises();
 
-        it('does not duplicate the product when its save fails', async () => {
-            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(true);
-            jest.spyOn(wrapper.vm.syncRepository, 'save').mockRejectedValue(new Error('Save failed'));
-
-            await wrapper.vm.onDuplicate();
-            await flushPromises();
-
-            expect(sync).not.toHaveBeenCalled();
-            expect(wrapper.vm.cloning).toBe(false);
-            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
+                expect(sync).not.toHaveBeenCalled();
+                expect(wrapper.vm.cloning).toBe(false);
+                expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({
+                    'document-id': operation,
+                });
+            });
         });
 
         it('duplicates the product right away when no operation is queued', () => {
@@ -1236,6 +1268,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
+    /**
+     * Saving a product with a duplicate number loaded endlessly without an error.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11453
+     */
     it('should handle duplicate product number error when seo promises are empty', async () => {
         wrapper.vm.updateSeoPromises = [];
         wrapper.vm.isSaveSuccessful = false;
@@ -1313,6 +1350,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.loadProduct).toHaveBeenCalled();
     });
 
+    /**
+     * Clearing a translated product name failed validation instead of falling back to the parent language.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9909
+     */
     it('should not validate fields when language is inherited', async () => {
         const spyValidationService = jest.spyOn(wrapper.vm.entityValidationService, 'validate');
 
@@ -1437,69 +1479,84 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(spyValidationService).toHaveBeenCalledWith(wrapper.vm.product, expect.anything(), []);
     });
 
-    it('should handle the purchase price if its not set', async () => {
-        wrapper = await createWrapper(
-            () => Promise.resolve([]),
-            () =>
-                Promise.resolve({
-                    id: 'test',
-                }),
-        );
+    /**
+     * Variants with no purchase price could not be saved after breaking inheritance.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11737
+     */
+    describe('missing purchase price', () => {
+        /** @regression */
+        it('should handle the purchase price if its not set', async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                () =>
+                    Promise.resolve({
+                        id: 'test',
+                    }),
+            );
 
-        await wrapper.setProps({
-            productId: '1234',
+            await wrapper.setProps({
+                productId: '1234',
+            });
+
+            await wrapper.vm.loadProduct();
+            await flushPromises();
+
+            expect(wrapper.vm.product.id).toBe('test');
+            expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+            expect(wrapper.vm.product._origin.purchasePrices).toEqual(wrapper.vm.product.purchasePrices);
         });
 
-        await wrapper.vm.loadProduct();
-        await flushPromises();
+        /** @regression */
+        it('should handle the purchase price if its null', async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                () =>
+                    Promise.resolve({
+                        id: 'test',
+                        purchasePrices: null,
+                    }),
+            );
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
-        expect(wrapper.vm.product._origin.purchasePrices).toEqual(wrapper.vm.product.purchasePrices);
-    });
+            await wrapper.setProps({
+                productId: '1234',
+            });
 
-    it('should handle the purchase price if its null', async () => {
-        wrapper = await createWrapper(
-            () => Promise.resolve([]),
-            () =>
-                Promise.resolve({
-                    id: 'test',
-                    purchasePrices: null,
-                }),
-        );
+            await wrapper.vm.loadProduct();
+            await flushPromises();
 
-        await wrapper.setProps({
-            productId: '1234',
+            expect(wrapper.vm.product.id).toBe('test');
+            expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
         });
 
-        await wrapper.vm.loadProduct();
-        await flushPromises();
+        /** @regression */
+        it('should handle the purchase price if its undefined', async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                () =>
+                    Promise.resolve({
+                        id: 'test',
+                        purchasePrices: undefined,
+                    }),
+            );
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
-    });
+            await wrapper.setProps({
+                productId: '1234',
+            });
 
-    it('should handle the purchase price if its undefined', async () => {
-        wrapper = await createWrapper(
-            () => Promise.resolve([]),
-            () =>
-                Promise.resolve({
-                    id: 'test',
-                    purchasePrices: undefined,
-                }),
-        );
+            await wrapper.vm.loadProduct();
+            await flushPromises();
 
-        await wrapper.setProps({
-            productId: '1234',
+            expect(wrapper.vm.product.id).toBe('test');
+            expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
         });
-
-        await wrapper.vm.loadProduct();
-        await flushPromises();
-
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
     });
 
+    /**
+     * A generated default purchase price triggered a false unsaved changes warning.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18959
+     */
     it('should synchronize the default purchase price with the parent product origin', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
@@ -1531,50 +1588,59 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.parentProduct._origin.purchasePrices).toEqual(wrapper.vm.parentProduct.purchasePrices);
     });
 
-    it('should not overwrite purchase price for variant products with parentId when null', async () => {
-        wrapper = await createWrapper(
-            () => Promise.resolve([]),
-            () =>
-                Promise.resolve({
-                    id: 'test',
-                    parentId: 'parent-id',
-                    price: null,
-                    purchasePrices: null,
-                }),
-        );
+    /**
+     * Saving a variant overwrote its inherited purchase price with 0.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15358
+     */
+    describe('inherited purchase price of variants', () => {
+        /** @regression */
+        it('should not overwrite purchase price for variant products with parentId when null', async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                () =>
+                    Promise.resolve({
+                        id: 'test',
+                        parentId: 'parent-id',
+                        price: null,
+                        purchasePrices: null,
+                    }),
+            );
 
-        await wrapper.setProps({
-            productId: '1234',
+            await wrapper.setProps({
+                productId: '1234',
+            });
+
+            await wrapper.vm.loadProduct();
+            await flushPromises();
+
+            expect(wrapper.vm.product.id).toBe('test');
+            expect(wrapper.vm.product.purchasePrices).toBeNull();
         });
 
-        await wrapper.vm.loadProduct();
-        await flushPromises();
+        /** @regression */
+        it('should not overwrite purchase price for variant products with parentId when undefined', async () => {
+            wrapper = await createWrapper(
+                () => Promise.resolve([]),
+                () =>
+                    Promise.resolve({
+                        id: 'test',
+                        parentId: 'parent-id',
+                        price: null,
+                        purchasePrices: undefined,
+                    }),
+            );
 
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeNull();
-    });
+            await wrapper.setProps({
+                productId: '1234',
+            });
 
-    it('should not overwrite purchase price for variant products with parentId when undefined', async () => {
-        wrapper = await createWrapper(
-            () => Promise.resolve([]),
-            () =>
-                Promise.resolve({
-                    id: 'test',
-                    parentId: 'parent-id',
-                    price: null,
-                    purchasePrices: undefined,
-                }),
-        );
+            await wrapper.vm.loadProduct();
+            await flushPromises();
 
-        await wrapper.setProps({
-            productId: '1234',
+            expect(wrapper.vm.product.id).toBe('test');
+            expect(wrapper.vm.product.purchasePrices).toBeNull();
         });
-
-        await wrapper.vm.loadProduct();
-        await flushPromises();
-
-        expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeNull();
     });
 
     it('should keep existing purchase price for variant products with their own values', async () => {
@@ -1644,6 +1710,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.purchasePrices).toBeNull();
     });
 
+    /**
+     * Variants with own prices kept inherited purchase prices, leaving them uneditable and unsavable.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14218
+     */
     it('should sync purchasePrices from parent when price is not inherited but purchasePrices is', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
@@ -1703,6 +1774,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 10, linked: false, gross: 19 }]);
     });
 
+    /**
+     * Cards hidden while editing a product stayed hidden when creating a new one.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14663
+     */
     it('should reset mode settings to default when creating a new product', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
@@ -1782,6 +1858,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['mode.setting.advancedModeSettings']);
     });
 
+    /**
+     * The new product page showed the previously viewed variant's data.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15396
+     */
     it('should clear stale variant data when opening create page after viewing a variant product', async () => {
         await wrapper.unmount();
 

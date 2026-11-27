@@ -154,6 +154,11 @@ describe('app/mixin/generic-condition', () => {
         ]);
     });
 
+    /**
+     * Options of rule condition multi-select fields were not translated.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15854
+     */
     it('should translate options for multi-select fields in getBind', async () => {
         const wrapper = await createWrapper();
 

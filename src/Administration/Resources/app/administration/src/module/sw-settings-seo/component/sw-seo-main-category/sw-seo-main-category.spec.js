@@ -46,6 +46,10 @@ describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
         expect(singleSelect.attributes('label')).toBe('sw-seo-url.labelMainCategory');
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/8584
+     */
     it('should emit main-category-remove when selection is cleared', async () => {
         const wrapper = await createWrapper();
 

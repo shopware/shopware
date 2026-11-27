@@ -35,6 +35,11 @@ describe('src/module/sw-users-permissions/acl/index.js', () => {
         });
     });
 
+    /**
+     * Users and permissions viewers lacked read privileges and hit missing-privilege errors.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/16981
+     */
     it('should include read privileges needed by the users and permissions viewer pages', () => {
         expect(addPrivilegeMappingEntryMock).toHaveBeenCalledTimes(1);
 

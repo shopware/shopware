@@ -231,6 +231,11 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         expect(salesChannelRepository.search).not.toHaveBeenCalled();
     });
 
+    /**
+     * The live search sales channel select did not offer sales channels beyond the first 25.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22017
+     */
     it('should find a sales channel beyond the first page of the select by its name', async () => {
         wrapper.unmount();
 

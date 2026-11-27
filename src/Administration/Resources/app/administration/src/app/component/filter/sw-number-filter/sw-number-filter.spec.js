@@ -132,6 +132,11 @@ describe('components/sw-number-filter', () => {
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
+    /**
+     * Filtering stock from 0 to 0 dropped the lower bound and matched negative values.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14307
+     */
     it('should emit `filter-update` event when user input both `From` and `To` fields with value 0', async () => {
         const { wrapper, inputFrom, inputTo } = await createWrapper();
 

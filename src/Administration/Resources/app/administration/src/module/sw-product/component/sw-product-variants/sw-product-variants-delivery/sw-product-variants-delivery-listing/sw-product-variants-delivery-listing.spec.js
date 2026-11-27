@@ -110,35 +110,50 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         },
     );
 
-    it('should not change the saved configuration when the tab is opened', async () => {
-        const { product } = await createWrapper({
-            displayParent: null,
-            mainVariantId: null,
-            configuratorGroupConfig: [expandedGroup],
+    /**
+     * The product listings tab changed the saved storefront listing configuration.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21036
+     */
+    describe('saved listing configuration', () => {
+        /**
+         * Opening the product listings tab changed the storefront listing configuration.
+         * @regression
+         */
+        it('should not change the saved configuration when the tab is opened', async () => {
+            const { product } = await createWrapper({
+                displayParent: null,
+                mainVariantId: null,
+                configuratorGroupConfig: [expandedGroup],
+            });
+
+            expect(product.variantListingConfig).toEqual({
+                displayParent: null,
+                mainVariantId: null,
+                configuratorGroupConfig: [expandedGroup],
+            });
         });
 
-        expect(product.variantListingConfig).toEqual({
-            displayParent: null,
-            mainVariantId: null,
-            configuratorGroupConfig: [expandedGroup],
+        /**
+         * Switching the listing mode overwrote the saved variant choice.
+         * @regression
+         */
+        it('should keep the variant choice when the listing mode is switched', async () => {
+            const { wrapper, product } = await createWrapper({
+                displayParent: false,
+                mainVariantId: null,
+                configuratorGroupConfig: [],
+            });
+            const { listingModeField, variantModeField } = getRadioFields(wrapper);
+
+            listingModeField.vm.$emit('update:value', 'expanded');
+            listingModeField.vm.$emit('update:value', 'single');
+            await flushPromises();
+
+            expect(product.listingMode).toBe('single');
+            expect(product.variantListingConfig.displayParent).toBe(false);
+            expect(variantModeField.props('value')).toBe(false);
         });
-    });
-
-    it('should keep the variant choice when the listing mode is switched', async () => {
-        const { wrapper, product } = await createWrapper({
-            displayParent: false,
-            mainVariantId: null,
-            configuratorGroupConfig: [],
-        });
-        const { listingModeField, variantModeField } = getRadioFields(wrapper);
-
-        listingModeField.vm.$emit('update:value', 'expanded');
-        listingModeField.vm.$emit('update:value', 'single');
-        await flushPromises();
-
-        expect(product.listingMode).toBe('single');
-        expect(product.variantListingConfig.displayParent).toBe(false);
-        expect(variantModeField.props('value')).toBe(false);
     });
 
     it('should enable a property for listings', async () => {

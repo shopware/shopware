@@ -376,6 +376,11 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         );
     });
 
+    /**
+     * Reloading an extension iframe re-registered tabs endlessly and froze the browser.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14347
+     */
     it('should trigger full page reload when iframe is reloaded after initial load', async () => {
         Shopware.Store.get('extensions').addExtension({
             name: 'foo',

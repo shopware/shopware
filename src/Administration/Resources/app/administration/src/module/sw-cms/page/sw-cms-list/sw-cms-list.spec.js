@@ -1351,6 +1351,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(cloneMockLastCall[2]).toStrictEqual(Shopware.Context.api);
     });
 
+    /**
+     * The list view loaded with the grid limit and showed 9 instead of 10 layouts.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6579
+     */
     it('should wait for loadGridUserSettings before calling resetList', async () => {
         const wrapper = await createWrapper();
         const deferred = (() => {
@@ -1386,6 +1391,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(resetListSpy).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * The restored list view used the grid limit and showed 9 items instead of 10.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/6579
+     */
     it.each([
         [9, 'grid'],
         [10, 'list'],

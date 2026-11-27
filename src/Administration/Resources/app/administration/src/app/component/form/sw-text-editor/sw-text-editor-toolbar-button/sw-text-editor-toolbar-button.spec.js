@@ -134,6 +134,11 @@ describe('components/form/sw-text-editor/sw-text-editor-toolbar-button', () => {
         expect(parent).toBe(wrapper.props('buttonConfig'));
     });
 
+    /**
+     * The link flyout was cut off at the modal boundary and needed horizontal scrolling.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/11853
+     */
     it('should center flyout over icon when inside a modal and overflow occurs at the modal right bound', async () => {
         const wrapper = await createWrapper();
 

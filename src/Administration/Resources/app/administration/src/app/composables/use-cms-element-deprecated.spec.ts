@@ -93,6 +93,11 @@ describe('src/app/composables/use-cms-element-deprecated', () => {
         expect(element.config.headline.value).toBe('translated');
     });
 
+    /**
+     * CMS element config shared the translated object, so overrides were discarded on save.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19735
+     */
     it('clones the translated value it falls back to', () => {
         const translatedHeadline = { source: 'static', value: 'translated' };
         const element = slot({

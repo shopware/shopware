@@ -69,54 +69,73 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-customer.handler', () =>
         expect(handler.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
     });
 
-    it.each(replies)('waits until the %s reply finishes', async (reply) => {
-        const handler = createHandler();
-        let finishReply: (value: unknown) => void = () => {};
-        handler.customerGroupRegistrationService[reply].mockReturnValue(
-            new Promise((resolve) => {
-                finishReply = resolve;
-            }),
-        );
+    /**
+     * The customer bulk edit did not wait for replies to customer group requests.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/23154
+     */
+    describe('customer group replies', () => {
+        /**
+         * The bulk edit reported success before the customer group reply finished.
+         * @regression
+         */
+        it.each(replies)('waits until the %s reply finishes', async (reply) => {
+            const handler = createHandler();
+            let finishReply: (value: unknown) => void = () => {};
+            handler.customerGroupRegistrationService[reply].mockReturnValue(
+                new Promise((resolve) => {
+                    finishReply = resolve;
+                }),
+            );
 
-        let finished = false;
-        const result = handler.bulkEditRequestedGroup(['1'], [{ value: reply }]).then(() => {
-            finished = true;
+            let finished = false;
+            const result = handler.bulkEditRequestedGroup(['1'], [{ value: reply }]).then(() => {
+                finished = true;
+            });
+            await flushPromises();
+
+            expect(finished).toBe(false);
+
+            finishReply({});
+            await result;
+
+            expect(finished).toBe(true);
         });
-        await flushPromises();
 
-        expect(finished).toBe(false);
+        /**
+         * A failed customer group reply was not retried.
+         * @regression
+         */
+        it.each(replies)('retries a failed %s reply', async (reply) => {
+            jest.useFakeTimers();
+            const handler = createHandler();
+            handler.customerGroupRegistrationService[reply]
+                .mockRejectedValueOnce(new Error('Network error'))
+                .mockResolvedValueOnce({});
 
-        finishReply({});
-        await result;
+            const result = handler.bulkEditRequestedGroup(['1'], [{ value: reply }]);
+            await jest.advanceTimersByTimeAsync(5000);
+            await result;
 
-        expect(finished).toBe(true);
-    });
+            expect(handler.customerGroupRegistrationService[reply]).toHaveBeenCalledTimes(2);
+        });
 
-    it.each(replies)('retries a failed %s reply', async (reply) => {
-        jest.useFakeTimers();
-        const handler = createHandler();
-        handler.customerGroupRegistrationService[reply]
-            .mockRejectedValueOnce(new Error('Network error'))
-            .mockResolvedValueOnce({});
+        /**
+         * A failed customer group reply was swallowed and the bulk edit reported success.
+         * @regression
+         */
+        it.each(replies)('fails when every %s reply fails', async (reply) => {
+            jest.useFakeTimers();
+            const handler = createHandler();
+            const error = new Error('Network error');
+            handler.customerGroupRegistrationService[reply].mockRejectedValue(error);
 
-        const result = handler.bulkEditRequestedGroup(['1'], [{ value: reply }]);
-        await jest.advanceTimersByTimeAsync(5000);
-        await result;
+            await Promise.all([
+                expect(handler.bulkEditRequestedGroup(['1'], [{ value: reply }])).rejects.toBe(error),
+                jest.advanceTimersByTimeAsync(15000),
+            ]);
 
-        expect(handler.customerGroupRegistrationService[reply]).toHaveBeenCalledTimes(2);
-    });
-
-    it.each(replies)('fails when every %s reply fails', async (reply) => {
-        jest.useFakeTimers();
-        const handler = createHandler();
-        const error = new Error('Network error');
-        handler.customerGroupRegistrationService[reply].mockRejectedValue(error);
-
-        await Promise.all([
-            expect(handler.bulkEditRequestedGroup(['1'], [{ value: reply }])).rejects.toBe(error),
-            jest.advanceTimersByTimeAsync(15000),
-        ]);
-
-        expect(handler.customerGroupRegistrationService[reply]).toHaveBeenCalledTimes(4);
+            expect(handler.customerGroupRegistrationService[reply]).toHaveBeenCalledTimes(4);
+        });
     });
 });

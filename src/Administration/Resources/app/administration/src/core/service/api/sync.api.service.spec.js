@@ -16,6 +16,11 @@ function getSyncService() {
 }
 
 describe('SyncService', () => {
+    /**
+     * Undefined values in sync requests wiped all custom fields.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7131
+     */
     it('sends undefined values correctly', async () => {
         const { syncService, clientMock } = getSyncService();
         let didRequest = false;

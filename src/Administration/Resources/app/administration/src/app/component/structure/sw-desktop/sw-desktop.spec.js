@@ -303,6 +303,11 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(wrapper.vm.showUsageDataConsentModalDataProvider).toBe(true);
     });
 
+    /**
+     * The consent modal overlapped the shop ID change modal.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/15567
+     */
     it('should not render consent modal provider while shop ID change modal is shown', async () => {
         const wrapper = await createWrapper({
             checkShopId: jest.fn(() => Promise.resolve({ apps: [], fingerprints: {} })),
@@ -335,6 +340,10 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(wrapper.find('sw-app-wrong-app-url-modal-stub').exists()).toBe(false);
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/23366
+     */
     it('hides the APP_URL warning from users who are not admins', async () => {
         const wrapper = await createWrapper({
             checkShopId: jest.fn(() => Promise.resolve(null)),

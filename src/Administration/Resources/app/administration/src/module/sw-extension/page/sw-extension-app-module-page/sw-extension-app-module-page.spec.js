@@ -90,6 +90,11 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         );
     });
 
+    /**
+     * App module iframes loaded without color-scheme and started light in a dark Administration.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/22827
+     */
     it('appends the resolved dark theme as color-scheme to the source', async () => {
         useTheme().setTheme('dark');
 

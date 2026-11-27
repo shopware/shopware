@@ -47,6 +47,11 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
         });
     });
 
+    /**
+     * Quoted filenames kept their quotes, turning downloaded PDFs into unusable _name.pdf_ files.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9573
+     */
     it('should extract filenames from content-disposition headers', () => {
         let response = { headers: { 'content-disposition': 'attachment; filename="normal filename.pdf"' } };
         let result = fileReaderUtils.getFilenameFromResponse(response);

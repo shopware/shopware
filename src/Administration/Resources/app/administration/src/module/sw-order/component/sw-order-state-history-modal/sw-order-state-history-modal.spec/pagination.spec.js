@@ -63,42 +63,57 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: pagination
             transition('order_transaction', 't2', 'tx2-open', 'tx2-paid', '2022-10-11T11:00:00.000+00:00'),
         ];
 
-        it('should carry the running state across the page boundary', async () => {
-            const wrapper = await createWrapper({ limit: 3 }, order, history);
-            await flushPromises();
+        /**
+         * State history pages beyond the first showed wrong states on historical rows.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/19908
+         */
+        describe('running state across pages', () => {
+            /**
+             * State history pages beyond the first showed today's state on historical rows.
+             * @regression
+             */
+            it('should carry the running state across the page boundary', async () => {
+                const wrapper = await createWrapper({ limit: 3 }, order, history);
+                await flushPromises();
 
-            wrapper.vm.onPageChange({ page: 2, limit: 3 });
-            await flushPromises();
+                wrapper.vm.onPageChange({ page: 2, limit: 3 });
+                await flushPromises();
 
-            const columns = wrapper.vm.stateHistory.map((entry) => ({
-                entity: entry.entity,
-                order: entry.order.technicalName,
-                transaction: entry.transaction.technicalName,
-                delivery: entry.delivery.technicalName,
-            }));
+                const columns = wrapper.vm.stateHistory.map((entry) => ({
+                    entity: entry.entity,
+                    order: entry.order.technicalName,
+                    transaction: entry.transaction.technicalName,
+                    delivery: entry.delivery.technicalName,
+                }));
 
-            // The order and the first transaction do not transition on this page, so their columns
-            // have to keep the states they reached on page 1 — not their current states.
-            expect(columns[0]).toEqual({
-                entity: 'order_delivery',
-                order: 'order-in_progress',
-                transaction: 'tx1-cancelled',
-                delivery: 'delivery-shipped',
+                // The order and the first transaction do not transition on this page, so their columns
+                // have to keep the states they reached on page 1 — not their current states.
+                expect(columns[0]).toEqual({
+                    entity: 'order_delivery',
+                    order: 'order-in_progress',
+                    transaction: 'tx1-cancelled',
+                    delivery: 'delivery-shipped',
+                });
             });
-        });
 
-        it('should build the initial state of a transaction that first appears after the page boundary', async () => {
-            const wrapper = await createWrapper({ limit: 3 }, order, history);
-            await flushPromises();
+            /**
+             * A transaction first appearing after a page boundary lost its synthesized initial state.
+             * @regression
+             */
+            it('should build the initial state of a transaction that first appears after the page boundary', async () => {
+                const wrapper = await createWrapper({ limit: 3 }, order, history);
+                await flushPromises();
 
-            wrapper.vm.onPageChange({ page: 2, limit: 3 });
-            await flushPromises();
+                wrapper.vm.onPageChange({ page: 2, limit: 3 });
+                await flushPromises();
 
-            const transactionStates = wrapper.vm.stateHistory
-                .filter((entry) => entry.referencedId === 't2')
-                .map((entry) => entry.transaction.technicalName);
+                const transactionStates = wrapper.vm.stateHistory
+                    .filter((entry) => entry.referencedId === 't2')
+                    .map((entry) => entry.transaction.technicalName);
 
-            expect(transactionStates).toEqual(['tx2-open', 'tx2-paid']);
+                expect(transactionStates).toEqual(['tx2-open', 'tx2-paid']);
+            });
         });
 
         it('should count the built rows rather than the fetched history entries', async () => {

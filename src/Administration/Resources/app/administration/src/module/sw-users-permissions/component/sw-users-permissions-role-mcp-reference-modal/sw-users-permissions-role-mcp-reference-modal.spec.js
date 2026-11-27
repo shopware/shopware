@@ -170,35 +170,55 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
         expect(labels).toContain('shopware-entity-read');
     });
 
-    it.each([
-        ['null', { tools: null, resources: [], prompts: null }],
-        ['missing', { resources: [], prompts: null }],
-        ['an unset allowlist', null],
-    ])('treats an integration whose tool list is %s as allowing no tools', async (_, mcpAllowlist) => {
-        const wrapper = await createWrapper({
-            mcpIntegrations: [{ id: 'int-1', mcpAllowlist }],
+    /**
+     * Integrations without a tool list were shown as allowing all MCP tools.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/21654
+     */
+    describe('integrations without a tool list', () => {
+        /**
+         * Integrations with a null tool list were shown as allowing all tools in the MCP reference.
+         * @regression
+         */
+        it.each([
+            ['null', { tools: null, resources: [], prompts: null }],
+            ['missing', { resources: [], prompts: null }],
+            ['an unset allowlist', null],
+        ])('treats an integration whose tool list is %s as allowing no tools', async (_, mcpAllowlist) => {
+            const wrapper = await createWrapper({
+                mcpIntegrations: [{ id: 'int-1', mcpAllowlist }],
+            });
+            await flushPromises();
+
+            expect(wrapper.find('mt-empty-state-stub').exists()).toBe(true);
+            expect(wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row')).toHaveLength(0);
         });
-        await flushPromises();
 
-        expect(wrapper.find('mt-empty-state-stub').exists()).toBe(true);
-        expect(wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row')).toHaveLength(0);
-    });
+        /**
+         * Integrations without a tool list were shown with privileges of every MCP tool.
+         * @regression
+         */
+        it('shows only the listed tools when an integration without a tool list sits next to a restricted one', async () => {
+            const wrapper = await createWrapper({
+                mcpIntegrations: [
+                    {
+                        id: 'int-1',
+                        mcpAllowlist: { tools: ['shopware-system-config-read'], resources: null, prompts: null },
+                    },
+                    { id: 'int-2', mcpAllowlist: { tools: null, resources: [], prompts: null } },
+                ],
+            });
+            await flushPromises();
 
-    it('shows only the listed tools when an integration without a tool list sits next to a restricted one', async () => {
-        const wrapper = await createWrapper({
-            mcpIntegrations: [
-                { id: 'int-1', mcpAllowlist: { tools: ['shopware-system-config-read'], resources: null, prompts: null } },
-                { id: 'int-2', mcpAllowlist: { tools: null, resources: [], prompts: null } },
-            ],
+            wrapper.vm.viewMode = 'tool';
+            await flushPromises();
+
+            const labels = wrapper
+                .findAll('.sw-users-permissions-role-mcp-reference-modal__row-label')
+                .map((el) => el.text());
+
+            expect(labels).toEqual(['shopware-system-config-read']);
         });
-        await flushPromises();
-
-        wrapper.vm.viewMode = 'tool';
-        await flushPromises();
-
-        const labels = wrapper.findAll('.sw-users-permissions-role-mcp-reference-modal__row-label').map((el) => el.text());
-
-        expect(labels).toEqual(['shopware-system-config-read']);
     });
 
     // ── Grant actions ──────────────────────────────────────────────────────────

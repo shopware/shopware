@@ -196,6 +196,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         window.open.mockClear();
     });
 
+    /**
+     * Product group selections were sent as a capped product list instead of group ids.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16724
+     */
     it('should emit the products together with the selected product stream ids and their total', async () => {
         const wrapper = await createWrapper();
 

@@ -146,6 +146,11 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.emitted('update:value')[0]).toEqual([0, ['symbol/dash', 'address/department']]);
     });
 
+    /**
+     * The snippet select lacked the input wrapper, so the address markup fields collapsed and overlapped.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/13844
+     */
     it('should render the selection input inside the expected wrapper', async () => {
         const wrapper = await createWrapper({ isSnippetDragging: true });
         await flushPromises();

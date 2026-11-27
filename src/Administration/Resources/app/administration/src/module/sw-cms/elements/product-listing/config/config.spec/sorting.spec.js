@@ -192,6 +192,11 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
         expect(wrapper.vm.defaultSortingId).toBeNull();
     });
 
+    /**
+     * The clear button of the default sorting did not clear it.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18478
+     */
     it('should clear the default sorting through the select', async () => {
         const wrapper = await createWrapper();
 
@@ -243,6 +248,11 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
         ]);
     });
 
+    /**
+     * Sortings added after clearing all of them were not persisted.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18478
+     */
     it('should assign a new object to availableSortings.value (not mutate) to trigger Vue reactivity', async () => {
         const wrapper = await createWrapper();
 

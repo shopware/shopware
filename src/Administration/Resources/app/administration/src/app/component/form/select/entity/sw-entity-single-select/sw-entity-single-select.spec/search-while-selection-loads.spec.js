@@ -5,6 +5,10 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 describe('components/sw-entity-single-select', () => {
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/23024
+     */
     it('does not send the selected id with a search started while the selection loads', async () => {
         const repository = {
             get: jest.fn((id, context, criteria) => {

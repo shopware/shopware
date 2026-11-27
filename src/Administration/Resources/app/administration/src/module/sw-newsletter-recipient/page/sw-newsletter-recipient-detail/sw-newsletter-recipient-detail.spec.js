@@ -126,6 +126,11 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
         expect(wrapper.getComponent('[label="sw-newsletter-recipient.general.salesChannel"]').props('disabled')).toBe(true);
     });
 
+    /**
+     * No loading indicator was shown while saving a newsletter recipient.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10073
+     */
     it('should render loading indicator on save', async () => {
         global.activeAclRoles = ['newsletter_recipient.editor'];
         const wrapper = await createWrapper();

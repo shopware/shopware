@@ -98,6 +98,11 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         expect(select.props('placeholder')).toBe('Open');
     });
 
+    /**
+     * Order status selects offered a clear button that could not unset the status.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19743
+     */
     it('should not render a clear button, because a state cannot be unset', async () => {
         const wrapper = await createWrapper({ transitionOptions });
 

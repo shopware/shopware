@@ -139,6 +139,11 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         wrapper = await createWrapper();
     });
 
+    /**
+     * Required-field warnings stayed on the order page after closing the new customer modal.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18694
+     */
     it('should not leave any warnings behind when the modal is closed', async () => {
         const errorStore = Shopware.Store.get('error');
         const billingAddressMock = {

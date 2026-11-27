@@ -441,6 +441,11 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_return').exists()).toBe(true);
     });
 
+    /**
+     * The document company logo upload never finished and stored no logo.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20870
+     */
     it('should upload the company logo right away and assign it', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithDocumentType' },
@@ -623,6 +628,11 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(multiSelect.attributes().value).toBe('pdf,html');
     });
 
+    /**
+     * Document file types could not be selected when the config had no file types.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/7997
+     */
     it('should be possible to select fileTypes without fileTypes property in config', async () => {
         const wrapper = await createWrapper(
             {
@@ -760,6 +770,11 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.find('.sw-settings-document-detail__filename_infix_headline').exists()).toBe(false);
     });
 
+    /**
+     * Document configs without infixes stored an empty array instead of null.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19855
+     */
     it('should set filenameInfixes on save to null when no infixes were configured', async () => {
         let savedConfig;
         documentBaseConfigRepositoryMock.save.mockImplementationOnce((config) => {

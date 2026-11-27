@@ -30,6 +30,11 @@ async function createWrapper() {
 
 describe('src/app/mixin/notification-translation.mixin', () => {
     describe('getTranslatedTitle', () => {
+        /**
+         * Backend notifications showed untranslated English text and no headline.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/15838
+         */
         it('translates the title when it is a snippet key', async () => {
             const wrapper = await createWrapper();
 
@@ -50,6 +55,11 @@ describe('src/app/mixin/notification-translation.mixin', () => {
     });
 
     describe('getTranslatedMessage', () => {
+        /**
+         * Backend notifications were shown in English regardless of the user language.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/18055
+         */
         it('translates the message when it is a snippet key', async () => {
             const wrapper = await createWrapper();
 

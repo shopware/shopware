@@ -53,6 +53,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         currencySearch.mockClear();
     });
 
+    /**
+     * Only the first 25 currencies were loaded, silently hiding the rest.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16628
+     */
     it('should load all currencies for the surcharge columns', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

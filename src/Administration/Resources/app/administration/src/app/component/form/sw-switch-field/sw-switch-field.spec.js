@@ -24,6 +24,11 @@ describe('src/app/component/base/sw-switch-field', () => {
         expect(wrapper.html()).toContain('mt-switch');
     });
 
+    /**
+     * The switch field ignored v-model because checked defaulted to a boolean.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/6047
+     */
     it('should use the correct checked value', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.checkedValue).toBe(false);

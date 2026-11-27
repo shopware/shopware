@@ -81,6 +81,11 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
         expect(conditionTreeNode.attributes().disabled).toBe('true');
     });
 
+    /**
+     * Deleting the last child left an empty all-line-items container that broke the rule page.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10532
+     */
     it('should trigger childrenLength watcher when children length becomes 0', async () => {
         const wrapper = await createWrapper();
         const condition = { ...wrapper.props().condition };
@@ -132,6 +137,11 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
         );
     });
 
+    /**
+     * Deleting the last child left an empty all-line-items container that broke the rule page.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10532
+     */
     it('should remove empty wrapper when children are deleted', async () => {
         const removeNodeFromTreeUi = jest.fn((condition, node) => {
             condition.children = condition.children

@@ -200,6 +200,10 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(summary.text()).toContain('john@doe.dev');
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14781
+     */
     it('should not link to the customer when the customer was deleted', async () => {
         const order = {
             ...orderMock,
@@ -250,6 +254,11 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(wrapper.vm.$data.tagCollection).toHaveLength(3);
     });
 
+    /**
+     * Order tags did not refresh after a state change altered them.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5773
+     */
     it('should update the tag select when order tags change', async () => {
         const tagsStub = wrapper.findComponent(entityTagSelectStub);
 
@@ -304,6 +313,11 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(wrapper.vm.lastChangedDateTime).toBe('2020-01-01T00:00:00.000Z');
     });
 
+    /**
+     * Quickly changing a second order status during reload broke the order module.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10032
+     */
     it('should disable state selects on loading', async () => {
         const stateSelects = wrapper.findAll('.sw-order-general-info__order-state');
         expect(stateSelects).toHaveLength(3);

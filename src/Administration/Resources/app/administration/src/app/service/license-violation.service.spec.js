@@ -217,6 +217,11 @@ describe('app/service/license-violation.service.js', () => {
         expect(extensionApiServiceMock.removeExtension).toHaveBeenCalled();
     });
 
+    /**
+     * Loopback addresses triggered license violation emails.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/5632
+     */
     it('should not trigger license violation for loopback', async () => {
         jest.spyOn(licenseViolationService, '_getLocationHostname').mockReturnValue('127.0.0.1');
 

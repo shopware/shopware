@@ -143,31 +143,43 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         });
     });
 
-    it('should persist the selected sorting option in the route', async () => {
-        const wrapper = await createWrapper();
+    /**
+     * The extension listing sorting was not kept in the URL and reset on reload.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/18625
+     */
+    describe('sorting in the route', () => {
+        /** @regression */
+        it('should persist the selected sorting option in the route', async () => {
+            const wrapper = await createWrapper();
 
-        await selectMtSelectOptionByText(
-            wrapper,
-            'sw-extension.my-extensions.listing.controls.filterOptions.name-asc',
-            '.mt-select__selection',
-        );
+            await selectMtSelectOptionByText(
+                wrapper,
+                'sw-extension.my-extensions.listing.controls.filterOptions.name-asc',
+                '.mt-select__selection',
+            );
 
-        expect(wrapper.vm.$route.query.sorting).toBe('name-asc');
-    });
+            expect(wrapper.vm.$route.query.sorting).toBe('name-asc');
+        });
 
-    it('should apply the sorting option from the route after loading', async () => {
-        const wrapper = await createWrapper({ query: { sorting: 'name-asc' } });
-        const extensions = ['Zeta', 'Alpha'].map((name) => ({
-            name,
-            label: name,
-            updatedAt: null,
-        }));
+        /** @regression */
+        it('should apply the sorting option from the route after loading', async () => {
+            const wrapper = await createWrapper({ query: { sorting: 'name-asc' } });
+            const extensions = ['Zeta', 'Alpha'].map((name) => ({
+                name,
+                label: name,
+                updatedAt: null,
+            }));
 
-        Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
+            Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await flushPromises();
+            await flushPromises();
 
-        expect(wrapper.findAll('.sw-self-maintained-extension-card').map((card) => card.text())).toEqual(['Alpha', 'Zeta']);
+            expect(wrapper.findAll('.sw-self-maintained-extension-card').map((card) => card.text())).toEqual([
+                'Alpha',
+                'Zeta',
+            ]);
+        });
     });
 
     it('should update the route with the new values from pagination', async () => {

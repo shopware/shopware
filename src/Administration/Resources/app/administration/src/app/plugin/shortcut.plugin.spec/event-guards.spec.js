@@ -66,6 +66,11 @@ describe('app/plugins/shortcut.plugin - event guards', () => {
         expect(onEscMock).toHaveBeenCalledWith();
     });
 
+    /**
+     * Pressing Escape in a modal also navigated the detail page back to the listing.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10518
+     */
     it('should NOT call the onEsc method when Escape key is pressed inside a modal', async () => {
         const onEscMock = jest.fn();
 

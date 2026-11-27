@@ -156,6 +156,11 @@ describe('ASYNC app/adapter/view/vue.adapter.js - initialization', () => {
         expect(rootComponent.config.globalProperties.$swLegacyBlockElse).toBeDefined();
     });
 
+    /**
+     * The global $t wrapper never took effect, so legacy-order calls lost named parameters.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20775
+     */
     it('should use the translation wrappers for components, the root instance and Shopware.Snippet', () => {
         const deprecationSpy = jest.spyOn(Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
         vueAdapter.i18n.global.mergeLocaleMessage(vueAdapter.i18n.global.locale.value, {

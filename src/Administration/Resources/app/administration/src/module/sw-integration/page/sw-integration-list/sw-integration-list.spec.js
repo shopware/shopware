@@ -220,6 +220,11 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(modalAfterSave.exists()).toBeFalsy();
     });
 
+    /**
+     * A second edit without page reload was silently dropped because the list kept stale entities.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/22541
+     */
     it('should reload the integrations after editing an integration', async () => {
         const wrapper = await createWrapper(['integration.editor']);
         expect(searchIntegrations).toHaveBeenCalledTimes(1);

@@ -116,6 +116,11 @@ describe('src/app/service/app-cms.service', () => {
         expect(service.injectStyleTag()).toBeTruthy();
     });
 
+    /**
+     * Slots of app CMS blocks were created in random order instead of their defined position.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4503
+     */
     it('should create vue.js components incl. preview for the block component in the right order', async () => {
         const blockDefinition = fixtures.blocks[0];
 

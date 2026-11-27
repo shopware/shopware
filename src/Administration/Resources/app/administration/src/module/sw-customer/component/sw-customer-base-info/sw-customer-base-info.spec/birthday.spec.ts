@@ -61,6 +61,11 @@ describe.each(['Europe/Berlin', 'America/New_York'])('customer birthdays with us
     });
 
     describe.each(['sw-customer-base-info', 'sw-customer-base-form'])('%s', (component) => {
+        /**
+         * Typed birthdays shifted by one day in non-UTC user timezones.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/21765
+         */
         it.each([
             ['15.01.2000', '2000-01-15T00:00:00.000Z', 'enter'],
             ['15.07.2000', '2000-07-15T00:00:00.000Z', 'enter'],
@@ -88,6 +93,11 @@ describe.each(['Europe/Berlin', 'America/New_York'])('customer birthdays with us
             expect(input.element.value).toBe(inputValue);
         });
 
+        /**
+         * Birthdays picked from the calendar shifted by one day in non-UTC user timezones.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/22542
+         */
         it('preserves dates selected from the calendar', async () => {
             const { wrapper, customer } = await createWrapper(component);
             await flushPromises();
@@ -101,6 +111,11 @@ describe.each(['Europe/Berlin', 'America/New_York'])('customer birthdays with us
         });
     });
 
+    /**
+     * Birthdays were displayed one day off in non-UTC user timezones.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22542
+     */
     it('displays the birthday as a UTC date outside edit mode', async () => {
         const { wrapper } = await createWrapper('sw-customer-base-info', false);
         await flushPromises();

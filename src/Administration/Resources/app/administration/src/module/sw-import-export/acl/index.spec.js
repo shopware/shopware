@@ -39,6 +39,11 @@ describe('src/module/sw-import-export/acl/index.js', () => {
         });
     });
 
+    /**
+     * The import/export role lacked the privilege needed to download export files.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12091
+     */
     it('should register privilege roles', () => {
         const roles = {
             import_export: {

@@ -1,4 +1,4 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
@@ -139,6 +139,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         Shopware.Store.get('shopwareApps').selectedIds = [];
     });
 
+    /**
+     * Opening an order with view-only access created a working version.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22713
+     */
     it('should load the live order without writing or cleaning up a version for viewers', async () => {
         global.activeAclRoles = ['order.viewer'];
         const lineItem = {
@@ -196,6 +201,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
     });
 
+    /**
+     * Reloading or leaving the order detail page left unused order versions behind.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20003
+     */
     it('should remove version id with a keepalive request when pagehide is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
@@ -226,6 +236,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBe(true);
     });
 
+    /**
+     * A version discard during merge could delete the live order.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20142
+     */
     it('should not discard the version while it is being merged', async () => {
         const lineItem = {
             id: 'lineItemId',
@@ -373,6 +388,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBeTruthy();
     });
 
+    /**
+     * Address selections of a previous order leaked into the next order and saved wrong addresses.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14750
+     */
     it('should reset pending address selections when creating a new version', async () => {
         wrapper = await createWrapper();
 
@@ -387,6 +407,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
     });
 
+    /**
+     * Opening an order left an unsaved order version behind in the database.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4738
+     */
     it('should clean up unsaved version when component gets destroyed', async () => {
         wrapper = await createWrapper();
         await wrapper.vm.createNewVersionId();
@@ -398,6 +423,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, oldVersionId);
     });
 
+    /**
+     * Address selections of a previous order leaked into the next order and saved wrong addresses.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14750
+     */
     it('should reset pending address selections when component gets destroyed', async () => {
         wrapper = await createWrapper();
 
@@ -513,107 +543,121 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(convertedProductLineItems).toContainEqual(previouslyConvertedLineItem);
     });
 
-    it('should not apply promotions on save and recalculate', async () => {
-        const lineItemWithExistingProduct = {
-            id: 'lineItemId',
-            type: 'product',
-            referencedId: 'productId',
-            quantity: 1,
-            productId: 'productId',
-            payload: {},
-        };
+    /**
+     * Saving or recalculating an edited order re-evaluated promotions and dropped discounts placed with the order.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5854
+     */
+    describe('promotions of an edited order', () => {
+        /** @regression */
+        it('should not apply promotions on save and recalculate', async () => {
+            const lineItemWithExistingProduct = {
+                id: 'lineItemId',
+                type: 'product',
+                referencedId: 'productId',
+                quantity: 1,
+                productId: 'productId',
+                payload: {},
+            };
 
-        const promotionLineItem = {
-            type: 'promotion',
-            referencedId: null,
-        };
+            const promotionLineItem = {
+                type: 'promotion',
+                referencedId: null,
+            };
 
-        const deliveryDiscount = {
-            id: 'deliveryId2',
-            shippingCosts: { totalPrice: -4.99 },
-        };
+            const deliveryDiscount = {
+                id: 'deliveryId2',
+                shippingCosts: { totalPrice: -4.99 },
+            };
 
-        const deliveries = [
-            {
-                id: 'deliveryId',
-                shippingCosts: { totalPrice: 4.99 },
-            },
-            deliveryDiscount,
-        ];
+            const deliveries = [
+                {
+                    id: 'deliveryId',
+                    shippingCosts: { totalPrice: 4.99 },
+                },
+                deliveryDiscount,
+            ];
 
-        wrapper = await createWrapper({
-            primaryOrderDeliveryId: 'deliveryId',
-            lineItems: [lineItemWithExistingProduct, promotionLineItem],
-            deliveries,
+            wrapper = await createWrapper({
+                primaryOrderDeliveryId: 'deliveryId',
+                lineItems: [lineItemWithExistingProduct, promotionLineItem],
+                deliveries,
+            });
+
+            wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
+            wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
+
+            await flushPromises();
+
+            expect(wrapper.vm.automaticPromotions).toHaveLength(1);
+            expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
+            expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
+            expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
+
+            await wrapper.vm.onSaveAndRecalculate();
+            expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
+            expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
         });
 
-        wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
-        wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
+        /** @regression */
+        it('should not apply promotions on recalculate and reload', async () => {
+            const lineItemWithExistingProduct = {
+                id: 'lineItemId',
+                type: 'product',
+                referencedId: 'productId',
+                quantity: 1,
+                productId: 'productId',
+                payload: {},
+            };
 
-        await flushPromises();
+            const promotionLineItem = {
+                type: 'promotion',
+                referencedId: null,
+            };
 
-        expect(wrapper.vm.automaticPromotions).toHaveLength(1);
-        expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
-        expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
-        expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
+            const deliveryDiscount = {
+                id: 'deliveryId2',
+                shippingCosts: { totalPrice: -4.99 },
+            };
 
-        await wrapper.vm.onSaveAndRecalculate();
-        expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
-        expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
-    });
+            const deliveries = [
+                {
+                    id: 'deliveryId',
+                    shippingCosts: { totalPrice: 4.99 },
+                },
+                deliveryDiscount,
+            ];
 
-    it('should not apply promotions on recalculate and reload', async () => {
-        const lineItemWithExistingProduct = {
-            id: 'lineItemId',
-            type: 'product',
-            referencedId: 'productId',
-            quantity: 1,
-            productId: 'productId',
-            payload: {},
-        };
+            wrapper = await createWrapper({
+                primaryOrderDeliveryId: 'deliveryId',
+                lineItems: [lineItemWithExistingProduct, promotionLineItem],
+                deliveries,
+            });
 
-        const promotionLineItem = {
-            type: 'promotion',
-            referencedId: null,
-        };
+            wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
+            wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
 
-        const deliveryDiscount = {
-            id: 'deliveryId2',
-            shippingCosts: { totalPrice: -4.99 },
-        };
+            await flushPromises();
 
-        const deliveries = [
-            {
-                id: 'deliveryId',
-                shippingCosts: { totalPrice: 4.99 },
-            },
-            deliveryDiscount,
-        ];
+            expect(wrapper.vm.automaticPromotions).toHaveLength(1);
+            expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
+            expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
+            expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
 
-        wrapper = await createWrapper({
-            primaryOrderDeliveryId: 'deliveryId',
-            lineItems: [lineItemWithExistingProduct, promotionLineItem],
-            deliveries,
+            await wrapper.vm.onRecalculateAndReload();
+
+            expect(wrapper.vm.promotionsToDelete).toHaveLength(0);
+            expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(0);
+            expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
+            expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
         });
-
-        wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
-        wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
-
-        await flushPromises();
-
-        expect(wrapper.vm.automaticPromotions).toHaveLength(1);
-        expect(wrapper.vm.deliveryDiscounts).toHaveLength(1);
-        expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
-        expect(wrapper.vm.deliveryDiscounts).toContainEqual(deliveryDiscount);
-
-        await wrapper.vm.onRecalculateAndReload();
-
-        expect(wrapper.vm.promotionsToDelete).toHaveLength(0);
-        expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(0);
-        expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
-        expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
     });
 
+    /**
+     * Editing an order kept stale promotions and lost the granted shipping discount on recalculation.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4638
+     */
     it('should delete promotions on save edits', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
@@ -782,6 +826,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderService.updateOrderAddress).not.toHaveBeenCalled();
     });
 
+    /**
+     * The last line item of an order could be deleted without recalculating the total.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/5148
+     */
     it('should notification error when order line items are empty', async () => {
         const createNotificationErrorMock = jest.fn();
         const createNewVersionIdMock = jest.fn().mockResolvedValue();
@@ -805,6 +854,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
     });
 
+    /**
+     * Cart errors in the Administration were always shown in English.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/19736
+     */
     it('should prefer the server translated message when handling cart errors', async () => {
         wrapper = await createWrapper();
 
@@ -923,6 +977,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         });
     });
 
+    /**
+     * Order save, cancel and recalculate errors showed a generic message without the API detail.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/20350
+     */
     it.each([
         ['onSaveEdits', (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed'))))],
         [

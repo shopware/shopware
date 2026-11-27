@@ -273,6 +273,11 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.emitted('update:value')[0]).toEqual(['2023-03-21T23:00:00.000Z']);
     });
 
+    /**
+     * Manually typed dates were not emitted, so custom date fields were not saved.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/4546
+     */
     it('should emit a date when is typed', async () => {
         wrapper = await createWrapper({});
 

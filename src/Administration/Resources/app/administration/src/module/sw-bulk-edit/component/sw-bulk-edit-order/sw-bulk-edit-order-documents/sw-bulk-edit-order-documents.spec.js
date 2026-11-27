@@ -64,6 +64,11 @@ describe('sw-bulk-edit-order-documents', () => {
         wrapper.vm.documentTypeRepository.search.mockRestore();
     });
 
+    /**
+     * Document type checkboxes had no labels when the content language lacked a translation.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/9148
+     */
     it('should label document types with the translated name when the current language has none', async () => {
         await wrapper.setData({
             documentTypes: [

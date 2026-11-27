@@ -61,6 +61,11 @@ describe('src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings
         currencySearch.mockClear();
     });
 
+    /**
+     * Only the first 25 currencies were loaded, silently hiding the rest.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/16628
+     */
     it('should load all currencies for the advanced prices', async () => {
         await createWrapper();
         await flushPromises();

@@ -139,6 +139,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(price.net).toBeCloseTo(5, 10);
     });
 
+    /**
+     * Linking a price with a gross value of 0 left the old net value in place.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/20755
+     */
     it('should set the net value to 0 when a price with a gross value of 0 gets linked', async () => {
         const { wrapper, price } = await createWrapper({ gross: 0, net: 1, linked: false });
 

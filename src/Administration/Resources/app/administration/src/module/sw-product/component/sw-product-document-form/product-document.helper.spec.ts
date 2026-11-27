@@ -10,6 +10,11 @@ function createDocument(translated: { title: string; mediaId: string }) {
 }
 
 describe('src/module/sw-product/component/sw-product-document-form/product-document.helper', () => {
+    /**
+     * Variant document copies were looked up by the unsaved title and file, so none matched.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/23269
+     */
     it('returns the saved title and file of a saved document, not its unsaved changes', () => {
         const document = createDocument({ title: 'Manual v2', mediaId: 'new-media' });
         Object.assign(document, { _isNew: false });

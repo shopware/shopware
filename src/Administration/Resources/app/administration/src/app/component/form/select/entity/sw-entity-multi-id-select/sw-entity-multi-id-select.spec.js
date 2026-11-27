@@ -102,25 +102,34 @@ describe('components/sw-entity-multi-id-select', () => {
         expect(wrapper.vm.updateIds).toHaveBeenCalled();
     });
 
-    it('should properly initialize with null value', async () => {
-        const wrapper = await createWrapper({ value: null });
-        await flushPromises();
+    /**
+     * sw-entity-multi-id-select threw on a null value in plugin config inheritance.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/15483
+     */
+    describe('null value', () => {
+        /** @regression */
+        it('should properly initialize with null value', async () => {
+            const wrapper = await createWrapper({ value: null });
+            await flushPromises();
 
-        expect(wrapper.vm.normalizedValue).toEqual([]);
-        expect(wrapper.vm.collection).toHaveLength(0);
-    });
+            expect(wrapper.vm.normalizedValue).toEqual([]);
+            expect(wrapper.vm.collection).toHaveLength(0);
+        });
 
-    it('should properly handle value changes from array to null', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+        /** @regression */
+        it('should properly handle value changes from array to null', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
 
-        expect(wrapper.vm.collection).toHaveLength(fixture.length);
+            expect(wrapper.vm.collection).toHaveLength(fixture.length);
 
-        await wrapper.setProps({ value: null });
-        await flushPromises();
+            await wrapper.setProps({ value: null });
+            await flushPromises();
 
-        expect(wrapper.vm.normalizedValue).toHaveLength(0);
-        expect(wrapper.vm.collection).toHaveLength(0);
+            expect(wrapper.vm.normalizedValue).toHaveLength(0);
+            expect(wrapper.vm.collection).toHaveLength(0);
+        });
     });
 
     it('should properly handle value changes from null to array', async () => {

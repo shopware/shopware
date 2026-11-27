@@ -173,6 +173,11 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
         });
     });
 
+    /**
+     * Sales channels beyond the first 25 assignments were never checked for conflicts.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22255
+     */
     it('should not limit the sales channels when looking for already assigned ones', async () => {
         const criteria = await saveAndCaptureSearchCriteria();
 
@@ -195,6 +200,11 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
         ]);
     });
 
+    /**
+     * The conflict warning reappeared for sales channels no longer assigned.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22255
+     */
     it('should not warn about sales channels that are no longer assigned', async () => {
         searchMock.mockImplementation((criteria) => {
             if (!criteria.ids?.includes('sales-channel-id')) {

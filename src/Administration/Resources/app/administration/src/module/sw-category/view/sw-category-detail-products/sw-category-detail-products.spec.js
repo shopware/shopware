@@ -136,6 +136,11 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         expect(wrapper.vm.productStreamInvalid).toBe(false);
     });
 
+    /**
+     * Switching a category back to manual assignment kept the product stream linked, blocking its deletion.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14785
+     */
     it('should empty the product stream id when changing the assignment type to product', async () => {
         const wrapper = await createWrapper();
 

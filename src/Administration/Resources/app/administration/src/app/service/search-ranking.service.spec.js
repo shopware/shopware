@@ -592,6 +592,11 @@ describe('app/service/search-ranking.service.js', () => {
         });
     });
 
+    /**
+     * Stale search preference fields of uninstalled extensions broke admin search.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12515
+     */
     it('Should remove stale leaf fields from current user search preferences', async () => {
         const module = {
             ...defaultModule,
@@ -669,6 +674,11 @@ describe('app/service/search-ranking.service.js', () => {
         });
     });
 
+    /**
+     * Stale search preference fields of uninstalled extensions broke admin search.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12515
+     */
     it('Should remove stale nested fields from current user search preferences', async () => {
         const module = {
             ...defaultModule,
@@ -714,6 +724,11 @@ describe('app/service/search-ranking.service.js', () => {
         });
     });
 
+    /**
+     * Stale search preference fields of uninstalled extensions broke admin search.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12515
+     */
     it('Should ignore stale persisted fields when getting search fields by entity', async () => {
         const module = {
             ...defaultModule,
@@ -751,6 +766,11 @@ describe('app/service/search-ranking.service.js', () => {
         });
     });
 
+    /**
+     * Stale search preference fields of uninstalled extensions broke admin search.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/12515
+     */
     it('Should not build global search queries for stale persisted fields', async () => {
         const module = {
             ...defaultModule,

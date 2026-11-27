@@ -524,6 +524,11 @@ describe('sw-integration-mcp-allowlist', () => {
     });
 
     describe('malformed capability data', () => {
+        /**
+         * The MCP allowlist crashed rendering a tool with an undefined privilege entry.
+         * @regression
+         * @see https://github.com/shopware/shopware/pull/17920
+         */
         it('does not throw when a tool exposes an undefined privilege chip', async () => {
             mcpToolService.getCapabilities.mockResolvedValue({
                 tools: [

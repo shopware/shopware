@@ -314,6 +314,11 @@ describe('src/app/component/utils/sw-upload-status', () => {
         expect(wrapper.vm.uploadProgress).toBe(50);
     });
 
+    /**
+     * Uploads were reported complete at 100% progress before the server responded.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/14273
+     */
     it('should not complete upload when progress reaches 100 but response is pending', async () => {
         const file = createFile('test.jpg', 'content');
         const tasks = [createUploadTask('target-123', file)];

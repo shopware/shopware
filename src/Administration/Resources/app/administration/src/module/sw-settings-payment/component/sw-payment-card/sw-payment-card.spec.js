@@ -65,6 +65,11 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         expect(activeToggle.attributes().disabled).toBeFalsy();
     });
 
+    /**
+     * Toggling a payment method showed notifications with the opposite state.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/5690
+     */
     it('should correctly emit set-payment-active event', async () => {
         const wrapper = await createWrapper(['payment.editor']);
         await flushPromises();

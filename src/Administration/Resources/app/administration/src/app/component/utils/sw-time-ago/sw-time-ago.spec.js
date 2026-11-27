@@ -121,6 +121,11 @@ describe('src/app/component/utils/sw-time-ago', () => {
         expect(clearInterval).toHaveBeenCalledWith(expect.any(Number));
     });
 
+    /**
+     * The order date kept showing the previous order's date after navigating between orders.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/14331
+     */
     it('should update when props are changed', async () => {
         const wrapper = await createWrapper({
             date: '2025-06-23T12:34:00.000+00:00',

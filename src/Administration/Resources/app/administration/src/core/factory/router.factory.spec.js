@@ -293,6 +293,11 @@ describe('core/factory/router.factory.js', () => {
             sessionStorage.clear();
         });
 
+        /**
+         * After an SSO login the Administration landed on the dashboard instead of the requested consent page.
+         * @regression
+         * @see https://github.com/shopware/shopware/issues/20876
+         */
         it('should restore the route requested before the SSO login', async () => {
             const oauthPath = '/oauth/authorize?client_id=shopware-cli&state=abc';
 

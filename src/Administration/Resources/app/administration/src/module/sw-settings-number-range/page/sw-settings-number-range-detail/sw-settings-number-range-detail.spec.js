@@ -106,6 +106,11 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         global.activeAclRoles = [];
     });
 
+    /**
+     * The type-based preview showed wrong numbers when several ranges shared a type.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10333
+     */
     it('should call numberRangeService.previewPatternByNumberRangeId when number range state fields are visible', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -143,6 +148,11 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         expect(previewPatternMock).not.toHaveBeenCalled();
     });
 
+    /**
+     * The type-based preview showed a wrong current number when several ranges shared a type.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/10333
+     */
     it('should call numberRangeService.previewPatternByNumberRangeId when getting current state', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

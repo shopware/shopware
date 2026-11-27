@@ -98,6 +98,11 @@ describe('src/module/sw-order/page/sw-order-detail order switch', () => {
         Shopware.Store.get('swOrderDetail').$reset();
     });
 
+    /**
+     * Switching to another order left the previous order's draft version behind.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22616
+     */
     it('discards the draft of the previous order when switching to another order', async () => {
         const orderRepository = createOrderRepository();
         const { router } = await createWrapper(orderRepository);
@@ -110,6 +115,10 @@ describe('src/module/sw-order/page/sw-order-detail order switch', () => {
         expect(orderRepository.createVersion).toHaveBeenLastCalledWith('order-b');
     });
 
+    /**
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22616
+     */
     it('deletes a draft that arrives after switching to another order instead of using it', async () => {
         const orderRepository = createOrderRepository();
         let resolveFirstDraft: (context: { versionId: string }) => void = () => {};
@@ -167,6 +176,11 @@ describe('src/module/sw-order/page/sw-order-detail order switch', () => {
         expect(orderRepository.deleteVersion).not.toHaveBeenCalled();
     });
 
+    /**
+     * Switching to another order dropped unsaved edits without the leave page warning.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/22616
+     */
     it('stays on the order with unsaved changes when switching to another order is cancelled', async () => {
         const orderRepository = createOrderRepository();
         const { wrapper, router } = await createWrapper(orderRepository);

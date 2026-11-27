@@ -205,6 +205,11 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
         expect(navigationButtons.at(0).classes()).toContain('is--active');
     });
 
+    /**
+     * The admin slider preview showed navigation dots although they were switched off.
+     * @regression
+     * @see https://github.com/shopware/shopware/pull/19375
+     */
     it.each([null, 'none'])('should not render navigation dots if the config value is %s', async (navigationDotsValue) => {
         const wrapper = await createWrapper();
 

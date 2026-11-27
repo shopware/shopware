@@ -133,6 +133,11 @@ describe('app/plugins/shortcut.plugin - blur on save', () => {
         expect(testString).toBe('foobar');
     });
 
+    /**
+     * Saving via shortcut inside a number field saved the old value.
+     * @regression
+     * @see https://github.com/shopware/shopware/issues/17240
+     */
     it('Number field component: should be blurred on save shortcut to react to content changes', async () => {
         const onSaveMock = jest.fn();
         let savedPosition = 1;

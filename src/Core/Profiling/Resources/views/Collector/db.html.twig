@@ -96,6 +96,11 @@
         .time-bar { display: block; position: absolute; top: 0; left: 0; bottom: 0; background: #e0e0e0; }
         .sql-runnable.sf-toggle-content.sf-toggle-visible { display: flex; flex-direction: column; }
         .sql-runnable button { align-self: end; }
+        .highlight-sql .keyword { color: var(--highlight-keyword); font-weight: bold; }
+        .highlight-sql .number { color: var(--highlight-constant); }
+        .highlight-sql .variable { color: var(--highlight-variable); }
+        .highlight-sql .comment { color: var(--highlight-comment); }
+        .highlight-sql .error { color: var(--highlight-error); }
     </style>
 
     <h2>Query Metrics</h2>
@@ -185,7 +190,7 @@
                                 {{ query.sql|doctrine_prettify_sql }}
 
                                 <div>
-                                    <strong class="font-normal text-small">Parameters</strong>: {{ profiler_dump(query.params, 2) }}
+                                    <strong class="font-normal text-small">Parameters</strong>: {{ profiler_dump(query.params|doctrine_binary_to_hex, 2) }}
                                 </div>
 
                                 <div class="text-small font-normal">

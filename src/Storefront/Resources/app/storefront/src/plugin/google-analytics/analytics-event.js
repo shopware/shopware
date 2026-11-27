@@ -1,19 +1,27 @@
+/**
+ * @typedef {object} AnalyticsEventContext
+ * @property {string} activeRoute
+ */
 export default class AnalyticsEvent
 {
     active = true;
 
-    /* eslint-disable no-unused-vars */
     /**
-     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} activeRoute
+     * The number of declared parameters decides how `GoogleAnalyticsPlugin` calls this method:
+     * one or none receives the context object, two or more receive the legacy arguments
+     * `(controllerName, actionName, activeRoute)`.
+     *
+     * @deprecated tag:v6.9.0 - The legacy signature `supports(controllerName, actionName, activeRoute)` will be removed.
+     * Declare `supports({ activeRoute })` instead.
+     *
+     * @param {AnalyticsEventContext} context
      * @returns {boolean}
      */
-    supports(controllerName, actionName, activeRoute) {
+    // eslint-disable-next-line no-unused-vars
+    supports(context) {
         console.warn('[Google Analytics Plugin] Method \'supports\' was not overridden by `' + this.constructor.name + '`. Default return set to false.');
         return false;
     }
-    /* eslint-enable no-unused-vars */
 
     execute() {
         console.warn('[Google Analytics Plugin] Method \'execute\' was not overridden by `' + this.constructor.name + '`.');

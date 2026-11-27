@@ -21,6 +21,7 @@ import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
 import ViewItemListEvent from 'src/plugin/google-analytics/events/view-item-list.event';
 import ViewSearchResultsEvent from 'src/plugin/google-analytics/events/view-search-results';
 import Plugin from 'src/plugin-system/plugin.class';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * @package buyers-experience
@@ -96,8 +97,10 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     handleEvents() {
+        const context = { activeRoute: this.activeRoute };
+
         this.events.forEach(event => {
-            if (!event.supports(this.controllerName, this.actionName, this.activeRoute)) {
+            if (!this._isSupported(event, context)) {
                 return;
             }
 
@@ -212,6 +215,33 @@ export default class GoogleAnalyticsPlugin extends Plugin
         }
 
         gtag('consent', 'update', consentUpdateConfig);
+    }
+
+    /**
+     * Events declaring `supports()` with none or one parameter receive the context object.
+     * Events declaring two or more parameters receive the legacy arguments `(controllerName, actionName, activeRoute)`.
+     * Rest parameters and parameters with a default value are not counted by `Function.length`.
+     *
+     * @internal
+     * @deprecated tag:v6.9.0 - Support for the legacy signature `supports(controllerName, actionName, activeRoute)` will be removed.
+     * Afterwards `handleEvents` calls `event.supports(context)` directly.
+     *
+     * @param {AnalyticsEvent} event
+     * @param {AnalyticsEventContext} context
+     * @returns {boolean}
+     * @private
+     */
+    _isSupported(event, context) {
+        if (event.supports.length < 2) {
+            return event.supports(context);
+        }
+
+        Feature.triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            `[Google Analytics Plugin] \`${event.constructor.name}.supports(controllerName, actionName, activeRoute)\` uses the legacy signature. Declare \`supports({ activeRoute })\` instead.`,
+        );
+
+        return event.supports(this.controllerName, this.actionName, this.activeRoute);
     }
 
     /**

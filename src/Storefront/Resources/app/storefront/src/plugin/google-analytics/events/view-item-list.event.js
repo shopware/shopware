@@ -5,9 +5,6 @@ import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 export default class ViewItemListEvent extends EventAwareAnalyticsEvent
 {
     /**
-     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} activeRoute
      * @returns {boolean}
      */
     supports() {

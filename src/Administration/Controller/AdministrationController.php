@@ -15,11 +15,13 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueCheck;
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -93,6 +95,7 @@ class AdministrationController extends AbstractController
         private readonly EntityRepository $languageRepository,
         private readonly string $analyticsGatewayUrl,
         private readonly CustomerEmailUniqueChecker $customerEmailUniqueChecker,
+        private readonly CacheInvalidator $cacheInvalidator,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -291,6 +294,8 @@ class AdministrationController extends AbstractController
                 'id' => $searchConfigId,
             ]
         );
+
+        $this->cacheInvalidator->invalidate([CachedSearchConfigLoader::CACHE_KEY], true);
 
         return new JsonResponse([
             'success' => true,

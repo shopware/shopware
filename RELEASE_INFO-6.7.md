@@ -2,6 +2,14 @@
 
 ## Core
 
+### Search config cache is kept per language
+
+`CachedSearchConfigLoader` now caches the search config per language id chain and tags each entry with `CachedSearchConfigLoader::CACHE_KEY`.
+It also adds that tag to the HTTP cache of the current request.
+Writing or deleting a search config or a search config field invalidates that tag, and so does removing a custom field from the search or resetting the excluded terms in the Administration.
+Deleting the cache item `CachedSearchConfigLoader::CACHE_KEY` no longer clears the cached config.
+Invalidate the tag instead.
+
 ### Faster DAL writes
 
 DAL writes avoid redundant database queries for versioned entities and translations.
@@ -14,6 +22,7 @@ Before, `product.categoryTree` and `product.categoriesRo` kept the old parents, 
 Integrations that called `POST /api/_action/index-products` after moving a category no longer need to.
 The Administration category tree no longer sends these requests after a drag and drop.
 Its `syncProducts()` and `indexProducts()` methods and its `productRepository` computed property are deprecated and will be removed in 6.8.
+
 ### Environment-specific bundle and plugin configuration
 
 Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.
@@ -64,21 +73,27 @@ Apps that need such a section should require that version in `<compatibility>`.
 
 ## Administration
 
-### Context menus render with `mt-floating-ui` before 6.8
+### Core popovers render with `mt-floating-ui` before 6.8
 
-The menu of `sw-context-button` renders with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+`sw-context-button`, `sw-select-result-list` and `sw-multi-tag-select` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+`sw-category-tree-field` renders its dropdown with `mt-floating-ui` instead of `sw-popover-deprecated`.
+An open select dropdown now follows its field while the page scrolls, instead of staying where it was when it opened.
 
-The menu is still teleported to `<body>`, but the markup around it changed.
+The popovers are still teleported to `<body>`, but the markup around them changed.
 Extensions have to be adjusted:
 
-- `.sw-popover__wrapper` around the menu is replaced by `.mt-floating-ui__content`.
+- `.sw-popover__wrapper` around these popovers is replaced by `.mt-floating-ui__content`.
   Update styles and end-to-end selectors that matched the old wrapper.
 - The `--placement-*` modifier classes are gone.
-  `mt-floating-ui` flips the menu itself and marks the side that faces the button with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
-  A menu below its button carries `.mt-floating-ui--top`.
-  The resolved placement, such as `bottom-end`, is in the `data-placement` attribute of `.mt-floating-ui__content`.
-- The menu stacks at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
+  `mt-floating-ui` flips the popover itself and marks the side that faces the anchor with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
+  A popover below its field or button carries `.mt-floating-ui--top`.
+  The context menu also has its resolved placement, such as `bottom-end`, in the `data-placement` attribute of `.mt-floating-ui__content`.
+- Classes passed via `popover-classes` on `sw-select-result-list` land on `.mt-floating-ui__content` and on the `mt-floating-ui` element that stays inside the field.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the popover.
+- The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
   The private `zIndex` prop of `sw-context-button` was removed.
+- `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
 
 ## Storefront
 

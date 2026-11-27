@@ -244,6 +244,34 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         });
     });
 
+    test.each(['tos', 'revocation'])('keeps %s ticked before init and persists it', (name) => {
+        document.querySelector(`#${name}`).checked = true;
+
+        const fields = createPlugin('customerA');
+
+        expect(fields[name].checked).toBe(true);
+        expect(storedCustomers()).toEqual({ customerA: { [name]: true } });
+
+        document.body.innerHTML = template;
+
+        expect(createPlugin('customerA')[name].checked).toBe(true);
+    });
+
+    test('keeps a comment typed before init and persists it', () => {
+        document.querySelector('#customerComment').value = 'early comment';
+
+        const { customerComment } = createPlugin('customerA');
+
+        expect(customerComment.value).toBe('early comment');
+        expect(storedCustomers()).toEqual({ customerA: { customerComment: 'early comment' } });
+    });
+
+    test('does not write the storage when nothing was entered before init', () => {
+        createPlugin('customerA');
+
+        expect(SessionStorage.getItem(storageKey)).toBeNull();
+    });
+
     test('ignores malformed storage payloads safely', () => {
         SessionStorage.setItem(storageKey, 'not-json');
 

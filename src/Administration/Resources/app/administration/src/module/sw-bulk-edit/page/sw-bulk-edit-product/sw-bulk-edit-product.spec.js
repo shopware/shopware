@@ -10,6 +10,8 @@ let bulkEditResponse = {
     data: {},
 };
 
+const bulkEditMock = jest.fn();
+
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     let routes;
     let router;
@@ -227,7 +229,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     bulkEditApiFactory: {
                         getHandler: () => {
                             return {
-                                bulkEdit: (selectedIds) => {
+                                bulkEdit: (selectedIds, ...args) => {
+                                    bulkEditMock(selectedIds, ...args);
+
                                     if (selectedIds.length === 0) {
                                         return Promise.reject();
                                     }
@@ -1730,6 +1734,141 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             { salesChannelId: 'scn_1', visibility: 30 },
             { salesChannelId: 'scn_2', visibility: 30 },
         ]);
+    });
+
+    async function submitPropertiesChange(wrapper, changeTypeOption) {
+        bulkEditMock.mockClear();
+
+        const propertiesField = wrapper.find('.sw-bulk-edit-change-field-properties');
+        await propertiesField.find('.sw-bulk-edit-change-field__change input').setValue('checked');
+        await flushPromises();
+
+        await propertiesField.find('.sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const changeTypeOptionElement = new DOMWrapper(document.body).get(
+            `.sw-select-result-list__item-list .sw-select-option--${changeTypeOption}`,
+        );
+        await changeTypeOptionElement.trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-bulk-edit-product__save-action').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.footer-right button').trigger('click');
+        await flushPromises();
+
+        expect(bulkEditMock).toHaveBeenCalledTimes(1);
+
+        return bulkEditMock.mock.lastCall[1].find((change) => change.field === 'properties');
+    }
+
+    function createProductRepositoryMock() {
+        return {
+            create: () => ({ isNew: () => true }),
+            get: () =>
+                Promise.resolve({
+                    id: 'parent_id',
+                    properties: [
+                        { id: 'option_parent_1' },
+                        { id: 'option_parent_2' },
+                    ],
+                }),
+        };
+    }
+
+    it.each([
+        // The change type options are overwrite (0), clear (1), add (2), remove (3).
+        [
+            'a variant add',
+            'parent_id',
+            2,
+            'add',
+            ['option_parent_1', 'option_parent_2'],
+        ],
+        [
+            'a variant remove',
+            'parent_id',
+            3,
+            'remove',
+            ['option_parent_1', 'option_parent_2'],
+        ],
+        [
+            'a variant overwrite',
+            'parent_id',
+            0,
+            'overwrite',
+            undefined,
+        ],
+        [
+            'a parent add',
+            'null',
+            2,
+            'add',
+            undefined,
+        ],
+    ])('should send the parent properties as inherited ids only for %s', async (_, parentId, option, type, expected) => {
+        Shopware.Store.get('swBulkEdit').selectedIds = ['variant_1'];
+
+        const wrapper = await createWrapper(
+            undefined,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId, includesDigital: '0' },
+            },
+            { productRepositoryMock: createProductRepositoryMock() },
+        );
+        await flushPromises();
+
+        const propertyChange = await submitPropertiesChange(wrapper, option);
+
+        expect(propertyChange.type).toBe(type);
+        expect(propertyChange.inheritedPropertyIds).toEqual(expected);
+    });
+
+    it.each([
+        ['add', 2, { addedPropertyIds: ['option_new'], removedPropertyIds: [] }],
+        ['remove', 3, { addedPropertyIds: [], removedPropertyIds: ['option_new'] }],
+    ])('should send the selected properties as %s ids for variants', async (_, option, expected) => {
+        const { EntityCollection } = Shopware.Data;
+        Shopware.Store.get('swBulkEdit').selectedIds = ['variant_1'];
+
+        const wrapper = await createWrapper(
+            undefined,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'parent_id', includesDigital: '0' },
+            },
+            {
+                productRepositoryMock: {
+                    get: () =>
+                        Promise.resolve({
+                            id: 'parent_id',
+                            properties: new EntityCollection(
+                                '/property-group-option',
+                                'property_group_option',
+                                Shopware.Context.api,
+                                null,
+                                [{ id: 'option_parent_1' }],
+                            ),
+                        }),
+                },
+            },
+        );
+        await flushPromises();
+
+        const propertiesField = wrapper.find('.sw-bulk-edit-change-field-properties');
+        propertiesField.findComponent({ name: 'sw-inheritance-switch' }).vm.$emit('inheritance-remove');
+        await flushPromises();
+
+        // sw-product-properties writes the selected options to the product in the store.
+        Shopware.Store.get('swProductDetail').product.properties.add({ id: 'option_new' });
+
+        const propertyChange = await submitPropertiesChange(wrapper, option);
+
+        expect([...propertyChange.addedPropertyIds]).toEqual(expected.addedPropertyIds);
+        expect([...propertyChange.removedPropertyIds]).toEqual(expected.removedPropertyIds);
+        expect([...propertyChange.inheritedPropertyIds]).toEqual(['option_parent_1']);
     });
 
     it('should save preference units', async () => {

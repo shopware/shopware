@@ -1326,6 +1326,13 @@ export default {
                     this.transformVariantVisibilityChange(change);
                 }
 
+                // Variants inherit the parent's properties all-or-nothing, like visibilities above.
+                // A plain ADD drops the inherited set and a plain REMOVE finds no own rows, so the
+                // change goes through the per-variant handler path instead.
+                if (this.isChild && key === 'properties' && ['add', 'remove'].includes(bulkEditField.type)) {
+                    this.transformVariantPropertyChange(change);
+                }
+
                 if (this.isChild && change.value !== null && types.isArray(change.value)) {
                     change.value.forEach((association) => {
                         delete association.id;
@@ -1349,6 +1356,27 @@ export default {
 
             if (hasRegulationPrice) {
                 this.processRegulationPrice();
+            }
+        },
+
+        /**
+         * @private
+         */
+        transformVariantPropertyChange(change) {
+            // The selected options are the ones to add or to remove, depending on the change type.
+            // When the field is left inherited the value is null and there is nothing to do.
+            const selectedIds = Array.isArray(change.value) ? change.value.map((option) => option?.id).filter(Boolean) : [];
+
+            change.addedPropertyIds = change.type === 'add' ? selectedIds : [];
+            change.removedPropertyIds = change.type === 'remove' ? selectedIds : [];
+            change.inheritedPropertyIds = [];
+
+            if (this.parentProductFrozen) {
+                const parentProperties = JSON.parse(this.parentProductFrozen)?.properties;
+
+                change.inheritedPropertyIds = Array.isArray(parentProperties)
+                    ? parentProperties.map((option) => option.id)
+                    : [];
             }
         },
 

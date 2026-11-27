@@ -166,12 +166,13 @@ class BulkEditBaseHandler {
      * change =[{ type: 'overwrite', field: 'categories', value: [{id: 'category_1'}, {id: 'category_2'}]];
      */
     async _handleAssociationChange(fieldDefinition, change, isOneToOne = false) {
-        // Variant visibility add/remove is computed per variant: an overriding variant
-        // keeps its own set, an inheriting variant falls back to the parent's set, and the
-        // removed channels are dropped / the added ones merged in. This cannot be expressed
-        // as a single uniform change, so it is handled separately.
-        if (change.inheritedVisibilities) {
-            await this._handleInheritedVisibilityChange(fieldDefinition, change);
+        // Variant add/remove of inherited associations (visibilities, properties) is computed
+        // per variant: an overriding variant keeps its own set, an inheriting variant falls back
+        // to the parent's set, and the removed entries are dropped / the added ones merged in.
+        // This cannot be expressed as a single uniform change, so it is handled separately.
+        const inheritedVariantField = this._getInheritedVariantField(fieldDefinition, change);
+        if (inheritedVariantField) {
+            await this._handleInheritedVariantChange(inheritedVariantField);
 
             return;
         }
@@ -233,80 +234,122 @@ class BulkEditBaseHandler {
     /**
      * @private
      *
-     * Build the add/remove payload for variant visibilities, computed per variant.
+     * Describe the inherited variant association a change targets, by field name, or return
+     * null when the change is not a per-variant add/remove (see `transformVariantVisibilityChange`
+     * and `transformVariantPropertyChange` in `sw-bulk-edit-product`).
      *
-     * Variants inherit the parent's visibilities all-or-nothing unless they own
-     * `product_visibility` rows. For each variant we take its effective set (its own rows
-     * when it overrides, otherwise the inherited parent set in `change.inheritedVisibilities`),
-     * drop `change.removedSalesChannelIds`, merge in `change.addedVisibilities`, and persist
-     * the result as the variant's own rows. Overriding variants keep their unrelated
-     * overrides; inheriting variants get the inherited set materialized with the add/remove
-     * applied (so an ADD no longer collapses the variant to just the added channel). When the
-     * resulting set is empty the variant keeps no own rows and inherits the parent again.
+     * `entityIdKey` is the row column holding the variant id, `itemKey` the column holding the
+     * set item (sales channel id or property option id). `inherited` and `added` are
+     * `[key, value]` entries: the sales channel id and its visibility, or the property option id
+     * without a value.
      *
      * @param {Object} fieldDefinition
      * @param {Object} change
+     * @return {Object|null}
      */
-    async _handleInheritedVisibilityChange(fieldDefinition, change) {
-        const { entity: referenceEntity, referenceField: referenceKey } = fieldDefinition;
-        const { mappingReferenceField } = change;
-        const removedSalesChannelIds = change.removedSalesChannelIds ?? [];
-        const addedVisibilities = change.addedVisibilities ?? [];
-        const inheritedVisibilities = change.inheritedVisibilities ?? [];
+    _getInheritedVariantField(fieldDefinition, change) {
+        if (change.field === 'visibilities' && change.inheritedVisibilities) {
+            const { mappingReferenceField } = change;
+            const toEntry = (item) => [item[mappingReferenceField], item.visibility];
+
+            return {
+                referenceEntity: fieldDefinition.entity,
+                entityIdKey: fieldDefinition.referenceField,
+                itemKey: mappingReferenceField,
+                valueKey: 'visibility',
+                inherited: change.inheritedVisibilities.map(toEntry),
+                added: (change.addedVisibilities ?? []).map(toEntry),
+                removedKeys: change.removedSalesChannelIds ?? [],
+                fetchOwnRows: async () => Object.values(await this._fetchOwnAssociations(fieldDefinition)).flat(),
+                deletePayload: (row) => ({ id: row.id }),
+            };
+        }
+
+        if (change.field === 'properties' && change.inheritedPropertyIds) {
+            const { local, reference } = fieldDefinition;
+            const toEntry = (id) => [id, undefined];
+
+            return {
+                referenceEntity: fieldDefinition.mapping,
+                entityIdKey: local,
+                itemKey: reference,
+                valueKey: null,
+                inherited: change.inheritedPropertyIds.map(toEntry),
+                added: (change.addedPropertyIds ?? []).map(toEntry),
+                removedKeys: change.removedPropertyIds ?? [],
+                // Without a change type filter this fetches every own mapping row of the edited variants.
+                fetchOwnRows: async () => Object.values(await this._fetchManyToManyAssociated(fieldDefinition, {})).flat(),
+                deletePayload: (row) => ({ [local]: row[local], [reference]: row[reference] }),
+            };
+        }
+
+        return null;
+    }
+
+    /**
+     * @private
+     *
+     * Build the add/remove payload of an inherited variant association, computed per variant.
+     *
+     * Variants inherit the parent's set all-or-nothing unless they own rows. For each variant we
+     * take its effective set (its own rows when it overrides, otherwise the inherited parent set),
+     * drop the removed keys, merge in the added entries (which win on their value), and persist
+     * the difference as the variant's own rows. An ADD no longer collapses an inheriting variant
+     * to just the added entries, and a REMOVE also drops inherited entries. An inheriting variant
+     * whose set does not change keeps inheriting. When the resulting set is empty the variant
+     * keeps no own rows and inherits the parent again.
+     *
+     * @param {Object} field - see `_getInheritedVariantField`
+     */
+    async _handleInheritedVariantChange(field) {
+        const { referenceEntity, entityIdKey, itemKey, valueKey, removedKeys } = field;
+        const inherited = new Map(field.inherited);
+        const added = new Map(field.added);
 
         this.groupedPayload.delete[referenceEntity] = {};
         this.groupedPayload.upsert[referenceEntity] = {};
 
-        // Nothing selected (e.g. the field stayed inherited) — leave every variant
-        // untouched instead of materializing the inherited set.
-        if (removedSalesChannelIds.length === 0 && addedVisibilities.length === 0) {
+        // Nothing selected (e.g. the field stayed inherited) — leave every variant untouched.
+        if (removedKeys.length === 0 && added.size === 0) {
             return;
         }
 
-        const ownAssociations = await this._fetchOwnAssociations(fieldDefinition);
+        const ownRowsByEntity = {};
+        (await field.fetchOwnRows()).forEach((row) => {
+            (ownRowsByEntity[row[entityIdKey]] ??= new Map()).set(row[itemKey], row);
+        });
 
         this.entityIds.forEach((entityId) => {
-            const ownRows = ownAssociations[entityId] ?? [];
-            const ownSalesChannelIds = ownRows.map((row) => row[mappingReferenceField]);
+            const ownRows = ownRowsByEntity[entityId] ?? new Map();
+            const own = new Map([...ownRows].map(([key, row]) => [key, valueKey ? row[valueKey] : undefined]));
 
-            const effective =
-                ownRows.length > 0
-                    ? ownRows.map((row) => ({
-                          [mappingReferenceField]: row[mappingReferenceField],
-                          visibility: row.visibility,
-                      }))
-                    : inheritedVisibilities;
+            const final = new Map([...(own.size > 0 ? own : inherited)].filter(([key]) => !removedKeys.includes(key)));
+            added.forEach((value, key) => final.set(key, value));
 
-            // Build the final set keyed by sales channel: start from the effective set
-            // minus the removed channels, then merge in the added channels (which win on
-            // their visibility value).
-            const finalByChannel = new Map();
-            effective.forEach((item) => {
-                if (!removedSalesChannelIds.includes(item[mappingReferenceField])) {
-                    finalByChannel.set(item[mappingReferenceField], item.visibility);
-                }
-            });
-            addedVisibilities.forEach((item) => {
-                finalByChannel.set(item[mappingReferenceField], item.visibility);
-            });
+            const keepsInheriting =
+                own.size === 0 &&
+                final.size === inherited.size &&
+                [...inherited].every(([key, value]) => final.has(key) && final.get(key) === value);
 
-            // Drop own rows that are no longer part of the final set.
-            ownRows.forEach((row) => {
-                if (!finalByChannel.has(row[mappingReferenceField])) {
-                    const key = `${row[mappingReferenceField]}.${entityId}`;
-                    this.groupedPayload.delete[referenceEntity][key] = [{ id: row.id }];
+            if (keepsInheriting) {
+                return;
+            }
+
+            own.forEach((_, key) => {
+                if (!final.has(key)) {
+                    this.groupedPayload.delete[referenceEntity][`${key}.${entityId}`] = [
+                        field.deletePayload(ownRows.get(key)),
+                    ];
                 }
             });
 
-            // Materialize the channels the variant does not already own.
-            finalByChannel.forEach((visibility, salesChannelId) => {
-                if (!ownSalesChannelIds.includes(salesChannelId)) {
-                    const key = `${salesChannelId}.${entityId}`;
-                    this.groupedPayload.upsert[referenceEntity][key] = [
+            final.forEach((value, key) => {
+                if (!own.has(key)) {
+                    this.groupedPayload.upsert[referenceEntity][`${key}.${entityId}`] = [
                         {
-                            [referenceKey]: entityId,
-                            [mappingReferenceField]: salesChannelId,
-                            visibility,
+                            [entityIdKey]: entityId,
+                            [itemKey]: key,
+                            ...(valueKey ? { [valueKey]: value } : {}),
                         },
                     ];
                 }

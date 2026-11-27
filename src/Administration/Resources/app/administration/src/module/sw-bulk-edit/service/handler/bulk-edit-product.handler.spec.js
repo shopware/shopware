@@ -716,9 +716,8 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         action: 'upsert',
                         entity: 'product_visibility',
                         payload: [
-                            // product_1 inherits → materialize the whole inherited set.
-                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 30 },
-                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                            // product_1 inherits and scn_1 is already inherited → its set does not
+                            // change, so it keeps inheriting.
                             // product_2 overrides (owns scn_2) → only scn_1 is added, scn_2 kept.
                             { productId: 'product_2', salesChannelId: 'scn_1', visibility: 30 },
                         ],
@@ -733,6 +732,38 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             visibility: 30,
                         },
                     ],
+                },
+            ],
+            [
+                'add an inherited sales channel with another visibility to a variant materializes the set',
+                [
+                    {
+                        type: 'add',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [{ salesChannelId: 'scn_1', visibility: 10 }],
+                        removedSalesChannelIds: [],
+                        addedVisibilities: [{ salesChannelId: 'scn_1', visibility: 10 }],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
+                {
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 10 },
+                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                            { productId: 'product_2', salesChannelId: 'scn_1', visibility: 10 },
+                            { productId: 'product_2', salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                },
+                {
+                    product_visibility: [],
                 },
             ],
             [
@@ -1382,6 +1413,119 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     ],
                 },
             ],
+            [
+                'add properties to variants keeps the inherited parent properties',
+                [
+                    {
+                        type: 'add',
+                        field: 'properties',
+                        value: [{ id: 'option_new' }],
+                        addedPropertyIds: ['option_new'],
+                        removedPropertyIds: [],
+                        inheritedPropertyIds: ['option_parent'],
+                    },
+                ],
+                {
+                    'upsert-product_property': {
+                        action: 'upsert',
+                        entity: 'product_property',
+                        payload: [
+                            // product_1 inherits → the parent's options are materialized next to the added one.
+                            { productId: 'product_1', optionId: 'option_parent' },
+                            { productId: 'product_1', optionId: 'option_new' },
+                            // product_2 overrides with option_own, which stays untouched.
+                            { productId: 'product_2', optionId: 'option_new' },
+                        ],
+                    },
+                },
+                {
+                    product_property: [{ productId: 'product_2', optionId: 'option_own' }],
+                },
+            ],
+            [
+                'add an already inherited property leaves inheriting variants untouched',
+                [
+                    {
+                        type: 'add',
+                        field: 'properties',
+                        value: [{ id: 'option_parent' }],
+                        addedPropertyIds: ['option_parent'],
+                        removedPropertyIds: [],
+                        inheritedPropertyIds: ['option_parent', 'option_parent_2'],
+                    },
+                ],
+                {},
+                {
+                    product_property: [],
+                },
+            ],
+            [
+                'remove a property from variants drops it from the inherited and the own set',
+                [
+                    {
+                        type: 'remove',
+                        field: 'properties',
+                        value: [{ id: 'option_parent' }],
+                        addedPropertyIds: [],
+                        removedPropertyIds: ['option_parent'],
+                        inheritedPropertyIds: ['option_parent', 'option_parent_2'],
+                    },
+                ],
+                {
+                    // product_1 inherits → the inherited set minus the removed option is materialized.
+                    'upsert-product_property': {
+                        action: 'upsert',
+                        entity: 'product_property',
+                        payload: [{ productId: 'product_1', optionId: 'option_parent_2' }],
+                    },
+                    // product_2 overrides → only its own option_parent row is dropped, option_own stays.
+                    'delete-product_property': {
+                        action: 'delete',
+                        entity: 'product_property',
+                        payload: [{ productId: 'product_2', optionId: 'option_parent' }],
+                    },
+                },
+                {
+                    product_property: [
+                        { productId: 'product_2', optionId: 'option_parent' },
+                        { productId: 'product_2', optionId: 'option_own' },
+                    ],
+                },
+            ],
+            [
+                'remove a property the variants do not have leaves them untouched',
+                [
+                    {
+                        type: 'remove',
+                        field: 'properties',
+                        value: [{ id: 'option_other' }],
+                        addedPropertyIds: [],
+                        removedPropertyIds: ['option_other'],
+                        inheritedPropertyIds: ['option_parent'],
+                    },
+                ],
+                {},
+                {
+                    product_property: [],
+                },
+            ],
+            [
+                'change no properties of variants leaves them untouched',
+                [
+                    {
+                        type: 'add',
+                        field: 'properties',
+                        value: null,
+                        addedPropertyIds: [],
+                        removedPropertyIds: [],
+                        inheritedPropertyIds: ['option_parent'],
+                    },
+                ],
+                {},
+                {
+                    product_property: [],
+                },
+            ],
         ];
 
         it.each(cases)('%s', async (testName, input, output, existAssociations = {}) => {
@@ -1441,6 +1585,17 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             local: 'productId',
                             reference: 'categoryId',
                         },
+                        properties: {
+                            type: 'association',
+                            relation: 'many_to_many',
+                            entity: 'property_group_option',
+                            flags: {},
+                            localField: 'id',
+                            referenceField: 'id',
+                            mapping: 'product_property',
+                            local: 'productId',
+                            reference: 'optionId',
+                        },
                         visibilities: {
                             type: 'association',
                             relation: 'one_to_many',
@@ -1466,6 +1621,10 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 },
                 product_category: {
                     entity: 'product_category',
+                    relation: 'many_to_many',
+                },
+                product_property: {
+                    entity: 'product_property',
                     relation: 'many_to_many',
                 },
                 product_visibility: {

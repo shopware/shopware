@@ -5,8 +5,9 @@ import { mount } from '@vue/test-utils';
  */
 
 const responses = global.repositoryFactoryMock.responses;
+const clientMock = global.repositoryFactoryMock.clientMock;
 
-function domain(id, salesChannelId, url) {
+function domain(id, salesChannelId, url, { salesChannelName = 'Test sales channel', languageName = 'English' } = {}) {
     return {
         id,
         type: 'sales_channel_domain',
@@ -14,14 +15,32 @@ function domain(id, salesChannelId, url) {
             id,
             salesChannelId,
             salesChannel: {
+                id: salesChannelId,
                 translated: {
-                    name: 'Test sales channel',
+                    name: salesChannelName,
                 },
+            },
+            language: {
+                name: languageName,
             },
             url,
         },
         relationships: {},
     };
+}
+
+function twoSalesChannelDomains() {
+    return [
+        domain('domain-b', 'sales-channel-b', 'http://b.test', { salesChannelName: 'B-Shop' }),
+        domain('domain-a-de', 'sales-channel-a', 'http://a.test/de', { salesChannelName: 'A-Shop', languageName: 'Deutsch' }),
+        domain('domain-a-en', 'sales-channel-a', 'http://a.test/en', { salesChannelName: 'A-Shop' }),
+    ];
+}
+
+function salesChannelDomainSearchRequest() {
+    const request = clientMock.history.post.find(({ url }) => url === '/search/sales-channel-domain');
+
+    return JSON.parse(request.data);
 }
 
 function mockSalesChannelDomains(domains) {
@@ -35,7 +54,7 @@ function mockSalesChannelDomains(domains) {
     });
 }
 
-async function createWrapper(contextStoreServiceOverrides = {}) {
+async function createWrapper({ contextStoreService = {}, customer = {} } = {}) {
     return mount(
         await wrapTestComponent('sw-customer-imitate-customer-modal', {
             sync: true,
@@ -49,9 +68,21 @@ async function createWrapper(contextStoreServiceOverrides = {}) {
                         template: '<div class="mt-modal-root-stub"><slot></slot></div>',
                     },
                     'mt-modal': {
-                        props: ['title'],
+                        props: ['title', 'subtitle'],
                         template:
-                            '<div class="mt-modal-stub"><h2>{{ title }}</h2><slot></slot><slot name="footer"></slot></div>',
+                            '<div class="mt-modal-stub"><h2>{{ title }}</h2><p class="mt-modal-stub__subtitle">{{ subtitle }}</p><slot></slot><slot name="footer"></slot></div>',
+                    },
+                    'mt-select': {
+                        name: 'mt-select',
+                        props: {
+                            modelValue: null,
+                            options: null,
+                            label: null,
+                            placeholder: null,
+                            hideClearableButton: Boolean,
+                        },
+                        emits: ['update:modelValue'],
+                        template: '<div class="mt-select-stub"></div>',
                     },
                     'mt-modal-close': {
                         template: '<button class="mt-modal-close-stub"><slot></slot></button>',
@@ -77,15 +108,18 @@ async function createWrapper(contextStoreServiceOverrides = {}) {
                             token: 'a-token',
                         }),
                         redirectToSalesChannelUrl: () => {},
-                        ...contextStoreServiceOverrides,
+                        ...contextStoreService,
                     },
                 },
             },
             props: {
                 customer: {
                     id: 'customer-id',
+                    firstName: 'Maxwell',
+                    lastName: 'Bartell',
                     email: null,
                     boundSalesChannelId: null,
+                    ...customer,
                 },
             },
         },
@@ -169,15 +203,104 @@ describe('module/sw-customer-imitate-customer-modal', () => {
 
         expect(item.element.tagName).toBe('BUTTON');
         expect(item.attributes('type')).toBe('button');
-        expect(item.find('.imitate-customer-modal-item-header').text()).toBe('Test sales channel');
+        expect(item.find('.imitate-customer-modal-item-header').text()).toBe('English');
         expect(item.find('.imitate-customer-modal-item-url').text()).toBe('http://localhost:8000');
         expect(item.find('.imitate-customer-modal-item-content div').exists()).toBe(false);
     });
 
+    it('should show the customer name as subtitle of the "Log in as customer" modal', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.mt-modal-stub h2').text()).toBe('sw-customer.imitateCustomerModal.modalTitle');
+        expect(wrapper.find('.mt-modal-stub__subtitle').text()).toBe('Maxwell Bartell');
+    });
+
+    it('should offer the sales channels of the domains in a select, sorted by name, and show no domains yet', async () => {
+        mockSalesChannelDomains(twoSalesChannelDomains());
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const select = wrapper.findComponent({ name: 'mt-select' });
+
+        expect(select.props('options')).toEqual([
+            { value: 'sales-channel-a', label: 'A-Shop' },
+            { value: 'sales-channel-b', label: 'B-Shop' },
+        ]);
+        expect(select.props('hideClearableButton')).toBe(true);
+        expect(select.props('modelValue')).toBeNull();
+        expect(wrapper.find('.imitate-customer-modal-domains-headline').exists()).toBe(false);
+        expect(wrapper.find('.imitate-customer-modal-item').exists()).toBe(false);
+    });
+
+    it('should show only the domains of the selected sales channel', async () => {
+        mockSalesChannelDomains(twoSalesChannelDomains());
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.findComponent({ name: 'mt-select' }).vm.$emit('update:modelValue', 'sales-channel-a');
+
+        const items = wrapper.findAll('.imitate-customer-modal-item');
+
+        expect(items.map((item) => item.find('.imitate-customer-modal-item-header').text())).toEqual(['Deutsch', 'English']);
+        expect(items.map((item) => item.find('.imitate-customer-modal-item-url').text())).toEqual([
+            'http://a.test/de',
+            'http://a.test/en',
+        ]);
+    });
+
+    it('should preselect the sales channel when there is only one', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-select' }).props('modelValue')).toBe('sales-channel-id');
+        expect(wrapper.findAll('.imitate-customer-modal-item')).toHaveLength(1);
+    });
+
+    it('should show the language and the URL of each domain under a "Domains" headline', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.imitate-customer-modal-domains-headline').text()).toBe(
+            'sw-customer.imitateCustomerModal.labelDomains',
+        );
+
+        const item = wrapper.find('.imitate-customer-modal-item');
+
+        expect(item.find('.imitate-customer-modal-item-header').text()).toBe('English');
+        expect(item.find('.imitate-customer-modal-item-url').text()).toBe('http://localhost:8000');
+    });
+
+    it('should load the language of each domain with the domain query', async () => {
+        clientMock.resetHistory();
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(salesChannelDomainSearchRequest().associations).toHaveProperty('language');
+    });
+
+    it('should only load the domains of the sales channel a bound customer belongs to', async () => {
+        clientMock.resetHistory();
+
+        wrapper = await createWrapper({ customer: { boundSalesChannelId: 'sales-channel-id' } });
+        await flushPromises();
+
+        expect(salesChannelDomainSearchRequest().filter).toContainEqual({
+            type: 'equals',
+            field: 'salesChannelId',
+            value: 'sales-channel-id',
+        });
+    });
+
     it('should notify the user when no token could be generated', async () => {
         wrapper = await createWrapper({
-            generateImitateCustomerToken: async () => {
-                throw new Error('token generation failed');
+            contextStoreService: {
+                generateImitateCustomerToken: async () => {
+                    throw new Error('token generation failed');
+                },
             },
         });
 

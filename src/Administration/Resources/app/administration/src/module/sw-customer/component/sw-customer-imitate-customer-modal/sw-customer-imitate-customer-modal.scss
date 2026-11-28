@@ -1,15 +1,23 @@
 .sw-customer-imitate-customer-modal {
     .imitate-customer-modal-description {
+        margin: 0 0 var(--scale-size-24);
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         color: var(--color-text-primary-default);
     }
 
     .imitate-customer-modal-container {
-        margin-top: var(--scale-size-24);
         display: flex;
         flex-direction: column;
         gap: var(--scale-size-12);
+    }
+
+    .imitate-customer-modal-domains-headline {
+        margin: 0;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
     }
 
     .imitate-customer-modal-item {

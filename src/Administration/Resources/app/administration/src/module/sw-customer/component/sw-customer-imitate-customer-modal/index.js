@@ -29,6 +29,7 @@ export default {
     data() {
         return {
             salesChannelDomains: [],
+            selectedSalesChannelId: null,
             imitateCustomerTokens: {},
             isLoading: false,
         };
@@ -40,6 +41,10 @@ export default {
                 firstname: this.customer.firstName,
                 lastname: this.customer.lastName,
             });
+        },
+
+        modalSubtitle() {
+            return `${this.customer.firstName} ${this.customer.lastName}`;
         },
 
         modalDescription() {
@@ -60,6 +65,7 @@ export default {
         salesChannelDomainCriteria() {
             const criteria = new Criteria();
             criteria.addAssociation('salesChannel');
+            criteria.addAssociation('language');
             criteria.addFilter(Criteria.equals('salesChannel.typeId', Shopware.Defaults.storefrontSalesChannelTypeId));
             criteria.addFilter(Criteria.equals('salesChannel.active', true));
             criteria.addSorting(Criteria.sort('salesChannel.name', 'ASC'));
@@ -75,6 +81,20 @@ export default {
         hasSalesChannelDomains() {
             return this.salesChannelDomains !== null && this.salesChannelDomains.length > 0;
         },
+
+        salesChannelOptions() {
+            const options = new Map();
+
+            this.salesChannelDomains.forEach(({ salesChannelId, salesChannel }) => {
+                options.set(salesChannelId, { value: salesChannelId, label: salesChannel?.translated?.name ?? '' });
+            });
+
+            return [...options.values()].sort((a, b) => a.label.localeCompare(b.label));
+        },
+
+        selectedSalesChannelDomains() {
+            return this.salesChannelDomains.filter(({ salesChannelId }) => salesChannelId === this.selectedSalesChannelId);
+        },
     },
 
     created() {
@@ -87,10 +107,19 @@ export default {
 
             try {
                 await this.fetchSalesChannelDomains();
+                this.preselectOnlySalesChannel();
                 await this.fetchImitateCustomerTokens();
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        preselectOnlySalesChannel() {
+            if (this.salesChannelOptions.length !== 1) {
+                return;
+            }
+
+            this.selectedSalesChannelId = this.salesChannelOptions[0].value;
         },
 
         onSalesChannelDomainMenuItemClick(salesChannelId, salesChannelDomainUrl) {

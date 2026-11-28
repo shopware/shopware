@@ -196,8 +196,11 @@
       "ordersTitle": "Bestellungen"
     },
     "imitateCustomerModal": {
-      "modalTitle": "Anmelden als {firstname} {lastname}",
-      "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
+      "modalTitle": "Als Kunde anmelden",
+      "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als Kunde anmelden möchtest.",
+      "labelSalesChannel": "Verkaufskanal",
+      "placeholderSalesChannel": "Verkaufskanal auswählen ...",
+      "labelDomains": "Domains",
       "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
       "modalInfoLogout": "abzumelden",
       "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen."

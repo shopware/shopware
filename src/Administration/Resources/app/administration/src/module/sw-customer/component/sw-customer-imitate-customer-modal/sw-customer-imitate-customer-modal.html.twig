@@ -5,6 +5,7 @@
 >
     <mt-modal
         :title="modalTitle"
+        :subtitle="modalSubtitle"
     >
         <div class="sw-customer-imitate-customer-modal">
             <mt-loader v-if="isLoading" />
@@ -42,14 +43,32 @@
             </div>
     {% endblock %}
 
+    {% block sw_customer_imitate_customer_modal_sales_channel_select %}
+            <mt-select
+                v-if="!isLoading && hasSalesChannelDomains"
+                v-model="selectedSalesChannelId"
+                class="imitate-customer-modal-sales-channel-select"
+                :options="salesChannelOptions"
+                hide-clearable-button
+                :label="$t('sw-customer.imitateCustomerModal.labelSalesChannel')"
+                :placeholder="$t('sw-customer.imitateCustomerModal.placeholderSalesChannel')"
+            />
+    {% endblock %}
+
     {% block sw_customer_imitate_customer_modal_body %}
             <div
-                v-if="!isLoading && hasSalesChannelDomains"
+                v-if="!isLoading && selectedSalesChannelDomains.length > 0"
                 class="imitate-customer-modal-container"
             >
+        {% block sw_customer_imitate_customer_modal_domains_headline %}
+                <h3 class="imitate-customer-modal-domains-headline">
+                    {{ $t('sw-customer.imitateCustomerModal.labelDomains') }}
+                </h3>
+        {% endblock %}
+
         {% block sw_customer_imitate_customer_modal_sales_channel_domain_items %}
                 <button
-                    v-for="salesChannelDomain of salesChannelDomains"
+                    v-for="salesChannelDomain of selectedSalesChannelDomains"
                     :key="salesChannelDomain.id"
                     type="button"
                     class="imitate-customer-modal-item"
@@ -58,7 +77,7 @@
                     <span class="imitate-customer-modal-item-content">
                         <span class="imitate-customer-modal-item-title">
                             <span class="imitate-customer-modal-item-header">
-                                {{ salesChannelDomain.salesChannel.translated.name }}
+                                {{ salesChannelDomain.language?.name }}
                             </span>
 
                             <span class="imitate-customer-modal-item-url">

@@ -34,6 +34,57 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return null;
         }
 
+        $jsonPath = $this->getJsonPath($field, $accessor);
+        if ($jsonPath === null) {
+            return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+        }
+
+        $jsonValueExpr = \sprintf(
+            'JSON_EXTRACT(%s.%s, %s)',
+            EntityDefinitionQueryHelper::escape($root),
+            EntityDefinitionQueryHelper::escape($field->getStorageName()),
+            $this->connection->quote('$' . $jsonPath)
+        );
+
+        $embeddedField = $this->getField($jsonPath, $field->getPropertyMapping());
+        $accessor = $this->getFieldAccessor($jsonValueExpr, $embeddedField);
+
+        /*
+         * Values extracted from json have distinct json types, that are different from normal value types.
+         * We need to convert json nulls into sql nulls.
+         *
+         * For example: `JSON_EXTRACT('{"foo":null}', '$.foo') IS NOT NULL`
+         */
+        return \sprintf('IF(JSON_TYPE(%s) != "NULL", %s, NULL)', $jsonValueExpr, $accessor);
+    }
+
+    /**
+     * Casts a value expression to the type of the accessor for the same JSON path,
+     * so a comparison with that accessor does not depend on implicit type conversion of the database.
+     */
+    public function castValue(string $value, Field $field, string $accessor): string
+    {
+        if (!$field instanceof JsonField) {
+            return $value;
+        }
+
+        $jsonPath = $this->getJsonPath($field, $accessor);
+        if ($jsonPath === null) {
+            return $value;
+        }
+
+        // Cast the value with full fractional precision, so a sub-millisecond bound keeps its order
+        // against the column, which the accessor reads as datetime(3).
+        $type = $this->getCastType($this->getField($jsonPath, $field->getPropertyMapping()), 'datetime(6)');
+        if ($type === null) {
+            return $value;
+        }
+
+        return \sprintf('CAST(%s AS %s)', $value, $type);
+    }
+
+    private function getJsonPath(JsonField $field, string $accessor): ?string
+    {
         $jsonPath = preg_replace(
             '#^' . preg_quote($field->getPropertyName(), '#') . '#',
             '',
@@ -41,7 +92,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         );
 
         if ($jsonPath === null || $jsonPath === '') {
-            return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+            return null;
         }
 
         if (!EntityDefinitionQueryHelper::isValidJsonPath($jsonPath)) {
@@ -62,23 +113,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $jsonPath = implode('.', $jsonPathParts);
         }
 
-        $jsonValueExpr = \sprintf(
-            'JSON_EXTRACT(%s.%s, %s)',
-            EntityDefinitionQueryHelper::escape($root),
-            EntityDefinitionQueryHelper::escape($field->getStorageName()),
-            $this->connection->quote('$' . $jsonPath)
-        );
-
-        $embeddedField = $this->getField($jsonPath, $field->getPropertyMapping());
-        $accessor = $this->getFieldAccessor($jsonValueExpr, $embeddedField);
-
-        /*
-         * Values extracted from json have distinct json types, that are different from normal value types.
-         * We need to convert json nulls into sql nulls.
-         *
-         * For example: `JSON_EXTRACT('{"foo":null}', '$.foo') IS NOT NULL`
-         */
-        return \sprintf('IF(JSON_TYPE(%s) != "NULL", %s, NULL)', $jsonValueExpr, $accessor);
+        return $jsonPath;
     }
 
     /**
@@ -123,15 +158,21 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             );
         }
 
-        if ($field instanceof DateTimeField) {
-            return \sprintf('CAST(JSON_UNQUOTE(%s) AS datetime(3))', $jsonValueExpr);
-        }
-
-        if ($field instanceof DateField) {
-            return \sprintf('CAST(JSON_UNQUOTE(%s) AS DATE)', $jsonValueExpr);
+        $type = $this->getCastType($field);
+        if ($type !== null) {
+            return \sprintf('CAST(JSON_UNQUOTE(%s) AS %s)', $jsonValueExpr, $type);
         }
 
         // The CONVERT is required for mariadb support (mysqls JSON_UNQUOTE returns utf8mb4)
         return \sprintf('CONVERT(JSON_UNQUOTE(%s) USING "utf8mb4") COLLATE utf8mb4_unicode_ci', $jsonValueExpr);
+    }
+
+    private function getCastType(?Field $field, string $dateTime = 'datetime(3)'): ?string
+    {
+        return match (true) {
+            $field instanceof DateTimeField => $dateTime,
+            $field instanceof DateField => 'DATE',
+            default => null,
+        };
     }
 }

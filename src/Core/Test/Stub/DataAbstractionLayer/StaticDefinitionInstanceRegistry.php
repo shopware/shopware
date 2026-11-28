@@ -46,12 +46,14 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 
     /**
      * @param array<int|string, class-string<EntityDefinition>|EntityDefinition> $registeredDefinitions
+     * @param array<class-string<FieldAccessorBuilderInterface>, FieldAccessorBuilderInterface> $accessorBuilders fields of other builder classes use the `DefaultFieldAccessorBuilder`
      */
     public function __construct(
         array $registeredDefinitions,
         private readonly ValidatorInterface $validator,
         private readonly EntityWriteGatewayInterface $entityWriteGateway,
-        ContainerInterface $container = new ContainerBuilder()
+        ContainerInterface $container = new ContainerBuilder(),
+        private readonly array $accessorBuilders = [],
     ) {
         parent::__construct($container, [], []);
 
@@ -72,7 +74,7 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 
     public function getAccessorBuilder(string $accessorBuilderClass): FieldAccessorBuilderInterface
     {
-        return new DefaultFieldAccessorBuilder();
+        return $this->accessorBuilders[$accessorBuilderClass] ?? new DefaultFieldAccessorBuilder();
     }
 
     private function setUpSerializers(): void

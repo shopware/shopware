@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -709,6 +710,57 @@ class CustomFieldTest extends TestCase
         $result = $repo->search($criteriaNow, Context::createDefaultContext());
         $expected = [$nowId];
         static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
+    }
+
+    public function testDateTimeRangeCriteria(): void
+    {
+        $this->addCustomFields(['datetime' => CustomFieldTypes::DATETIME]);
+
+        $midnightId = Uuid::randomHex();
+        $noonId = Uuid::randomHex();
+        $nextDayId = Uuid::randomHex();
+
+        $entities = [
+            ['id' => $midnightId, 'custom' => ['datetime' => new \DateTime('1990-01-01')]],
+            ['id' => $noonId, 'custom' => ['datetime' => new \DateTime('1990-01-01T12:00:00')]],
+            ['id' => $nextDayId, 'custom' => ['datetime' => new \DateTime('1990-01-02')]],
+            ['id' => Uuid::randomHex(), 'custom' => ['datetime' => null]],
+        ];
+
+        $repo = $this->getTestRepository();
+        $repo->create($entities, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new RangeFilter('custom.datetime', [RangeFilter::GTE => '1990-01-01', RangeFilter::LT => '1990-01-02']));
+        $result = $repo->search($criteria, Context::createDefaultContext());
+        static::assertEqualsCanonicalizing([$midnightId, $noonId], array_values($result->getEntities()->getIds()));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new RangeFilter('custom.datetime', [RangeFilter::GT => '1990-01-01T00:00:00+00:00', RangeFilter::LTE => '1990-01-02 00:00:00.000']));
+        $result = $repo->search($criteria, Context::createDefaultContext());
+        static::assertEqualsCanonicalizing([$noonId, $nextDayId], array_values($result->getEntities()->getIds()));
+    }
+
+    public function testDateTimeFilterKeepsSubMillisecondBoundPrecision(): void
+    {
+        $this->addCustomFields(['datetime' => CustomFieldTypes::DATETIME]);
+
+        $id = Uuid::randomHex();
+
+        $repo = $this->getTestRepository();
+        $repo->create([
+            ['id' => $id, 'custom' => ['datetime' => new \DateTime('1990-01-01T00:00:00.001')]],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new RangeFilter('custom.datetime', [RangeFilter::LT => '1990-01-01 00:00:00.0014']));
+        $result = $repo->search($criteria, Context::createDefaultContext());
+        static::assertSame([$id], array_values($result->getEntities()->getIds()));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('custom.datetime', '1990-01-01 00:00:00.0014'));
+        $result = $repo->search($criteria, Context::createDefaultContext());
+        static::assertSame([], array_values($result->getEntities()->getIds()));
     }
 
     public function testSetCustomFieldsOnNullColumn(): void

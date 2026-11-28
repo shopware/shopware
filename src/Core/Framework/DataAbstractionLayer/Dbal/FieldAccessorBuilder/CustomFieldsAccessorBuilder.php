@@ -31,6 +31,24 @@ class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
             return null;
         }
 
+        $this->mapCustomField($field, $accessor);
+
+        return parent::buildAccessor($root, $field, $context, $accessor);
+    }
+
+    public function castValue(string $value, Field $field, string $accessor): string
+    {
+        if (!$field instanceof CustomFields) {
+            return $value;
+        }
+
+        $this->mapCustomField($field, $accessor);
+
+        return parent::castValue($value, $field, $accessor);
+    }
+
+    private function mapCustomField(CustomFields $field, string $accessor): void
+    {
         /**
          * Possible paths / attribute names:
          * - propertyName.attribute_name -> attribute_name
@@ -48,7 +66,5 @@ class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
         $attributeField = $this->customFieldService->getCustomField($attributeName);
 
         $field->setPropertyMapping([$attributeField]);
-
-        return parent::buildAccessor($root, $field, $context, $accessor);
     }
 }

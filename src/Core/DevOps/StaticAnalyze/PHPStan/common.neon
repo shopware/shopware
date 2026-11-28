@@ -88,6 +88,10 @@ parameters:
             - 'Shopware\Administration\'
             - 'Shopware\Storefront\'
             - 'Shopware\Elasticsearch\'
+        # narrows NoRealFilesystemInUnitTestsRule to the unit suites; consumers append their unit namespace once
+        # their tests no longer write to the filesystem
+        realFilesystemInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
         # narrows NoReflectionInUnitTestsRule to the unit suites; consumers append their unit namespace once
         # their tests no longer use reflection
         reflectionInUnitTestsEnabledNamespaces:
@@ -111,6 +115,7 @@ parametersSchema:
         featureSkipInUnitTestsEnabledNamespaces: list(string),
         kernelInUnitTestsEnabledNamespaces: list(string),
         pregDollarWithoutDEnabledNamespaces: list(string),
+        realFilesystemInUnitTestsEnabledNamespaces: list(string),
         reflectionInUnitTestsEnabledNamespaces: list(string),
         runtimeListenerOnSharedEventDispatcherEnabledNamespaces: list(string),
 ])

@@ -18,10 +18,12 @@ Tests should read like executable examples.
 
 - Write test methods as clear executable examples of the behavior under test: scenario-specific setup, action, and assertions should be easy to follow in the test body.
 - Prefer explicit scenario setup over hidden mutation in fixture factories. Helper methods should create entities, files, or value objects; the test body should perform meaningful scenario wiring when that wiring helps explain the behavior under test.
-- Move stable boilerplate such as mock services, the class under test, command testers, and temporary project directories into `setUp()` / `tearDown()` when that lets concrete tests focus on the scenario-specific data and execution.
+- Move stable boilerplate such as mock services, the class under test, command testers, and in integration tests the temporary project directories into `setUp()` / `tearDown()` when that lets concrete tests focus on the scenario-specific data and execution.
 - Put reusable fixture collaborators in `setUp()` when helper methods or getters may be called more than once in a test and callers should observe the same instance or state, for example registries, containers, command testers, shared filesystem roots, or other idempotent lookup objects. Keep per-scenario mutations in the test body or explicit helper parameters, but do not hide repeated construction in a getter when identity or accumulated setup matters.
 - For unit tests around file access, choose the lightest setup that still reads naturally: simple single-file reads/writes can use Symfony `Filesystem` injected into the class and mocked in the test; when the scenario needs several consecutive filesystem calls, realistic paths, or directory structure, prefer committed `_fixtures` over building temp files at runtime or over-mocking the filesystem.
-- When a test must really write to disk, use the Symfony `Filesystem` component instead of raw `mkdir`/`file_put_contents`/`unlink`/`rmdir`.
+- A unit test never touches the real filesystem, the PHPStan rule `shopware.realFilesystemInUnitTest` enforces this.
+  Read "The filesystem in unit tests" in `coding-guidelines/core/unit-tests.md` when a unit test needs files.
+- When an integration test must really write to disk, use the Symfony `Filesystem` component instead of raw `mkdir`/`file_put_contents`/`unlink`/`rmdir`.
 - Keep test helpers smaller than the code they replace.
 - Use only the integration-test traits the scenario needs. For repository tests that only require the service container and transaction rollback, use `KernelTestBehaviour` and `DatabaseTransactionBehaviour` instead of the broad `IntegrationTestBehaviour` bundle.
 - Name the arguments when calling a test data builder or helper with bare literals: `->review(title: 'a', content: 'b', points: 0, status: false, customerId: $id)` says what `0` and `false` mean, and lets you drop the defaults you only passed to reach a later parameter.

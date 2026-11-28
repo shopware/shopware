@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -27,8 +26,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('cache')]
 class HttpCacheKeyGeneratorTest extends TestCase
 {
-    use EventDispatcherBehaviour;
-
     private HttpCacheKeyGenerator $cacheKeyGenerator;
 
     private EventDispatcher $eventDispatcher;
@@ -183,7 +180,7 @@ class HttpCacheKeyGeneratorTest extends TestCase
         $request = Request::create('https://domain.com/method');
         $firstKey = $this->cacheKeyGenerator->generate($request);
 
-        $this->addEventListener($this->eventDispatcher, HttpCacheKeyEvent::class, static function (HttpCacheKeyEvent $event): void {
+        $this->eventDispatcher->addListener(HttpCacheKeyEvent::class, static function (HttpCacheKeyEvent $event): void {
             $uri = $event->get('uri');
             self::assertIsString($uri);
             $event->remove('uri');
@@ -201,7 +198,7 @@ class HttpCacheKeyGeneratorTest extends TestCase
         $request = Request::create('https://domain.com/method');
         $firstKey = $this->cacheKeyGenerator->generate($request);
 
-        $this->addEventListener($this->eventDispatcher, HttpCacheKeyEvent::class, static function (HttpCacheKeyEvent $event): void {
+        $this->eventDispatcher->addListener(HttpCacheKeyEvent::class, static function (HttpCacheKeyEvent $event): void {
             $event->isCacheable = false;
         });
 

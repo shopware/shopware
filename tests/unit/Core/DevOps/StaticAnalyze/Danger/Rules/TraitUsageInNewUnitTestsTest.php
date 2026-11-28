@@ -68,6 +68,13 @@ class TraitUsageInNewUnitTestsTest extends TestCase
             'Shopware\Tests\Unit\Core\Checkout\Helper\CartHelperTrait',
         ];
 
+        yield 'new unit test with the event dispatcher behaviour fails, a unit test owns its dispatcher' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_ADDED,
+            self::testClass("use Shopware\\Core\\Framework\\Test\\TestCaseBase\\EventDispatcherBehaviour;\n", "    use EventDispatcherBehaviour;\n"),
+            'Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour',
+        ];
+
         yield 'new unit test with a lifecycle behaviour passes' => [
             'tests/unit/Core/Checkout/CartTest.php',
             File::STATUS_ADDED,

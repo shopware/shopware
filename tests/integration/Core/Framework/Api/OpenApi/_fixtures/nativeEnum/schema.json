@@ -1,0 +1,18 @@
+{
+    "openapi": "3.2.0",
+    "info": {"title": "nativeEnum", "version": "1.0.0"},
+    "paths": {},
+    "components": {
+        "schemas": {
+            "NewsletterStatus": {
+                "x-dto-namespace": "App\\DTO",
+                "x-dto-package": "framework",
+                "type": "string",
+                "enum": [
+                    "notSet",
+                    "optIn"
+                ]
+            }
+        }
+    }
+}

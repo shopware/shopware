@@ -1,22 +1,19 @@
 {
     "openapi": "3.2.0",
-    "info": [],
-    "paths": [],
+    "info": {"title": "requiredConst", "version": "1.0.0"},
+    "paths": {},
     "components": {
         "schemas": {
-            "AccountNewsletterRecipient": {
+            "Response": {
+                "x-dto-namespace": "App\\DTO",
                 "type": "object",
                 "properties": {
-                    "status": {
-                        "$ref": "#/components/schemas/NewsletterStatus"
-                    },
                     "apiAlias": {
                         "type": "string",
                         "const": "account_newsletter_recipient"
                     }
                 },
                 "required": [
-                    "status",
                     "apiAlias"
                 ]
             }

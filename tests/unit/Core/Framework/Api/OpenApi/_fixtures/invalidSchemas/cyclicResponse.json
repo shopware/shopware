@@ -1,0 +1,29 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "cyclicResponse",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/payload": {
+            "get": {
+                "operationId": "readPayload",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PayloadAlias"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "responses": {
+            "PayloadAlias": {
+                "$ref": "#/components/responses/Payload"
+            },
+            "Payload": {
+                "$ref": "#/components/responses/PayloadAlias"
+            }
+        }
+    }
+}

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\DevOps\System\Command;
+namespace Shopware\Tests\Unit\Core\Framework\Api\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\DevOps\System\Command\OpenApiValidationCommand;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\Command\OpenApiValidationCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpClient\MockHttpClient;

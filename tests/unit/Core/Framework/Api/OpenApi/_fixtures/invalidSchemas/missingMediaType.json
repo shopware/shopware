@@ -1,0 +1,31 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "missingMediaType",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/payload": {
+            "get": {
+                "operationId": "readPayload",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Payload"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "responses": {
+            "Payload": {
+                "description": "Payload",
+                "content": {
+                    "application/json": {
+                        "$ref": "#/components/mediaTypes/Missing"
+                    }
+                }
+            }
+        }
+    }
+}

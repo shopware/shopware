@@ -1,0 +1,49 @@
+<?php declare(strict_types=1);
+
+/**
+ * This file is auto-generated.
+ * Do not edit manually.
+ *
+ * Last generated: 2026-07-07 00:00:00
+ */
+
+namespace App\DTO;
+
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * @codeCoverageIgnore
+ */
+final class PrivateRegistration extends AbstractRequest
+{
+    public const DEFAULT_ACCOUNT_TYPE = 'private';
+
+    /**
+     * Account type
+     */
+    #[Assert\Choice(choices: ['private'])]
+    public string $accountType;
+
+    /**
+     * @internal
+     */
+    public function __construct(
+        /**
+         * Email of the customer
+         */
+        #[Assert\NotNull]
+        public string $email,
+        /**
+         * Customer first name
+         */
+        #[Assert\NotNull]
+        public string $firstName,
+        /**
+         * Customer last name
+         */
+        #[Assert\NotNull]
+        public string $lastName,
+    ) {
+    }
+}

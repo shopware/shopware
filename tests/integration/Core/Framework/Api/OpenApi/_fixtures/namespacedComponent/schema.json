@@ -1,0 +1,69 @@
+{
+    "openapi": "3.2.0",
+    "info": {"title": "namespacedComponent", "version": "1.0.0"},
+    "paths": {
+        "/test": {
+            "get": {
+                "operationId": "readThing",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "id"
+                                    ],
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Failure",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SharedFailure"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SharedFailure": {
+                "x-dto-namespace": "Shopware\\Core\\Example\\Shared",
+                "type": "object",
+                "required": [
+                    "error"
+                ],
+                "properties": {
+                    "error": {
+                        "$ref": "#/components/schemas/SharedError"
+                    }
+                }
+            },
+            "SharedError": {
+                "type": "object",
+                "required": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

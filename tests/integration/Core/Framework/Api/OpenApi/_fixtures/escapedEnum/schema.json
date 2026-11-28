@@ -1,0 +1,18 @@
+{
+    "openapi": "3.2.0",
+    "info": {"title": "escapedEnum", "version": "1.0.0"},
+    "paths": {},
+    "components": {
+        "schemas": {
+            "SpecialValue": {
+                "x-dto-namespace": "App\\DTO",
+                "x-dto-package": "framework",
+                "type": "string",
+                "enum": [
+                    "foo'\\bar",
+                    "foo-bar"
+                ]
+            }
+        }
+    }
+}

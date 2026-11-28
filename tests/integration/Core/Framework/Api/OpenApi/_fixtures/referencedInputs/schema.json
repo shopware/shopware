@@ -1,0 +1,319 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Referenced request inputs",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/inputs/{itemId}": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/ItemId"
+                },
+                {
+                    "name": "locale",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "post": {
+                "operationId": "createInput",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Version"
+                    },
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/Language"
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/InputAlias"
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "readInput",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            },
+            "query": {
+                "operationId": "queryInputs",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Version"
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/InputAlias"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Matching input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InputSearchResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "additionalOperations": {
+                "COPY": {
+                    "operationId": "copyInput",
+                    "x-dto-namespace": "Shopware\\Core\\Example\\CustomOperation",
+                    "x-dto-package": "framework",
+                    "parameters": [
+                        {
+                            "$ref": "#/components/parameters/Version"
+                        },
+                        {
+                            "name": "locale",
+                            "in": "query",
+                            "required": false,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "requestBody": {
+                        "$ref": "#/components/requestBodies/CopyInputAlias"
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "Copied input",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/CopyInputResult"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "REPORT": {
+                    "operationId": "reportInput",
+                    "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                    "x-dto-package": "framework",
+                    "requestBody": {
+                        "$ref": "#/components/requestBodies/InputAlias"
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Input report",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/InputSearchResult"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/optional-extensions": {
+            "post": {
+                "operationId": "optionalExtensions",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "extensions": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "requestBodies": {
+            "InputAlias": {
+                "$ref": "#/components/requestBodies/Input"
+            },
+            "Input": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/InputPayload"
+                        }
+                    }
+                }
+            },
+            "CopyInputAlias": {
+                "$ref": "#/components/requestBodies/CopyInput"
+            },
+            "CopyInput": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CopyInputPayload"
+                        }
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "ItemId": {
+                "name": "itemId",
+                "in": "path",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "Version": {
+                "name": "version",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "Language": {
+                "name": "sw-language-id",
+                "in": "header",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "InputSearchResult": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "matched"
+                ],
+                "properties": {
+                    "matched": {
+                        "type": "boolean"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/InputSettings"
+                    }
+                }
+            },
+            "InputPayload": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "bodyValue"
+                ],
+                "properties": {
+                    "bodyValue": {
+                        "type": "string"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/InputSettings"
+                    }
+                }
+            },
+            "InputSettings": {
+                "x-dto-namespace": "Shopware\\Core\\Example\\Shared",
+                "x-dto-package": "framework",
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                }
+            },
+            "CopyInputPayload": {
+                "type": "object",
+                "required": [
+                    "target"
+                ],
+                "properties": {
+                    "target": {
+                        "type": "string"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/InputSettings"
+                    }
+                }
+            },
+            "CopyInputResult": {
+                "type": "object",
+                "required": [
+                    "copied"
+                ],
+                "properties": {
+                    "copied": {
+                        "type": "boolean"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/InputSettings"
+                    }
+                }
+            }
+        }
+    }
+}

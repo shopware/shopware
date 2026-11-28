@@ -1,0 +1,1151 @@
+{
+  "openapi": "3.2.0",
+  "info": {"title": "orderCreationExample", "version": "1.0.0"},
+  "paths": {
+    "/v2/checkout/order": {
+      "post": {
+        "tags": [
+          "Order"
+        ],
+        "x-dto-namespace": "Shopware\\Core\\Checkout\\Order\\SalesChannel\\Order",
+        "x-dto-package": "checkout",
+        "summary": "Create an order from a cart",
+        "description": "Creates an order from the current cart and returns a display-ready order snapshot instead of the complete order entity. Read the cart immediately before placing the order and send its hash as `cartHash`. The optional `sw-language-id` header selects both the language persisted with the order and the language of translated display values; the current sales-channel context language is used when the header is omitted.",
+        "operationId": "createOrderV2",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/swLanguageId"
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Client-generated key for safely retrying the same order creation after a timeout or lost response. A replay with the same key, sales channel, customer context, cart hash, and request body returns the original result instead of creating another order. Reusing the key with different request data returns HTTP 409. Keys are retained for at least 24 hours. Use a random UUID and retain it until the outcome is known.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Order creation command for the current cart.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderV2Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created.",
+            "headers": {
+              "Idempotency-Key": {
+                "description": "The idempotency key supplied with the request.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Language": {
+                "description": "Locale used for translated display values in the response.",
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "en-GB"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400",
+            "description": "The request is malformed, does not match the request schema, or `sw-language-id` is invalid or not assigned to the sales channel."
+          },
+          "401": {
+            "$ref": "#/components/responses/401",
+            "description": "The customer authentication or context token is missing or invalid."
+          },
+          "403": {
+            "$ref": "#/components/responses/403",
+            "description": "The sales channel access key is missing or invalid, or the authenticated customer is not allowed to place this order."
+          },
+          "409": {
+            "$ref": "#/components/responses/409",
+            "description": "The `cartHash` sent by the client does not match the current cart content, or the `Idempotency-Key` was already used with different request data."
+          },
+          "422": {
+            "description": "The request is valid, but the cart cannot be ordered, for example because it is empty, contains blocking errors, or the selected payment method rejects its data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failure"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": [],
+            "ContextToken": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateOrderV2Request": {
+        "x-dto-inline": true,
+        "description": "Input for creating an order from the current Store API cart. The cart, customer, addresses, currency, shipping method, and payment method come from the authenticated sales-channel context.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "cartHash"
+        ],
+        "properties": {
+          "cartHash": {
+            "description": "Hash from the latest `GET /checkout/cart` response. Order creation fails with HTTP 409 when the current calculated cart no longer matches this value.",
+            "type": "string",
+            "minLength": 1
+          },
+          "customerComment": {
+            "description": "Comment supplied by the customer and stored with the order.",
+            "type": "string"
+          },
+          "attribution": {
+            "description": "Marketing attribution stored with the order.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "affiliateCode": {
+                "description": "Affiliate identifier used to attribute the order to a referring partner.",
+                "type": "string"
+              },
+              "campaignCode": {
+                "description": "Campaign identifier used to attribute the order to a marketing campaign.",
+                "type": "string"
+              }
+            }
+          },
+          "extensions": {
+            "description": "Namespaced order-placement data defined by installed extensions.",
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "OrderV2": {
+        "x-dto-inline": true,
+        "description": "Snapshot of the order created from the cart. It contains the data needed to render an order confirmation without exposing the complete DAL entity.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "orderNumber",
+          "createdAt",
+          "status",
+          "customer",
+          "language",
+          "currency",
+          "price",
+          "lineItems",
+          "billingAddress",
+          "payment",
+          "delivery"
+        ],
+        "properties": {
+          "id": {
+            "description": "Identifier of the created order.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "orderNumber": {
+            "description": "Human-readable order number shown to the customer.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date and time when the order was placed.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderV2OrderStatus",
+            "description": "Current status of the order workflow."
+          },
+          "customer": {
+            "description": "Customer identity captured when the order was placed.",
+            "$ref": "#/components/schemas/OrderV2Customer"
+          },
+          "language": {
+            "description": "Language persisted with the order and used by translated response fields.",
+            "$ref": "#/components/schemas/OrderV2Language"
+          },
+          "currency": {
+            "description": "Currency and rounding configuration for every monetary amount in the order.",
+            "$ref": "#/components/schemas/OrderV2Currency"
+          },
+          "price": {
+            "description": "Calculated monetary totals for the order.",
+            "$ref": "#/components/schemas/OrderV2PriceSummary"
+          },
+          "lineItems": {
+            "description": "Items captured from the cart in their display order.",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/OrderV2LineItem"
+            }
+          },
+          "billingAddress": {
+            "description": "Billing address captured when the order was placed.",
+            "$ref": "#/components/schemas/OrderV2Address"
+          },
+          "payment": {
+            "description": "Primary payment transaction created for the order.",
+            "$ref": "#/components/schemas/OrderV2Payment"
+          },
+          "delivery": {
+            "description": "Primary delivery, or `null` when the order does not require shipping.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrderV2Delivery"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "customerComment": {
+            "description": "Customer comment stored with the order, or `null` when none was supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attribution": {
+            "description": "Affiliate and campaign attribution stored with the order.",
+            "$ref": "#/components/schemas/OrderV2Attribution"
+          },
+          "extensions": {
+            "description": "Namespaced response data supplied by installed extensions.",
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "example": {
+          "id": "0195b9f4a1b27c3d8e9f0123456789ab",
+          "orderNumber": "10042",
+          "createdAt": "2026-09-16T10:15:30+02:00",
+          "status": {
+            "technicalName": "open",
+            "name": "Open"
+          },
+          "customer": {
+            "id": "0195b9f4a1b27c3d8e9f0123456789ac",
+            "accountType": "business",
+            "guest": false,
+            "email": "alex@example.com",
+            "firstName": "Alex",
+            "lastName": "Taylor",
+            "company": "Example GmbH",
+            "vatIds": [
+              "DE123456789"
+            ]
+          },
+          "language": {
+            "id": "2fbb5fe2e29a4d70aa5854ce7ce3e20b",
+            "localeCode": "en-GB"
+          },
+          "currency": {
+            "isoCode": "EUR",
+            "symbol": "EUR",
+            "itemRounding": {
+              "decimals": 2,
+              "interval": 0.01
+            },
+            "totalRounding": {
+              "decimals": 2,
+              "interval": 0.01
+            }
+          },
+          "price": {
+            "subtotal": 119.98,
+            "shipping": 4.99,
+            "net": 105.02,
+            "tax": 19.95,
+            "total": 124.97,
+            "taxStatus": "gross",
+            "taxes": [
+              {
+                "rate": 19,
+                "amount": 19.95,
+                "taxableAmount": 124.97
+              }
+            ]
+          },
+          "lineItems": [
+            {
+              "id": "0195b9f4a1b27c3d8e9f0123456789ad",
+              "type": "product",
+              "referenceId": "0195b9f4a1b27c3d8e9f0123456789ae",
+              "sku": "SW-10001",
+              "label": "Classic T-shirt",
+              "description": "Organic cotton T-shirt",
+              "quantity": 2,
+              "unitPrice": 59.99,
+              "totalPrice": 119.98,
+              "position": 1,
+              "image": {
+                "url": "https://shop.example.com/media/classic-t-shirt.jpg",
+                "altText": "Classic T-shirt in blue"
+              },
+              "options": [
+                {
+                  "group": "Color",
+                  "option": "Blue"
+                },
+                {
+                  "group": "Size",
+                  "option": "M"
+                }
+              ],
+              "children": []
+            }
+          ],
+          "billingAddress": {
+            "company": "Example GmbH",
+            "department": null,
+            "title": null,
+            "firstName": "Alex",
+            "lastName": "Taylor",
+            "street": "Example Street 12",
+            "additionalAddressLine1": null,
+            "additionalAddressLine2": null,
+            "postalCode": "10115",
+            "city": "Berlin",
+            "countryCode": "DE",
+            "countryName": "Germany",
+            "countryStateCode": "DE-BE",
+            "countryStateName": "Berlin",
+            "phoneNumber": "+49 30 12345678"
+          },
+          "payment": {
+            "transactionId": "0195b9f4a1b27c3d8e9f0123456789af",
+            "status": {
+              "technicalName": "open",
+              "name": "Open"
+            },
+            "method": {
+              "id": "0195b9f4a1b27c3d8e9f0123456789b0",
+              "displayName": "Credit card"
+            }
+          },
+          "delivery": {
+            "id": "0195b9f4a1b27c3d8e9f0123456789b1",
+            "status": {
+              "technicalName": "open",
+              "name": "Open"
+            },
+            "method": {
+              "id": "0195b9f4a1b27c3d8e9f0123456789b2",
+              "displayName": "Standard shipping"
+            },
+            "shippingAddress": {
+              "company": "Example GmbH",
+              "department": null,
+              "title": null,
+              "firstName": "Alex",
+              "lastName": "Taylor",
+              "street": "Example Street 12",
+              "additionalAddressLine1": null,
+              "additionalAddressLine2": null,
+              "postalCode": "10115",
+              "city": "Berlin",
+              "countryCode": "DE",
+              "countryName": "Germany",
+              "countryStateCode": "DE-BE",
+              "countryStateName": "Berlin",
+              "phoneNumber": "+49 30 12345678"
+            },
+            "estimatedDelivery": {
+              "earliest": "2026-09-18T00:00:00+02:00",
+              "latest": "2026-09-21T23:59:59+02:00"
+            },
+            "trackingCodes": []
+          },
+          "customerComment": "Please leave the parcel with reception.",
+          "attribution": {
+            "affiliateCode": "price-comparison",
+            "campaignCode": "autumn-2026"
+          },
+          "extensions": {}
+        }
+      },
+      "OrderV2OrderStatus": {
+        "description": "Order workflow state. Integrations must use `technicalName` for logic and `name` only for presentation.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "technicalName",
+          "name"
+        ],
+        "properties": {
+          "technicalName": {
+            "description": "Technical name of the order state as defined by Shopware's `order.state` state machine.",
+            "type": "string",
+            "enum": [
+              "open",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "name": {
+            "description": "Translated order-state name in the response language selected by `sw-language-id`, resolved through Shopware's language fallback chain. Its value is configuration-dependent and is not a technical identifier.",
+            "type": "string"
+          }
+        }
+      },
+      "OrderV2PaymentStatus": {
+        "description": "Payment transaction workflow state. Integrations must use `technicalName` for logic and `name` only for presentation.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "technicalName",
+          "name"
+        ],
+        "properties": {
+          "technicalName": {
+            "description": "Technical name of the payment state as defined by Shopware's `order_transaction.state` state machine.",
+            "type": "string",
+            "enum": [
+              "open",
+              "paid",
+              "paid_partially",
+              "refunded",
+              "refunded_partially",
+              "cancelled",
+              "reminded",
+              "authorized",
+              "failed",
+              "in_progress",
+              "chargeback",
+              "unconfirmed"
+            ]
+          },
+          "name": {
+            "description": "Translated payment-state name in the response language selected by `sw-language-id`, resolved through Shopware's language fallback chain. Its value is configuration-dependent and is not a technical identifier.",
+            "type": "string"
+          }
+        }
+      },
+      "OrderV2DeliveryStatus": {
+        "description": "Delivery workflow state. Integrations must use `technicalName` for logic and `name` only for presentation.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "technicalName",
+          "name"
+        ],
+        "properties": {
+          "technicalName": {
+            "description": "Technical name of the delivery state as defined by Shopware's `order_delivery.state` state machine.",
+            "type": "string",
+            "enum": [
+              "open",
+              "shipped_partially",
+              "shipped",
+              "returned",
+              "returned_partially",
+              "cancelled"
+            ]
+          },
+          "name": {
+            "description": "Translated delivery-state name in the response language selected by `sw-language-id`, resolved through Shopware's language fallback chain. Its value is configuration-dependent and is not a technical identifier.",
+            "type": "string"
+          }
+        }
+      },
+      "OrderV2Customer": {
+        "description": "Customer details captured as part of the order snapshot. Business customers additionally contain their company and VAT registration identifiers.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/OrderV2PrivateCustomer"
+          },
+          {
+            "$ref": "#/components/schemas/OrderV2BusinessCustomer"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "accountType",
+          "mapping": {
+            "private": "#/components/schemas/OrderV2PrivateCustomer",
+            "business": "#/components/schemas/OrderV2BusinessCustomer"
+          }
+        }
+      },
+      "OrderV2PrivateCustomer": {
+        "description": "Private customer captured as part of the order snapshot.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "accountType",
+          "guest",
+          "email",
+          "firstName",
+          "lastName"
+        ],
+        "properties": {
+          "id": {
+            "description": "Identifier of the customer record. Guest checkouts also have a customer record.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "accountType": {
+            "description": "Shopware customer account type.",
+            "type": "string",
+            "const": "private"
+          },
+          "guest": {
+            "description": "Whether the order was placed using a guest customer account.",
+            "type": "boolean"
+          },
+          "email": {
+            "description": "Email address captured for the order customer.",
+            "type": "string",
+            "format": "email"
+          },
+          "firstName": {
+            "description": "First name captured for the order customer.",
+            "type": "string"
+          },
+          "lastName": {
+            "description": "Last name captured for the order customer.",
+            "type": "string"
+          }
+        }
+      },
+      "OrderV2BusinessCustomer": {
+        "description": "Business customer captured as part of the order snapshot.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "accountType",
+          "guest",
+          "email",
+          "firstName",
+          "lastName",
+          "company",
+          "vatIds"
+        ],
+        "properties": {
+          "id": {
+            "description": "Identifier of the customer record. Guest checkouts also have a customer record.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "accountType": {
+            "description": "Shopware customer account type.",
+            "type": "string",
+            "const": "business"
+          },
+          "guest": {
+            "description": "Whether the order was placed using a guest customer account.",
+            "type": "boolean"
+          },
+          "email": {
+            "description": "Email address captured for the order customer.",
+            "type": "string",
+            "format": "email"
+          },
+          "firstName": {
+            "description": "First name captured for the order customer.",
+            "type": "string"
+          },
+          "lastName": {
+            "description": "Last name captured for the order customer.",
+            "type": "string"
+          },
+          "company": {
+            "description": "Company name captured for the business customer.",
+            "type": "string"
+          },
+          "vatIds": {
+            "description": "VAT registration identifiers captured for the business customer.",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "description": "Country-specific VAT registration identifier.",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OrderV2Currency": {
+        "description": "Currency and rounding rules persisted with the order.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "isoCode",
+          "symbol",
+          "itemRounding",
+          "totalRounding"
+        ],
+        "properties": {
+          "isoCode": {
+            "description": "ISO 4217 currency code used by every amount in the order.",
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "symbol": {
+            "description": "Currency symbol suitable for display.",
+            "type": "string"
+          },
+          "itemRounding": {
+            "description": "Rounding configuration applied to individual calculated items.",
+            "$ref": "#/components/schemas/OrderV2Rounding"
+          },
+          "totalRounding": {
+            "description": "Rounding configuration applied to order totals.",
+            "$ref": "#/components/schemas/OrderV2Rounding"
+          }
+        }
+      },
+      "OrderV2Language": {
+        "description": "Language persisted with the order and used for translated display values in this response.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "localeCode"
+        ],
+        "properties": {
+          "id": {
+            "description": "Identifier of the language persisted with the order.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "localeCode": {
+            "description": "IETF BCP 47 locale code, for example `en-GB` or `de-DE`.",
+            "type": "string",
+            "examples": [
+              "en-GB"
+            ]
+          }
+        }
+      },
+      "OrderV2Rounding": {
+        "description": "Rules used to round monetary amounts.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decimals",
+          "interval"
+        ],
+        "properties": {
+          "decimals": {
+            "description": "Number of decimal places retained when rounding.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "interval": {
+            "description": "Smallest currency increment to which an amount is rounded.",
+            "type": "number",
+            "format": "double",
+            "exclusiveMinimum": 0
+          }
+        }
+      },
+      "OrderV2PriceSummary": {
+        "description": "Display-ready monetary summary. All amounts use the order-level currency.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "subtotal",
+          "shipping",
+          "net",
+          "tax",
+          "total",
+          "taxStatus",
+          "taxes"
+        ],
+        "properties": {
+          "subtotal": {
+            "description": "Total of all line items, including discounts and excluding shipping.",
+            "type": "number",
+            "format": "double"
+          },
+          "shipping": {
+            "description": "Total shipping charge.",
+            "type": "number",
+            "format": "double"
+          },
+          "net": {
+            "description": "Order total excluding tax.",
+            "type": "number",
+            "format": "double"
+          },
+          "tax": {
+            "description": "Total tax amount.",
+            "type": "number",
+            "format": "double"
+          },
+          "total": {
+            "description": "Final amount payable by the customer, including shipping and tax.",
+            "type": "number",
+            "format": "double"
+          },
+          "taxStatus": {
+            "description": "Tax mode used to calculate the order.",
+            "$ref": "#/components/schemas/OrderV2TaxStatus"
+          },
+          "taxes": {
+            "description": "Tax amounts grouped by tax rate.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderV2Tax"
+            }
+          }
+        }
+      },
+      "OrderV2TaxStatus": {
+        "description": "Tax calculation mode defined by Shopware's cart price model.",
+        "type": "string",
+        "enum": [
+          "gross",
+          "net",
+          "tax-free"
+        ]
+      },
+      "OrderV2Tax": {
+        "description": "Tax amount calculated for one tax rate.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rate",
+          "amount",
+          "taxableAmount"
+        ],
+        "properties": {
+          "rate": {
+            "description": "Tax rate as a percentage.",
+            "type": "number",
+            "format": "double"
+          },
+          "amount": {
+            "description": "Tax amount charged at this rate.",
+            "type": "number",
+            "format": "double"
+          },
+          "taxableAmount": {
+            "description": "Portion of the order total to which this tax rate was applied.",
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "OrderV2LineItem": {
+        "description": "Display-ready snapshot of an order line item.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "label",
+          "quantity",
+          "unitPrice",
+          "totalPrice",
+          "position",
+          "children"
+        ],
+        "properties": {
+          "id": {
+            "description": "Identifier of the order line item.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "type": {
+            "description": "Persisted Shopware order line-item type.",
+            "$ref": "#/components/schemas/OrderV2LineItemType"
+          },
+          "referenceId": {
+            "description": "Identifier of the referenced product, promotion, or extension-defined resource.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sku": {
+            "description": "Product number for a product line item.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "label": {
+            "description": "Line item label captured in the order language.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Additional line-item description captured in the order language, or `null` when unavailable.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quantity": {
+            "description": "Number of units represented by this line item.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "unitPrice": {
+            "description": "Calculated price for one unit, using the order currency.",
+            "type": "number",
+            "format": "double"
+          },
+          "totalPrice": {
+            "description": "Calculated price for the full line-item quantity, using the order currency.",
+            "type": "number",
+            "format": "double"
+          },
+          "position": {
+            "description": "Sort position used when displaying sibling line items.",
+            "type": "integer"
+          },
+          "image": {
+            "description": "Primary image captured for the line item, or `null` when unavailable.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrderV2Image"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "description": "Selected variant options in display order.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderV2LineItemOption"
+            }
+          },
+          "children": {
+            "description": "Nested line items belonging to this line item, in display order.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderV2LineItem"
+            }
+          }
+        }
+      },
+      "OrderV2LineItemType": {
+        "description": "Line-item type accepted by Shopware's order line-item definition.",
+        "type": "string",
+        "enum": [
+          "product",
+          "credit",
+          "custom",
+          "promotion",
+          "container",
+          "discount",
+          "quantity"
+        ]
+      },
+      "OrderV2Image": {
+        "description": "Image used to represent a line item in the order confirmation.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "description": "Public URL of the image.",
+            "type": "string",
+            "format": "uri"
+          },
+          "altText": {
+            "description": "Alternative text for the image, or `null` when none was defined.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "OrderV2LineItemOption": {
+        "description": "Translated variant option captured for a product line item.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "group",
+          "option"
+        ],
+        "properties": {
+          "group": {
+            "description": "Translated option-group name, for example `Color`.",
+            "type": "string"
+          },
+          "option": {
+            "description": "Translated selected option name, for example `Blue`.",
+            "type": "string"
+          }
+        }
+      },
+      "OrderV2Address": {
+        "description": "Postal address captured when the order was placed.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "firstName",
+          "lastName",
+          "street",
+          "postalCode",
+          "city",
+          "countryCode",
+          "countryName"
+        ],
+        "properties": {
+          "company": {
+            "description": "Company name, or `null` when not supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "department": {
+            "description": "Company department, or `null` when not supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "title": {
+            "description": "Customer title, or `null` when not supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "firstName": {
+            "description": "First name of the address recipient.",
+            "type": "string"
+          },
+          "lastName": {
+            "description": "Last name of the address recipient.",
+            "type": "string"
+          },
+          "street": {
+            "description": "Street name and house number.",
+            "type": "string"
+          },
+          "additionalAddressLine1": {
+            "description": "First optional additional address line, or `null` when not supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "additionalAddressLine2": {
+            "description": "Second optional additional address line, or `null` when not supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "postalCode": {
+            "description": "Postal or ZIP code.",
+            "type": "string"
+          },
+          "city": {
+            "description": "City or locality.",
+            "type": "string"
+          },
+          "countryCode": {
+            "description": "ISO 3166-1 alpha-2 country code.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Z]{2}$"
+          },
+          "countryName": {
+            "description": "Translated country name for display.",
+            "type": "string"
+          },
+          "countryStateCode": {
+            "description": "Technical code of the country subdivision, or `null` when no subdivision applies.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "countryStateName": {
+            "description": "Translated country-subdivision name, or `null` when no subdivision applies.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phoneNumber": {
+            "description": "Recipient phone number, or `null` when not supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "OrderV2Method": {
+        "description": "Payment or shipping method selected for the order.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "displayName"
+        ],
+        "properties": {
+          "id": {
+            "description": "Identifier of the selected method.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "displayName": {
+            "description": "Translated method name in the response language selected by `sw-language-id`, resolved through Shopware's language fallback chain.",
+            "type": "string"
+          }
+        }
+      },
+      "OrderV2Payment": {
+        "description": "Primary payment transaction created for the order.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "transactionId",
+          "status",
+          "method"
+        ],
+        "properties": {
+          "transactionId": {
+            "description": "Identifier of the primary order transaction.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderV2PaymentStatus",
+            "description": "Current status of the primary payment transaction."
+          },
+          "method": {
+            "description": "Payment method selected for the order.",
+            "$ref": "#/components/schemas/OrderV2Method"
+          }
+        }
+      },
+      "OrderV2Delivery": {
+        "description": "Primary delivery created for the order.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "method",
+          "shippingAddress",
+          "estimatedDelivery",
+          "trackingCodes"
+        ],
+        "properties": {
+          "id": {
+            "description": "Identifier of the primary order delivery.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderV2DeliveryStatus",
+            "description": "Current status of the primary delivery."
+          },
+          "method": {
+            "description": "Shipping method selected for the delivery.",
+            "$ref": "#/components/schemas/OrderV2Method"
+          },
+          "shippingAddress": {
+            "description": "Shipping address captured for the delivery.",
+            "$ref": "#/components/schemas/OrderV2Address"
+          },
+          "estimatedDelivery": {
+            "description": "Estimated delivery window calculated when the order was placed.",
+            "$ref": "#/components/schemas/OrderV2EstimatedDelivery"
+          },
+          "trackingCodes": {
+            "description": "Carrier tracking codes assigned to the delivery. The array is empty until codes are available.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OrderV2EstimatedDelivery": {
+        "description": "Estimated time window in which the delivery should arrive.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "earliest",
+          "latest"
+        ],
+        "properties": {
+          "earliest": {
+            "description": "Earliest estimated delivery date and time.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "latest": {
+            "description": "Latest estimated delivery date and time.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OrderV2Attribution": {
+        "description": "Marketing attribution captured with the order.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "affiliateCode",
+          "campaignCode"
+        ],
+        "properties": {
+          "affiliateCode": {
+            "description": "Affiliate identifier attributed to the order, or `null` when none was supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "campaignCode": {
+            "description": "Campaign identifier attributed to the order, or `null` when none was supplied.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

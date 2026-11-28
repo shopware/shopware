@@ -182,12 +182,41 @@ export default {
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
             });
 
-            this.systemConfigApiService.getConfig('core.media').then((config) => {
-                config
-                    .flat()[0]
-                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
-                    .forEach((element) => {
-                        this.arPlacementOptions = element.config.options.map((option) => {
+            const getConfig = this.systemConfigApiService.getConfig;
+            const usesOwnGetConfig = getConfig !== Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
+
+            if (Shopware.Feature.isActive('V6_8_0_0') || !usesOwnGetConfig) {
+                this.systemConfigApiService.getSchema('core.media').then((schema) => {
+                    const placementElement = schema
+                        .flatMap((tab) => tab.cards)
+                        .flatMap((card) => card.elements)
+                        .find((element) => element.name === 'core.media.defaultARPlacement');
+
+                    if (!placementElement) {
+                        return;
+                    }
+
+                    this.arPlacementOptions = placementElement.config.options.map((option) => {
+                        return {
+                            id: option.id,
+                            value: option.id,
+                            label: this.$t(`sw-media.sidebar.actions.${option.id}`),
+                        };
+                    });
+                });
+            } else {
+                // @deprecated tag:v6.8.0 - An extension's getConfig override stays the source until then.
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    this.systemConfigApiService.getConfig('core.media').then((cards) => {
+                        const placementElement = cards
+                            .flatMap((card) => card.elements)
+                            .find((element) => element.name === 'core.media.defaultARPlacement');
+
+                        if (!placementElement) {
+                            return;
+                        }
+
+                        this.arPlacementOptions = placementElement.config.options.map((option) => {
                             return {
                                 id: option.id,
                                 value: option.id,
@@ -195,7 +224,8 @@ export default {
                             };
                         });
                     });
-            });
+                });
+            }
 
             this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {
                 this.arReady = entity?.config?.spatial?.arReady;

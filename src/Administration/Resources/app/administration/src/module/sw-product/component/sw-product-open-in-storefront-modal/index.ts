@@ -73,25 +73,16 @@ export default Shopware.Component.wrapComponentConfig({
             type: String,
             required: true,
         },
-
-        salesChannels: {
-            type: Array as PropType<Entity<'sales_channel'>[]>,
-            required: true,
-        },
-
-        hasUnsavedChanges: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     data(): {
+        salesChannels: Entity<'sales_channel'>[];
         selectedSalesChannelId: string | null;
         loadedSalesChannel: LoadedSalesChannel | null;
         isLoading: boolean;
     } {
         return {
+            salesChannels: [],
             selectedSalesChannelId: null,
             loadedSalesChannel: null,
             isLoading: false,
@@ -112,6 +103,10 @@ export default Shopware.Component.wrapComponentConfig({
             const variation = variations.map(({ group, option }) => `${group}: ${option}`).join(' | ');
 
             return variation ? `${this.productName} (${variation})` : this.productName;
+        },
+
+        hasUnsavedChanges(): boolean {
+            return this.productRepository.hasChanges(this.product);
         },
 
         salesChannelOptions(): { value: string; label: string }[] {
@@ -191,13 +186,44 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created(): void {
-        this.createdComponent();
+        void this.createdComponent();
     },
 
     methods: {
-        createdComponent(): void {
+        async createdComponent(): Promise<void> {
+            await this.loadSalesChannels();
+
             if (this.salesChannels.length === 1) {
                 this.selectedSalesChannelId = this.salesChannels[0].id;
+            }
+        },
+
+        async loadSalesChannels(): Promise<void> {
+            this.isLoading = true;
+
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('visibilities.salesChannel');
+
+            try {
+                const product = await this.productRepository.get(
+                    this.product.id,
+                    { ...Shopware.Context.api, inheritance: true },
+                    criteria,
+                );
+
+                this.salesChannels = Array.from(product?.visibilities ?? [])
+                    .map(({ salesChannel }) => salesChannel)
+                    .filter(
+                        (salesChannel): salesChannel is Entity<'sales_channel'> =>
+                            salesChannel?.typeId === Shopware.Defaults.storefrontSalesChannelTypeId,
+                    );
+            } catch {
+                useNotification().createNotificationError({
+                    message: this.$t('sw-product.openInStorefrontModal.notificationOpenInStorefrontError'),
+                });
+                this.$emit('modal-close');
+            } finally {
+                this.isLoading = false;
             }
         },
 

@@ -316,6 +316,15 @@
                         {{ $t('sw-product.list.contextMenuShowVariants') }}
                     </sw-context-menu-item>
                     {% endblock %}
+
+                    {% block sw_product_list_grid_columns_actions_open_in_storefront %}
+                    <sw-context-menu-item
+                        class="sw-product-list-grid__open-in-storefront-action"
+                        @click="openInStorefrontProduct = item"
+                    >
+                        {{ $t('sw-product.detail.buttonOpenInStorefront') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
                 </template>
                 {% endblock %}
                 {% endblock %}
@@ -389,6 +398,15 @@
             v-if="showVariantModal"
             :product-entity="productEntityVariantModal"
             @modal-close="closeVariantModal"
+        />
+        {% endblock %}
+
+        {% block sw_product_list_content_open_in_storefront_modal %}
+        <sw-product-open-in-storefront-modal
+            v-if="openInStorefrontProduct"
+            :product="openInStorefrontProduct"
+            :product-name="placeholder(openInStorefrontProduct, 'name')"
+            @modal-close="openInStorefrontProduct = null"
         />
         {% endblock %}
     </template>

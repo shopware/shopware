@@ -150,6 +150,11 @@ The warning about it is only logged in development builds.
 The `indexProducts()` method and the `productIds` and `cacheService` properties of the variant generator in `src/module/sw-product/helper/sw-products-variants-generator.js` are deprecated and will be removed in 6.8 without replacement.
 The generator no longer calls them, because its sync requests queue the indexing of the products they write.
 
+### Open a product in the Storefront from the product listing
+
+The product listing offers the "Open in Storefront" action of the product detail page in the context menu of each row.
+The `visibleStorefrontSalesChannels` computed property and the `openInStorefrontHasUnsavedChanges` data property of `sw-product-detail` are deprecated and will be removed in 6.8 without replacement, because the modal now loads the sales channels and checks for unsaved changes itself.
+
 ## Storefront
 
 ### Production Vite builds generate JavaScript SBOMs

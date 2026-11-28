@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import { mount, type VueWrapper } from '@vue/test-utils';
+import type CriteriaType from 'src/core/data/criteria.data';
 import type { ProductStorefrontUrls } from '../../service/product-storefront-url.api.service';
 
 const productStorefrontUrlApiService = { fetchProductUrls: jest.fn() };
@@ -11,6 +12,7 @@ function salesChannel(overrides: Record<string, unknown> = {}): Entity<'sales_ch
         id: 'sales-channel-id',
         name: 'Storefront',
         translated: { name: 'Storefront' },
+        typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
         active: true,
         maintenance: false,
         ...overrides,
@@ -38,6 +40,8 @@ function entity(origin: Record<string, unknown>, draft: Record<string, unknown> 
 
 async function createWrapper({
     salesChannels = [salesChannel()],
+    loadSavedProduct = (): Promise<unknown> =>
+        Promise.resolve({ visibilities: salesChannels.map((visibleIn) => ({ salesChannel: visibleIn })) }),
     loadedSalesChannel = storefrontSalesChannel() as ProductStorefrontUrls | null,
     product = {} as Record<string, unknown>,
     productDraft = {} as Record<string, unknown>,
@@ -56,6 +60,8 @@ async function createWrapper({
             data: Array.from({ length: availableVariants }, (_, index) => `variant-${index}`),
         }),
         search: jest.fn(() => languageSearch),
+        get: jest.fn(loadSavedProduct),
+        hasChanges: jest.fn().mockReturnValue(hasUnsavedChanges),
     };
     const systemConfigApiService = {
         getValues: jest.fn().mockResolvedValue({ 'core.listing.hideCloseoutProductsWhenOutOfStock': hideCloseoutProducts }),
@@ -66,8 +72,6 @@ async function createWrapper({
             product: entity({ id: 'product-id', active: true, childCount: 0, ...product }, productDraft),
             parentProduct: parentProduct && entity({ id: 'parent-id', ...parentProduct }, parentProductDraft),
             productName: 'Shirt',
-            salesChannels,
-            hasUnsavedChanges,
         },
         global: {
             stubs: {
@@ -323,11 +327,15 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         expect(failingReasons(wrapper)).toEqual(['sw-product.openInStorefrontModal.checks.maintenanceAllowlist']);
     });
 
-    it('warns that the Storefront shows the saved state when there are unsaved changes', async () => {
-        const { wrapper } = await createWrapper({ hasUnsavedChanges: true });
+    it.each([true, false])(
+        'warns that the Storefront shows the saved state only when there are unsaved changes (%s)',
+        async (hasUnsavedChanges) => {
+            const { wrapper, repository } = await createWrapper({ hasUnsavedChanges });
 
-        expect(wrapper.find('.sw-product-open-in-storefront-modal__unsaved-changes').exists()).toBe(true);
-    });
+            expect(repository.hasChanges).toHaveBeenCalledWith(expect.objectContaining({ id: 'product-id' }));
+            expect(wrapper.find('.sw-product-open-in-storefront-modal__unsaved-changes').exists()).toBe(hasUnsavedChanges);
+        },
+    );
 
     it('informs when the product is not assigned to a Storefront sales channel', async () => {
         const { wrapper } = await createWrapper({ salesChannels: [] });
@@ -370,6 +378,69 @@ describe('module/sw-product/component/sw-product-open-in-storefront-modal', () =
         );
         expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
         expect(wrapper.find('.sw-product-open-in-storefront-modal__result').exists()).toBe(false);
+    });
+
+    describe('sales channels', () => {
+        function visibility(id: string, typeId: string = Shopware.Defaults.storefrontSalesChannelTypeId) {
+            return { salesChannel: salesChannel({ id, typeId }) };
+        }
+
+        it('loads the Storefront sales channels of the saved product, inherited ones included', async () => {
+            const { wrapper, repository } = await createWrapper({
+                loadSavedProduct: () =>
+                    Promise.resolve({
+                        visibilities: [visibility('storefront'), visibility('headless', 'headless-type-id')],
+                    }),
+            });
+
+            const [productId, context, criteria] = repository.get.mock.calls[0] as unknown as [
+                string,
+                { inheritance: boolean },
+                CriteriaType,
+            ];
+            expect(productId).toBe('product-id');
+            expect(context.inheritance).toBe(true);
+            expect(criteria.hasAssociation('visibilities')).toBe(true);
+            expect(criteria.getAssociation('visibilities').hasAssociation('salesChannel')).toBe(true);
+            expect(wrapper.findComponent({ name: 'mt-select' }).props('options')).toEqual([
+                { value: 'storefront', label: 'Storefront' },
+            ]);
+            expect(productStorefrontUrlApiService.fetchProductUrls).toHaveBeenCalledWith('product-id', 'storefront');
+        });
+
+        it('shows the loader instead of the missing sales channel hint while it loads them', async () => {
+            let resolveProduct: (product: unknown) => void = () => {};
+            const { wrapper } = await createWrapper({
+                loadSavedProduct: () =>
+                    new Promise((resolve) => {
+                        resolveProduct = resolve;
+                    }),
+            });
+
+            expect(wrapper.find('mt-loader-stub').exists()).toBe(true);
+            expect(wrapper.find('.sw-product-open-in-storefront-modal__no-sales-channels').exists()).toBe(false);
+
+            resolveProduct({ visibilities: [] });
+            await flushPromises();
+
+            expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
+            expect(wrapper.find('.sw-product-open-in-storefront-modal__no-sales-channels').exists()).toBe(true);
+        });
+
+        it('shows an error and closes when it cannot load them', async () => {
+            const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+            const { wrapper } = await createWrapper({
+                loadSavedProduct: () => Promise.reject(new Error('Forbidden')),
+            });
+
+            expect(notificationSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    variant: 'error',
+                    message: 'sw-product.openInStorefrontModal.notificationOpenInStorefrontError',
+                }),
+            );
+            expect(wrapper.emitted('modal-close')).toHaveLength(1);
+        });
     });
 
     it('emits modal-close when the modal root closes', async () => {

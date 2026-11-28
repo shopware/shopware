@@ -18,11 +18,9 @@ inject
   systemConfigApiService  [private]
 
 props
-  hasUnsavedChanges?: boolean  default=false  [private]
   parentProduct?: Entity<'product'> | null  default=null  [private]
   product: Entity<'product'>  [private]
   productName: string  [private]
-  salesChannels: Entity<'sales_channel'>[]  [private]
 
 emits
   modal-close(...args: any[])  [private]
@@ -30,9 +28,11 @@ emits
 data
   isLoading: any  [private]
   loadedSalesChannel: any  [private]
+  salesChannels: any  [private]
   selectedSalesChannelId: any  [private]
 
 computed
+  hasUnsavedChanges: boolean  [private]
   invalidDomainUrls: string[]  [private]
   isProductActive: boolean  [private]
   languageRepository: RepositoryType<'language'>  [private]
@@ -45,10 +45,11 @@ computed
   selectedSalesChannel: Entity<'sales_channel'> | null  [private]
 
 methods
-  createdComponent(): void  [private]
+  createdComponent(): Promise<void>  [private]
   getFailingReasons(productUrls: ProductStorefrontUrls | null, stockReason: StockReason | null): FailingReason[]  [private]
   isSoldOutClearanceSale(): Promise<boolean>  [private]
   loadLanguageNames(domains: ProductStorefrontUrls['domains']): Promise<Record<string, string>>  [private]
+  loadSalesChannels(): Promise<void>  [private]
   loadSelectedSalesChannel(isCancelled: () => boolean): Promise<void>  [private]
   loadStockReason(salesChannelId: string): Promise<StockReason | null>  [private]
   onLoadError(error: unknown, isCancelled: () => boolean): void  [private]

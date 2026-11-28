@@ -71,6 +71,7 @@ blocks
         sw_product_list_grid_columns
           sw_product_list_grid_columns_actions
             sw_product_list_grid_columns_actions_duplicate  [scope: item]
+            sw_product_list_grid_columns_actions_open_in_storefront  [after v-if] [scope: item]
             sw_product_list_grid_columns_actions_open_variant  [scope: item]
           sw_product_list_grid_columns_active
             sw_product_list_grid_columns_active_content  [after v-if] [scope: isInlineEdit, item]
@@ -88,6 +89,7 @@ blocks
             sw_product_list_grid_columns_stock_content  [after v-if] [scope: compact, isInlineEdit, item]
             sw_product_list_grid_columns_stock_inline_edit  [scope: compact, isInlineEdit, item]
     sw_product_list_content_clone_modal
+    sw_product_list_content_open_in_storefront_modal  [after v-if]
     sw_product_list_content_variant_modal  [after v-if]
     sw_product_list_language_switch
     sw_product_list_search_bar

@@ -256,19 +256,19 @@ properties:
         title: "Margin (XS)"
         titleSnippet: "sw-experience-studio.elements.grid-container.margin.xs.title"
         description: "Outer spacing on extra small breakpoint."
-        default: "0 0 24px 0"
+        default: null
       sm:
         type: string
         title: "Margin (SM)"
         titleSnippet: "sw-experience-studio.elements.grid-container.margin.sm.title"
         description: "Outer spacing on small breakpoint."
-        default: "0 0 24px 0"
+        default: null
       md:
         type: string
         title: "Margin (MD)"
         titleSnippet: "sw-experience-studio.elements.grid-container.margin.md.title"
         description: "Outer spacing on medium breakpoint."
-        default: "0 0 24px 0"
+        default: null
       lg:
         type: string
         title: "Margin (LG)"
@@ -280,13 +280,13 @@ properties:
         title: "Margin (XL)"
         titleSnippet: "sw-experience-studio.elements.grid-container.margin.xl.title"
         description: "Outer spacing on extra large breakpoint."
-        default: "0 0 24px 0"
+        default: null
       xxl:
         type: string
         title: "Margin (XXL)"
         titleSnippet: "sw-experience-studio.elements.grid-container.margin.xxl.title"
         description: "Outer spacing on extra extra large breakpoint."
-        default: "0 0 24px 0"
+        default: null
 
   align:
     type: string

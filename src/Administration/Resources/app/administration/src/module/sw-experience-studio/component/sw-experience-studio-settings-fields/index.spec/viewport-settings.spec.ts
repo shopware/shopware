@@ -1,6 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
 import BreakpointSelect from '../../sw-experience-studio-breakpoint-select';
+import boxSpacingField from '../../sw-experience-studio-box-spacing-field';
 import settingsFields from '../index';
 
 const visibility = {
@@ -25,6 +26,7 @@ function createWrapper(values: Record<string, unknown>, field = visibility) {
         global: {
             provide: { repositoryFactory: {} },
             stubs: {
+                'sw-experience-studio-box-spacing-field': { ...boxSpacingField, inheritAttrs: false },
                 'sw-collapse': { template: '<div><slot name="content" /></div>' },
                 BreakpointSelect: {
                     props: ['modelValue', 'overrides', 'canReset'],
@@ -106,6 +108,41 @@ describe('responsive settings field', () => {
         expect(input().element.value).toBe('0');
         await input().setValue('1');
         expect(wrapper.emitted('update-field')).toEqual([[{ key: 'size', value: { lg: 6, xl: 0, xxl: 1 } }]]);
+    });
+
+    it.each([
+        ['margin', { lg: '0 0 24px 0' }, '0 0 24px 0'],
+        ['padding', {}, null],
+    ])('persists zero %s at Base, inherits it, and resets an override', async (key, initial, defaultValue) => {
+        const field = {
+            key,
+            breakpointAware: true,
+            property: {
+                type: 'string',
+                title: key,
+                default: defaultValue,
+                adminUI: { component: 'box-spacing' },
+            } as ContentSystemElementTypeProperty,
+        };
+        wrapper = createWrapper({ [key]: initial }, field);
+        const bottom = () => wrapper.get<HTMLInputElement>('.sw-experience-studio-box-spacing-field__side--bottom input');
+
+        await bottom().setValue('0');
+        expect(wrapper.emitted('update-field')?.at(-1)).toEqual([{ key, value: { lg: '0 0 0 0' } }]);
+        await wrapper.setProps({ values: { [key]: { lg: '0 0 0 0' } } });
+        expect(bottom().element.value).toBe('0');
+
+        await wrapper.get('select[aria-label="Viewport"]').setValue('xxl');
+        expect(bottom().element.value).toBe('0');
+        await bottom().setValue('8');
+        expect(wrapper.emitted('update-field')?.at(-1)).toEqual([
+            { key, value: { lg: '0 0 0 0', xxl: '0 0 8px 0' } },
+        ]);
+        await wrapper.setProps({ values: { [key]: { lg: '0 0 0 0', xxl: '0 0 8px 0' } } });
+        await wrapper.get('.reset-viewport').trigger('click');
+        expect(wrapper.emitted('update-field')?.at(-1)).toEqual([{ key, value: { lg: '0 0 0 0' } }]);
+        await wrapper.setProps({ values: { [key]: { lg: '0 0 0 0' } } });
+        expect(bottom().element.value).toBe('0');
     });
 
     it('updates the displayed field when the supplied fallback order changes', async () => {

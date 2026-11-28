@@ -204,25 +204,10 @@ export function normalizeBoxSpacingCSSValue(value: unknown): string {
  * @sw-package discovery
  */
 export function serializeBoxSpacing(sides: BoxSpacingSides, options: SerializeBoxSpacingOptions = {}): string {
-    const hasAnyInput = [
-        sides.top,
-        sides.right,
-        sides.bottom,
-        sides.left,
-    ].some((side) => side.trim() !== '');
-
-    if (!hasAnyInput) {
-        return '';
-    }
-
     const top = normalizeBoxSpacingSide(sides.top);
     const right = normalizeBoxSpacingSide(sides.right);
     const bottom = normalizeBoxSpacingSide(sides.bottom);
     const left = normalizeBoxSpacingSide(sides.left);
-
-    if (top === '0' && right === '0' && bottom === '0' && left === '0') {
-        return '';
-    }
 
     const explicit = options.explicit ?? false;
 

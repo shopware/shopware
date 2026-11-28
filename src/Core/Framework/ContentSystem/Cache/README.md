@@ -15,6 +15,7 @@ HTTP cache integration for content system routes. Manages cache tag collection d
 | Entity                      | Tag Pattern                                    | Defined by                                           | Invalidated by                                                                                                                          |
 |-----------------------------|------------------------------------------------|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | product                     | `product-{id}`                                 | platform, `EntityCacheKeyGenerator::buildProductTag()` | platform `CacheInvalidationSubscriber::invalidateProduct()`, `invalidateProductCrossSelling()`, `invalidateMedia()`; module `CacheInvalidationSubscriber::invalidateEntityContentLayout()`, `beforeDelete()` |
+| product manufacturer        | `product-manufacturer-{id}`                    | platform, `EntityCacheKeyGenerator::buildManufacturerTag()` | platform `CacheInvalidationSubscriber::invalidateMedia()`                                                                        |
 | category                    | `category-route-{id}`                          | platform, `CategoryRoute::buildName()`               | platform `CacheInvalidationSubscriber::invalidateCategoryRouteByCategoryIds()`, `invalidateCategoryRouteByCategoryTranslationChanges()`, `invalidateMedia()`; module `invalidateEntityContentLayout()`, `beforeDelete()` |
 | landing_page                | `landing-page-route-{id}`                      | platform, `LandingPageRoute::buildName()`            | platform `CacheInvalidationSubscriber::invalidateIndexedLandingPages()`, `invalidateMedia()`; module `invalidateEntityContentLayout()`, `beforeDelete()` |
 | cms_page                    | `cms-page-{id}`                                | platform, `EntityCacheKeyGenerator::buildCmsTag()`   | platform `CacheInvalidationSubscriber::invalidateCmsPageIds()`, `invalidateMedia()`                                                     |
@@ -28,9 +29,11 @@ HTTP cache integration for content system routes. Manages cache tag collection d
 
 Unsupported entities return null → page becomes uncacheable.
 
+A product loaded by the `entity` or `entity_collection` loader also records the product tag of its parent, which is the tag the platform's product invalidation builds for a variant.
+
 `CacheInvalidationSubscriber` names the platform class under `src/Core/Framework/Adapter/Cache/` after a `platform` prefix, and the module class under `src/Core/Framework/ContentSystem/Cache/` after a `module` prefix.
 
-The five entity patterns and `navigation` are platform tags. The module records them and relies on the platform's invalidation of an entity's own data ([caching.md](../docs/principles/caching.md#the-http-cache-stores-a-render-only-when-every-value-it-shows-has-a-recorded-covering-tag)).
+The five entity tag patterns, the manufacturer tag and `navigation` are platform tags. The module records them and relies on the platform's invalidation of an entity's own data ([caching.md](../docs/principles/caching.md#the-http-cache-stores-a-render-only-when-every-value-it-shows-has-a-recorded-covering-tag)).
 
 Category `category.media` mappings additionally record `content-system-mapped-media-{id}` for the media entity actually returned by the provider. The tag is added to the caller's rendering cache context and forwarded by `CacheFinalizer`. Reading only category text does not add it, even if the loaded category also has media. This does not add generic media support to `EntityCacheTagResolver` or make standalone media loaders cacheable.
 

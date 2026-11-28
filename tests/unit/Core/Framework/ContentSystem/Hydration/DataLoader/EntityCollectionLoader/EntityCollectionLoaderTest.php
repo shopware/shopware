@@ -134,6 +134,40 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertCount(2, $result->getCacheTags());
     }
 
+    #[TestDox('records the shared parent and manufacturer tags once beside the tags of the requested ids')]
+    public function testLoadRecordsRelatedTagsOfEveryEntityWithoutDuplicates(): void
+    {
+        $firstId = $this->ids->get('variant-one');
+        $secondId = $this->ids->get('variant-two');
+        $parentId = $this->ids->get('parent');
+        $firstManufacturerId = $this->ids->get('manufacturer-one');
+        $secondManufacturerId = $this->ids->get('manufacturer-two');
+
+        $loader = $this->createLoaderWithSalesChannelRepo(
+            'product',
+            new EntityCollection([
+                $this->createVariant($firstId, $parentId, $firstManufacturerId),
+                $this->createVariant($secondId, $parentId, $secondManufacturerId),
+            ]),
+            new EntityCacheTagResolver(),
+        );
+
+        $result = $loader->load(
+            self::inputs('product', [$firstId, $secondId]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertSame([
+            'product-' . $firstId,
+            'product-' . $secondId,
+            'product-' . $parentId,
+            'product-manufacturer-' . $firstManufacturerId,
+            'product-manufacturer-' . $secondManufacturerId,
+        ], $result->getCacheTags());
+    }
+
     #[TestDox('tags a requested id that returned no entity alongside the ids that did')]
     public function testLoadTagsARequestedIdThatReturnedNoEntity(): void
     {
@@ -809,5 +843,15 @@ class EntityCollectionLoaderTest extends TestCase
         $entity->setUniqueIdentifier($id);
 
         return $entity;
+    }
+
+    private function createVariant(string $id, string $parentId, string $manufacturerId): SalesChannelProductEntity
+    {
+        $variant = new SalesChannelProductEntity();
+        $variant->setUniqueIdentifier($id);
+        $variant->setParentId($parentId);
+        $variant->setManufacturerId($manufacturerId);
+
+        return $variant;
     }
 }

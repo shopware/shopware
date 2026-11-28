@@ -186,6 +186,10 @@ class EntityCollectionLoader extends AbstractContentDataLoader
             }
 
             $tags[] = $tag;
+
+            foreach ($this->cacheTagResolver->resolveRelated($entity) as $relatedTag) {
+                $tags[] = $relatedTag;
+            }
         }
 
         return ContentDataLoaderResult::cached($entities, ...array_values(array_unique($tags)));
@@ -217,8 +221,8 @@ class EntityCollectionLoader extends AbstractContentDataLoader
     }
 
     /**
-     * Degrades rather than propagating: resolveDefinition() throws DefinitionNotFoundException when the
-     * mapped definition service is absent from the container. resolveDefinition() itself stays throwing,
+     * Degrades rather than propagating: the sales-channel lookup throws DefinitionNotFoundException, the base
+     * lookup throws ContentSystemException::unknownLoaderEntity. resolveDefinition() itself stays throwing,
      * because resolveProducedType() is an introspection path that must fail hard on an unknown entity.
      * No id was requested, so no lookup runs and the result records no tag.
      */

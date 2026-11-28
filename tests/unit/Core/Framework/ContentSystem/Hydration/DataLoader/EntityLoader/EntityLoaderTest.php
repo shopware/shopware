@@ -215,6 +215,30 @@ class EntityLoaderTest extends TestCase
         static::assertSame(['product-' . $productId], $result->getCacheTags());
     }
 
+    #[TestDox('records the parent product tag and the manufacturer tag beside the requested id when a variant is loaded')]
+    public function testLoadRecordsRelatedProductTags(): void
+    {
+        $variantId = $this->ids->get('variant');
+        $parentId = $this->ids->get('parent');
+        $manufacturerId = $this->ids->get('manufacturer');
+
+        $variant = new SalesChannelProductEntity();
+        $variant->setUniqueIdentifier($variantId);
+        $variant->setParentId($parentId);
+        $variant->setManufacturerId($manufacturerId);
+
+        $loader = $this->createLoaderWithSalesChannelRepo('product', new EntityCollection([$variant]), new EntityCacheTagResolver());
+        $result = $this->loadEntity($loader, 'product', $variantId);
+
+        static::assertSame($variant, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([
+            'product-' . $variantId,
+            'product-' . $parentId,
+            'product-manufacturer-' . $manufacturerId,
+        ], $result->getCacheTags());
+    }
+
     #[TestDox('falls back to context repository when sales channel repository is unavailable')]
     public function testLoadFallsBackToContextRepositoryWhenSalesChannelRepoUnavailable(): void
     {

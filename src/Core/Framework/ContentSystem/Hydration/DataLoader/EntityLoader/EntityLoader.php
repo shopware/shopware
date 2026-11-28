@@ -171,7 +171,7 @@ class EntityLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::uncacheable($entity);
         }
 
-        return ContentDataLoaderResult::cached($entity, $cacheTag);
+        return ContentDataLoaderResult::cached($entity, $cacheTag, ...$this->cacheTagResolver->resolveRelated($entity));
     }
 
     /**

@@ -84,6 +84,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CheckoutDraftRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute;
 use Shopware\Core\Checkout\Cart\Subscriber\CartOrderEventSubscriber;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
@@ -94,6 +95,7 @@ use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry;
 use Shopware\Core\Checkout\Cart\Telemetry\CartMetricsInstrumentor;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Checkout\Cart\Validator;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecutor;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AddCartErrorCommandHandler;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AddPaymentMethodCommandHandler;
@@ -133,6 +135,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -401,7 +404,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Tax calculation
     $services->set(PercentageTaxRuleBuilder::class);
 
-    $services->set(TaxDetector::class);
+    $services->set(IntraCommunityTaxResolver::class)
+        ->args([
+            service(VatIdPatternProvider::class),
+            service(SystemConfigService::class),
+            service('country.repository'),
+            service(ExtensionDispatcher::class),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(TaxDetector::class)
+        ->args([
+            service(IntraCommunityTaxResolver::class),
+        ]);
 
     $services->set(TaxCalculator::class);
 

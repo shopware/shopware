@@ -15,6 +15,7 @@ mixins
 
 inject
   customerValidationService
+  customerVatIdService
   feature
   numberRangeService
   repositoryFactory
@@ -26,6 +27,7 @@ emits
 
 data
   activeTab: any
+  billingCountry: any
   customer: any
   customerNumberPreview: any
   defaultSalutationId: any
@@ -34,8 +36,10 @@ data
 computed
   addressRepository: any
   billingAddress: any
+  countryRepository: any
   customerRepository: any
   isSameBilling: any
+  isVatIdRequired: any
   languageCriteria: any
   languageId: any
   languageRepository: any
@@ -55,6 +59,7 @@ methods
   onClose(): any
   onSave(): Promise<any>
   saveCustomer(): Promise<any>
+  validVatIdField(): Promise<any>
   validateEmail(): Promise<any>
 
 blocks

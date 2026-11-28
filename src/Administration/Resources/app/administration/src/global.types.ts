@@ -58,6 +58,7 @@ import type ShopwareDiscountCampaignService from './app/service/discount-campaig
 import type AppModulesService from './core/service/api/app-modules.service';
 import type AclService from './app/service/acl.service';
 import type EntityValidationService from './app/service/entity-validation.service';
+import type CustomerVatIdService from './app/service/customer-vat-id.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
 import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
 import type ProductStorefrontUrlApiService from './module/sw-product/service/product-storefront-url.api.service';
@@ -274,6 +275,7 @@ declare global {
         entityHydrator: $TSFixMe;
         entityMappingService: $TSFixMe;
         entityValidationService: EntityValidationService;
+        customerVatIdService: CustomerVatIdService;
         extensionHelperService: ExtensionHelperService;
         extensionSdkService: ExtensionSdkService;
         feature: FeatureService;

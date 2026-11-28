@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndex
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -31,6 +33,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -233,11 +236,10 @@ class ProductStreamUpdaterTest extends TestCase
         $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
                 static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
-                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-                static::assertEquals($criteria, $actualCriteria);
+                static::assertEquals(self::firstPageCriteria($criteria), $actualCriteria);
 
-                return $newMatches;
+                return self::page($newMatches);
             },
             static fn () => [],
         ], $definition);
@@ -295,16 +297,14 @@ class ProductStreamUpdaterTest extends TestCase
             ->method('transactional')
             ->withAnyParameters();
 
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('product.active', true));
+        $criteria = self::firstPageCriteria((new Criteria())->addFilter(new EqualsFilter('product.active', true)));
 
         $definition = new ProductDefinition();
         $repository = StaticEntityRepository::of(ProductCollection::class, [
             static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
                 static::assertEquals($criteria, $actualCriteria);
 
-                return $newMatches;
+                return self::page($newMatches);
             },
             static fn () => [],
         ], $definition);
@@ -358,9 +358,7 @@ class ProductStreamUpdaterTest extends TestCase
             ->method('transactional')
             ->withAnyParameters();
 
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('product.active', true));
+        $criteria = self::firstPageCriteria((new Criteria())->addFilter(new EqualsFilter('product.active', true)));
 
         $definition = new ProductDefinition();
         $repository = StaticEntityRepository::of(ProductCollection::class, [
@@ -390,6 +388,111 @@ class ProductStreamUpdaterTest extends TestCase
         );
 
         $updater->handle($message);
+    }
+
+    #[DataProvider('searchPageSizeProvider')]
+    public function testHandleLoadsStreamPageByPage(?bool $elasticsearchEnabled, ?int $maxResultWindow, int $pageSize): void
+    {
+        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
+
+        $filters = json_encode([[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
+
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $connection
+            ->expects($this->once())
+            ->method('transactional')
+            ->withAnyParameters()
+            ->willReturnCallback(static fn (callable $operation) => $operation());
+
+        $firstPage = array_map(static fn () => Uuid::randomHex(), range(1, $pageSize));
+        $allMatches = [...$firstPage, Uuid::randomHex()];
+
+        $definition = new ProductDefinition();
+        $repository = StaticEntityRepository::of(ProductCollection::class, [
+            static function (Criteria $criteria) use ($firstPage, $pageSize): array {
+                static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+                static::assertSame($pageSize, $criteria->getLimit());
+
+                return self::page($firstPage);
+            },
+            static function (Criteria $criteria) use ($allMatches, $pageSize): array {
+                static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
+                static::assertEquals(new RangeFilter('autoIncrement', [RangeFilter::GT => $pageSize]), $criteria->getFilters()['increment']);
+
+                return self::page([$allMatches[$pageSize]], $pageSize + 1);
+            },
+        ], $definition);
+
+        $updatedIds = [];
+        $manyToManyFieldUpdater = static::createStub(ManyToManyIdFieldUpdater::class);
+        $manyToManyFieldUpdater
+            ->method('update')
+            ->willReturnCallback(static function (string $entity, array $ids) use (&$updatedIds): void {
+                array_push($updatedIds, ...$ids);
+            });
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            $manyToManyFieldUpdater,
+            $this->createDefaultLanguageRepo(),
+            true,
+            parameterBag: new ParameterBag($elasticsearchEnabled === null ? [] : [
+                'elasticsearch.enabled' => $elasticsearchEnabled,
+                'elasticsearch.index_settings.max_result_window' => $maxResultWindow,
+            ]),
+        );
+
+        $updater->handle($message);
+
+        static::assertSame($allMatches, $updatedIds);
+    }
+
+    /**
+     * @return iterable<string, array{?bool, ?int, int}>
+     */
+    public static function searchPageSizeProvider(): iterable
+    {
+        yield 'without OpenSearch the batch is capped at 50k' => [null, null, 50000];
+        yield 'disabled OpenSearch does not restrict SQL batches' => [false, 500, 50000];
+        yield 'small result windows are respected' => [true, 500, 500];
+        yield 'the default OpenSearch window limits the batch to 10k' => [true, 10000, 10000];
+        yield 'larger OpenSearch windows do not exceed the 50k cap' => [true, 100000, 50000];
+    }
+
+    public function testRejectsAnEmptyResultWindow(): void
+    {
+        $this->expectExceptionObject(ProductException::invalidStreamResultWindow(0));
+
+        new ProductStreamUpdater(
+            static::createStub(Connection::class),
+            new ProductDefinition(),
+            StaticEntityRepository::of(ProductCollection::class, []),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            $this->createDefaultLanguageRepo(),
+            indexingEnabled: true,
+            parameterBag: new ParameterBag([
+                'elasticsearch.enabled' => true,
+                'elasticsearch.index_settings.max_result_window' => 0,
+            ]),
+        );
     }
 
     public function testUpdateProductsSkipsInvalidFilter(): void
@@ -588,6 +691,32 @@ class ProductStreamUpdaterTest extends TestCase
             'numOfTransactional' => 2, // add and delete
             'manyToManyUpdatedIds' => [$productId3, $productId4, $productId5, $productId1, $productId2],
         ];
+    }
+
+    private static function firstPageCriteria(Criteria $criteria): Criteria
+    {
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setLimit(50000);
+        $criteria->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING));
+        $criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GTE => 0]));
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+
+        return $criteria;
+    }
+
+    /**
+     * @param string[] $ids
+     *
+     * @return array<string, array{primaryKey: string, data: array{autoIncrement: int}}>
+     */
+    private static function page(array $ids, int $autoIncrement = 1): array
+    {
+        $page = [];
+        foreach ($ids as $id) {
+            $page[$id] = ['primaryKey' => $id, 'data' => ['autoIncrement' => $autoIncrement++]];
+        }
+
+        return $page;
     }
 
     /**

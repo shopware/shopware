@@ -99,6 +99,10 @@ class RepositoryIterator
         }
 
         $increment = $ids->getDataFieldOfId($last, 'autoIncrement');
+        if (\is_float($increment)) {
+            $increment = (int) $increment;
+        }
+
         // without the cursor the next page would restart at the first one and never end
         if (!\is_int($increment)) {
             throw DataAbstractionLayerException::repositoryIteratorMissingAutoIncrement();

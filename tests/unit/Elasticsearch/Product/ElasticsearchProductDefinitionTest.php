@@ -843,6 +843,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $document = $documents[$uuid];
 
         static::assertSame($uuid, $document['id']);
+        static::assertSame(1, $document['autoIncrement']);
         static::assertArrayHasKey('name', $document);
         static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $document['name']);
         static::assertSame('Test', $document['name'][Defaults::LANGUAGE_SYSTEM]);

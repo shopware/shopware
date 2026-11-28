@@ -710,6 +710,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ManyToManyIdFieldUpdater::class),
             service('language.repository'),
             param('shopware.product_stream.indexing'),
+            service('parameter_bag'),
         ])
         ->tag('shopware.entity_indexer');
 

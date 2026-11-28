@@ -275,7 +275,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
             $documents[$id] = [
                 'id' => $id,
-                'autoIncrement' => (float) $item['autoIncrement'],
+                'autoIncrement' => (int) $item['autoIncrement'],
                 'ratingAverage' => (float) $item['ratingAverage'],
                 'active' => (bool) $item['active'],
                 'available' => (bool) $item['available'],

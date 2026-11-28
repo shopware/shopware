@@ -598,13 +598,18 @@ class ProductStreamUpdaterTest extends TestCase
             }
 
             /**
-             * @return list<string>
+             * @return array<string, array{primaryKey: string, data: array{autoIncrement: float}}>
              */
             public function __invoke(): array
             {
                 $this->repository->addSearch($this);
 
-                return $this->matches;
+                $result = [];
+                foreach ($this->matches as $index => $id) {
+                    $result[$id] = ['primaryKey' => $id, 'data' => ['autoIncrement' => (float) ($index + 1)]];
+                }
+
+                return $result;
             }
         };
         $productRepository->addSearch($search);

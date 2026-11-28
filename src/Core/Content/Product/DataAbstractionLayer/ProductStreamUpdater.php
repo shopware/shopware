@@ -6,10 +6,12 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -28,12 +30,17 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('framework')]
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     public const INDEXER_NAME = 'product_stream_mapping.indexer';
+
+    private const SEARCH_PAGE_SIZE = 50000;
+
+    private readonly int $searchPageSize;
 
     /**
      * @internal
@@ -49,7 +56,18 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         private readonly EntityRepository $languageRepository,
         private readonly bool $indexingEnabled,
+        ?ParameterBagInterface $parameterBag = null,
     ) {
+        $maxResultWindow = self::SEARCH_PAGE_SIZE;
+        if ($parameterBag?->has('elasticsearch.enabled') && $parameterBag->get('elasticsearch.enabled')) {
+            $maxResultWindow = (int) $parameterBag->get('elasticsearch.index_settings.max_result_window');
+        }
+
+        if ($maxResultWindow < 1) {
+            throw ProductException::invalidStreamResultWindow($maxResultWindow);
+        }
+
+        $this->searchPageSize = min(self::SEARCH_PAGE_SIZE, $maxResultWindow);
     }
 
     public function getName(): string
@@ -330,7 +348,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         foreach ($languageContexts as $languageContext) {
             $languageMatches = $languageContext->enableInheritance(
-                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
+                fn (Context $context): array => $this->searchIds($criteria, $context)
             );
 
             foreach ($languageMatches as $id) {
@@ -339,6 +357,27 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         return array_keys($matches);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function searchIds(Criteria $criteria, Context $context): array
+    {
+        if (!$criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE)) {
+            return $this->repository->searchIds($criteria, $context)->getIds();
+        }
+
+        $iterator = new RepositoryIterator($this->repository, $context, (clone $criteria)->setLimit($this->searchPageSize));
+
+        $ids = [];
+        do {
+            /** @var list<string> $page */
+            $page = $iterator->fetchIds() ?? [];
+            array_push($ids, ...$page);
+        } while (\count($page) === $this->searchPageSize);
+
+        return $ids;
     }
 
     /**

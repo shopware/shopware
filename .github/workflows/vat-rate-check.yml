@@ -1,0 +1,145 @@
+name: VAT rate check
+
+on:
+  schedule:
+    # Monthly, on the 2nd. EU rate changes take effect on the 1st of a month or of a half-year, so a
+    # day's grace lets TEDB publish the new period before we look.
+    - cron: '0 5 2 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vat-rate-check-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Validate default VAT rates
+    runs-on: ubuntu-24.04
+    # sync.yml mirrors every workflow into shopware/shopware-private, where this job would resolve
+    # its tracking issue against an unrelated repository. See .github/AGENTS.md.
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      # `tax_rule` after every migration has run is the only baseline this check has; there is
+      # deliberately no committed country-to-rate table to compare against.
+      #
+      # setup-shopware checks the repository out itself; without shopware-version it falls back to
+      # its own default tag (a 6.6 release) instead of this ref, so both inputs are mandatory here.
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          mysql-version: "builtin"
+          install: true
+          env: prod
+
+      - name: Dump the default VAT rates from the database
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Only the entire-country rules Migration1589359936AddTaxCountryRules wrote.
+          mysql -u root -h 127.0.0.1 shopware -N -r -e "
+            SELECT COALESCE(
+              JSON_ARRAYAGG(JSON_OBJECT('iso', c.iso, 'taxClass', t.name, 'taxRate', tr.tax_rate)),
+              JSON_ARRAY()
+            )
+            FROM tax_rule tr
+            JOIN country c ON c.id = tr.country_id
+            JOIN tax t ON t.id = tr.tax_id
+            JOIN tax_rule_type trt ON trt.id = tr.tax_rule_type_id
+            WHERE trt.technical_name = 'entire_country' AND c.iso IS NOT NULL;
+          " > "$RUNNER_TEMP/current-vat-rates.json"
+
+      - name: Compare against the published rates
+        id: check
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Exit 1 is the expected "a difference was found" verdict, reported as an issue below, and
+          # must not fail the job. Exit 2 means a broken source — including a dump that is empty or
+          # not JSON, so it can never read as "no drift". `|| true` would discard that distinction.
+          set +e
+          node .github/bin/js/check-vat-rates.ts --current "$RUNNER_TEMP/current-vat-rates.json"
+          status=$?
+          set -e
+
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+      - name: Report the findings
+        if: steps.check.outputs.status != '0'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          CHECK_STATUS: ${{ steps.check.outputs.status }}
+          STANDARD_DRIFT: ${{ steps.check.outputs.standard_drift }}
+          STANDARD_FINGERPRINT: ${{ steps.check.outputs.standard_fingerprint }}
+          REDUCED_CANDIDATES: ${{ steps.check.outputs.reduced_candidates }}
+          REDUCED_FINGERPRINT: ${{ steps.check.outputs.reduced_fingerprint }}
+        with:
+          script: |
+            const { ISSUE_LABELS, buildReports, planIssueAction } = await import(
+              '${{ github.workspace }}/.github/bin/js/check-vat-rates.ts'
+            );
+
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const target = { owner: context.repo.owner, repo: context.repo.repo };
+
+            // Closed issues count too, so closing a finding as "won't ship" is not undone next
+            // month. Filtered by label: ~830 labelled issues against ~1310 open ones unfiltered,
+            // and the label is set at creation, so discovery never depends on who created them.
+            const tracked = await github.paginate(github.rest.issues.listForRepo, {
+              ...target,
+              state: 'all',
+              labels: ISSUE_LABELS.join(','),
+              per_page: 100,
+            });
+
+            for (const report of buildReports(process.env, run)) {
+              const plan = planIssueAction(tracked, report);
+
+              if (plan.action === 'create') {
+                const created = await github.rest.issues.create({
+                  ...target,
+                  title: report.title,
+                  body: report.body,
+                  labels: ISSUE_LABELS,
+                });
+                core.info(`opened #${created.data.number}: ${report.title}`);
+                continue;
+              }
+
+              if (plan.action === 'skip') {
+                core.info(`#${plan.issueNumber} already reports this exact finding, staying quiet.`);
+                continue;
+              }
+
+              if (plan.action === 'update') {
+                await github.rest.issues.update({ ...target, issue_number: plan.issueNumber, body: report.body });
+              }
+
+              await github.rest.issues.createComment({
+                ...target,
+                issue_number: plan.issueNumber,
+                body: report.changed,
+              });
+              core.info(`updated #${plan.issueNumber}: ${report.title}`);
+            }
+
+      # Unvalidated rates are a CI problem and have to be red; drift is a finding, not a failure.
+      - name: Fail the job when a source could not be read
+        if: steps.check.outputs.status != '0' && steps.check.outputs.status != '1'
+        shell: bash
+        env:
+          CHECK_STATUS: ${{ steps.check.outputs.status }}
+        run: |
+          set -euo pipefail
+
+          echo "::error::the VAT rate sources could not be read (exit ${CHECK_STATUS})" >&2
+          exit 1

@@ -1,4 +1,3 @@
-<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_customer_imitate_customer_modal %}
 <mt-modal-root
     is-open
@@ -6,6 +5,7 @@
 >
     <mt-modal
         :title="modalTitle"
+        :subtitle="modalSubtitle"
     >
         <div class="sw-customer-imitate-customer-modal">
             <mt-loader v-if="isLoading" />
@@ -43,35 +43,55 @@
             </div>
     {% endblock %}
 
+    {% block sw_customer_imitate_customer_modal_sales_channel_select %}
+            <mt-select
+                v-if="!isLoading && hasSalesChannelDomains"
+                v-model="selectedSalesChannelId"
+                class="imitate-customer-modal-sales-channel-select"
+                :options="salesChannelOptions"
+                hide-clearable-button
+                :label="$t('sw-customer.imitateCustomerModal.labelSalesChannel')"
+                :placeholder="$t('sw-customer.imitateCustomerModal.placeholderSalesChannel')"
+            />
+    {% endblock %}
+
     {% block sw_customer_imitate_customer_modal_body %}
             <div
-                v-if="!isLoading && hasSalesChannelDomains"
+                v-if="!isLoading && selectedSalesChannelDomains.length > 0"
                 class="imitate-customer-modal-container"
             >
+        {% block sw_customer_imitate_customer_modal_domains_headline %}
+                <h3 class="imitate-customer-modal-domains-headline">
+                    {{ $t('sw-customer.imitateCustomerModal.labelDomains') }}
+                </h3>
+        {% endblock %}
+
         {% block sw_customer_imitate_customer_modal_sales_channel_domain_items %}
-                <div
-                    v-for="salesChannelDomain of salesChannelDomains"
+                <button
+                    v-for="salesChannelDomain of selectedSalesChannelDomains"
                     :key="salesChannelDomain.id"
+                    type="button"
                     class="imitate-customer-modal-item"
                     @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId, salesChannelDomain.url)"
                 >
-                    <div class="imitate-customer-modal-item-content">
-                        <div class="imitate-customer-modal-item-title">
-                            <div class="imitate-customer-modal-item-header">
-                                {{ salesChannelDomain.salesChannel.translated.name }}
-                            </div>
+                    <span class="imitate-customer-modal-item-content">
+                        <span class="imitate-customer-modal-item-title">
+                            <span class="imitate-customer-modal-item-header">
+                                {{ salesChannelDomain.language?.name }}
+                            </span>
 
-                            <div class="imitate-customer-modal-item-url">
+                            <span class="imitate-customer-modal-item-url">
                                 {{ salesChannelDomain.url }}
-                            </div>
-                        </div>
+                            </span>
+                        </span>
 
                         <mt-icon
                             name="regular-external-link-s"
                             size="14px"
+                            aria-hidden="true"
                         />
-                    </div>
-                </div>
+                    </span>
+                </button>
         {% endblock %}
             </div>
     {% endblock %}

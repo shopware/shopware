@@ -4638,9 +4638,11 @@
                 "sw_customer_imitate_customer_modal_alert",
                 "sw_customer_imitate_customer_modal_body",
                 "sw_customer_imitate_customer_modal_description",
+                "sw_customer_imitate_customer_modal_domains_headline",
                 "sw_customer_imitate_customer_modal_footer",
                 "sw_customer_imitate_customer_modal_footer_cancel",
-                "sw_customer_imitate_customer_modal_sales_channel_domain_items"
+                "sw_customer_imitate_customer_modal_sales_channel_domain_items",
+                "sw_customer_imitate_customer_modal_sales_channel_select"
             ]
         },
         "sw-customer-list": {

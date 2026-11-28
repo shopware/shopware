@@ -27,14 +27,18 @@ data
   imitateCustomerTokens: any
   isLoading: any
   salesChannelDomains: any
+  selectedSalesChannelId: any
 
 computed
   currentUser: any
   hasSalesChannelDomains: any
   modalDescription: any
+  modalSubtitle: any
   modalTitle: any
   salesChannelDomainCriteria: any
   salesChannelDomainRepository: any
+  salesChannelOptions: any
+  selectedSalesChannelDomains: any
 
 methods
   createdComponent(): Promise<any>
@@ -43,13 +47,16 @@ methods
   onCancel(): any
   onModalRootChange(isOpen: any): any
   onSalesChannelDomainMenuItemClick(salesChannelId: any, salesChannelDomainUrl: any): any
+  preselectOnlySalesChannel(): any
 
 blocks
   sw_customer_imitate_customer_modal
     sw_customer_imitate_customer_modal_alert  [after v-if]
     sw_customer_imitate_customer_modal_body  [after v-if]
+      sw_customer_imitate_customer_modal_domains_headline
       sw_customer_imitate_customer_modal_sales_channel_domain_items
     sw_customer_imitate_customer_modal_description  [after v-if]
     sw_customer_imitate_customer_modal_footer
       sw_customer_imitate_customer_modal_footer_cancel
+    sw_customer_imitate_customer_modal_sales_channel_select  [after v-if]
 ```

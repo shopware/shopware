@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiUpdateQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -97,10 +97,7 @@ class MediaIndexer extends EntityIndexer
 
         $context = $message->getContext();
 
-        $query = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE `media` SET thumbnails_ro = :thumbnails_ro WHERE id = :id')
-        );
+        $query = new MultiUpdateQueryQueue($this->connection, 'media');
 
         $all = $this->thumbnailRepository
             ->search($criteria, $context)
@@ -109,11 +106,10 @@ class MediaIndexer extends EntityIndexer
         foreach ($ids as $id) {
             $thumbnails = $all->filterByProperty('mediaId', $id);
 
-            $query->execute([
-                'thumbnails_ro' => serialize($thumbnails),
-                'id' => Uuid::fromHexToBytes($id),
-            ]);
+            $query->addUpdate(Uuid::fromHexToBytes($id), ['thumbnails_ro' => serialize($thumbnails)]);
         }
+
+        $query->execute();
 
         $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context, array_values($message->getSkip())));
     }

@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInte
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -38,6 +37,8 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class SearchKeywordUpdater implements ResetInterface
 {
+    private const READ_BATCH_SIZE = 50;
+
     /**
      * @var array<string, array<int, ConfigField>>
      */
@@ -119,9 +120,13 @@ class SearchKeywordUpdater implements ResetInterface
         $keywords = [];
         $dictionary = [];
 
-        $iterator = $this->getIterator($ids, $context, $configFields);
+        $context->setConsiderInheritance(true);
+        $criteria = new Criteria();
+        $this->buildCriteria(array_column($configFields, 'field'), $criteria, $context);
 
-        while ($products = $iterator->fetch()) {
+        foreach (array_chunk($ids, self::READ_BATCH_SIZE) as $chunk) {
+            $criteria->setIds($chunk);
+            $products = $this->productRepository->search($criteria, $context);
             foreach ($products->getEntities() as $product) {
                 // overwrite fetched products if translations for that product exists
                 // otherwise we use the already fetched product from the parent language
@@ -164,24 +169,6 @@ class SearchKeywordUpdater implements ResetInterface
 
     /**
      * @param array<string> $ids
-     * @param array<int, ConfigField> $configFields
-     *
-     * @return RepositoryIterator<ProductCollection>
-     */
-    private function getIterator(array $ids, Context $context, array $configFields): RepositoryIterator
-    {
-        $context->setConsiderInheritance(true);
-
-        $criteria = new Criteria($ids);
-        $criteria->setLimit(50);
-
-        $this->buildCriteria(array_column($configFields, 'field'), $criteria, $context);
-
-        return new RepositoryIterator($this->productRepository, $context, $criteria);
-    }
-
-    /**
-     * @param array<string> $ids
      */
     private function delete(array $ids, string $languageId, string $versionId): void
     {
@@ -207,7 +194,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function insertKeywords(array $keywords): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, true);
+        $queue = new MultiInsertQueryQueue($this->connection, ignoreErrors: true);
         foreach ($keywords as $insert) {
             $queue->addInsert(ProductSearchKeywordDefinition::ENTITY_NAME, $insert);
         }
@@ -219,7 +206,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function insertDictionary(array $dictionary): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, true, true);
+        $queue = new MultiInsertQueryQueue($this->connection, ignoreErrors: true, useReplace: true);
 
         foreach ($dictionary as $insert) {
             $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);
@@ -334,13 +321,12 @@ class SearchKeywordUpdater implements ResetInterface
             return;
         }
 
-        $criteria = new Criteria(array_keys($productsByParentId));
-        $criteria->setLimit(50);
+        $criteria = new Criteria();
         $criteria->addFields(['name']);
 
-        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
-
-        while ($parentProducts = $iterator->fetch()) {
+        foreach (array_chunk(array_keys($productsByParentId), self::READ_BATCH_SIZE) as $chunk) {
+            $criteria->setIds($chunk);
+            $parentProducts = $this->productRepository->search($criteria, $context);
             foreach ($parentProducts->getEntities() as $parent) {
                 $parentProduct = new ProductEntity();
                 $parentProduct->setId($parent->getId());

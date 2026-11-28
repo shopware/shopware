@@ -32,6 +32,45 @@ class VariantListingUpdaterTest extends TestCase
         $this->updater = new VariantListingUpdater($this->connection);
     }
 
+    public function testBatchUpdateDisplaysStandaloneProductsAndGroupsSimpleVariants(): void
+    {
+        $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $ids = [];
+        $expected = [];
+        for ($index = 0; $index < 501; ++$index) {
+            $standalone = Uuid::randomHex();
+            $parent = Uuid::randomHex();
+            $variant = Uuid::randomHex();
+            $ids[] = $standalone;
+            $ids[] = $parent;
+            foreach ([$standalone, $parent, $variant] as $id) {
+                $this->connection->insert('product', [
+                    'id' => Uuid::fromHexToBytes($id),
+                    'version_id' => $version,
+                    'product_number' => $id,
+                    'stock' => 1,
+                    'parent_id' => $id === $variant ? Uuid::fromHexToBytes($parent) : null,
+                    'parent_version_id' => $id === $variant ? $version : null,
+                    'display_group' => 'stale',
+                ]);
+            }
+            $expected[$standalone] = hash('sha256', strtoupper($standalone));
+            $expected[$parent] = null;
+            $expected[$variant] = hash('sha256', strtoupper($parent));
+        }
+
+        $this->updater->update($ids, Context::createDefaultContext());
+
+        $actual = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), display_group FROM product WHERE id IN (:ids) AND version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList(array_keys($expected)), 'version' => $version],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        ksort($expected);
+        ksort($actual);
+        static::assertSame($expected, $actual);
+    }
+
     public function testUpdateAppliesSha256DisplayGroupForListingGroupConfiguration(): void
     {
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);

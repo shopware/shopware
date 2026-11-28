@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -94,6 +96,83 @@ class ProductCategoryDenormalizerTest extends TestCase
         static::getContainer()->get(EntityIndexerRegistry::class)->index(false);
 
         static::assertSame(1, $this->getCountRowsInProductCategoryTree($productId, [$rootCategoryId]));
+    }
+
+    #[DataProvider('categoryTreeSizes')]
+    public function testBatchUpdateReplacesCategoryTreesAndClearsMissingCategories(int $ancestorCount): void
+    {
+        $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $ancestorIds = [];
+        for ($index = 0; $index < $ancestorCount; ++$index) {
+            $id = Uuid::randomHex();
+            $ancestorIds[] = $id;
+            $this->connection->insert('category', [
+                'id' => Uuid::fromHexToBytes($id),
+                'version_id' => $version,
+                'type' => 'page',
+                'created_at' => '2026-01-01 00:00:00.000',
+            ]);
+        }
+        $categoryId = Uuid::randomBytes();
+        $this->connection->insert('category', [
+            'id' => $categoryId,
+            'version_id' => $version,
+            'type' => 'page',
+            'path' => $ancestorIds === [] ? null : '|' . implode('|', $ancestorIds) . '|',
+            'created_at' => '2026-01-01 00:00:00.000',
+        ]);
+        $ids = [];
+        $expected = [];
+
+        for ($index = 0; $index < 501; ++$index) {
+            $id = Uuid::randomHex();
+            $ids[] = $id;
+            $this->connection->insert('product', [
+                'id' => Uuid::fromHexToBytes($id),
+                'version_id' => $version,
+                'product_number' => $id,
+                'stock' => 1,
+                'categories' => Uuid::fromHexToBytes($id),
+                'category_tree' => json_encode([Uuid::randomHex()], \JSON_THROW_ON_ERROR),
+            ]);
+            $expected[$id] = null;
+            if ($index % 2 === 0) {
+                $this->connection->insert('product_category', [
+                    'product_id' => Uuid::fromHexToBytes($id),
+                    'product_version_id' => $version,
+                    'category_id' => $categoryId,
+                    'category_version_id' => $version,
+                ]);
+                $expected[$id] = [...$ancestorIds, Uuid::fromBytesToHex($categoryId)];
+            }
+        }
+
+        (new ProductCategoryDenormalizer($this->connection))->update($ids, $this->context);
+
+        $trees = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), category_tree FROM product WHERE id IN (:ids) AND version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $version],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        static::assertCount(501, $trees);
+        foreach ($trees as $id => $tree) {
+            static::assertSame($expected[$id], $tree === null ? null : json_decode($tree, true, 512, \JSON_THROW_ON_ERROR));
+        }
+        static::assertSame(251 * ($ancestorCount + 1), (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM product_category_tree WHERE product_id IN (:ids) AND product_version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $version],
+            ['ids' => ArrayParameterType::BINARY]
+        ));
+    }
+
+    /**
+     * @return \Generator<string, array{int}>
+     */
+    public static function categoryTreeSizes(): \Generator
+    {
+        yield 'small trees cross the row limit' => [0];
+        yield 'category inserts cross the row limit' => [1];
+        yield 'large trees reduce the batch size' => [200];
     }
 
     /**

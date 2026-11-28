@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiUpdateQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,7 +33,7 @@ class RatingAverageUpdater
 
         RetryableQuery::retryable($this->connection, function () use ($ids, $versionId): void {
             $this->connection->executeStatement(
-                'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version',
+                'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version AND rating_average IS NOT NULL',
                 ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
                 ['ids' => ArrayParameterType::BINARY]
             );
@@ -52,19 +53,11 @@ class RatingAverageUpdater
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
         $query->addGroupBy('IFNULL(product.parent_id, product.id)');
 
-        $averages = $query->executeQuery()->fetchAllAssociative();
-
-        $query = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE product SET rating_average = :average WHERE id = :id AND version_id = :version')
-        );
-
-        foreach ($averages as $average) {
-            $query->execute([
-                'average' => $average['average'],
-                'id' => $average['id'],
-                'version' => $versionId,
-            ]);
+        $updates = new MultiUpdateQueryQueue($this->connection, 'product', chunkSize: 500);
+        foreach ($query->executeQuery()->iterateAssociative() as $average) {
+            $updates->addUpdate($average['id'], ['rating_average' => $average['average']]);
         }
+
+        $updates->execute(['version_id' => $versionId]);
     }
 }

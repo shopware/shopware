@@ -10,12 +10,14 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
@@ -328,6 +330,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         /** @var array<string, true> $matches */
         $matches = [];
 
+        if (\count($languageContexts) > 1 && !$this->hasLanguageDependentFilters($criteria)) {
+            $languageContexts = [$languageContexts[0]];
+        }
+
         foreach ($languageContexts as $languageContext) {
             $languageMatches = $languageContext->enableInheritance(
                 fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
@@ -339,6 +345,36 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         return array_keys($matches);
+    }
+
+    private function hasLanguageDependentFilters(Criteria $criteria): bool
+    {
+        try {
+            foreach ($criteria->getFilters() as $filter) {
+                foreach ($filter->getFields() as $accessor) {
+                    $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($this->productDefinition, $accessor, false);
+                    $path = EntityDefinitionQueryHelper::removeExtensionPathSegments($accessor, $this->productDefinition);
+                    $segments = explode('.', $path);
+                    if ($segments[0] === ProductDefinition::ENTITY_NAME) {
+                        array_shift($segments);
+                    }
+                    // An unresolved segment may use a custom accessor. Preserve the per-language search.
+                    if (\count($fields) !== \count($segments)) {
+                        return true;
+                    }
+                    foreach ($fields as $field) {
+                        if ($field instanceof TranslatedField) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // Let the searcher resolve extension fields or report the original error.
+            return true;
+        }
+
+        return false;
     }
 
     /**

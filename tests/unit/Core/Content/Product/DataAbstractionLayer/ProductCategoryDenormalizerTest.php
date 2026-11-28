@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception as DriverException;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
@@ -45,15 +47,27 @@ class ProductCategoryDenormalizerTest extends TestCase
         static::assertCount(1, array_unique($writes), 'The category tree was written in more than one transaction.');
     }
 
+    public function testReplaysAllCategoryWritesWhenTransactionIsRetried(): void
+    {
+        $productId = Uuid::randomHex();
+        $writes = $this->captureWrites(
+            [['product_id' => $productId, 'paths' => '', 'ids' => Uuid::randomHex()]],
+            static fn (ProductCategoryDenormalizer $denormalizer) => $denormalizer->update([$productId], Context::createDefaultContext()),
+            retryFirstCommit: true
+        );
+
+        static::assertSame([1, 1, 1, 2, 2, 2], $writes, 'The retry must replay the delete, product update and mapping insert.');
+    }
+
     /**
      * @param list<array{product_id: string, paths: string, ids: string}> $mapping category mapping the read side returns per product
      * @param \Closure(ProductCategoryDenormalizer): void $action
      *
      * @return list<int|null> for every write, the number of the outermost transaction it ran in, or null outside of one
      */
-    private function captureWrites(array $mapping, \Closure $action): array
+    private function captureWrites(array $mapping, \Closure $action, bool $retryFirstCommit = false): array
     {
-        $recorder = new TransactionRecorder();
+        $recorder = new TransactionRecorder($retryFirstCommit);
 
         $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn($mapping);
@@ -94,6 +108,10 @@ class TransactionRecorder
 
     private int $outermost = 0;
 
+    public function __construct(private readonly bool $retryFirstCommit = false)
+    {
+    }
+
     public function transactional(\Closure $closure, Connection $connection): mixed
     {
         if ($this->depth === 0) {
@@ -103,7 +121,13 @@ class TransactionRecorder
         ++$this->depth;
 
         try {
-            return $closure($connection);
+            $result = $closure($connection);
+
+            if ($this->retryFirstCommit && $this->depth === 1 && $this->outermost === 1) {
+                throw new DeadlockException(new DriverException('Deadlock on commit'), null);
+            }
+
+            return $result;
         } finally {
             --$this->depth;
         }

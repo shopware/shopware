@@ -93,6 +93,19 @@ If you generate types from the schema, regenerate them and handle `null` for the
 `GET /store-api/legal-guarantee-notice` also returns `text`, the notice as HTML in the language of `svg`.
 The SVG is now `aria-hidden`, so headless frontends should render `text` as its text alternative.
 
+## Features
+
+### MCP tool for bulk writes through the Sync API
+
+The Admin API MCP server (`/api/_mcp`) has a new tool `shopware-entity-sync` in the `entity` toolset.
+It takes the operations of the Admin API sync endpoint (`POST /api/_action/sync`), so a client can write and delete many records, also on several entities, in one call.
+`dryRun` defaults to `true`: the operations run and are rolled back, and the result shows what would be written, deleted or not found.
+`indexingBehavior` accepts `use-queue-indexing`; `disable-indexing` is rejected.
+`skipTriggerFlow` works like the `sw-skip-trigger-flow` header.
+
+The tool needs the `create`, `update` or `delete` privilege of every entity its operations write.
+Like every MCP tool, it is only callable after it was added to the MCP allowlist of the integration or user.
+
 ## App System
 
 ### Deprecated the old shop ID format

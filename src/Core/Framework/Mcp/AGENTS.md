@@ -194,6 +194,7 @@ The hints are fields of the JSON-RPC result, not HTTP headers, and every request
 - All classes use `#[Package('framework')]` attribute
 - Tools return an `McpToolResult`; a string result is deprecated and reported by the `shopware.mcpToolLegacyStringResult` PHPStan rule; return plain text with `McpToolResult::text()`
 - Write tools default to `dryRun=true` for safety. Dry-run adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions during preview
+- Bulk writes go through `shopware-entity-sync` (`SyncService`, the Admin API sync endpoint) instead of a loop of single-entity writes. It checks the privileges of every operation before writing and rejects `indexingBehavior=disable-indexing`; see "Bulk writes" in `Tool/AGENTS.md`
 - Entity tools validate entity existence with `registry->has()` before ACL checks to provide clear error messages
 - Service IDs use FQCN; tags include `mcp.tool` for SDK discovery
 - Tools declare prerequisites with `#[McpToolDependsOn('other-tool-name')]` (repeatable) — the allowlist UI auto-expands these when a user enables a tool; `debug:mcp` shows them in the Dependencies column

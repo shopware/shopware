@@ -9,8 +9,10 @@ use horstoeko\zugferd\ZugferdProfiles;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxExemptionView;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -37,7 +39,8 @@ class ZugferdBuilder
      */
     public function __construct(
         protected EventDispatcherInterface $eventDispatcher,
-        protected AmountCalculator $calculator
+        protected AmountCalculator $calculator,
+        private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver,
     ) {
     }
 
@@ -124,7 +127,13 @@ class ZugferdBuilder
         }
 
         $taxStatus = $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus();
-        $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $taxStatus === CartPrice::TAX_STATE_GROSS))
+        $taxExemption = TaxExemptionView::fromIntraCommunitySupply(
+            $this->intraCommunityTaxResolver->getIntraCommunityVatId($order),
+            $this->intraCommunityTaxResolver->getShippingAddress($order),
+            $config->getVatId(),
+        );
+
+        $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $taxStatus === CartPrice::TAX_STATE_GROSS, $taxExemption))
             ->withBuyerInformation($customer, $billingAddress)
             ->withSellerInformation($config)
             ->withDocumentInformation($config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)

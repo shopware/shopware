@@ -6,6 +6,7 @@ use horstoeko\zugferd\codelists\ZugferdAllowanceCodes;
 use horstoeko\zugferd\codelists\ZugferdChargeCodes;
 use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use horstoeko\zugferd\codelists\ZugferdReferenceCodeQualifiers;
 use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
 use horstoeko\zugferd\codelists\ZugferdUnitCodes;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
@@ -22,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxExemptionView;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -96,9 +98,13 @@ class ZugferdDocument
         self::ALLOWANCE_AMOUNT => [],
     ];
 
+    /**
+     * @param TaxExemptionView|null $taxExemption internal - the exemption the whole document states; without one, every position keeps the category of its tax rate
+     */
     public function __construct(
         protected readonly ZugferdDocumentBuilder $zugferdBuilder,
         protected readonly bool $isGross = false,
+        private readonly ?TaxExemptionView $taxExemption = null,
     ) {
         ZugferdSettings::addSpecialDecimalPlacesMap(
             self::UNIT_PRICE_NODE_PATH,
@@ -160,6 +166,22 @@ class ZugferdDocument
                 $countryStateCode
             );
 
+        if ($this->taxExemption === null) {
+            return $this;
+        }
+
+        $deliveryAddress = $this->taxExemption->deliveryAddress;
+
+        $this->zugferdBuilder
+            ->addDocumentBuyerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $this->taxExemption->buyerVatId)
+            ->setDocumentShipTo()
+            ->setDocumentShipToAddress(
+                lineOne: $deliveryAddress->getStreet(),
+                postCode: $deliveryAddress->getZipcode(),
+                city: $deliveryAddress->getCity(),
+                country: $deliveryAddress->getCountry()?->getIso(),
+            );
+
         return $this;
     }
 
@@ -193,8 +215,8 @@ class ZugferdDocument
         $this->zugferdBuilder
             ->addDocumentPaymentTerm(null, \DateTime::createFromImmutable(Clock::get()->now())->modify($documentConfig->getPaymentDueDate() ?: '+30 days'))
             ->setDocumentSeller($documentConfig->getCompanyName() ?? '')
-            ->addDocumentSellerTaxRegistration('FC', $documentConfig->getTaxNumber())
-            ->addDocumentSellerTaxRegistration('VA', $documentConfig->getVatId())
+            ->addDocumentSellerTaxRegistration(ZugferdReferenceCodeQualifiers::FISC_NUMB, $documentConfig->getTaxNumber())
+            ->addDocumentSellerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $documentConfig->getVatId())
             ->setDocumentSellerAddress(...$sellerAddress)
             ->setDocumentSellerCommunication('EM', $documentConfig->getCompanyEmail())
             ->setDocumentSellerContact(
@@ -394,7 +416,15 @@ class ZugferdDocument
     public function withTaxes(CartPrice $price): self
     {
         if ($price->getTaxStatus() === CartPrice::TAX_STATE_FREE) {
-            $this->zugferdBuilder->addDocumentTax($this->getTaxCode(null), 'VAT', $price->getTotalPrice(), 0, 0);
+            $this->zugferdBuilder->addDocumentTax(
+                $this->getTaxCode(null),
+                'VAT',
+                $price->getTotalPrice(),
+                0,
+                0,
+                $this->taxExemption?->taxCategory->exemptionReason(),
+                $this->taxExemption?->taxCategory->exemptionReasonCode(),
+            );
 
             return $this;
         }
@@ -505,7 +535,7 @@ class ZugferdDocument
 
     /**
      * Yields the calculated taxes to emit an allowance/charge group for, falling back to a single
-     * untaxed group (rate 0.0, category Z) when the price carries no calculated taxes.
+     * untaxed group (rate 0.0) when the price carries no calculated taxes.
      *
      * @return list<CalculatedTax|null>
      */
@@ -520,6 +550,10 @@ class ZugferdDocument
 
     protected function getTaxCode(?CalculatedTax $tax): string
     {
+        if ($this->taxExemption !== null) {
+            return $this->taxExemption->taxCategory->value;
+        }
+
         return match ($tax?->getTaxRate() ?? 0.0) {
             0.0 => ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS,
             default => ZugferdDutyTaxFeeCategories::STANDARD_RATE,

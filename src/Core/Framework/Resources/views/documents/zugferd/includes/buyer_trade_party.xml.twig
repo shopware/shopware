@@ -42,4 +42,10 @@
             <ram:URIID schemeID="EM">{{ buyer.email }}</ram:URIID>
         </ram:URIUniversalCommunication>
     {% endif %}
+
+    {% if buyer.vatId %}
+        <ram:SpecifiedTaxRegistration>
+            <ram:ID schemeID="VA">{{ buyer.vatId }}</ram:ID>
+        </ram:SpecifiedTaxRegistration>
+    {% endif %}
 </ram:BuyerTradeParty>

@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
@@ -2309,6 +2310,245 @@ class EntityReaderTest extends TestCase
 
         static::assertCount(3, $product1->getCategories());
         static::assertCount(3, $product2->getCategories());
+    }
+
+    public function testLoadManyToManySupportsSortingAndPagination(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $products = [
+            [
+                'id' => $id1,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'test',
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'categories' => [
+                    ['name' => 'A'],
+                    ['name' => 'B'],
+                    ['name' => 'X'],
+                    ['name' => 'E'],
+                    ['name' => 'D'],
+                ],
+            ],
+            [
+                'id' => $id2,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'test',
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'categories' => [
+                    ['name' => 'M'],
+                    ['name' => 'Z'],
+                    ['name' => 'K'],
+                    ['name' => 'L'],
+                ],
+            ],
+        ];
+
+        $this->productRepository->upsert($products, $context);
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('name'))
+            ->setLimit(3);
+
+        $products = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $product1 = $products->get($id1);
+        $product2 = $products->get($id2);
+
+        static::assertInstanceOf(ProductEntity::class, $product1);
+        static::assertInstanceOf(ProductEntity::class, $product2);
+        static::assertNotNull($product1->getCategories());
+        static::assertNotNull($product2->getCategories());
+
+        static::assertSame(['A', 'B', 'D'], array_values($product1->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+        static::assertSame(['K', 'L', 'M'], array_values($product2->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('name', FieldSorting::DESCENDING))
+            ->setLimit(3);
+
+        $products = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $product1 = $products->get($id1);
+        $product2 = $products->get($id2);
+
+        static::assertInstanceOf(ProductEntity::class, $product1);
+        static::assertInstanceOf(ProductEntity::class, $product2);
+        static::assertNotNull($product1->getCategories());
+        static::assertNotNull($product2->getCategories());
+
+        static::assertSame(['X', 'E', 'D'], array_values($product1->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+        static::assertSame(['Z', 'M', 'L'], array_values($product2->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+    }
+
+    public function testLoadInheritedManyToManySupportsSortingAndPagination(): void
+    {
+        $parentId = Uuid::randomHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'parent',
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'categories' => [
+                    ['name' => 'A'],
+                    ['name' => 'B'],
+                    ['name' => 'X'],
+                    ['name' => 'E'],
+                    ['name' => 'D'],
+                    ['name' => 'F'],
+                    ['name' => 'G'],
+                    ['name' => 'H'],
+                    ['name' => 'I'],
+                    ['name' => 'J'],
+                ],
+            ],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'parentId' => $parentId,
+            ],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'parentId' => $parentId,
+            ],
+        ];
+
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria([$redId, $greenId]);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('name'))
+            ->setLimit(3);
+
+        $context->setConsiderInheritance(true);
+        $products = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $red = $products->get($redId);
+        $green = $products->get($greenId);
+
+        static::assertInstanceOf(ProductEntity::class, $red);
+        static::assertInstanceOf(ProductEntity::class, $green);
+        static::assertNotNull($red->getCategories());
+        static::assertNotNull($green->getCategories());
+
+        static::assertSame(['A', 'B', 'D'], array_values($red->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+        static::assertSame(['A', 'B', 'D'], array_values($green->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+    }
+
+    public function testLoadManyToManyPaginationCountsOnlyFilteredItems(): void
+    {
+        $id = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+            'categories' => [
+                ['name' => 'A'],
+                ['name' => 'B'],
+                ['name' => 'C'],
+                ['name' => 'D'],
+                ['name' => 'E'],
+                ['name' => 'F'],
+                ['name' => 'G'],
+                ['name' => 'H'],
+                ['name' => 'I'],
+                ['name' => 'J'],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->getAssociation('categories')
+            ->addFilter(new EqualsAnyFilter('name', ['B', 'D', 'F', 'H', 'J']))
+            ->addSorting(new FieldSorting('name'))
+            ->setLimit(3);
+
+        $product = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities()
+            ->get($id);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product->getCategories());
+
+        static::assertSame(['B', 'D', 'F'], array_values($product->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
+    }
+
+    public function testLoadManyToManyPaginationWithToManySorting(): void
+    {
+        $id = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+            'categories' => [
+                ['name' => 'A', 'tags' => [['name' => 'tag-a'], ['name' => 'tag-b']]],
+                ['name' => 'B', 'tags' => [['name' => 'tag-c']]],
+                ['name' => 'C', 'tags' => [['name' => 'tag-d']]],
+                ['name' => 'D', 'tags' => [['name' => 'tag-e']]],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('tags.name'))
+            ->setLimit(3);
+
+        $product = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities()
+            ->get($id);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product->getCategories());
+
+        static::assertSame(['A', 'B', 'C'], array_values($product->getCategories()->map(static fn (CategoryEntity $e) => $e->getName())));
     }
 
     public function testReadSupportsConditions(): void

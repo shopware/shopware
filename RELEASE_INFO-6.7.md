@@ -172,6 +172,24 @@ The notice SVGs are now `aria-hidden`, and the notice link is described by the n
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
+### TypeScript Storefront plugin scaffolding
+
+`bin/console plugin:create --create-javascript-plugin` now generates `main.ts` and `example-plugin.plugin.ts` instead of JavaScript files.
+The generated plugin types its options via `Plugin<ExamplePluginOptions>`.
+
+The Storefront `Plugin` base class, `PluginManager` and `NativeEventEmitter` now ship TypeScript declarations next to their JavaScript implementation; runtime behavior is unchanged.
+The generated plugin does not include a `tsconfig.json`, and the Storefront build strips types without checking them.
+To get these types in your editor or with `tsc`, map `src/*` to the Storefront's `Resources/app/storefront/src/*` in your own `tsconfig.json`.
+Once a file imports `src/plugin-system/plugin.class`, `window.PluginManager` is typed as well.
+Pass the options shape as type argument to type `this.options`, for example `class MyPlugin extends Plugin<{ threshold: number }>`.
+Without a type argument, `this.options` is `Record<string, unknown>`.
+`this.el` is typed `HTMLElement | Document`, because a plugin registered without a selector is initialized on `document`.
+If your plugin is always registered with a selector, pass the element type as second type argument, for example `Plugin<MyPluginOptions, HTMLElement>`.
+
+Keep registering extension plugins via `window.PluginManager`.
+Do not import `src/plugin-system/plugin.manager` at runtime in an extension, because the extension bundle would create a second `PluginManager` that the Storefront never initializes.
+Existing plugin files are unchanged.
+
 # 6.7.17.0
 
 ## Critical Fixes

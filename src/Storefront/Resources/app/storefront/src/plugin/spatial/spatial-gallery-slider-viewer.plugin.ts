@@ -12,8 +12,6 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
     private spatialProductSliderRenderUtil: SpatialProductSliderRenderUtil | undefined;
     public sliderIndex: number | undefined;
 
-    public el: HTMLElement | undefined;
-
     /**
      * initialize plugin
      * does not initialize the 3d scene

@@ -23,8 +23,8 @@ class JavascriptPluginGeneratorTest extends TestCase
 
         $option = $generator->getCommandOption();
         static::assertSame(JavascriptPluginGenerator::OPTION_NAME, $option->getName());
-        static::assertNotSame('', $option->getDescription());
-        static::assertSame('Javascript Plugin', $generator->getCommandOptionTitle());
+        static::assertSame('Create an example Storefront TypeScript plugin', $option->getDescription());
+        static::assertSame('Storefront TypeScript Plugin', $generator->getCommandOptionTitle());
         static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 
@@ -96,11 +96,29 @@ class JavascriptPluginGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([JavascriptPluginGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/app/storefront/src/main.js',
-                'src/Resources/app/storefront/src/example-plugin/example-plugin.plugin.js',
+                'src/Resources/app/storefront/src/main.ts',
+                'src/Resources/app/storefront/src/example-plugin/example-plugin.plugin.ts',
                 'src/Resources/views/storefront/page/content/index.html.twig',
             ],
         ];
+    }
+
+    public function testMainEntryRegistersPluginViaSharedPluginManager(): void
+    {
+        $stubs = new StubCollection();
+
+        (new JavascriptPluginGenerator())
+            ->generateStubs(self::getConfig([JavascriptPluginGenerator::OPTION_NAME => true]), $stubs);
+
+        $mainEntry = $stubs->get('src/Resources/app/storefront/src/main.ts')?->getContent();
+
+        static::assertIsString($mainEntry);
+        static::assertStringContainsString(
+            'window.PluginManager.register(\'ExamplePlugin\', ExamplePlugin, \'[data-example-plugin]\');',
+            $mainEntry,
+        );
+        // A runtime import would bundle a second PluginManager into the extension, which the Storefront never initializes
+        static::assertDoesNotMatchRegularExpression('/^import\s+(?!type\b).*plugin\.manager/m', $mainEntry);
     }
 
     /**

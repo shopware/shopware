@@ -438,7 +438,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
         await flushPromises();
 
-        Shopware.Store.get('swProductDetail').product = { parentId: null };
+        Shopware.Store.get('swProductDetail').product = { id: '1234', parentId: null };
         Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
         await nextTick();
@@ -491,7 +491,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
         await flushPromises();
 
-        Shopware.Store.get('swProductDetail').product = { parentId: 'parent-id' };
+        Shopware.Store.get('swProductDetail').product = { id: '1234', parentId: 'parent-id' };
         Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
         await nextTick();
@@ -517,7 +517,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
         await flushPromises();
 
-        Shopware.Store.get('swProductDetail').product = { parentId: null };
+        Shopware.Store.get('swProductDetail').product = { id: '1234', parentId: null };
         Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
         await nextTick();

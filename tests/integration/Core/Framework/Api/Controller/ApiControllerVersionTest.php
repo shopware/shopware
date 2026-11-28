@@ -252,7 +252,7 @@ class ApiControllerVersionTest extends TestCase
         $connection = $browser->getContainer()->get(Connection::class);
 
         // all discard privileges except the entity one, so only the entity check can deny the request
-        TestUser::createNewTestUser($connection, ['product:read', 'version:delete', 'version_commit:delete'])->authorizeBrowser($browser);
+        TestUser::createNewTestUser($connection, ['product:read', 'version:delete'])->authorizeBrowser($browser);
 
         // the id has no row in the version, so deleting the entity itself checks no privilege
         $browser->jsonRequest('POST', '/api/_action/version/' . $versionId . '/product/' . Uuid::randomHex());
@@ -265,6 +265,49 @@ class ApiControllerVersionTest extends TestCase
         static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM version WHERE id = :version', $version), 'a denied discard must keep the version');
         static::assertGreaterThan(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM version_commit WHERE version_id = :version', $version), 'a denied discard must keep the change set');
         static::assertSame(1, $this->countVersionedProducts($id, $versionId), 'a denied discard must keep the draft');
+    }
+
+    public function testDeleteVersionThroughAnotherEntityRequiresVersionDeletePrivilege(): void
+    {
+        $id = $this->createProduct('live name');
+        $versionId = $this->createVersion($id);
+        $browser = $this->getBrowser();
+        $connection = $browser->getContainer()->get(Connection::class);
+
+        TestUser::createNewTestUser($connection, ['category:read', 'category:delete'])->authorizeBrowser($browser);
+
+        // the id has no row in the version, so only the version privilege stands before the change set
+        $browser->jsonRequest('POST', '/api/_action/version/' . $versionId . '/category/' . Uuid::randomHex());
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('version:delete', (string) $response->getContent());
+
+        $version = ['version' => Uuid::fromHexToBytes($versionId)];
+        static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM version WHERE id = :version', $version), 'a denied discard must keep the version');
+        static::assertGreaterThan(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM version_commit WHERE version_id = :version', $version), 'a denied discard must keep the change set');
+        static::assertSame(1, $this->countVersionedProducts($id, $versionId), 'a denied discard must keep the draft');
+    }
+
+    public function testDeleteVersionWithEntityAndVersionDeletePrivilege(): void
+    {
+        $id = $this->createProduct('live name');
+        $versionId = $this->createVersion($id);
+        $browser = $this->getBrowser();
+        $connection = $browser->getContainer()->get(Connection::class);
+
+        TestUser::createNewTestUser($connection, ['product:read', 'product:delete', 'version:delete'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/version/' . $versionId . '/product/' . $id);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $version = ['version' => Uuid::fromHexToBytes($versionId)];
+        static::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM version WHERE id = :version', $version));
+        static::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM version_commit WHERE version_id = :version', $version));
+        static::assertSame(0, $this->countVersionedProducts($id, $versionId));
+        static::assertSame('live name', $this->fetchLiveProductName($id));
     }
 
     public function testMergeRequiresUpdatePrivilege(): void

@@ -6,11 +6,23 @@
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set webPageType = jsonLdWebPageType is defined ? jsonLdWebPageType : 'WebPage' %}
     {% set pageUrl = (page.metaInformation.canonical is defined and page.metaInformation.canonical) ? page.metaInformation.canonical : app.request.uri %}
+    {% set pageIdUrl = pageUrl %}
+    {% if page.product is defined and page.product %}
+        {% set pageIdUrl = url('frontend.detail.page', { productId: page.product.id }) %}
+    {% elseif page.landingPage is defined and page.landingPage %}
+        {% set pageIdUrl = url('frontend.landing.page', { landingPageId: page.landingPage.id }) %}
+    {% elseif page.category is defined and page.category %}
+        {% set pageIdUrl = url('frontend.navigation.page', { navigationId: page.category.id }) %}
+        {# Preserve canonical pagination parameters so each listing page has a distinct identifier. #}
+        {% if '?' in pageUrl %}
+            {% set pageIdUrl = pageIdUrl ~ '?' ~ pageUrl|split('?', 2)|last %}
+        {% endif %}
+    {% endif %}
 
     {% set webPageData = {
         '@context': 'https://schema.org',
         '@type': webPageType,
-        '@id': pageUrl ~ '#webpage',
+        '@id': pageIdUrl ~ '#webpage',
         name: metaTitle,
         description: metaDescription,
         url: pageUrl,

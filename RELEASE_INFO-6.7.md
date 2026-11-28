@@ -152,6 +152,12 @@ The generator no longer calls them, because its sync requests queue the indexing
 
 ## Storefront
 
+### Stable JSON-LD identifiers
+
+With `JSON_LD_DATA` enabled, product, category, and landing page identifiers now use technical URLs instead of SEO URLs.
+The `Product` and `ProductGroup` identifiers also use technical URLs, so renaming an entity does not change its `@id`.
+Extensions referencing these entities in structured data should use the same technical URL and fragment, while `url` continues to expose the page address.
+
 ### Production Vite builds generate JavaScript SBOMs
 
 Production Vite builds now generate CycloneDX JSON inventories at `Resources/sbom/storefront/shopware.cdx.json` for the shared Shopware module and `Resources/sbom/storefront/components.cdx.json` for each bundle's components. The reports are kept outside public assets and are not published by `assets:install`. Extension component builds include bundled npm packages regardless of their development-dependency classification, including when using custom Vite configurations. The reports also include dependencies bundled into Web Workers, including shared and inline workers. Retain these reports when packaging extensions after source cleanup.

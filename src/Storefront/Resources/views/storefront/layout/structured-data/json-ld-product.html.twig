@@ -148,7 +148,7 @@
     {% set productData = {
         '@context': 'https://schema.org',
         '@type': 'Product',
-        '@id': productUrl ~ '#product',
+        '@id': url('frontend.detail.page', { productId: page.product.id }) ~ '#product',
         name: page.product.translated.name,
         sku: page.product.productNumber,
         productID: page.product.id,
@@ -325,7 +325,7 @@
         rather than treating the variant's Product as the page entity.
     #}
     {% if page.product.parentId %}
-        {% set parentUrl = seoUrl('frontend.detail.page', { productId: page.product.parentId }) %}
+        {% set parentUrl = url('frontend.detail.page', { productId: page.product.parentId }) %}
         {% set savedData = productData %}
 
         {# Build the variant-specific Product node (identifier and pricing info) #}

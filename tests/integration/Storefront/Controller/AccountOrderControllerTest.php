@@ -662,6 +662,11 @@ class AccountOrderControllerTest extends TestCase
             $unavailableProductId => 'Deactivated product',
         ]);
 
+        // a plugin can re-add its own line item types
+        $pluginLineItemOrderId = $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $unavailableProductId => 'Engraving',
+        ], 'engraving');
+
         // an order that still has at least one buyable product keeps its reorder entry
         $goneProductId = $this->createProduct($context, 'Gone product', $salesChannelId);
         $partlyAvailableProductId = $this->createProduct($context, 'Second product', $salesChannelId);
@@ -686,6 +691,7 @@ class AccountOrderControllerTest extends TestCase
         static::assertStringContainsString('/checkout/cart/reorder/' . $partlyAvailableOrderId, $content);
         // nothing buyable left, so no form at all
         static::assertStringNotContainsString('/checkout/cart/reorder/' . $unavailableOrderId, $content);
+        static::assertStringContainsString('/checkout/cart/reorder/' . $pluginLineItemOrderId, $content);
         // the route resolves the products from the order, so nothing is posted any more
         static::assertStringNotContainsString('lineItems[', $content);
     }
@@ -747,7 +753,7 @@ class AccountOrderControllerTest extends TestCase
     /**
      * @param array<string, string> $products product id => label
      */
-    private function createOrderWithProducts(Context $context, CustomerEntity $customer, string $salesChannelId, array $products): string
+    private function createOrderWithProducts(Context $context, CustomerEntity $customer, string $salesChannelId, array $products, string $type = LineItem::PRODUCT_LINE_ITEM_TYPE): string
     {
         $orderId = Uuid::randomHex();
         $orderData = $this->getOrderData($orderId, $context);
@@ -766,7 +772,7 @@ class AccountOrderControllerTest extends TestCase
                 'referencedId' => $productId,
                 'productId' => $productId,
                 'quantity' => 1,
-                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                'type' => $type,
                 'label' => $label,
                 'payload' => ['productNumber' => $productId],
                 'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),

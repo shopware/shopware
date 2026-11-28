@@ -66,7 +66,8 @@ If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the 
 - `page_account_order_item_context_menu_reorder_form_line_items_input`
 - `page_account_order_item_context_menu_reorder_form_line_item_input`
 
-From 6.7 on an override still rendered but no longer changed what a reorder adds. To change what a reorder adds, listen to the `checkout.cart.collect-reorder-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
+In 6.7 the reorder still added the non-product line items an override posted.
+To change what a reorder adds, listen to the `checkout.cart.collect-reorder-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
 
 ```php
 public static function getSubscribedEvents(): array

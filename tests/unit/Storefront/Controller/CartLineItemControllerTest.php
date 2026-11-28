@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Controller\CartLineItemController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -838,6 +840,97 @@ class CartLineItemControllerTest extends TestCase
 
         $controller = $this->getController(cartService: $cartService);
         $controller->deleteCart($request, $context);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testReorderAddsThePostedLineItemsThatAreNoProduct(): void
+    {
+        $productId = Uuid::randomHex();
+        $request = new Request([], ['lineItems' => [
+            $productId => ['id' => $productId, 'referencedId' => $productId, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE, 'quantity' => 1],
+            'engraving' => ['id' => 'engraving', 'type' => 'engraving', 'quantity' => 2],
+        ]]);
+        $cart = new Cart(Uuid::randomHex());
+        $reorderedCart = new Cart($cart->getToken());
+        $context = static::createStub(SalesChannelContext::class);
+        $engraving = new LineItem('engraving', 'engraving', null, 2);
+
+        $lineItemRegistry = $this->createMock(LineItemFactoryRegistry::class);
+        $lineItemRegistry->expects($this->once())
+            ->method('create')
+            ->with(['id' => 'engraving', 'type' => 'engraving', 'quantity' => 2, 'stackable' => true, 'removable' => true], $context)
+            ->willReturn($engraving);
+
+        $cartReorderRoute = $this->createMock(CartReorderRoute::class);
+        $cartReorderRoute->expects($this->once())->method('reorder')->willReturn(new CartResponse($reorderedCart));
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->once())
+            ->method('add')
+            ->with($reorderedCart, [$engraving], $context)
+            ->willReturn($reorderedCart);
+
+        $this->translatorCallback();
+
+        $this->getController(cartService: $cartService, lineItemRegistry: $lineItemRegistry, cartReorderRoute: $cartReorderRoute)
+            ->reorder(Uuid::randomHex(), $cart, $request, new RequestDataBag($request->request->all()), $context);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testReorderAddsNothingWhenAPostedLineItemCannotBeBuilt(): void
+    {
+        $request = new Request([], ['lineItems' => ['engraving' => ['id' => 'engraving', 'type' => 'engraving']]]);
+
+        $lineItemRegistry = static::createStub(LineItemFactoryRegistry::class);
+        $lineItemRegistry->method('create')->willThrowException(CartException::lineItemTypeNotSupported('engraving'));
+
+        $cartReorderRoute = $this->createMock(CartReorderRoute::class);
+        $cartReorderRoute->expects($this->never())->method('reorder');
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $this->getController(lineItemRegistry: $lineItemRegistry, cartReorderRoute: $cartReorderRoute)
+            ->reorder(Uuid::randomHex(), new Cart(Uuid::randomHex()), $request, new RequestDataBag($request->request->all()), static::createStub(SalesChannelContext::class));
+
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testReorderReportsAnErrorWhenNothingWasAdded(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+
+        $cartReorderRoute = static::createStub(CartReorderRoute::class);
+        $cartReorderRoute->method('reorder')->willReturn(new CartResponse($cart));
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $this->getController(cartReorderRoute: $cartReorderRoute)
+            ->reorder(Uuid::randomHex(), $cart, new Request(), new RequestDataBag(), static::createStub(SalesChannelContext::class));
+
+        static::assertSame(['danger'], array_keys($session->getFlashBag()->peekAll()));
+    }
+
+    // unit tests run with every major flag active unless a test disables it
+    public function testReorderIgnoresPostedLineItemsFromV68(): void
+    {
+        $request = new Request([], ['lineItems' => ['engraving' => ['id' => 'engraving', 'type' => 'engraving']]]);
+        $cart = new Cart(Uuid::randomHex());
+
+        $lineItemRegistry = $this->createMock(LineItemFactoryRegistry::class);
+        $lineItemRegistry->expects($this->never())->method('create');
+
+        $cartReorderRoute = static::createStub(CartReorderRoute::class);
+        $cartReorderRoute->method('reorder')->willReturn(new CartResponse($cart));
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->never())->method('add');
+
+        $this->translatorCallback();
+
+        $this->getController(cartService: $cartService, lineItemRegistry: $lineItemRegistry, cartReorderRoute: $cartReorderRoute)
+            ->reorder(Uuid::randomHex(), $cart, $request, new RequestDataBag($request->request->all()), static::createStub(SalesChannelContext::class));
     }
 
     public function testUpdateLineItems(): void

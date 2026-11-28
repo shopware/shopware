@@ -1,0 +1,10 @@
+regex	gate_id	command	extensions
+^(.*/)?phpstan[^/]*\.neon[^/]*$	phpstan	composer phpstan	php
+^src/Core/DevOps/StaticAnalyze/PHPStan/	phpstan	composer phpstan	php
+^(.*/)?\.php-cs-fixer[^/]*\.php$	cs	composer cs	php
+^(.*/)?rector\.php$	rector	composer rector	php
+^(.*/)?phpunit[^/]*\.xml\.dist$	phpunit	composer phpunit	php
+^src/Administration/Resources/app/administration/(eslint\.config\.[^/]+|eslint-rules/)	eslint-admin	composer eslint:admin	js,ts,vue,twig
+^src/Storefront/Resources/app/storefront/eslint\.config\.[^/]+$	eslint-storefront	composer eslint:storefront	js,ts
+^(.*/)?(\.stylelintrc[^/]*|stylelint\.config\.[^/]+)$	stylelint	composer stylelint	scss
+^(.*/)?\.fallowrc\.json$	fallow	composer fallow:admin	js,ts,vue

@@ -1,0 +1,14 @@
+# Files the candidate and control searches skip, one glob pattern per line, relative to the repository root.
+# Each line becomes the pathspec ":(exclude,glob)<pattern>"; "**/" matches any directory depth, including none.
+**/package-lock.json
+**/composer.lock
+**/yarn.lock
+**/pnpm-lock.yaml
+**/npm-shrinkwrap.json
+**/*.lock
+**/*.svg
+CHANGELOG.md
+RELEASE_INFO-*.md
+UPGRADE-*.md
+changelog/**
+adr/**

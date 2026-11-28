@@ -11,6 +11,7 @@ describe('AjaxOffcanvas tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            setInitialFocus: jest.fn(),
             // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
             _addFocusTrapGuard: jest.fn(),
             _removeFocusTrapGuard: jest.fn(),

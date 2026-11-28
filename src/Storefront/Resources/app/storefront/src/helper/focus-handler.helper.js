@@ -146,6 +146,43 @@ export default class FocusHandler {
     }
 
     /**
+     * Moves the focus into the given container, e.g. a modal or offcanvas that was just opened.
+     * An element marked with `autofocus` is preferred, followed by the first element that accepts the focus.
+     * The container itself is the fallback. Nothing happens if an element within the container is already focused.
+     *
+     * @param {HTMLElement} container
+     * @param {{preventScroll: boolean, focusVisible: boolean}} focusOptions
+     * @return {HTMLElement|null} The element that received the focus.
+     */
+    setInitialFocus(container, focusOptions = {}) {
+        if (!container) {
+            return null;
+        }
+
+        const activeElement = document.activeElement;
+        if (activeElement !== container && container.contains(activeElement)) {
+            return activeElement;
+        }
+
+        const candidates = [
+            ...container.querySelectorAll('[autofocus]'),
+            ...this.getFocusableElements(container),
+            container,
+        ];
+
+        // Hidden or otherwise unavailable elements match the selector, but do not accept the focus.
+        for (const candidate of candidates) {
+            this.setFocus(candidate, focusOptions);
+
+            if (document.activeElement === candidate) {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Returns a node list of all focusable elements within the given parent element.
      *
      * @param {Element} parentNode

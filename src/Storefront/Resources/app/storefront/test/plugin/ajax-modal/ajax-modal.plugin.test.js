@@ -134,6 +134,67 @@ describe('AjaxModalPlugin tests', () => {
         expect(ajaxModalPlugin._loadModalContent).toHaveBeenCalled();
     });
 
+    test('_onClickHandleAjaxModal ignores further clicks until the modal is shown', () => {
+        document.body.innerHTML = `
+            <a data-ajax-modal="true" data-url="/widgets/cms/contact-form-id" href="/widgets/cms/contact-form-id">
+                Open ajax modal
+            </a>
+
+            <div class="js-pseudo-modal-template">
+                <div class="modal modal-lg fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body js-pseudo-modal-template-content-element">Modal Content</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        ajaxModalPlugin = new AjaxModalPlugin(document.querySelector('[data-ajax-modal]'));
+        ajaxModalPlugin._openModal = jest.fn();
+        ajaxModalPlugin._loadModalContent = jest.fn();
+
+        ajaxModalPlugin._onClickHandleAjaxModal(new Event('click', { cancelable: true }));
+        ajaxModalPlugin._onClickHandleAjaxModal(new Event('click', { cancelable: true }));
+
+        expect(ajaxModalPlugin._openModal).toHaveBeenCalledTimes(1);
+
+        document.querySelector('.js-pseudo-modal .modal').dispatchEvent(new Event('shown.bs.modal'));
+        ajaxModalPlugin._onClickHandleAjaxModal(new Event('click', { cancelable: true }));
+
+        expect(ajaxModalPlugin._openModal).toHaveBeenCalledTimes(2);
+    });
+
+    test('_onClickHandleAjaxModal accepts clicks again after the modal was hidden', () => {
+        document.body.innerHTML = `
+            <a data-ajax-modal="true" data-url="/widgets/cms/contact-form-id" href="/widgets/cms/contact-form-id">
+                Open ajax modal
+            </a>
+
+            <div class="js-pseudo-modal-template">
+                <div class="modal modal-lg fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body js-pseudo-modal-template-content-element">Modal Content</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        ajaxModalPlugin = new AjaxModalPlugin(document.querySelector('[data-ajax-modal]'));
+        ajaxModalPlugin._openModal = jest.fn();
+        ajaxModalPlugin._loadModalContent = jest.fn();
+
+        ajaxModalPlugin._onClickHandleAjaxModal(new Event('click', { cancelable: true }));
+
+        document.querySelector('.js-pseudo-modal .modal').dispatchEvent(new Event('hidden.bs.modal'));
+        ajaxModalPlugin._onClickHandleAjaxModal(new Event('click', { cancelable: true }));
+
+        expect(ajaxModalPlugin._openModal).toHaveBeenCalledTimes(2);
+    });
+
     test('_loadModalContent will create a loading indicator and load the actual request', async () => {
         const pseudoModalUtil = new PseudoModalUtil();
 

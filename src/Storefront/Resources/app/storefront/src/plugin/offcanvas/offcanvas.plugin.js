@@ -51,11 +51,18 @@ class OffCanvasSingleton {
             return;
         }
 
+        // The opened offcanvas holds the focus itself as long as it has no focusable content, e.g. while loading.
+        const isOffCanvasFocused = document.activeElement === offCanvas[0];
+
         offCanvas[0].innerHTML = content;
 
         // register events again
         this._registerEvents(delay);
         this._setAriaAttrs();
+
+        if (isOffCanvasFocused) {
+            window.focusHandler.setInitialFocus(offCanvas[0]);
+        }
     }
 
     /**
@@ -127,6 +134,10 @@ class OffCanvasSingleton {
         // Keep the Bootstrap focus-trap working when the offcanvas is the last element before `</body>`.
         // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
         window.focusHandler._addFocusTrapGuard(_offCanvas);
+
+        _offCanvas.addEventListener('shown.bs.offcanvas', () => {
+            window.focusHandler.setInitialFocus(_offCanvas);
+        }, { once: true });
 
         OffCanvasSingleton.bsOffcanvas.show();
         window.history.pushState('offcanvas-open', '');

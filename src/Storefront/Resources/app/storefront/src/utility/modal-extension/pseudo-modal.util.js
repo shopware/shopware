@@ -73,9 +73,16 @@ export default class PseudoModalUtil {
      * @param {function} callback
      */
     updateContent(content, callback) {
+        // Replacing the content can remove the focused element, which would drop the focus out of the modal.
+        const isModalFocused = this._modal.contains(document.activeElement);
+
         this._content = content;
         this._setModalContent(content);
         this.updatePosition();
+
+        if (isModalFocused) {
+            window.focusHandler.setInitialFocus(this._modal);
+        }
 
         if (typeof callback === 'function') {
             callback.bind(this)();
@@ -118,11 +125,12 @@ export default class PseudoModalUtil {
         this._modal.addEventListener('hidden.bs.modal', this._modalWrapper.remove);
         this._modal.addEventListener('shown.bs.modal', cb);
 
-        // An open offcanvas focus-trap pulls the focus back out before the modal's focus-trap is active.
+        /**
+         * Bootstrap only focuses the modal element itself.
+         * An open offcanvas focus-trap also pulls the focus back out before the modal's focus-trap is active.
+         */
         this._modal.addEventListener('shown.bs.modal', () => {
-            if (!this._modal.contains(document.activeElement)) {
-                this._modal.focus();
-            }
+            window.focusHandler.setInitialFocus(this._modal);
         });
 
         // Keep the Bootstrap focus-trap working when the modal is the last element before `</body>`.

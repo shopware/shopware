@@ -1,4 +1,5 @@
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
+import FocusHandler from 'src/helper/focus-handler.helper';
 
 import PseudoModalTemplate from './pseudo-modal.template.html';
 import ModalContentTemplate from './modal-content.template.html';
@@ -26,7 +27,10 @@ describe('pseudo-modal.util tests', () => {
             document.body.appendChild(html);
         });
 
+        const focusHandler = new FocusHandler();
+
         window.focusHandler = {
+            setInitialFocus: focusHandler.setInitialFocus.bind(focusHandler),
             // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
             _addFocusTrapGuard: jest.fn(),
             _removeFocusTrapGuard: jest.fn(),
@@ -100,7 +104,38 @@ describe('pseudo-modal.util tests', () => {
         pseudoModal.open();
         jest.runAllTimers();
 
-        expect(document.activeElement).toBe(pseudoModal.getModal());
+        expect(document.activeElement).toBe(pseudoModal.getModal().querySelector('.modal-close'));
+    });
+
+    test('it moves the focus to the first focusable element when opened', () => {
+        pseudoModal.open();
+        jest.runAllTimers();
+
+        expect(document.activeElement).toBe(pseudoModal.getModal().querySelector('.modal-close'));
+    });
+
+    test('it keeps the focus within the modal when updated content replaces the focused element', () => {
+        pseudoModal.open();
+        jest.runAllTimers();
+
+        pseudoModal.updateContent(`
+            <div class="modal-content js-pseudo-modal-template-root-element">
+                <button class="new-close">Close</button>
+            </div>
+        `);
+
+        expect(document.activeElement).toBe(pseudoModal.getModal().querySelector('.new-close'));
+    });
+
+    test('it keeps the focus on a focused element that survives a content update', () => {
+        pseudoModal.open();
+        jest.runAllTimers();
+
+        const closeButton = pseudoModal.getModal().querySelector('.modal-close');
+
+        pseudoModal.updateContent('<a class="link" href="#">Link</a>');
+
+        expect(document.activeElement).toBe(closeButton);
     });
 
     test('it makes a wrapper left over from an earlier modal interactive again', () => {

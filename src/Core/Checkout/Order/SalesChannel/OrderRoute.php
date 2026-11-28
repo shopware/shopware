@@ -165,7 +165,7 @@ class OrderRoute extends AbstractOrderRoute
                 $changeable = true;
                 foreach ($promotions as $promotion) {
                     $changeable = $this->checkPromotion($promotion);
-                    if ($changeable === true) {
+                    if ($changeable === false) {
                         break;
                     }
                 }
@@ -195,7 +195,9 @@ class OrderRoute extends AbstractOrderRoute
         }
 
         $criteria = (new Criteria($promotionIds))
-            ->addAssociation('cartRules');
+            ->addAssociation('cartRules')
+            ->addAssociation('orderRules')
+            ->addAssociation('personaRules');
 
         return $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
     }
@@ -216,12 +218,10 @@ class OrderRoute extends AbstractOrderRoute
 
     private function checkPromotion(PromotionEntity $promotion): bool
     {
-        if ($promotion->getCartRules() === null) {
-            return true;
-        }
+        $rules = [...($promotion->getCartRules() ?? []), ...($promotion->getOrderRules() ?? []), ...($promotion->getPersonaRules() ?? [])];
 
-        foreach ($promotion->getCartRules() as $cartRule) {
-            if (!$this->checkCartRule($cartRule)) {
+        foreach ($rules as $rule) {
+            if (!$this->checkRule($rule)) {
                 return false;
             }
         }
@@ -229,9 +229,9 @@ class OrderRoute extends AbstractOrderRoute
         return true;
     }
 
-    private function checkCartRule(RuleEntity $cartRule): bool
+    private function checkRule(RuleEntity $rule): bool
     {
-        $payload = $cartRule->getPayload();
+        $payload = $rule->getPayload();
         if (!$payload instanceof Container) {
             return true;
         }

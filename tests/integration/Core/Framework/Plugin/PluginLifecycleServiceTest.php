@@ -531,6 +531,8 @@ class PluginLifecycleServiceTest extends TestCase
             static::assertStringContainsString('Your requirements could not be resolved to an installable set of packages.', $e->getMessage());
         }
 
+        static::assertTrue(gc_enabled(), 'A failed composer command must not leave the garbage collector disabled');
+
         \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
     }
 

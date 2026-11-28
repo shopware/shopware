@@ -165,7 +165,7 @@ class ProductPageLoader
     {
         $metaInformation = $page->getMetaInformation();
 
-        if (!$metaInformation) {
+        if ($metaInformation === null) {
             return;
         }
 
@@ -177,19 +177,17 @@ class ProductPageLoader
 
         if ((string) $page->getProduct()->getTranslation('metaTitle') !== '') {
             $metaInformation->setMetaTitle((string) $page->getProduct()->getTranslation('metaTitle'));
+        } else {
+            $metaTitleParts = [$page->getProduct()->getTranslation('name')];
 
-            return;
+            foreach ($page->getSelectedOptions() as $option) {
+                $metaTitleParts[] = $option->getTranslation('name');
+            }
+
+            $metaTitleParts[] = $page->getProduct()->getProductNumber();
+
+            $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
         }
-
-        $metaTitleParts = [$page->getProduct()->getTranslation('name')];
-
-        foreach ($page->getSelectedOptions() as $option) {
-            $metaTitleParts[] = $option->getTranslation('name');
-        }
-
-        $metaTitleParts[] = $page->getProduct()->getProductNumber();
-
-        $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
 
         $canonical = $this->seoUrlReplacer->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $page->getProduct()->getCanonicalProductId() ?? $page->getProduct()->getId()]);
         $metaInformation->setCanonical($canonical);

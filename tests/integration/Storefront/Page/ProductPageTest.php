@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -291,10 +292,14 @@ class ProductPageTest extends TestCase
         );
     }
 
-    public function testItDoesHaveCanonicalTag(): void
+    /**
+     * @param array<string, mixed> $productConfig
+     */
+    #[DataProvider('productMetaProvider')]
+    public function testItDoesHaveCanonicalTag(array $productConfig): void
     {
         $context = $this->createSalesChannelContextWithNavigation();
-        $product = $this->getRandomProduct($context);
+        $product = $this->getRandomProduct($context, config: $productConfig);
         $request = new Request([], [], ['productId' => $product->getId()]);
 
         $event = null;
@@ -316,11 +321,15 @@ class ProductPageTest extends TestCase
         static::assertSame('/' . $product->getName() . '/' . $product->getProductNumber(), $seoUrl);
     }
 
-    public function testItDoesHaveCanonicalTagWithCanonicalProduct(): void
+    /**
+     * @param array<string, mixed> $productConfig
+     */
+    #[DataProvider('productMetaProvider')]
+    public function testItDoesHaveCanonicalTagWithCanonicalProduct(array $productConfig): void
     {
         $context = $this->createSalesChannelContextWithNavigation();
         $canonicalProduct = $this->getRandomProduct($context);
-        $product = $this->getRandomProduct($context, config: ['canonicalProductId' => $canonicalProduct->getId()]);
+        $product = $this->getRandomProduct($context, config: array_merge_recursive($productConfig, ['canonicalProductId' => $canonicalProduct->getId()]));
         $request = new Request([], [], ['productId' => $product->getId()]);
 
         $event = null;
@@ -340,6 +349,15 @@ class ProductPageTest extends TestCase
         static::assertIsString($canonicalProduct->getName());
 
         static::assertSame('/' . $canonicalProduct->getName() . '/' . $canonicalProduct->getProductNumber(), $seoUrl);
+    }
+
+    /**
+     * @return iterable<string, array<array<string, mixed>>>
+     */
+    public static function productMetaProvider(): iterable
+    {
+        yield 'product without meta title' => [['metaTitle' => null]];
+        yield 'product with meta title' => [['metaTitle' => 'Test meta title']];
     }
 
     protected function getPageLoader(): ProductPageLoader

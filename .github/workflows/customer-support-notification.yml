@@ -1,0 +1,37 @@
+name: Customer Support Slack Notification
+
+on:
+  issues:
+    types: [labeled]
+  pull_request:
+    types: [labeled]
+
+jobs:
+  notify-slack:
+    if: github.event.label.name == 'customer-support'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+      pull-requests: read
+    steps:
+      - name: Trigger Slack Workflow
+        env:
+          TITLE: ${{ github.event.issue.title || github.event.pull_request.title }}
+          TYPE: ${{ github.event_name == 'issues' && github.event.issue.type.name || 'Pull Request' }}
+          ID: ${{ github.event.issue.number || github.event.pull_request.number }}
+          LINK: ${{ github.event.issue.html_url || github.event.pull_request.html_url }}
+          AUTHOR: ${{ github.event.issue.user.login || github.event.pull_request.user.login }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg title "$TITLE" \
+            --arg type "$TYPE" \
+            --arg id "$ID" \
+            --arg link "$LINK" \
+            --arg author "$AUTHOR" \
+            '{github_title: $title, github_type: $type, github_issue_id: $id, github_link: $link, github_creator: $author}')
+
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "${{ secrets.SLACK_CS_WORKFLOW_URL }}"
+

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfig;
+use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
@@ -392,8 +393,9 @@ class NavigationDataLoaderTest extends TestCase
         // NavigationAliasResolver::resolve() matches its alias constants case-sensitively (a `match` against
         // the lowercase literal 'main-navigation'), so 'MAIN-NAVIGATION' falls through its default arm
         // unchanged. The value is then normalized to lowercase, which is not a valid uuid, so the loader
-        // degrades to notFound() without reaching the navigation loader. Normalizing before alias resolution
-        // would instead resolve the sales channel's navigation category set above and call the loader.
+        // returns no data without reaching the navigation loader. It is not a recognized alias either, so the
+        // loader looked nothing up and records no tag. Normalizing before alias resolution would instead
+        // resolve the sales channel's navigation category set above and call the loader.
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
         $navigationLoader->expects($this->never())->method('load');
 
@@ -405,6 +407,29 @@ class NavigationDataLoaderTest extends TestCase
             new Request(),
         );
 
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('returns a no-input result for a rootId that is neither a recognized alias nor a valid uuid')]
+    public function testLoadReturnsNoInputForAnUnrecognizedNonUuidRootId(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader->expects($this->never())->method('load');
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => 'not-a-navigation-alias', 'depth' => 2, 'activeProperty' => null]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        // Neither an alias nor an id: the loader looked nothing up, so the layout tags cover the result.
+        static::assertFalse($result->hasData());
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
@@ -488,8 +513,8 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame($tree, $result->data);
     }
 
-    #[TestDox('returns notFound result when an alias does not resolve because the sales channel has no such category')]
-    public function testLoadReturnsNotFoundWhenAliasDoesNotResolve(): void
+    #[TestDox('returns no data tagged with the navigation route when an alias does not resolve because the sales channel has no such category')]
+    public function testLoadTagsTheNavigationRouteWhenAliasDoesNotResolve(): void
     {
         $context = Generator::generateSalesChannelContext();
         static::assertNull($context->getSalesChannel()->getServiceCategoryId());
@@ -505,15 +530,16 @@ class NavigationDataLoaderTest extends TestCase
             new Request(),
         );
 
-        // All three together pin notFound() rather than uncacheable(), which differs only in its tags.
+        // The alias was resolved against the sales channel, so a later write of its navigation category ids
+        // must invalidate the empty result through the navigation route tag.
         static::assertFalse($result->hasData());
         static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        static::assertSame([NavigationRoute::ALL_TAG], $result->getCacheTags());
     }
 
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the navigation loader throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenNavigationLoaderThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the navigation loader throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenNavigationLoaderThrows(\Throwable $exception): void
     {
         $rootId = Uuid::randomHex();
         $context = Generator::generateSalesChannelContext();
@@ -584,7 +610,7 @@ class NavigationDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }

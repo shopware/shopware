@@ -130,7 +130,7 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame($entityId, $this->capturedRequest->attributes->get('id'));
     }
 
-    #[TestDox('falls back to the literal entityId default when the property is unset, degrading to notFound')]
+    #[TestDox('falls back to the literal entityId default when the property is unset, returning no data without calling the route')]
     public function testUnsetPropertyFallsBackToLiteralEntityIdDefault(): void
     {
         $inputs = $this->resolve(new BreadcrumbLoaderConfig(), []);
@@ -193,8 +193,8 @@ class BreadcrumbDataLoaderTest extends TestCase
     }
 
     #[DataProvider('invalidEntityIdInputProvider')]
-    #[TestDox('returns notFound result without calling the breadcrumb route when $_dataName')]
-    public function testLoadReturnsNotFoundForInvalidInput(LoaderInputs $inputs): void
+    #[TestDox('returns no data and no tag without calling the breadcrumb route when $_dataName')]
+    public function testLoadReturnsNoInputForInvalidInput(LoaderInputs $inputs): void
     {
         $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
         $breadcrumbRoute->expects($this->never())->method('load');
@@ -213,8 +213,8 @@ class BreadcrumbDataLoaderTest extends TestCase
     }
 
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the breadcrumb route throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenBreadcrumbRouteThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the breadcrumb route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenBreadcrumbRouteThrows(\Throwable $exception): void
     {
         $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
         $breadcrumbRoute
@@ -255,7 +255,7 @@ class BreadcrumbDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }
@@ -304,7 +304,7 @@ class BreadcrumbDataLoaderTest extends TestCase
             self::inputs('{{productId}}'),
         ];
 
-        // The entity ID is a valid uuid, so only the referrer can carry this row to notFound.
+        // The entity ID is a valid uuid, so only the referrer can carry this row to the no-input result.
         yield 'a resolved referrer category ID is not a valid uuid' => [
             self::inputs(Uuid::randomHex(), referrerCategoryProperty: '{{categoryId}}'),
         ];

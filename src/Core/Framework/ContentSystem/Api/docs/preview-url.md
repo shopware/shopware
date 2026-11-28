@@ -52,7 +52,9 @@ Malformed requests and layouts are rejected with `400 Bad Request` (`ContentSyst
 | An inline-mapped authored property, or one entry of its language map, exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` |
 | The cache rejects the payload write | 500 | `ContentSystemException::previewPayloadStoreFailed` |
 
-Entity resolution and hydration run when the URL is created as well as when it is opened, so `unknownEntityType` and hydration faults are raised here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all. The loader degrades that element to `notFound()` and the preview renders without it.
+Entity resolution and hydration run when the URL is created as well as when it is opened, so `unknownEntityType` and hydration faults are raised here too.
+A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all.
+For an ordinary unmapped property, the requirement's key stays on the rendered element and carries the loader's empty result: a present `null` or an empty collection.
 
 The decoder is the write's own, `Layout/Codec/StoredElementCodec` ([same components](../../docs/principles/drafts-and-gates.md#draft-and-persisted-paths-decode-and-check-through-the-same-components)): a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list is a 400 here exactly as on write.
 

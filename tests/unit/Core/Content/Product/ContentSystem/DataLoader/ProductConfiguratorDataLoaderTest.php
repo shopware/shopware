@@ -11,8 +11,10 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -28,7 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductConfiguratorDataLoader::class)]
 class ProductConfiguratorDataLoaderTest extends TestCase
 {
-    public function testReturnsNotFoundForMissingProductId(): void
+    public function testReturnsNoInputForMissingProductId(): void
     {
         /** @var StaticSalesChannelRepository<SalesChannelProductCollection> $productRepository */
         $productRepository = new StaticSalesChannelRepository([new SalesChannelProductCollection()]);
@@ -38,10 +40,12 @@ class ProductConfiguratorDataLoaderTest extends TestCase
         );
         $requirement = new DataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig());
 
-        static::assertFalse($loader->load(new LoaderInputs(['productId' => null]), $requirement, Generator::generateSalesChannelContext(), new Request())->hasData());
+        $result = $loader->load(new LoaderInputs(['productId' => null]), $requirement, Generator::generateSalesChannelContext(), new Request());
+
+        $this->assertNoInputResult($result);
     }
 
-    public function testReturnsNotFoundForInvalidProductId(): void
+    public function testReturnsNoInputForInvalidProductId(): void
     {
         /** @var StaticSalesChannelRepository<SalesChannelProductCollection> $productRepository */
         $productRepository = new StaticSalesChannelRepository([
@@ -53,11 +57,15 @@ class ProductConfiguratorDataLoaderTest extends TestCase
         );
         $requirement = new DataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig());
 
-        static::assertFalse($loader->load(new LoaderInputs(['productId' => '{{productId}}']), $requirement, Generator::generateSalesChannelContext(), new Request())->hasData());
+        $result = $loader->load(new LoaderInputs(['productId' => '{{productId}}']), $requirement, Generator::generateSalesChannelContext(), new Request());
+
+        $this->assertNoInputResult($result);
     }
 
-    public function testReturnsNotFoundWhenProductSearchThrows(): void
+    public function testTagsTheRequestedProductWhenProductSearchThrows(): void
     {
+        $productId = Uuid::randomHex();
+
         /** @var StaticSalesChannelRepository<SalesChannelProductCollection> $productRepository */
         $productRepository = new StaticSalesChannelRepository([
             static fn () => throw new InvalidUuidException('product-id'),
@@ -68,27 +76,55 @@ class ProductConfiguratorDataLoaderTest extends TestCase
         );
         $requirement = new DataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig());
 
-        static::assertFalse($loader->load(new LoaderInputs(['productId' => Uuid::randomHex()]), $requirement, Generator::generateSalesChannelContext(), new Request())->hasData());
+        $result = $loader->load(new LoaderInputs(['productId' => $productId]), $requirement, Generator::generateSalesChannelContext(), new Request());
+
+        static::assertFalse($result->hasData());
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([EntityCacheKeyGenerator::buildProductTag($productId)], $result->getCacheTags());
     }
 
-    public function testReturnsNotFoundWhenConfiguratorLoaderThrows(): void
+    public function testTagsTheRequestedProductWhenProductSearchFindsNothing(): void
     {
         $productId = Uuid::randomHex();
+
+        /** @var StaticSalesChannelRepository<SalesChannelProductCollection> $productRepository */
+        $productRepository = new StaticSalesChannelRepository([new SalesChannelProductCollection()]);
+        $loader = new ProductConfiguratorDataLoader(
+            new PartialProductConfiguratorLoader(static::createStub(ProductConfiguratorLoader::class)),
+            $productRepository,
+        );
+        $requirement = new DataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig());
+
+        $result = $loader->load(new LoaderInputs(['productId' => $productId]), $requirement, Generator::generateSalesChannelContext(), new Request());
+
+        static::assertFalse($result->hasData());
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([EntityCacheKeyGenerator::buildProductTag($productId)], $result->getCacheTags());
+    }
+
+    public function testTagsTheParentProductWhenConfiguratorLoaderThrows(): void
+    {
+        $productId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
         $productConfiguratorLoader = static::createStub(ProductConfiguratorLoader::class);
         $productConfiguratorLoader->method('load')->willThrowException(new InvalidUuidException('option-id'));
 
         /** @var StaticSalesChannelRepository<SalesChannelProductCollection> $productRepository */
-        $productRepository = new StaticSalesChannelRepository([[new PartialEntity(['id' => $productId])]]);
+        $productRepository = new StaticSalesChannelRepository([[new PartialEntity(['id' => $productId, 'parentId' => $parentId])]]);
         $loader = new ProductConfiguratorDataLoader(
             new PartialProductConfiguratorLoader($productConfiguratorLoader),
             $productRepository,
         );
         $requirement = new DataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig());
 
-        static::assertFalse($loader->load(new LoaderInputs(['productId' => $productId]), $requirement, Generator::generateSalesChannelContext(), new Request())->hasData());
+        $result = $loader->load(new LoaderInputs(['productId' => $productId]), $requirement, Generator::generateSalesChannelContext(), new Request());
+
+        static::assertFalse($result->hasData());
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([EntityCacheKeyGenerator::buildProductTag($parentId)], $result->getCacheTags());
     }
 
-    public function testDelegatesProductIdToConfiguratorLoader(): void
+    public function testDelegatesProductIdToConfiguratorLoaderAndTagsTheParentProduct(): void
     {
         $productId = Uuid::randomHex();
         $parentId = Uuid::randomHex();
@@ -123,5 +159,14 @@ class ProductConfiguratorDataLoaderTest extends TestCase
         $result = $loader->load(new LoaderInputs(['productId' => $productId]), $requirement, $context, new Request());
 
         static::assertSame($groups, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([EntityCacheKeyGenerator::buildProductTag($parentId)], $result->getCacheTags());
+    }
+
+    private function assertNoInputResult(ContentDataLoaderResult $result): void
+    {
+        static::assertFalse($result->hasData());
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 }

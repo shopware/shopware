@@ -10,6 +10,7 @@
 | FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off the steps the [mode table](rendering.md#structure-is-a-function-independent-of-rendering-mode) lists. | [rendering.md](rendering.md) |
 | write gate / write boundary | Both sit on the DAL write path of a layout tree. | The write boundary (`LayoutWriteBoundary::apply()`) returns a new tree from its passes, while the write gate (`LayoutGate`, `StoredTreeConstraints`) only checks the tree. | [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md) |
 | client defect / internal fault | Both are defects that `ContentSystemException` throws. | A code a client causes through the element tree is a client defect (`CLIENT_DEFECT_CODES`), while a defect whose only possible cause is a core or plugin bug or data that bypassed the write gate is an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
+| no input / found nothing | Both name what a loader read outside the stored layout. | With no input the loader read nothing outside the stored layout, so the layout tags of the render cover the result. A loader that found nothing ran its own lookup, and its empty result depends on what that lookup requested. | [caching.md](caching.md) |
 | interface translation / content translation | Both make text appear in more than one language. | Interface translation resolves snippet keys for declaration text the Administration shows, while content translation stores per-language property values as language maps. | [extending.md](../extending.md#administration-translations), [translation.md](translation.md) |
 
 ## Glossary
@@ -17,7 +18,7 @@
 - consumer: an element's declared need for a context value under a key, scoped to its parent or to root context (`ContextConsumer`).
 - provider: an element's declaration that it serves a context value to its direct children (`ContextProvider`).
 - root source: what a layout is bound to, a DAL entity type, a section or `none` (`RootSourceRegistry::knownRootSources()`).
-- mapping candidate: a provider-curated typed source, effective output type, and cardinality offered for a layout root; [data-mapping.md](data-mapping.md).
+- mapping candidate: a provider-curated typed source, effective output type, and cardinality offered for a layout root: [data-mapping.md](data-mapping.md).
 - root context: the context that a layout's root source supplies and that any element reaches through a root-scoped consumer (`RootSourceRegistry::resolve()`).
 - prove resolvable: `ContentLayoutWriteValidator` shows through `LayoutGate::resolvability()` that a stored layout resolves against its root context.
 - forest: the list of root elements of one layout tree, stored (`StoredTree::$roots`) or rendered.
@@ -43,6 +44,12 @@
 - language map: the stored value of a translatable property, one entry per language id: [translation.md](translation.md#translations-live-inline-in-the-element-tree-as-language-maps).
 - language reduction: the FULL mode step of `StoredTreePreparer` that replaces each language map with one entry: [translation.md](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map).
 - loss, dropped, orphaned: what a mutation response reports, a discarded property or wiring key (dropped) or a detached child it returns (orphaned): [failure-and-loss.md](failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).
+- cache context: the `RenderingCacheContext` of one render, which collects the cache tags the render path adds and can mark the render as uncacheable.
+- covering tag: a recorded cache tag that every change of a value invalidates: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-every-value-it-shows-has-a-recorded-covering-tag).
+- no input, found nothing: a loader result that read nothing outside the stored layout,
+  or one whose own lookup found nothing or threw a caught `ShopwareHttpException`.
+  `noInput()` and `layoutOnly()` state no input.
+  `foundNothing()` and `foundNothingUncacheable()` state found nothing: [caching.md](caching.md#the-http-cache-stores-a-render-only-when-every-value-it-shows-has-a-recorded-covering-tag).
 
 In this module, "context" is the per-element delivery map. In the platform, `Context` is the Shopware context object.
 
@@ -82,6 +89,7 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - A mapping is unavailable, has the wrong value, or is overridden: [data-mapping.md](data-mapping.md)
 - A rendered value is wrong: [rendering.md](rendering.md), [data-loading.md](data-loading.md), [context-wiring.md](context-wiring.md)
 - A client shows the wrong error: [failure-and-loss.md](failure-and-loss.md)
+- A cached page shows outdated data, or a page is not cached: [caching.md](caching.md)
 - A listener changed the tree: [rendering.md](rendering.md), [extension-surface.md](extension-surface.md)
 - A preview differs from the storefront or rejects a draft: [preview.md](preview.md)
 
@@ -96,6 +104,7 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - [data-mapping.md](data-mapping.md): curated sources, authored choices, admission, runtime outcomes, and guarded overrides
 - [mutation.md](mutation.md): a mutation operation as a pure tree transform
 - [data-loading.md](data-loading.md): loaders as consumers of typed inputs
+- [caching.md](caching.md): a covering tag for every value, or no cached render
 - [context-wiring.md](context-wiring.md): context between adjacent elements
 - [rendering.md](rendering.md): the render checks and the two tree-replacement events
 - [preview.md](preview.md): preview as a second entry into the render path

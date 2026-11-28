@@ -59,7 +59,7 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
         $entityId = $inputs->stringOrNull('property');
 
         if ($entityId === null) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $entityId = u($entityId)->lower()->toString();
@@ -69,7 +69,7 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
         // Uuid::fromHexToBytes() in the DAL id lookups behind CategoryBreadcrumbBuilder. BreadcrumbRoute
         // declares the same domain on the HTTP side, requirements: ['id' => '[0-9a-f]{32}'].
         if (!Uuid::isValid($entityId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $clonedRequest = clone $request;
@@ -85,13 +85,13 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
             $referrerCategoryId = u($referrerCategoryId)->lower()->toString();
 
             if (!Uuid::isValid($referrerCategoryId)) {
-                return ContentDataLoaderResult::notFound();
+                return ContentDataLoaderResult::noInput();
             }
 
             $clonedRequest->query->set('referrerCategoryId', $referrerCategoryId);
         }
 
-        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // Any ShopwareHttpException degrades the element to failedExternally(); everything else, such as a \TypeError
         // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
         // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // Known local throws: BreadcrumbRoute reaches CategoryBreadcrumbBuilder, which throws
@@ -100,7 +100,7 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
         try {
             $response = $this->breadcrumbRoute->load($clonedRequest, $context);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::failedExternally();
         }
 
         return ContentDataLoaderResult::cachedExternally($response->getBreadcrumbCollection());

@@ -201,8 +201,8 @@ class PaymentMethodDataLoaderTest extends TestCase
     }
 
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the payment method route throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenPaymentMethodRouteThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the payment method route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenPaymentMethodRouteThrows(\Throwable $exception): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -247,7 +247,7 @@ class PaymentMethodDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }

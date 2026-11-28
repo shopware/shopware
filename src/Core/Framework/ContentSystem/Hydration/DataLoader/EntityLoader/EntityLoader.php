@@ -15,6 +15,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapabil
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -117,13 +120,13 @@ class EntityLoader extends AbstractContentDataLoader
         $entityName = $inputs->string('entity');
 
         if (!$this->definitionRegistry->has($entityName)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $entityId = $inputs->stringOrNull('property');
 
         if ($entityId === null) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $entityId = u($entityId)->lower()->toString();
@@ -132,43 +135,76 @@ class EntityLoader extends AbstractContentDataLoader
         // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
         // Uuid::fromHexToBytes() in EntityDefinitionQueryHelper::addIdCondition().
         if (!Uuid::isValid($entityId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
-        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
-        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
-        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Any ShopwareHttpException degrades the element to noInput() before the search and, during it, to
+        // foundNothing() tagged with the requested id; an entity without a tag pattern has no tag to name, so
+        // that outcome is foundNothingUncacheable(). Everything else, such as a \TypeError or a database driver
+        // failure, propagates. Why the catch is the covering ancestor and never an enumerated union:
+        // src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // The set is fully open here: this loader searches an arbitrary registered entity.
+        // The has() check above only proves the entity name is in the registry's map
+        // (DefinitionInstanceRegistry::has() is an isset on it); getByEntityName() still throws
+        // DefinitionNotFoundException when the mapped definition service is absent from the container, so it
+        // sits inside a catch. No lookup ran yet, so the result records no tag.
         try {
-            $entity = $this->loadEntity($entityName, $entityId, $inputs->stringList('associations'), $context);
-
-            if ($entity === null) {
-                return ContentDataLoaderResult::notFound();
-            }
-
-            // The has() check above only proves the entity name is in the registry's map
-            // (DefinitionInstanceRegistry::has() is an isset on it); getByEntityName() still throws
-            // DefinitionNotFoundException when the mapped definition service is absent from the container, so
-            // it sits inside the catch rather than after it.
             $definition = $this->definitionRegistry->getByEntityName($entityName);
+            $repository = $this->resolveRepository($entityName);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $cacheTag = $this->cacheTagResolver->resolve($definition, $entityId);
+
+        try {
+            $entity = $this->search($repository, $entityId, $inputs->stringList('associations'), $context);
+        } catch (ShopwareHttpException) {
+            return $this->foundNothing($cacheTag);
+        }
+
+        if ($entity === null) {
+            return $this->foundNothing($cacheTag);
+        }
 
         if ($cacheTag === null) {
             return ContentDataLoaderResult::uncacheable($entity);
         }
 
-        return ContentDataLoaderResult::cached($entity, $cacheTag);
+        return ContentDataLoaderResult::cached($entity, $cacheTag, ...$this->cacheTagResolver->resolveRelated($entity));
     }
 
     /**
+     * The tag of the requested id covers the empty result. Without a tag pattern for the entity, no tag covers
+     * it and the render is not cached.
+     */
+    private function foundNothing(?string $cacheTag): ContentDataLoaderResult
+    {
+        if ($cacheTag === null) {
+            return ContentDataLoaderResult::foundNothingUncacheable();
+        }
+
+        return ContentDataLoaderResult::foundNothing($cacheTag);
+    }
+
+    /**
+     * @return SalesChannelRepository<covariant EntityCollection<covariant Entity>>|EntityRepository<covariant EntityCollection<covariant Entity>>
+     */
+    private function resolveRepository(string $entityName): SalesChannelRepository|EntityRepository
+    {
+        try {
+            return $this->salesChannelDefinitionRegistry->getSalesChannelRepository($entityName);
+        } catch (SalesChannelRepositoryNotFoundException) {
+            return $this->definitionRegistry->getRepository($entityName);
+        }
+    }
+
+    /**
+     * @param SalesChannelRepository<covariant EntityCollection<covariant Entity>>|EntityRepository<covariant EntityCollection<covariant Entity>> $repository
      * @param list<string> $associations
      */
-    private function loadEntity(
-        string $entityName,
+    private function search(
+        SalesChannelRepository|EntityRepository $repository,
         string $entityId,
         array $associations,
         SalesChannelContext $context
@@ -179,14 +215,10 @@ class EntityLoader extends AbstractContentDataLoader
             $criteria->addAssociation($association);
         }
 
-        try {
-            $salesChannelRepository = $this->salesChannelDefinitionRegistry->getSalesChannelRepository($entityName);
-            $result = $salesChannelRepository->search($criteria, $context);
-        } catch (SalesChannelRepositoryNotFoundException) {
-            $repository = $this->definitionRegistry->getRepository($entityName);
-            $result = $repository->search($criteria, $context->getContext());
+        if ($repository instanceof SalesChannelRepository) {
+            return $repository->search($criteria, $context)->getEntities()->first();
         }
 
-        return $result->getEntities()->first();
+        return $repository->search($criteria, $context->getContext())->getEntities()->first();
     }
 }

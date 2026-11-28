@@ -177,8 +177,8 @@ class ShippingMethodDataLoaderTest extends TestCase
     }
 
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the shipping method route throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenShippingMethodRouteThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the shipping method route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenShippingMethodRouteThrows(\Throwable $exception): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -223,7 +223,7 @@ class ShippingMethodDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }

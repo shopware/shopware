@@ -4,13 +4,13 @@ Data loading turns an element's data requirements into loaded values and publish
 
 ## A loader degrades on a named domain outcome and lets every other fault propagate
 
-Each loader degrades gracefully behind a narrow catch. The loader wraps the collaborator call it delegates to and catches `ShopwareHttpException` there. On that catch, it returns `ContentDataLoaderResult::notFound()`. Every other fault, an infrastructure fault or a type error among them, propagates. Each loader's own call chain determines what the loader wraps and whether its degradation is whole or partial. A loader guards an entity id that it reads from a `PropertyReference` with `Uuid::isValid()`, after its lowercasing or alias resolution and before first use. When the guard fails, the loader takes its own null-input path. A value that the loader never dereferences as an id gets no guard.
+Each loader degrades gracefully behind a narrow catch. The loader wraps the collaborator call it delegates to and catches `ShopwareHttpException` there. On that catch, it returns the result of the factory that names the outcome: `noInput()`, `foundNothing()` with the covering tags, `foundNothingUncacheable()` or `failedExternally()`. Every other fault, an infrastructure fault or a type error among them, propagates. Each loader's own call chain determines what the loader wraps and whether its degradation is whole or partial. A loader guards an entity id that it reads from a `PropertyReference` with `Uuid::isValid()`, after its lowercasing or alias resolution and before first use. When the guard fails, the loader takes its own null-input path. A value that the loader never dereferences as an id gets no guard.
 
 Why: A collaborator throws for ordinary domain reasons, such as a deleted category. When an exception reaches `StorefrontController::loadContentPage()`, that controller catches every `\Exception` and renders the page without its layout. A blanket catch in a loader turns a database outage or a type error into an empty element with no error report. The stored map can hold an unsubstituted placeholder such as `{{productId}}`. `LoaderInputResolver` only type-checks it as a string. An unguarded placeholder reaches an id parser and becomes an HTTP 400 from deep in the platform. `Uuid::VALID_PATTERN` accepts lowercase only. `Uuid::fromHexToBytes()` accepts uppercase hex. A guard on the raw value therefore rejects an uppercase configured id that would work.
 
 Decided against: One central wrapper for all loaders. It cannot give each loader its own code after the call, its own whole-or-partial handling and its own catch scope. An enumerated union of exception classes in the catch, because the reachable set is open. `ProductStreamBuilder` throws `EntityNotFoundException` and `NoFilterException` out of `ProductListingRoute` and `ProductCrossSellingRoute`. A decorator can also rewrap a named class into an unnamed one. `AppScriptProductPriceCalculator` hands app-script throwables to `ScriptExecutor`, which rethrows `ScriptExecutionFailedException`.
 
-Exceptions: `EntityCollectionLoader` maps an absent or empty id list to an empty collection, not to not-found.
+Exceptions: `EntityCollectionLoader` maps an absent or empty id list to `layoutOnly()` holding an empty collection, not to `foundNothing()`. When the entity definition does not resolve, it returns `noInput()` with null data.
 
 In code:
 
@@ -19,8 +19,8 @@ In code:
 - See [Hydration/DataLoader/README.md](../../Hydration/DataLoader/README.md#degradation-boundary).
 
 ```text
-repository throws   UuidException::invalidUuid('not-a-uuid'), a ShopwareHttpException
-load() returns      ContentDataLoaderResult::notFound(), data null
+repository throws   a ShopwareHttpException
+load() returns      ContentDataLoaderResult::foundNothing('product-' . $id), data null
 repository throws   \TypeError('Argument #1 ($criteria) must be of type Criteria, null given')
 load() throws       the same \TypeError instance, unmodified
 ```

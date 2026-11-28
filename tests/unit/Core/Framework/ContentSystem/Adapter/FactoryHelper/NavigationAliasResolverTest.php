@@ -77,6 +77,41 @@ class NavigationAliasResolverTest extends TestCase
         static::assertSame('footer-navigation', $resolver->resolve('footer-navigation', $context));
     }
 
+    #[DataProvider('recognizedAliasProvider')]
+    #[TestDox('recognizes the built-in alias $_dataName')]
+    public function testIsRecognizedAliasReturnsTrueForBuiltInAliases(string $value): void
+    {
+        static::assertTrue((new NavigationAliasResolver())->isRecognizedAlias($value));
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function recognizedAliasProvider(): \Generator
+    {
+        yield 'main-navigation' => ['main-navigation'];
+        yield 'service-navigation' => ['service-navigation'];
+        yield 'footer-navigation' => ['footer-navigation'];
+    }
+
+    #[DataProvider('unrecognizedValueProvider')]
+    #[TestDox('does not recognize $_dataName as a built-in alias')]
+    public function testIsRecognizedAliasReturnsFalseForOtherValues(string $value): void
+    {
+        static::assertFalse((new NavigationAliasResolver())->isRecognizedAlias($value));
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function unrecognizedValueProvider(): \Generator
+    {
+        // resolve() matches case-sensitively, so an uppercase rendering reaches a loader as a literal.
+        yield 'an uppercase rendering of an alias' => ['MAIN-NAVIGATION'];
+        yield 'an arbitrary literal' => ['not-a-navigation-alias'];
+        yield 'a uuid' => ['0123456789abcdef0123456789abcdef'];
+    }
+
     /**
      * @return \Generator<string, array{string, string}>
      */

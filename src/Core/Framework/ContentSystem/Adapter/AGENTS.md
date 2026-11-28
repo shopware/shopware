@@ -1,6 +1,7 @@
 ## Constraints
 
 - Never let a request parameter choose the entity a loader targets, the property it reads or a config key the author did not mark with a placeholder token. Check: can a query parameter named like the entity id field replace the server-derived placeholder value? Why it holds: [data-loading.md](../docs/principles/data-loading.md#no-request-selects-what-a-loader-loads)
+- Return from `resolveCacheTags()` the tags of the root source the source resolves, never an empty list for data no tag covers. A specification source receives no cache context and cannot mark the render uncacheable from this method. Check: does `resolveCacheTags()` return the covering tag of the source's root source? [caching.md](../docs/principles/caching.md#the-component-that-adds-a-value-to-a-render-records-its-tag-or-disables-the-cache-context)
 
 ## Where to look
 

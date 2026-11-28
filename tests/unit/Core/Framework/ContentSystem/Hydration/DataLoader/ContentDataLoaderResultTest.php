@@ -16,43 +16,91 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 #[CoversClass(ContentDataLoaderResult::class)]
 class ContentDataLoaderResultTest extends TestCase
 {
-    #[TestDox('cached returns data, is cache-aware, and has specific tags')]
-    public function testCached(): void
+    #[TestDox('noInput returns no data, is cache-aware, and records no tag')]
+    public function testNoInput(): void
     {
-        $result = ContentDataLoaderResult::cached(new ArrayStruct(), 'tag-one', 'tag-two');
+        $result = ContentDataLoaderResult::noInput();
 
-        static::assertTrue($result->hasData());
+        static::assertFalse($result->hasData());
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('layoutOnly returns its data, is cache-aware, and records no tag')]
+    public function testLayoutOnly(): void
+    {
+        $data = new ArrayStruct();
+
+        $result = ContentDataLoaderResult::layoutOnly($data);
+
+        static::assertSame($data, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('foundNothing returns no data, is cache-aware, and keeps every given tag in order')]
+    public function testFoundNothing(): void
+    {
+        $result = ContentDataLoaderResult::foundNothing('tag-one', 'tag-two');
+
+        static::assertFalse($result->hasData());
         static::assertTrue($result->isCacheAware());
         static::assertSame(['tag-one', 'tag-two'], $result->getCacheTags());
     }
 
-    #[TestDox('cachedExternally returns data, is cache-aware, and has empty tags')]
-    public function testCachedExternally(): void
+    #[TestDox('foundNothingUncacheable returns no data and is not cache-aware')]
+    public function testFoundNothingUncacheable(): void
     {
-        $result = ContentDataLoaderResult::cachedExternally(new ArrayStruct());
+        $result = ContentDataLoaderResult::foundNothingUncacheable();
 
-        static::assertTrue($result->hasData());
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('uncacheable returns data, is not cache-aware, and has empty tags')]
-    public function testUncacheable(): void
-    {
-        $result = ContentDataLoaderResult::uncacheable(new ArrayStruct());
-
-        static::assertTrue($result->hasData());
+        static::assertFalse($result->hasData());
         static::assertFalse($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('notFound returns no data, is cache-aware, and has empty tags')]
-    public function testNotFound(): void
+    #[TestDox('failedExternally returns no data, is cache-aware, and records no tag')]
+    public function testFailedExternally(): void
     {
-        $result = ContentDataLoaderResult::notFound();
+        $result = ContentDataLoaderResult::failedExternally();
 
         static::assertFalse($result->hasData());
         static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('cached returns its data, is cache-aware, and keeps every given tag in order')]
+    public function testCached(): void
+    {
+        $data = new ArrayStruct();
+
+        $result = ContentDataLoaderResult::cached($data, 'tag-one', 'tag-two');
+
+        static::assertSame($data, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame(['tag-one', 'tag-two'], $result->getCacheTags());
+    }
+
+    #[TestDox('cachedExternally returns its data, is cache-aware, and records no tag')]
+    public function testCachedExternally(): void
+    {
+        $data = new ArrayStruct();
+
+        $result = ContentDataLoaderResult::cachedExternally($data);
+
+        static::assertSame($data, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('uncacheable returns its data and is not cache-aware')]
+    public function testUncacheable(): void
+    {
+        $data = new ArrayStruct();
+
+        $result = ContentDataLoaderResult::uncacheable($data);
+
+        static::assertSame($data, $result->data);
+        static::assertFalse($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }
 }

@@ -19,3 +19,4 @@ The module overview is in [../README.md](../README.md).
 - [principles/README.md](principles/README.md) - Why the module's design rules hold, and what was not chosen
 
 - [../Mapping/README.md](../Mapping/README.md) - Data-mapping admission, runtime outcomes, defaults, limits, and provider/plugin guides
+- [../Cache/README.md](../Cache/README.md) - The rendering cache context, the cache tag patterns of supported entities, and the writes that invalidate a cached page

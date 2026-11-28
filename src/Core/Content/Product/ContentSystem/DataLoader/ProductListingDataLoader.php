@@ -60,7 +60,7 @@ class ProductListingDataLoader extends AbstractContentDataLoader
         $navigationId = $inputs->stringOrNull('property');
 
         if ($navigationId === null) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $navigationId = u($navigationId)->lower()->toString();
@@ -69,12 +69,12 @@ class ProductListingDataLoader extends AbstractContentDataLoader
         // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
         // Uuid::fromHexToBytes() when ProductListingRoute searches the category by id.
         if (!Uuid::isValid($navigationId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $criteria = $this->buildCriteria($inputs);
 
-        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // Any ShopwareHttpException degrades the element to failedExternally(); everything else, such as a \TypeError
         // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
         // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // Known local throws: a category assigned to a deleted or filterless product stream surfaces as
@@ -82,7 +82,7 @@ class ProductListingDataLoader extends AbstractContentDataLoader
         try {
             $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::failedExternally();
         }
 
         // ProductListingRoute internally adds cache tags via CacheTagCollector

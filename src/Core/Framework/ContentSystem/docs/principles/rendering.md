@@ -105,7 +105,7 @@ In code:
 
 ## A null in the `properties` of a `RenderedElement` means a resolution found nothing
 
-An unfulfilled key stays absent from the `properties` of a `RenderedElement`. A null there means a loader's `notFound()`
+An unfulfilled key stays absent from the `properties` of a `RenderedElement`. A null there means a loader result without data
 or a context delivery that resolved to nothing, including ordinary optional dotted paths and a mapping that explicitly resolves null. For ordinary unmapped properties that null overwrites the stored value in the [working map](README.md#glossary). Context distribution reads the working map, so a [provider](README.md#glossary) passes on its
 rendered value. An undelivered [consumer](README.md#glossary) key and an authored null stay absent. Mapping fallback is an explicit exception: a missing/empty whole-field source may retain authored content, a null loader result does not overwrite that fallback, and a rejected mapping stays omitted from rendering and distribution. See [mapping outcomes](data-mapping.md#admission-and-missing-data-are-separate-outcomes). No per-element signal or log entry records why an element rendered null, and the module defers observability for render-time
 degradation.

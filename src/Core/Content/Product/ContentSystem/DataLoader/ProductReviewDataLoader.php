@@ -57,7 +57,7 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
         $productId = $inputs->stringOrNull('property');
 
         if ($productId === null) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $productId = u($productId)->lower()->toString();
@@ -66,16 +66,16 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
         // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) before it reaches the
         // review loader's `product.id` equals filter.
         if (!Uuid::isValid($productId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         // Any ShopwareHttpException (e.g. reviews switched off for the sales channel) degrades the element to
-        // notFound(); anything else propagates, matching the degradation boundary in
+        // failedExternally(); anything else propagates, matching the degradation boundary in
         // Framework/ContentSystem/Hydration/DataLoader/README.md.
         try {
             $result = $this->productReviewLoader->load($request, $context, $productId);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::failedExternally();
         }
 
         if ($context->getCustomer() !== null) {

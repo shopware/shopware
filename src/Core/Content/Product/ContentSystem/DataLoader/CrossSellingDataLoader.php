@@ -60,7 +60,7 @@ class CrossSellingDataLoader extends AbstractContentDataLoader
         $productId = $inputs->stringOrNull('property');
 
         if ($productId === null) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $productId = u($productId)->lower()->toString();
@@ -69,12 +69,12 @@ class CrossSellingDataLoader extends AbstractContentDataLoader
         // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
         // Uuid::fromHexToBytes() when ProductCrossSellingRoute searches the product by id.
         if (!Uuid::isValid($productId)) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::noInput();
         }
 
         $criteria = $this->buildCriteria($inputs);
 
-        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // Any ShopwareHttpException degrades the element to failedExternally(); everything else, such as a \TypeError
         // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
         // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
         // Known local throws: ProductCrossSellingRoute::loadByStream() calls
@@ -83,7 +83,7 @@ class CrossSellingDataLoader extends AbstractContentDataLoader
         try {
             $response = $this->crossSellingRoute->load($productId, $request, $context, $criteria);
         } catch (ShopwareHttpException) {
-            return ContentDataLoaderResult::notFound();
+            return ContentDataLoaderResult::failedExternally();
         }
 
         return ContentDataLoaderResult::cachedExternally($response->getResult());

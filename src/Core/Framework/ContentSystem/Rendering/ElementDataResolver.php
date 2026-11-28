@@ -18,15 +18,15 @@ use Symfony\Component\HttpFoundation\Request;
  * Runs one {@see StoredElement}'s data requirements and hands back what they resolved to, keyed by
  * requirement key. It is the data-loading half of the render step and nothing more: it goes through the
  * loader provider and the input resolver, applies the cache-tag rule below, and returns the values rather
- * than writing them into the element, so nothing it touches is mutable and the caller decides what the
- * values become. {@see RenderedElementFactory::create()} is that caller, and takes this map as its
- * `$resolvedLoaderValues`.
+ * than writing them into the element. The only object it writes is the {@see RenderingCacheContext}.
+ * {@see ElementLowering} is the caller, and {@see RenderedElementFactory::create()} receives the returned
+ * map as its `$resolvedLoaderValues`.
  *
- * Every requirement key appears in the returned map — with the loaded data when the loader found some, and
- * with `null` when it did not. A {@see ContentDataLoaderResult::notFound()} still writes its key, and that
- * is the point: on the rendered side a present `null` means "a loader ran and found nothing" while an
- * absent key means the property never existed. The factory reads this map with `array_key_exists`, so a key
- * omitted here is a property that never renders and a key held here at `null` is one that renders as null.
+ * Every requirement key appears in the returned map as a {@see ResolvedLoaderValue}. Its value is the
+ * loaded data when the loader returned some, and `null` when it did not. A {@see ContentDataLoaderResult::foundNothing()} still writes its key.
+ * {@see RenderedElementFactory::create()} decides the final property of the rendered element: it reads this
+ * map with `array_key_exists`, and it writes the delivered context after the loader values, so a delivered
+ * context value replaces a loader value under the same key.
  *
  * Cacheability propagates as follows: a result that is not cache-aware disables the
  * {@see RenderingCacheContext} and contributes no tags, and any other result adds its tags. `disable()` is

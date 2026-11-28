@@ -8,7 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Runtime inputs available to a registered mapping-source provider. Providers must read only values they explicitly
- * expose through their candidate catalogue and preserve cache tags through the supplied rendering cache context.
+ * expose through their candidate catalogue. A provider that adds a value to the render must add that value's cache tag
+ * to `cacheContext`, or call `disable()` on it when no tag covers the value.
  * The same cache context is required for every mapping in a render, including renders with caching disabled.
  */
 #[Package('framework')]

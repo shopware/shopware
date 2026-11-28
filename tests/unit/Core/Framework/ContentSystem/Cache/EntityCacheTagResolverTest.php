@@ -6,7 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
@@ -50,5 +53,64 @@ class EntityCacheTagResolverTest extends TestCase
         $resolver = new EntityCacheTagResolver();
 
         static::assertNull($resolver->resolve($definition, 'abc123'));
+    }
+
+    /**
+     * @return \Generator<string, array{Entity, list<string>}>
+     */
+    public static function relatedTagProvider(): \Generator
+    {
+        yield 'product with a parent and a manufacturer' => [
+            self::product('parent-1', 'manufacturer-1'),
+            ['product-parent-1', 'product-manufacturer-manufacturer-1'],
+        ];
+        yield 'product with only a parent' => [
+            self::product('parent-1', null),
+            ['product-parent-1'],
+        ];
+        yield 'product with only a manufacturer' => [
+            self::product(null, 'manufacturer-1'),
+            ['product-manufacturer-manufacturer-1'],
+        ];
+        yield 'product without a parent or a manufacturer' => [
+            self::product(null, null),
+            [],
+        ];
+        yield 'sales-channel product resolves the same tags as its base product' => [
+            self::salesChannelProduct('parent-1', 'manufacturer-1'),
+            ['product-parent-1', 'product-manufacturer-manufacturer-1'],
+        ];
+        yield 'non-product entity has no related tags' => [
+            new Entity(),
+            [],
+        ];
+    }
+
+    /**
+     * @param list<string> $expectedTags
+     */
+    #[DataProvider('relatedTagProvider')]
+    #[TestDox('resolves the related cache tags of a loaded entity')]
+    public function testResolvesRelatedTags(Entity $entity, array $expectedTags): void
+    {
+        static::assertSame($expectedTags, (new EntityCacheTagResolver())->resolveRelated($entity));
+    }
+
+    private static function product(?string $parentId, ?string $manufacturerId): ProductEntity
+    {
+        $product = new ProductEntity();
+        $product->setParentId($parentId);
+        $product->setManufacturerId($manufacturerId);
+
+        return $product;
+    }
+
+    private static function salesChannelProduct(?string $parentId, ?string $manufacturerId): SalesChannelProductEntity
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setParentId($parentId);
+        $product->setManufacturerId($manufacturerId);
+
+        return $product;
     }
 }

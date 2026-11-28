@@ -268,8 +268,8 @@ class ProductSuggestDataLoaderTest extends TestCase
     }
 
     #[DataProvider('unusableSearchTermProvider')]
-    #[TestDox('returns notFound result without calling the suggest route when the search term is $_dataName')]
-    public function testLoadReturnsNotFoundWhenSearchTermIsUnusable(?string $searchTerm): void
+    #[TestDox('returns no data and no tag without calling the suggest route when the search term is $_dataName')]
+    public function testLoadReturnsNoInputWhenSearchTermIsUnusable(?string $searchTerm): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -290,8 +290,8 @@ class ProductSuggestDataLoaderTest extends TestCase
     }
 
     #[DataProvider('sampleDomainExceptionProvider')]
-    #[TestDox('degrades to notFound when the suggest route throws the Shopware exception $_dataName')]
-    public function testLoadReturnsNotFoundWhenSuggestRouteThrows(\Throwable $exception): void
+    #[TestDox('returns no data and no tag of its own when the suggest route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsFailedExternallyWhenSuggestRouteThrows(\Throwable $exception): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -336,7 +336,7 @@ class ProductSuggestDataLoaderTest extends TestCase
                 new Request(),
             );
 
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading');
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }

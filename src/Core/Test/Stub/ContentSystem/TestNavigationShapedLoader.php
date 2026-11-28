@@ -55,6 +55,6 @@ class TestNavigationShapedLoader extends AbstractContentDataLoader
         Request $request
     ): ContentDataLoaderResult {
         // Never invoked by the proofs: diagnostics resolves the produced type, it does not load data.
-        return ContentDataLoaderResult::notFound();
+        return ContentDataLoaderResult::noInput();
     }
 }

@@ -12,8 +12,10 @@ use Shopware\Core\Framework\Log\Package;
  * identity describes THIS value at the moment the loader returned it — its `producedFingerprint` is taken
  * here — so a pair that came apart in transit would let the index judge one value by another's identity.
  *
- * An identity is present even when the loader found nothing: `notFound()` is a resolution that ran, its null
- * is a value the response carries, and it dedups like any other loader-resolved value.
+ * An identity is present even when the loader returned no data: such a result is a resolution that ran. The
+ * null it resolved takes the shared null ref instead of deduping by that identity, and
+ * {@see RenderedElementFactory} omits it where its key is a mapping fallback destination, which leaves the
+ * authored fallback on the element.
  *
  * @internal
  */

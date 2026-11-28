@@ -26,6 +26,11 @@ abstract class AbstractSpecificationSource
     abstract public function resolveTargetElementId(string $path, Request $request, SalesChannelContext $context): ?string;
 
     /**
+     * The cache tags that cover the root source this source resolves. `ContentRoute::load()` adds them to the
+     * render's cache context before the pipeline runs. A source whose data no tag covers must not return an
+     * empty list as if the data were covered; this method returns tags only, so the source cannot mark the
+     * render uncacheable from here.
+     *
      * @return list<string>
      */
     abstract public function resolveCacheTags(string $path, Request $request, SalesChannelContext $context): array;

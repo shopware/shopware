@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\DeprecatedBlockNodeVisitor;
 use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\FeatureCallOptimizerNodeVisitor;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -61,11 +62,14 @@ class FeatureFlagExtensionTest extends TestCase
         Feature::registerFeatures($this->registeredFeaturesBackup);
     }
 
-    public function testDoesNotRegisterVisitorWhenOptimizationIsInactive(): void
+    public function testRegistersDeprecationVisitorWhenOptimizationIsInactive(): void
     {
         $this->registerTwigOptimizationFlag();
 
-        static::assertSame([], (new FeatureFlagExtension())->getNodeVisitors());
+        $nodeVisitors = (new FeatureFlagExtension())->getNodeVisitors();
+
+        static::assertCount(1, $nodeVisitors);
+        static::assertInstanceOf(DeprecatedBlockNodeVisitor::class, $nodeVisitors[0]);
     }
 
     public function testRegistersVisitorWhenOptimizationIsActive(): void
@@ -75,8 +79,9 @@ class FeatureFlagExtensionTest extends TestCase
 
         $nodeVisitors = (new FeatureFlagExtension())->getNodeVisitors();
 
-        static::assertCount(1, $nodeVisitors);
-        static::assertInstanceOf(FeatureCallOptimizerNodeVisitor::class, $nodeVisitors[0]);
+        static::assertCount(2, $nodeVisitors);
+        static::assertInstanceOf(DeprecatedBlockNodeVisitor::class, $nodeVisitors[0]);
+        static::assertInstanceOf(FeatureCallOptimizerNodeVisitor::class, $nodeVisitors[1]);
     }
 
     public function testTwigFeatureFlag(): void

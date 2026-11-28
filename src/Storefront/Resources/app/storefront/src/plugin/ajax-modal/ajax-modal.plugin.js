@@ -113,8 +113,17 @@ export default class AjaxModalPlugin extends Plugin {
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
-            .then(response => response.text())
-            .then(response => this._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl));
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
+                }
+
+                return response.text();
+            })
+            .then(
+                response => this._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl),
+                () => this._processError(loadingIndicatorUtil, pseudoModalUtil, modalBodyEl),
+            );
     }
 
     /**
@@ -135,6 +144,23 @@ export default class AjaxModalPlugin extends Plugin {
         const modal = pseudoModalUtil.getModal();
         window.PluginManager.initializePluginsInParentElement(modal);
         
+        modalBodyEl.classList.remove(this.options.centerLoadingIndicatorClass);
+    }
+
+    /**
+     * Replaces the loading indicator with an error message when the modal content could not be loaded.
+     *
+     * @param {LoadingIndicatorUtil} loadingIndicatorUtil
+     * @param {PseudoModalUtil} pseudoModalUtil
+     * @param {HTMLElement} modalBodyEl
+     * @private
+     */
+    _processError(loadingIndicatorUtil, pseudoModalUtil, modalBodyEl) {
+        const errorTemplate = document.querySelector('.js-pseudo-modal-error-template');
+
+        loadingIndicatorUtil.remove();
+        pseudoModalUtil.updateContent(errorTemplate?.innerHTML ?? '');
+
         modalBodyEl.classList.remove(this.options.centerLoadingIndicatorClass);
     }
 

@@ -157,6 +157,66 @@ describe('AjaxModalPlugin tests', () => {
         expect(element.classList).toContain('text-center');
     });
 
+    test('_loadModalContent will not render the response body of a failed request', async () => {
+        const element = document.createElement('div');
+        element.setAttribute('data-url', 'foo');
+
+        ajaxModalPlugin.el = element;
+        ajaxModalPlugin._processResponse = jest.fn();
+        ajaxModalPlugin._processError = jest.fn();
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: false,
+                status: 404,
+                text: () => Promise.resolve('<html>Error page</html>'),
+            })
+        );
+
+        ajaxModalPlugin._loadModalContent(new PseudoModalUtil(), element);
+        await new Promise(process.nextTick);
+
+        expect(ajaxModalPlugin._processResponse).not.toHaveBeenCalled();
+        expect(ajaxModalPlugin._processError).toHaveBeenCalledTimes(1);
+    });
+
+    test('_loadModalContent will handle a network error', async () => {
+        const element = document.createElement('div');
+        element.setAttribute('data-url', 'foo');
+
+        ajaxModalPlugin.el = element;
+        ajaxModalPlugin._processResponse = jest.fn();
+        ajaxModalPlugin._processError = jest.fn();
+
+        global.fetch = jest.fn(() => Promise.reject(new TypeError('Failed to fetch')));
+
+        ajaxModalPlugin._loadModalContent(new PseudoModalUtil(), element);
+        await new Promise(process.nextTick);
+
+        expect(ajaxModalPlugin._processResponse).not.toHaveBeenCalled();
+        expect(ajaxModalPlugin._processError).toHaveBeenCalledTimes(1);
+    });
+
+    test('_processError will replace the loading indicator with the error message', () => {
+        const errorTemplate = document.createElement('template');
+        errorTemplate.classList.add('js-pseudo-modal-error-template');
+        errorTemplate.innerHTML = '<div class="alert">Error</div>';
+        document.body.appendChild(errorTemplate);
+
+        const loadingIndicatorUtil = { remove: jest.fn() };
+        const pseudoModalUtil = { updateContent: jest.fn() };
+        const modalBodyEl = document.createElement('div');
+        modalBodyEl.classList.add('text-center');
+
+        ajaxModalPlugin._processError(loadingIndicatorUtil, pseudoModalUtil, modalBodyEl);
+
+        expect(loadingIndicatorUtil.remove).toHaveBeenCalledTimes(1);
+        expect(pseudoModalUtil.updateContent).toHaveBeenCalledWith('<div class="alert">Error</div>');
+        expect(modalBodyEl.classList).not.toContain('text-center');
+
+        errorTemplate.remove();
+    });
+
     test('_processResponse will remove the loading indicator, remove loading classes and update the modal content', () => {
         const response = new XMLHttpRequest();
 

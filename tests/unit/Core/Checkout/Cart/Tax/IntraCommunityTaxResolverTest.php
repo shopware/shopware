@@ -175,6 +175,34 @@ class IntraCommunityTaxResolverTest extends TestCase
         yield 'missing customer' => [null];
     }
 
+    #[DataProvider('billingCountryProvider')]
+    public function testDigitalProductsReadTheBillingCountryOnlyWithinTheOptIn(?CustomerEntity $customer, string $billingCountryId, bool $companyTaxFree, string $sellerCountryId, bool $expected): void
+    {
+        $this->systemConfig->set('core.basicInformation.sellerCountryId', $sellerCountryId);
+        $country = $this->country($billingCountryId);
+        $country->setCompanyTax(new TaxFreeConfig($companyTaxFree));
+
+        static::assertSame($expected, $this->resolver->isTaxedByBillingCountry($customer, $country, self::CHANNEL_ID));
+    }
+
+    /**
+     * @return iterable<string, array{CustomerEntity|null, string, bool, string, bool}>
+     */
+    public static function billingCountryProvider(): iterable
+    {
+        $private = new CustomerEntity();
+        $private->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+
+        yield 'business customer billed in another member state with Tax-free (B2B)' => [self::business(null), self::FR_ID, true, self::DE_ID, true];
+        yield 'business customer billed in the seller country with Tax-free (B2B)' => [self::business(null), self::DE_ID, true, self::DE_ID, true];
+        yield 'business customer billed in the seller country without Tax-free (B2B)' => [self::business(null), self::DE_ID, false, self::DE_ID, true];
+        yield 'billing country without Tax-free (B2B)' => [self::business(null), self::FR_ID, false, self::DE_ID, false];
+        yield 'billing country outside the EU' => [self::business(null), self::CH_ID, true, self::DE_ID, false];
+        yield 'seller outside the EU' => [self::business(null), self::FR_ID, true, self::CH_ID, false];
+        yield 'private customer' => [$private, self::FR_ID, true, self::DE_ID, false];
+        yield 'missing customer, for example of an order whose customer was deleted' => [null, self::FR_ID, true, self::DE_ID, false];
+    }
+
     public function testDisabledCompanyTaxKeepsDestinationRules(): void
     {
         $country = $this->country(self::FR_ID);
@@ -503,7 +531,7 @@ class IntraCommunityTaxResolverTest extends TestCase
         static::assertSame([ResolveVatIdsExtension::class, ResolveDispatchCountryExtension::class], array_map(get_class(...), $this->published));
         foreach ($this->published as $extension) {
             static::assertSame(self::CHANNEL_ID, $extension->salesChannelId);
-            static::assertSame($country, $extension->deliveryCountry);
+            static::assertSame($country, $extension->taxCountry);
             static::assertSame($customer, $extension->customer);
             static::assertSame($order, $extension->order);
         }

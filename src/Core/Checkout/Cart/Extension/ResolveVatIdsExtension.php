@@ -28,10 +28,13 @@ final class ResolveVatIdsExtension extends Extension
      */
     public function __construct(
         public readonly string $salesChannelId,
-        public readonly CountryEntity $deliveryCountry,
+        /**
+         * The delivery country, or the billing country of a cart whose products are all digital, for the taxes.
+         */
+        public readonly CountryEntity $taxCountry,
         public readonly ?CustomerEntity $customer,
         /**
-         * Only set for documents
+         * Only set for documents.
          */
         public readonly ?OrderEntity $order,
     ) {

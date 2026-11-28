@@ -84,6 +84,28 @@ class IntraCommunityTaxResolver implements ResetInterface
         return $this->hasSellerStateVatId($vatIds, $sellerState) ? $dispatchCountryId : $deliveryCountry->getId();
     }
 
+    /**
+     * @internal
+     *
+     * Digital products are not shipped, so a cart of only digital products reads the billing country instead
+     * opt-in like the intra EU exemption: a seller in the EU and a business customer billed in a member state
+     * with Tax-free (B2B) enabled, or billed in the seller's own country, which is never exempt.
+     */
+    public function isTaxedByBillingCountry(?CustomerEntity $customer, CountryEntity $billingCountry, string $salesChannelId): bool
+    {
+        if ($customer?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS || !$billingCountry->getIsEu()) {
+            return false;
+        }
+
+        $dispatchCountryId = $this->resolveDispatchCountryId($salesChannelId, $billingCountry, $customer, null);
+        if ($this->vatIdPatternProvider->getMemberStateOfCountry($dispatchCountryId) === null) {
+            return false;
+        }
+
+        // Tax-free (B2B) is usually off for the seller's own country, and a domestic supply must not follow an exempt shipping address
+        return $billingCountry->getCompanyTax()->getEnabled() || $billingCountry->getId() === $dispatchCountryId;
+    }
+
     public function isIntraCommunityDelivery(OrderEntity $order): bool
     {
         $customer = $order->getOrderCustomer()?->getCustomer();
@@ -200,12 +222,12 @@ class IntraCommunityTaxResolver implements ResetInterface
     /**
      * @return list<string>
      */
-    private function resolveVatIds(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): array
+    private function resolveVatIds(string $salesChannelId, CountryEntity $taxCountry, ?CustomerEntity $customer, ?OrderEntity $order): array
     {
         return $this->extensions->publish(
             name: ResolveVatIdsExtension::NAME,
-            extension: new ResolveVatIdsExtension($salesChannelId, $deliveryCountry, $customer, $order),
-            function: fn (string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): array => $this->getVatIds($customer, $order),
+            extension: new ResolveVatIdsExtension($salesChannelId, $taxCountry, $customer, $order),
+            function: fn (string $salesChannelId, CountryEntity $taxCountry, ?CustomerEntity $customer, ?OrderEntity $order): array => $this->getVatIds($customer, $order),
         );
     }
 
@@ -221,12 +243,12 @@ class IntraCommunityTaxResolver implements ResetInterface
         return array_values(array_filter($vatIds ?? []));
     }
 
-    private function resolveDispatchCountryId(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): string
+    private function resolveDispatchCountryId(string $salesChannelId, CountryEntity $taxCountry, ?CustomerEntity $customer, ?OrderEntity $order): string
     {
         return strtolower($this->extensions->publish(
             name: ResolveDispatchCountryExtension::NAME,
-            extension: new ResolveDispatchCountryExtension($salesChannelId, $deliveryCountry, $customer, $order),
-            function: fn (string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): string => $this->getSellerCountryId($salesChannelId),
+            extension: new ResolveDispatchCountryExtension($salesChannelId, $taxCountry, $customer, $order),
+            function: fn (string $salesChannelId, CountryEntity $taxCountry, ?CustomerEntity $customer, ?OrderEntity $order): string => $this->getSellerCountryId($salesChannelId),
         ));
     }
 

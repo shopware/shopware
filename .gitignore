@@ -184,6 +184,7 @@ config/services*
 custom
 !/custom/scripts/boot
 !/custom/scripts/examples
+!/tests/unit/Core/Framework/Plugin/Command/_fixtures/project/custom/
 files/*
 install.lock
 

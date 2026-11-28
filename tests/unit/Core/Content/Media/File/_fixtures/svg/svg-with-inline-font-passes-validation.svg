@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <defs>
+        <font id="icons" horiz-adv-x="1024">
+            <font-face units-per-em="1024" panose-1="2 0 0 0 0 0 0 0 0 0" ascent="960" descent="-64" alphabetic="0" bbox="0 -64 1024 960" underline-thickness="50" underline-position="-100" unicode-range="U+E000-EFFF" x-height="500" cap-height="700" slope="0" />
+            <missing-glyph horiz-adv-x="1024" />
+            <glyph unicode="&#xe900;" glyph-name="check" d="M0 0h10v10H0z" />
+            <hkern u1="A" u2="V" g1="left" g2="right" k="-80" />
+            <vkern u1="A" u2="V" g1="top" g2="bottom" k="12" />
+        </font>
+    </defs>
+</svg>

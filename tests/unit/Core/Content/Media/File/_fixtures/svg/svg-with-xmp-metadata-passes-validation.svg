@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <metadata><?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
+        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core">
+            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description rdf:about="" xmlns:ExtensisFontSense="http://www.extensis.com/meta/FontSense/">
+                    <ExtensisFontSense:slug>
+                        <rdf:Bag>
+                            <rdf:li>
+                                <rdf:Description>
+                                    <ExtensisFontSense:Family>Arial Hebrew</ExtensisFontSense:Family>
+                                    <ExtensisFontSense:PostScriptName>ArialHebrew</ExtensisFontSense:PostScriptName>
+                                </rdf:Description>
+                            </rdf:li>
+                        </rdf:Bag>
+                    </ExtensisFontSense:slug>
+                </rdf:Description>
+            </rdf:RDF>
+        </x:xmpmeta>
+    <?xpacket end="w"?></metadata>
+    <path d="M0 0h10v10H0z" />
+</svg>

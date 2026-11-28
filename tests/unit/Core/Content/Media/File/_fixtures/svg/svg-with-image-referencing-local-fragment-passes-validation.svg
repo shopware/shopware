@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <defs>
+        <symbol id="icon" viewBox="0 0 1 1"><rect width="1" height="1"/></symbol>
+    </defs>
+    <image href="#icon" width="10" height="10"/>
+</svg>

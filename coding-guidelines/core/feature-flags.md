@@ -76,6 +76,15 @@ Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument i
 
 ### Using flags in methods
 
+PHPStan's feature-guard extension permits deprecated calls inside a legacy branch guarded by the matching removal-version feature flag.
+A named flag alone does not prove the major is inactive: an explicit configuration can override the named flag's `major` inheritance.
+Check the removal-version flag as well when keeping a legacy path behind a named flag.
+This applies to direct conditions and boolean aliases that have not been overwritten.
+Literal callbacks passed to `Feature::callSilentIfInactive()` or `Feature::ifNotActive()` also qualify when their flag matches the removal version.
+The extension covers deprecated method calls, construction, constants, properties, `instanceof` checks and catch types.
+Other deprecation diagnostics follow the configured ignore rules.
+Core retains its existing broad ignore for Shopware class/interface deprecations.
+
 Constructors and factories on deprecated exception classes use `Feature::throwIfActive($majorFlag, $message)`: it stays silent before removal and throws when the flag is active, even inside `Feature::silent()`. 
 Error metadata methods remain callable so formatting does not mask the original failure. 
 Deprecated factory methods on retained domain exception classes use the ordinary `Feature::triggerDeprecationOrThrow()`; silence internal legacy calls with `Feature::silent()`. 

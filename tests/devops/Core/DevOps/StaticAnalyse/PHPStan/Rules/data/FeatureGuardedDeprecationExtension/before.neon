@@ -1,0 +1,17 @@
+includes:
+    - phar://phpstan.phar/conf/bleedingEdge.neon
+
+parameters:
+    level: 5
+    paths:
+        - Api.php
+        - LegacyApi.php
+        - LegacyContract.php
+        - LegacyValues.php
+        - CurrentValues.php
+        - InactiveCallbacks.php
+    bootstrapFiles:
+        - bootstrap.php
+    treatPhpDocTypesAsCertain: false
+    parallel:
+        maximumNumberOfProcesses: 1

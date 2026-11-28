@@ -172,6 +172,22 @@ The notice SVGs are now `aria-hidden`, and the notice link is described by the n
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
+### Choose how the Storefront Vite dev server updates the page
+
+The Vite dev server of the Storefront (`composer storefront:dev-server`) now loads the Vite client, so style changes reach the open page without a manual reload.
+`SHOPWARE_STOREFRONT_DEV_UPDATE` selects how a change is applied:
+
+- `reload` is the default and reloads the page.
+- `hmr` applies the change to the open page in place, for example with a CSS swap that keeps the page state.
+- `manual` sends nothing to the page, as before.
+
+The variable is read from the shell, `.env.local`, or `.env` of the project root.
+The webpack hot proxy (`composer watch:storefront`) does not use it.
+
+```bash
+SHOPWARE_STOREFRONT_DEV_UPDATE=hmr composer storefront:dev-server
+```
+
 # 6.7.17.0
 
 ## Critical Fixes

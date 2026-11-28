@@ -1,5 +1,12 @@
 import pc from 'picocolors';
 import type { Plugin } from 'vite';
+import { STOREFRONT_DEV_UPDATE_ENV, type StorefrontDevUpdate } from './storefront-dev-update';
+
+const DEV_UPDATE_NOTICES: Record<StorefrontDevUpdate, string> = {
+    reload: `Changes reload the page. Set ${STOREFRONT_DEV_UPDATE_ENV}=hmr to apply them in place.`,
+    hmr: `Changes are applied to the open page in place (${STOREFRONT_DEV_UPDATE_ENV}=hmr).`,
+    manual: `Changes are not sent to the page, reload it yourself (${STOREFRONT_DEV_UPDATE_ENV}=manual).`,
+};
 
 /**
  * Vite plugin — replaces the default "Local: http://localhost:…" startup
@@ -13,8 +20,10 @@ import type { Plugin } from 'vite';
  * Vite prints its URL lines by calling `server.printUrls()` — a method on the
  * ViteDevServer instance — rather than going through the logger. Replacing
  * that method in `configureServer` is therefore the correct interception point.
+ *
+ * The notice also names the active `SHOPWARE_STOREFRONT_DEV_UPDATE` mode.
  */
-export function devServerNoticePlugin(): Plugin {
+export function devServerNoticePlugin(devUpdate: StorefrontDevUpdate = 'reload'): Plugin {
     return {
         name: 'sw-dev-server-notice',
         apply: 'serve',
@@ -26,7 +35,8 @@ export function devServerNoticePlugin(): Plugin {
                     '\n' +
                     '  ' + pc.green('➜') + pc.green('  Storefront dev server ready') + ' (Port: ' + port + ').\n' +
                     '     Open your Shopware Storefront in the browser as usual —\n' +
-                    '     JS and CSS are loaded from this server automatically.\n',
+                    '     JS and CSS are loaded from this server automatically.\n' +
+                    '     ' + DEV_UPDATE_NOTICES[devUpdate] + '\n',
                     { timestamp: false },
                 );
             };

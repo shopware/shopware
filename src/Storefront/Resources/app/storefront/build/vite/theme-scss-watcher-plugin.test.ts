@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import * as SassEmbedded from 'sass-embedded';
 import type { ViteDevServer } from 'vite';
 import { themeScssWatcherPlugin } from './theme-scss-watcher-plugin';
+import type { StorefrontDevUpdate } from './storefront-dev-update';
 
 // The sync Sass API corrupts its protobuf stream on Node >= 24.22 (sync-child-process
 // ignores the byte offset of pooled stdout chunks), so the plugin must never use it.
@@ -105,8 +106,8 @@ function resolveHook<T extends (...args: never[]) => unknown>(
     return hook?.handler;
 }
 
-function startPlugin(projectRoot: string): MockServer {
-    const plugin = themeScssWatcherPlugin(projectRoot);
+function startPlugin(projectRoot: string, devUpdate?: StorefrontDevUpdate): MockServer {
+    const plugin = themeScssWatcherPlugin(projectRoot, { devUpdate });
     const server = createMockServer();
     (resolveHook(plugin.configureServer) as ((...args: unknown[]) => unknown) | undefined)?.call({}, server);
 
@@ -183,7 +184,7 @@ describe('themeScssWatcherPlugin', () => {
         expect((await requestCss(server)).body).toContain('.b');
     });
 
-    it('passes requests for other urls to the next middleware', () => {
+    it('passes requests for other urls and without a url to the next middleware', () => {
         const projectRoot = path.join(fixtureRoot, 'other-url-project');
         writeThemeFiles(projectRoot, 'theme', [styleEntry(writeFile(path.join(projectRoot, 'a.scss'), '.a { color: red; }'))]);
 
@@ -193,6 +194,11 @@ describe('themeScssWatcherPlugin', () => {
         server.__middlewares[0]?.({ url: '/theme-scss/other.css' }, response, next);
 
         expect(next).toHaveBeenCalledOnce();
+        expect(response.body).toBe('');
+
+        server.__middlewares[0]?.({}, response, next);
+
+        expect(next).toHaveBeenCalledTimes(2);
         expect(response.body).toBe('');
     });
 
@@ -334,22 +340,176 @@ describe('themeScssWatcherPlugin', () => {
         );
     });
 
-    it('reloads the page when a watched SCSS file changes and ignores other files', () => {
-        const projectRoot = path.join(fixtureRoot, 'change-project');
+    it('reloads the page with the compiled css when a watched SCSS file changes by default', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-reload-project');
         const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
         writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
 
         const server = startPlugin(projectRoot);
 
+        writeFile(entry, '.a { color: green; }');
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
+        expect(server.config.logger.info).toHaveBeenCalledWith(
+            '[sw-theme-scss] SCSS changed: entry.scss → page reload',
+            { timestamp: true },
+        );
+
+        const compileCalls = vi.mocked(SassEmbedded.compileStringAsync).mock.calls.length;
+        const reloaded = await requestCss(server);
+
+        expect(reloaded.body).toContain('color: green');
+        expect(vi.mocked(SassEmbedded.compileStringAsync).mock.calls).toHaveLength(compileCalls);
+    });
+
+    it('only logs a changed SCSS file in manual mode', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-manual-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        const themeFilesPath = writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+
+        const server = startPlugin(projectRoot, 'manual');
+
+        writeFile(entry, '.a { color: green; }');
+        server.watcher.emit('change', entry);
+        server.watcher.emit('change', themeFilesPath);
+
+        await vi.waitFor(() => {
+            expect(server.config.logger.info).toHaveBeenCalledWith(
+                expect.stringContaining('theme-files.json reloaded'),
+                { timestamp: true },
+            );
+        });
+        expect(server.ws.send).not.toHaveBeenCalled();
+        expect(server.config.logger.info).toHaveBeenCalledWith(
+            '[sw-theme-scss] SCSS changed: entry.scss, reload the page to see it',
+            { timestamp: true },
+        );
+        expect((await requestCss(server)).body).toContain('color: green');
+    });
+
+    it('swaps the css in place when a watched SCSS file changes in hmr mode and ignores other files', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+
+        const server = startPlugin(projectRoot, 'hmr');
+
         server.watcher.emit('change', path.join(projectRoot, 'unrelated.scss'));
         expect(server.ws.send).not.toHaveBeenCalled();
 
+        writeFile(entry, '.a { color: green; }');
         server.watcher.emit('change', entry);
-        expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        const payload = server.ws.send.mock.calls[0]?.[0] as { type: string; updates: Array<Record<string, unknown>> };
+        expect(payload.type).toBe('update');
+        expect(payload.updates).toEqual([{
+            type: 'css-update',
+            path: '/theme-scss/all.css',
+            acceptedPath: '/theme-scss/all.css',
+            timestamp: expect.any(Number) as number,
+        }]);
         expect(server.config.logger.info).toHaveBeenCalledWith(
-            expect.stringContaining('SCSS changed: entry.scss'),
+            '[sw-theme-scss] SCSS changed: entry.scss → css update',
             { timestamp: true },
         );
+
+        const compileCalls = vi.mocked(SassEmbedded.compileStringAsync).mock.calls.length;
+        const swapped = await requestCss(server, `/theme-scss/all.css?t=${String(payload.updates[0]?.timestamp)}`);
+
+        expect(swapped.body).toContain('color: green');
+        expect(swapped.headers['Cache-Control']).toBe('no-cache');
+        expect(vi.mocked(SassEmbedded.compileStringAsync).mock.calls).toHaveLength(compileCalls);
+    });
+
+    it('shows the error overlay instead of swapping when the changed SCSS does not compile', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-broken-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+
+        const server = startPlugin(projectRoot);
+        writeFile(entry, '.a { color: $undefined-variable; }');
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        expect(server.ws.send).toHaveBeenCalledWith({
+            type: 'error',
+            err: {
+                message: expect.stringContaining('Undefined variable') as string,
+                stack: '',
+                id: entry,
+                plugin: 'sw-theme-scss',
+            },
+        });
+        expect(server.config.logger.error).toHaveBeenCalledWith(
+            expect.stringContaining('Undefined variable'),
+            { timestamp: true },
+        );
+    });
+
+    it('only sends the result of the latest change', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-twice-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+
+        const server = startPlugin(projectRoot);
+        server.watcher.emit('change', entry);
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        await new Promise(resolve => { setTimeout(resolve, 50); });
+        expect(server.ws.send).toHaveBeenCalledOnce();
+    });
+
+    it('shows compile failures that are not Error instances in the error overlay', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-non-error-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+        vi.mocked(SassEmbedded.compileStringAsync).mockRejectedValueOnce('compiler crashed');
+
+        const server = startPlugin(projectRoot);
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        expect(server.ws.send).toHaveBeenCalledWith({
+            type: 'error',
+            err: { message: 'compiler crashed', stack: '', id: entry, plugin: 'sw-theme-scss' },
+        });
+        expect(server.config.logger.error).toHaveBeenCalledWith(
+            '[sw-theme-scss] Compile error: compiler crashed',
+            { timestamp: true },
+        );
+    });
+
+    it('ignores the compile error of a change that a newer change superseded', async () => {
+        const projectRoot = path.join(fixtureRoot, 'change-stale-error-project');
+        const entry = writeFile(path.join(projectRoot, 'entry.scss'), '.a { color: red; }');
+        writeThemeFiles(projectRoot, 'theme', [styleEntry(entry)]);
+        vi.mocked(SassEmbedded.compileStringAsync).mockRejectedValueOnce(new Error('stale compile failed'));
+
+        const server = startPlugin(projectRoot);
+        server.watcher.emit('change', entry);
+        server.watcher.emit('change', entry);
+
+        await vi.waitFor(() => {
+            expect(server.ws.send).toHaveBeenCalledOnce();
+        });
+        await new Promise(resolve => { setTimeout(resolve, 50); });
+        expect(server.ws.send).toHaveBeenCalledOnce();
+        expect(server.ws.send).toHaveBeenCalledWith({ type: 'full-reload' });
+        expect(server.config.logger.error).not.toHaveBeenCalled();
     });
 
     it('keeps the current entries when theme-files.json becomes malformed', async () => {

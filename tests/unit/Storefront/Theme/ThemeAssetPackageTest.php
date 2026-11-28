@@ -42,6 +42,26 @@ class ThemeAssetPackageTest extends TestCase
         static::assertSame($expectedUrl, $actual);
     }
 
+    public function testFallbackUrlFollowsTheCurrentRequestWhenPackageIsReused(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+
+        $themeAssetPackage = new ThemeAssetPackage(
+            [''],
+            new StaticVersionStrategy('v1'),
+            $requestStack,
+            new MD5ThemePathBuilder()
+        );
+
+        static::assertSame('https://first.example/path/to/file?v1', $themeAssetPackage->getUrl('path/to/file'));
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertSame('https://second.example/path/to/file?v1', $themeAssetPackage->getUrl('path/to/file'));
+    }
+
     public static function urlCases(): \Generator
     {
         yield 'absolute url' => [

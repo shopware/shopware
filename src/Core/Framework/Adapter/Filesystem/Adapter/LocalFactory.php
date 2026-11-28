@@ -28,6 +28,12 @@ class LocalFactory implements FilesystemOperatorFactoryInterface
      */
     public function createFilesystem(array $config, array $filesystemOptions): FilesystemOperator
     {
+        $publicUrlGenerator = $filesystemOptions['public_url_generator'] ?? null;
+        if (isset($filesystemOptions['public_url']) && $filesystemOptions['public_url'] !== ($filesystemOptions['public_url_generator_fallback'] ?? null)) {
+            $publicUrlGenerator = null;
+        }
+        unset($filesystemOptions['public_url_generator'], $filesystemOptions['public_url_generator_fallback']);
+
         $options = $this->resolveOptions($config);
 
         if (!$options['enforce_file_permissions']) {
@@ -36,7 +42,7 @@ class LocalFactory implements FilesystemOperatorFactoryInterface
             $filesystemOptions[Config::OPTION_RETAIN_VISIBILITY] = false;
         }
 
-        return new LeagueFilesystem($this->createAdapter($options), $filesystemOptions);
+        return new LeagueFilesystem($this->createAdapter($options), $filesystemOptions, publicUrlGenerator: $publicUrlGenerator);
     }
 
     public function getType(): string

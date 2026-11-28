@@ -8,12 +8,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
+use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\Asset\UrlPackage;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 
 /**
@@ -144,6 +148,30 @@ class ViteFileAccessorDecoratorTest extends TestCase
             'test-bundle',
             'https:://shopware.com/bundles/test/administration/assets/app.js',
         ];
+    }
+
+    public function testGetDataFollowsTheCurrentRequestWhenReused(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+
+        $decorator = new ViteFileAccessorDecorator(
+            $this->configs,
+            new FallbackUrlPackage('', new EmptyVersionStrategy(), $requestStack),
+            new StubKernel([new BundleFixture('Administration', __DIR__ . '/Fixtures/Administration')]),
+            new Filesystem(),
+        );
+
+        $first = $decorator->getData('_default', FileAccessor::ENTRYPOINTS);
+        static::assertSame('https://first.example', $first['base']);
+        static::assertSame('https://first.example/bundles/administration/administration/assets/app.js', $first['entryPoints']['administration']['js'][0]);
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        $second = $decorator->getData('_default', FileAccessor::ENTRYPOINTS);
+        static::assertSame('https://second.example', $second['base']);
+        static::assertSame('https://second.example/bundles/administration/administration/assets/app.js', $second['entryPoints']['administration']['js'][0]);
     }
 
     public function testGetBundleDataReturnsEntrypoints(): void

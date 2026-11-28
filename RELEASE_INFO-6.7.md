@@ -172,6 +172,18 @@ The notice SVGs are now `aria-hidden`, and the notice link is described by the n
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
+## Hosting & Configuration
+
+### Asset and media URLs follow the current request in long-running workers
+
+When no asset or filesystem URL is configured, Shopware builds asset and media URLs from the current request.
+Long-running workers such as FrankenPHP kept the host of the first request, so a second domain received URLs of the first one.
+Storefront, theme, bundle and Administration assets as well as media URLs now use the host of each request.
+Explicit asset URLs and `shopware.filesystem.<name>.url` settings, for example a CDN, are unchanged.
+
+A filesystem created by a custom `FilesystemOperatorFactoryInterface` implementation still keeps the URL of the first request when it has no configured `url`.
+Configure a `url` for such filesystems if the shop serves several domains from one worker.
+
 # 6.7.17.0
 
 ## Critical Fixes

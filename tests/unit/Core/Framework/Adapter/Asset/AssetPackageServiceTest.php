@@ -41,6 +41,21 @@ class AssetPackageServiceTest extends TestCase
         static::assertSame('https://test.de/bundles/testplugin/foo', $pluginPackage->getUrl('/foo'));
     }
 
+    public function testBundlePackagesFollowTheCurrentRequestWhenReused(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+
+        $packages = $this->getPackages($requestStack);
+
+        static::assertSame('https://first.example/bundles/testplugin/foo', $packages->getUrl('/foo', '@TestPlugin'));
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertSame('https://second.example/bundles/testplugin/foo', $packages->getUrl('/foo', '@TestPlugin'));
+    }
+
     public function testCreateWithAppUrl(): void
     {
         $this->setEnvVars(['APP_URL' => 'https://test.de']);

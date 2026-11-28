@@ -98,6 +98,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+          # composer resolves PHPUnit 13 on PHP 8.4.1+ and PHPUnit 11 below
+          expected-phpunit: ${{ matrix.php == '8.2' && '11' || '13' }}
       - name: Run PHPUnit
         id: phpunit
         uses: ./.github/actions/phpunit-run

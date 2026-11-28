@@ -18,7 +18,29 @@ class MajorMatrixTest extends TestCase
 
         static::assertArrayNotHasKey('major', $matrix);
         static::assertNotCount(0, $matrix['test']);
-        static::assertSame(['8.2'], $matrix['php']);
+        static::assertSame(['8.5'], $matrix['php']);
+    }
+
+    public function testPhpunitMatrixRunsPullRequestsOnPhp85AndAddsPhp82Nightly(): void
+    {
+        $pullRequest = $this->generateMatrix('generate-phpunit-matrix.php', '');
+        $nightly = $this->generateMatrix('generate-phpunit-matrix.php', 'nightly');
+
+        static::assertSame(['8.5'], $pullRequest['php']);
+        static::assertSame(['8.5'], \array_unique(\array_column($pullRequest['include'], 'php')));
+        static::assertSame(['8.2', '8.5'], $nightly['php']);
+        static::assertContains('8.2', \array_column($nightly['include'], 'php'));
+    }
+
+    public function testPhpunitReleaseMatrixAddsOnlyPhp82ToThePullRequestMatrix(): void
+    {
+        $pullRequest = $this->generateMatrix('generate-phpunit-matrix.php', '');
+        $release = $this->generateMatrix('generate-phpunit-matrix.php', 'release');
+
+        static::assertSame(['8.2', '8.5'], $release['php']);
+
+        unset($pullRequest['php'], $release['php']);
+        static::assertSame($pullRequest, $release);
     }
 
     public function testAcceptanceMatrixHasOneMajorVariant(): void

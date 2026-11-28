@@ -3,9 +3,10 @@ name: Release gate
 # Pre-release coverage for patch releases. Runs on pushes to maintenance/release
 # branches (e.g. 6.6.x, 6.7.11.x) so a green branch means "safe to tag".
 # It runs a tuned subset of the nightly suite (see the 'release' profile in
-# acceptance.yml / integration.yml): all supported PHP versions + upgrade tests +
+# acceptance.yml / integration.yml): the PHPUnit suites on the lowest and the highest
+# supported PHP version (8.2 with PHPUnit 11, 8.5 with PHPUnit 13) + upgrade tests +
 # acceptance + the admin/php/storefront unit suites, skipping the heavy nightly-only
-# bits (major simulation, visual/Currents, downstream, redis image matrix).
+# bits (major simulation, visual/Currents, downstream, redis image matrix, database spread).
 on:
   push:
     branches:
@@ -55,6 +56,13 @@ jobs:
       id-token: write
       pull-requests: read
     uses: ./.github/workflows/php.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+  # php.yml runs the unit and migration suites on PHP 8.5 / PHPUnit 13 only; this adds PHP 8.2 / PHPUnit 11
+  phpunit-11:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/php-phpunit-11.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   storefront:

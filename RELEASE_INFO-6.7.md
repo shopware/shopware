@@ -88,6 +88,15 @@ The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for t
 The responses are unchanged.
 If you generate types from the schema, regenerate them and handle `null` for these fields.
 
+### Store API OpenAPI schema lists missing entity fields
+
+The Store API OpenAPI schema now lists fields that the responses already contain: the GARAN fields of `Product` (`guaranteeMonths`, `guaranteeConfirmed`, `guaranteeTermsMediaId`, `guaranteeTermsUrl` and `guaranteeTermsMedia`), `Product.documents`, `Document.typeName` and `SalesChannelDomain.isExternalStorefront`.
+The scalar fields are required, because every response carries them; the guarantee fields are `null` when unset.
+`guaranteeTermsMedia` and `documents` stay optional like every other association.
+`Document.typeName` lists the type names Shopware ships, stays open for the types plugins and apps add, and is `null` for a document without a known type.
+If you generate types from the schema, regenerate them.
+Objects you build by hand against these types, such as test fixtures, then need the new required keys.
+
 ### Legal guarantee notice text in the Store API
 
 `GET /store-api/legal-guarantee-notice` also returns `text`, the notice as HTML in the language of `svg`.

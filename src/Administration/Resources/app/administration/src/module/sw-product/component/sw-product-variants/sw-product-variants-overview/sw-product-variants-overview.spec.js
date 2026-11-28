@@ -252,7 +252,21 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
-        expect(generateVariantsButton.attributes('disabled')).toBeDefined();
+        // Inside mt-tooltip, mt-button uses aria-disabled instead of the native attribute so hovering still works
+        expect(generateVariantsButton.attributes('aria-disabled')).toBe('true');
+        expect(generateVariantsButton.attributes('aria-describedby')).toMatch(/^mt-tooltip--/);
+
+        await generateVariantsButton.trigger('click');
+        expect(wrapper.emitted('generator-open')).toBeUndefined();
+    });
+
+    it('should open the variant generator when clicking the enabled generate variants button', async () => {
+        global.activeAclRoles = ['product.creator'];
+
+        const wrapper = await createWrapper();
+        await wrapper.find('.sw-product-variants__generate-action').trigger('click');
+
+        expect(wrapper.emitted('generator-open')).toHaveLength(1);
     });
 
     it('should have an enabled generate variants button', async () => {
@@ -262,6 +276,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
         expect(generateVariantsButton.attributes('disabled')).toBeUndefined();
+        expect(generateVariantsButton.attributes('aria-describedby')).toBeUndefined();
     });
 
     it('should enable selection deleting of list variants', async () => {

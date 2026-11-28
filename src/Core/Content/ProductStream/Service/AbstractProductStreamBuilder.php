@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ProductStream\Service;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  * Enriches a criteria with a product stream's filters and grouping state.
  */
 #[Package('inventory')]
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer implement ProductStreamBuilderInterface. Type-hint AbstractProductStreamBuilder instead.')]
 abstract class AbstractProductStreamBuilder implements ProductStreamBuilderInterface
 {
     abstract public function enrichCriteria(Criteria $criteria, string $id, Context $context): void;

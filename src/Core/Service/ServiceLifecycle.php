@@ -224,6 +224,15 @@ class ServiceLifecycle
         $appId = $this->getAppIdForAppWithSameNameAsService($entry, $context);
 
         if ($appId) {
+            // A converted app is subject to the service's privilege requirements: without them (e.g. no services
+            // consent) its privileges are revoked and a working app turns into a service that cannot run.
+            // Keep the app until they are met; a later reconcile converts it (the consent grant schedules one).
+            if (!$this->requirementsValidator->isSatisfied($appInfo->requirements, Gate::PRIVILEGES)) {
+                $this->logger->debug(\sprintf('Not converting app "%s" into a service: its privilege requirements are not met', $entry->name));
+
+                return false;
+            }
+
             return $this->upgradeAppToService($appId, $entry, $appInfo, $context);
         }
 

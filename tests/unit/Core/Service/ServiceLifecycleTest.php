@@ -409,6 +409,51 @@ class ServiceLifecycleTest extends TestCase
         static::assertSame([[['id' => $app->getId(), 'selfManaged' => true]]], $appRepo->updates);
     }
 
+    public function testInstallDoesNotUpgradeAppToServiceWhenPrivilegeRequirementsAreNotMet(): void
+    {
+        $this->fetchReturnsAppInfo();
+        $this->requirementsValidator->expects($this->exactly(2))
+            ->method('isSatisfied')
+            ->willReturnCallback(static fn (array $requirements, Gate $gate): bool => $gate === Gate::INSTALLATION);
+
+        $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $appRepo = $this->buildAppRepository([$app]);
+
+        $this->expectInstallMachineryIsNotUsed();
+        $this->appManager->expects($this->never())->method('activate');
+        $this->appManager->expects($this->never())->method('update');
+        $this->appManager->expects($this->never())->method('install');
+        $this->logger->expects($this->once())
+            ->method('debug')
+            ->with('Not converting app "MyCoolService" into a service: its privilege requirements are not met');
+
+        static::assertFalse($this->createLifecycle($appRepo)->install($this->entry, Context::createDefaultContext()));
+        static::assertSame([], $appRepo->updates);
+    }
+
+    public function testInstallInstallsFreshServiceWhenPrivilegeRequirementsAreNotMet(): void
+    {
+        $this->fetchReturnsAppInfo();
+        $this->requirementsValidator->expects($this->once())
+            ->method('isSatisfied')
+            ->with($this->appInfo->requirements, Gate::INSTALLATION)
+            ->willReturn(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->willReturn(new StaticFilesystem());
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromXmlFile')
+            ->willReturn($this->createManifest());
+        $this->appManager->expects($this->once())->method('install');
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn ($event) => $event instanceof ServiceInstalledEvent && $event->service === 'MyCoolService'));
+        $this->logger->expects($this->once())->method('debug')->with('Installed service "MyCoolService"');
+
+        static::assertTrue($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
+    }
+
     public function testInstallDoesNotActivateIfRegistryEntrySpecifiesNotTo(): void
     {
         $entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', false, ServiceStatus::ACTIVE);

@@ -3268,6 +3268,17 @@ If your theme overrides `component_privacy_dpi` with a copy that contains these 
 Styles for `.privacy-notice .legal-guarantee-notice` have to target `.legal-guarantee-notice` directly.
 </details>
 
+## Affiliate tracking on cached Storefront pages
+
+Storefront pages opened with `affiliateCode` or `campaignCode` can now be served from the HTTP cache.
+The `CartWidget` plugin forwards the codes from cached pages with its request to `frontend.checkout.info`, which stores them in the session.
+If your theme overrides `CartWidget.fetch()`, use the URL returned by `getInfoUrl()` to forward both codes.
+If your theme removes the header cart widget, it must forward the codes to `frontend.checkout.info` itself to track visits to cached pages.
+Plugins that make requests on page load and need the same session should wait for the `fetch` event from `CartWidget` so the widget can establish the session first.
+If your reverse proxy excludes the codes from its cache key, preserve them in requests it forwards to Shopware, including `/widgets/checkout/info`.
+
+`AffiliateTrackingListener::AFFILIATE_CODE_KEY` and `AffiliateTrackingListener::CAMPAIGN_CODE_KEY` were removed, use `OrderService::AFFILIATE_CODE_KEY` and `OrderService::CAMPAIGN_CODE_KEY` instead.
+
 # App System
 
 <details>

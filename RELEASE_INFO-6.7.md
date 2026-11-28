@@ -1901,6 +1901,13 @@ See `UPGRADE-6.8.md` for what themes have to adjust.
 This matches how shops behaved so far: the declared `true` never took effect, so the notice only appeared where it was enabled in the cart settings.
 Shops that sell goods to consumers in the EU should enable "Show legal guarantee notice on checkout page" to show the notice at checkout, on the registration form, in the order confirmation mail and in `/store-api/legal-guarantee-notice`.
 
+### The cart widget forwards affiliate tracking codes
+
+The `CartWidget` JavaScript plugin forwards `affiliateCode` and `campaignCode` from the page URL with its request to `frontend.checkout.info`.
+Shopware 6.7 continues to bypass the HTTP cache on pages opened with these tracking codes.
+The `AFFILIATE_CODE_KEY` and `CAMPAIGN_CODE_KEY` constants on `AffiliateTrackingListener` are deprecated.
+Use the corresponding constants on `OrderService`.
+
 ### Link categories no longer get new SEO URLs
 
 Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore.

@@ -136,6 +136,10 @@ shopware:
             - 'klar_source'
             - 'klar_cpid'
             - 'klar_adid'
+            # Reverse proxies must keep these on landing-page requests for Shopware 6.7.
+            # Starting with 6.8, keep them on cart widget requests to track visits to cached pages.
+            - 'affiliateCode' # Shopware
+            - 'campaignCode' # Shopware
 
         # Cache policies (feature flag CACHE_REWORK)
         policies:

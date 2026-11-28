@@ -8,6 +8,8 @@ export default class CartWidgetPlugin extends Plugin {
     static options = {
         cartWidgetStorageKey: 'cart-widget-template',
         emptyCartWidgetStorageKey: 'empty-cart-widget',
+        // The page may come from the HTTP cache, so the server only receives these parameters with this request
+        trackingParameters: ['affiliateCode', 'campaignCode'],
     };
 
     init() {
@@ -39,11 +41,34 @@ export default class CartWidgetPlugin extends Plugin {
     }
 
     /**
+     * Returns the URL of the cart widget with the affiliate tracking parameters of the page
+     *
+     * @returns {string}
+     */
+    getInfoUrl() {
+        const url = window.router['frontend.checkout.info'];
+        const pageParameters = new URLSearchParams(window.location.search);
+        const trackingParameters = new URLSearchParams();
+
+        this.options.trackingParameters.forEach((parameter) => {
+            const value = pageParameters.get(parameter);
+
+            if (value) {
+                trackingParameters.set(parameter, value);
+            }
+        });
+
+        const query = trackingParameters.toString();
+
+        return query ? `${url}?${query}` : url;
+    }
+
+    /**
      * Fetch the current cart widget template by calling the api
      * and persist the response to the browser's session storage
      */
     fetch() {
-        fetch(window.router['frontend.checkout.info'], {
+        fetch(this.getInfoUrl(), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => {

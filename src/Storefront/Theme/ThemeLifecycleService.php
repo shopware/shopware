@@ -473,8 +473,9 @@ class ThemeLifecycleService
                     $toDeleteIds[] = $currentMediaIds[$key];
                 }
             }
-            $themeData['baseConfig'] = $baseConfig;
         }
+
+        $themeData['baseConfig'] = $baseConfig;
 
         $mediaIds = [];
 

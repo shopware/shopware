@@ -28,8 +28,10 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationEntity;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\Snippet\ThemeSnippetFileWriter;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -181,6 +183,40 @@ class ThemeLifecycleServiceTest extends TestCase
             $this->getTheme($parentBundle)->getId(),
             $this->getTheme($bundle)->getParentThemeId()
         );
+    }
+
+    public function testThemeConfigInheritanceWithoutConfigFieldsKeepsEveryParent(): void
+    {
+        $grandParentBundle = $this->getThemeConfigWithLabels();
+        $this->themeLifecycleService->refreshTheme($grandParentBundle, $this->context);
+
+        $parentBundle = $this->getThemeConfig();
+        $this->themeLifecycleService->refreshTheme($parentBundle, $this->context);
+
+        $configInheritance = [
+            '@Storefront',
+            '@' . $grandParentBundle->getTechnicalName(),
+            '@' . $parentBundle->getTechnicalName(),
+        ];
+        $bundle = $this->getSimpleThemeConfig();
+        $bundle->setConfigInheritance($configInheritance);
+        $bundle->setThemeConfig(['configInheritance' => $configInheritance]);
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle);
+
+        $this->connection->executeStatement(
+            'REPLACE INTO theme_sales_channel (theme_id, sales_channel_id) VALUES (:themeId, :salesChannelId)',
+            [
+                'themeId' => Uuid::fromHexToBytes($themeEntity->getId()),
+                'salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+            ]
+        );
+
+        $themeLoader = static::getContainer()->get(DatabaseSalesChannelThemeLoader::class);
+        $themeLoader->reset();
+
+        static::assertContains($grandParentBundle->getTechnicalName(), $themeLoader->load(TestDefaults::SALES_CHANNEL));
     }
 
     public function testThemeRefreshWithParentTheme(): void

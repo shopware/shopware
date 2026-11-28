@@ -162,5 +162,12 @@ return [
         preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension has been deleted', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome#rows() was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow#isInPayload() was removed', '/'),
+
+        // Service consent migration: the deprecated permission/consent error API on ServiceException is removed
+        // (services consent now uses the native consent system; ServiceException is slated to become @internal in 6.8)
+        preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::NO_CURRENT_PERMISSIONS_CONSENT was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::consentSaveFailed() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::consentRevokeFailed() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::noCurrentPermissionsConsent() was removed', '/'),
     ],
 ];

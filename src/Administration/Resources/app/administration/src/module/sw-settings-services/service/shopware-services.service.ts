@@ -6,7 +6,7 @@ import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import ApiService from 'src/core/service/api.service';
 import type SystemConfigApiService from 'src/core/service/api/system-config.api.service';
-import type { PermissionsConsent, ServiceConfiguration } from '../store/shopware-services.store';
+import type { ServiceConfiguration } from '../store/shopware-services.store';
 
 /**
  * @private
@@ -33,9 +33,28 @@ export type ServiceDescription = {
     state_change_permitted: boolean;
 };
 
+/**
+ * @private
+ */
+export type ServicesRevision = {
+    revision: string;
+    links: {
+        'feedback-url': string;
+        'docs-url': string;
+        'tos-url': string;
+    };
+};
+
+/**
+ * @private
+ */
+export type RevisionData = {
+    'latest-revision': string;
+    'available-revisions': ServicesRevision[];
+};
+
 type ServiceConfigurationConfigValues = {
     'core.services.disabled'?: boolean;
-    'core.services.permissionsConsent'?: string;
 };
 
 /**
@@ -83,31 +102,19 @@ export default class ShopwareServicesService extends ApiService {
 
         return {
             disabled: configValues['core.services.disabled'],
-            permissionsConsent:
-                typeof configValues['core.services.permissionsConsent'] === 'string'
-                    ? (JSON.parse(configValues['core.services.permissionsConsent']) as PermissionsConsent)
-                    : undefined,
         };
     }
 
-    acceptRevision(revision: string): Promise<void> {
-        return this.httpClient.post(
-            `services/permissions/grant/${revision}`,
-            {},
-            {
-                headers: this.getBasicHeaders(),
-            },
-        );
-    }
-
-    revokePermissions(): Promise<void> {
-        return this.httpClient.post(
-            `services/permissions/revoke`,
-            {},
-            {
-                headers: this.getBasicHeaders(),
-            },
-        );
+    getConsentRevision(locale: string): Promise<RevisionData> {
+        return this.httpClient
+            .get<RevisionData>('services/consent-revision', {
+                headers: this.getBasicHeaders({
+                    'Accept-Language': locale,
+                }),
+            })
+            .then((response) => {
+                return response.data;
+            });
     }
 
     enableAllServices(): Promise<ServiceConfiguration> {

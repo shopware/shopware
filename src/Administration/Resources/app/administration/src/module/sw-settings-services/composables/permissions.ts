@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 import type { HandleMethod } from '@shopware-ag/meteor-admin-sdk/es/channel';
-import useSession from 'src/app/composables/use-session';
-import { useShopwareServicesStore } from '../store/shopware-services.store';
+import useConsentStore from 'src/core/consent/consent.store';
+import { useShopwareServicesStore, SERVICE_CONSENT_NAME } from '../store/shopware-services.store';
 
 let reloadFn: () => void = () => window.location.reload();
 
@@ -27,24 +27,10 @@ export function __setReloadFn(fn: () => void) {
  * @private
  */
 export async function grantPermissions() {
-    const shopwareServiceStore = useShopwareServicesStore();
-    let currentRevision = shopwareServiceStore.currentRevision?.revision;
+    const consentStore = useConsentStore();
+    const latestRevision = consentStore.consents[SERVICE_CONSENT_NAME]?.latestRevision ?? null;
 
-    if (!currentRevision) {
-        const sessionStore = useSession();
-        const revisionData = await Shopware.Service('serviceRegistryClient').getCurrentRevision(
-            sessionStore.currentLocale.value ?? 'en-GB',
-        );
-
-        shopwareServiceStore.revisions = revisionData;
-        currentRevision = shopwareServiceStore.currentRevision?.revision;
-    }
-
-    if (!currentRevision) {
-        throw new Error('No revision available');
-    }
-
-    await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
+    await consentStore.accept(SERVICE_CONSENT_NAME, latestRevision);
 
     _reloadPage();
 }
@@ -53,7 +39,7 @@ export async function grantPermissions() {
  * @private
  */
 export async function revokePermissions() {
-    await Shopware.Service('shopwareServicesService').revokePermissions();
+    await useConsentStore().revoke(SERVICE_CONSENT_NAME);
 
     _reloadPage();
 }
@@ -100,10 +86,5 @@ export const isPermissionGrantedFromSdk: HandleMethod<'servicePermissionIsGrante
         return true;
     }
 
-    if (!shopwareServicesStore.revisions) {
-        const locale = useSession().currentLocale.value ?? 'en-GB';
-        shopwareServicesStore.revisions = await Shopware.Service('serviceRegistryClient').getCurrentRevision(locale);
-    }
-
-    return shopwareServicesStore.consentGiven;
+    return useConsentStore().isAccepted(SERVICE_CONSENT_NAME);
 };

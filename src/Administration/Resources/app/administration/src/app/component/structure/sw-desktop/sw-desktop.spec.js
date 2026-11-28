@@ -148,7 +148,6 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()), i
                 'sw-app-wrong-app-url-modal': true,
                 'sw-sidebar-renderer': true,
                 'sw-error-boundary': true,
-                'sw-settings-services-grant-permissions-modal': true,
                 'sw-settings-usage-data-consent-modal': true,
                 'sw-settings-usage-data-consent-modal-data-provider': true,
                 'sw-extension-floating-section': true,

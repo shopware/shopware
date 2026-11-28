@@ -72,7 +72,7 @@ export default Shopware.Store.register('consent', {
             this.consents = data;
         },
 
-        async accept(name: string): Promise<void> {
+        async accept(name: string, revision?: string | null): Promise<void> {
             if (!this.consents[name]) {
                 throw new Error(`Consent with name "${name}" not found in store.`);
             }
@@ -81,7 +81,7 @@ export default Shopware.Store.register('consent', {
                 return;
             }
 
-            const { data: updatedConsent } = await Shopware.Service('consentApiService').accept(name);
+            const { data: updatedConsent } = await Shopware.Service('consentApiService').accept(name, revision);
 
             this.consents[name] = updatedConsent;
 

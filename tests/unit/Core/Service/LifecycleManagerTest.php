@@ -8,9 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\AllServiceInstaller;
+use Shopware\Core\Service\Consent\ServiceConsent;
 use Shopware\Core\Service\LifecycleManager;
-use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceLifecycle;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
@@ -26,7 +29,7 @@ class LifecycleManagerTest extends TestCase
 
     private AllServiceInstaller $serviceInstaller;
 
-    private PermissionsService $permissionsService;
+    private ConsentService $consentService;
 
     private Context $context;
 
@@ -35,7 +38,7 @@ class LifecycleManagerTest extends TestCase
         $this->systemConfigService = new StaticSystemConfigService();
         $this->serviceLifecycle = static::createStub(ServiceLifecycle::class);
         $this->serviceInstaller = static::createStub(AllServiceInstaller::class);
-        $this->permissionsService = static::createStub(PermissionsService::class);
+        $this->consentService = static::createStub(ConsentService::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -61,11 +64,24 @@ class LifecycleManagerTest extends TestCase
             ->with($this->context);
         $this->serviceLifecycle = $lifecycle;
 
-        $permissions = $this->createMock(PermissionsService::class);
-        $permissions->expects($this->once())
-            ->method('revoke')
-            ->with($this->context);
-        $this->permissionsService = $permissions;
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->method('getConsentState')->willReturn($this->serviceConsentState(ConsentStatus::ACCEPTED));
+        $consentService->expects($this->once())
+            ->method('revokeConsent')
+            ->with(ServiceConsent::NAME, $this->context);
+        $this->consentService = $consentService;
+
+        $this->createManager()->disable($this->context);
+
+        static::assertTrue($this->systemConfigService->getBool(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED));
+    }
+
+    public function testDisableLeavesAConsentThatIsNotAccepted(): void
+    {
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->method('getConsentState')->willReturn($this->serviceConsentState(ConsentStatus::UNSET));
+        $consentService->expects($this->never())->method('revokeConsent');
+        $this->consentService = $consentService;
 
         $this->createManager()->disable($this->context);
 
@@ -151,7 +167,7 @@ class LifecycleManagerTest extends TestCase
             new StaticSystemConfigService($systemConfig),
             static::createStub(ServiceLifecycle::class),
             static::createStub(AllServiceInstaller::class),
-            static::createStub(PermissionsService::class),
+            static::createStub(ConsentService::class),
         );
 
         static::assertSame($expectedEnabled, $manager->enabled());
@@ -217,7 +233,21 @@ class LifecycleManagerTest extends TestCase
             $this->systemConfigService,
             $this->serviceLifecycle,
             $this->serviceInstaller,
-            $this->permissionsService,
+            $this->consentService,
+        );
+    }
+
+    private function serviceConsentState(ConsentStatus $status): ConsentState
+    {
+        return new ConsentState(
+            ServiceConsent::NAME,
+            'system',
+            'system',
+            $status,
+            null,
+            null,
+            null,
+            null,
         );
     }
 }

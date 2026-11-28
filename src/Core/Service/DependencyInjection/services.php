@@ -3,7 +3,6 @@
 namespace Shopware\Core\Service\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
-use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppStorage;
@@ -12,22 +11,19 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Privileges\Privileges;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Service\AllServiceInstaller;
-use Shopware\Core\Service\Api\PermissionController;
 use Shopware\Core\Service\Api\ServiceController;
 use Shopware\Core\Service\Command\Install;
 use Shopware\Core\Service\Command\UninstallAppCommandDecorator;
+use Shopware\Core\Service\Consent\ServiceConsent;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\MessageHandler\InstallServicesHandler;
-use Shopware\Core\Service\MessageHandler\LogConsentToRegistryHandler;
 use Shopware\Core\Service\MessageHandler\UpdateServiceHandler;
 use Shopware\Core\Service\Notification;
-use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 use Shopware\Core\Service\Requirement\ServicesEnabledRequirement;
@@ -35,10 +31,10 @@ use Shopware\Core\Service\Requirement\ShopwareAccountRequirement;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTaskHandler;
 use Shopware\Core\Service\ServiceClientFactory;
+use Shopware\Core\Service\ServiceConsentRevisionProvider;
 use Shopware\Core\Service\ServiceHookableEventDescriber;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
-use Shopware\Core\Service\ServiceRegistry\PermissionLogger;
 use Shopware\Core\Service\ServiceRegistry\RegistryUrlProcessor;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
@@ -46,12 +42,13 @@ use Shopware\Core\Service\ServiceWebhookPolicy;
 use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
 use Shopware\Core\Service\Subscriber\InstalledExtensionsListingLoadedSubscriber;
 use Shopware\Core\Service\Subscriber\LicenseProviderSubscriber;
-use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
+use Shopware\Core\Service\Subscriber\ServiceConsentSubscriber;
 use Shopware\Core\Service\Subscriber\ServiceLifecycleSubscriber;
 use Shopware\Core\Service\Subscriber\ServiceWriteProtectionSubscriber;
 use Shopware\Core\Service\Subscriber\ShopwareAccountSubscriber;
 use Shopware\Core\Service\Subscriber\SystemUpdateSubscriber;
 use Shopware\Core\Service\TemporaryDirectoryFactory;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
@@ -77,13 +74,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ServiceLifecycle::class),
             service(LifecycleManager::class),
             service(RequirementsValidator::class),
+            service(ServiceConsentRevisionProvider::class),
         ]);
 
-    $services->set(PermissionController::class)
-        ->public()
+    $services->set(ServiceConsentRevisionProvider::class)
         ->args([
-            service(PermissionsService::class),
+            service(Client::class),
+            service('cache.app'),
         ]);
+
+    $services->set(ServiceConsent::class)
+        ->args([
+            service(ServiceConsentRevisionProvider::class),
+        ])
+        ->tag('shopware.consent.definition');
 
     $services->set(Install::class)
         ->args([
@@ -227,17 +231,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([service(ActiveAppsLoader::class)])
         ->tag('shopware.webhook.policy');
 
-    $services->set(PermissionsService::class)
-        ->args([
-            service(SystemConfigService::class),
-            service('event_dispatcher'),
-            service(PermissionLogger::class),
-            service(ClockInterface::class),
-        ]);
-
     $services->set(ServiceConsentRequirement::class)
         ->args([
-            service(PermissionsService::class),
+            service(ConsentService::class),
         ])
         ->tag('shopware.service.requirement');
 
@@ -265,7 +261,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(ServiceLifecycle::class),
             service(AllServiceInstaller::class),
-            service(PermissionsService::class),
+            service(ConsentService::class),
         ]);
 
     $services->set(ServiceLifecycleSubscriber::class)
@@ -274,7 +270,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
-    $services->set(PermissionsSubscriber::class)
+    $services->set(ServiceConsentSubscriber::class)
         ->args([
             service(ServiceLifecycle::class),
         ])
@@ -296,18 +292,4 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(NotificationService::class),
         ]);
-
-    $services->set(PermissionLogger::class)
-        ->args([
-            service(Client::class),
-            service('messenger.bus.default'),
-            service(ShopIdProvider::class),
-            service(SystemConfigService::class),
-        ]);
-
-    $services->set(LogConsentToRegistryHandler::class)
-        ->args([
-            service(PermissionLogger::class),
-        ])
-        ->tag('messenger.message_handler');
 };

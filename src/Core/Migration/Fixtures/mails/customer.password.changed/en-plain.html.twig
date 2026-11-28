@@ -1,3 +1,3 @@
-Hello {{ customer.firstName }} {{ customer.lastName }},
+{{ customer.salutation.translated.letterName|default('Hello') }} {{ customer.firstName }} {{ customer.lastName }},
 
 Your {{ shopName }} account password has been changed successfully.

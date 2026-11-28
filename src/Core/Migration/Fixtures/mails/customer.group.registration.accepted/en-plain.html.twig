@@ -1,4 +1,4 @@
-Hello {{ customer.salutation.translated.letterName }} {{ customer.lastName }},
+{{ customer.salutation.translated.letterName|default('Hello') }} {{ customer.firstName }} {{ customer.lastName }},
 Your account has been activated for the customer group {{ customerGroup.translated.name }}.
 From now on you can shop at the new conditions of this customer group.
 

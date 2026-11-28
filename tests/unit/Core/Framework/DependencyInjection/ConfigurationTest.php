@@ -1017,6 +1017,62 @@ class ConfigurationTest extends TestCase
         yield 'null' => [null];
     }
 
+    #[TestWith(['customer'])]
+    #[TestWith(['admin'])]
+    public function testPasswordHasherAcceptsValidOptions(string $scope): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'password_hasher' => [
+                $scope => ['algorithm' => 'bcrypt', 'options' => ['cost' => 4]],
+            ],
+        ]]);
+
+        static::assertSame(['algorithm' => 'bcrypt', 'options' => ['cost' => 4]], $config['password_hasher'][$scope]);
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function invalidPasswordHasherCostDataProvider(): iterable
+    {
+        yield 'customer cost too high' => ['customer', 99];
+        yield 'customer cost too low' => ['customer', 3];
+        yield 'admin cost too high' => ['admin', 32];
+    }
+
+    #[DataProvider('invalidPasswordHasherCostDataProvider')]
+    public function testPasswordHasherRejectsOptionsPhpCannotHashWith(string $scope, int $cost): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(\sprintf(
+            'Invalid configuration for path "shopware.password_hasher.%s": Invalid options for algorithm "bcrypt": Invalid bcrypt cost parameter specified: %d',
+            $scope,
+            $cost
+        )));
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'password_hasher' => [
+                $scope => ['algorithm' => 'bcrypt', 'options' => ['cost' => $cost]],
+            ],
+        ]]);
+    }
+
+    public function testPasswordHasherRejectsInvalidArgon2Options(): void
+    {
+        if (!\in_array(\PASSWORD_ARGON2ID, password_algos(), true)) {
+            static::markTestSkipped('PHP is compiled without Argon2 support.');
+        }
+
+        $this->expectExceptionObject(new InvalidConfigurationException(
+            'Invalid configuration for path "shopware.password_hasher.customer": Invalid options for algorithm "argon2id": Time cost is outside of allowed time range'
+        ));
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'password_hasher' => [
+                'customer' => ['algorithm' => 'argon2id', 'options' => ['time_cost' => 0]],
+            ],
+        ]]);
+    }
+
     /**
      * Each argument is one config source (framework, plugin, project, ...) for the same label,
      * merged in argument order.

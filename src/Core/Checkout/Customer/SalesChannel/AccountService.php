@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -24,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\PasswordHasher\AbstractPasswordHasher;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -39,11 +42,6 @@ class AccountService
     use CheckPasswordLengthTrait;
 
     /**
-     * Bcrypt hash of a static placeholder password used to equalize timing when the login cannot succeed.
-     */
-    private const PLACEHOLDER_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
-
-    /**
      * @internal
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
@@ -57,6 +55,9 @@ class AccountService
         private readonly DoubleOptInService $doubleOptInService,
         private readonly ClockInterface $clock,
         private readonly ExtensionDispatcher $extensions,
+        private readonly AbstractPasswordHasher $passwordHasher,
+        private readonly LoggerInterface $logger,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -127,16 +128,15 @@ class AccountService
         try {
             $customer = $this->getCustomerByEmail($email, $context);
         } catch (CustomerNotFoundException) {
-            // Prevent customer enumeration via timing attacks by always running password_verify().
-            password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
+            $this->passwordHasher->verifyPlaceholder($password);
 
             throw CustomerException::badCredentials();
         }
 
         if ($customer->hasLegacyPassword()) {
             if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
-                // Legacy md5/sha256 verification is far cheaper than bcrypt; match its cost so a wrong password does not reveal migrated accounts.
-                password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
+                // Legacy md5/sha256 verification is far cheaper than the password hasher; match its cost so a wrong password does not reveal migrated accounts.
+                $this->passwordHasher->verifyPlaceholder($password);
 
                 throw CustomerException::badCredentials();
             }
@@ -148,12 +148,12 @@ class AccountService
 
         $passwordHash = $customer->getPassword();
         if ($passwordHash === null) {
-            password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
+            $this->passwordHasher->verifyPlaceholder($password);
 
             throw CustomerException::badCredentials();
         }
 
-        if (!password_verify($password, $passwordHash)) {
+        if (!$this->passwordHasher->verify($passwordHash, $password)) {
             throw CustomerException::badCredentials();
         }
 
@@ -161,6 +161,10 @@ class AccountService
             // Make sure to only resend after it has been verified it was a valid login
             $this->doubleOptInService->resendDoubleOptInMail($customer, $context);
             throw CustomerException::customerOptinNotCompleted($customer->getId());
+        }
+
+        if ($this->passwordHasher->needsRehash($passwordHash)) {
+            $this->rehashPassword($password, $customer);
         }
 
         return $customer;
@@ -263,6 +267,36 @@ class AccountService
         }
 
         return $result->first();
+    }
+
+    /**
+     * Replaces an outdated hash after a successful login. Failing to do so must never prevent the login.
+     *
+     * Written without the DAL on purpose: the password did not change, so no customer written event may be dispatched.
+     * The `CustomerTokenSubscriber` would revoke all context tokens of the customer for it,
+     * which logs out other devices and, as this method also confirms the password of logged-in customers
+     * (see `CustomerPasswordMatchesValidator`, e.g. when changing the email), the current Store API client.
+     * The hash is still created by the configured customer password hasher, the same one the `PasswordFieldSerializer` uses.
+     */
+    private function rehashPassword(#[\SensitiveParameter] string $password, CustomerEntity $customer): void
+    {
+        try {
+            $passwordHash = $this->passwordHasher->hash($password);
+
+            $this->connection->update(
+                'customer',
+                ['password' => $passwordHash],
+                ['id' => Uuid::fromHexToBytes($customer->getId())],
+            );
+
+            $customer->setPassword($passwordHash);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Could not rehash the password of customer {customerId}: {message}', [
+                'customerId' => $customer->getId(),
+                'message' => $e->getMessage(),
+                'exception' => $e,
+            ]);
+        }
     }
 
     private function updatePasswordHash(#[\SensitiveParameter] string $password, CustomerEntity $customer, Context $context): void

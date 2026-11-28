@@ -27,4 +27,15 @@ class DependencyInjectionExceptionTest extends TestCase
 
         throw DependencyInjectionException::bundlesMetadataIsNotAnArray();
     }
+
+    public function testInvalidPasswordHasherOptions(): void
+    {
+        $error = new \ValueError('Invalid bcrypt cost parameter specified: 99');
+
+        $exception = DependencyInjectionException::invalidPasswordHasherOptions('bcrypt', $error);
+
+        static::assertSame('FRAMEWORK__INVALID_PASSWORD_HASHER_OPTIONS', $exception->getErrorCode());
+        static::assertSame('Invalid options for algorithm "bcrypt": Invalid bcrypt cost parameter specified: 99', $exception->getMessage());
+        static::assertSame($error, $exception->getPrevious());
+    }
 }

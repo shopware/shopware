@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\PasswordHasher\NativePasswordHasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
@@ -55,6 +56,30 @@ class UserProvisionerTest extends TestCase
 
         $provisioner = new UserProvisioner($connection, new NativeClock());
         $provisioner->provision('admin', 'shopware', $user);
+    }
+
+    public function testProvisionHashesPasswordWithGivenHasher(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('insert')
+            ->with(
+                'user',
+                static::callback(static function (array $data): bool {
+                    static::assertIsString($data['password']);
+                    static::assertStringStartsWith('$2y$11$', $data['password']);
+
+                    return password_verify('shopware', $data['password']);
+                })
+            );
+        $connection->method('fetchOne')->willReturn(json_encode(['_value' => 8], \JSON_THROW_ON_ERROR));
+        $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
+            new FakeQueryBuilder($connection, []),
+            new FakeQueryBuilder($connection, [[Uuid::randomBytes()]])
+        );
+
+        $provisioner = new UserProvisioner($connection, new NativeClock(), new NativePasswordHasher(NativePasswordHasher::ALGORITHM_BCRYPT, ['cost' => 11]));
+        $provisioner->provision('admin', 'shopware');
     }
 
     public function testProvisionThrowsIfUserAlreadyExists(): void

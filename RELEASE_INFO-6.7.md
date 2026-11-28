@@ -200,6 +200,39 @@ Whitespace between HTML tags within custom snippets is now preserved; use Twig w
 
 DAL filters, sorting and aggregations preserve JSON keys named `extensions`, including paths such as `customFields.extensions.foo`.
 Previously, these paths could silently read a different JSON key.
+### Password hashing of customers and administration users is configurable
+
+Customer and administration user passwords are hashed by the new services `shopware.password_hasher.customer` and `shopware.password_hasher.admin`, both extending `Shopware\Core\Framework\PasswordHasher\AbstractPasswordHasher`.
+Both scopes default to `algorithm: default` (PHP's `PASSWORD_DEFAULT`) without options.
+Configure the algorithm and its `password_hash()` options per scope in your project's `config/packages/shopware.yaml`:
+
+```yaml
+shopware:
+    password_hasher:
+        customer:
+            algorithm: argon2id # default, bcrypt or argon2id
+            options: { memory_cost: 65536, time_cost: 4 }
+```
+
+Options PHP cannot hash with, for example a bcrypt `cost` outside 4 to 31, fail while the container is built.
+Options read from environment variables are only checked when a password is hashed.
+
+Every login hashes or verifies a password with these settings, including logins with an unknown email, which keeps the response time the same for existing and unknown accounts.
+With the example above, each login request needs 64 MiB of memory.
+libargon2 allocates this memory outside of PHP's `memory_limit`, so plan the memory of your workers or containers for concurrent logins instead.
+The default `login` and `oauth` rate limiters are keyed by user and IP, so they do not throttle requests that use a new email each time.
+Enable the per IP rate limiters `login_client` and `oauth_client` via `shopware.api.rate_limiter` to cover that case.
+
+On every successful login (Store API, Storefront, Administration), a hash created with other settings is replaced by a hash of the current settings.
+Existing hashes keep working, so the configuration can be changed at any time.
+As PHP 8.4 raised the default bcrypt cost from 10 to 12, existing hashes are also replaced once on PHP 8.4 and newer with the default configuration.
+
+For a custom hash format, decorate one of the services.
+Keep verifying the previous format, for example by delegating to the decorated hasher, and return `true` from `needsRehash()` for it.
+`verifyPlaceholder()` runs instead of `verify()` when there is no stored hash, for example for an unknown email, and must take as long as verifying a stored hash.
+`isHashed()` decides whether a value written to a `PasswordField` with `for: customer` or `for: admin` is stored as it is, for example when importing customers with existing hashes.
+The `algorithm` and `hashOptions` arguments of those fields are ignored in favour of the configured hasher; other `PasswordField` instances are unchanged.
+`Shopware\Core\Framework\PasswordHasher\PasswordHasherRegistry` returns the hasher of a scope.
 
 ### Cart deliveries and transactions carry a payload into the order
 

@@ -106,6 +106,7 @@ class Framework extends Bundle
         $phpLoader->load('telemetry.php');
         $phpLoader->load('notification.php');
         $phpLoader->load('sso.php');
+        $phpLoader->load('password-hasher.php');
 
         $phpLoader->load('mcp.php');
 

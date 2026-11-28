@@ -142,6 +142,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelation
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
+use Shopware\Core\Framework\PasswordHasher\PasswordHasherRegistry;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Script\AppContextCreator;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
@@ -752,6 +753,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(DefinitionInstanceRegistry::class),
             service(SystemConfigService::class),
+            service(PasswordHasherRegistry::class),
         ])
         ->tag('shopware.field_serializer');
 

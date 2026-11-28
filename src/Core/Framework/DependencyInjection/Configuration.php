@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCom
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\PasswordHasher\NativePasswordHasher;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -69,6 +70,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
                 ->append($this->createTranslationSection())
+                ->append($this->createPasswordHasherSection())
             ->end();
 
         return $treeBuilder;
@@ -1943,5 +1945,85 @@ class Configuration implements ConfigurationInterface
             ->end();
 
         return $rootNode;
+    }
+
+    private function createPasswordHasherSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('password_hasher'))->getRootNode();
+        $rootNode
+            ->info('Password hashing per scope. Existing hashes are verified further and replaced on the next successful login when the settings change.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->append($this->createPasswordHasherScopeNode('customer'))
+                ->append($this->createPasswordHasherScopeNode('admin'))
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createPasswordHasherScopeNode(string $scope): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder($scope))->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->enumNode('algorithm')
+                    ->info('"default" uses PHP\'s PASSWORD_DEFAULT. argon2id requires PHP to be compiled with Argon2 support.')
+                    ->values(NativePasswordHasher::ALGORITHMS)
+                    ->defaultValue(NativePasswordHasher::ALGORITHM_DEFAULT)
+                ->end()
+                ->arrayNode('options')
+                    ->info('Options passed to password_hash(), e.g. "cost" for bcrypt or "memory_cost", "time_cost" and "threads" for argon2.')
+                    ->normalizeKeys(false)
+                    ->integerPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static fn (array $value): bool => self::canProbePasswordHasher($value))
+                ->then(
+                    /**
+                     * @param array{algorithm: string, options: array<string, int>} $value
+                     *
+                     * @return array{algorithm: string, options: array<string, int>}
+                     */
+                    static function (array $value): array {
+                        // Let PHP decide which options are valid, so an invalid configuration fails while the container is built instead of on register or login.
+                        try {
+                            (new NativePasswordHasher($value['algorithm'], $value['options']))->hash('probe');
+                        } catch (\ValueError $e) {
+                            throw DependencyInjectionException::invalidPasswordHasherOptions($value['algorithm'], $e);
+                        }
+
+                        return $value;
+                    }
+                )
+            ->end();
+
+        return $rootNode;
+    }
+
+    /**
+     * Options from environment variables are only known at runtime, so they cannot be probed while the container is built.
+     *
+     * @param array<mixed> $value
+     */
+    private static function canProbePasswordHasher(array $value): bool
+    {
+        if (!\in_array($value['algorithm'] ?? null, NativePasswordHasher::ALGORITHMS, true)) {
+            return false;
+        }
+
+        if (!\is_array($value['options'] ?? null) || $value['options'] === []) {
+            return false;
+        }
+
+        foreach ($value['options'] as $option) {
+            if (!\is_int($option)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

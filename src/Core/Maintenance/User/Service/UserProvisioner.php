@@ -8,6 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\PasswordHasher\AbstractPasswordHasher;
+use Shopware\Core\Framework\PasswordHasher\NativePasswordHasher;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
@@ -27,7 +29,8 @@ class UserProvisioner
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly ClockInterface $clock
+        private readonly ClockInterface $clock,
+        private readonly AbstractPasswordHasher $passwordHasher = new NativePasswordHasher(),
     ) {
     }
 
@@ -54,7 +57,7 @@ class UserProvisioner
             'last_name' => $additionalData['lastName'] ?? $username,
             'email' => $additionalData['email'] ?? self::USER_EMAIL_FALLBACK,
             'username' => $username,
-            'password' => password_hash($password, \PASSWORD_BCRYPT),
+            'password' => $this->passwordHasher->hash($password),
             'locale_id' => $additionalData['localeId'] ?? $this->getLocaleOfSystemLanguage(),
             'active' => true,
             'admin' => $additionalData['admin'] ?? true,

@@ -6,9 +6,11 @@ use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\OAuth\User\User;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\PasswordHasher\AbstractPasswordHasher;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -20,16 +22,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * Bcrypt hash for a static placeholder password used to equalize timing when no user is found.
-     */
-    private const PLACEHOLDER_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
-
-    /**
      * @internal
      */
     public function __construct(
         private readonly Connection $connection,
         private readonly LoginConfigService $loginConfigService,
+        private readonly AbstractPasswordHasher $passwordHasher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -53,12 +52,14 @@ class UserRepository implements UserRepositoryInterface
             ->fetchAssociative();
 
         if (!$user) {
-            // Prevent user enumeration via timing attacks by always running password_verify().
-            $user = ['password' => self::PLACEHOLDER_PASSWORD_HASH];
-            $password = 'invalid-password-will-always-fail';
+            // Prevent user enumeration via timing attacks
+            $this->passwordHasher->verifyPlaceholder($password);
+
+            return null;
         }
 
-        if (!password_verify($password, (string) $user['password'])) {
+        $passwordHash = (string) $user['password'];
+        if (!$this->passwordHasher->verify($passwordHash, $password)) {
             return null;
         }
 
@@ -66,6 +67,34 @@ class UserRepository implements UserRepositoryInterface
             return null;
         }
 
+        if ($this->passwordHasher->needsRehash($passwordHash)) {
+            $this->rehashPassword($password, (string) $user['id']);
+        }
+
         return new User(Uuid::fromBytesToHex($user['id']));
+    }
+
+    /**
+     * Replaces an outdated hash after a successful login. Failing to do so must never prevent the login.
+     *
+     * Written without the DAL on purpose: the password did not change, so no user written event may be dispatched.
+     * The `UserCredentialsChangedSubscriber` would revoke all tokens of the user and update `last_updated_password_at` for it.
+     * The hash is still created by the configured admin password hasher, the same one the `PasswordFieldSerializer` uses.
+     */
+    private function rehashPassword(#[\SensitiveParameter] string $password, string $userId): void
+    {
+        try {
+            $this->connection->update(
+                'user',
+                ['password' => $this->passwordHasher->hash($password)],
+                ['id' => $userId],
+            );
+        } catch (\Throwable $e) {
+            $this->logger->warning('Could not rehash the password of user {userId}: {message}', [
+                'userId' => Uuid::fromBytesToHex($userId),
+                'message' => $e->getMessage(),
+                'exception' => $e,
+            ]);
+        }
     }
 }

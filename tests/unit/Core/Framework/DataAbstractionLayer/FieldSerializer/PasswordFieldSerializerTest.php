@@ -21,6 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\PasswordHasher\AbstractPasswordHasher;
+use Shopware\Core\Framework\PasswordHasher\NativePasswordHasher;
+use Shopware\Core\Framework\PasswordHasher\PasswordHasherRegistry;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraint;
@@ -56,7 +60,7 @@ class PasswordFieldSerializerTest extends TestCase
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $this->validator = static::createStub(ValidatorInterface::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->serializer = new PasswordFieldSerializer($this->validator, $definitionRegistry, $this->systemConfigService);
+        $this->serializer = new PasswordFieldSerializer($this->validator, $definitionRegistry, $this->systemConfigService, self::createRegistry());
     }
 
     public function testEncodeNotPasswordField(): void
@@ -152,7 +156,7 @@ class PasswordFieldSerializerTest extends TestCase
             ->expects($this->exactly(\count($constraints)))->method('validate')
             ->willReturn($constraintViolations);
 
-        $serializer = new PasswordFieldSerializer($validator, static::createStub(DefinitionInstanceRegistry::class), $this->systemConfigService);
+        $serializer = new PasswordFieldSerializer($validator, static::createStub(DefinitionInstanceRegistry::class), $this->systemConfigService, self::createRegistry());
         $result = $serializer->encode($field, $existence, $kv, $params)->current();
 
         if ($inputPassword) {
@@ -162,6 +166,51 @@ class PasswordFieldSerializerTest extends TestCase
                 static::assertTrue(password_verify($inputPassword, $result));
             }
         }
+    }
+
+    public function testEncodeHashesScopedFieldWithHasherOfScope(): void
+    {
+        $this->systemConfigService->expects($this->once())->method('getInt')->willReturn(0);
+
+        $serializer = new PasswordFieldSerializer(
+            $this->validator,
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->systemConfigService,
+            self::createRegistry(new PrefixPasswordHasher()),
+        );
+
+        static::assertSame('prefix$shopware', $this->encode($serializer, new PasswordField('password', 'password', for: PasswordField::FOR_CUSTOMER), 'shopware'));
+    }
+
+    public function testEncodePassesThroughValueTheHasherOfScopeAlreadyHashed(): void
+    {
+        $this->systemConfigService->expects($this->once())->method('getInt')->willReturn(0);
+
+        $serializer = new PasswordFieldSerializer(
+            $this->validator,
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->systemConfigService,
+            self::createRegistry(new PrefixPasswordHasher()),
+        );
+
+        static::assertSame('prefix$imported', $this->encode($serializer, new PasswordField('password', 'password', for: PasswordField::FOR_CUSTOMER), 'prefix$imported'));
+    }
+
+    public function testEncodeIgnoresHashersForFieldWithoutScope(): void
+    {
+        $this->systemConfigService->expects($this->never())->method('getInt');
+
+        $serializer = new PasswordFieldSerializer(
+            $this->validator,
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->systemConfigService,
+            self::createRegistry(new PrefixPasswordHasher()),
+        );
+
+        $result = $this->encode($serializer, new PasswordField('password', 'password', \PASSWORD_BCRYPT), 'shopware');
+
+        static::assertStringStartsWith('$2y$', $result);
+        static::assertTrue(password_verify('shopware', $result));
     }
 
     /**
@@ -242,12 +291,67 @@ class PasswordFieldSerializerTest extends TestCase
         ];
     }
 
+    private function encode(PasswordFieldSerializer $serializer, PasswordField $field, string $value): string
+    {
+        $existence = new EntityExistence('customer', [], false, false, false, []);
+        $params = new WriteParameterBag(new ProductDefinition(), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
+
+        $result = $serializer->encode($field, $existence, new KeyValuePair($field->getPropertyName(), $value, true), $params)->current();
+        static::assertIsString($result);
+
+        return $result;
+    }
+
     private function createSerializerWithRealValidator(): PasswordFieldSerializer
     {
         return new PasswordFieldSerializer(
             Validation::createValidator(),
             static::createStub(DefinitionInstanceRegistry::class),
-            $this->systemConfigService
+            $this->systemConfigService,
+            self::createRegistry(),
         );
+    }
+
+    private static function createRegistry(?AbstractPasswordHasher $customerHasher = null): PasswordHasherRegistry
+    {
+        return new PasswordHasherRegistry([
+            PasswordField::FOR_CUSTOMER => $customerHasher ?? new NativePasswordHasher(),
+            PasswordField::FOR_ADMIN => new NativePasswordHasher(),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class PrefixPasswordHasher extends AbstractPasswordHasher
+{
+    public function getDecorated(): AbstractPasswordHasher
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    public function hash(string $plainPassword): string
+    {
+        return 'prefix$' . $plainPassword;
+    }
+
+    public function verify(string $hashedPassword, string $plainPassword): bool
+    {
+        return $hashedPassword === $this->hash($plainPassword);
+    }
+
+    public function verifyPlaceholder(string $plainPassword): void
+    {
+    }
+
+    public function needsRehash(string $hashedPassword): bool
+    {
+        return false;
+    }
+
+    public function isHashed(string $value): bool
+    {
+        return str_starts_with($value, 'prefix$');
     }
 }

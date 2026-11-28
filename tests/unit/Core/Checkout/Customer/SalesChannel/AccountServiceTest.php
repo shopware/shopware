@@ -2,8 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -24,9 +27,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\PasswordHasher\AbstractPasswordHasher;
+use Shopware\Core\Framework\PasswordHasher\NativePasswordHasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
@@ -104,6 +110,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $token = $accountService->loginByCredentials('foo@bar.de', 'shopware', $salesChannelContext);
@@ -154,10 +163,104 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $this->expectException(BadCredentialsException::class);
         $accountService->loginByCredentials('foo@bar.de', 'invalidPassword', $salesChannelContext);
+    }
+
+    public function testGetCustomerByLoginRehashesOutdatedPasswordHash(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $customer = $this->createLoginableCustomer($salesChannelContext);
+        $customerRepository = $this->createCustomerRepository($customer, $salesChannelContext);
+
+        $passwordUpdates = [];
+        $connection = static::createStub(Connection::class);
+        $connection->method('update')->willReturnCallback(
+            /**
+             * @param array<string, mixed> $data
+             * @param array<string, mixed> $criteria
+             */
+            static function (string $table, array $data, array $criteria) use (&$passwordUpdates): int {
+                static::assertSame('customer', $table);
+                $passwordUpdates[] = ['id' => $criteria['id'], 'password' => $data['password']];
+
+                return 1;
+            }
+        );
+
+        // TestDefaults::HASHED_PASSWORD uses cost 10
+        $accountService = $this->createAccountServiceForLogin($customerRepository, new NativePasswordHasher(options: ['cost' => 11]), $connection);
+
+        $accountService->getCustomerByLogin('foo@bar.de', 'shopware', $salesChannelContext);
+
+        static::assertCount(1, $passwordUpdates);
+        static::assertSame(Uuid::fromHexToBytes($customer->getId()), $passwordUpdates[0]['id']);
+        static::assertIsString($passwordUpdates[0]['password']);
+        static::assertStringStartsWith('$2y$11$', $passwordUpdates[0]['password']);
+        static::assertTrue(password_verify('shopware', $passwordUpdates[0]['password']));
+        static::assertSame($passwordUpdates[0]['password'], $customer->getPassword());
+        static::assertSame([], $customerRepository->updates, 'Rehashing must not dispatch a customer written event, which would revoke other sessions');
+    }
+
+    public function testGetCustomerByLoginKeepsUpToDatePasswordHash(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $customer = $this->createLoginableCustomer($salesChannelContext);
+        $customerRepository = $this->createCustomerRepository($customer, $salesChannelContext);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('update');
+
+        $accountService = $this->createAccountServiceForLogin($customerRepository, new NativePasswordHasher(options: ['cost' => 10]), $connection);
+
+        $accountService->getCustomerByLogin('foo@bar.de', 'shopware', $salesChannelContext);
+
+        static::assertSame(TestDefaults::HASHED_PASSWORD, $customer->getPassword());
+    }
+
+    public function testGetCustomerByLoginDoesNotRehashForUnconfirmedDoubleOptIn(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $customer = $this->createLoginableCustomer($salesChannelContext);
+        $customer->setDoubleOptInRegistration(true);
+        $customerRepository = $this->createCustomerRepository($customer, $salesChannelContext);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('update');
+
+        // TestDefaults::HASHED_PASSWORD uses cost 10
+        $accountService = $this->createAccountServiceForLogin($customerRepository, new NativePasswordHasher(options: ['cost' => 11]), $connection);
+
+        try {
+            $accountService->getCustomerByLogin('foo@bar.de', 'shopware', $salesChannelContext);
+            static::fail('Expected the login of an unconfirmed customer to fail');
+        } catch (CustomerOptinNotCompletedException) {
+        }
+
+        static::assertSame(TestDefaults::HASHED_PASSWORD, $customer->getPassword());
+    }
+
+    public function testGetCustomerByLoginSucceedsWhenRehashingFails(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $customer = $this->createLoginableCustomer($salesChannelContext);
+        $customerRepository = $this->createCustomerRepository($customer, $salesChannelContext);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('update')->willThrowException(new \RuntimeException('database gone'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+
+        $accountService = $this->createAccountServiceForLogin($customerRepository, new NativePasswordHasher(options: ['cost' => 11]), $connection, $logger);
+
+        static::assertSame($customer, $accountService->getCustomerByLogin('foo@bar.de', 'shopware', $salesChannelContext));
+        static::assertSame(TestDefaults::HASHED_PASSWORD, $customer->getPassword());
     }
 
     public function testGetCustomerByLoginThrowsBadCredentialsWhenEmailNotFound(): void
@@ -176,6 +279,9 @@ class AccountServiceTest extends TestCase
                 $salesChannelContext->getContext()
             ));
 
+        $passwordHasher = $this->createMock(AbstractPasswordHasher::class);
+        $passwordHasher->expects($this->once())->method('verifyPlaceholder')->with('any-password');
+
         $accountService = new AccountService(
             $customerRepository,
             new EventDispatcher(),
@@ -185,6 +291,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            $passwordHasher,
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $this->expectException(BadCredentialsException::class);
@@ -242,6 +351,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $this->expectExceptionObject(new PasswordPoliciesUpdatedException());
@@ -299,6 +411,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $this->expectException(WriteException::class);
@@ -327,6 +442,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $accountService->setDefaultBillingAddress('billing-address-id', $context, $customer);
@@ -354,6 +472,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $accountService->setDefaultShippingAddress('shipping-address-id', $context, $customer);
@@ -412,6 +533,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $accountService->loginById($customer->getId(), $context);
@@ -430,6 +554,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $this->expectException(BadCredentialsException::class);
@@ -463,6 +590,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $this->expectException(CustomerNotFoundByIdException::class);
@@ -482,6 +612,9 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         static::expectException(BadCredentialsException::class);
@@ -525,9 +658,66 @@ class AccountServiceTest extends TestCase
             $doubleOptInService,
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
+            new NativePasswordHasher(options: ['cost' => 10]),
+            new NullLogger(),
+            static::createStub(Connection::class),
         );
 
         $this->expectException(CustomerOptinNotCompletedException::class);
         $accountService->getCustomerByLogin('foo@bar.de', 'shopware', $salesChannelContext);
+    }
+
+    private function createLoginableCustomer(SalesChannelContext $salesChannelContext): CustomerEntity
+    {
+        $customer = $salesChannelContext->getCustomer();
+        static::assertNotNull($customer);
+        $customer->setActive(true);
+        $customer->setGuest(false);
+        $customer->setPassword(TestDefaults::HASHED_PASSWORD);
+        $customer->setEmail('foo@bar.de');
+        $customer->setDoubleOptInRegistration(false);
+
+        return $customer;
+    }
+
+    /**
+     * @return StaticEntityRepository<CustomerCollection>
+     */
+    private function createCustomerRepository(CustomerEntity $customer, SalesChannelContext $salesChannelContext): StaticEntityRepository
+    {
+        return new StaticEntityRepository([
+            new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
+                1,
+                new CustomerCollection([$customer]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext()
+            ),
+        ]);
+    }
+
+    /**
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     */
+    private function createAccountServiceForLogin(
+        EntityRepository $customerRepository,
+        AbstractPasswordHasher $passwordHasher,
+        Connection $connection,
+        LoggerInterface $logger = new NullLogger(),
+    ): AccountService {
+        return new AccountService(
+            $customerRepository,
+            new EventDispatcher(),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
+            $passwordHasher,
+            $logger,
+            $connection,
+        );
     }
 }

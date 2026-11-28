@@ -157,6 +157,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DoubleOptInService::class),
             service(ClockInterface::class),
             service(ExtensionDispatcher::class),
+            service('shopware.password_hasher.customer'),
+            service('logger'),
+            service(Connection::class),
         ]);
 
     $services->set(DoubleOptInService::class)

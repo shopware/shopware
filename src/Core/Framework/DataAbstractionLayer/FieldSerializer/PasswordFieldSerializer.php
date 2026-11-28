@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\PasswordHasher\PasswordHasherRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -34,6 +35,7 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
         private readonly SystemConfigService $configService,
+        private readonly PasswordHasherRegistry $passwordHasherRegistry,
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -52,12 +54,7 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
 
         $value = $data->getValue();
         if ($value) {
-            $info = password_get_info($value);
-            // if no password algorithm is detected, it might be plain text which needs to be encoded.
-            // otherwise, passthrough the possibly encoded string
-            if (!$info['algo']) {
-                $value = password_hash((string) $value, $field->getAlgorithm(), $field->getHashOptions());
-            }
+            $value = $this->hash((string) $value, $field);
         }
 
         yield $field->getStorageName() => $value;
@@ -93,5 +90,25 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
         $constraints[] = new Length(min: $minPasswordLength);
 
         return $constraints;
+    }
+
+    /**
+     * Already hashed values are passed through, everything else is treated as plain text and hashed.
+     * Scoped fields (customer, admin) use the configured password hasher of their scope.
+     */
+    private function hash(#[\SensitiveParameter] string $value, PasswordField $field): string
+    {
+        $scope = $field->getFor();
+        if ($scope !== null && $this->passwordHasherRegistry->has($scope)) {
+            $hasher = $this->passwordHasherRegistry->get($scope);
+
+            return $hasher->isHashed($value) ? $value : $hasher->hash($value);
+        }
+
+        if (password_get_info($value)['algo'] !== null) {
+            return $value;
+        }
+
+        return password_hash($value, $field->getAlgorithm(), $field->getHashOptions());
     }
 }

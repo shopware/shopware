@@ -17,6 +17,7 @@ class DependencyInjectionException extends HttpException
     public const DUPLICATE_REVERSE_MANY_TO_MANY_ASSOCIATION = 'FRAMEWORK__DUPLICATE_REVERSE_MANY_TO_MANY_ASSOCIATION';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
+    private const INVALID_PASSWORD_HASHER_OPTIONS = 'FRAMEWORK__INVALID_PASSWORD_HASHER_OPTIONS';
 
     public static function projectDirNotInContainer(): self
     {
@@ -91,6 +92,17 @@ class DependencyInjectionException extends HttpException
             self::MCP_DUPLICATE_TOOL_NAME,
             'Duplicate MCP tool name "{{ toolName }}": services "{{ existingServiceId }}" and "{{ newServiceId }}" conflict. Use a unique namespace prefix (e.g. "your-plugin-tool-name").',
             ['toolName' => $toolName, 'existingServiceId' => $existingServiceId, 'newServiceId' => $newServiceId],
+        );
+    }
+
+    public static function invalidPasswordHasherOptions(string $algorithm, \ValueError $error): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_PASSWORD_HASHER_OPTIONS,
+            'Invalid options for algorithm "{{ algorithm }}": {{ error }}',
+            ['algorithm' => $algorithm, 'error' => $error->getMessage()],
+            $error,
         );
     }
 }

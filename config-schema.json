@@ -143,6 +143,9 @@
                 },
                 "app_system": {
                     "$ref": "#/definitions/app_system"
+                },
+                "password_hasher": {
+                    "$ref": "#/definitions/password_hasher"
                 }
             },
             "title": "Shopware"
@@ -363,6 +366,45 @@
                 }
             },
             "title": "App system"
+        },
+        "password_hasher": {
+            "description": "Password hashing per scope. Existing hashes are verified further and replaced on the next successful login when the settings change.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "customer": {
+                    "$ref": "#/definitions/password_hasher_scope"
+                },
+                "admin": {
+                    "$ref": "#/definitions/password_hasher_scope"
+                }
+            },
+            "title": "Password hasher"
+        },
+        "password_hasher_scope": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "algorithm": {
+                    "description": "\"default\" uses PHP's PASSWORD_DEFAULT. argon2id requires PHP to be compiled with Argon2 support.",
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "bcrypt",
+                        "argon2id"
+                    ],
+                    "default": "default"
+                },
+                "options": {
+                    "description": "Options passed to password_hash(), e.g. \"cost\" for bcrypt or \"memory_cost\", \"time_cost\" and \"threads\" for argon2.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    },
+                    "default": {}
+                }
+            },
+            "title": "Password hasher scope"
         },
         "twig": {
             "type": "object",

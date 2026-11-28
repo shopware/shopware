@@ -192,6 +192,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service(ClockInterface::class),
+            service('shopware.password_hasher.admin'),
         ]);
 
     $services->set(SetupDatabaseAdapter::class);

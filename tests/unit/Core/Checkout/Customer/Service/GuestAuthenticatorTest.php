@@ -58,6 +58,24 @@ class GuestAuthenticatorTest extends TestCase
         (new GuestAuthenticator())->validate($order, $request);
     }
 
+    #[DataProvider('provideInternationalizedEmailData')]
+    public function testGuestAuthenticationWithInternationalizedEmailDomain(string $storedEmail, string $requestEmail, ?\Exception $expectedException): void
+    {
+        $order = $this->createGuestOrder('12345', $storedEmail);
+        $request = new Request([
+            'email' => $requestEmail,
+            'zipcode' => '12345',
+        ]);
+
+        if ($expectedException !== null) {
+            $this->expectExceptionObject($expectedException);
+        }
+
+        (new GuestAuthenticator())->validate($order, $request);
+
+        static::assertNull($expectedException);
+    }
+
     #[DataProvider('provideZipcodeWhitespaceData')]
     public function testGuestAuthenticationKeepsZipcodeWhitespaceSignificant(string $storedZipcode, string $requestZipcode, ?\Exception $expectedException): void
     {
@@ -147,14 +165,25 @@ class GuestAuthenticatorTest extends TestCase
         ];
     }
 
-    private function createGuestOrder(string $zipcode): OrderEntity
+    /**
+     * @return iterable<string, array{string, string, ?\Exception}>
+     */
+    public static function provideInternationalizedEmailData(): iterable
+    {
+        yield 'Unicode domain matches stored ASCII domain' => ['test@xn--exmple-cua.com', 'test@exämple.com', null];
+        yield 'uppercase Unicode domain matches stored ASCII domain' => ['test@xn--exmple-cua.com', 'test@EXÄMPLE.COM', null];
+        yield 'ASCII domain matches stored Unicode domain' => ['test@exämple.com', 'test@xn--exmple-cua.com', null];
+        yield 'different domain is rejected' => ['test@xn--exmple-cua.com', 'test@beispiel.de', CustomerException::wrongGuestCredentials()];
+    }
+
+    private function createGuestOrder(string $zipcode, string $email = 'test@example.com'): OrderEntity
     {
         $order = new OrderEntity();
         $orderCustomer = new OrderCustomerEntity();
         $customer = new CustomerEntity();
         $customer->setGuest(true);
         $orderCustomer->setCustomer($customer);
-        $orderCustomer->setEmail('test@example.com');
+        $orderCustomer->setEmail($email);
         $order->setOrderCustomer($orderCustomer);
         $billingAddress = new OrderAddressEntity();
         $billingAddress->setZipcode($zipcode);

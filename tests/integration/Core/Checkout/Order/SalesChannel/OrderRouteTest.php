@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -215,6 +216,52 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
         static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
+    }
+
+    public function testGetOrderGuestWithInternationalizedEmailDomain(): void
+    {
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', '');
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addAssociation('orderCustomer');
+
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($this->orderId);
+
+        static::assertNotNull($order);
+        static::assertNotNull($order->getOrderCustomer());
+
+        $this->customerRepository->update([
+            [
+                'id' => $order->getOrderCustomer()->getCustomerId(),
+                'guest' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        /** @var EntityRepository<OrderCustomerCollection> $orderCustomerRepository */
+        $orderCustomerRepository = static::getContainer()->get('order_customer.repository');
+        $orderCustomerRepository->update([
+            [
+                'id' => $order->getOrderCustomer()->getId(),
+                'email' => 'test@xn--exmple-cua.com',
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
+
+        $this->browser->request('GET', '/store-api/order', \array_merge(
+            $this->requestCriteriaBuilder->toArray($criteria),
+            [
+                'email' => 'test@exämple.com',
+                'zipcode' => '59438-0403',
+            ]
+        ));
+
+        $response = $this->browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($this->orderId, $content['orders']['elements'][0]['id']);
     }
 
     public function testGetOrderGuestWrongDeepLink(): void

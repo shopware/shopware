@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
@@ -314,7 +315,7 @@ final class DocumentRoute extends AbstractDocumentRoute
             if ($billingAddress === null
                 || !\is_string($email)
                 || !\is_string($zipcode)
-                || strtolower($email) !== strtolower($orderCustomer->getEmail())
+                || strtolower(EmailIdnConverter::encode($email)) !== strtolower(EmailIdnConverter::encode($orderCustomer->getEmail()))
                 || strtoupper($zipcode) !== strtoupper($billingAddress->getZipcode() ?: '')) {
                 throw DocumentException::wrongGuestCredentials();
             }

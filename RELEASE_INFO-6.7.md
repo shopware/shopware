@@ -81,6 +81,11 @@ The new criteria state `Criteria::STATE_SORTING_RANKED_GROUPING` makes the DBAL 
 
 ## API
 
+### Guest order lookup and document downloads accept internationalized email domains
+
+Guest order lookup and document downloads now accept the original Unicode-domain email address used at checkout, alongside its ASCII domain form.
+This applies to `GET /store-api/order`, the Storefront order page, and guest downloads through `/store-api/document/download/{documentId}/{deepLinkCode}`.
+
 ### Store API media schema allows `null` where responses send it
 
 The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for the fields that the responses already send as `null`: `alt`, `title`, `config`, `customFields` and `updatedAt`, and for media without an uploaded file also `mimeType`, `fileExtension`, `fileName`, `path`, `uploadedAt`, `fileSize` and `metaData`.

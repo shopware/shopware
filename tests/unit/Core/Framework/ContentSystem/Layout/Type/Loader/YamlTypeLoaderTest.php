@@ -119,8 +119,8 @@ class YamlTypeLoaderTest extends TestCase
         }
 
         static::assertIsArray($containerProperties['margin']['properties']);
-        foreach ($containerProperties['margin']['properties'] as $breakpoint) {
-            static::assertSame('0 0 24px 0', $breakpoint['default']);
+        foreach ($containerProperties['margin']['properties'] as $name => $breakpoint) {
+            static::assertSame($name === 'lg' ? '0 0 24px 0' : null, $breakpoint['default']);
         }
 
         foreach (['align', 'alignContent', 'justify', 'justifyContent'] as $alignmentProperty) {

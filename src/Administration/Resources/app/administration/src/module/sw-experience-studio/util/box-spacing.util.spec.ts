@@ -136,7 +136,7 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
         expect(serializeBoxSpacing(parseBoxSpacing('12px 8px 4px 8px'), { linked: true })).toBe('12px 8px 4px');
     });
 
-    it('returns empty string when all sides are empty', () => {
+    it('serializes empty sides as zero', () => {
         expect(
             serializeBoxSpacing({
                 top: '',
@@ -144,7 +144,7 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
                 bottom: '',
                 left: '',
             }),
-        ).toBe('');
+        ).toBe('0');
     });
 
     it('serializes unlinked sides as explicit four-value CSS', () => {
@@ -224,7 +224,7 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
         expect(normalizeBoxSpacingCSSValue(null)).toBe('0 0 0 0');
     });
 
-    it('keeps all-zero spacing unset for persistence', () => {
+    it('preserves all-zero spacing for persistence', () => {
         expect(
             serializeBoxSpacing(
                 {
@@ -235,7 +235,12 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
                 },
                 { explicit: true },
             ),
-        ).toBe('');
+        ).toBe('0 0 0 0');
+    });
+
+    it('normalizes persisted zero values to explicit spacing', () => {
+        expect(normalizeBoxSpacingCSSValue(0)).toBe('0 0 0 0');
+        expect(normalizeBoxSpacingCSSValue('0 0 0 0')).toBe('0 0 0 0');
     });
 
     it('normalizes asymmetric CSS values to explicit four-value strings', () => {

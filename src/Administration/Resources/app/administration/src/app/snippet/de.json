@@ -90,6 +90,9 @@
     "sw-skip-link": {
       "label": "Navigation überspringen"
     },
+    "sw-unchecked-areas-hint": {
+      "text": "Nicht geprüft, weil Du diese Bereiche nicht sehen kannst: {areas}"
+    },
     "notification-center": {
       "title": "Mitteilungen",
       "triggerAriaLabel": "Mitteilungen",

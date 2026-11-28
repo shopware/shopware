@@ -1,5 +1,6 @@
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
+import { canReadMediaUsageArea, getUnreadableMediaUsageAreas } from '../../../helper/media-usage-areas';
 
 const { Application } = Shopware;
 const types = Shopware.Utils.types;
@@ -12,7 +13,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     props: {
         item: {
@@ -150,6 +154,16 @@ export default {
             return usages;
         },
 
+        emptyStateText() {
+            return this.uncheckedAreaLabels.length > 0
+                ? this.$t('sw-media.sidebar.usage.labelMediaNotUsedInReadableAreas')
+                : this.$t('sw-media.sidebar.usage.labelMediaNotUsed');
+        },
+
+        uncheckedAreaLabels() {
+            return getUnreadableMediaUsageAreas(this.acl).map((area) => area.label);
+        },
+
         isNotUsed() {
             return this.getUsages.length === 0;
         },
@@ -184,6 +198,9 @@ export default {
             const requestId = this.usageRequestId;
             this.isLoading = true;
 
+            const canRead = (key) => canReadMediaUsageArea(this.acl, key);
+            const emptyResult = Promise.resolve([]);
+
             try {
                 const [
                     foundInProducts,
@@ -191,10 +208,10 @@ export default {
                     foundInCategories,
                     foundInCmsPages,
                 ] = await Promise.all([
-                    this.productRepository.search(this.productUsageCriteria),
-                    this.landingPageRepository.search(this.slotConfigCriteria),
-                    this.categoryRepository.search(this.slotConfigCriteria),
-                    this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
+                    canRead('products') ? this.productRepository.search(this.productUsageCriteria) : emptyResult,
+                    canRead('landingPages') ? this.landingPageRepository.search(this.slotConfigCriteria) : emptyResult,
+                    canRead('categories') ? this.categoryRepository.search(this.slotConfigCriteria) : emptyResult,
+                    canRead('layouts') ? this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria) : emptyResult,
                 ]);
 
                 if (requestId !== this.usageRequestId) {
@@ -231,40 +248,40 @@ export default {
         },
 
         loadProductAssociations() {
-            this.products = [...this.item.productMedia];
+            this.products = [...(this.item.productMedia ?? [])];
         },
 
         loadCategoryAssociations() {
-            this.categories = [...this.item.categories];
+            this.categories = [...(this.item.categories ?? [])];
         },
 
         loadManufacturerAssociations() {
-            this.manufacturers = this.item.productManufacturers;
+            this.manufacturers = this.item.productManufacturers ?? [];
         },
 
         loadMailTemplateAssociations() {
-            this.mailTemplates = this.item.mailTemplateMedia;
+            this.mailTemplates = this.item.mailTemplateMedia ?? [];
         },
 
         loadDocumentBaseConfigAssociations() {
-            this.documentBaseConfigs = this.item.documentBaseConfigs;
+            this.documentBaseConfigs = this.item.documentBaseConfigs ?? [];
         },
 
         loadAvatarUserAssociations() {
-            this.avatarUsers = this.item.avatarUsers;
+            this.avatarUsers = this.item.avatarUsers ?? [];
         },
 
         loadPaymentMethodAssociations() {
-            this.paymentMethods = this.item.paymentMethods;
+            this.paymentMethods = this.item.paymentMethods ?? [];
         },
 
         loadShippingMethodAssociations() {
-            this.shippingMethods = this.item.shippingMethods;
+            this.shippingMethods = this.item.shippingMethods ?? [];
         },
 
         loadLayoutAssociations() {
             this.layouts = [];
-            this.item.cmsBlocks.forEach((layout) => {
+            (this.item.cmsBlocks ?? []).forEach((layout) => {
                 if (!this.isExistedCmsMedia(layout.section.pageId)) {
                     this.layouts.push({
                         id: layout.section.pageId,
@@ -273,7 +290,7 @@ export default {
                 }
             });
 
-            this.item.cmsSections.forEach((layout) => {
+            (this.item.cmsSections ?? []).forEach((layout) => {
                 if (!this.isExistedCmsMedia(layout.pageId)) {
                     this.layouts.push({
                         id: layout.pageId,
@@ -282,7 +299,7 @@ export default {
                 }
             });
 
-            this.item.cmsPages.forEach((layout) => {
+            (this.item.cmsPages ?? []).forEach((layout) => {
                 if (!this.isExistedCmsMedia(layout.id)) {
                     this.layouts.push({
                         id: layout.id,

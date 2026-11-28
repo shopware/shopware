@@ -11,6 +11,7 @@ component sw-media-quickinfo-usage  public  js
   template src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/sw-media-quickinfo-usage.html.twig
 
 inject
+  acl
   repositoryFactory
 
 props
@@ -35,6 +36,7 @@ computed
   categoryRepository: any
   cmsPageBlockConfigCriteria: any
   cmsPageRepository: any
+  emptyStateText: any
   getUsages: any
   isNotUsed: any
   landingPageRepository: any
@@ -42,6 +44,7 @@ computed
   productRepository: any
   productUsageCriteria: any
   slotConfigCriteria: any
+  uncheckedAreaLabels: any
 
 methods
   createdComponent(): Promise<any>
@@ -76,6 +79,7 @@ blocks
         sw_media_quickinfo_usage_item_icon  [scope: usage]
         sw_media_quickinfo_usage_item_label  [scope: usage]
     sw_media_quickinfo_usage_loader
+    sw_media_quickinfo_usage_unchecked_areas
 
 crossings
   v-if  sw_media_quickinfo_usage_empty_state -> sw_media_quickinfo_usage_list

@@ -1,5 +1,6 @@
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
+import { canReadMediaUsageArea, getReadableMediaUsageAssociations } from '../../helper/media-usage-areas';
 
 const { Mixin, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -212,20 +213,8 @@ export default {
 
             // eslint-disable-next-line no-warning-comments
             // ToDo NEXT-22186 - will be replaced by a new overview
-            [
-                'tags',
-                'productMedia.product',
-                'categories',
-                'productManufacturers.products',
-                'mailTemplateMedia.mailTemplate',
-                'documentBaseConfigs',
-                'avatarUsers',
-                'paymentMethods',
-                'shippingMethods',
-                'cmsBlocks.section.page',
-                'cmsSections.page',
-                'cmsPages',
-            ].forEach((association) => {
+            // Only areas the user may read, a single unreadable association rejects the whole request
+            getReadableMediaUsageAssociations(this.acl).forEach((association) => {
                 const associationParts = association.split('.');
 
                 criteria.addAssociation(association);
@@ -238,7 +227,9 @@ export default {
                 });
             });
 
-            criteria.addAssociation('productDocumentTranslations');
+            if (canReadMediaUsageArea(this.acl, 'products')) {
+                criteria.addAssociation('productDocumentTranslations');
+            }
 
             return criteria;
         },

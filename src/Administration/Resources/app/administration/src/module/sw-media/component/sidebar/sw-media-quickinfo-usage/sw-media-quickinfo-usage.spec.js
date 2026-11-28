@@ -29,13 +29,37 @@ const itemDeleteMock = (options = {}) => {
     };
 };
 
+const allUsageReads = [
+    'product_media:read',
+    'product:read',
+    'product_document:read',
+    'product_document_translation:read',
+    'category:read',
+    'landing_page:read',
+    'product_manufacturer:read',
+    'mail_template_media:read',
+    'mail_template:read',
+    'document_base_config:read',
+    'user:read',
+    'payment_method:read',
+    'shipping_method:read',
+    'cms_page:read',
+    'cms_section:read',
+    'cms_block:read',
+    'cms_slot:read',
+];
+
 const createWrapper = async (repositoryFactoryMock) => {
     return mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
         props: { item: itemDeleteMock() },
         global: {
             stubs: {
                 'router-link': true,
-                'sw-loader': true,
+                'mt-loader': true,
+                'sw-unchecked-areas-hint': await wrapTestComponent('sw-unchecked-areas-hint', { sync: true }),
+            },
+            mocks: {
+                $t: (key, params) => (params ? `${key} ${Object.values(params).join(' ')}` : key),
             },
             provide: {
                 repositoryFactory: repositoryFactoryMock ?? {
@@ -56,6 +80,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
     let wrapper;
     let moduleMock;
     beforeEach(async () => {
+        global.activeAclRoles = [...allUsageReads];
         wrapper = await createWrapper();
 
         const modules = ModuleFactory.getModuleRegistry();
@@ -251,5 +276,74 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         const usages = wrapper.vm.getUsages;
         expect(usages.some((usage) => usage.name === 'Slot Product')).toBeTruthy();
         expect(usages.some((usage) => usage.name === 'Slot Category')).toBeTruthy();
+    });
+
+    it('only searches the areas the user may read', async () => {
+        await wrapper.unmount();
+        global.activeAclRoles = [
+            'category:read',
+            'cms_page:read',
+        ];
+
+        const searchedEntities = [];
+        wrapper = await createWrapper({
+            create: (entityName) => {
+                return {
+                    search: () => {
+                        searchedEntities.push(entityName);
+
+                        return Promise.resolve([]);
+                    },
+                };
+            },
+        });
+        await flushPromises();
+
+        expect(searchedEntities).toEqual(['category']);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
+    });
+
+    it('names the areas it did not check and adapts the empty state', async () => {
+        await wrapper.unmount();
+        global.activeAclRoles = [
+            'product_media:read',
+            'product:read',
+            'product_document:read',
+            'product_document_translation:read',
+            'category:read',
+        ];
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-media-quickinfo-usage__info-not-used').text()).toContain(
+            'sw-media.sidebar.usage.labelMediaNotUsedInReadableAreas',
+        );
+
+        const hint = wrapper.find('.sw-media-quickinfo-usage__unchecked-areas');
+        expect(hint.text()).toContain('global.sw-unchecked-areas-hint.text');
+        expect(hint.text()).toContain(
+            [
+                'sw-media.sidebar.usage.areaLandingPages',
+                'sw-media.sidebar.usage.areaManufacturers',
+                'sw-media.sidebar.usage.areaMailTemplates',
+                'sw-media.sidebar.usage.areaDocuments',
+                'sw-media.sidebar.usage.areaUsers',
+                'sw-media.sidebar.usage.areaPaymentMethods',
+                'sw-media.sidebar.usage.areaShippingMethods',
+                'sw-media.sidebar.usage.areaLayouts',
+            ].join(', '),
+        );
+        expect(hint.text()).not.toContain('areaProducts');
+        expect(hint.text()).not.toContain('areaCategories');
+    });
+
+    it('shows no hint when the user may read every area', async () => {
+        await flushPromises();
+
+        const emptyState = wrapper.find('.sw-media-quickinfo-usage__info-not-used').text();
+        expect(emptyState).toContain('sw-media.sidebar.usage.labelMediaNotUsed');
+        expect(emptyState).not.toContain('InReadableAreas');
+        expect(wrapper.find('.sw-media-quickinfo-usage__unchecked-areas').exists()).toBe(false);
     });
 });

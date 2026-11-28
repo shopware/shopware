@@ -1,0 +1,9 @@
+// Spacing stays with the consumer, :where() keeps the defaults overridable
+:where(.sw-unchecked-areas-hint) {
+    margin: 0;
+}
+
+.sw-unchecked-areas-hint {
+    color: var(--color-text-secondary-default);
+    font-size: var(--font-size-xs);
+}

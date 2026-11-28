@@ -48,8 +48,11 @@ class Repository {
     }
 }
 
+let lastMediaRepository;
+
 async function createWrapper({ mediaAmount = [5], folderAmount = [5], limit = 5, mediaTotal, folderTotal } = {}) {
     const mediaRepositoryMock = new Repository('media', mediaAmount, mediaTotal);
+    lastMediaRepository = mediaRepositoryMock;
     const folderRepositoryMock = new Repository('media_folder', folderAmount, folderTotal);
 
     const props = { selection: [] };
@@ -98,7 +101,32 @@ async function createWrapper({ mediaAmount = [5], folderAmount = [5], limit = 5,
     });
 }
 
+const allUsageReads = [
+    'tag:read',
+    'product_media:read',
+    'product:read',
+    'product_document:read',
+    'product_document_translation:read',
+    'category:read',
+    'landing_page:read',
+    'product_manufacturer:read',
+    'mail_template_media:read',
+    'mail_template:read',
+    'document_base_config:read',
+    'user:read',
+    'payment_method:read',
+    'shipping_method:read',
+    'cms_page:read',
+    'cms_section:read',
+    'cms_block:read',
+    'cms_slot:read',
+];
+
 describe('src/module/sw-media/component/sw-media-library/index', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [...allUsageReads];
+    });
+
     it('should load a further page of folders and media via "Load more"', async () => {
         const wrapper = await createWrapper({
             folderAmount: [5, 5, 3],
@@ -531,5 +559,31 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
 
         addFolderButton = wrapper.find('.sw-media-index__create-folder-action');
         expect(addFolderButton.exists()).toBe(true);
+    });
+
+    it('only loads the usage associations the user may read', async () => {
+        global.activeAclRoles = [
+            'product_media:read',
+            'product:read',
+            'product_document:read',
+            'product_document_translation:read',
+            'user:read',
+        ];
+        await createWrapper();
+        await flushPromises();
+
+        expect(Object.keys(lastMediaRepository.lastUsedCriteria.parse().associations)).toEqual([
+            'productMedia',
+            'avatarUsers',
+            'productDocumentTranslations',
+        ]);
+    });
+
+    it('loads no usage associations without reads on other areas', async () => {
+        global.activeAclRoles = [];
+        await createWrapper();
+        await flushPromises();
+
+        expect(lastMediaRepository.lastUsedCriteria.parse().associations).toBeUndefined();
     });
 });

@@ -36,6 +36,18 @@ describe('sw-media-quickinfo-usage products', () => {
     const originalProductModule = modules.get('sw-product');
 
     beforeEach(() => {
+        global.activeAclRoles = [
+            'product:read',
+            'product_media:read',
+            'product_document:read',
+            'product_document_translation:read',
+            'category:read',
+            'landing_page:read',
+            'cms_page:read',
+            'cms_section:read',
+            'cms_block:read',
+            'cms_slot:read',
+        ];
         searchProducts.mockReset().mockResolvedValue([]);
         productRequests = [];
         otherRequests = [];
@@ -52,6 +64,7 @@ describe('sw-media-quickinfo-usage products', () => {
     });
 
     afterEach(() => {
+        global.activeAclRoles = [];
         wrapper?.unmount();
         modules.delete('sw-product');
         if (originalProductModule) {
@@ -70,7 +83,7 @@ describe('sw-media-quickinfo-usage products', () => {
                 },
                 stubs: {
                     'router-link': RouterLinkStub,
-                    'sw-loader': true,
+                    'mt-loader': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -205,7 +218,7 @@ describe('sw-media-quickinfo-usage products', () => {
         expect(reportedErrors).toEqual([error]);
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
         expect(wrapper.text()).toContain(product.translated.name);
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
     });
 
     it('shows CMS and document usages together after the product search finishes', async () => {
@@ -216,7 +229,7 @@ describe('sw-media-quickinfo-usage products', () => {
         });
         searchProducts.mockReturnValue(pending);
         await createWrapper();
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(true);
 
         resolveProducts([product, cmsProduct]);
         await flushPromises();
@@ -224,7 +237,7 @@ describe('sw-media-quickinfo-usage products', () => {
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(2);
         expect(wrapper.text()).toContain(product.translated.name);
         expect(wrapper.text()).toContain(cmsProduct.translated.name);
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
     });
 
     it('ignores old product usage results and keeps loading the currently selected file', async () => {
@@ -246,7 +259,7 @@ describe('sw-media-quickinfo-usage products', () => {
         await flushPromises();
 
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(0);
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(true);
 
         resolveCurrent([currentProduct]);
         await flushPromises();
@@ -254,6 +267,6 @@ describe('sw-media-quickinfo-usage products', () => {
         expect(wrapper.findAllComponents(RouterLinkStub)).toHaveLength(1);
         expect(wrapper.text()).toContain(currentProduct.translated.name);
         expect(wrapper.text()).not.toContain(product.translated.name);
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
     });
 });

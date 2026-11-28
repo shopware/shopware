@@ -90,6 +90,9 @@
     "sw-skip-link": {
       "label": "Skip to content"
     },
+    "sw-unchecked-areas-hint": {
+      "text": "Not checked, because you can't view these areas: {areas}"
+    },
     "notification-center": {
       "title": "Notifications",
       "triggerAriaLabel": "Notifications",

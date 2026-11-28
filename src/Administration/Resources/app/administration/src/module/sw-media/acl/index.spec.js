@@ -17,14 +17,13 @@ describe('src/module/sw-media/acl/index.js', () => {
         jest.restoreAllMocks();
     });
 
-    it('lets media viewers read the product documents that use a file', () => {
+    it('does not let media viewers read the product documents that use a file', () => {
         expect(addPrivilegeMappingEntry).toHaveBeenCalledTimes(1);
 
         const [mapping] = addPrivilegeMappingEntry.mock.calls[0];
 
         expect(mapping.key).toBe('media');
-        expect(mapping.roles.viewer.privileges).toEqual(
-            expect.arrayContaining(['product_document:read', 'product_document_translation:read']),
-        );
+        expect(mapping.roles.viewer.privileges).not.toContain('product_document:read');
+        expect(mapping.roles.viewer.privileges).not.toContain('product_document_translation:read');
     });
 });

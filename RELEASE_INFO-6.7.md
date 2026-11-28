@@ -99,6 +99,17 @@ The SVG is now `aria-hidden`, so headless frontends should render `text` as its 
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+## Administration
+
+### Media viewers no longer read other areas to show where media is used
+
+The `media.viewer` permission no longer grants reads on products and their documents, categories, manufacturers, email templates, documents, users, payment methods, shipping methods and layouts (`cms_page`, `cms_section`, `cms_block`).
+These reads existed only to show where a media file is used, and they let a media viewer read data from areas the role was never meant to cover, including user accounts.
+This is an intended change in a minor version: a viewer role should only read its own area.
+The *Used in* sidebar of the media library checks only the areas the user can read and names the areas it skipped.
+Roles that include `media.viewer`, such as the category, product, manufacturer, email template, payment, shipping, sales channel and theme viewers, no longer receive these reads through it.
+Stored roles keep their privileges until an admin saves the role again.
+Extensions that rely on these reads through `media.viewer` must request them in their own privilege mapping.
 ### App manifests can contain sections from newer Shopware versions
 
 A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.

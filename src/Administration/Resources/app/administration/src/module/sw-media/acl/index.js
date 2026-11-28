@@ -7,6 +7,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     key: 'media',
     roles: {
         viewer: {
+            // No reads on other areas: the usage sidebar only checks areas the user may read, see helper/media-usage-areas.ts
             privileges: [
                 'media:read',
                 'media_folder:read',
@@ -14,24 +15,9 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'media_thumbnail_size:read',
                 'media_folder_configuration:read',
                 'tag:read',
-                'product_media:read',
-                'product_document:read',
-                'product_document_translation:read',
-                'product:read',
-                'category:read',
-                'product_manufacturer:read',
-                'mail_template_media:read',
-                'mail_template:read',
-                'document_base_config:read',
-                'user:read',
-                'payment_method:read',
-                'shipping_method:read',
                 'custom_field_set:read',
                 'custom_field:read',
                 'custom_field_set_relation:read',
-                'cms_page:read',
-                'cms_section:read',
-                'cms_block:read',
             ],
             dependencies: [],
         },

@@ -67,7 +67,18 @@
         "tooltipFoundShipping": "Gefunden in Versandart",
         "tooltipFoundLayout": "Gefunden in Erlebniswelten",
         "titleMediaNotUsed": "Medium nicht verwendet",
-        "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
+        "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet.",
+        "labelMediaNotUsedInReadableAreas": "Dieses Medium wird in den Bereichen, die Du sehen kannst, nicht verwendet.",
+        "areaProducts": "Produkte",
+        "areaCategories": "Kategorien",
+        "areaLandingPages": "Landingpages",
+        "areaManufacturers": "Hersteller",
+        "areaMailTemplates": "E-Mail-Templates",
+        "areaDocuments": "Dokumente",
+        "areaUsers": "Benutzer",
+        "areaPaymentMethods": "Zahlungsarten",
+        "areaShippingMethods": "Versandarten",
+        "areaLayouts": "Layouts"
       }
     },
     "index": {

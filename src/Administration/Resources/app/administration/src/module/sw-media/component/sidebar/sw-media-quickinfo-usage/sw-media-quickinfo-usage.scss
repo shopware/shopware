@@ -3,7 +3,7 @@
         position: relative;
         background: none;
 
-        .sw-loader__container {
+        .mt-loader__container {
             height: 42px;
             justify-content: center;
             align-items: center;
@@ -43,6 +43,10 @@
             justify-content: center;
             align-items: center;
         }
+    }
+
+    .sw-media-quickinfo-usage__unchecked-areas {
+        margin: 0 25px 25px;
     }
 
     .sw-media-quickinfo-usage__icon {

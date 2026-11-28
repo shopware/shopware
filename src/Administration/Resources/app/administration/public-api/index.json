@@ -8282,7 +8282,8 @@
                 "sw_media_quickinfo_usage_item_icon",
                 "sw_media_quickinfo_usage_item_label",
                 "sw_media_quickinfo_usage_list",
-                "sw_media_quickinfo_usage_loader"
+                "sw_media_quickinfo_usage_loader",
+                "sw_media_quickinfo_usage_unchecked_areas"
             ]
         },
         "sw-media-replace": {
@@ -16271,6 +16272,14 @@
             "visibility": "private",
             "extends": null,
             "blocks": []
+        },
+        "sw-unchecked-areas-hint": {
+            "file": "app/component/utils/sw-unchecked-areas-hint",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_unchecked_areas_hint"
+            ]
         },
         "sw-upload-listener": {
             "file": "app/component/utils/sw-upload-listener",

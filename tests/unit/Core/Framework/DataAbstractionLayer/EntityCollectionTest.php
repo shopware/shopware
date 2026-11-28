@@ -4,11 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Stub\MyCollectionEntity;
 
 /**
  * @internal
@@ -128,24 +127,5 @@ class EntityCollectionTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $collection->getCustomFieldsValues('foo');
-    }
-}
-
-/**
- * @internal
- */
-class MyCollectionEntity extends Entity
-{
-    use EntityCustomFieldsTrait;
-
-    /**
-     * @param array<string, mixed>|null $customFields
-     */
-    public function __construct(
-        string $_uniqueIdentifier,
-        ?array $customFields = []
-    ) {
-        $this->_uniqueIdentifier = $_uniqueIdentifier;
-        $this->customFields = $customFields;
     }
 }

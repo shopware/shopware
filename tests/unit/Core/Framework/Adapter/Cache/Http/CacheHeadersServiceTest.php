@@ -146,6 +146,10 @@ class CacheHeadersServiceTest extends TestCase
     {
         $emptyCart = new Cart('empty');
         $customer = new CustomerEntity();
+        $customer->setGuest(false);
+
+        $guest = new CustomerEntity();
+        $guest->setGuest(true);
 
         $filledCart = new Cart('filled');
         $filledCart->add(new LineItem('test', 'test', 'test'));
@@ -155,6 +159,7 @@ class CacheHeadersServiceTest extends TestCase
         // all logged in customer should share the same cache hash if no rules match
         yield 'Test with logged in customer' => [$customer, $emptyCart, true, 'logged-in'];
         yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true, 'logged-in'];
+        yield 'Test with guest customer' => [$guest, $emptyCart, true, 'guest'];
     }
 
     public function testTheSameContextHashesTheSameInEveryScope(): void
@@ -439,6 +444,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testCacheCookieStaysTheSameIfEventPartsAreSortedDifferently(): void
     {
         $customer = new CustomerEntity();
+        $customer->setGuest(false);
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
@@ -470,6 +476,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testCacheCookieHasNoCacheValueIfSetInEvent(): void
     {
         $customer = new CustomerEntity();
+        $customer->setGuest(false);
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 

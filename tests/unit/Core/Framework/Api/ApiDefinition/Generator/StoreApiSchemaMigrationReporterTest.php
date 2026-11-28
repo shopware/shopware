@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
-use OpenApi\Annotations\Schema;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -80,30 +79,21 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
                 default => throw new \LogicException('Unexpected definition.'),
             };
         });
-        $definitionSchemaBuilder->method('getSchemaByDefinition')->willReturnCallback(static function (EntityDefinition $definition): array {
+        $definitionSchemaBuilder->method('createSchemas')->willReturnCallback(static function (EntityDefinition $definition): array {
             return match ($definition->getEntityName()) {
                 'parent' => [
-                    'Parent' => new Schema([
-                        'schema' => 'Parent',
-                        'ref' => '#/components/schemas/Child',
-                    ]),
+                    'Parent' => ['$ref' => '#/components/schemas/Child'],
                 ],
                 'child' => [
-                    'Child' => new Schema([
-                        'schema' => 'Child',
-                        'type' => 'object',
-                    ]),
+                    'Child' => ['type' => 'object'],
                 ],
                 'unused' => [
-                    'Unused' => new Schema([
-                        'schema' => 'Unused',
-                        'type' => 'object',
-                    ]),
+                    'Unused' => ['type' => 'object'],
                 ],
                 default => throw new \LogicException('Unexpected definition.'),
             };
         });
-        $definitionSchemaBuilder->method('getExtensionSchemaByDefinition')->willReturn([]);
+        $definitionSchemaBuilder->method('createExtensionSchemas')->willReturn([]);
 
         $report = $this->createReporter(
             definitionSchemaBuilder: $definitionSchemaBuilder,
@@ -161,8 +151,8 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         $definitionSchemaBuilder = static::createStub(OpenApiDefinitionSchemaBuilder::class);
         $definitionSchemaBuilder->method('getSchemaName')->willReturn('DifferentSchema');
-        $definitionSchemaBuilder->method('getSchemaByDefinition')->willReturn([
-            'GroupByTest' => new Schema(['schema' => 'GroupByTest', 'type' => 'object']),
+        $definitionSchemaBuilder->method('createSchemas')->willReturn([
+            'GroupByTest' => ['type' => 'object'],
         ]);
 
         $report = $this->createReporter(
@@ -227,7 +217,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     public function testReportIgnoresTranslationAndVersionDefinitions(): void
     {
         $definitionSchemaBuilder = static::createMock(OpenApiDefinitionSchemaBuilder::class);
-        $definitionSchemaBuilder->expects($this->never())->method('getSchemaByDefinition');
+        $definitionSchemaBuilder->expects($this->never())->method('createSchemas');
 
         $report = $this->createReporter(
             definitionSchemaBuilder: $definitionSchemaBuilder,

@@ -172,6 +172,21 @@ The notice SVGs are now `aria-hidden`, and the notice link is described by the n
 The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
 Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
+## Hosting & Configuration
+
+### Possibility to disable dumping of theme SCSS variables
+
+Every theme compilation writes the theme's SCSS variables to `var/theme-variables.scss` and `var/theme-variables/<themeId>.scss`. Only the Storefront hot mode (`composer watch:storefront` or `shopware-cli project storefront-watch`) reads these files; the compilation itself does not.
+On systems that don't use the hot mode, the writes can now be disabled with the new config option `storefront.theme.dump_scss_variables`. A theme compilation then no longer fails just because `var/` is not writable:
+
+```yaml
+storefront:
+    theme:
+        dump_scss_variables: false
+```
+
+The option defaults to `true`, so the existing behaviour is unchanged.
+
 # 6.7.17.0
 
 ## Critical Fixes

@@ -1749,6 +1749,11 @@
                         },
                         "available_theme_provider": {
                             "type": "string"
+                        },
+                        "dump_scss_variables": {
+                            "type": "boolean",
+                            "description": "Write the compiled SCSS variables to var/theme-variables.scss and var/theme-variables/<themeId>.scss. Only needed for the Storefront hot mode.",
+                            "default": true
                         }
                     },
                     "title": "Theme loader configuration"

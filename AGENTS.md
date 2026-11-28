@@ -85,6 +85,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 
 - PHP/server code: use the `shopware-php-code` skill when the task touches PHP architecture, API schema, migrations, deprecations, or BC-sensitive code.
 - Administration JS/TS/Vue code: detailed guidance starts at `src/Administration/Resources/app/administration/AGENTS.md`; use the `shopware-admin-js` skill for Admin coding rules.
+- Administration UI and snippet text: the Meteor MCP server provides the current components, tokens, icons and content guidelines, see `src/Administration/Resources/app/administration/AGENTS.md`.
 - PHPUnit tests: use the `shopware-phpunit-tests` skill.
 - CI workflows, composite actions, and automation scripts: local rules in `.github/AGENTS.md`, rationale and examples in `coding-guidelines/core/ci-workflows.md`.
 - More specific nested `AGENTS.md` files add local rules for their subtree.

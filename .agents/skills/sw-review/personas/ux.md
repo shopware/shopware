@@ -16,7 +16,9 @@ Ask: would a merchant know what to do, and can every user operate it?
 - Storefront Twig: form inputs have labels; actions use buttons, navigation uses links; interactive elements are keyboard-operable.
 - Focus state remains visible; color is not the only state signal.
 - Copy is user-facing, actionable, and not developer/internal language.
-- Use Meteor CSS vars (`var(--mt-...)`) where equivalents exist; avoid new hard-coded colors/spacing/font sizes.
+- Use Meteor design tokens where equivalents exist; avoid new hard-coded colors/spacing/font sizes.
+- No new usage of Meteor components marked as experimental.
+- Admin copy follows the Meteor content guidelines and glossary.
 - Icons use Meteor icon kit where available.
 
 Absence rule: only flag what this PR adds or changes.

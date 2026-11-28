@@ -16,87 +16,29 @@ The **Meteor Component Library** is Shopware's modern, open-source design system
 
 ### Component Naming Convention
 
-All Meteor components follow the `mt-*` prefix naming convention:
-- `mt-button` (replaces `sw-button`)
-- `mt-card` (replaces `sw-card`)
-- `mt-text-field` (replaces `sw-text-field`)
-- `mt-data-table` (replaces `sw-data-table`)
+All Meteor components follow the `mt-*` prefix naming convention.
 
 ### External Repository
 
 The Meteor Component Library is maintained as a separate package:
 - **Repository**: https://github.com/shopware/meteor
 - **Package**: `@shopware-ag/meteor-component-library`
-- **Documentation**: https://meteor-component-library.vercel.app/
+- **Documentation**: https://meteor.shopware.com
 
 ### Design Token Integration
 
-Meteor components consume design tokens from `@shopware-ag/meteor-tokens`, providing:
+Meteor components consume design tokens, which ship with the library stylesheet, providing:
 - **Color system** with semantic color names
 - **Typography scale** with consistent font sizes and weights
 - **Spacing system** with standardized margins and paddings
 - **Border radius** and shadow definitions
-- **Animation timings** and easing functions
 
-## Component Categories
+## Components, Tokens and Icons
 
-### Layout Components
-- `mt-card` - Container component for content sections
-- `mt-empty-state` - Empty state displays
+The [Meteor documentation](https://meteor.shopware.com) lists the current components, tokens and icons.
+It is available to AI assistants through the MCP server at `https://meteor.shopware.com/mcp`, see the [setup guide](https://meteor.shopware.com/documentation/getting-started/agents).
 
-### Form Components
-- `mt-text-editor` - Rich text editor
-- `mt-field-label` - Form field labels
-- `mt-button` - Action buttons with variants
-- `mt-checkbox` - Checkbox inputs
-- `mt-colorpicker` - Color selection input
-- `mt-datepicker` - Date selection
-- `mt-email-field` - Email input fields
-- `mt-help-text` - Form help text
-- `mt-number-field` - Numeric input fields
-- `mt-password-field` - Password input fields
-- `mt-select` - Dropdown selection
-- `mt-slider` - Range slider inputs
-- `mt-switch` - Toggle switches
-- `mt-text-field` - Text input fields
-- `mt-textarea` - Multi-line text input
-- `mt-unit-field` - Input fields with units
-- `mt-url-field` - URL input fields
-
-### Data Display & Table Components
-- `mt-data-table` - Advanced data tables with sorting, filtering
-- `mt-pagination` - Page navigation
-
-### Feedback & Indicator Components
-- `mt-badge` - Status badges and indicators
-- `mt-promo-badge` - Promotional badges
-- `mt-snackbar` - Toast notifications
-- `mt-toast` - Simple toast messages
-- `mt-banner` - Alert messages and banners
-- `mt-loader` - Loading indicators
-- `mt-progress-bar` - Progress indicators
-- `mt-skeleton-bar` - Skeleton loading states
-
-### Navigation Components
-- `mt-link` - Navigation links
-- `mt-search` - Search input components
-- `mt-segmented-control` - Segmented control navigation
-- `mt-tabs` - Tabbed navigation
-
-### Charts & Visualization
-- `mt-chart` - Chart visualization components
-
-### Content Components
-- `mt-text` - Text content display
-
-### Entity Components
-- `mt-entity-single-select` - Entity selection components
-
-### Icons & Media Components
-- Various icon and media display components
-
-### Overlay Components
-- Modal and overlay components
+Do not use components that Meteor marks as experimental, in the documentation or with `@experimental` in the library code.
 
 ## Integration Strategy
 
@@ -156,40 +98,9 @@ Wrapped components provide extension points for plugins:
 
 ## Usage Patterns
 
-### Direct Import
+### Global Registration
 
-For new development, components can be imported directly:
-
-```javascript
-import { MtButton, MtCard, MtTextField } from '@shopware-ag/meteor-component-library';
-
-export default {
-    components: {
-        'mt-button': MtButton,
-        'mt-card': MtCard,
-        'mt-text-field': MtTextField,
-    },
-};
-```
-
-### Template Usage
-
-```html
-<mt-card title="User Profile">
-    <mt-text-field 
-        label="Username"
-        v-model="username"
-        :required="true"
-    />
-    
-    <mt-button 
-        variant="primary"
-        @click="saveUser"
-    >
-        Save Changes
-    </mt-button>
-</mt-card>
-```
+Meteor components are registered globally in `src/app/adapter/view/vue.adapter.ts`, so templates use them by tag name.
 
 ### Styling Integration
 
@@ -203,45 +114,28 @@ import '@shopware-ag/meteor-component-library/font.css';
 
 ## Theming & Customization
 
-### Design Token Override
+### Design Tokens
 
-Customize appearance by overriding design tokens:
+Style with design tokens instead of hard-coded values:
 
 ```css
-:root {
-    --mt-color-primary: #3498db;
-    --mt-color-secondary: #2c3e50;
-    --mt-border-radius-default: 8px;
-    --mt-spacing-unit: 16px;
+.sw-example {
+    padding: var(--scale-size-16);
+    color: var(--color-text-primary-default);
+    background: var(--color-elevation-surface-raised);
+    border-radius: var(--border-radius-card);
 }
 ```
 
-### Component Variants
-
-Most components support multiple variants:
-
-```html
-<!-- Button variants -->
-<mt-button variant="primary">Primary Action</mt-button>
-<mt-button variant="secondary">Secondary Action</mt-button>
-<mt-button variant="ghost">Ghost Button</mt-button>
-
-<!-- Card variants -->
-<mt-card variant="outline">Outlined Card</mt-card>
-<mt-card variant="filled">Filled Card</mt-card>
-```
+Do not override Meteor tokens.
+Add a missing token with the `--sw-` prefix instead.
 
 ## Migration from Legacy Components
 
 ### Component Mapping
 
-| Legacy Component | Meteor Component | Notes |
-|------------------|------------------|--------|
-| `sw-button` | `mt-button` | Updated prop names, new variants |
-| `sw-card` | `mt-card` | New slot structure, improved styling |
-| `sw-text-field` | `mt-text-field` | Enhanced validation, better accessibility |
-| `sw-data-table` | `mt-data-table` | New API, improved performance |
-| `sw-select` | `mt-select` | Simplified props, better UX |
+Legacy `sw-*` components that Meteor replaces are marked `@deprecated` and name their replacement.
+Do not add new usages of them.
 
 ### Breaking Changes
 
@@ -252,7 +146,6 @@ Most components support multiple variants:
 
 ## Resources
 
-- **Storybook Documentation**: https://meteor-component-library.vercel.app/
+- **Documentation**: https://meteor.shopware.com
 - **GitHub Repository**: https://github.com/shopware/meteor
-- **Design System**: https://shopware.design/
 - **NPM Package**: https://www.npmjs.com/package/@shopware-ag/meteor-component-library

@@ -98,9 +98,9 @@ export default Shopware.Component.wrapComponentConfig({
 {% block sw_product_detail %}
   <sw-page>
     <template #content>
-      <sw-card position-identifier="sw_product_detail_base">
+      <mt-card position-identifier="sw_product_detail_base">
         <mt-text-field v-model="product.name" />
-      </sw-card>
+      </mt-card>
     </template>
   </sw-page>
 {% endblock %}
@@ -122,8 +122,8 @@ const store = Shopware.Store.get('myStore');
 
 ```scss
 .sw-product-list {
-  padding: var(--mt-spacing-4);
-  color: var(--mt-color-text-primary);
+  padding: var(--scale-size-16);
+  color: var(--color-text-primary-default);
 
   &__header { }
   &__grid { }

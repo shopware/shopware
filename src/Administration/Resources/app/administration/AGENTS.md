@@ -31,6 +31,7 @@ Vue Router          # Routing
 Axios               # HTTP client
 Vite                # Build tool
 Jest                # Testing framework
+Meteor              # Design system
 ```
 
 ## Special differences to regular Vue projects
@@ -43,6 +44,17 @@ Jest                # Testing framework
 
 - **Global Shopware Object**: A global `Shopware` object is created during the boot process. This object acts as the central point for accessing services, factories, and the dependency injection container. It is initialized in `core/shopware.ts` and is available throughout the application.
   - **Reference**: See `src/Administration/Resources/app/administration/technical-docs/02-architecture/03-module-system.md` for more information on the global Shopware object.
+
+## Meteor design system
+
+The UI is built with [Meteor](https://meteor.shopware.com).
+Its documentation has the current components, tokens, icons and content guidelines (wording, messaging, glossary), and is available to agents through the Meteor MCP server at `https://meteor.shopware.com/mcp`.
+
+- Use Meteor components; do not add new usages of `sw-*` components that are deprecated in favor of one.
+- Do not use components that Meteor marks as experimental.
+- Use Meteor design tokens instead of hard-coded values and do not override them; prefix Administration-own tokens with `--sw-`.
+- Use icons from the Meteor icon kit.
+- Write snippet text along the content guidelines and use glossary terms exactly.
 
 ## Coding guidelines
 - Write Jest tests for all new features and bug fixes

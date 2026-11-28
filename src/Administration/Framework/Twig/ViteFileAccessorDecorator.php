@@ -2,10 +2,14 @@
 
 namespace Shopware\Administration\Framework\Twig;
 
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Pentatrion\ViteBundle\Service\FileAccessor;
 use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Asset\PackageInterface as AssetPackage;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -21,6 +25,11 @@ class ViteFileAccessorDecorator extends FileAccessor
     private array $content = [];
 
     /**
+     * @var array<string, array<string, string|null>>
+     */
+    private array $manifests = [];
+
+    /**
      * @internal
      */
     public function __construct(
@@ -28,6 +37,8 @@ class ViteFileAccessorDecorator extends FileAccessor
         private readonly AssetPackage $package,
         private readonly KernelInterface $kernel,
         private readonly Filesystem $filesystem,
+        private readonly FilesystemOperator $assetFilesystem,
+        private readonly TagAwareAdapterInterface $cache,
     ) {
         $this->assetPath = $this->package->getUrl('');
 
@@ -43,7 +54,7 @@ class ViteFileAccessorDecorator extends FileAccessor
             return false;
         }
 
-        return $this->filesystem->exists($bundle->getPath() . $this->getRelativeFileLocation($fileType));
+        return $this->readManifest($bundle, $fileType) !== null;
     }
 
     /**
@@ -73,6 +84,55 @@ class ViteFileAccessorDecorator extends FileAccessor
         return '/Resources/public/administration/.vite/' . self::FILES[$fileType];
     }
 
+    /**
+     * Reads the manifest from the bundle directory and falls back to the asset filesystem,
+     * which holds the files when assets are published to remote storage (e.g. S3).
+     */
+    private function readManifest(BundleInterface $bundle, string $fileType): ?string
+    {
+        $name = $bundle->getName();
+        if (\array_key_exists($fileType, $this->manifests[$name] ?? [])) {
+            return $this->manifests[$name][$fileType];
+        }
+
+        return $this->manifests[$name][$fileType] = $this->loadManifest($bundle, $fileType);
+    }
+
+    private function loadManifest(BundleInterface $bundle, string $fileType): ?string
+    {
+        $localPath = $bundle->getPath() . $this->getRelativeFileLocation($fileType);
+        if ($this->filesystem->exists($localPath)) {
+            return $this->filesystem->readFile($localPath);
+        }
+
+        // same target directory as AssetService::getTargetDirectory()
+        $remotePath = \sprintf(
+            'bundles/%s/administration/.vite/%s',
+            preg_replace('/bundle$/D', '', mb_strtolower($bundle->getName())),
+            self::FILES[$fileType]
+        );
+
+        $cacheItem = $this->cache->getItem('viteManifest-' . Hasher::hash($this->assetPath . $remotePath));
+        if ($cacheItem->isHit()) {
+            return $cacheItem->get();
+        }
+
+        try {
+            $content = $this->assetFilesystem->fileExists($remotePath)
+                ? $this->assetFilesystem->read($remotePath)
+                : null;
+        } catch (FilesystemException) {
+            // do not cache failures, a short outage must not stick
+            return null;
+        }
+
+        $cacheItem->set($content);
+        $cacheItem->tag('asset-metaData');
+        $this->cache->saveDeferred($cacheItem);
+
+        return $content;
+    }
+
     private function getBundleForConfig(string $configName): BundleInterface
     {
         if ($configName === '_default') {
@@ -95,14 +155,14 @@ class ViteFileAccessorDecorator extends FileAccessor
         // Depending on how many script tags are rendered, this method is called multiple times
         // Cache the content to avoid reading the file multiple times
         if (!isset($this->content[$bundle->getName()][$fileType])) {
-            $viteEntryPointsPath = $bundle->getPath() . $this->getRelativeFileLocation($fileType);
+            $raw = $this->readManifest($bundle, $fileType);
 
-            if (!$this->filesystem->exists($viteEntryPointsPath)) {
+            if ($raw === null) {
                 return $this->content[$bundle->getName()][$fileType] = [];
             }
 
             $content = json_decode(
-                $this->filesystem->readFile($viteEntryPointsPath),
+                $raw,
                 true,
                 flags: \JSON_THROW_ON_ERROR
             );

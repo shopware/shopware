@@ -46,6 +46,29 @@ class TaxExemptionViewTest extends TestCase
         yield 'an empty seller VAT ID in the document settings' => ['FR12345678901', self::address('75001'), ''];
     }
 
+    public function testReverseChargeIsCategoryAEWithTheBuyerVatIdAndNoDeliveryAddress(): void
+    {
+        $view = TaxExemptionView::fromReverseCharge('NL123456789B01', 'DE123456789');
+
+        static::assertNotNull($view);
+        static::assertSame(TaxCategory::REVERSE_CHARGE, $view->taxCategory);
+        static::assertSame('NL123456789B01', $view->buyerVatId);
+        static::assertNull($view->deliveryAddress);
+    }
+
+    #[DataProvider('incompleteReverseChargeProvider')]
+    public function testReverseChargeWithoutTheDataOfCategoryAEIsNoExemption(?string $buyerVatId, ?string $sellerVatId): void
+    {
+        static::assertNull(TaxExemptionView::fromReverseCharge($buyerVatId, $sellerVatId));
+    }
+
+    public static function incompleteReverseChargeProvider(): \Generator
+    {
+        yield 'no reverse charge, so no buyer VAT ID' => [null, 'DE123456789'];
+        yield 'no seller VAT ID in the document settings' => ['NL123456789B01', null];
+        yield 'an empty seller VAT ID in the document settings' => ['NL123456789B01', ''];
+    }
+
     private static function address(?string $zipcode): OrderAddressEntity
     {
         $address = new OrderAddressEntity();

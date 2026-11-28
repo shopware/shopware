@@ -97,6 +97,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         $displayAdditionalNoteDelivery = (bool) ($bundle->legacyConfig['displayAdditionalNoteDelivery'] ?? false);
 
         $isIntraCommunityDelivery = $displayAdditionalNoteDelivery && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order);
+        $isReverseCharge = $displayAdditionalNoteDelivery && $this->intraCommunityTaxResolver->isReverseCharge($order);
 
         $allowNegative = $this->documentTypeRegistry
             ->getDocumentType($generationRequest->documentType)
@@ -105,6 +106,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         $taxExemption = TaxExemptionView::fromIntraCommunitySupply(
             $this->intraCommunityTaxResolver->getIntraCommunityVatId($order),
             $this->intraCommunityTaxResolver->getShippingAddress($order),
+            $bundle->company->vatId,
+        ) ?? TaxExemptionView::fromReverseCharge(
+            $this->intraCommunityTaxResolver->getReverseChargeVatId($order),
             $bundle->company->vatId,
         );
 
@@ -142,6 +146,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             ),
             intraCommunityDelivery: $isIntraCommunityDelivery,
             taxExemption: $taxExemption,
+            reverseCharge: $isReverseCharge,
             custom: ['invoiceNumber' => $documentNumber],
         );
     }

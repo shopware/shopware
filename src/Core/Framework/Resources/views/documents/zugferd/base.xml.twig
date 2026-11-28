@@ -40,7 +40,7 @@
 
         {% block zugferd_header_delivery %}
             <ram:ApplicableHeaderTradeDelivery>
-                {% if renderData.taxExemption %}
+                {% if renderData.taxExemption.deliveryAddress ?? null %}
                     {% set deliveryAddress = renderData.taxExemption.deliveryAddress %}
                     <ram:ShipToTradeParty>
                         <ram:PostalTradeAddress>

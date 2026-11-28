@@ -56,7 +56,7 @@ abstract class AbstractDocumentRenderer
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver::isIntraCommunityDelivery() instead
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver::isIntraCommunityDelivery() and ::isReverseCharge() instead
      *
      * @param array<string, mixed> $config
      */

@@ -4,11 +4,16 @@ namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Extension\ResolveDispatchCountryExtension;
 use Shopware\Core\Checkout\Cart\Extension\ResolveVatIdsExtension;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -38,15 +43,22 @@ class IntraCommunityTaxResolver implements ResetInterface
     private array $salesChannelCountryIds = [];
 
     /**
+     * @var array<string, bool> order id and version id => whether all products of the order are digital
+     */
+    private array $digitalOnlyOrders = [];
+
+    /**
      * @internal
      *
      * @param EntityRepository<CountryCollection> $countryRepository
+     * @param EntityRepository<OrderLineItemCollection> $orderLineItemRepository
      */
     public function __construct(
         private readonly VatIdPatternProvider $vatIdPatternProvider,
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $countryRepository,
         private readonly ExtensionDispatcher $extensions,
+        private readonly EntityRepository $orderLineItemRepository,
     ) {
     }
 
@@ -89,15 +101,15 @@ class IntraCommunityTaxResolver implements ResetInterface
      *
      * Digital products are not shipped, so a cart of only digital products reads the billing country instead
      * opt-in like the intra EU exemption: a seller in the EU and a business customer billed in a member state
-     * with Tax-free (B2B) enabled, or billed in the seller's own country, which is never exempt.
+     * with Tax-free (B2B) enabled, or billed in the seller's own country, which is never exempt. Documents pass the order.
      */
-    public function isTaxedByBillingCountry(?CustomerEntity $customer, CountryEntity $billingCountry, string $salesChannelId): bool
+    public function isTaxedByBillingCountry(?CustomerEntity $customer, CountryEntity $billingCountry, string $salesChannelId, ?OrderEntity $order = null): bool
     {
         if ($customer?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS || !$billingCountry->getIsEu()) {
             return false;
         }
 
-        $dispatchCountryId = $this->resolveDispatchCountryId($salesChannelId, $billingCountry, $customer, null);
+        $dispatchCountryId = $this->resolveDispatchCountryId($salesChannelId, $billingCountry, $customer, $order);
         if ($this->vatIdPatternProvider->getMemberStateOfCountry($dispatchCountryId) === null) {
             return false;
         }
@@ -106,27 +118,42 @@ class IntraCommunityTaxResolver implements ResetInterface
         return $billingCountry->getCompanyTax()->getEnabled() || $billingCountry->getId() === $dispatchCountryId;
     }
 
+    /**
+     * Orders the cart decided by the billing address are no intra-community delivery, their documents state reverse charge.
+     */
     public function isIntraCommunityDelivery(OrderEntity $order): bool
     {
-        $customer = $order->getOrderCustomer()?->getCustomer();
-        if ($customer?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            return false;
-        }
+        return $this->isExemptOrder($order, $this->getShippingAddress($order)?->getCountry(), isDecidedByBillingAddress: false);
+    }
 
-        $country = $this->getShippingAddress($order)?->getCountry();
-
-        if ($country === null || !$country->getIsEu() || $order->getPrice()->getTaxStatus() !== CartPrice::TAX_STATE_FREE) {
-            return false;
-        }
-
-        return $this->hasIntraCommunityVatId($order->getSalesChannelId(), $country, $customer, $order);
+    /**
+     * Whether the documents of a tax-free order the cart decided by the billing address state reverse charge: the rules
+     * of an intra-community delivery, applied to the billing address.
+     */
+    public function isReverseCharge(OrderEntity $order): bool
+    {
+        return $this->isExemptOrder($order, $this->getBillingAddress($order)?->getCountry(), isDecidedByBillingAddress: true);
     }
 
     /**
      * @internal
      *
-     * The buyer VAT ID an e-invoice states for an intra-community delivery: the first VAT ID that counts for the order
-     * and starts with the code of a member state, in capitals, because EN 16931 rejects a VAT ID without it.
+     * The buyer VAT ID an e-invoice states for reverse charge.
+     */
+    public function getReverseChargeVatId(OrderEntity $order): ?string
+    {
+        $country = $this->getBillingAddress($order)?->getCountry();
+        if ($country === null || !$this->isReverseCharge($order)) {
+            return null;
+        }
+
+        return $this->getMemberStateVatId($order, $country);
+    }
+
+    /**
+     * @internal
+     *
+     * The buyer VAT ID an e-invoice states for an intra-community delivery.
      */
     public function getIntraCommunityVatId(OrderEntity $order): ?string
     {
@@ -135,14 +162,7 @@ class IntraCommunityTaxResolver implements ResetInterface
             return null;
         }
 
-        $vatIds = $this->resolveVatIds($order->getSalesChannelId(), $country, $order->getOrderCustomer()?->getCustomer(), $order);
-        foreach ($vatIds as $vatId) {
-            if ($this->vatIdPatternProvider->hasMemberStatePrefix($vatId)) {
-                return strtoupper($vatId);
-            }
-        }
-
-        return null;
+        return $this->getMemberStateVatId($order, $country);
     }
 
     /**
@@ -163,6 +183,88 @@ class IntraCommunityTaxResolver implements ResetInterface
     public function reset(): void
     {
         $this->salesChannelCountryIds = [];
+        $this->digitalOnlyOrders = [];
+    }
+
+    /**
+     * Documents state at most one of the two exemptions, the one of the address that decided the cart.
+     */
+    private function isExemptOrder(OrderEntity $order, ?CountryEntity $country, bool $isDecidedByBillingAddress): bool
+    {
+        $customer = $order->getOrderCustomer()?->getCustomer();
+        if ($customer?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            || $country === null
+            || !$country->getIsEu()
+            || $order->getPrice()->getTaxStatus() !== CartPrice::TAX_STATE_FREE
+            || $this->isDecidedByBillingAddress($order, $customer) !== $isDecidedByBillingAddress
+        ) {
+            return false;
+        }
+
+        return $this->hasIntraCommunityVatId($order->getSalesChannelId(), $country, $customer, $order);
+    }
+
+    /**
+     * Same switch as the cart's: an order whose products are all digital within the intra-EU opt-in of its billing country.
+     * The order does not record which address decided the cart, so this reads the current Tax-free (B2B) setting of the
+     * billing country.
+     */
+    private function isDecidedByBillingAddress(OrderEntity $order, ?CustomerEntity $customer): bool
+    {
+        $billingCountry = $this->getBillingAddress($order)?->getCountry();
+
+        return $billingCountry !== null
+            && $this->isDigitalOnly($order)
+            && $this->isTaxedByBillingCountry($customer, $billingCountry, $order->getSalesChannelId(), $order);
+    }
+
+    /**
+     * Same rule as the cart's: at least one product, and every product, nested ones included, is digital.
+     * The products are read from the saved order, because credit notes narrow the loaded order to the credited items.
+     */
+    private function isDigitalOnly(OrderEntity $order): bool
+    {
+        $versionId = $order->getVersionId() ?? Defaults::LIVE_VERSION;
+        $key = $order->getId() . '-' . $versionId;
+        if (\array_key_exists($key, $this->digitalOnlyOrders)) {
+            return $this->digitalOnlyOrders[$key];
+        }
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('orderId', $order->getId()))
+            ->addFilter(new EqualsFilter('type', LineItem::PRODUCT_LINE_ITEM_TYPE));
+        $criteria->setTitle('intra-eu-tax-resolver::order-products');
+
+        $products = $this->orderLineItemRepository
+            ->search($criteria, Context::createDefaultContext()->createWithVersionId($versionId))
+            ->getEntities()
+            ->getElements();
+
+        return $this->digitalOnlyOrders[$key] = $products !== [] && array_all(
+            $products,
+            static fn (OrderLineItemEntity $product): bool => $product->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === ProductDefinition::TYPE_DIGITAL
+        );
+    }
+
+    private function getBillingAddress(OrderEntity $order): ?OrderAddressEntity
+    {
+        return $order->getBillingAddress() ?? $order->getAddresses()?->get($order->getBillingAddressId());
+    }
+
+    /**
+     * The first VAT ID that counts for the order and starts with the code of a member state, in capitals,
+     * because EN 16931 rejects a buyer VAT ID without it.
+     */
+    private function getMemberStateVatId(OrderEntity $order, CountryEntity $country): ?string
+    {
+        $vatIds = $this->resolveVatIds($order->getSalesChannelId(), $country, $order->getOrderCustomer()?->getCustomer(), $order);
+        foreach ($vatIds as $vatId) {
+            if ($this->vatIdPatternProvider->hasMemberStatePrefix($vatId)) {
+                return strtoupper($vatId);
+            }
+        }
+
+        return null;
     }
 
     private function hasIntraCommunityVatId(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): bool

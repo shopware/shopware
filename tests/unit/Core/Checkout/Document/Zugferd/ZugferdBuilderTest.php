@@ -168,6 +168,26 @@ class ZugferdBuilderTest extends TestCase
         static::assertStringNotContainsString('FR12345678901', $xml);
     }
 
+    public function testReverseChargeIsStatedWithTheVatIdOfTheDocumentSettings(): void
+    {
+        $resolver = static::createStub(IntraCommunityTaxResolver::class);
+        $resolver->method('getReverseChargeVatId')->willReturn('NL123456789B01');
+        $builder = $this->createZugferdBuilder($resolver);
+
+        $xml = $builder->buildDocument($this->buildTaxFreeOrder(), $this->buildDocumentConfig(), Context::createDefaultContext());
+
+        static::assertStringContainsString('<ram:CategoryCode>AE</ram:CategoryCode>', $xml);
+        static::assertStringNotContainsString('<ram:CategoryCode>Z</ram:CategoryCode>', $xml);
+        static::assertStringContainsString('<ram:ID schemeID="VA">NL123456789B01</ram:ID>', $xml);
+        static::assertStringNotContainsString('ShipToTradeParty', $xml);
+
+        $xml = $builder->buildDocument($this->buildTaxFreeOrder(), $this->buildDocumentConfig(['vatId' => '']), Context::createDefaultContext());
+
+        static::assertStringContainsString('<ram:CategoryCode>Z</ram:CategoryCode>', $xml);
+        static::assertStringNotContainsString('<ram:CategoryCode>AE</ram:CategoryCode>', $xml);
+        static::assertStringNotContainsString('NL123456789B01', $xml);
+    }
+
     #[DataProvider('discountLineItemProvider')]
     public function testDiscountLineItemIsAddedAsAllowanceOrCharge(
         float $discountGross,

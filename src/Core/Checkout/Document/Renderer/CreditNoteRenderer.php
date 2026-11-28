@@ -165,6 +165,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
                 $referenceDocumentNumber = $referenceInvoiceNumbers[$operation->getOrderId()];
 
+                $displayNote = ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false;
+
                 $config->merge([
                     'documentDate' => $operation->getConfig()['documentDate'] ?? $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'documentNumber' => $number,
@@ -172,8 +174,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                         'creditNoteNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
-                    'intraCommunityDelivery' => ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false
-                        && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
+                    'intraCommunityDelivery' => $displayNote && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
+                    'reverseCharge' => $displayNote && $this->intraCommunityTaxResolver->isReverseCharge($order),
                 ]);
 
                 // create version of order to ensure the document stays the same even if the order changes

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document;
 
 use horstoeko\zugferd\ZugferdDocumentReader;
 use horstoeko\zugferd\ZugferdXsdValidator;
+use PHPUnit\Framework\Attributes\After;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
@@ -11,12 +12,23 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader as DocumentV2ConfigLoader;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -36,6 +48,7 @@ use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 /**
  * A German shop selling to a French business customer, the fixture of the e-invoice VAT category story.
  * Order A, the intra-community delivery, is {@see self::placeOrder()} with its defaults.
+ * The customer also has an address in the Netherlands, a member state with *Tax-free (B2B)*, for the reverse-charge story.
  *
  * @internal
  */
@@ -47,17 +60,26 @@ trait IntraCommunitySupplyTrait
 
     private const VAT_ID = 'FR12345678901';
 
+    /**
+     * The VAT ID of the reverse-charge story, of a member state that is neither the seller's nor the billing country
+     */
+    private const FOREIGN_VAT_ID = 'NL123456789B01';
+
     private const SELLER_VAT_ID = 'DE123456789';
 
     private const SELLER_TAX_NUMBER = '12/345/67890';
 
     private const FR_WITHOUT_ZIP_CODE = 'FR without zip code';
 
+    private const CORRECTION_NUMBER = '2000';
+
     private const RAM_NAMESPACE = 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100';
 
     private const UDT_NAMESPACE = 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100';
 
     private const BREAKDOWN = '//ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax';
+
+    private const SUMMATION = '//ram:SpecifiedTradeSettlementHeaderMonetarySummation/';
 
     private string $customerId;
 
@@ -73,17 +95,42 @@ trait IntraCommunitySupplyTrait
     /**
      * The orders of the story whose e-invoice states no intra-community supply, with the category their XML keeps.
      *
-     * @return iterable<string, array{0: array{billingCountry?: string, shippingCountry?: string, vatIds?: list<string>, accountType?: string, product?: string, withPromotion?: bool}, 1: string, 2?: string}>
+     * Order H of that story, tax-free without delivery, is a reverse-charge order since the reverse-charge story.
+     *
+     * @return iterable<string, array{0: array{billingCountry?: string, shippingCountry?: string, vatIds?: list<string>, accountType?: string, withPromotion?: bool}, 1: string, 2?: string}>
      */
     public static function ordersWithoutIntraCommunitySupply(): iterable
     {
         yield 'order B, taxed with the rate of the seller country' => [['vatIds' => [self::SELLER_VAT_ID], 'withPromotion' => false], 'S'];
         yield 'order C, tax-free delivery to a third country' => [['billingCountry' => 'CH', 'shippingCountry' => 'CH', 'withPromotion' => false], 'Z'];
         yield 'order D, tax-free private customer' => [['billingCountry' => 'CH', 'shippingCountry' => 'CH', 'vatIds' => [], 'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE, 'withPromotion' => false], 'Z'];
-        yield 'order H, tax-free without delivery' => [['product' => 'ebook', 'withPromotion' => false], 'Z'];
         // The default French pattern requires the country code since 6.6, the one shipped before did not
         yield 'order E, tax-free with a VAT ID without country code' => [['vatIds' => ['12345678901']], 'Z', '(FR)?[0-9A-Z]{2}[0-9]{9}'];
         yield 'order G, tax-free to a delivery address without zip code' => [['billingCountry' => 'DE', 'shippingCountry' => self::FR_WITHOUT_ZIP_CODE], 'Z'];
+    }
+
+    /**
+     * The E-book orders of the reverse-charge story whose e-invoice states no reverse charge, with the category their XML keeps.
+     *
+     * @return iterable<string, array{0: array{billingCountry?: string, shippingCountry?: string, vatIds?: list<string>, accountType?: string}, 1: string, 2?: string, 3?: string}>
+     */
+    public static function ordersWithoutReverseCharge(): iterable
+    {
+        yield 'order B, taxed with the rate of the billing country' => [['shippingCountry' => 'CH', 'vatIds' => []], 'S', '20.00'];
+        yield 'order C, taxed with the rate of the seller country' => [['shippingCountry' => 'CH', 'vatIds' => [self::SELLER_VAT_ID]], 'S'];
+        yield 'order D, billed to a third country, taxed with the rate of the shipping country' => [['billingCountry' => 'CH', 'shippingCountry' => 'DE', 'vatIds' => [self::FOREIGN_VAT_ID]], 'S'];
+        yield 'a tax-free private customer' => [['vatIds' => [], 'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE], 'Z'];
+        // The default French pattern requires the country code since 6.6, the one shipped before did not
+        yield 'order G, tax-free with a VAT ID without country code' => [['shippingCountry' => 'DE', 'vatIds' => ['12345678901']], 'Z', '19.00', '(FR)?[0-9A-Z]{2}[0-9]{9}'];
+    }
+
+    /**
+     * The DocumentV2 pipeline switches the translator to the order's language.
+     */
+    #[After]
+    public function resetTranslator(): void
+    {
+        static::getContainer()->get(Translator::class)->reset();
     }
 
     private function setUpIntraCommunitySupply(): void
@@ -97,9 +144,10 @@ trait IntraCommunitySupplyTrait
         $companyTax = ['enabled' => true, 'amount' => 0, 'currencyId' => Defaults::CURRENCY];
         static::getContainer()->get('country.repository')->update([
             ['id' => $this->getCountryId('FR'), 'active' => true, 'isEu' => true, 'checkVatIdPattern' => true, 'vatIdRequired' => false, 'companyTax' => $companyTax],
+            ['id' => $this->getCountryId('NL'), 'active' => true, 'isEu' => true, 'checkVatIdPattern' => true, 'vatIdRequired' => false, 'companyTax' => $companyTax],
             ['id' => $this->getCountryId('CH'), 'active' => true, 'isEu' => false, 'companyTax' => $companyTax, 'customerTax' => $companyTax],
         ], $this->context);
-        $this->addCountriesToSalesChannel([$this->getCountryId('FR'), $this->getCountryId('CH')]);
+        $this->addCountriesToSalesChannel([$this->getCountryId('FR'), $this->getCountryId('NL'), $this->getCountryId('CH')]);
         $this->resetIntraCommunityDecision();
 
         static::getContainer()->get('customer_group.repository')->update([
@@ -125,14 +173,16 @@ trait IntraCommunitySupplyTrait
 
     /**
      * @param list<string> $vatIds
+     * @param list<string> $products
      */
     private function placeOrder(
         string $billingCountry = 'FR',
         string $shippingCountry = 'FR',
         array $vatIds = [self::VAT_ID],
         string $accountType = CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-        string $product = 'widget',
+        array $products = ['widget'],
         bool $withPromotion = true,
+        string $languageId = Defaults::LANGUAGE_SYSTEM,
     ): string {
         static::getContainer()->get('customer.repository')->update([[
             'id' => $this->customerId,
@@ -149,13 +199,17 @@ trait IntraCommunitySupplyTrait
                 SalesChannelContextService::CUSTOMER_ID => $this->customerId,
                 SalesChannelContextService::SHIPPING_METHOD_ID => $this->shippingMethodId,
                 SalesChannelContextService::PAYMENT_METHOD_ID => $this->getInvoicePaymentMethodId(),
+                SalesChannelContextService::LANGUAGE_ID => $languageId,
             ]
         );
 
         $cartService = static::getContainer()->get(CartService::class);
         $cart = $cartService->createNew($this->salesChannelContext->getToken());
-        $productId = $this->ids->get($product);
-        $lineItems = [(new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $this->salesChannelContext)];
+        $lineItems = [];
+        foreach ($products as $product) {
+            $productId = $this->ids->get($product);
+            $lineItems[] = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $this->salesChannelContext);
+        }
         if ($withPromotion) {
             $lineItems[] = (new PromotionLineItemFactory())->create(['referencedId' => 'TENOFF'], $this->salesChannelContext);
         }
@@ -164,6 +218,142 @@ trait IntraCommunitySupplyTrait
         $this->enrichOrderForRendering($orderId);
 
         return $orderId;
+    }
+
+    /**
+     * Foreign VAT ID, billed to France, shipped to Germany, only the E-book: tax-free, without delivery.
+     */
+    private function placeReverseChargeOrder(string $languageId = Defaults::LANGUAGE_SYSTEM): string
+    {
+        return $this->placeOrder(shippingCountry: 'DE', vatIds: [self::FOREIGN_VAT_ID], products: ['ebook'], withPromotion: false, languageId: $languageId);
+    }
+
+    /**
+     * Foreign VAT ID, billed to France, shipped to the Netherlands, only the E-book: tax-free, and the promotion creates a delivery.
+     */
+    private function placeReverseChargeOrderWithDelivery(): string
+    {
+        return $this->placeOrder(shippingCountry: 'NL', vatIds: [self::FOREIGN_VAT_ID], products: ['ebook']);
+    }
+
+    /**
+     * Foreign VAT ID, billed to Germany, shipped to France, the E-book and the Widget: a tax-free intra-community delivery.
+     */
+    private function placeMixedOrder(): string
+    {
+        return $this->placeOrder(billingCountry: 'DE', vatIds: [self::FOREIGN_VAT_ID], products: ['ebook', 'widget'], withPromotion: false);
+    }
+
+    /**
+     * An E-book order of {@see self::ordersWithoutReverseCharge()}, with the country settings it needs.
+     *
+     * @param array{billingCountry?: string, shippingCountry?: string, vatIds?: list<string>, accountType?: string} $order
+     */
+    private function placeOrderWithoutReverseCharge(array $order, ?string $frenchVatIdPattern = null): string
+    {
+        if ($frenchVatIdPattern !== null) {
+            $this->changeFrenchVatIdCheck(true, $frenchVatIdPattern);
+        }
+        if (($order['accountType'] ?? null) === CustomerEntity::ACCOUNT_TYPE_PRIVATE) {
+            $this->exemptFrenchPrivateCustomers();
+        }
+
+        return $this->placeOrder(...[...$order, 'products' => ['ebook'], 'withPromotion' => false]);
+    }
+
+    /**
+     * Renders a document of the legacy pipeline.
+     *
+     * @param array<string, mixed> $config
+     */
+    private function render(
+        string $documentType,
+        string $orderId,
+        ?string $invoiceId = null,
+        array $config = [],
+        string $fileType = FileTypes::XML,
+    ): string {
+        $operation = new DocumentGenerateOperation($orderId, $fileType, $config, $invoiceId);
+
+        $result = static::getContainer()->get(DocumentRendererRegistry::class)
+            ->render($documentType, [$orderId => $operation], $this->context, new DocumentRendererConfig());
+
+        static::assertSame([], array_map(static fn (\Throwable $error): string => $error->getMessage(), $result->getErrors()));
+        $document = $result->getOrderSuccess($orderId);
+        static::assertNotNull($document);
+
+        return $document->getContent();
+    }
+
+    /**
+     * The invoice a cancellation invoice or a credit note of the legacy pipeline refers to.
+     */
+    private function createInvoice(string $orderId): string
+    {
+        $invoice = $this->createDocument('invoice', $orderId, ['documentNumber' => self::DOCUMENT_NUMBER, 'documentDate' => self::DOCUMENT_DATE], $this->context)->first();
+        static::assertNotNull($invoice);
+
+        return $invoice->getId();
+    }
+
+    /**
+     * Generates a document of the DocumentV2 pipeline.
+     *
+     * @return string the content of the stored file
+     */
+    private function generate(
+        DocumentType $documentType,
+        string $orderId,
+        ?string $referencedDocumentId = null,
+        DocumentFormat $format = DocumentFormat::ZUGFERD_XML,
+    ): string {
+        return $this->getFileContent($this->generateDocument($documentType, $orderId, $referencedDocumentId, $format), $format);
+    }
+
+    private function getFileContent(string $documentId, DocumentFormat $format): string
+    {
+        /** @var EntityRepository<DocumentFileCollection> $documentFileRepository */
+        $documentFileRepository = static::getContainer()->get('document_file.repository');
+        $file = $documentFileRepository->search(
+            (new Criteria())
+                ->addFilter(new EqualsFilter('documentId', $documentId))
+                ->addFilter(new EqualsFilter('documentFormat', $format->value)),
+            $this->context,
+        )->getEntities()->first();
+        static::assertNotNull($file);
+
+        return static::getContainer()->get(MediaService::class)->loadFile($file->getMediaId(), $this->context);
+    }
+
+    /**
+     * The invoice a cancellation invoice or a credit note of the DocumentV2 pipeline refers to.
+     */
+    private function generateInvoice(string $orderId): string
+    {
+        return $this->generateDocument(DocumentType::INVOICE, $orderId, null, DocumentFormat::ZUGFERD_XML);
+    }
+
+    private function generateDocument(DocumentType $documentType, string $orderId, ?string $referencedDocumentId, DocumentFormat $format): string
+    {
+        return static::getContainer()->get(DocumentGenerator::class)->generate(
+            new DocumentGenerationRequest(
+                $orderId,
+                $documentType,
+                [$format],
+                $documentType === DocumentType::INVOICE ? self::DOCUMENT_NUMBER : self::CORRECTION_NUMBER,
+                documentDate: self::DOCUMENT_DATE,
+                referencedDocumentId: $referencedDocumentId,
+            ),
+            $this->context,
+        )->getId();
+    }
+
+    private function getOrderTaxStatus(string $orderId): ?string
+    {
+        /** @var EntityRepository<OrderCollection> $orderRepository */
+        $orderRepository = static::getContainer()->get('order.repository');
+
+        return $orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first()?->getTaxStatus();
     }
 
     /**
@@ -186,6 +376,19 @@ trait IntraCommunitySupplyTrait
                 'vatIdPattern' => $vatIdPattern,
             ], static fn ($value) => $value !== null),
         ], $this->context);
+
+        $this->resetIntraCommunityDecision();
+    }
+
+    /**
+     * Turns on *Tax-free (B2C)* for France.
+     */
+    private function exemptFrenchPrivateCustomers(): void
+    {
+        static::getContainer()->get('country.repository')->update([[
+            'id' => $this->getCountryId('FR'),
+            'customerTax' => ['enabled' => true, 'amount' => 0, 'currencyId' => Defaults::CURRENCY],
+        ]], $this->context);
 
         $this->resetIntraCommunityDecision();
     }
@@ -254,21 +457,32 @@ trait IntraCommunitySupplyTrait
         static::assertSame(array_fill(0, \count($rates), $rate), $rates);
     }
 
-    private function assertExemptBreakdown(string $xml, string $taxableAmount): void
+    private function assertExemptBreakdown(string $xml, string $taxableAmount, string $category = 'K', string $reasonCode = 'VATEX-EU-IC', string $reason = 'Intra-community supply'): void
     {
-        static::assertSame(['K'], self::values($xml, self::BREAKDOWN . '/ram:CategoryCode'));
+        static::assertSame([$category], self::values($xml, self::BREAKDOWN . '/ram:CategoryCode'));
         static::assertSame(['0.00'], self::values($xml, self::BREAKDOWN . '/ram:RateApplicablePercent'));
         static::assertSame(['0.00'], self::values($xml, self::BREAKDOWN . '/ram:CalculatedAmount'));
         static::assertSame([$taxableAmount], self::values($xml, self::BREAKDOWN . '/ram:BasisAmount'));
-        static::assertSame(['VATEX-EU-IC'], self::values($xml, self::BREAKDOWN . '/ram:ExemptionReasonCode'));
-        static::assertSame(['Intra-community supply'], self::values($xml, self::BREAKDOWN . '/ram:ExemptionReason'));
+        static::assertSame([$reasonCode], self::values($xml, self::BREAKDOWN . '/ram:ExemptionReasonCode'));
+        static::assertSame([$reason], self::values($xml, self::BREAKDOWN . '/ram:ExemptionReason'));
     }
 
-    private function assertVatIds(string $xml, string $sellerVatId = self::SELLER_VAT_ID): void
+    private function assertVatIds(string $xml, string $buyerVatId = self::VAT_ID): void
     {
-        static::assertSame([self::VAT_ID], self::values($xml, '//ram:BuyerTradeParty/ram:SpecifiedTaxRegistration/ram:ID[@schemeID="VA"]'));
-        static::assertSame([$sellerVatId], self::values($xml, '//ram:SellerTradeParty/ram:SpecifiedTaxRegistration/ram:ID[@schemeID="VA"]'));
+        static::assertSame([$buyerVatId], self::values($xml, '//ram:BuyerTradeParty/ram:SpecifiedTaxRegistration/ram:ID[@schemeID="VA"]'));
+        static::assertSame([self::SELLER_VAT_ID], self::values($xml, '//ram:SellerTradeParty/ram:SpecifiedTaxRegistration/ram:ID[@schemeID="VA"]'));
         static::assertSame([self::SELLER_TAX_NUMBER], self::values($xml, '//ram:SellerTradeParty/ram:SpecifiedTaxRegistration/ram:ID[@schemeID="FC"]'));
+    }
+
+    /**
+     * Criteria 19–22 of the reverse-charge story, for any e-invoice of a reverse-charge order.
+     */
+    private function assertReverseCharge(string $xml, string $taxableAmount, string $buyerVatId = self::FOREIGN_VAT_ID): void
+    {
+        $this->assertCategory($xml, 'AE', '0.00');
+        $this->assertExemptBreakdown($xml, $taxableAmount, 'AE', 'VATEX-EU-AE', 'Reverse charge');
+        $this->assertVatIds($xml, $buyerVatId);
+        static::assertSame([], self::values($xml, '//ram:ShipToTradeParty'));
     }
 
     private function assertDeliverTo(string $xml, string $orderId): void
@@ -284,13 +498,19 @@ trait IntraCommunitySupplyTrait
     /**
      * The XML stays as it is without this story: no exemption reason, no buyer VAT ID and no deliver-to address.
      */
-    private function assertNoIntraCommunitySupply(string $xml, string $category): void
+    private function assertNoIntraCommunitySupply(string $xml, string $category, string $standardRate = '19.00'): void
     {
-        $this->assertCategory($xml, $category, $category === 'S' ? '19.00' : '0.00');
+        $this->assertCategory($xml, $category, $category === 'S' ? $standardRate : '0.00');
         static::assertSame([], self::values($xml, '//ram:ExemptionReason'));
         static::assertSame([], self::values($xml, '//ram:ExemptionReasonCode'));
         static::assertSame([], self::values($xml, '//ram:BuyerTradeParty/ram:SpecifiedTaxRegistration'));
         static::assertSame([], self::values($xml, '//ram:ShipToTradeParty'));
+    }
+
+    private function assertTotals(string $xml, string $total): void
+    {
+        static::assertSame([$total], self::values($xml, self::SUMMATION . 'ram:LineTotalAmount'));
+        static::assertSame([$total], self::values($xml, self::SUMMATION . 'ram:GrandTotalAmount'));
     }
 
     private function assertXsdValid(string $xml): void
@@ -360,6 +580,7 @@ trait IntraCommunitySupplyTrait
         $this->addressIds = [
             'DE' => Uuid::randomHex(),
             'FR' => Uuid::randomHex(),
+            'NL' => Uuid::randomHex(),
             'CH' => Uuid::randomHex(),
             self::FR_WITHOUT_ZIP_CODE => Uuid::randomHex(),
         ];
@@ -368,6 +589,7 @@ trait IntraCommunitySupplyTrait
         foreach ([
             'DE' => ['DE', 'Unter den Linden 1', '10115', 'Berlin'],
             'FR' => ['FR', '1 Rue de Rivoli', '75001', 'Paris'],
+            'NL' => ['NL', 'Dam 1', '1012 AB', 'Amsterdam'],
             'CH' => ['CH', 'Bahnhofstrasse 1', '8001', 'Zürich'],
             self::FR_WITHOUT_ZIP_CODE => ['FR', '1 Rue de Rivoli', '', 'Paris'],
         ] as $key => [$iso, $street, $zipcode, $city]) {

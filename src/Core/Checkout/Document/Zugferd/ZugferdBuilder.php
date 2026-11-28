@@ -131,6 +131,9 @@ class ZugferdBuilder
             $this->intraCommunityTaxResolver->getIntraCommunityVatId($order),
             $this->intraCommunityTaxResolver->getShippingAddress($order),
             $config->getVatId(),
+        ) ?? TaxExemptionView::fromReverseCharge(
+            $this->intraCommunityTaxResolver->getReverseChargeVatId($order),
+            $config->getVatId(),
         );
 
         $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $taxStatus === CartPrice::TAX_STATE_GROSS, $taxExemption))

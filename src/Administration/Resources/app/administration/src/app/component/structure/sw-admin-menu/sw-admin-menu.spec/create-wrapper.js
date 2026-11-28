@@ -25,7 +25,7 @@ export function registerAdminModules() {
 /**
  * @private
  */
-export default async function createWrapper(options = {}) {
+export default async function createWrapper({ provide, ...options } = {}) {
     const router = createRouter({
         routes: [
             ...Shopware.Module.getModuleRoutes(),
@@ -107,6 +107,7 @@ export default async function createWrapper(options = {}) {
                         ];
                     },
                 },
+                ...provide,
             },
             mocks: {
                 $route: { meta: { $module: { name: '' } } },

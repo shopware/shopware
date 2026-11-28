@@ -74,11 +74,18 @@ class AppSecretRotationService
      * walks on to the next candidate — a refused signature and an unreachable app are indistinguishable — and
      * {@see AppException::appSecretRecoveryFailed} is thrown if none is accepted. No database transaction is
      * held open across the registration HTTP call.
+     *
+     * $adoptedSecrets are secrets an operator moved here from another shop that may hold the app's registration;
+     * when given, only they are tried, never this shop's own secrets.
+     *
+     * @param list<string> $adoptedSecrets
      */
     public function rotateNow(
         string $appId,
         Context $context,
-        string $trigger
+        string $trigger,
+        #[\SensitiveParameter]
+        array $adoptedSecrets = []
     ): void {
         $app = $this->loadApp($appId, $context);
 
@@ -98,7 +105,7 @@ class AppSecretRotationService
             throw AppException::appInstallationIncomplete($app->getName());
         }
 
-        $candidateSecrets = $this->candidateSecrets($app);
+        $candidateSecrets = $adoptedSecrets !== [] ? $adoptedSecrets : $this->candidateSecrets($app);
         $unconfirmedBefore = $app->getUnconfirmedAppSecrets();
 
         $this->logger->info('Starting app secret rotation', [

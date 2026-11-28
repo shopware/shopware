@@ -99,6 +99,16 @@ The SVG is now `aria-hidden`, so headless frontends should render `text` as its 
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+## Administration
+
+### Country viewers no longer read customers
+
+The `country.viewer` permission no longer grants reads on customers, salutations and customer addresses.
+These reads existed only for the customer select of the address format preview in the country detail page, and they let a country viewer read customer data.
+The preview select is now only shown when the user can read customers, salutations and customer addresses, for example with `customer.viewer`.
+Without these reads, the *Address handling* tab shows a hint instead of the select, and everything else in the country settings works as before.
+Stored roles keep their privileges until an admin saves the role again.
+Extensions that rely on these reads through `country.viewer` must request them in their own privilege mapping.
 ### App manifests can contain sections from newer Shopware versions
 
 A top-level manifest section the shop's Shopware version doesn't know is now skipped and reported as a notice, instead of failing the install.

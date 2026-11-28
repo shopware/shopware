@@ -981,7 +981,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to preview formatting with the customer', async () => {
-        wrapper = await createWrapper(['country.editor']);
+        wrapper = await createWrapper(['country.editor', 'customer:read', 'salutation:read', 'customer_address:read']);
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-country-preview-template__content').exists()).toBe(false);
@@ -1007,7 +1007,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should update the preview when the address markup changes after selecting a customer', async () => {
-        wrapper = await createWrapper(['country.editor']);
+        wrapper = await createWrapper(['country.editor', 'customer:read', 'salutation:read', 'customer_address:read']);
         await flushPromises();
 
         await wrapper.get('.sw-entity-single-select input').trigger('click');
@@ -1029,6 +1029,16 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(renderMock.mock.calls.at(-1)[1][0]).toEqual(['address/country']);
         expect(wrapper.get('.sw-settings-country-preview-template__content').html()).toBe(
             '<div class="sw-settings-country-preview-template__content">Updated preview</div>',
+        );
+    });
+
+    it('should hide the customer preview select without read access to customers', async () => {
+        wrapper = await createWrapper(['country.editor', 'customer:read', 'salutation:read']);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-entity-single-select').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-country-address-handling__preview-hint').text()).toBe(
+            'sw-settings-country.detail.hintPreviewNeedsCustomerRead',
         );
     });
 

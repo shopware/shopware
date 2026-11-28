@@ -76,6 +76,7 @@
       "previewTitle": "Preview",
       "labelCustomer": "Customer",
       "placeholderSelectCustomer": "Select a customer...",
+      "hintPreviewNeedsCustomerRead": "Customer previews are only available with read access to customers, salutations and customer addresses.",
       "buttonResetMarkup": "Reset address markup",
       "newSnippetModalTitle": "Insert snippet",
       "buttonInsertSnippet": "Insert snippet",

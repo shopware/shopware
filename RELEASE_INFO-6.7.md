@@ -943,6 +943,10 @@ Shops that adjusted these rules themselves keep their rules, and should compare 
 
 ## API
 
+### Newsletter unsubscribe accepts internationalized domains
+
+`POST /store-api/newsletter/unsubscribe` now accepts the original Unicode-domain email address used to subscribe, so these recipients can unsubscribe through the Store API and Storefront form.
+
 ### Checkout draft route
 
 `GET /store-api/checkout/draft` returns the calculated cart together with the available shipping and payment methods and the stored address of a visitor without a customer.

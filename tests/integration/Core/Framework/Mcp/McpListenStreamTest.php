@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Mcp\Capability\Registry;
 use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\ServerCapabilities;
@@ -37,7 +38,6 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Process\PhpProcess;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
@@ -45,8 +45,8 @@ use Symfony\Contracts\Cache\CacheInterface;
  * `shopware.mcp.protocol_era.admin: auto` wires it, the Store API server gets none.
  *
  * Like {@see McpDualEraConformanceTest}, this boots a kernel of its own to swap servers with both protocol legs
- * into the controllers. It runs without a database transaction on purpose: the bump comes from another PHP
- * process and must be committed to be seen. The list versions are restored afterwards.
+ * into the controllers. It runs without a database transaction on purpose: the bump comes from another database
+ * connection and must be committed to be seen. The list versions are restored afterwards.
  *
  * What this cannot cover is a real PHP-FPM worker behind a web server; see "List change notifications" in
  * `src/Core/Framework/Mcp/AGENTS.md` for the manual check.
@@ -64,11 +64,6 @@ class McpListenStreamTest extends TestCase
      * Shorter than the production lifetime, so the test does not hold a stream for 25 seconds.
      */
     private const LIFETIME = 4.0;
-
-    /**
-     * Seconds after the stream opened when the other process bumps the tools version.
-     */
-    private const BUMP_AFTER = 1.0;
 
     private static ?Kernel $listenKernel = null;
 
@@ -124,7 +119,8 @@ class McpListenStreamTest extends TestCase
         $connection = $this->container()->get(Connection::class);
         $saved = $connection->fetchAllAssociative('SELECT * FROM `mcp_list_version`');
 
-        $bumper = $this->bumpInAnotherProcess($connection);
+        $otherConnection = DriverManager::getConnection($connection->getParams());
+        $bumpedAt = null;
 
         try {
             $response = self::kernel()->handle($this->adminRequest('subscriptions/listen', [
@@ -133,16 +129,18 @@ class McpListenStreamTest extends TestCase
             static::assertInstanceOf(StreamedResponse::class, $response, 'a listen stream must be streamed, not buffered');
             static::assertSame('no', $response->headers->get('X-Accel-Buffering'));
 
-            $frames = self::sendAndTimeFrames($response, $bumper->start(...));
-            $bumper->wait();
-            static::assertTrue($bumper->isSuccessful(), $bumper->getErrorOutput());
-            $bumpedAt = (float) trim($bumper->getOutput());
+            $frames = self::sendAndTimeFrames($response, static function () use ($otherConnection, &$bumpedAt): void {
+                $bumpedAt = self::bumpTools($otherConnection);
+            });
         } finally {
+            $otherConnection->close();
             $connection->executeStatement('DELETE FROM `mcp_list_version`');
             foreach ($saved as $row) {
                 $connection->insert('mcp_list_version', $row);
             }
         }
+
+        static::assertNotNull($bumpedAt, 'the stream sent no keep-alive, so the tools version was never bumped');
 
         $ack = self::firstFrameWith($frames, StatelessProtocol::ACKNOWLEDGED_NOTIFICATION);
         static::assertLessThan($frames[0][0] + 1.0, $ack[0], 'the acknowledgement must be flushed right away, not when the stream ends');
@@ -231,36 +229,43 @@ class McpListenStreamTest extends TestCase
     }
 
     /**
-     * Runs the bump the way the CLI does it (`app:install`, `plugin:install`): in another PHP process, through
-     * the same statement as McpListVersions::bump(). Prints the time it committed.
+     * Bumps the tools version the way the CLI does it (`app:install`, `plugin:install`): through the same statement
+     * as McpListVersions::bump(), committed on a connection the stream does not use, so the stream can only see it
+     * through the table. Returns the time it committed.
+     *
+     * Not a separate PHP process: one spawned through PhpProcess hung before running its first line in some
+     * random test orders, which made this test fail on a 60 s process timeout.
      */
-    private function bumpInAnotherProcess(Connection $connection): PhpProcess
+    private static function bumpTools(Connection $connection): float
     {
-        $params = $connection->getParams();
-        $dsn = \sprintf('mysql:host=%s;port=%d;dbname=%s', $params['host'] ?? '127.0.0.1', $params['port'] ?? 3306, $params['dbname'] ?? '');
+        $connection->executeStatement(
+            'INSERT INTO `mcp_list_version` (`list`, `version`, `updated_at`) VALUES (\'tools\', 1, NOW(3))
+             ON DUPLICATE KEY UPDATE `version` = `version` + 1, `updated_at` = NOW(3)'
+        );
 
-        return new PhpProcess(\sprintf(
-            '<?php usleep(%d); $pdo = new PDO(%s, %s, %s); $pdo->exec("INSERT INTO `mcp_list_version` (`list`, `version`, `updated_at`) VALUES (\'tools\', 1, NOW(3)) ON DUPLICATE KEY UPDATE `version` = `version` + 1, `updated_at` = NOW(3)"); echo microtime(true);',
-            (int) (self::BUMP_AFTER * 1_000_000),
-            var_export($dsn, true),
-            var_export($params['user'] ?? 'root', true),
-            var_export($params['password'] ?? '', true),
-        ));
+        return microtime(true);
     }
 
     /**
      * Sends the stream the way PHP-FPM would and records when each frame leaves PHP's output buffer.
      *
+     * $onPolling runs once, on the first keep-alive: only then has the stream read the versions it compares
+     * against. The acknowledgement is flushed before that read, so a bump there would not count as a change.
+     *
      * @return non-empty-list<array{float, string}>
      */
-    private static function sendAndTimeFrames(StreamedResponse $response, callable $onOpen): array
+    private static function sendAndTimeFrames(StreamedResponse $response, callable $onPolling): array
     {
         $frames = [[microtime(true), '']];
-        $onOpen();
+        $polling = false;
 
-        ob_start(static function (string $chunk) use (&$frames): string {
+        ob_start(static function (string $chunk) use (&$frames, &$polling, $onPolling): string {
             if ($chunk !== '') {
                 $frames[] = [microtime(true), $chunk];
+                if (!$polling && str_starts_with($chunk, ': keep-alive')) {
+                    $polling = true;
+                    $onPolling();
+                }
             }
 
             return '';
